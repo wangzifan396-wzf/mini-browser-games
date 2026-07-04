@@ -216,6 +216,8 @@
     grid-template-columns: repeat(4, 56px);
     gap: 10px;
     pointer-events: auto;
+    touch-action: none;
+    user-select: none;
   }
 
   .icon-btn {
@@ -226,6 +228,8 @@
     place-items: center;
     font-size: 18px;
     font-weight: 900;
+    touch-action: none;
+    user-select: none;
   }
 
   .icon-btn.primary {
@@ -535,6 +539,7 @@
   const rankList = document.getElementById("rankList");
   const tagList = document.getElementById("tagList");
   const pauseBtn = document.getElementById("pauseBtn");
+  const splitBtn = document.getElementById("splitBtn");
   const ejectBtn = document.getElementById("ejectBtn");
   const joystickEl = document.getElementById("joystick");
   const joystickStick = document.getElementById("joystickStick");
@@ -3058,13 +3063,21 @@
     }
   });
 
-  document.getElementById("splitBtn").addEventListener("click", () => {
-    if (game.menu) return;
+  function triggerSplit(event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    if (game.menu || game.over || game.paused || playerGroup.dead) return;
     splitGroup(playerGroup, cursorPoint(), { power: 1 });
-  });
+  }
+
+  splitBtn.addEventListener("pointerdown", triggerSplit);
+  splitBtn.addEventListener("contextmenu", event => event.preventDefault());
 
   function startEjectHold(event) {
     event.preventDefault();
+    event.stopPropagation();
     if (game.menu || game.over || game.paused) return;
     if (event.pointerId !== undefined && ejectBtn.setPointerCapture) {
       try {
@@ -3079,6 +3092,10 @@
   }
 
   function stopEjectHold(event) {
+    if (event && event.currentTarget !== window) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
     if (event && event.pointerId !== undefined && ejectBtn.releasePointerCapture) {
       try {
         ejectBtn.releasePointerCapture(event.pointerId);

@@ -189,6 +189,8 @@
     display: flex;
     gap: 8px;
     pointer-events: auto;
+    touch-action: none;
+    user-select: none;
   }
 
   .icon-btn {
@@ -218,6 +220,42 @@
     height: 54px;
     bottom: 30px;
     font-size: 20px;
+  }
+
+  .move-joystick {
+    position: fixed;
+    left: 18px;
+    bottom: 18px;
+    z-index: 4;
+    width: 126px;
+    height: 126px;
+    display: none;
+    pointer-events: auto;
+    touch-action: none;
+    user-select: none;
+  }
+
+  .move-joystick-base {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 1px solid rgba(148, 232, 255, 0.3);
+    background: rgba(4, 10, 18, 0.44);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05), 0 18px 42px rgba(0, 0, 0, 0.28);
+    backdrop-filter: blur(12px);
+  }
+
+  .move-joystick-thumb {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    border: 1px solid rgba(255, 214, 102, 0.8);
+    background: radial-gradient(circle at 34% 30%, rgba(255, 255, 255, 0.72), rgba(255, 214, 102, 0.56) 34%, rgba(15, 25, 38, 0.82) 72%);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.32);
   }
 
   .overlay {
@@ -358,7 +396,9 @@
     .stat { padding: 7px; }
     .value { font-size: 16px; }
     .side { display: none; }
-    .controls { left: 10px; bottom: 10px; }
+    .controls { left: 50%; bottom: 10px; transform: translateX(-50%); }
+    .move-joystick { display: block; left: 12px; bottom: 12px; width: 112px; height: 112px; }
+    .toast { bottom: 104px; min-width: min(340px, calc(100vw - 28px)); }
     .fire-btn,
     .skill-btn { display: grid; }
     .mode-grid,
@@ -378,6 +418,11 @@
 </head>
 <body>
 <canvas id="gameCanvas" aria-label="霓虹装甲战场"></canvas>
+
+<div class="move-joystick" id="moveJoystick" aria-label="移动摇杆">
+  <div class="move-joystick-base"></div>
+  <div class="move-joystick-thumb" id="moveJoystickThumb"></div>
+</div>
 
 <div class="hud">
   <section class="brand panel">
@@ -492,6 +537,8 @@
   const restartBtn = document.getElementById("restartBtn");
   const skillBtn = document.getElementById("skillBtn");
   const fireBtn = document.getElementById("fireBtn");
+  const moveJoystick = document.getElementById("moveJoystick");
+  const moveJoystickThumb = document.getElementById("moveJoystickThumb");
   const overlay = document.getElementById("overlay");
   const overlayTitle = document.getElementById("overlayTitle");
   const overlayText = document.getElementById("overlayText");
@@ -2193,6 +2240,33 @@
     updatePointerWorld();
   }
 
+  function resetMoveJoystick() {
+    touchMove = { active: false, id: null, x: 0, y: 0, dx: 0, dy: 0 };
+    moveJoystickThumb.style.left = "50%";
+    moveJoystickThumb.style.top = "50%";
+  }
+
+  function updateMoveJoystick(event) {
+    const rect = moveJoystick.getBoundingClientRect();
+    const cx = rect.width / 2;
+    const cy = rect.height / 2;
+    const max = rect.width * 0.34;
+    const rawX = event.clientX - rect.left - cx;
+    const rawY = event.clientY - rect.top - cy;
+    const len = Math.hypot(rawX, rawY);
+    const scale = len > max ? max / len : 1;
+    const dx = rawX * scale;
+    const dy = rawY * scale;
+    touchMove.dx = dx / max;
+    touchMove.dy = dy / max;
+    moveJoystickThumb.style.left = `${cx + dx}px`;
+    moveJoystickThumb.style.top = `${cy + dy}px`;
+  }
+
+  function isTouchUiTarget(target) {
+    return Boolean(target && target.closest && target.closest("#moveJoystick, .fire-btn, .skill-btn, .controls, button"));
+  }
+
   window.addEventListener("resize", resize);
   window.addEventListener("keydown", event => {
     keys.add(event.code);
@@ -2219,8 +2293,35 @@
     useSkill();
   });
 
+  moveJoystick.addEventListener("pointerdown", event => {
+    event.preventDefault();
+    event.stopPropagation();
+    touchMove.active = true;
+    touchMove.id = event.pointerId;
+    moveJoystick.setPointerCapture(event.pointerId);
+    updateMoveJoystick(event);
+  });
+  moveJoystick.addEventListener("pointermove", event => {
+    if (!touchMove.active || event.pointerId !== touchMove.id) return;
+    event.preventDefault();
+    event.stopPropagation();
+    updateMoveJoystick(event);
+  });
+  function releaseMoveJoystick(event) {
+    if (event && touchMove.id !== null && event.pointerId !== touchMove.id) return;
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    resetMoveJoystick();
+  }
+  moveJoystick.addEventListener("pointerup", releaseMoveJoystick);
+  moveJoystick.addEventListener("pointercancel", releaseMoveJoystick);
+  moveJoystick.addEventListener("lostpointercapture", releaseMoveJoystick);
+
   window.addEventListener("touchstart", event => {
     for (const touch of event.changedTouches) {
+      if (isTouchUiTarget(touch.target)) continue;
       if (touch.clientX < view.w * 0.48 && !touchMove.active) {
         touchMove = { active: true, id: touch.identifier, x: touch.clientX, y: touch.clientY, dx: 0, dy: 0 };
       } else if (!touchAim.active) {
@@ -2233,6 +2334,7 @@
   }, { passive: false });
   window.addEventListener("touchmove", event => {
     for (const touch of event.changedTouches) {
+      if (isTouchUiTarget(touch.target)) continue;
       if (touch.identifier === touchMove.id) {
         const dx = touch.clientX - touchMove.x;
         const dy = touch.clientY - touchMove.y;
@@ -2253,6 +2355,7 @@
 
   function endTouch(event) {
     for (const touch of event.changedTouches) {
+      if (isTouchUiTarget(touch.target)) continue;
       if (touch.identifier === touchMove.id) touchMove = { active: false, id: null, x: 0, y: 0, dx: 0, dy: 0 };
       if (touch.identifier === touchAim.id) {
         touchAim = { active: false, id: null, x: 0, y: 0 };
@@ -2265,11 +2368,22 @@
   restartBtn.addEventListener("click", newGame);
   fireBtn.addEventListener("pointerdown", event => {
     event.preventDefault();
+    event.stopPropagation();
     pointer.down = true;
     playerShoot();
   });
-  fireBtn.addEventListener("pointerup", () => { pointer.down = false; });
-  skillBtn.addEventListener("click", useSkill);
+  fireBtn.addEventListener("pointerup", event => {
+    event.preventDefault();
+    event.stopPropagation();
+    pointer.down = false;
+  });
+  fireBtn.addEventListener("pointercancel", () => { pointer.down = false; });
+  skillBtn.addEventListener("pointerdown", event => {
+    event.preventDefault();
+    event.stopPropagation();
+    useSkill();
+  });
+  skillBtn.addEventListener("contextmenu", event => event.preventDefault());
   startBtn.addEventListener("click", newGame);
   modeGrid.addEventListener("click", event => {
     const button = event.target.closest("[data-mode]");

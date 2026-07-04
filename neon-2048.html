@@ -453,10 +453,11 @@
   }
 
   @media (max-width: 560px) {
-    .shell { width: min(100vw - 16px, 520px); gap: 10px; }
+    .shell { width: calc(100vw - 16px); max-width: 520px; gap: 10px; }
     .topbar { grid-template-columns: 1fr auto; padding: 10px; }
     .subline { display: none; }
-    .board { gap: 8px; padding: 9px; }
+    .board-wrap { width: 100%; }
+    .board { width: calc(100vw - 24px); max-width: 100%; gap: 8px; padding: 9px; }
     .bottom-hud { grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 10px; }
     .stat { padding: 8px; }
     .value { font-size: 20px; }
@@ -546,6 +547,16 @@
           <span class="tool-name">升阶</span>
           <span class="tool-count" id="upgradeCount">0</span>
         </button>
+        <button class="tool" data-tool="resonate" title="共鸣">
+          <span class="tool-icon">∞</span>
+          <span class="tool-name">共鸣</span>
+          <span class="tool-count" id="resonateCount">0</span>
+        </button>
+        <button class="tool" data-tool="splitter" title="裂变">
+          <span class="tool-icon">◇</span>
+          <span class="tool-name">裂变</span>
+          <span class="tool-count" id="splitterCount">0</span>
+        </button>
         <button class="tool instant" data-tool="magnet" title="磁吸">
           <span class="tool-icon">≋</span>
           <span class="tool-name">磁吸</span>
@@ -600,6 +611,8 @@
     freeze: document.getElementById("freezeCount"),
     bomb: document.getElementById("bombCount"),
     upgrade: document.getElementById("upgradeCount"),
+    resonate: document.getElementById("resonateCount"),
+    splitter: document.getElementById("splitterCount"),
     magnet: document.getElementById("magnetCount"),
     recycle: document.getElementById("recycleCount")
   };
@@ -610,11 +623,13 @@
     freeze: "冻结",
     bomb: "炸弹",
     upgrade: "升阶",
+    resonate: "共鸣",
+    splitter: "裂变",
     magnet: "磁吸",
     recycle: "回收"
   };
-  const toolPool = ["undo", "hammer", "swap", "freeze", "bomb", "upgrade", "magnet", "recycle"];
-  const targetTools = new Set(["hammer", "swap", "bomb", "upgrade"]);
+  const toolPool = ["undo", "hammer", "swap", "freeze", "bomb", "upgrade", "resonate", "splitter", "magnet", "recycle"];
+  const targetTools = new Set(["hammer", "swap", "bomb", "upgrade", "resonate", "splitter"]);
 
   let state;
   let toastTimer = 0;
@@ -660,6 +675,8 @@
         freeze: 0,
         bomb: 0,
         upgrade: 0,
+        resonate: 0,
+        splitter: 0,
         magnet: 0,
         recycle: 0
       },
@@ -920,6 +937,29 @@
     render();
   }
 
+  function nearestMatchingTile(row, col, value) {
+    let best = null;
+    for (let r = 0; r < SIZE; r++) {
+      for (let c = 0; c < SIZE; c++) {
+        if (r === row && c === col) continue;
+        if (state.grid[r][c] !== value) continue;
+        const distance = Math.abs(r - row) + Math.abs(c - col);
+        if (!best || distance < best.distance) best = { row: r, col: c, distance };
+      }
+    }
+    return best;
+  }
+
+  function adjacentEmptyCell(row, col) {
+    const dirs = [[0, 1], [1, 0], [0, -1], [-1, 0]];
+    for (const [dr, dc] of dirs) {
+      const r = row + dr;
+      const c = col + dc;
+      if (r >= 0 && r < SIZE && c >= 0 && c < SIZE && !state.grid[r][c]) return { row: r, col: c };
+    }
+    return null;
+  }
+
   function handleCell(row, col) {
     if (animating) return;
     const tool = state.activeTool;
@@ -955,6 +995,43 @@
       state.score += state.grid[row][col];
       state.popKeys.add(`${row},${col}`);
       afterToolUse("升阶完成");
+      return;
+    }
+    if (tool === "resonate") {
+      const value = state.grid[row][col];
+      if (!value) return;
+      const match = nearestMatchingTile(row, col, value);
+      if (!match) {
+        showToast("没有同值方块可共鸣");
+        return;
+      }
+      saveSnapshot();
+      state.powers.resonate -= 1;
+      state.grid[row][col] = value * 2;
+      state.grid[match.row][match.col] = 0;
+      state.score += state.grid[row][col];
+      state.popKeys.add(`${row},${col}`);
+      afterToolUse("共鸣合成");
+      return;
+    }
+    if (tool === "splitter") {
+      const value = state.grid[row][col];
+      if (value < 8) {
+        showToast("8 以上方块才能裂变");
+        return;
+      }
+      const empty = adjacentEmptyCell(row, col);
+      if (!empty) {
+        showToast("相邻没有空位");
+        return;
+      }
+      saveSnapshot();
+      state.powers.splitter -= 1;
+      state.grid[row][col] = value / 2;
+      state.grid[empty.row][empty.col] = value / 2;
+      state.popKeys.add(`${row},${col}`);
+      state.popKeys.add(`${empty.row},${empty.col}`);
+      afterToolUse("裂变完成");
       return;
     }
     if (tool === "swap") {
@@ -1085,6 +1162,13 @@
     return value > 2048 ? "tile-super" : `tile-${value}`;
   }
 
+  function isTargetableCell(tool, value) {
+    if (!tool) return false;
+    if (tool === "swap") return true;
+    if (tool === "splitter") return value >= 8;
+    return Boolean(value);
+  }
+
   function render() {
     boardEl.innerHTML = "";
     for (let r = 0; r < SIZE; r++) {
@@ -1092,7 +1176,7 @@
         const value = state.grid[r][c];
         const cell = document.createElement("button");
         cell.className = `cell ${tileClass(value)}`;
-        if (state.activeTool && (value || state.activeTool === "swap")) cell.classList.add("targetable");
+        if (isTargetableCell(state.activeTool, value)) cell.classList.add("targetable");
         if (state.swapFirst && state.swapFirst.row === r && state.swapFirst.col === c) cell.classList.add("selected");
         if (state.popKeys.has(`${r},${c}`)) cell.classList.add("pop");
         cell.type = "button";

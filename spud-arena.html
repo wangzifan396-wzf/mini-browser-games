@@ -229,6 +229,42 @@
         width: 100%;
         height: 100%;
       }
+
+      .mobile-joystick {
+        position: absolute;
+        left: 16px;
+        bottom: 16px;
+        z-index: 4;
+        width: 118px;
+        height: 118px;
+        display: none;
+        pointer-events: auto;
+        touch-action: none;
+        user-select: none;
+      }
+
+      .mobile-joystick-base {
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        border: 1px solid rgba(245, 240, 223, 0.36);
+        background: rgba(20, 30, 22, 0.46);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05), 0 16px 40px rgba(0, 0, 0, 0.28);
+        backdrop-filter: blur(10px);
+      }
+
+      .mobile-joystick-thumb {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        border: 1px solid rgba(132, 184, 108, 0.82);
+        background: radial-gradient(circle at 34% 30%, rgba(255, 255, 255, 0.78), rgba(132, 184, 108, 0.64) 34%, rgba(38, 55, 40, 0.88) 74%);
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3);
+      }
       
       .center-overlay {
         position: absolute;
@@ -463,6 +499,10 @@
         .canvas-wrap {
           min-height: 330px;
         }
+
+        .mobile-joystick {
+          display: block;
+        }
       
         .side-panel,
         .upgrade-grid {
@@ -506,6 +546,10 @@
           </div>
           <div class="canvas-wrap">
             <canvas id="gameCanvas" width="960" height="640" aria-label="薯仔突围游戏画布"></canvas>
+            <div class="mobile-joystick" id="mobileJoystick" aria-label="移动摇杆">
+              <div class="mobile-joystick-base"></div>
+              <div class="mobile-joystick-thumb" id="mobileJoystickThumb"></div>
+            </div>
             <div id="centerOverlay" class="center-overlay">
               <p class="eyebrow">准备</p>
               <h2>移动，活下去</h2>
@@ -552,6 +596,8 @@
       
       const canvas = document.querySelector("#gameCanvas");
       const ctx = canvas.getContext("2d");
+      const mobileJoystick = document.querySelector("#mobileJoystick");
+      const mobileJoystickThumb = document.querySelector("#mobileJoystickThumb");
       
       const ui = {
         time: document.querySelector("#timeStat"),
@@ -571,6 +617,7 @@
       
       const keys = new Set();
       const pointer = { active: false, x: 0, y: 0 };
+      const joystick = { active: false, pointerId: null, x: 0, y: 0 };
       let selectedDanger = 2;
       
       const WORLD = { width: 2400, height: 1600 };
@@ -865,7 +912,10 @@
         if (keys.has("KeyA") || keys.has("ArrowLeft")) dx -= 1;
         if (keys.has("KeyD") || keys.has("ArrowRight")) dx += 1;
       
-        if (pointer.active) {
+        if (joystick.active) {
+          dx += joystick.x;
+          dy += joystick.y;
+        } else if (pointer.active) {
           const rect = canvas.getBoundingClientRect();
           const px = pointer.x - rect.left - rect.width / 2;
           const py = pointer.y - rect.top - rect.height / 2;
@@ -1770,6 +1820,61 @@
         window.addEventListener("keyup", (event) => {
           keys.delete(event.code);
         });
+
+        function resetJoystick() {
+          joystick.active = false;
+          joystick.pointerId = null;
+          joystick.x = 0;
+          joystick.y = 0;
+          mobileJoystickThumb.style.left = "50%";
+          mobileJoystickThumb.style.top = "50%";
+        }
+
+        function updateJoystick(event) {
+          const rect = mobileJoystick.getBoundingClientRect();
+          const cx = rect.width / 2;
+          const cy = rect.height / 2;
+          const max = rect.width * 0.34;
+          const rawX = event.clientX - rect.left - cx;
+          const rawY = event.clientY - rect.top - cy;
+          const len = Math.hypot(rawX, rawY);
+          const scale = len > max ? max / len : 1;
+          const dx = rawX * scale;
+          const dy = rawY * scale;
+          joystick.x = dx / max;
+          joystick.y = dy / max;
+          mobileJoystickThumb.style.left = `${cx + dx}px`;
+          mobileJoystickThumb.style.top = `${cy + dy}px`;
+        }
+
+        mobileJoystick.addEventListener("pointerdown", (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          joystick.active = true;
+          joystick.pointerId = event.pointerId;
+          mobileJoystick.setPointerCapture(event.pointerId);
+          updateJoystick(event);
+        });
+
+        mobileJoystick.addEventListener("pointermove", (event) => {
+          if (!joystick.active || event.pointerId !== joystick.pointerId) return;
+          event.preventDefault();
+          event.stopPropagation();
+          updateJoystick(event);
+        });
+
+        function releaseJoystick(event) {
+          if (event && joystick.pointerId !== null && event.pointerId !== joystick.pointerId) return;
+          if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          resetJoystick();
+        }
+
+        mobileJoystick.addEventListener("pointerup", releaseJoystick);
+        mobileJoystick.addEventListener("pointercancel", releaseJoystick);
+        mobileJoystick.addEventListener("lostpointercapture", releaseJoystick);
       
         canvas.addEventListener("pointerdown", (event) => {
           pointer.active = true;
