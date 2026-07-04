@@ -792,6 +792,15 @@
         .run-strip {
           grid-template-columns: repeat(2, minmax(0, 1fr));
         }
+
+        .stat-tile {
+          min-height: 64px;
+          padding: 10px 12px;
+        }
+
+        .stat-tile strong {
+          font-size: 1.35rem;
+        }
       
         .relic-tile {
           grid-column: 1 / -1;
@@ -811,7 +820,25 @@
         }
       
         .map-board {
-          grid-template-columns: repeat(8, 120px);
+          grid-template-columns: repeat(8, minmax(92px, 1fr));
+          gap: 7px;
+          padding-bottom: 8px;
+        }
+
+        .map-node {
+          min-height: 74px;
+          padding: 7px;
+        }
+
+        .node-icon {
+          width: 26px;
+          height: 26px;
+          margin-bottom: 3px;
+          font-size: 0.92rem;
+        }
+
+        .node-desc {
+          font-size: 0.72rem;
         }
       
         .screen-head,
@@ -819,6 +846,38 @@
         .upgrade-choice {
           align-items: stretch;
           flex-direction: column;
+        }
+      }
+
+      @media (max-width: 430px) {
+        .topbar {
+          padding: 14px 16px;
+        }
+
+        h1 {
+          font-size: 2rem;
+        }
+
+        .game-card {
+          padding: 12px;
+        }
+
+        .screen-head {
+          margin-bottom: 10px;
+        }
+
+        .screen-copy {
+          font-size: 0.92rem;
+          line-height: 1.45;
+        }
+
+        .map-board {
+          grid-template-columns: repeat(8, 88px);
+          gap: 7px;
+        }
+
+        .map-node {
+          min-height: 70px;
         }
       }
     </style>

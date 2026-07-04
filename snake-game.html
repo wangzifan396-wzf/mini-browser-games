@@ -379,7 +379,7 @@
     .stage,
     .side,
     .topbar { max-width: 100%; min-width: 0; }
-    .side { order: -1; }
+    .stage { order: -1; }
     .stats { grid-template-columns: repeat(4, 1fr); }
     .value { font-size: 22px; }
     .mode-group { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -388,8 +388,9 @@
   }
 
   @media (max-width: 560px) {
-    .shell { width: min(340px, 84vw); }
-    .topbar { grid-template-columns: 1fr; }
+    body { padding: 10px 0; }
+    .shell { width: min(370px, calc(100vw - 20px)); gap: 10px; }
+    .topbar { grid-template-columns: 1fr; gap: 8px; padding: 10px; }
     .actions {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -397,7 +398,9 @@
     }
     .icon-btn { min-width: 0; width: auto; }
     .stats { grid-template-columns: repeat(2, 1fr); }
-    .brand p { white-space: normal; }
+    .brand p { display: none; }
+    canvas { width: min(100%, calc(100vw - 34px), 350px); }
+    .mobile-pad { padding: 8px; }
   }
 </style>
 </head>

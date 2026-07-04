@@ -454,17 +454,25 @@
 
   @media (max-width: 560px) {
     .shell { width: calc(100vw - 16px); max-width: 520px; gap: 10px; }
-    .topbar { grid-template-columns: 1fr auto; padding: 10px; }
+    .topbar { grid-template-columns: 1fr auto; padding: 8px 10px; }
     .subline { display: none; }
     .board-wrap { width: 100%; }
-    .board { width: calc(100vw - 24px); max-width: 100%; gap: 8px; padding: 9px; }
-    .bottom-hud { grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 10px; }
-    .stat { padding: 8px; }
-    .value { font-size: 20px; }
-    .side { padding: 10px; gap: 10px; }
-    .tools { gap: 7px; }
-    .tool { padding: 7px; }
-    .tool-icon { width: 31px; height: 31px; }
+    .board { width: min(330px, calc(100vw - 36px)); max-width: 100%; gap: 7px; padding: 8px; }
+    .bottom-hud { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; padding: 8px; }
+    .stat { padding: 7px; }
+    .value { margin-top: 5px; font-size: 18px; }
+    .side { padding: 8px; gap: 8px; }
+    .side h2 { display: none; }
+    .charge { gap: 6px; }
+    .bar { height: 8px; }
+    .status { gap: 4px; font-size: 12px; }
+    .status-row { padding-bottom: 4px; }
+    .tools { gap: 6px; }
+    .tool { min-height: 48px; padding: 5px; gap: 3px; }
+    .tool-icon { width: 28px; height: 28px; font-size: 16px; }
+    .tool-count { min-width: 23px; padding: 2px 5px; font-size: 11px; }
+    .toast { top: 72px; bottom: auto; padding: 6px 10px; font-size: 13px; }
+    .toast.show { transform: translate(-50%, 0); }
   }
 </style>
 </head>
