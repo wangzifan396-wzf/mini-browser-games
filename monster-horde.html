@@ -1,0 +1,2375 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>怪潮逆塔防</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23101914'/%3E%3Cpath d='M12 48c10-26 30-26 40 0H12Z' fill='%2384b65d'/%3E%3Cpath d='M22 32 16 18l14 8m12 6 6-14-14 8' stroke='%23f0d27a' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='25' cy='39' r='3' fill='%23101914'/%3E%3Ccircle cx='39' cy='39' r='3' fill='%23101914'/%3E%3C/svg%3E">
+    <style>
+      :root {
+        --ink: #111814;
+        --muted: #607064;
+        --line: #8b9887;
+        --paper: #f4efdd;
+        --panel: #fffaf0;
+        --leaf: #2f795e;
+        --leaf-dark: #1e4f42;
+        --gold: #d7a947;
+        --red: #b7443c;
+        --blue: #326783;
+        --violet: #66558a;
+        --shadow: rgba(7, 13, 10, 0.24);
+        --radius: 8px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--ink);
+        font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+        background:
+          linear-gradient(rgba(244, 239, 221, 0.05) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(244, 239, 221, 0.05) 1px, transparent 1px),
+          radial-gradient(circle at 20% 8%, rgba(132, 182, 93, 0.18), transparent 32%),
+          #0e1a14;
+        background-size: 32px 32px, 32px 32px, auto, auto;
+        overflow-x: hidden;
+      }
+
+      button {
+        font: inherit;
+      }
+
+      .app-shell {
+        width: min(1480px, calc(100vw - 32px));
+        margin: 10px auto;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: stretch;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 20px 24px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: linear-gradient(90deg, rgba(47, 121, 94, 0.18), rgba(215, 169, 71, 0.15)), var(--paper);
+        box-shadow: 0 18px 40px var(--shadow);
+      }
+
+      .eyebrow {
+        margin: 0 0 6px;
+        color: #8a641b;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(36px, 7vw, 72px);
+        line-height: 0.95;
+        letter-spacing: 0;
+      }
+
+      .top-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .quiet-button,
+      .primary-button,
+      .danger-button,
+      .lane-button,
+      .spell-button,
+      .unit-card,
+      .queue-remove,
+      .choice-card {
+        border: 1px solid #9d7b2b;
+        border-radius: var(--radius);
+        background: #fff4d7;
+        color: var(--ink);
+        cursor: pointer;
+        box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.08);
+      }
+
+      .quiet-button {
+        min-width: 74px;
+        padding: 10px 14px;
+        font-weight: 800;
+      }
+
+      .primary-button {
+        width: 100%;
+        padding: 12px 16px;
+        background: var(--leaf);
+        border-color: var(--leaf-dark);
+        color: #fffaf0;
+        font-weight: 900;
+      }
+
+      .danger-button {
+        padding: 9px 12px;
+        font-weight: 800;
+      }
+
+      button:hover:not(:disabled) {
+        filter: brightness(1.04);
+        transform: translateY(-1px);
+      }
+
+      button:disabled {
+        cursor: not-allowed;
+        opacity: 0.48;
+      }
+
+      .status-strip {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        margin: 14px 0;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        overflow: hidden;
+        background: var(--panel);
+      }
+
+      .stat-tile {
+        min-height: 72px;
+        padding: 13px 16px;
+        border-right: 1px solid var(--line);
+        background: rgba(255, 250, 240, 0.9);
+      }
+
+      .stat-tile:nth-child(2) {
+        background: rgba(238, 246, 242, 0.9);
+      }
+
+      .stat-tile:nth-child(3) {
+        background: rgba(249, 238, 236, 0.88);
+      }
+
+      .stat-tile:nth-child(4) {
+        background: rgba(237, 244, 249, 0.9);
+      }
+
+      .stat-tile:last-child {
+        border-right: 0;
+        background: rgba(244, 236, 249, 0.9);
+      }
+
+      .stat-tile span {
+        display: block;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .stat-tile strong {
+        display: block;
+        margin-top: 6px;
+        font-size: 26px;
+        line-height: 1;
+      }
+
+      .game-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 390px;
+        gap: 14px;
+        align-items: start;
+      }
+
+      .arena-panel,
+      .command-panel,
+      .side-card,
+      .modal-card {
+        min-width: 0;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: rgba(255, 250, 240, 0.96);
+        box-shadow: 0 16px 32px var(--shadow);
+      }
+
+      .arena-panel {
+        padding: 14px;
+      }
+
+      .canvas-wrap {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid #536453;
+        border-radius: var(--radius);
+        background: #0d1a13;
+      }
+
+      canvas {
+        display: block;
+        width: 100%;
+        height: min(58vh, 600px);
+        min-height: 420px;
+      }
+
+      .command-panel {
+        padding: 14px;
+      }
+
+      @media (min-width: 1121px) {
+        body {
+          overflow-y: hidden;
+        }
+
+        .command-panel {
+          position: sticky;
+          top: 14px;
+          max-height: calc(min(58vh, 600px) + 30px);
+          overflow-y: auto;
+          overscroll-behavior: contain;
+          scrollbar-gutter: stable;
+        }
+      }
+
+      .panel-section {
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(139, 152, 135, 0.45);
+      }
+
+      .panel-section:first-child {
+        padding-top: 0;
+      }
+
+      .panel-section:last-child {
+        border-bottom: 0;
+      }
+
+      .section-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 10px;
+      }
+
+      .section-title h2,
+      .section-title h3 {
+        margin: 0;
+        font-size: 18px;
+      }
+
+      .hint {
+        margin: 8px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .lane-grid,
+      .spell-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .lane-button,
+      .spell-button {
+        min-width: 0;
+        min-height: 44px;
+        padding: 8px;
+        font-size: 13px;
+        font-weight: 800;
+        white-space: normal;
+      }
+
+      .lane-button.active {
+        background: var(--leaf);
+        border-color: var(--leaf-dark);
+        color: #fffaf0;
+      }
+
+      .spell-button {
+        background: #f3ecff;
+        border-color: #8570a6;
+      }
+
+      .unit-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .unit-card {
+        display: grid;
+        grid-template-columns: 36px minmax(0, 1fr);
+        gap: 8px;
+        min-width: 0;
+        min-height: 100px;
+        padding: 9px;
+        text-align: left;
+        background: #fffaf0;
+        border-color: #b9a979;
+      }
+
+      .unit-card.available {
+        border-color: #327a5f;
+      }
+
+      .unit-mark {
+        display: grid;
+        place-items: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: #e6d58a;
+        border: 1px solid #a98c33;
+        font-weight: 900;
+      }
+
+      .unit-title {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 6px;
+        margin-bottom: 3px;
+      }
+
+      .unit-title strong {
+        font-size: 14px;
+      }
+
+      .cost {
+        color: #8a641b;
+        font-weight: 900;
+        white-space: nowrap;
+      }
+
+      .unit-card p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.35;
+      }
+
+      .unlock-note {
+        grid-column: 1 / -1;
+        padding: 10px 12px;
+        border: 1px dashed rgba(139, 152, 135, 0.75);
+        border-radius: var(--radius);
+        background: #f4f8ef;
+        color: #355244;
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      .tag-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        margin-top: 6px;
+      }
+
+      .tag {
+        padding: 2px 6px;
+        border-radius: 999px;
+        background: #e8efe8;
+        color: #355244;
+        font-size: 11px;
+        font-weight: 800;
+      }
+
+      .queue-list,
+      .log-list,
+      .ai-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .queue-list {
+        display: grid;
+        gap: 6px;
+        max-height: 180px;
+        overflow: auto;
+        padding-right: 4px;
+      }
+
+      .queue-list li {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 10px;
+        border: 1px solid rgba(139, 152, 135, 0.5);
+        border-radius: var(--radius);
+        background: #f8f2e3;
+        font-size: 13px;
+      }
+
+      .queue-remove {
+        width: 30px;
+        height: 30px;
+        padding: 0;
+        font-weight: 900;
+      }
+
+      .small-actions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+        margin-top: 8px;
+      }
+
+      .ai-readout {
+        padding: 10px;
+        border: 1px solid rgba(139, 152, 135, 0.55);
+        border-radius: var(--radius);
+        background: #f4f8ef;
+        color: #243b30;
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .log-list {
+        display: grid;
+        gap: 6px;
+        max-height: 160px;
+        overflow: auto;
+      }
+
+      .log-list li {
+        padding: 7px 8px;
+        border-left: 3px solid #70946d;
+        background: #fbf6e8;
+        font-size: 13px;
+        line-height: 1.4;
+      }
+
+      .log-list li.warn {
+        border-color: var(--red);
+      }
+
+      .log-list li.good {
+        border-color: var(--leaf);
+      }
+
+      .modal {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        padding: 18px;
+        background: rgba(9, 16, 12, 0.68);
+        z-index: 10;
+      }
+
+      .modal.hidden {
+        display: none;
+      }
+
+      .modal-card {
+        width: min(760px, 100%);
+        padding: 20px;
+      }
+
+      .modal-card h2 {
+        margin-bottom: 10px;
+      }
+
+      .choice-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 14px;
+      }
+
+      .choice-card {
+        min-height: 156px;
+        padding: 14px;
+        text-align: left;
+        background: #fffaf0;
+        border-color: #a89143;
+      }
+
+      .choice-card strong {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 18px;
+      }
+
+      .choice-card p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.5;
+      }
+
+      @media (max-width: 1120px) {
+        .game-layout {
+          grid-template-columns: 1fr;
+        }
+
+        .arena-panel {
+          order: -1;
+        }
+
+        .unit-grid {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 720px) {
+        .app-shell {
+          width: min(100vw - 18px, 1480px);
+          margin-top: 9px;
+        }
+
+        .topbar {
+          display: block;
+          padding: 14px 16px;
+        }
+
+        .top-actions {
+          justify-content: flex-start;
+          margin-top: 10px;
+        }
+
+        h1 {
+          font-size: 36px;
+        }
+
+        .status-strip {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .stat-tile {
+          min-height: 54px;
+          padding: 9px 12px;
+        }
+
+        .stat-tile strong {
+          font-size: 22px;
+        }
+
+        .stat-tile:nth-child(2n) {
+          border-right: 0;
+        }
+
+        .stat-tile:last-child {
+          grid-column: 1 / -1;
+        }
+
+        .lane-grid,
+        .spell-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .unit-grid,
+        .choice-grid {
+          grid-template-columns: 1fr;
+        }
+
+        canvas {
+          min-height: 300px;
+          height: 44vh;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">反向塔防怪潮编队</p>
+          <h1>怪潮逆塔防</h1>
+        </div>
+        <div class="top-actions">
+          <button id="helpButton" class="quiet-button" type="button">规则</button>
+          <button id="resetButton" class="quiet-button" type="button">新局</button>
+        </div>
+      </header>
+
+      <section class="status-strip" aria-label="战局状态">
+        <div class="stat-tile">
+          <span>夜数</span>
+          <strong id="waveStat">1/6</strong>
+        </div>
+        <div class="stat-tile">
+          <span>魂火</span>
+          <strong id="dreadStat">0</strong>
+        </div>
+        <div class="stat-tile">
+          <span>王城士气</span>
+          <strong id="hopeStat">42</strong>
+        </div>
+        <div class="stat-tile">
+          <span>邪兆</span>
+          <strong id="omenStat">0</strong>
+        </div>
+        <div class="stat-tile">
+          <span>突入</span>
+          <strong id="breachStat">0</strong>
+        </div>
+      </section>
+
+      <main class="game-layout">
+        <section class="arena-panel" aria-label="战场">
+          <div class="canvas-wrap">
+            <canvas id="gameCanvas" width="960" height="560" aria-label="怪潮逆塔防战场"></canvas>
+          </div>
+          <p class="hint">你负责出怪，不负责造塔。英雄防线会分析上一波怪潮，然后补塔、升级、换目标策略。</p>
+        </section>
+
+        <aside class="command-panel">
+          <section class="panel-section">
+            <div class="section-title">
+              <h2>出怪路线</h2>
+              <span id="modePill" class="tag">编队</span>
+            </div>
+            <div id="laneButtons" class="lane-grid"></div>
+          </section>
+
+          <section class="panel-section">
+            <div class="section-title">
+              <h2>怪物契约</h2>
+              <span id="unitCount" class="tag">0 队</span>
+            </div>
+            <div id="unitGrid" class="unit-grid"></div>
+          </section>
+
+          <section class="panel-section">
+            <div class="section-title">
+              <h2>怪潮队列</h2>
+              <span id="queueCost" class="tag">0</span>
+            </div>
+            <ul id="queueList" class="queue-list"></ul>
+            <div class="small-actions">
+              <button id="autoButton" class="danger-button" type="button">智能配队</button>
+              <button id="clearButton" class="danger-button" type="button">清空队列</button>
+            </div>
+            <button id="startButton" class="primary-button" type="button">释放怪潮</button>
+          </section>
+
+          <section class="panel-section">
+            <div class="section-title">
+              <h2>战场邪术</h2>
+              <span class="tag">选路线后施放</span>
+            </div>
+            <div id="spellGrid" class="spell-grid"></div>
+          </section>
+
+          <section class="panel-section">
+            <div class="section-title">
+              <h2>英雄 AI</h2>
+            </div>
+            <div id="aiReadout" class="ai-readout"></div>
+          </section>
+
+          <section class="panel-section">
+            <div class="section-title">
+              <h2>战况</h2>
+            </div>
+            <ul id="logList" class="log-list"></ul>
+          </section>
+        </aside>
+      </main>
+    </div>
+
+    <div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-card">
+        <p id="modalKicker" class="eyebrow">异变</p>
+        <h2 id="modalTitle">怪潮进化</h2>
+        <div id="modalBody"></div>
+      </div>
+    </div>
+
+    <script>
+      const W = 960;
+      const H = 560;
+      const START_X = 64;
+      const GATE_X = 888;
+      const MAX_WAVE = 6;
+      const WAVE_DREAD = [0, 62, 76, 104, 136, 168, 204];
+      const WAVE_OMENS = [0, 1, 1, 2, 2, 3, 3];
+      const QUEUE_LIMIT = [0, 3, 4, 5, 6, 7, 8];
+
+      const canvas = document.getElementById("gameCanvas");
+      const ctx = canvas.getContext("2d");
+
+      const ui = {
+        wave: document.getElementById("waveStat"),
+        dread: document.getElementById("dreadStat"),
+        hope: document.getElementById("hopeStat"),
+        omens: document.getElementById("omenStat"),
+        breach: document.getElementById("breachStat"),
+        laneButtons: document.getElementById("laneButtons"),
+        unitGrid: document.getElementById("unitGrid"),
+        unitCount: document.getElementById("unitCount"),
+        queueList: document.getElementById("queueList"),
+        queueCost: document.getElementById("queueCost"),
+        start: document.getElementById("startButton"),
+        clear: document.getElementById("clearButton"),
+        auto: document.getElementById("autoButton"),
+        spells: document.getElementById("spellGrid"),
+        ai: document.getElementById("aiReadout"),
+        log: document.getElementById("logList"),
+        mode: document.getElementById("modePill"),
+        modal: document.getElementById("modal"),
+        modalKicker: document.getElementById("modalKicker"),
+        modalTitle: document.getElementById("modalTitle"),
+        modalBody: document.getElementById("modalBody"),
+        reset: document.getElementById("resetButton"),
+        help: document.getElementById("helpButton")
+      };
+
+      const lanes = [
+        { id: 0, name: "北门水渠", short: "北", y: 128, color: "#6aa181" },
+        { id: 1, name: "旧王大道", short: "中", y: 270, color: "#c09a48" },
+        { id: 2, name: "南墙墓径", short: "南", y: 412, color: "#7b78ad" }
+      ];
+
+      const units = {
+        rat: {
+          mark: "鼠",
+          name: "齿鼠群",
+          cost: 12,
+          count: 3,
+          hp: 24,
+          speed: 76,
+          armor: 0,
+          radius: 10,
+          breach: 1,
+          color: "#84b65d",
+          tags: ["群体", "快攻"],
+          unlockWave: 1,
+          desc: "一次放出三只，便宜，适合骗火力和压低炮塔冷却。"
+        },
+        ram: {
+          mark: "骨",
+          name: "骨角兽",
+          cost: 30,
+          count: 1,
+          hp: 172,
+          speed: 41,
+          armor: 7,
+          radius: 20,
+          breach: 5,
+          color: "#b99664",
+          tags: ["重甲", "嘲讽"],
+          unlockWave: 1,
+          desc: "高护甲并吸引目标，给后排怪物争取推进时间。"
+        },
+        imp: {
+          mark: "雾",
+          name: "雾步鬼",
+          cost: 23,
+          count: 1,
+          hp: 52,
+          speed: 92,
+          armor: 0,
+          radius: 13,
+          breach: 3,
+          color: "#8875bd",
+          tags: ["潜行", "快攻"],
+          unlockWave: 1,
+          desc: "没有被侦测时不会被普通塔锁定，怕观星塔。"
+        },
+        ooze: {
+          mark: "泥",
+          name: "裂殖泥",
+          cost: 26,
+          count: 1,
+          hp: 88,
+          speed: 46,
+          armor: 2,
+          radius: 18,
+          breach: 3,
+          color: "#6fa67a",
+          tags: ["分裂", "群体"],
+          unlockWave: 2,
+          desc: "死亡时会分裂成小泥，若被燃烧击杀则无法分裂。"
+        },
+        mole: {
+          mark: "脉",
+          name: "地脉蠕虫",
+          cost: 31,
+          count: 1,
+          hp: 82,
+          speed: 62,
+          armor: 3,
+          radius: 15,
+          breach: 4,
+          color: "#9b7952",
+          tags: ["潜地", "破阵"],
+          unlockWave: 3,
+          desc: "前段路会潜地推进，普通塔看不见，能穿过第一段火力。"
+        },
+        hag: {
+          mark: "旗",
+          name: "旗巫",
+          cost: 36,
+          count: 1,
+          hp: 96,
+          speed: 43,
+          armor: 1,
+          radius: 16,
+          breach: 3,
+          color: "#bf5e78",
+          tags: ["支援", "光环"],
+          unlockWave: 3,
+          desc: "给附近怪物提速并减伤，放在坦克后面收益很高。"
+        },
+        mirror: {
+          mark: "镜",
+          name: "镜翼蛾",
+          cost: 34,
+          count: 1,
+          hp: 74,
+          speed: 74,
+          armor: 1,
+          radius: 16,
+          breach: 4,
+          color: "#74aac0",
+          tags: ["反射", "快攻"],
+          unlockWave: 4,
+          desc: "周期性反射一次飞弹，并短暂震住发射的塔。"
+        },
+        sapper: {
+          mark: "爆",
+          name: "爆囊怪",
+          cost: 25,
+          count: 1,
+          hp: 50,
+          speed: 68,
+          armor: 0,
+          radius: 14,
+          breach: 2,
+          color: "#c85a44",
+          tags: ["攻城", "自爆"],
+          unlockWave: 2,
+          desc: "靠近塔会自爆，削弱防线，适合打开缺口。"
+        },
+        prince: {
+          mark: "王",
+          name: "血契王子",
+          cost: 72,
+          count: 1,
+          hp: 285,
+          speed: 39,
+          armor: 5,
+          radius: 24,
+          breach: 10,
+          color: "#8f3748",
+          tags: ["首领", "吸能"],
+          unlockWave: 5,
+          desc: "靠近塔会拖慢其装填。活着抵达时能重创王城士气。"
+        }
+      };
+
+      const towers = {
+        archer: {
+          mark: "弓",
+          name: "游侠哨塔",
+          hp: 92,
+          range: 172,
+          cd: 0.84,
+          damage: 15,
+          color: "#446f57",
+          projectile: "#d8bd74",
+          desc: "优先打最靠前和残血单位。"
+        },
+        cannon: {
+          mark: "炮",
+          name: "火炮台",
+          hp: 120,
+          range: 162,
+          cd: 2.22,
+          damage: 26,
+          splash: 48,
+          burn: 1.6,
+          color: "#8a5738",
+          projectile: "#d76b45",
+          desc: "优先打密集怪潮，燃烧会克制分裂。"
+        },
+        frost: {
+          mark: "霜",
+          name: "霜纹塔",
+          hp: 82,
+          range: 160,
+          cd: 1.48,
+          damage: 7,
+          slow: 2.2,
+          color: "#477f9a",
+          projectile: "#90c9e7",
+          desc: "优先限制快攻和最靠近城门的单位。"
+        },
+        mage: {
+          mark: "秘",
+          name: "秘术塔",
+          hp: 82,
+          range: 166,
+          cd: 1.18,
+          damage: 17,
+          trueDamage: true,
+          reveal: 148,
+          color: "#67518e",
+          projectile: "#c7a6ff",
+          desc: "能侦测潜行，并优先打支援和反射单位。"
+        },
+        ballista: {
+          mark: "弩",
+          name: "破甲弩",
+          hp: 104,
+          range: 198,
+          cd: 1.92,
+          damage: 35,
+          pierce: true,
+          color: "#67533b",
+          projectile: "#f0d27a",
+          desc: "优先攻击重甲、首领和高突破单位。"
+        },
+        sentinel: {
+          mark: "星",
+          name: "观星塔",
+          hp: 96,
+          range: 172,
+          cd: 1.05,
+          damage: 12,
+          reveal: 196,
+          color: "#315d70",
+          projectile: "#9ed8d1",
+          desc: "反潜行、反潜地，会优先打隐藏单位。"
+        },
+        pyro: {
+          mark: "焰",
+          name: "焰术台",
+          hp: 88,
+          range: 152,
+          cd: 1.62,
+          damage: 16,
+          splash: 42,
+          burn: 2.4,
+          color: "#a64b38",
+          projectile: "#ff9a57",
+          desc: "专门清理鼠群、裂殖泥和旗巫光环。"
+        },
+        priest: {
+          mark: "誓",
+          name: "誓言祭坛",
+          hp: 78,
+          range: 156,
+          cd: 2.05,
+          damage: 12,
+          heal: 18,
+          color: "#987a35",
+          projectile: "#f4d98c",
+          desc: "会修复受损塔，也会打支援单位。"
+        }
+      };
+
+      const spells = {
+        smoke: {
+          mark: "雾",
+          name: "黑雾帷幕",
+          desc: "当前路线 6 秒内难以被普通塔锁定。",
+          use(lane) {
+            state.smoke[lane] = Math.max(state.smoke[lane] || 0, 6 + state.mutations.smokeBonus);
+            addEffect({ type: "lane", lane, color: "rgba(102, 85, 138, 0.22)", life: 6 + state.mutations.smokeBonus });
+            addLog(`${lanes[lane].name} 被黑雾罩住。`, "good");
+          }
+        },
+        quake: {
+          mark: "震",
+          name: "裂地鼓点",
+          desc: "震晕当前路线附近的塔 2.4 秒。",
+          use(lane) {
+            let hit = 0;
+            for (const tower of state.towers) {
+              if (tower.dead) continue;
+              if (tower.lane === lane || Math.abs(tower.y - lanes[lane].y) < 90) {
+                tower.stun = Math.max(tower.stun, 2.4);
+                hit += 1;
+              }
+            }
+            addEffect({ type: "quake", lane, color: "rgba(183, 68, 60, 0.28)", life: 0.7 });
+            addLog(`裂地鼓点震住 ${hit} 座塔。`, hit ? "good" : "warn");
+          }
+        },
+        blood: {
+          mark: "血",
+          name: "血契军号",
+          desc: "当前路线怪物回复并加速 5 秒。",
+          use(lane) {
+            state.haste[lane] = Math.max(state.haste[lane] || 0, 5);
+            let affected = 0;
+            for (const monster of state.monsters) {
+              if (monster.dead || monster.lane !== lane) continue;
+              monster.hp = Math.min(monster.maxHp, monster.hp + monster.maxHp * 0.18);
+              affected += 1;
+            }
+            addEffect({ type: "lane", lane, color: "rgba(183, 68, 60, 0.2)", life: 5 });
+            addLog(`血契军号鼓动 ${affected} 个怪物。`, "good");
+          }
+        }
+      };
+
+      const mutations = [
+        {
+          id: "thick-hide",
+          name: "厚皮瘟谱",
+          desc: "所有怪物最大气血 +12%。",
+          apply() {
+            state.mutations.hp *= 1.12;
+          }
+        },
+        {
+          id: "bone-tax",
+          name: "骨甲共振",
+          desc: "重甲、首领和攻城怪护甲 +2。",
+          apply() {
+            state.mutations.armor += 2;
+          }
+        },
+        {
+          id: "rat-choir",
+          name: "鼠群合唱",
+          desc: "齿鼠群每次多出 1 只。",
+          apply() {
+            state.mutations.ratExtra += 1;
+          }
+        },
+        {
+          id: "mist-school",
+          name: "雾行训练",
+          desc: "潜行和潜地怪速度 +12%，黑雾持续 +2 秒。",
+          apply() {
+            state.mutations.hiddenSpeed += 0.12;
+            state.mutations.smokeBonus += 2;
+          }
+        },
+        {
+          id: "split-law",
+          name: "裂殖律令",
+          desc: "裂殖泥分裂时额外多生出 1 个小泥。",
+          apply() {
+            state.mutations.splitExtra += 1;
+          }
+        },
+        {
+          id: "banner-range",
+          name: "低语旗杆",
+          desc: "旗巫光环范围和减伤效果提升。",
+          apply() {
+            state.mutations.aura *= 1.24;
+          }
+        },
+        {
+          id: "plunder",
+          name: "掠城会计",
+          desc: "每个成功突入的怪物为下一夜额外提供 5 魂火。",
+          apply() {
+            state.mutations.plunder += 5;
+          }
+        },
+        {
+          id: "bounty",
+          name: "破塔赏金",
+          desc: "摧毁塔时下一夜额外获得 18 魂火。",
+          apply() {
+            state.mutations.bounty += 18;
+          }
+        },
+        {
+          id: "interest",
+          name: "亡者利息",
+          desc: "每夜未花完的 35% 魂火会带到下一夜。",
+          apply() {
+            state.mutations.carry = true;
+          }
+        },
+        {
+          id: "omens",
+          name: "三眼月相",
+          desc: "每夜额外获得 1 点邪兆。",
+          apply() {
+            state.mutations.omens += 1;
+          }
+        }
+      ];
+
+      let state;
+      let lastTime = 0;
+      let animationFrame = null;
+      let dpr = 1;
+
+      function makeEmptyStats() {
+        return {
+          deployed: 0,
+          escaped: 0,
+          killed: 0,
+          towersDestroyed: 0,
+          lanePressure: [0, 0, 0],
+          laneLeaks: [0, 0, 0],
+          tags: {},
+          units: {}
+        };
+      }
+
+      function newGame() {
+        state = {
+          mode: "planning",
+          wave: 1,
+          hope: 34,
+          maxHope: 34,
+          dread: WAVE_DREAD[1],
+          omens: WAVE_OMENS[1],
+          breach: 0,
+          selectedLane: 1,
+          queue: [],
+          monsters: [],
+          towers: [],
+          projectiles: [],
+          effects: [],
+          floaters: [],
+          spawnPlan: [],
+          spawnIndex: 0,
+          waveTime: 0,
+          bankBonus: 0,
+          carryDread: 0,
+          logs: [],
+          aiReadout: "王国 AI 尚未掌握你的怪潮偏好。第一夜只有基础哨塔，先试出一条路线的缺口。",
+          lastStats: makeEmptyStats(),
+          mutations: {
+            hp: 1,
+            hiddenSpeed: 0,
+            armor: 0,
+            ratExtra: 0,
+            splitExtra: 0,
+            smokeBonus: 0,
+            aura: 1,
+            plunder: 0,
+            bounty: 0,
+            carry: false,
+            omens: 0
+          },
+          smoke: [0, 0, 0],
+          haste: [0, 0, 0],
+          nextMonsterId: 1,
+          nextTowerId: 1,
+          paused: false
+        };
+
+        addTower("archer", 0, 302);
+        addTower("archer", 1, 418);
+        addTower("frost", 2, 534);
+        addLog("怪潮议会已就位。选择路线与契约，释放第一夜怪潮。");
+        renderUi({ preserveScroll: false });
+      }
+
+      function addLog(text, type = "info") {
+        state.logs.unshift({ text, type });
+        state.logs = state.logs.slice(0, 14);
+      }
+
+      function nextMonsterId() {
+        const id = state.nextMonsterId;
+        state.nextMonsterId += 1;
+        return id;
+      }
+
+      function nextTowerId() {
+        const id = state.nextTowerId;
+        state.nextTowerId += 1;
+        return id;
+      }
+
+      function addTower(type, lane, forcedX) {
+        const def = towers[type];
+        const slots = [194, 278, 366, 456, 548, 642, 736];
+        let x = forcedX;
+        if (!x) {
+          x = slots.find((slot) => !state.towers.some((tower) => !tower.dead && tower.lane === lane && Math.abs(tower.x - slot) < 42));
+          if (!x) {
+            const target = state.towers.filter((tower) => !tower.dead && tower.lane === lane).sort((a, b) => a.level - b.level)[0];
+            if (target) {
+              upgradeTower(target);
+              return target;
+            }
+            x = slots[Math.floor(slots.length / 2)];
+          }
+        }
+
+        const tower = {
+          id: nextTowerId(),
+          type,
+          lane,
+          x,
+          y: towerY(lane, x),
+          hp: def.hp,
+          maxHp: def.hp,
+          level: 1,
+          cooldown: random(0.2, 0.8),
+          stun: 0,
+          dead: false
+        };
+        state.towers.push(tower);
+        return tower;
+      }
+
+      function upgradeTower(tower) {
+        const def = towers[tower.type];
+        tower.level += 1;
+        tower.maxHp = Math.round(tower.maxHp + def.hp * 0.26);
+        tower.hp = tower.maxHp;
+        addFloater(tower.x, tower.y - 26, `Lv.${tower.level}`, "#f0d27a");
+        return tower;
+      }
+
+      function towerY(lane, x) {
+        if (lane === 0) return lanes[lane].y + 54;
+        if (lane === 2) return lanes[lane].y - 54;
+        return lanes[lane].y + (Math.floor(x / 90) % 2 === 0 ? -56 : 56);
+      }
+
+      function setLane(lane) {
+        if (state.mode === "gameover") return;
+        state.selectedLane = lane;
+        renderUi();
+      }
+
+      function unitCost(key) {
+        const def = units[key];
+        let cost = def.cost;
+        return Math.max(4, Math.round(cost));
+      }
+
+      function queueLimit() {
+        return QUEUE_LIMIT[Math.min(state.wave, QUEUE_LIMIT.length - 1)];
+      }
+
+      function isUnitUnlocked(key) {
+        const def = units[key];
+        return !def.unlockWave || state.wave >= def.unlockWave;
+      }
+
+      function addQueueUnit(key) {
+        if (state.mode !== "planning") return;
+        const def = units[key];
+        if (!isUnitUnlocked(key)) return;
+        if (state.queue.length >= queueLimit()) {
+          addLog(`本夜最多签 ${queueLimit()} 队，先释放这一波吧。`, "warn");
+          renderUi();
+          return;
+        }
+        const cost = unitCost(key);
+        if (state.dread < cost) return;
+        state.dread -= cost;
+        state.queue.push({ key, lane: state.selectedLane, cost });
+        addLog(`${lanes[state.selectedLane].short}路签下 ${def.name}。`);
+        renderUi();
+      }
+
+      function removeQueueUnit(index) {
+        if (state.mode !== "planning") return;
+        const item = state.queue[index];
+        if (!item) return;
+        state.dread += item.cost;
+        state.queue.splice(index, 1);
+        renderUi();
+      }
+
+      function clearQueue() {
+        if (state.mode !== "planning") return;
+        for (const item of state.queue) state.dread += item.cost;
+        state.queue = [];
+        renderUi();
+      }
+
+      function autoQueue() {
+        if (state.mode !== "planning") return;
+        clearQueue();
+        const lane = state.lastStats.laneLeaks.indexOf(Math.max(...state.lastStats.laneLeaks));
+        state.selectedLane = lane >= 0 ? lane : 1;
+        const anti = state.aiReadout;
+        const preferred = [];
+        if (anti.includes("观星") || anti.includes("秘术")) preferred.push("ram", "rat", "sapper", "hag");
+        if (anti.includes("火") || anti.includes("炮")) preferred.push("ram", "mirror", "mole");
+        if (anti.includes("破甲")) preferred.push("rat", "imp", "ooze", "hag");
+        preferred.push("rat", "ram", "imp", "ooze", "sapper", "mirror", "hag", "mole", "prince");
+
+        let guard = 0;
+        while (guard < 30 && state.queue.length < queueLimit()) {
+          guard += 1;
+          const available = preferred.filter((key) => {
+            return isUnitUnlocked(key) && unitCost(key) <= state.dread;
+          });
+          if (!available.length) break;
+          const key = available[Math.floor(Math.random() * Math.min(available.length, 5))];
+          state.selectedLane = Math.floor(Math.random() * lanes.length);
+          addQueueUnit(key);
+        }
+        addLog("议会按英雄防线弱点自动排了一波怪潮。", "good");
+        renderUi();
+      }
+
+      function startWave() {
+        if (state.mode !== "planning" || state.queue.length === 0) return;
+        state.mode = "running";
+        state.waveTime = 0;
+        state.spawnIndex = 0;
+        state.spawnPlan = [];
+        state.lastStats = makeEmptyStats();
+        state.omens = WAVE_OMENS[Math.min(state.wave, WAVE_OMENS.length - 1)] + state.mutations.omens;
+        let t = 0.45;
+        for (const item of state.queue) {
+          const def = units[item.key];
+          const count = def.count + (item.key === "rat" ? state.mutations.ratExtra : 0);
+          for (let i = 0; i < count; i += 1) {
+            state.spawnPlan.push({
+              key: item.key,
+              lane: item.lane,
+              time: t + i * 0.22
+            });
+          }
+          t += Math.max(0.48, 0.76 - state.wave * 0.03);
+          for (const tag of def.tags) {
+            state.lastStats.tags[tag] = (state.lastStats.tags[tag] || 0) + 1;
+          }
+          state.lastStats.units[item.key] = (state.lastStats.units[item.key] || 0) + 1;
+        }
+        addLog(`第 ${state.wave} 夜怪潮释放，${state.queue.length} 份契约开始进场。`, "good");
+        renderUi();
+      }
+
+      function spawnMonster(key, lane, x = START_X) {
+        const def = units[key];
+        const hiddenBoost = def.tags.includes("潜行") || def.tags.includes("潜地") ? state.mutations.hiddenSpeed : 0;
+        const armored = def.tags.includes("重甲") || def.tags.includes("攻城") || def.tags.includes("首领");
+        const monster = {
+          id: nextMonsterId(),
+          key,
+          lane,
+          x,
+          y: lanes[lane].y + random(-7, 7),
+          hp: Math.round(def.hp * state.mutations.hp),
+          maxHp: Math.round(def.hp * state.mutations.hp),
+          speed: def.speed * (1 + hiddenBoost),
+          armor: def.armor + (armored ? state.mutations.armor : 0),
+          radius: def.radius,
+          breach: def.breach,
+          age: 0,
+          slow: 0,
+          burn: 0,
+          shieldCd: key === "mirror" ? 0 : 999,
+          dead: false,
+          escaped: false,
+          splitChild: false,
+          color: def.color
+        };
+        state.monsters.push(monster);
+        state.lastStats.deployed += 1;
+        return monster;
+      }
+
+      function update(dt) {
+        if (state.mode !== "running" || state.paused) return;
+        state.waveTime += dt;
+        for (let i = 0; i < lanes.length; i += 1) {
+          state.smoke[i] = Math.max(0, state.smoke[i] - dt);
+          state.haste[i] = Math.max(0, state.haste[i] - dt);
+        }
+
+        while (state.spawnIndex < state.spawnPlan.length && state.spawnPlan[state.spawnIndex].time <= state.waveTime) {
+          const plan = state.spawnPlan[state.spawnIndex];
+          spawnMonster(plan.key, plan.lane);
+          state.spawnIndex += 1;
+        }
+
+        updateMonsters(dt);
+        updateTowers(dt);
+        updateProjectiles(dt);
+        updateEffects(dt);
+        state.monsters = state.monsters.filter((monster) => !monster.dead && !monster.escaped);
+        state.projectiles = state.projectiles.filter((projectile) => projectile.life > 0);
+        state.effects = state.effects.filter((effect) => effect.life > 0);
+        state.floaters = state.floaters.filter((floater) => floater.life > 0);
+
+        if (state.hope <= 0) {
+          winGame();
+          return;
+        }
+
+        if (state.spawnIndex >= state.spawnPlan.length && state.monsters.length === 0 && state.projectiles.length === 0) {
+          finishWave();
+        }
+      }
+
+      function updateMonsters(dt) {
+        for (const monster of state.monsters) {
+          if (monster.dead || monster.escaped) continue;
+          monster.age += dt;
+          monster.slow = Math.max(0, monster.slow - dt);
+          monster.burn = Math.max(0, monster.burn - dt);
+          monster.shieldCd = Math.max(0, monster.shieldCd - dt);
+
+          if (monster.burn > 0) {
+            damageMonster(monster, 7 * dt, { type: "burn", trueDamage: true, burnKill: true });
+            if (monster.dead) continue;
+          }
+
+          if (monster.key === "sapper") {
+            const target = nearestTower(monster, 54);
+            if (target) {
+              explodeSapper(monster, target);
+              continue;
+            }
+          }
+
+          const aura = auraPower(monster);
+          const haste = state.haste[monster.lane] > 0 ? 1.22 : 1;
+          const slowed = monster.slow > 0 ? 0.52 : 1;
+          const speed = monster.speed * aura.speed * haste * slowed;
+          monster.x += speed * dt;
+          monster.y += (lanes[monster.lane].y - monster.y) * Math.min(1, dt * 5);
+          state.lastStats.lanePressure[monster.lane] += speed * dt * (monster.breach / 3);
+
+          if (monster.key === "prince") {
+            for (const tower of state.towers) {
+              if (tower.dead) continue;
+              if (distance(monster.x, monster.y, tower.x, tower.y) < 135) tower.cooldown += dt * 0.28;
+            }
+          }
+
+          if (monster.x >= GATE_X) {
+            monster.escaped = true;
+            state.breach += monster.breach;
+            state.hope = Math.max(0, state.hope - monster.breach);
+            state.lastStats.escaped += 1;
+            state.lastStats.laneLeaks[monster.lane] += monster.breach;
+            state.bankBonus += 2 + monster.breach + state.mutations.plunder;
+            addFloater(GATE_X - 18, lanes[monster.lane].y - 20, `-${monster.breach}`, "#b7443c");
+            addLog(`${units[monster.key].name} 突入王城，士气 -${monster.breach}。`, "good");
+            renderUi();
+          }
+        }
+      }
+
+      function updateTowers(dt) {
+        for (const tower of state.towers) {
+          if (tower.dead) continue;
+          tower.stun = Math.max(0, tower.stun - dt);
+          if (tower.stun > 0) continue;
+          const def = towers[tower.type];
+
+          if (tower.type === "priest" && tower.cooldown <= 0) {
+            const wounded = state.towers
+              .filter((other) => !other.dead && other.hp < other.maxHp && distance(tower.x, tower.y, other.x, other.y) < def.range)
+              .sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp)[0];
+            if (wounded) {
+              wounded.hp = Math.min(wounded.maxHp, wounded.hp + def.heal * towerScale(tower));
+              tower.cooldown = def.cd;
+              addEffect({ type: "beam", x: tower.x, y: tower.y, tx: wounded.x, ty: wounded.y, color: "rgba(244, 217, 140, 0.75)", life: 0.22 });
+              continue;
+            }
+          }
+
+          tower.cooldown -= dt;
+          if (tower.cooldown > 0) continue;
+          const target = chooseTarget(tower);
+          if (!target) continue;
+          fireTower(tower, target);
+          tower.cooldown = Math.max(0.2, def.cd / (1 + (tower.level - 1) * 0.12));
+        }
+      }
+
+      function updateProjectiles(dt) {
+        for (const projectile of state.projectiles) {
+          projectile.life -= dt;
+          if (projectile.life <= 0) continue;
+          const target = state.monsters.find((monster) => monster.id === projectile.targetId && !monster.dead && !monster.escaped);
+          if (!target) {
+            projectile.life = 0;
+            continue;
+          }
+          const angle = Math.atan2(target.y - projectile.y, target.x - projectile.x);
+          projectile.x += Math.cos(angle) * projectile.speed * dt;
+          projectile.y += Math.sin(angle) * projectile.speed * dt;
+          if (distance(projectile.x, projectile.y, target.x, target.y) < projectile.radius + target.radius + 4) {
+            hitProjectile(projectile, target);
+            projectile.life = 0;
+          }
+        }
+      }
+
+      function updateEffects(dt) {
+        for (const effect of state.effects) effect.life -= dt;
+        for (const floater of state.floaters) {
+          floater.life -= dt;
+          floater.y -= 22 * dt;
+        }
+      }
+
+      function chooseTarget(tower) {
+        const def = towers[tower.type];
+        let best = null;
+        let bestScore = -999;
+        for (const monster of state.monsters) {
+          if (monster.dead || monster.escaped) continue;
+          const d = distance(tower.x, tower.y, monster.x, monster.y);
+          if (d > def.range) continue;
+          if (!canTowerSee(tower, monster, d)) continue;
+
+          const u = units[monster.key];
+          const progress = monster.x / GATE_X;
+          const lowHp = 1 - monster.hp / monster.maxHp;
+          const cluster = countCluster(monster);
+          let score = progress * 2 + monster.breach * 0.18 + lowHp * 0.5;
+          if (u.tags.includes("嘲讽")) score += 1.4;
+          if (state.smoke[monster.lane] > 0 && !def.reveal) score -= 0.5;
+
+          if (tower.type === "archer") score += lowHp * 0.8 + progress * 0.5;
+          if (tower.type === "cannon") score += cluster * 0.85 + (u.tags.includes("群体") ? 1.1 : 0);
+          if (tower.type === "frost") score += monster.speed / 80 + progress * 0.8;
+          if (tower.type === "mage") score += (u.tags.includes("潜行") || u.tags.includes("支援") || u.tags.includes("反射")) ? 2.1 : 0;
+          if (tower.type === "ballista") score += (u.tags.includes("重甲") || u.tags.includes("首领") || monster.breach >= 5) ? 2.3 : 0;
+          if (tower.type === "sentinel") score += (u.tags.includes("潜行") || u.tags.includes("潜地")) ? 3 : 0;
+          if (tower.type === "pyro") score += (u.tags.includes("群体") || u.tags.includes("分裂") || u.tags.includes("支援")) ? 2 : 0;
+          if (tower.type === "priest") score += u.tags.includes("支援") ? 2.4 : 0;
+          score += Math.random() * 0.05;
+
+          if (score > bestScore) {
+            bestScore = score;
+            best = monster;
+          }
+        }
+        return best;
+      }
+
+      function canTowerSee(tower, monster, d) {
+        const def = towers[tower.type];
+        const u = units[monster.key];
+        const revealed = isRevealed(monster);
+        if (u.tags.includes("潜地") && monster.x < 265 && !def.reveal && !revealed) return false;
+        if (u.tags.includes("潜行") && !def.reveal && !revealed) return false;
+        if (state.smoke[monster.lane] > 0 && !def.reveal && Math.random() < 0.18) return false;
+        return d <= def.range;
+      }
+
+      function isRevealed(monster) {
+        for (const tower of state.towers) {
+          if (tower.dead) continue;
+          const def = towers[tower.type];
+          if (!def.reveal) continue;
+          if (distance(tower.x, tower.y, monster.x, monster.y) <= def.reveal) return true;
+        }
+        return false;
+      }
+
+      function fireTower(tower, target) {
+        const def = towers[tower.type];
+        state.projectiles.push({
+          x: tower.x,
+          y: tower.y,
+          targetId: target.id,
+          towerId: tower.id,
+          speed: 430,
+          radius: def.splash ? 7 : 5,
+          damage: def.damage * towerScale(tower),
+          splash: def.splash || 0,
+          burn: def.burn || 0,
+          slow: def.slow || 0,
+          pierce: Boolean(def.pierce),
+          trueDamage: Boolean(def.trueDamage),
+          color: def.projectile,
+          life: 1.6
+        });
+      }
+
+      function towerScale(tower) {
+        return 1 + (tower.level - 1) * 0.24;
+      }
+
+      function hitProjectile(projectile, target) {
+        const tower = state.towers.find((item) => item.id === projectile.towerId);
+        if (target.key === "mirror" && target.shieldCd <= 0 && !projectile.trueDamage) {
+          target.shieldCd = 4.2;
+          if (tower) tower.stun = Math.max(tower.stun, 0.9);
+          addFloater(target.x, target.y - 20, "反射", "#74aac0");
+          return;
+        }
+
+        const victims = projectile.splash
+          ? state.monsters.filter((monster) => !monster.dead && !monster.escaped && distance(monster.x, monster.y, target.x, target.y) <= projectile.splash)
+          : [target];
+
+        for (const monster of victims) {
+          if (projectile.burn) monster.burn = Math.max(monster.burn, projectile.burn);
+          if (projectile.slow) monster.slow = Math.max(monster.slow, projectile.slow);
+          damageMonster(monster, projectile.damage, projectile);
+        }
+        if (projectile.splash) addEffect({ type: "burst", x: target.x, y: target.y, color: "rgba(215, 107, 69, 0.34)", radius: projectile.splash, life: 0.28 });
+      }
+
+      function damageMonster(monster, amount, source) {
+        if (monster.dead) return;
+        let damage = amount;
+        if (!source.trueDamage) {
+          damage = Math.max(1, damage - monster.armor);
+        }
+        const aura = auraPower(monster);
+        damage *= aura.resist;
+        monster.hp -= damage;
+        if (monster.hp <= 0) {
+          killMonster(monster, source);
+        }
+      }
+
+      function killMonster(monster, source) {
+        if (monster.dead) return;
+        monster.dead = true;
+        state.lastStats.killed += 1;
+        addFloater(monster.x, monster.y - 18, "倒下", "#f0d27a");
+        if (monster.key === "ooze" && !source.burnKill && !monster.splitChild) {
+          const count = 2 + state.mutations.splitExtra;
+          for (let i = 0; i < count; i += 1) {
+            const child = spawnMonster("rat", monster.lane, monster.x - random(8, 18));
+            child.key = "ooze";
+            child.hp = 25;
+            child.maxHp = 25;
+            child.radius = 9;
+            child.speed = 58;
+            child.breach = 1;
+            child.color = "#7ebd84";
+            child.splitChild = true;
+            child.armor = 0;
+          }
+          addLog("裂殖泥炸成一地小泥。");
+        }
+      }
+
+      function nearestTower(monster, range) {
+        let best = null;
+        let bestD = range;
+        for (const tower of state.towers) {
+          if (tower.dead) continue;
+          const d = distance(monster.x, monster.y, tower.x, tower.y);
+          if (d < bestD) {
+            best = tower;
+            bestD = d;
+          }
+        }
+        return best;
+      }
+
+      function explodeSapper(monster, target) {
+        monster.dead = true;
+        addEffect({ type: "burst", x: monster.x, y: monster.y, color: "rgba(183, 68, 60, 0.42)", radius: 84, life: 0.35 });
+        let destroyed = 0;
+        for (const tower of state.towers) {
+          if (tower.dead) continue;
+          const d = distance(monster.x, monster.y, tower.x, tower.y);
+          if (d > 92) continue;
+          tower.hp -= Math.max(28, 92 - d * 0.55);
+          tower.stun = Math.max(tower.stun, 1.2);
+          if (tower.hp <= 0) {
+            destroyTower(tower);
+            destroyed += 1;
+          }
+        }
+        addLog(`爆囊怪在 ${towers[target.type].name} 旁爆开${destroyed ? "，炸毁了塔" : ""}。`, "good");
+      }
+
+      function destroyTower(tower) {
+        if (tower.dead) return;
+        tower.dead = true;
+        state.lastStats.towersDestroyed += 1;
+        state.bankBonus += 12 + state.mutations.bounty;
+        addFloater(tower.x, tower.y - 18, "破塔", "#b7443c");
+      }
+
+      function auraPower(monster) {
+        let speed = 1;
+        let resist = 1;
+        for (const other of state.monsters) {
+          if (other.dead || other.escaped || other.id === monster.id) continue;
+          if (other.key !== "hag") continue;
+          const range = 112 * state.mutations.aura;
+          if (other.lane === monster.lane && distance(monster.x, monster.y, other.x, other.y) <= range) {
+            speed = Math.max(speed, 1.16);
+            resist = Math.min(resist, 0.76 / Math.sqrt(state.mutations.aura));
+          }
+        }
+        return { speed, resist };
+      }
+
+      function countCluster(monster) {
+        let count = 0;
+        for (const other of state.monsters) {
+          if (other.dead || other.escaped) continue;
+          if (other.lane !== monster.lane) continue;
+          if (Math.abs(other.x - monster.x) < 58) count += 1;
+        }
+        return count;
+      }
+
+      function castSpell(key) {
+        if (state.mode !== "running" || state.omens <= 0) return;
+        state.omens -= 1;
+        spells[key].use(state.selectedLane);
+        renderUi();
+      }
+
+      function finishWave() {
+        if (state.hope <= 0) {
+          winGame();
+          return;
+        }
+        if (state.wave >= MAX_WAVE) {
+          loseGame();
+          return;
+        }
+        const unspent = state.mutations.carry ? Math.floor(state.dread * 0.35) : 0;
+        state.carryDread = unspent;
+        state.queue = [];
+        state.wave += 1;
+        adaptDefense();
+        offerMutation();
+        renderUi();
+      }
+
+      function adaptDefense() {
+        const stats = state.lastStats;
+        const lane = strongestLane(stats);
+        const actions = [];
+        const tag = strongestTag(stats);
+        let type = "archer";
+
+        if (state.wave === 2) {
+          if (stats.escaped <= 1 && stats.towersDestroyed === 0) {
+            state.aiReadout = "第一夜威胁不高，英雄 AI 只记录了你的路线偏好，暂时没有补上克制塔。";
+            addLog("英雄 AI 仍在侦察，没有立刻反制。", "warn");
+            return;
+          }
+          const built = addTower(stats.escaped >= 3 ? "frost" : "archer", lane);
+          actions.push(`${lanes[lane].short}路补上 ${towers[built.type].name}`);
+          state.aiReadout = `英雄 AI 只做轻量补防：${actions.join("，")}。真正的标签反制会从第三夜开始。`;
+          addLog(`英雄 AI 轻量补防：${actions.join("，")}。`, "warn");
+          return;
+        }
+
+        if (tag === "潜行" || tag === "潜地") type = "sentinel";
+        else if (tag === "重甲" || tag === "首领") type = "ballista";
+        else if (tag === "群体" || tag === "分裂") type = "pyro";
+        else if (tag === "快攻") type = "frost";
+        else if (tag === "支援" || tag === "反射") type = "mage";
+        else if (stats.towersDestroyed > 0) type = "priest";
+        else if (stats.escaped >= 4) type = "cannon";
+
+        if (stats.escaped <= 0 && stats.towersDestroyed === 0 && state.wave <= 3) {
+          state.aiReadout = "怪潮没有造成明显缺口，英雄 AI 选择观望。你可以利用下一夜新增契约换路线突破。";
+          addLog("英雄 AI 暂时观望，没有新增塔。", "warn");
+          return;
+        }
+
+        const built = addTower(type, lane);
+        actions.push(`${lanes[lane].short}路补上 ${towers[built.type].name}`);
+
+        const priorityTower = state.towers
+          .filter((tower) => !tower.dead && tower.lane === lane)
+          .sort((a, b) => a.level - b.level || b.x - a.x)[0];
+        if (priorityTower && state.wave >= 4 && (stats.escaped >= 3 || stats.towersDestroyed > 0)) {
+          upgradeTower(priorityTower);
+          actions.push(`${towers[priorityTower.type].name} 升到 Lv.${priorityTower.level}`);
+        }
+
+        const reason = tag ? `侦测到 ${tag} 压力` : "按默认守城模型";
+        state.aiReadout = `${reason}；英雄 AI 选择 ${actions.join("，")}。当前塔会按目标价值、路线进度、怪物标签和残血程度动态选目标。`;
+        addLog(`英雄 AI 调整防线：${actions.join("，")}。`, "warn");
+      }
+
+      function strongestLane(stats) {
+        let best = 1;
+        let score = -1;
+        for (let i = 0; i < lanes.length; i += 1) {
+          const value = stats.laneLeaks[i] * 3 + stats.lanePressure[i] / 120;
+          if (value > score) {
+            score = value;
+            best = i;
+          }
+        }
+        return best;
+      }
+
+      function strongestTag(stats) {
+        let best = "";
+        let score = 0;
+        for (const [tag, value] of Object.entries(stats.tags)) {
+          const weight = tag === "群体" ? 1 : tag === "快攻" ? 1.12 : tag === "潜行" || tag === "潜地" ? 1.3 : 1.2;
+          if (value * weight > score) {
+            score = value * weight;
+            best = tag;
+          }
+        }
+        return best;
+      }
+
+      function offerMutation() {
+        state.mode = "mutation";
+        const pool = mutations.filter((mutation) => !state[mutation.id]);
+        const choices = [];
+        while (choices.length < 3 && pool.length) {
+          const index = Math.floor(Math.random() * pool.length);
+          choices.push(pool.splice(index, 1)[0]);
+        }
+        ui.modalKicker.textContent = `第 ${state.wave - 1} 夜结束`;
+        ui.modalTitle.textContent = "怪潮进化";
+        ui.modalBody.innerHTML = `
+          <p>王国士气还剩 <strong>${state.hope}</strong>。选择一项异变，然后进入第 ${state.wave} 夜。</p>
+          <div class="choice-grid">
+            ${choices.map((choice) => `
+              <button class="choice-card" type="button" data-mutation="${choice.id}">
+                <strong>${choice.name}</strong>
+                <p>${choice.desc}</p>
+              </button>
+            `).join("")}
+          </div>
+        `;
+        ui.modal.classList.remove("hidden");
+        ui.modalBody.querySelectorAll("[data-mutation]").forEach((button) => {
+          button.addEventListener("click", () => chooseMutation(button.dataset.mutation));
+        });
+      }
+
+      function chooseMutation(id) {
+        const mutation = mutations.find((item) => item.id === id);
+        if (!mutation) return;
+        state[id] = true;
+        mutation.apply();
+        ui.modal.classList.add("hidden");
+        beginPlanning();
+        addLog(`怪潮获得异变：${mutation.name}。`, "good");
+      }
+
+      function beginPlanning() {
+        state.mode = "planning";
+        state.dread = WAVE_DREAD[Math.min(state.wave, WAVE_DREAD.length - 1)] + state.bankBonus + state.carryDread;
+        state.omens = WAVE_OMENS[Math.min(state.wave, WAVE_OMENS.length - 1)] + state.mutations.omens;
+        state.bankBonus = 0;
+        state.carryDread = 0;
+        state.queue = [];
+        state.spawnPlan = [];
+        state.spawnIndex = 0;
+        state.monsters = [];
+        state.projectiles = [];
+        renderUi({ preserveScroll: false });
+      }
+
+      function winGame() {
+        state.mode = "gameover";
+        state.hope = 0;
+        ui.modalKicker.textContent = "王城陷落";
+        ui.modalTitle.textContent = "怪潮获胜";
+        ui.modalBody.innerHTML = `
+          <p>城墙后的火把一盏盏熄灭。你在第 ${state.wave} 夜压垮了王城士气，怪潮夺下了最后一道门。</p>
+          <button class="primary-button" type="button" id="modalNewGame">再来一局</button>
+        `;
+        ui.modal.classList.remove("hidden");
+        document.getElementById("modalNewGame").addEventListener("click", () => {
+          ui.modal.classList.add("hidden");
+          newGame();
+        });
+        renderUi();
+      }
+
+      function loseGame() {
+        state.mode = "gameover";
+        ui.modalKicker.textContent = "天亮";
+        ui.modalTitle.textContent = "英雄守住了城";
+        ui.modalBody.innerHTML = `
+          <p>第 ${MAX_WAVE} 夜结束，王城士气还剩 ${state.hope}。英雄 AI 已经读懂了你的怪潮，需要换一套编队思路。</p>
+          <button class="primary-button" type="button" id="modalNewGame">再来一局</button>
+        `;
+        ui.modal.classList.remove("hidden");
+        document.getElementById("modalNewGame").addEventListener("click", () => {
+          ui.modal.classList.add("hidden");
+          newGame();
+        });
+        renderUi();
+      }
+
+      function showHelp() {
+        ui.modalKicker.textContent = "规则";
+        ui.modalTitle.textContent = "怎样攻破塔防";
+        ui.modalBody.innerHTML = `
+          <p>你是进攻方。编队阶段选择路线和怪物契约，消耗魂火组建怪潮。战斗阶段怪物会自动向右推进，抵达城门会降低王城士气。</p>
+          <p>英雄不是固定木桩。每夜结束后，英雄 AI 会分析你用了什么标签、哪条路突入最多、是否炸掉了塔，然后补充克制塔或升级关键塔。</p>
+          <p>邪兆是战斗中的法术次数。先选路线，再施放黑雾、裂地或血契。怪潮进化会改变后续所有夜晚的打法。</p>
+          <button class="primary-button" type="button" id="closeHelp">明白了</button>
+        `;
+        ui.modal.classList.remove("hidden");
+        document.getElementById("closeHelp").addEventListener("click", () => ui.modal.classList.add("hidden"));
+      }
+
+      function renderUi(options = {}) {
+        const preserveScroll = options.preserveScroll !== false && state.mode !== "mutation" && state.mode !== "gameover";
+        const previousScroll = window.scrollY;
+        ui.wave.textContent = `${Math.min(state.wave, MAX_WAVE)}/${MAX_WAVE}`;
+        ui.dread.textContent = Math.max(0, Math.floor(state.dread));
+        ui.hope.textContent = Math.max(0, Math.ceil(state.hope));
+        ui.omens.textContent = Math.max(0, state.omens);
+        ui.breach.textContent = state.breach;
+        ui.mode.textContent = state.mode === "planning" ? "编队" : state.mode === "running" ? "进攻中" : state.mode === "mutation" ? "进化" : "终局";
+        ui.unitCount.textContent = `${state.queue.length}/${queueLimit()} 队`;
+        ui.queueCost.textContent = `队列 ${state.queue.reduce((sum, item) => sum + item.cost, 0)}`;
+        ui.ai.textContent = state.aiReadout;
+
+        ui.laneButtons.innerHTML = lanes.map((lane) => `
+          <button class="lane-button ${state.selectedLane === lane.id ? "active" : ""}" type="button" data-lane="${lane.id}">
+            ${lane.name}
+          </button>
+        `).join("");
+
+        ui.laneButtons.querySelectorAll("[data-lane]").forEach((button) => {
+          button.addEventListener("click", () => setLane(Number(button.dataset.lane)));
+        });
+
+        const unitEntries = Object.entries(units).filter(([key]) => isUnitUnlocked(key));
+        const upcomingWave = Math.min(
+          ...Object.values(units)
+            .map((unit) => unit.unlockWave || 1)
+            .filter((wave) => wave > state.wave)
+        );
+        const upcomingUnits = Number.isFinite(upcomingWave)
+          ? Object.values(units).filter((unit) => unit.unlockWave === upcomingWave).map((unit) => unit.name)
+          : [];
+
+        ui.unitGrid.innerHTML = unitEntries.map(([key, unit]) => {
+          const cost = unitCost(key);
+          const disabled = state.mode !== "planning" || state.queue.length >= queueLimit() || state.dread < cost;
+          return `
+            <button class="unit-card ${!disabled ? "available" : ""}" type="button" data-unit="${key}" ${disabled ? "disabled" : ""}>
+              <span class="unit-mark">${unit.mark}</span>
+              <span>
+                <span class="unit-title"><strong>${unit.name}</strong><span class="cost">${cost}</span></span>
+                <p>${unit.desc}</p>
+                <span class="tag-row">${unit.tags.map((tag) => `<span class="tag">${tag}</span>`).join("")}</span>
+              </span>
+            </button>
+          `;
+        }).join("") + (upcomingUnits.length ? `<div class="unlock-note">第 ${upcomingWave} 夜解锁：${upcomingUnits.join("、")}</div>` : "");
+
+        ui.unitGrid.querySelectorAll("[data-unit]").forEach((button) => {
+          button.addEventListener("click", () => addQueueUnit(button.dataset.unit));
+        });
+
+        ui.queueList.innerHTML = state.queue.length
+          ? state.queue.map((item, index) => `
+              <li>
+                <span>${index + 1}. ${lanes[item.lane].short}路 ${units[item.key].name} <strong>${item.cost}</strong></span>
+                <button class="queue-remove" type="button" data-remove="${index}" ${state.mode !== "planning" ? "disabled" : ""}>×</button>
+              </li>
+            `).join("")
+          : `<li><span>还没有签怪物契约。</span><button class="queue-remove" type="button" disabled>×</button></li>`;
+
+        ui.queueList.querySelectorAll("[data-remove]").forEach((button) => {
+          button.addEventListener("click", () => removeQueueUnit(Number(button.dataset.remove)));
+        });
+
+        ui.spells.innerHTML = Object.entries(spells).map(([key, spell]) => `
+          <button class="spell-button" type="button" data-spell="${key}" ${state.mode !== "running" || state.omens <= 0 ? "disabled" : ""}>
+            ${spell.mark} ${spell.name}
+          </button>
+        `).join("");
+
+        ui.spells.querySelectorAll("[data-spell]").forEach((button) => {
+          button.addEventListener("click", () => castSpell(button.dataset.spell));
+        });
+
+        ui.start.disabled = state.mode !== "planning" || state.queue.length === 0;
+        ui.clear.disabled = state.mode !== "planning" || state.queue.length === 0;
+        ui.auto.disabled = state.mode !== "planning";
+
+        ui.log.innerHTML = state.logs.map((entry) => `<li class="${entry.type}">${entry.text}</li>`).join("");
+
+        if (preserveScroll) {
+          requestAnimationFrame(() => {
+            const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+            window.scrollTo(0, Math.min(previousScroll, maxScroll));
+          });
+        }
+      }
+
+      function draw() {
+        const rect = canvas.getBoundingClientRect();
+        ctx.save();
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.restore();
+
+        const sx = canvas.width / dpr / W;
+        const sy = canvas.height / dpr / H;
+        ctx.save();
+        ctx.scale(dpr * sx, dpr * sy);
+        drawArena();
+        drawTowers();
+        drawMonsters();
+        drawProjectiles();
+        drawEffects();
+        drawOverlay();
+        ctx.restore();
+      }
+
+      function drawArena() {
+        ctx.fillStyle = "#0c1a13";
+        ctx.fillRect(0, 0, W, H);
+        ctx.strokeStyle = "rgba(244, 239, 221, 0.05)";
+        ctx.lineWidth = 1;
+        for (let x = 0; x < W; x += 32) {
+          ctx.beginPath();
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, H);
+          ctx.stroke();
+        }
+        for (let y = 0; y < H; y += 32) {
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(W, y);
+          ctx.stroke();
+        }
+
+        for (const lane of lanes) {
+          ctx.save();
+          ctx.lineCap = "round";
+          ctx.lineWidth = 46;
+          ctx.strokeStyle = "rgba(244, 239, 221, 0.1)";
+          ctx.beginPath();
+          ctx.moveTo(START_X - 22, lane.y);
+          ctx.lineTo(GATE_X + 12, lane.y);
+          ctx.stroke();
+          ctx.lineWidth = 4;
+          ctx.strokeStyle = lane.color;
+          ctx.setLineDash([18, 18]);
+          ctx.beginPath();
+          ctx.moveTo(START_X - 22, lane.y);
+          ctx.lineTo(GATE_X + 12, lane.y);
+          ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.fillStyle = "#fff4d7";
+          ctx.font = "700 15px sans-serif";
+          ctx.fillText(lane.name, 28, lane.y - 32);
+
+          if (state.smoke[lane.id] > 0) {
+            ctx.fillStyle = "rgba(102, 85, 138, 0.24)";
+            ctx.fillRect(START_X, lane.y - 42, GATE_X - START_X, 84);
+          }
+          if (state.haste[lane.id] > 0) {
+            ctx.fillStyle = "rgba(183, 68, 60, 0.14)";
+            ctx.fillRect(START_X, lane.y - 34, GATE_X - START_X, 68);
+          }
+          ctx.restore();
+        }
+
+        ctx.fillStyle = "#f4efdd";
+        ctx.fillRect(GATE_X + 18, 80, 38, 390);
+        ctx.fillStyle = "#203226";
+        ctx.fillRect(GATE_X + 25, 108, 24, 334);
+        ctx.fillStyle = "#d7a947";
+        ctx.font = "900 18px sans-serif";
+        ctx.save();
+        ctx.translate(GATE_X + 72, 286);
+        ctx.rotate(Math.PI / 2);
+        ctx.fillText("王城", 0, 0);
+        ctx.restore();
+
+        ctx.fillStyle = "rgba(132, 182, 93, 0.16)";
+        ctx.fillRect(16, 74, 52, 404);
+        ctx.fillStyle = "#f4efdd";
+        ctx.font = "900 14px sans-serif";
+        ctx.fillText("怪潮入口", 18, 60);
+      }
+
+      function drawTowers() {
+        for (const tower of state.towers) {
+          if (tower.dead) continue;
+          const def = towers[tower.type];
+          ctx.save();
+          ctx.globalAlpha = tower.stun > 0 ? 0.62 : 1;
+          ctx.beginPath();
+          ctx.arc(tower.x, tower.y, def.range, 0, Math.PI * 2);
+          ctx.fillStyle = "rgba(244, 239, 221, 0.025)";
+          ctx.fill();
+          if (def.reveal) {
+            ctx.beginPath();
+            ctx.arc(tower.x, tower.y, def.reveal, 0, Math.PI * 2);
+            ctx.strokeStyle = "rgba(158, 216, 209, 0.12)";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+          }
+          ctx.fillStyle = def.color;
+          roundRect(tower.x - 20, tower.y - 20, 40, 40, 7);
+          ctx.fill();
+          ctx.strokeStyle = "#f4efdd";
+          ctx.lineWidth = 2;
+          ctx.stroke();
+          ctx.fillStyle = "#fffaf0";
+          ctx.font = "900 16px sans-serif";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(def.mark, tower.x, tower.y + 1);
+          ctx.textBaseline = "alphabetic";
+          ctx.fillStyle = "#f4efdd";
+          ctx.font = "700 11px sans-serif";
+          ctx.fillText(`Lv.${tower.level}`, tower.x, tower.y + 33);
+          drawBar(tower.x - 24, tower.y - 31, 48, 5, tower.hp / tower.maxHp, "#d7a947");
+          if (tower.stun > 0) {
+            ctx.fillStyle = "#d7a947";
+            ctx.font = "900 12px sans-serif";
+            ctx.fillText("晕", tower.x + 25, tower.y - 18);
+          }
+          ctx.restore();
+        }
+      }
+
+      function drawMonsters() {
+        const sorted = [...state.monsters].sort((a, b) => a.y - b.y);
+        for (const monster of sorted) {
+          if (monster.dead || monster.escaped) continue;
+          const u = units[monster.key];
+          const hidden = (u.tags.includes("潜行") && !isRevealed(monster)) || (u.tags.includes("潜地") && monster.x < 265 && !isRevealed(monster));
+          ctx.save();
+          ctx.globalAlpha = hidden ? 0.48 : 1;
+
+          if (monster.key === "mole" && monster.x < 265 && !isRevealed(monster)) {
+            ctx.fillStyle = "rgba(155, 121, 82, 0.55)";
+            ctx.beginPath();
+            ctx.ellipse(monster.x, monster.y + 7, 20, 8, 0, 0, Math.PI * 2);
+            ctx.fill();
+          } else if (monster.key === "mirror") {
+            ctx.fillStyle = monster.color;
+            ctx.beginPath();
+            ctx.moveTo(monster.x, monster.y - monster.radius - 4);
+            ctx.lineTo(monster.x + monster.radius + 6, monster.y);
+            ctx.lineTo(monster.x, monster.y + monster.radius + 4);
+            ctx.lineTo(monster.x - monster.radius - 6, monster.y);
+            ctx.closePath();
+            ctx.fill();
+          } else if (monster.key === "hag") {
+            ctx.fillStyle = "rgba(191, 94, 120, 0.14)";
+            ctx.beginPath();
+            ctx.arc(monster.x, monster.y, 112 * state.mutations.aura, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = monster.color;
+            roundRect(monster.x - 12, monster.y - 17, 24, 34, 7);
+            ctx.fill();
+            ctx.strokeStyle = "#f0d27a";
+            ctx.beginPath();
+            ctx.moveTo(monster.x + 10, monster.y - 24);
+            ctx.lineTo(monster.x + 10, monster.y + 20);
+            ctx.stroke();
+            ctx.fillStyle = "#f0d27a";
+            ctx.fillRect(monster.x + 12, monster.y - 24, 18, 13);
+          } else if (monster.key === "ram" || monster.key === "prince") {
+            ctx.fillStyle = monster.color;
+            roundRect(monster.x - monster.radius, monster.y - monster.radius * 0.78, monster.radius * 2, monster.radius * 1.56, 8);
+            ctx.fill();
+            ctx.strokeStyle = "#f0d27a";
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(monster.x - 10, monster.y - monster.radius * 0.7);
+            ctx.lineTo(monster.x - 18, monster.y - monster.radius - 12);
+            ctx.moveTo(monster.x + 10, monster.y - monster.radius * 0.7);
+            ctx.lineTo(monster.x + 18, monster.y - monster.radius - 12);
+            ctx.stroke();
+          } else {
+            ctx.fillStyle = monster.color;
+            ctx.beginPath();
+            ctx.arc(monster.x, monster.y, monster.radius, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          ctx.strokeStyle = "#111814";
+          ctx.lineWidth = 2;
+          ctx.stroke();
+          ctx.fillStyle = "#101914";
+          ctx.font = "900 12px sans-serif";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(u.mark, monster.x, monster.y + 1);
+          ctx.textBaseline = "alphabetic";
+
+          drawBar(monster.x - 18, monster.y - monster.radius - 13, 36, 5, monster.hp / monster.maxHp, monster.burn > 0 ? "#ff9a57" : "#84b65d");
+          if (monster.slow > 0) {
+            ctx.strokeStyle = "rgba(144, 201, 231, 0.8)";
+            ctx.beginPath();
+            ctx.arc(monster.x, monster.y, monster.radius + 5, 0, Math.PI * 2);
+            ctx.stroke();
+          }
+          if (monster.key === "mirror" && monster.shieldCd <= 0) {
+            ctx.strokeStyle = "rgba(116, 170, 192, 0.85)";
+            ctx.beginPath();
+            ctx.arc(monster.x, monster.y, monster.radius + 8, 0, Math.PI * 2);
+            ctx.stroke();
+          }
+          ctx.restore();
+        }
+      }
+
+      function drawProjectiles() {
+        for (const projectile of state.projectiles) {
+          ctx.fillStyle = projectile.color;
+          ctx.beginPath();
+          ctx.arc(projectile.x, projectile.y, projectile.radius, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      function drawEffects() {
+        for (const effect of state.effects) {
+          const alpha = Math.max(0, Math.min(1, effect.life));
+          ctx.save();
+          ctx.globalAlpha = alpha;
+          if (effect.type === "burst") {
+            ctx.fillStyle = effect.color;
+            ctx.beginPath();
+            ctx.arc(effect.x, effect.y, effect.radius * (1.15 - alpha * 0.35), 0, Math.PI * 2);
+            ctx.fill();
+          } else if (effect.type === "beam") {
+            ctx.strokeStyle = effect.color;
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(effect.x, effect.y);
+            ctx.lineTo(effect.tx, effect.ty);
+            ctx.stroke();
+          } else if (effect.type === "quake") {
+            ctx.fillStyle = effect.color;
+            ctx.fillRect(START_X, lanes[effect.lane].y - 52, GATE_X - START_X, 104);
+          } else if (effect.type === "lane") {
+            ctx.fillStyle = effect.color;
+            ctx.fillRect(START_X, lanes[effect.lane].y - 44, GATE_X - START_X, 88);
+          }
+          ctx.restore();
+        }
+
+        for (const floater of state.floaters) {
+          ctx.save();
+          ctx.globalAlpha = Math.max(0, floater.life / 0.9);
+          ctx.fillStyle = floater.color;
+          ctx.font = "900 15px sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText(floater.text, floater.x, floater.y);
+          ctx.restore();
+        }
+      }
+
+      function drawOverlay() {
+        if (state.mode === "planning") {
+          ctx.save();
+          ctx.fillStyle = "rgba(12, 26, 19, 0.74)";
+          roundRect(300, 184, 360, 134, 8);
+          ctx.fill();
+          ctx.fillStyle = "#fffaf0";
+          ctx.textAlign = "center";
+          ctx.font = "900 28px sans-serif";
+          ctx.fillText(`第 ${state.wave} 夜编队`, 480, 230);
+          ctx.font = "700 15px sans-serif";
+          ctx.fillText("选择路线与怪物契约，释放怪潮攻破右侧王城。", 480, 265);
+          ctx.fillStyle = "#f0d27a";
+          ctx.fillText("英雄 AI 会根据上一夜结果反制你。", 480, 292);
+          ctx.restore();
+        }
+
+        if (state.mode === "running") {
+          ctx.save();
+          ctx.fillStyle = "rgba(255, 250, 240, 0.82)";
+          roundRect(18, 18, 224, 58, 7);
+          ctx.fill();
+          ctx.fillStyle = "#111814";
+          ctx.font = "900 18px sans-serif";
+          ctx.fillText(`第 ${state.wave} 夜 ${state.waveTime.toFixed(1)} 秒`, 34, 42);
+          ctx.font = "700 13px sans-serif";
+          ctx.fillText(`剩余入场 ${Math.max(0, state.spawnPlan.length - state.spawnIndex)}，场上 ${state.monsters.length}`, 34, 63);
+          ctx.restore();
+        }
+      }
+
+      function drawBar(x, y, w, h, pct, color) {
+        ctx.fillStyle = "rgba(17, 24, 20, 0.72)";
+        roundRect(x, y, w, h, h / 2);
+        ctx.fill();
+        ctx.fillStyle = color;
+        roundRect(x, y, Math.max(0, w * Math.min(1, pct)), h, h / 2);
+        ctx.fill();
+      }
+
+      function addFloater(x, y, text, color) {
+        state.floaters.push({ x, y, text, color, life: 0.9 });
+      }
+
+      function addEffect(effect) {
+        state.effects.push(effect);
+      }
+
+      function distance(ax, ay, bx, by) {
+        return Math.hypot(ax - bx, ay - by);
+      }
+
+      function random(min, max) {
+        return min + Math.random() * (max - min);
+      }
+
+      function roundRect(x, y, w, h, r) {
+        const radius = Math.min(r, Math.abs(w) / 2, Math.abs(h) / 2);
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + w - radius, y);
+        ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+        ctx.lineTo(x + w, y + h - radius);
+        ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+        ctx.lineTo(x + radius, y + h);
+        ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
+      }
+
+      function resizeCanvas() {
+        const rect = canvas.getBoundingClientRect();
+        dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+        canvas.width = Math.floor(rect.width * dpr);
+        canvas.height = Math.floor(rect.height * dpr);
+        draw();
+      }
+
+      function loop(time) {
+        const dt = Math.min(0.05, (time - lastTime) / 1000 || 0);
+        lastTime = time;
+        update(dt);
+        draw();
+        animationFrame = requestAnimationFrame(loop);
+      }
+
+      ui.start.addEventListener("click", startWave);
+      ui.clear.addEventListener("click", clearQueue);
+      ui.auto.addEventListener("click", autoQueue);
+      ui.reset.addEventListener("click", () => {
+        ui.modal.classList.add("hidden");
+        newGame();
+      });
+      ui.help.addEventListener("click", showHelp);
+      window.addEventListener("resize", resizeCanvas);
+
+      newGame();
+      resizeCanvas();
+      animationFrame = requestAnimationFrame(loop);
+    </script>
+  </body>
+</html>
