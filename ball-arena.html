@@ -243,6 +243,41 @@
     outline-offset: 2px;
   }
 
+  .joystick {
+    position: fixed;
+    left: 18px;
+    bottom: 18px;
+    z-index: 5;
+    width: 122px;
+    height: 122px;
+    display: none;
+    pointer-events: auto;
+    touch-action: none;
+  }
+
+  .joystick-base {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 1px solid rgba(202, 216, 235, 0.24);
+    background: rgba(7, 12, 20, 0.42);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04), 0 18px 50px rgba(0, 0, 0, 0.28);
+    backdrop-filter: blur(12px);
+  }
+
+  .joystick-stick {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    border: 1px solid rgba(88, 237, 200, 0.72);
+    background: rgba(43, 158, 130, 0.72);
+    box-shadow: 0 0 22px rgba(88, 237, 200, 0.22);
+  }
+
   .overlay {
     position: fixed;
     inset: 0;
@@ -372,7 +407,15 @@
       width: 112px;
       height: 112px;
       left: 10px;
-      bottom: 10px;
+      bottom: 142px;
+    }
+
+    .joystick {
+      display: block;
+      left: 12px;
+      bottom: 12px;
+      width: 112px;
+      height: 112px;
     }
 
     .controls {
@@ -436,6 +479,11 @@
       <canvas id="miniCanvas" width="134" height="134"></canvas>
     </section>
 
+    <div class="joystick" id="joystick" aria-label="移动摇杆">
+      <div class="joystick-base"></div>
+      <div class="joystick-stick" id="joystickStick"></div>
+    </div>
+
     <nav class="controls" aria-label="游戏控制">
       <button class="icon-btn primary" id="splitBtn" title="分裂 空格" aria-label="分裂">分</button>
       <button class="icon-btn warn" id="ejectBtn" title="按住吐球 W" aria-label="按住吐球">吐</button>
@@ -488,6 +536,8 @@
   const tagList = document.getElementById("tagList");
   const pauseBtn = document.getElementById("pauseBtn");
   const ejectBtn = document.getElementById("ejectBtn");
+  const joystickEl = document.getElementById("joystick");
+  const joystickStick = document.getElementById("joystickStick");
   const overlay = document.getElementById("overlay");
   const resultTitle = document.getElementById("resultTitle");
   const resultText = document.getElementById("resultText");
@@ -591,6 +641,7 @@
   let renderCells = [];
   let perf = { avgFrame: 16, lowQuality: false, nextMiniDraw: 0, drawnFood: 0, drawnCells: 0 };
   let input = { ejectHeld: false };
+  let joystick = { active: false, pointerId: null, x: 0, y: 0 };
   let game = {};
   let safeZone = {};
   let activeMode = "battle";
@@ -938,6 +989,7 @@
     camera = { ...start };
     zoom = 0.82;
     pointer = { x: view.w / 2, y: view.h / 2 };
+    resetJoystick();
 
     if (opts.menu) {
       game.paused = true;
@@ -1040,6 +1092,13 @@
   }
 
   function cursorPoint() {
+    if (playerGroup && (Math.abs(joystick.x) > 0.04 || Math.abs(joystick.y) > 0.04)) {
+      const center = groupCenter(playerGroup);
+      return {
+        x: center.x + joystick.x * 920,
+        y: center.y + joystick.y * 920
+      };
+    }
     return screenToWorld(pointer.x, pointer.y);
   }
 
@@ -2903,6 +2962,34 @@
     pointer.y = event.clientY - rect.top;
   }
 
+  function resetJoystick() {
+    joystick.active = false;
+    joystick.pointerId = null;
+    joystick.x = 0;
+    joystick.y = 0;
+    if (joystickStick) {
+      joystickStick.style.left = "50%";
+      joystickStick.style.top = "50%";
+    }
+  }
+
+  function updateJoystick(event) {
+    const rect = joystickEl.getBoundingClientRect();
+    const cx = rect.width / 2;
+    const cy = rect.height / 2;
+    const max = rect.width * 0.34;
+    const rawX = event.clientX - rect.left - cx;
+    const rawY = event.clientY - rect.top - cy;
+    const len = Math.hypot(rawX, rawY);
+    const scale = len > max ? max / len : 1;
+    const dx = rawX * scale;
+    const dy = rawY * scale;
+    joystick.x = dx / max;
+    joystick.y = dy / max;
+    joystickStick.style.left = `${cx + dx}px`;
+    joystickStick.style.top = `${cy + dy}px`;
+  }
+
   canvas.addEventListener("mousemove", pointerFromEvent);
   canvas.addEventListener("mousedown", pointerFromEvent);
 
@@ -2911,6 +2998,35 @@
     if (t) pointerFromEvent(t);
     event.preventDefault();
   }, { passive: false });
+
+  joystickEl.addEventListener("pointerdown", event => {
+    event.preventDefault();
+    event.stopPropagation();
+    joystick.active = true;
+    joystick.pointerId = event.pointerId;
+    joystickEl.setPointerCapture(event.pointerId);
+    updateJoystick(event);
+  });
+
+  joystickEl.addEventListener("pointermove", event => {
+    if (!joystick.active || event.pointerId !== joystick.pointerId) return;
+    event.preventDefault();
+    event.stopPropagation();
+    updateJoystick(event);
+  });
+
+  function releaseJoystick(event) {
+    if (event && joystick.pointerId !== null && event.pointerId !== joystick.pointerId) return;
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    resetJoystick();
+  }
+
+  joystickEl.addEventListener("pointerup", releaseJoystick);
+  joystickEl.addEventListener("pointercancel", releaseJoystick);
+  joystickEl.addEventListener("lostpointercapture", releaseJoystick);
 
   canvas.addEventListener("touchmove", event => {
     const t = event.touches[0];

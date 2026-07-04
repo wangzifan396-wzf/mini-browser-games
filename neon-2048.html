@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>霓虹 2048</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #071015;
+    --panel: rgba(14, 21, 33, 0.88);
+    --panel-2: rgba(22, 32, 48, 0.92);
+    --line: rgba(205, 223, 255, 0.18);
+    --text: #eef6ff;
+    --muted: #99abc4;
+    --cyan: #38d9ff;
+    --green: #4ade80;
+    --gold: #ffd166;
+    --red: #ff6178;
+    --violet: #a78bfa;
+  }
+
+  * { box-sizing: border-box; }
+
+  html,
+  body {
+    width: 100%;
+    min-height: 100%;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at 18% 12%, rgba(56, 217, 255, 0.12), transparent 28rem),
+      radial-gradient(circle at 82% 18%, rgba(255, 209, 102, 0.10), transparent 30rem),
+      linear-gradient(145deg, #060b10 0%, #101822 52%, #090d14 100%);
+    color: var(--text);
+    font-family: "Microsoft YaHei", "Segoe UI", system-ui, sans-serif;
+    touch-action: none;
+    user-select: none;
+  }
+
+  button {
+    font: inherit;
+    color: inherit;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: rgba(25, 36, 54, 0.94);
+    cursor: pointer;
+    transition: transform 120ms ease, background 120ms ease, border-color 120ms ease, opacity 120ms ease;
+  }
+
+  button:hover {
+    background: rgba(39, 56, 80, 0.98);
+    border-color: rgba(56, 217, 255, 0.58);
+  }
+
+  button:active { transform: scale(0.96); }
+  button:disabled { cursor: not-allowed; opacity: 0.42; }
+
+  .shell {
+    width: min(1160px, 96vw);
+    height: min(760px, 94vh);
+    display: grid;
+    grid-template-columns: minmax(300px, 620px) 330px;
+    gap: 18px;
+    align-items: stretch;
+  }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    box-shadow: 0 22px 70px rgba(0, 0, 0, 0.36);
+    backdrop-filter: blur(16px);
+  }
+
+  .game {
+    min-width: 0;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    gap: 12px;
+  }
+
+  .topbar {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    align-items: center;
+    padding: 12px;
+  }
+
+  .brand {
+    min-width: 0;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(25px, 4vw, 42px);
+    line-height: 1;
+    letter-spacing: 0;
+  }
+
+  .subline {
+    margin-top: 7px;
+    color: var(--muted);
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .top-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .icon-btn {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    font-size: 19px;
+  }
+
+  .board-wrap {
+    min-height: 0;
+    display: grid;
+    place-items: center;
+  }
+
+  .board {
+    width: min(100%, 70vh, 600px);
+    aspect-ratio: 1;
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-rows: repeat(4, minmax(0, 1fr));
+    gap: clamp(8px, 1.6vmin, 13px);
+    padding: clamp(10px, 2vmin, 16px);
+    border-radius: 8px;
+    border: 1px solid rgba(205, 223, 255, 0.22);
+    background:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.018)),
+      rgba(6, 11, 18, 0.82);
+    box-shadow:
+      0 28px 80px rgba(0, 0, 0, 0.42),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+  }
+
+  .cell {
+    min-width: 0;
+    min-height: 0;
+    position: relative;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border-radius: 8px;
+    border: 1px solid rgba(205, 223, 255, 0.12);
+    background: rgba(255, 255, 255, 0.045);
+    color: var(--text);
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: 0;
+    aspect-ratio: 1;
+  }
+
+  .cell span {
+    width: 100%;
+    display: block;
+    text-align: center;
+    font-size: clamp(22px, 7vmin, 50px);
+    transform: translateY(-1px);
+  }
+
+  .cell.empty span { color: transparent; }
+  .cell.selected { border-color: #ffffff; box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.4); }
+  .cell.targetable { border-color: rgba(255, 209, 102, 0.66); }
+  .cell.pop span { animation: pop 170ms ease-out; }
+  .board.animating .cell span { visibility: hidden; }
+
+  .tile-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    pointer-events: none;
+  }
+
+  .moving-tile {
+    position: absolute;
+    display: grid;
+    place-items: center;
+    border-radius: 8px;
+    border: 1px solid rgba(205, 223, 255, 0.12);
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: 0;
+    transition: transform 150ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    will-change: transform;
+  }
+
+  .moving-tile span {
+    width: 100%;
+    display: block;
+    text-align: center;
+    font-size: clamp(22px, 7vmin, 50px);
+    transform: translateY(-1px);
+  }
+
+  @keyframes pop {
+    from { transform: scale(0.78); opacity: 0.45; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .tile-2 { background: #23384a; color: #e8f5ff; }
+  .tile-4 { background: #244b54; color: #e8fffb; }
+  .tile-8 { background: #2e6b5b; color: #f1fff8; }
+  .tile-16 { background: #6d5b2a; color: #fff6d8; }
+  .tile-32 { background: #814d35; color: #fff0e4; }
+  .tile-64 { background: #8d354b; color: #ffe9ef; }
+  .tile-128 { background: #4e4c91; color: #f0efff; }
+  .tile-256 { background: #286b8f; color: #e6f7ff; }
+  .tile-512 { background: #2d8c73; color: #e9fff8; }
+  .tile-1024 { background: #a0672e; color: #fff3dc; }
+  .tile-2048 { background: #c19a37; color: #171108; box-shadow: 0 0 28px rgba(255, 209, 102, 0.42); }
+  .tile-super { background: #d6e9ff; color: #09111b; box-shadow: 0 0 32px rgba(214, 233, 255, 0.38); }
+
+  .bottom-hud {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .stat {
+    min-width: 0;
+    padding: 10px;
+    border: 1px solid rgba(205, 223, 255, 0.11);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.045);
+  }
+
+  .label {
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1;
+  }
+
+  .value {
+    margin-top: 7px;
+    font-size: 24px;
+    line-height: 1;
+    font-weight: 900;
+  }
+
+  .side {
+    min-width: 0;
+    padding: 14px;
+    display: grid;
+    grid-template-rows: auto auto minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .side h2 {
+    margin: 0 0 10px;
+    color: #dcecff;
+    font-size: 13px;
+    letter-spacing: 0;
+  }
+
+  .charge {
+    display: grid;
+    gap: 9px;
+  }
+
+  .bar {
+    height: 10px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .bar span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--cyan), var(--gold));
+  }
+
+  .status {
+    display: grid;
+    gap: 8px;
+    color: #d8e7f8;
+    font-size: 13px;
+  }
+
+  .status-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(205, 223, 255, 0.1);
+  }
+
+  .status-row:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+  }
+
+  .status-row strong { color: #ffffff; font-weight: 850; }
+
+  .tools {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+    align-content: start;
+  }
+
+  .tool {
+    min-width: 0;
+    min-height: 72px;
+    display: grid;
+    grid-template-columns: 34px 1fr auto;
+    gap: 8px;
+    align-items: center;
+    padding: 10px;
+    text-align: left;
+  }
+
+  .tool.active {
+    border-color: rgba(255, 209, 102, 0.82);
+    background: rgba(96, 73, 33, 0.86);
+  }
+
+  .tool.instant.active {
+    border-color: var(--line);
+    background: rgba(25, 36, 54, 0.94);
+  }
+
+  .tool-icon {
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.07);
+    font-size: 18px;
+  }
+
+  .tool-name {
+    min-width: 0;
+    font-weight: 850;
+    font-size: 14px;
+    line-height: 1.1;
+  }
+
+  .tool-count {
+    min-width: 28px;
+    padding: 4px 7px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.09);
+    text-align: center;
+    font-size: 12px;
+    font-weight: 900;
+  }
+
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: 26px;
+    z-index: 8;
+    transform: translateX(-50%);
+    min-width: min(520px, calc(100vw - 36px));
+    padding: 12px 14px;
+    text-align: center;
+    color: #eaf6ff;
+    font-weight: 850;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 180ms ease, transform 180ms ease;
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translate(-50%, -8px);
+  }
+
+  .overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 7;
+    display: none;
+    place-items: center;
+    padding: 18px;
+    background: rgba(3, 8, 14, 0.64);
+  }
+
+  .overlay.show { display: grid; }
+
+  .result {
+    width: min(560px, 94vw);
+    padding: 18px;
+  }
+
+  .result h2 {
+    margin: 0;
+    font-size: clamp(30px, 6vw, 56px);
+    line-height: 1;
+    letter-spacing: 0;
+  }
+
+  .result p {
+    margin: 12px 0 0;
+    color: #c8d5e7;
+    line-height: 1.65;
+    font-size: 15px;
+  }
+
+  .primary {
+    margin-top: 16px;
+    min-height: 44px;
+    padding: 0 18px;
+    background: rgba(36, 137, 124, 0.96);
+    border-color: rgba(74, 222, 128, 0.72);
+    font-weight: 850;
+  }
+
+  @media (max-width: 900px) {
+    body { overflow: auto; }
+    .shell {
+      height: auto;
+      min-height: 100vh;
+      padding: 10px 0;
+      grid-template-columns: 1fr;
+    }
+    .side {
+      grid-template-rows: auto auto auto;
+    }
+    .tools { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    .tool {
+      min-height: 58px;
+      grid-template-columns: 1fr;
+      justify-items: center;
+      text-align: center;
+      gap: 5px;
+    }
+    .tool-name { display: none; }
+  }
+
+  @media (max-width: 560px) {
+    .shell { width: min(100vw - 16px, 520px); gap: 10px; }
+    .topbar { grid-template-columns: 1fr auto; padding: 10px; }
+    .subline { display: none; }
+    .board { gap: 8px; padding: 9px; }
+    .bottom-hud { grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 10px; }
+    .stat { padding: 8px; }
+    .value { font-size: 20px; }
+    .side { padding: 10px; gap: 10px; }
+    .tools { gap: 7px; }
+    .tool { padding: 7px; }
+    .tool-icon { width: 31px; height: 31px; }
+  }
+</style>
+</head>
+<body>
+<main class="shell">
+  <section class="game">
+    <div class="topbar panel">
+      <div class="brand">
+        <h1>霓虹 2048</h1>
+        <div class="subline" id="statusText">合成充能，工具救场。</div>
+      </div>
+      <div class="top-actions">
+        <button class="icon-btn" id="newBtn" title="重新开始">↻</button>
+      </div>
+    </div>
+
+    <div class="board-wrap">
+      <div class="board" id="board" aria-label="2048 棋盘"></div>
+    </div>
+
+    <div class="bottom-hud panel">
+      <div class="stat">
+        <div class="label">得分</div>
+        <div class="value" id="scoreValue">0</div>
+      </div>
+      <div class="stat">
+        <div class="label">最高</div>
+        <div class="value" id="bestValue">0</div>
+      </div>
+      <div class="stat">
+        <div class="label">步数</div>
+        <div class="value" id="moveValue">0</div>
+      </div>
+    </div>
+  </section>
+
+  <aside class="side panel">
+    <section>
+      <h2>工具奖励</h2>
+      <div class="charge">
+        <div class="bar"><span id="chargeBar" style="width:0%"></span></div>
+        <div class="status">
+          <div class="status-row"><span>最大方块</span><strong id="maxValue">2</strong></div>
+          <div class="status-row"><span>步数奖励</span><strong id="chargeValue">0/100</strong></div>
+          <div class="status-row"><span>状态</span><strong id="toolState">待命</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>工具</h2>
+      <div class="tools" id="toolGrid">
+        <button class="tool" data-tool="undo" title="撤回">
+          <span class="tool-icon">↶</span>
+          <span class="tool-name">撤回</span>
+          <span class="tool-count" id="undoCount">0</span>
+        </button>
+        <button class="tool" data-tool="hammer" title="锤子">
+          <span class="tool-icon">⌧</span>
+          <span class="tool-name">锤子</span>
+          <span class="tool-count" id="hammerCount">0</span>
+        </button>
+        <button class="tool" data-tool="swap" title="交换">
+          <span class="tool-icon">⇄</span>
+          <span class="tool-name">交换</span>
+          <span class="tool-count" id="swapCount">0</span>
+        </button>
+        <button class="tool" data-tool="freeze" title="冻结">
+          <span class="tool-icon">◇</span>
+          <span class="tool-name">冻结</span>
+          <span class="tool-count" id="freezeCount">0</span>
+        </button>
+        <button class="tool" data-tool="bomb" title="炸弹">
+          <span class="tool-icon">✦</span>
+          <span class="tool-name">炸弹</span>
+          <span class="tool-count" id="bombCount">0</span>
+        </button>
+        <button class="tool" data-tool="upgrade" title="升阶">
+          <span class="tool-icon">⇧</span>
+          <span class="tool-name">升阶</span>
+          <span class="tool-count" id="upgradeCount">0</span>
+        </button>
+        <button class="tool instant" data-tool="magnet" title="磁吸">
+          <span class="tool-icon">≋</span>
+          <span class="tool-name">磁吸</span>
+          <span class="tool-count" id="magnetCount">0</span>
+        </button>
+        <button class="tool instant" data-tool="recycle" title="回收">
+          <span class="tool-icon">⌁</span>
+          <span class="tool-name">回收</span>
+          <span class="tool-count" id="recycleCount">0</span>
+        </button>
+      </div>
+    </section>
+  </aside>
+</main>
+
+<div class="toast panel" id="toast">工具已充能</div>
+
+<div class="overlay" id="overlay">
+  <section class="result panel">
+    <h2 id="resultTitle">棋盘锁死</h2>
+    <p id="resultText">这局结束。</p>
+    <button class="primary" id="againBtn">再来一局</button>
+  </section>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  const SIZE = 4;
+  const STEP_REWARD = 100;
+  const boardEl = document.getElementById("board");
+  const scoreValue = document.getElementById("scoreValue");
+  const bestValue = document.getElementById("bestValue");
+  const moveValue = document.getElementById("moveValue");
+  const maxValue = document.getElementById("maxValue");
+  const chargeValue = document.getElementById("chargeValue");
+  const chargeBar = document.getElementById("chargeBar");
+  const statusText = document.getElementById("statusText");
+  const toolState = document.getElementById("toolState");
+  const toolGrid = document.getElementById("toolGrid");
+  const toastEl = document.getElementById("toast");
+  const overlay = document.getElementById("overlay");
+  const resultTitle = document.getElementById("resultTitle");
+  const resultText = document.getElementById("resultText");
+  const newBtn = document.getElementById("newBtn");
+  const againBtn = document.getElementById("againBtn");
+  const countEls = {
+    undo: document.getElementById("undoCount"),
+    hammer: document.getElementById("hammerCount"),
+    swap: document.getElementById("swapCount"),
+    freeze: document.getElementById("freezeCount"),
+    bomb: document.getElementById("bombCount"),
+    upgrade: document.getElementById("upgradeCount"),
+    magnet: document.getElementById("magnetCount"),
+    recycle: document.getElementById("recycleCount")
+  };
+  const toolNames = {
+    undo: "撤回",
+    hammer: "锤子",
+    swap: "交换",
+    freeze: "冻结",
+    bomb: "炸弹",
+    upgrade: "升阶",
+    magnet: "磁吸",
+    recycle: "回收"
+  };
+  const toolPool = ["undo", "hammer", "swap", "freeze", "bomb", "upgrade", "magnet", "recycle"];
+  const targetTools = new Set(["hammer", "swap", "bomb", "upgrade"]);
+
+  let state;
+  let toastTimer = 0;
+  let pointerStart = null;
+  let swiped = false;
+  let animating = false;
+
+  function emptyGrid() {
+    return Array.from({ length: SIZE }, () => Array(SIZE).fill(0));
+  }
+
+  function cloneGrid(grid) {
+    return grid.map(row => row.slice());
+  }
+
+  function gridsEqual(a, b) {
+    for (let r = 0; r < SIZE; r++) {
+      for (let c = 0; c < SIZE; c++) {
+        if (a[r][c] !== b[r][c]) return false;
+      }
+    }
+    return true;
+  }
+
+  function newGame() {
+    state = {
+      grid: emptyGrid(),
+      score: 0,
+      best: Number(localStorage.getItem("neon_2048_best")) || 0,
+      moves: 0,
+      maxTile: 2,
+      nextStepReward: STEP_REWARD,
+      activeTool: null,
+      swapFirst: null,
+      freezeNext: false,
+      won: false,
+      history: [],
+      rewarded: { 2: true },
+      powers: {
+        undo: 1,
+        hammer: 1,
+        swap: 0,
+        freeze: 0,
+        bomb: 0,
+        upgrade: 0,
+        magnet: 0,
+        recycle: 0
+      },
+      popKeys: new Set()
+    };
+    spawnTile();
+    spawnTile();
+    overlay.classList.remove("show");
+    render();
+    showToast("新局开始");
+  }
+
+  function spawnTile() {
+    const empty = [];
+    for (let r = 0; r < SIZE; r++) {
+      for (let c = 0; c < SIZE; c++) {
+        if (!state.grid[r][c]) empty.push({ r, c });
+      }
+    }
+    if (!empty.length) return false;
+    const pick = empty[Math.floor(Math.random() * empty.length)];
+    state.grid[pick.r][pick.c] = Math.random() < 0.9 ? 2 : 4;
+    state.popKeys.add(`${pick.r},${pick.c}`);
+    return true;
+  }
+
+  function saveSnapshot() {
+    state.history.push({
+      grid: cloneGrid(state.grid),
+      score: state.score,
+      moves: state.moves,
+      maxTile: state.maxTile,
+      won: state.won
+    });
+    if (state.history.length > 24) state.history.shift();
+  }
+
+  function mergeLine(values) {
+    const raw = values.filter(Boolean);
+    const merged = [];
+    let gained = 0;
+    let merges = 0;
+    let maxTile = 0;
+    for (let i = 0; i < raw.length; i++) {
+      if (raw[i] === raw[i + 1]) {
+        const next = raw[i] * 2;
+        merged.push(next);
+        gained += next;
+        merges += 1;
+        maxTile = Math.max(maxTile, next);
+        i += 1;
+      } else {
+        merged.push(raw[i]);
+        maxTile = Math.max(maxTile, raw[i]);
+      }
+    }
+    while (merged.length < SIZE) merged.push(0);
+    return { line: merged, gained, merges, maxTile };
+  }
+
+  function move(direction) {
+    if (animating) return;
+    if (state.activeTool) {
+      cancelTool();
+      return;
+    }
+    const result = analyzeMove(direction);
+    if (gridsEqual(state.grid, result.grid)) return;
+    saveSnapshot();
+    animateSlide(result.plans, () => {
+      state.grid = result.grid;
+      state.score += result.gained;
+      state.moves += 1;
+      state.maxTile = result.maxTile;
+      state.best = Math.max(state.best, state.score);
+      state.popKeys = new Set(result.mergeKeys);
+      localStorage.setItem("neon_2048_best", String(state.best));
+      rewardMilestones(result.maxTile);
+      rewardStepTool();
+      if (state.freezeNext) {
+        state.freezeNext = false;
+        showToast("冻结生效");
+      } else {
+        spawnTile();
+      }
+      if (result.maxTile >= 2048 && !state.won) {
+        state.won = true;
+        grantTool("bomb");
+        showToast("2048 达成，炸弹充能");
+      }
+      render();
+      if (!canMove()) endGame();
+    });
+  }
+
+  function lineCells(direction, index) {
+    const cells = [];
+    for (let i = 0; i < SIZE; i++) {
+      if (direction === "left") cells.push({ r: index, c: i });
+      if (direction === "right") cells.push({ r: index, c: SIZE - 1 - i });
+      if (direction === "up") cells.push({ r: i, c: index });
+      if (direction === "down") cells.push({ r: SIZE - 1 - i, c: index });
+    }
+    return cells;
+  }
+
+  function analyzeMove(direction) {
+    const next = emptyGrid();
+    const plans = [];
+    const mergeKeys = [];
+    let gained = 0;
+    let merges = 0;
+    let maxTile = state.maxTile;
+    for (let index = 0; index < SIZE; index++) {
+      const cells = lineCells(direction, index);
+      const source = cells
+        .map(cell => ({ ...cell, value: state.grid[cell.r][cell.c] }))
+        .filter(tile => tile.value);
+      let targetIndex = 0;
+      for (let i = 0; i < source.length; i++) {
+        const first = source[i];
+        const target = cells[targetIndex];
+        if (source[i + 1] && source[i + 1].value === first.value) {
+          const second = source[i + 1];
+          const value = first.value * 2;
+          next[target.r][target.c] = value;
+          plans.push({ from: first, to: target, value: first.value });
+          plans.push({ from: second, to: target, value: second.value });
+          mergeKeys.push(`${target.r},${target.c}`);
+          gained += value;
+          merges += 1;
+          maxTile = Math.max(maxTile, value);
+          i += 1;
+        } else {
+          next[target.r][target.c] = first.value;
+          plans.push({ from: first, to: target, value: first.value });
+          maxTile = Math.max(maxTile, first.value);
+        }
+        targetIndex += 1;
+      }
+    }
+    return { grid: next, plans, mergeKeys, gained, merges, maxTile };
+  }
+
+  function animateSlide(plans, done) {
+    animating = true;
+    const cells = [...boardEl.querySelectorAll(".cell")];
+    const rectFor = cell => {
+      const el = cells[cell.r * SIZE + cell.c];
+      return { x: el.offsetLeft, y: el.offsetTop, w: el.offsetWidth, h: el.offsetHeight };
+    };
+    const layer = document.createElement("div");
+    layer.className = "tile-layer";
+    boardEl.classList.add("animating");
+    boardEl.appendChild(layer);
+    for (const plan of plans) {
+      const from = rectFor(plan.from);
+      const to = rectFor(plan.to);
+      const tile = document.createElement("div");
+      tile.className = `moving-tile ${tileClass(plan.value)}`;
+      tile.style.left = `${from.x}px`;
+      tile.style.top = `${from.y}px`;
+      tile.style.width = `${from.w}px`;
+      tile.style.height = `${from.h}px`;
+      tile.innerHTML = `<span>${plan.value}</span>`;
+      layer.appendChild(tile);
+      requestAnimationFrame(() => {
+        tile.style.transform = `translate(${to.x - from.x}px, ${to.y - from.y}px)`;
+      });
+    }
+    setTimeout(() => {
+      layer.remove();
+      boardEl.classList.remove("animating");
+      animating = false;
+      done();
+    }, 170);
+  }
+
+  function rewardMilestones(maxTile) {
+    for (let tile = 4; tile <= maxTile; tile *= 2) {
+      if (maxTile >= tile && !state.rewarded[tile]) {
+        state.rewarded[tile] = true;
+        grantRandomTool();
+        showToast(`首次达成 ${tile}`);
+      }
+    }
+  }
+
+  function rewardStepTool() {
+    while (state.moves >= state.nextStepReward) {
+      grantRandomTool();
+      showToast(`第 ${state.nextStepReward} 步奖励`);
+      state.nextStepReward += STEP_REWARD;
+    }
+  }
+
+  function grantRandomTool() {
+    grantTool(toolPool[Math.floor(Math.random() * toolPool.length)]);
+  }
+
+  function grantTool(tool) {
+    state.powers[tool] = Math.min(9, state.powers[tool] + 1);
+    showToast(`${toolNames[tool]} +1`);
+  }
+
+  function useTool(tool) {
+    if (animating) return;
+    if (state.powers[tool] <= 0) return;
+    if (tool === "undo") {
+      useUndo();
+      return;
+    }
+    if (tool === "freeze") {
+      state.powers.freeze -= 1;
+      state.freezeNext = true;
+      state.activeTool = null;
+      state.swapFirst = null;
+      showToast("下一步不会生成新数字");
+      render();
+      return;
+    }
+    if (tool === "magnet") {
+      useMagnet();
+      return;
+    }
+    if (tool === "recycle") {
+      useRecycle();
+      return;
+    }
+    if (!targetTools.has(tool)) return;
+    state.activeTool = state.activeTool === tool ? null : tool;
+    state.swapFirst = null;
+    render();
+  }
+
+  function useUndo() {
+    if (state.powers.undo <= 0 || !state.history.length) {
+      showToast("没有可撤回的步骤");
+      return;
+    }
+    const last = state.history.pop();
+    state.powers.undo -= 1;
+    state.grid = cloneGrid(last.grid);
+    state.score = last.score;
+    state.moves = last.moves;
+    state.maxTile = last.maxTile;
+    state.won = last.won;
+    state.activeTool = null;
+    state.swapFirst = null;
+    state.best = Math.max(state.best, state.score);
+    showToast("已撤回一步");
+    render();
+  }
+
+  function cancelTool() {
+    state.activeTool = null;
+    state.swapFirst = null;
+    render();
+  }
+
+  function handleCell(row, col) {
+    if (animating) return;
+    const tool = state.activeTool;
+    if (!tool) return;
+    if (tool === "hammer") {
+      if (!state.grid[row][col]) return;
+      saveSnapshot();
+      state.powers.hammer -= 1;
+      state.grid[row][col] = 0;
+      afterToolUse("锤子清除");
+      return;
+    }
+    if (tool === "bomb") {
+      if (!state.grid[row][col]) return;
+      saveSnapshot();
+      state.powers.bomb -= 1;
+      const cells = [[row, col], [row - 1, col], [row + 1, col], [row, col - 1], [row, col + 1]];
+      let cleared = 0;
+      for (const [r, c] of cells) {
+        if (r >= 0 && r < SIZE && c >= 0 && c < SIZE && state.grid[r][c]) {
+          state.grid[r][c] = 0;
+          cleared += 1;
+        }
+      }
+      afterToolUse(`炸弹清除 ${cleared} 格`);
+      return;
+    }
+    if (tool === "upgrade") {
+      if (!state.grid[row][col]) return;
+      saveSnapshot();
+      state.powers.upgrade -= 1;
+      state.grid[row][col] *= 2;
+      state.score += state.grid[row][col];
+      state.popKeys.add(`${row},${col}`);
+      afterToolUse("升阶完成");
+      return;
+    }
+    if (tool === "swap") {
+      if (!state.swapFirst) {
+        state.swapFirst = { row, col };
+        render();
+        return;
+      }
+      const first = state.swapFirst;
+      if (first.row === row && first.col === col) {
+        state.swapFirst = null;
+        render();
+        return;
+      }
+      saveSnapshot();
+      state.powers.swap -= 1;
+      const temp = state.grid[first.row][first.col];
+      state.grid[first.row][first.col] = state.grid[row][col];
+      state.grid[row][col] = temp;
+      afterToolUse("已交换方块");
+    }
+  }
+
+  function useMagnet() {
+    const values = [];
+    for (const row of state.grid) {
+      for (const value of row) {
+        if (value) values.push(value);
+      }
+    }
+    if (values.length < 2) {
+      showToast("没有可磁吸的方块");
+      return;
+    }
+    saveSnapshot();
+    state.powers.magnet -= 1;
+    values.sort((a, b) => b - a);
+    const next = emptyGrid();
+    const path = [
+      [3, 0], [3, 1], [3, 2], [3, 3],
+      [2, 3], [2, 2], [2, 1], [2, 0],
+      [1, 0], [1, 1], [1, 2], [1, 3],
+      [0, 3], [0, 2], [0, 1], [0, 0]
+    ];
+    values.forEach((value, index) => {
+      const [r, c] = path[index];
+      next[r][c] = value;
+      state.popKeys.add(`${r},${c}`);
+    });
+    state.grid = next;
+    afterToolUse("磁吸重排");
+  }
+
+  function useRecycle() {
+    let cleared = 0;
+    for (const row of state.grid) {
+      for (const value of row) {
+        if (value === 2 || value === 4) cleared += 1;
+      }
+    }
+    if (!cleared) {
+      showToast("没有 2/4 可回收");
+      return;
+    }
+    saveSnapshot();
+    state.powers.recycle -= 1;
+    for (let r = 0; r < SIZE; r++) {
+      for (let c = 0; c < SIZE; c++) {
+        if (state.grid[r][c] === 2 || state.grid[r][c] === 4) state.grid[r][c] = 0;
+      }
+    }
+    state.score += cleared * 4;
+    afterToolUse(`回收 ${cleared} 个小块`);
+  }
+
+  function afterToolUse(text) {
+    state.moves += 1;
+    state.activeTool = null;
+    state.swapFirst = null;
+    state.maxTile = currentMaxTile();
+    state.best = Math.max(state.best, state.score);
+    localStorage.setItem("neon_2048_best", String(state.best));
+    rewardMilestones(state.maxTile);
+    rewardStepTool();
+    if (state.maxTile >= 2048 && !state.won) {
+      state.won = true;
+      grantTool("bomb");
+    }
+    showToast(text);
+    render();
+    if (!canMove()) endGame();
+  }
+
+  function currentMaxTile() {
+    let max = 0;
+    for (const row of state.grid) {
+      for (const value of row) max = Math.max(max, value);
+    }
+    return max || 2;
+  }
+
+  function canMove() {
+    for (let r = 0; r < SIZE; r++) {
+      for (let c = 0; c < SIZE; c++) {
+        if (!state.grid[r][c]) return true;
+        if (r < SIZE - 1 && state.grid[r][c] === state.grid[r + 1][c]) return true;
+        if (c < SIZE - 1 && state.grid[r][c] === state.grid[r][c + 1]) return true;
+      }
+    }
+    return Object.values(state.powers).some(count => count > 0);
+  }
+
+  function endGame() {
+    resultTitle.textContent = state.maxTile >= 2048 ? "漂亮收官" : "棋盘锁死";
+    resultText.textContent = `得分 ${state.score}，最大方块 ${state.maxTile}，共移动 ${state.moves} 步。`;
+    overlay.classList.add("show");
+  }
+
+  function showToast(text) {
+    toastEl.textContent = text;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastEl.classList.remove("show"), 1300);
+  }
+
+  function tileClass(value) {
+    if (!value) return "empty";
+    return value > 2048 ? "tile-super" : `tile-${value}`;
+  }
+
+  function render() {
+    boardEl.innerHTML = "";
+    for (let r = 0; r < SIZE; r++) {
+      for (let c = 0; c < SIZE; c++) {
+        const value = state.grid[r][c];
+        const cell = document.createElement("button");
+        cell.className = `cell ${tileClass(value)}`;
+        if (state.activeTool && (value || state.activeTool === "swap")) cell.classList.add("targetable");
+        if (state.swapFirst && state.swapFirst.row === r && state.swapFirst.col === c) cell.classList.add("selected");
+        if (state.popKeys.has(`${r},${c}`)) cell.classList.add("pop");
+        cell.type = "button";
+        cell.dataset.row = String(r);
+        cell.dataset.col = String(c);
+        cell.setAttribute("aria-label", value ? `${value}` : "空格");
+        cell.innerHTML = `<span>${value || ""}</span>`;
+        cell.addEventListener("click", () => handleCell(r, c));
+        boardEl.appendChild(cell);
+      }
+    }
+    state.popKeys.clear();
+    scoreValue.textContent = state.score;
+    bestValue.textContent = Math.max(state.best, state.score);
+    moveValue.textContent = state.moves;
+    maxValue.textContent = state.maxTile;
+    const stepProgress = state.moves % STEP_REWARD;
+    chargeValue.textContent = `${stepProgress}/${STEP_REWARD}`;
+    chargeBar.style.width = `${Math.min(100, (stepProgress / STEP_REWARD) * 100)}%`;
+    toolState.textContent = state.activeTool ? `${toolNames[state.activeTool]}待选` : state.freezeNext ? "冻结已备" : "待命";
+    statusText.textContent = state.activeTool ? "点击棋盘使用工具。" : "方向键 / WASD / 滑动移动。";
+    for (const tool of toolPool) {
+      countEls[tool].textContent = state.powers[tool];
+      const button = toolGrid.querySelector(`[data-tool="${tool}"]`);
+      button.disabled = state.powers[tool] <= 0 || (tool === "undo" && !state.history.length);
+      button.classList.toggle("active", state.activeTool === tool);
+    }
+  }
+
+  function handleKey(event) {
+    const map = {
+      ArrowLeft: "left",
+      KeyA: "left",
+      ArrowRight: "right",
+      KeyD: "right",
+      ArrowUp: "up",
+      KeyW: "up",
+      ArrowDown: "down",
+      KeyS: "down"
+    };
+    if (map[event.code]) {
+      event.preventDefault();
+      move(map[event.code]);
+    }
+    if (event.code === "Escape") cancelTool();
+    if (event.code === "KeyZ") useTool("undo");
+  }
+
+  function handlePointerDown(event) {
+    pointerStart = { x: event.clientX, y: event.clientY };
+    swiped = false;
+  }
+
+  function handlePointerUp(event) {
+    if (!pointerStart) return;
+    const dx = event.clientX - pointerStart.x;
+    const dy = event.clientY - pointerStart.y;
+    pointerStart = null;
+    if (Math.hypot(dx, dy) < 34) return;
+    swiped = true;
+    if (Math.abs(dx) > Math.abs(dy)) move(dx > 0 ? "right" : "left");
+    else move(dy > 0 ? "down" : "up");
+  }
+
+  toolGrid.addEventListener("click", event => {
+    const button = event.target.closest("[data-tool]");
+    if (!button) return;
+    useTool(button.dataset.tool);
+  });
+  boardEl.addEventListener("pointerdown", handlePointerDown);
+  boardEl.addEventListener("pointerup", handlePointerUp);
+  newBtn.addEventListener("click", newGame);
+  againBtn.addEventListener("click", newGame);
+  window.addEventListener("keydown", handleKey);
+
+  newGame();
+})();
+</script>
+</body>
+</html>
