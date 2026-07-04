@@ -1,0 +1,12 @@
+.vscode/
+test.py
+
+# Local OS/editor noise
+.DS_Store
+Thumbs.db
+*.swp
+*.tmp
+
+# Generated verification artifacts
+ball-modes-*.png
+*.log
