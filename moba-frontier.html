@@ -1,0 +1,3142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>晶塔前线</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #0b0f0c;
+    --panel: rgba(18, 24, 20, 0.92);
+    --panel-2: rgba(25, 33, 29, 0.94);
+    --line: rgba(221, 238, 213, 0.17);
+    --line-hot: rgba(98, 210, 126, 0.62);
+    --text: #f0f7ed;
+    --muted: #a7b8a6;
+    --blue: #4ec5e8;
+    --red: #ff6c5f;
+    --green: #67d784;
+    --gold: #f4ca58;
+    --violet: #b790ff;
+  }
+
+  * { box-sizing: border-box; }
+
+  html,
+  body {
+    width: 100%;
+    min-height: 100%;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    background:
+      linear-gradient(180deg, #13201b 0%, #0b0f0d 54%, #090b08 100%);
+    color: var(--text);
+    font-family: "Microsoft YaHei", "Segoe UI", system-ui, sans-serif;
+    touch-action: none;
+    user-select: none;
+  }
+
+  button {
+    font: inherit;
+    color: inherit;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: rgba(30, 40, 35, 0.94);
+    cursor: pointer;
+    transition: transform 120ms ease, background 120ms ease, border-color 120ms ease, opacity 120ms ease;
+  }
+
+  button:hover {
+    background: rgba(44, 58, 50, 0.98);
+    border-color: var(--line-hot);
+  }
+
+  button:active { transform: scale(0.97); }
+  button:disabled { opacity: 0.42; cursor: not-allowed; }
+
+  .shell {
+    width: min(1240px, calc(100vw - 28px));
+    height: min(800px, calc(100vh - 28px));
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 326px;
+    gap: 16px;
+    align-items: stretch;
+  }
+
+  .stage,
+  .rail {
+    min-width: 0;
+    min-height: 0;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--panel);
+    box-shadow: 0 24px 76px rgba(0, 0, 0, 0.38);
+    backdrop-filter: blur(14px);
+  }
+
+  .stage {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    overflow: hidden;
+  }
+
+  .topbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: center;
+    padding: 12px;
+    border-bottom: 1px solid rgba(221, 238, 213, 0.12);
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 34px;
+    line-height: 1;
+    letter-spacing: 0;
+  }
+
+  .subline {
+    margin-top: 7px;
+    color: var(--muted);
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .top-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .icon-btn {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    font-size: 18px;
+    font-weight: 900;
+  }
+
+  .canvas-wrap {
+    position: relative;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    background:
+      linear-gradient(180deg, #203b30 0%, #193126 50%, #15150f 100%);
+  }
+
+  canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .toast {
+    position: absolute;
+    left: 50%;
+    top: 18px;
+    transform: translateX(-50%);
+    min-width: 180px;
+    max-width: min(560px, 80%);
+    padding: 10px 14px;
+    border: 1px solid rgba(244, 202, 88, 0.44);
+    border-radius: 8px;
+    background: rgba(12, 16, 13, 0.9);
+    color: var(--text);
+    text-align: center;
+    font-size: 14px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 180ms ease, transform 180ms ease;
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translate(-50%, 4px);
+  }
+
+  .modal {
+    position: absolute;
+    inset: 0;
+    display: none;
+    place-items: center;
+    padding: 20px;
+    background: rgba(5, 8, 6, 0.56);
+  }
+
+  .modal.show { display: grid; }
+
+  .dialog {
+    width: min(460px, 92%);
+    border: 1px solid rgba(221, 238, 213, 0.2);
+    border-radius: 8px;
+    background: rgba(18, 24, 20, 0.96);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.46);
+    padding: 20px;
+  }
+
+  .dialog h2 {
+    margin: 0 0 8px;
+    font-size: 27px;
+    line-height: 1.1;
+    letter-spacing: 0;
+  }
+
+  .dialog p {
+    margin: 0 0 16px;
+    color: var(--muted);
+    line-height: 1.65;
+    font-size: 14px;
+  }
+
+  .dialog-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .primary-btn,
+  .wide-btn {
+    min-height: 42px;
+    padding: 0 15px;
+    font-weight: 800;
+  }
+
+  .primary-btn {
+    border-color: rgba(98, 210, 126, 0.76);
+    background: linear-gradient(180deg, rgba(98, 210, 126, 0.3), rgba(72, 197, 232, 0.18));
+  }
+
+  .rail {
+    display: grid;
+    grid-template-rows: auto auto auto auto minmax(0, 1fr);
+    gap: 12px;
+    padding: 12px;
+    overflow: hidden;
+  }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .stat {
+    min-height: 72px;
+    padding: 10px;
+    border: 1px solid rgba(221, 238, 213, 0.13);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.035);
+  }
+
+  .stat-label {
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  .stat-value {
+    margin-top: 7px;
+    font-size: 21px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .panel-title {
+    margin: 0 0 8px;
+    color: var(--muted);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .objective-card {
+    display: grid;
+    gap: 8px;
+    padding: 10px;
+    border: 1px solid rgba(221, 238, 213, 0.13);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.035);
+  }
+
+  .objective-card strong,
+  .lane-state strong {
+    font-size: 13px;
+  }
+
+  .objective-card span,
+  .lane-state span {
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  .objective-row,
+  .lane-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .objective-pill {
+    min-height: 24px;
+    flex: 0 1 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 8px;
+    border-radius: 8px;
+    background: rgba(244, 202, 88, 0.14);
+    color: var(--gold);
+    font-size: 12px;
+    font-weight: 800;
+    text-align: center;
+    overflow-wrap: anywhere;
+  }
+
+  .lane-board {
+    display: grid;
+    gap: 7px;
+    margin-top: 8px;
+  }
+
+  .lane-state {
+    display: grid;
+    gap: 5px;
+  }
+
+  .lane-track {
+    position: relative;
+    height: 8px;
+    border-radius: 8px;
+    background:
+      linear-gradient(90deg, rgba(78, 197, 232, 0.28), rgba(221, 238, 213, 0.12) 50%, rgba(255, 108, 95, 0.28));
+    overflow: hidden;
+  }
+
+  .lane-track::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: 1px;
+    height: 100%;
+    background: rgba(240, 247, 237, 0.5);
+  }
+
+  .lane-marker {
+    position: absolute;
+    top: 50%;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(8, 13, 10, 0.94);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 0 1px rgba(240, 247, 237, 0.28);
+  }
+
+  .ability-grid,
+  .shop-grid {
+    display: grid;
+    gap: 8px;
+  }
+
+  .ability-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ability-btn,
+  .shop-btn {
+    min-height: 50px;
+    padding: 8px;
+    text-align: left;
+  }
+
+  .ability-btn.armed {
+    border-color: rgba(244, 202, 88, 0.86);
+    background: linear-gradient(180deg, rgba(244, 202, 88, 0.24), rgba(78, 197, 232, 0.12));
+  }
+
+  .ability-btn strong,
+  .shop-btn strong {
+    display: block;
+    font-size: 14px;
+    line-height: 1.1;
+  }
+
+  .ability-btn span,
+  .shop-btn span {
+    display: block;
+    margin-top: 5px;
+    color: var(--muted);
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .feed {
+    min-height: 0;
+    overflow: auto;
+    display: grid;
+    align-content: start;
+    gap: 7px;
+    padding-right: 2px;
+  }
+
+  .feed-line {
+    min-height: 34px;
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    border: 1px solid rgba(221, 238, 213, 0.12);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.032);
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  @media (max-width: 900px) {
+    body { overflow: auto; }
+
+    .shell {
+      width: min(100vw - 18px, 780px);
+      height: auto;
+      min-height: calc(100vh - 18px);
+      grid-template-columns: 1fr;
+      grid-template-rows: minmax(520px, 64vh) auto;
+      padding: 9px 0;
+    }
+
+    .rail {
+      grid-template-rows: auto auto auto auto;
+      overflow: visible;
+    }
+
+    .feed { max-height: 170px; }
+  }
+
+  @media (max-width: 560px) {
+    .shell {
+      width: calc(100vw - 12px);
+      grid-template-rows: minmax(500px, 63vh) auto;
+      gap: 10px;
+    }
+
+    .topbar { grid-template-columns: 1fr; }
+    h1 { font-size: 27px; }
+    .subline { white-space: normal; }
+    .top-actions { justify-content: flex-start; }
+  }
+</style>
+</head>
+<body>
+<main class="shell">
+  <section class="stage" aria-label="晶塔前线游戏区">
+    <header class="topbar">
+      <div>
+        <h1>晶塔前线</h1>
+        <div class="subline"><span id="statusText">待命</span> · <span id="timerText">00:00</span></div>
+      </div>
+      <div class="top-actions">
+        <button class="icon-btn" id="pauseBtn" title="暂停/继续" aria-label="暂停/继续">Ⅱ</button>
+        <button class="icon-btn" id="restartBtn" title="重新开始" aria-label="重新开始">↻</button>
+      </div>
+    </header>
+
+    <div class="canvas-wrap">
+      <canvas id="gameCanvas" aria-label="晶塔前线战场画布"></canvas>
+      <div class="toast" id="toast"></div>
+      <div class="modal show" id="startModal">
+        <div class="dialog">
+          <h2>晶塔前线</h2>
+          <p>三线对攻，带兵线破塔，争夺河道符印，摧毁敌方晶核。</p>
+          <div class="dialog-actions">
+            <button class="primary-btn" id="startBtn">开始对局</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal" id="resultModal">
+        <div class="dialog">
+          <h2 id="resultTitle">胜利</h2>
+          <p id="resultCopy">对局总结会显示在这里。</p>
+          <div class="dialog-actions">
+            <button class="primary-btn" id="againBtn">再来一局</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <aside class="rail" aria-label="晶塔前线状态栏">
+    <div class="stat-grid">
+      <div class="stat">
+        <div class="stat-label">等级</div>
+        <div class="stat-value" id="levelValue">1</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">金币</div>
+        <div class="stat-value" id="goldValue">0</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">蓝晶核</div>
+        <div class="stat-value" id="blueCoreValue">100%</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">赤晶核</div>
+        <div class="stat-value" id="redCoreValue">100%</div>
+      </div>
+    </div>
+
+    <section>
+      <p class="panel-title">战术</p>
+      <div class="objective-card">
+        <div class="objective-row">
+          <div>
+            <strong id="objectiveValue">远古晶兽</strong><br>
+            <span id="objectiveTimer">可争夺</span>
+          </div>
+          <div class="objective-pill" id="teamBuffValue">无增益</div>
+        </div>
+        <div class="lane-board" id="laneBoard"></div>
+      </div>
+    </section>
+
+    <section>
+      <p class="panel-title">技能</p>
+      <div class="ability-grid" id="abilityGrid"></div>
+    </section>
+
+    <section>
+      <p class="panel-title">补给</p>
+      <div class="shop-grid">
+        <button class="shop-btn" id="buyAttack"><strong>攻击校准</strong><span>90 金币</span></button>
+        <button class="shop-btn" id="buyHealth"><strong>生命护符</strong><span>110 金币</span></button>
+        <button class="shop-btn" id="buyHaste"><strong>冷却回路</strong><span>130 金币</span></button>
+      </div>
+    </section>
+
+    <section>
+      <p class="panel-title">战况</p>
+      <div class="feed" id="feed"></div>
+    </section>
+  </aside>
+</main>
+
+<script>
+(() => {
+  "use strict";
+
+  const canvas = document.getElementById("gameCanvas");
+  const ctx = canvas.getContext("2d");
+  const statusText = document.getElementById("statusText");
+  const timerText = document.getElementById("timerText");
+  const levelValue = document.getElementById("levelValue");
+  const goldValue = document.getElementById("goldValue");
+  const blueCoreValue = document.getElementById("blueCoreValue");
+  const redCoreValue = document.getElementById("redCoreValue");
+  const objectiveValue = document.getElementById("objectiveValue");
+  const objectiveTimer = document.getElementById("objectiveTimer");
+  const teamBuffValue = document.getElementById("teamBuffValue");
+  const laneBoard = document.getElementById("laneBoard");
+  const abilityGrid = document.getElementById("abilityGrid");
+  const feed = document.getElementById("feed");
+  const toast = document.getElementById("toast");
+  const pauseBtn = document.getElementById("pauseBtn");
+  const restartBtn = document.getElementById("restartBtn");
+  const startModal = document.getElementById("startModal");
+  const startBtn = document.getElementById("startBtn");
+  const resultModal = document.getElementById("resultModal");
+  const resultTitle = document.getElementById("resultTitle");
+  const resultCopy = document.getElementById("resultCopy");
+  const againBtn = document.getElementById("againBtn");
+  const buyAttack = document.getElementById("buyAttack");
+  const buyHealth = document.getElementById("buyHealth");
+  const buyHaste = document.getElementById("buyHaste");
+
+  const WORLD_W = 1800;
+  const WORLD_H = 1180;
+  const BLUE = 0;
+  const RED = 1;
+  const NEUTRAL = 2;
+  const teamName = ["蓝方", "赤方", "中立"];
+  const teamColor = ["#4ec5e8", "#ff6c5f", "#f4ca58"];
+  const teamSoft = ["rgba(78, 197, 232, 0.18)", "rgba(255, 108, 95, 0.18)", "rgba(244, 202, 88, 0.18)"];
+
+  const lanes = [
+    {
+      name: "上路",
+      points: [
+        { x: 220, y: 990 },
+        { x: 310, y: 695 },
+        { x: 530, y: 365 },
+        { x: 910, y: 245 },
+        { x: 1325, y: 265 },
+        { x: 1585, y: 170 }
+      ]
+    },
+    {
+      name: "中路",
+      points: [
+        { x: 225, y: 992 },
+        { x: 505, y: 825 },
+        { x: 780, y: 640 },
+        { x: 1025, y: 505 },
+        { x: 1305, y: 330 },
+        { x: 1582, y: 172 }
+      ]
+    },
+    {
+      name: "下路",
+      points: [
+        { x: 222, y: 1000 },
+        { x: 525, y: 1040 },
+        { x: 925, y: 970 },
+        { x: 1230, y: 760 },
+        { x: 1490, y: 430 },
+        { x: 1582, y: 172 }
+      ]
+    }
+  ];
+
+  const runeSpots = [
+    { name: "河道锋芒", x: 720, y: 670, color: "#f4ca58", type: "power" },
+    { name: "河道涌泉", x: 1085, y: 515, color: "#67d784", type: "renew" },
+    { name: "蓝方秘印", x: 535, y: 800, color: "#4ec5e8", type: "haste" },
+    { name: "赤方秘印", x: 1268, y: 392, color: "#ff6c5f", type: "guard" }
+  ];
+
+  const jungleCampSpots = [
+    { name: "苍蓝哨卫", type: "aether", x: 420, y: 860, color: "#4ec5e8", maxHp: 760, damage: 36, range: 156, gold: 74, xp: 70, respawn: 36 },
+    { name: "余烬蛮兽", type: "ember", x: 705, y: 930, color: "#ff6c5f", maxHp: 820, damage: 42, range: 148, gold: 82, xp: 76, respawn: 38 },
+    { name: "石甲守卫", type: "bulwark", x: 625, y: 690, color: "#f4ca58", maxHp: 900, damage: 34, range: 138, gold: 88, xp: 84, respawn: 42 },
+    { name: "赤纹魔像", type: "ember", x: 1380, y: 318, color: "#ff6c5f", maxHp: 820, damage: 42, range: 148, gold: 82, xp: 76, respawn: 38 },
+    { name: "灵泉哨卫", type: "aether", x: 1100, y: 250, color: "#4ec5e8", maxHp: 760, damage: 36, range: 156, gold: 74, xp: 70, respawn: 36 },
+    { name: "古树灵", type: "bulwark", x: 1188, y: 485, color: "#f4ca58", maxHp: 900, damage: 34, range: 138, gold: 88, xp: 84, respawn: 42 }
+  ];
+
+  const heroProfiles = {
+    duelist: { hp: 760, mana: 260, speed: 190, damage: 48, range: 178, attackCd: 0.74 },
+    ranger: { hp: 620, mana: 230, speed: 176, damage: 41, range: 230, attackCd: 0.88 },
+    guard: { hp: 860, mana: 180, speed: 154, damage: 36, range: 150, attackCd: 0.98 },
+    mage: { hp: 600, mana: 300, speed: 168, damage: 39, range: 220, attackCd: 0.95 }
+  };
+
+  const abilityDefs = {
+    q: { key: "Q", name: "弧光刃", cost: 28, cd: 4.2, range: 480 },
+    w: { key: "W", name: "相位步", cost: 22, cd: 8.5, range: 190 },
+    e: { key: "E", name: "星沼", cost: 42, cd: 11, range: 430 },
+    r: { key: "R", name: "晶陨", cost: 76, cd: 26, range: 520 }
+  };
+
+  const view = { dpr: 1, scale: 1, baseScale: 1, ox: 0, oy: 0, cssWidth: 1, cssHeight: 1 };
+  const camera = { x: WORLD_W / 2, y: WORLD_H / 2, zoom: 1 };
+  const keys = new Set();
+  const pointer = { x: 700, y: 450, down: false };
+  let queuedAbility = null;
+  const entities = {
+    heroes: [],
+    minions: [],
+    structures: [],
+    jungle: [],
+    projectiles: [],
+    aoes: [],
+    objectives: [],
+    particles: [],
+    texts: [],
+    runes: []
+  };
+
+  let player = null;
+  let enemyHero = null;
+  let allyHero = null;
+  let lastTime = 0;
+  let toastTimer = 0;
+  let abilityRenderKey = "";
+  let laneRenderKey = "";
+
+  const game = {
+    started: false,
+    paused: false,
+    over: false,
+    winner: null,
+    time: 0,
+    waveTimer: 1.5,
+    waveNumber: 0,
+    kills: 0,
+    deaths: 0,
+    message: "待命"
+  };
+
+  const teamBuffs = [
+    { duration: 0, name: "晶潮推进" },
+    { duration: 0, name: "晶潮推进" }
+  ];
+  const OBJECTIVE_RESPAWN = 72;
+  const OBJECTIVE_BUFF_DURATION = 54;
+
+  function resize() {
+    const rect = canvas.getBoundingClientRect();
+    view.cssWidth = Math.max(1, rect.width);
+    view.cssHeight = Math.max(1, rect.height);
+    view.dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+    canvas.width = Math.max(1, Math.floor(rect.width * view.dpr));
+    canvas.height = Math.max(1, Math.floor(rect.height * view.dpr));
+    view.baseScale = Math.min(canvas.width / WORLD_W, canvas.height / WORLD_H);
+    updateCamera(1, true);
+  }
+
+  function updateCamera(dt, snap = false) {
+    const targetZoom = game.started ? (view.cssWidth < 700 ? 1.05 : 1.18) : 1;
+    camera.zoom = snap ? targetZoom : lerp(camera.zoom, targetZoom, Math.min(1, dt * 4));
+
+    let targetX = WORLD_W / 2;
+    let targetY = WORLD_H / 2;
+    if (game.started && player?.alive) {
+      targetX = player.x + clamp(pointer.x - player.x, -330, 330) * 0.16;
+      targetY = player.y + clamp(pointer.y - player.y, -255, 255) * 0.13;
+    }
+
+    camera.x = snap ? targetX : lerp(camera.x, targetX, Math.min(1, dt * 5.5));
+    camera.y = snap ? targetY : lerp(camera.y, targetY, Math.min(1, dt * 5.5));
+
+    view.scale = view.baseScale * camera.zoom;
+    const visibleW = canvas.width / view.scale;
+    const visibleH = canvas.height / view.scale;
+    camera.x = visibleW >= WORLD_W ? WORLD_W / 2 : clamp(camera.x, visibleW / 2, WORLD_W - visibleW / 2);
+    camera.y = visibleH >= WORLD_H ? WORLD_H / 2 : clamp(camera.y, visibleH / 2, WORLD_H - visibleH / 2);
+    view.ox = canvas.width / 2 - camera.x * view.scale;
+    view.oy = canvas.height / 2 - camera.y * view.scale;
+  }
+
+  function screenToWorld(event) {
+    const rect = canvas.getBoundingClientRect();
+    const sx = (event.clientX - rect.left) * view.dpr;
+    const sy = (event.clientY - rect.top) * view.dpr;
+    return {
+      x: clamp((sx - view.ox) / view.scale, 0, WORLD_W),
+      y: clamp((sy - view.oy) / view.scale, 0, WORLD_H)
+    };
+  }
+
+  function clamp(value, min, max) {
+    return Math.max(min, Math.min(max, value));
+  }
+
+  function lerp(a, b, t) {
+    return a + (b - a) * t;
+  }
+
+  function distance(a, b) {
+    return Math.hypot(a.x - b.x, a.y - b.y);
+  }
+
+  function normalize(dx, dy) {
+    const len = Math.hypot(dx, dy) || 1;
+    return { x: dx / len, y: dy / len, len };
+  }
+
+  function startGame() {
+    game.started = true;
+    game.paused = false;
+    game.over = false;
+    game.winner = null;
+    game.time = 0;
+    game.waveTimer = 1.5;
+    game.waveNumber = 0;
+    game.kills = 0;
+    game.deaths = 0;
+    game.message = "兵线集结";
+    teamBuffs[BLUE].duration = 0;
+    teamBuffs[RED].duration = 0;
+    abilityRenderKey = "";
+    feed.innerHTML = "";
+    startModal.classList.remove("show");
+    resultModal.classList.remove("show");
+    pauseBtn.textContent = "Ⅱ";
+    laneRenderKey = "";
+
+    for (const key of Object.keys(entities)) entities[key] = [];
+    createStructures();
+    createHeroes();
+    createJungle();
+    createRunes();
+    createObjective();
+    pointer.x = player.x + 320;
+    pointer.y = player.y - 170;
+    camera.x = player.x;
+    camera.y = player.y;
+    queuedAbility = null;
+    updateCamera(1, true);
+    pushFeed("蓝方晶塔上线");
+    pushFeed("赤方守军出动");
+    showToast("对局开始");
+    updateUI();
+  }
+
+  function createHeroes() {
+    player = makeHero(BLUE, 230, 955, "星刃", true, { lane: 1, role: "duelist" });
+    const allies = [
+      makeHero(BLUE, 292, 910, "巡林者", false, { lane: 2, role: "ranger" }),
+      makeHero(BLUE, 245, 1015, "曜盾", false, { lane: 0, role: "guard" })
+    ];
+    const enemies = [
+      makeHero(RED, 1572, 218, "赤锋", false, { lane: 1, role: "duelist" }),
+      makeHero(RED, 1518, 160, "霜术士", false, { lane: 0, role: "mage" }),
+      makeHero(RED, 1624, 244, "铁哨", false, { lane: 2, role: "guard" })
+    ];
+    allyHero = allies[0];
+    enemyHero = enemies[0];
+    entities.heroes.push(player, ...allies, ...enemies);
+  }
+
+  function makeHero(team, x, y, name, isPlayer, options = {}) {
+    const profile = heroProfiles[options.role || "duelist"] || heroProfiles.duelist;
+    const playerBonus = isPlayer ? 1 : 0;
+    return {
+      kind: "hero",
+      team,
+      name,
+      role: options.role || "duelist",
+      x,
+      y,
+      r: 18,
+      maxHp: profile.hp + playerBonus * 40,
+      hp: profile.hp + playerBonus * 40,
+      maxMana: profile.mana + playerBonus * 18,
+      mana: profile.mana + playerBonus * 18,
+      shield: 0,
+      shieldTime: 0,
+      speed: profile.speed + playerBonus * 6,
+      damage: profile.damage + playerBonus * 4,
+      range: profile.range,
+      attackCd: profile.attackCd,
+      attackTimer: 0,
+      attackFlash: 0,
+      hitFlash: 0,
+      face: team === BLUE ? -0.6 : 2.4,
+      target: null,
+      moveTarget: null,
+      level: 1,
+      xp: 0,
+      gold: isPlayer ? 140 : 0,
+      haste: 1,
+      buffTime: 0,
+      guardTime: 0,
+      emberTime: 0,
+      aetherTime: 0,
+      bulwarkTime: 0,
+      cooldowns: { q: 0, w: 0, e: 0, r: 0 },
+      respawn: 0,
+      isPlayer,
+      aiThink: 0,
+      lane: options.lane ?? 1,
+      pathIndex: 1,
+      alive: true
+    };
+  }
+
+  function createJungle() {
+    for (const spot of jungleCampSpots) {
+      entities.jungle.push({
+        kind: "jungle",
+        team: NEUTRAL,
+        name: spot.name,
+        type: spot.type,
+        x: spot.x,
+        y: spot.y,
+        homeX: spot.x,
+        homeY: spot.y,
+        r: spot.type === "bulwark" ? 24 : 22,
+        maxHp: spot.maxHp,
+        hp: spot.maxHp,
+        damage: spot.damage,
+        range: spot.range,
+        attackCd: spot.type === "ember" ? 1.08 : 1.18,
+        attackTimer: 0.45,
+        attackFlash: 0,
+        hitFlash: 0,
+        pulse: Math.random() * Math.PI * 2,
+        color: spot.color,
+        respawnDelay: spot.respawn,
+        respawn: 0,
+        aggroTarget: null,
+        aggroTime: 0,
+        alive: true,
+        gold: spot.gold,
+        xp: spot.xp
+      });
+    }
+  }
+
+  function createRunes() {
+    for (const spot of runeSpots) {
+      entities.runes.push({
+        ...spot,
+        r: 19,
+        available: true,
+        timer: 0,
+        pulse: Math.random() * Math.PI * 2
+      });
+    }
+  }
+
+  function createObjective() {
+    entities.objectives.push({
+      kind: "objective",
+      team: NEUTRAL,
+      name: "远古晶兽",
+      x: 900,
+      y: 590,
+      r: 34,
+      maxHp: 1650,
+      hp: 1650,
+      damage: 74,
+      range: 185,
+      attackCd: 1.25,
+      attackTimer: 0.8,
+      attackFlash: 0,
+      hitFlash: 0,
+      pulse: 0,
+      alive: true,
+      respawn: 0,
+      aggroTarget: null,
+      aggroTime: 0,
+      gold: 260,
+      xp: 210
+    });
+  }
+
+  function createStructures() {
+    const towerData = [
+      [BLUE, "上路外塔", 0, 390, 660],
+      [BLUE, "中路外塔", 1, 565, 790],
+      [BLUE, "下路外塔", 2, 650, 980],
+      [RED, "上路外塔", 0, 1240, 262],
+      [RED, "中路外塔", 1, 1248, 390],
+      [RED, "下路外塔", 2, 1362, 650]
+    ];
+    for (const [team, name, lane, x, y] of towerData) {
+      entities.structures.push({
+        kind: "tower",
+        team,
+        name,
+        lane,
+        x,
+        y,
+        r: 25,
+        maxHp: 1120,
+        hp: 1120,
+        damage: 82,
+        range: 255,
+        attackCd: 1.05,
+        attackTimer: 0,
+        attackFlash: 0,
+        hitFlash: 0,
+        alive: true
+      });
+    }
+
+    entities.structures.push({
+      kind: "core",
+      team: BLUE,
+      name: "蓝晶核",
+      x: 170,
+      y: 1000,
+      r: 38,
+      maxHp: 1900,
+      hp: 1900,
+      damage: 58,
+      range: 225,
+      attackCd: 1.25,
+      attackTimer: 0,
+      attackFlash: 0,
+      hitFlash: 0,
+      alive: true
+    });
+
+    entities.structures.push({
+      kind: "core",
+      team: RED,
+      name: "赤晶核",
+      x: 1630,
+      y: 180,
+      r: 38,
+      maxHp: 1900,
+      hp: 1900,
+      damage: 58,
+      range: 225,
+      attackCd: 1.25,
+      attackTimer: 0,
+      attackFlash: 0,
+      hitFlash: 0,
+      alive: true
+    });
+  }
+
+  function spawnWave() {
+    game.waveNumber += 1;
+    for (let laneIndex = 0; laneIndex < lanes.length; laneIndex += 1) {
+      for (const team of [BLUE, RED]) {
+        const path = getPath(laneIndex, team);
+        const side = team === BLUE ? 1 : -1;
+        for (let i = 0; i < 4; i += 1) {
+          spawnMinion(team, laneIndex, "melee", path[0].x + (i - 1.5) * 15 * side, path[0].y + i * 10);
+        }
+        for (let i = 0; i < 3; i += 1) {
+          spawnMinion(team, laneIndex, "caster", path[0].x - 28 * side + i * 18 * side, path[0].y + 45 + i * 7);
+        }
+        if (game.waveNumber % 3 === 0) spawnMinion(team, laneIndex, "siege", path[0].x - 56 * side, path[0].y + 76);
+      }
+    }
+    pushFeed("第 " + game.waveNumber + " 波兵线抵达" + (game.waveNumber % 3 === 0 ? " · 精英兵出动" : ""));
+    showToast(game.waveNumber % 3 === 0 ? "精英兵线刷新" : "兵线刷新");
+  }
+
+  function spawnMinion(team, laneIndex, type, x, y) {
+    const caster = type === "caster";
+    const siege = type === "siege";
+    const path = getPath(laneIndex, team);
+    entities.minions.push({
+      kind: "minion",
+      type,
+      team,
+      lane: laneIndex,
+      path,
+      wp: 1,
+      x,
+      y,
+      r: siege ? 16 : caster ? 10 : 12,
+      maxHp: siege ? 420 : caster ? 150 : 220,
+      hp: siege ? 420 : caster ? 150 : 220,
+      speed: siege ? 62 : caster ? 84 : 78,
+      damage: siege ? 46 : caster ? 22 : 29,
+      range: siege ? 218 : caster ? 165 : 30,
+      attackCd: siege ? 1.35 : caster ? 1.15 : 0.82,
+      attackTimer: 0.2 + Math.random() * 0.5,
+      attackFlash: 0,
+      hitFlash: 0,
+      face: team === BLUE ? -0.35 : 2.8,
+      vision: siege ? 260 : caster ? 220 : 165,
+      target: null,
+      alive: true,
+      gold: siege ? 54 : caster ? 22 : 18,
+      xp: siege ? 56 : caster ? 22 : 18
+    });
+  }
+
+  function getPath(laneIndex, team) {
+    const points = lanes[laneIndex].points;
+    return team === BLUE ? points : [...points].reverse();
+  }
+
+  function update(dt) {
+    updateToast(dt);
+    if (!game.started || game.paused || game.over) {
+      return;
+    }
+    game.time += dt;
+    player.gold += 0.85 * dt;
+    updateTeamBuffs(dt);
+    game.waveTimer -= dt;
+    if (game.waveTimer <= 0) {
+      spawnWave();
+      game.waveTimer = Math.max(14, 22 - Math.floor(game.time / 100));
+    }
+
+    updateHeroes(dt);
+    updateMinions(dt);
+    updateJungle(dt);
+    updateObjectives(dt);
+    updateStructures(dt);
+    updateProjectiles(dt);
+    updateAoes(dt);
+    updateRunes(dt);
+    updateUnitState(dt);
+    separateUnits();
+    updateParticles(dt);
+    updateFloatingTexts(dt);
+    cleanupEntities();
+    checkWin();
+    updateGameMessage();
+    updateUI();
+  }
+
+  function updateHeroes(dt) {
+    for (const hero of entities.heroes) {
+      tickCooldowns(hero, dt);
+      if (!hero.alive) {
+        hero.respawn -= dt;
+        if (hero.respawn <= 0) respawnHero(hero);
+        continue;
+      }
+      hero.mana = Math.min(hero.maxMana, hero.mana + (10 + hero.level * 1.2) * dt);
+      if (!hero.isPlayer) {
+        const targetLevel = Math.min(5, 1 + Math.floor(game.time / 80));
+        if (hero.level < targetLevel) {
+          hero.level += 1;
+          hero.maxHp += 70;
+          hero.hp = Math.min(hero.maxHp, hero.hp + 130);
+          hero.maxMana += 18;
+          hero.damage += 5;
+        }
+      }
+      hero.buffTime = Math.max(0, (hero.buffTime || 0) - dt);
+      hero.guardTime = Math.max(0, (hero.guardTime || 0) - dt);
+      hero.emberTime = Math.max(0, (hero.emberTime || 0) - dt);
+      hero.aetherTime = Math.max(0, (hero.aetherTime || 0) - dt);
+      hero.bulwarkTime = Math.max(0, (hero.bulwarkTime || 0) - dt);
+      if (hero.buffTime > 0) hero.mana = Math.min(hero.maxMana, hero.mana + 12 * dt);
+      if (hero.aetherTime > 0) hero.mana = Math.min(hero.maxMana, hero.mana + 16 * dt);
+      hero.attackTimer -= dt;
+      if (hero.shieldTime > 0) {
+        hero.shieldTime -= dt;
+        if (hero.shieldTime <= 0) hero.shield = 0;
+      }
+
+      if (hero.isPlayer) updatePlayer(hero, dt);
+      else updateBotHero(hero, dt);
+      autoAttack(hero);
+    }
+  }
+
+  function tickCooldowns(hero, dt) {
+    const buffHaste = hero.aetherTime > 0 ? 1.25 : 1;
+    for (const key of Object.keys(hero.cooldowns)) {
+      hero.cooldowns[key] = Math.max(0, hero.cooldowns[key] - dt * hero.haste * buffHaste);
+    }
+  }
+
+  function updatePlayer(hero, dt) {
+    let dx = 0;
+    let dy = 0;
+    if (keys.has("KeyA") || keys.has("ArrowLeft")) dx -= 1;
+    if (keys.has("KeyD") || keys.has("ArrowRight")) dx += 1;
+    if (keys.has("KeyW") || keys.has("ArrowUp")) dy -= 1;
+    if (keys.has("KeyS") || keys.has("ArrowDown")) dy += 1;
+
+    if (dx || dy) {
+      const n = normalize(dx, dy);
+      moveUnit(hero, n.x, n.y, dt, hero.speed);
+      hero.moveTarget = null;
+    } else if (hero.moveTarget) {
+      moveToward(hero, hero.moveTarget, dt, hero.speed);
+      if (distance(hero, hero.moveTarget) < 12) hero.moveTarget = null;
+    }
+
+    if (hero.target && (!hero.target.alive || hero.target.team === hero.team)) hero.target = null;
+  }
+
+  function updateBotHero(hero, dt) {
+    hero.aiThink -= dt;
+    if (hero.aiThink <= 0) {
+      hero.aiThink = 0.45 + Math.random() * 0.35;
+      const core = getCore(hero.team);
+      const enemyCore = getCore(1 - hero.team);
+      const danger = hero.hp / hero.maxHp < 0.35;
+      if (danger && core) {
+        if (hero.cooldowns.w <= 0 && hero.mana >= abilityDefs.w.cost && distance(hero, core) > 170) castDash(hero, core);
+        hero.moveTarget = { x: core.x, y: core.y };
+        hero.target = null;
+      } else {
+        hero.target = nearestEnemy(hero, 470, true);
+        if (!hero.target) {
+          const path = getPath(hero.lane, hero.team);
+          const currentGoal = path[hero.pathIndex] || enemyCore;
+          if (!hero.moveTarget || distance(hero, currentGoal) < 55) {
+            hero.pathIndex = Math.min(path.length - 1, hero.pathIndex + 1);
+            hero.moveTarget = path[hero.pathIndex] || enemyCore;
+          } else {
+            hero.moveTarget = currentGoal;
+          }
+        }
+      }
+    }
+
+    if (hero.target && hero.target.alive) {
+      const d = distance(hero, hero.target);
+      if (d > hero.range * 0.85) moveToward(hero, hero.target, dt, hero.speed);
+      if (d < 460 && hero.cooldowns.q <= 0 && hero.mana >= 24) castSkillshot(hero, hero.target, "q");
+      if (d < 210 && hero.cooldowns.e <= 0 && hero.mana >= 34) castAoe(hero, hero.target, "e");
+      if (d < 500 && hero.level >= 3 && hero.cooldowns.r <= 0 && hero.mana >= 70 && hero.role === "mage") castMeteor(hero, hero.target);
+    } else if (hero.moveTarget) {
+      moveToward(hero, hero.moveTarget, dt, hero.speed);
+    }
+  }
+
+  function updateMinions(dt) {
+    for (const minion of entities.minions) {
+      if (!minion.alive) continue;
+      minion.attackTimer -= dt;
+      if (!validTarget(minion.target, minion.team) || distance(minion, minion.target) > minion.vision * 1.35) {
+        minion.target = nearestEnemy(minion, minion.vision, false);
+      }
+
+      if (minion.target) {
+        const d = distance(minion, minion.target);
+        if (d <= minion.range + minion.target.r) {
+          tryAttack(minion, minion.target);
+        } else {
+          moveToward(minion, minion.target, dt, minion.speed);
+        }
+      } else {
+        const wp = minion.path[minion.wp];
+        if (wp) {
+          moveToward(minion, wp, dt, minion.speed);
+          if (distance(minion, wp) < 24) minion.wp += 1;
+        } else {
+          const core = getCore(1 - minion.team);
+          if (core) minion.target = core;
+        }
+      }
+    }
+  }
+
+  function updateStructures(dt) {
+    for (const structure of entities.structures) {
+      if (!structure.alive) continue;
+      structure.attackTimer -= dt;
+      const target = chooseStructureTarget(structure);
+      if (target) tryAttack(structure, target);
+    }
+  }
+
+  function updateProjectiles(dt) {
+    for (const p of entities.projectiles) {
+      if (p.dead) continue;
+      if (p.target) {
+        if (!p.target.alive) {
+          p.dead = true;
+          continue;
+        }
+        const n = normalize(p.target.x - p.x, p.target.y - p.y);
+        p.x += n.x * p.speed * dt;
+        p.y += n.y * p.speed * dt;
+        if (distance(p, p.target) <= p.r + p.target.r) {
+          damageUnit(p.target, p.damage, p.source, p.name);
+          p.dead = true;
+          burst(p.x, p.y, p.color, 8);
+        }
+      } else {
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        p.life -= dt;
+        const hit = firstEnemyHit(p);
+        if (hit) {
+          damageUnit(hit, p.damage, p.source, p.name);
+          p.dead = true;
+          burst(p.x, p.y, p.color, 12);
+        }
+        if (p.life <= 0 || p.x < -60 || p.x > WORLD_W + 60 || p.y < -60 || p.y > WORLD_H + 60) p.dead = true;
+      }
+    }
+  }
+
+  function updateAoes(dt) {
+    for (const area of entities.aoes) {
+      area.life -= dt;
+      area.tick -= dt;
+      if (area.tick <= 0) {
+        area.tick = 0.28;
+        const enemies = allDamageables().filter(unit => unit.alive && unit.team !== area.team && distance(unit, area) < area.r + unit.r);
+        for (const unit of enemies) {
+          damageUnit(unit, area.damage, area.source, area.name);
+          if (area.slow && (unit.kind === "hero" || unit.kind === "minion")) {
+            unit.slow = Math.max(unit.slow || 0, 0.45);
+            unit.slowTime = Math.max(unit.slowTime || 0, 0.5);
+          }
+        }
+      }
+    }
+
+    for (const unit of [...entities.heroes, ...entities.minions]) {
+      if (unit.slowTime > 0) {
+        unit.slowTime -= dt;
+        if (unit.slowTime <= 0) unit.slow = 0;
+      }
+    }
+  }
+
+  function updateRunes(dt) {
+    for (const rune of entities.runes) {
+      rune.pulse += dt * 3.2;
+      if (!rune.available) {
+        rune.timer -= dt;
+        if (rune.timer <= 0) {
+          rune.available = true;
+          burst(rune.x, rune.y, rune.color, 14);
+        }
+        continue;
+      }
+
+      for (const hero of entities.heroes) {
+        if (!hero.alive || distance(hero, rune) > hero.r + rune.r + 6) continue;
+        takeRune(hero, rune);
+        break;
+      }
+    }
+  }
+
+  function updateTeamBuffs(dt) {
+    for (const buff of teamBuffs) {
+      buff.duration = Math.max(0, buff.duration - dt);
+    }
+  }
+
+  function updateJungle(dt) {
+    for (const camp of entities.jungle) {
+      camp.pulse += dt * 2.6;
+      if (!camp.alive) {
+        camp.respawn -= dt;
+        if (camp.respawn <= 0) {
+          camp.alive = true;
+          camp.hp = camp.maxHp;
+          camp.attackTimer = 0.45;
+          camp.aggroTarget = null;
+          camp.aggroTime = 0;
+          burst(camp.x, camp.y, camp.color, 18);
+        }
+        continue;
+      }
+
+      camp.aggroTime = Math.max(0, camp.aggroTime - dt);
+      camp.attackTimer -= dt;
+      const target = nearestJungleTarget(camp);
+      if (target) tryAttack(camp, target);
+    }
+  }
+
+  function nearestJungleTarget(camp) {
+    if (
+      camp.aggroTime > 0 &&
+      camp.aggroTarget?.alive &&
+      distance(camp, camp.aggroTarget) <= camp.range + camp.aggroTarget.r + 42
+    ) {
+      return camp.aggroTarget;
+    }
+
+    const enemies = entities.heroes
+      .filter(unit => unit.alive && distance(camp, unit) <= camp.range + unit.r);
+    if (enemies.length === 0) return null;
+    enemies.sort((a, b) => distance(camp, a) - distance(camp, b));
+    return enemies[0];
+  }
+
+  function updateObjectives(dt) {
+    for (const objective of entities.objectives) {
+      objective.pulse += dt * 2.2;
+      if (!objective.alive) {
+        objective.respawn -= dt;
+        if (objective.respawn <= 0) {
+          objective.alive = true;
+          objective.hp = objective.maxHp;
+          objective.attackTimer = 0.8;
+          objective.aggroTarget = null;
+          objective.aggroTime = 0;
+          burst(objective.x, objective.y, teamColor[NEUTRAL], 28);
+          pushFeed(objective.name + " 重新出现");
+        }
+        continue;
+      }
+
+      objective.aggroTime = Math.max(0, objective.aggroTime - dt);
+      objective.attackTimer -= dt;
+      const target = nearestObjectiveTarget(objective);
+      if (target) tryAttack(objective, target);
+    }
+  }
+
+  function nearestObjectiveTarget(objective) {
+    if (
+      objective.aggroTime > 0 &&
+      objective.aggroTarget?.alive &&
+      distance(objective, objective.aggroTarget) <= objective.range + objective.aggroTarget.r + 36
+    ) {
+      return objective.aggroTarget;
+    }
+
+    const enemies = entities.heroes
+      .filter(unit => unit.alive && distance(objective, unit) <= objective.range + unit.r);
+    if (enemies.length === 0) return null;
+    enemies.sort((a, b) => {
+      const ah = a.kind === "hero" ? -80 : 0;
+      const bh = b.kind === "hero" ? -80 : 0;
+      return distance(objective, a) + ah - (distance(objective, b) + bh);
+    });
+    return enemies[0];
+  }
+
+  function takeRune(hero, rune) {
+    rune.available = false;
+    rune.timer = 24;
+    if (rune.type === "renew") {
+      hero.hp = Math.min(hero.maxHp, hero.hp + hero.maxHp * 0.28);
+      hero.mana = Math.min(hero.maxMana, hero.mana + hero.maxMana * 0.42);
+    } else if (rune.type === "power") {
+      hero.buffTime = Math.max(hero.buffTime || 0, 16);
+    } else if (rune.type === "haste") {
+      hero.cooldowns.q = Math.max(0, hero.cooldowns.q - 3);
+      hero.cooldowns.w = Math.max(0, hero.cooldowns.w - 3);
+      hero.cooldowns.e = Math.max(0, hero.cooldowns.e - 3);
+      hero.buffTime = Math.max(hero.buffTime || 0, 9);
+    } else if (rune.type === "guard") {
+      hero.shield = Math.max(hero.shield || 0, 150 + hero.level * 22);
+      hero.shieldTime = 5.5;
+      hero.guardTime = Math.max(hero.guardTime || 0, 12);
+    }
+    floatingText(hero.x, hero.y - 36, rune.name, rune.color);
+    burst(rune.x, rune.y, rune.color, 22);
+    if (hero.isPlayer) showToast(rune.name);
+  }
+
+  function updateUnitState(dt) {
+    for (const unit of allDamageables()) {
+      unit.hitFlash = Math.max(0, (unit.hitFlash || 0) - dt);
+      unit.attackFlash = Math.max(0, (unit.attackFlash || 0) - dt);
+    }
+
+    for (const hero of entities.heroes) {
+      if (!hero.alive) continue;
+      const core = getCore(hero.team);
+      if (core && distance(hero, core) < 120) {
+        hero.hp = Math.min(hero.maxHp, hero.hp + hero.maxHp * 0.08 * dt);
+        hero.mana = Math.min(hero.maxMana, hero.mana + hero.maxMana * 0.18 * dt);
+      }
+    }
+  }
+
+  function separateUnits() {
+    const movers = [...entities.heroes, ...entities.minions].filter(unit => unit.alive);
+    for (let i = 0; i < movers.length; i += 1) {
+      for (let j = i + 1; j < movers.length; j += 1) {
+        const a = movers[i];
+        const b = movers[j];
+        const minDist = (a.r + b.r) * 0.72;
+        const dx = b.x - a.x;
+        const dy = b.y - a.y;
+        const d = Math.hypot(dx, dy);
+        if (d <= 0.01 || d >= minDist) continue;
+        const push = (minDist - d) * 0.5;
+        const nx = dx / d;
+        const ny = dy / d;
+        if (!a.isPlayer) {
+          a.x = clamp(a.x - nx * push, 34, WORLD_W - 34);
+          a.y = clamp(a.y - ny * push, 34, WORLD_H - 34);
+        }
+        if (!b.isPlayer) {
+          b.x = clamp(b.x + nx * push, 34, WORLD_W - 34);
+          b.y = clamp(b.y + ny * push, 34, WORLD_H - 34);
+        }
+      }
+    }
+  }
+
+  function updateGameMessage() {
+    if (game.over) return;
+    const redCore = getCore(RED);
+    const blueCore = getCore(BLUE);
+    const target = player?.target;
+    if (target?.alive) {
+      game.message = "锁定 " + (target.name || "目标");
+    } else if (blueCore && blueCore.hp / blueCore.maxHp < 0.45) {
+      game.message = "基地告急 · 下一波 " + Math.ceil(game.waveTimer) + "s";
+    } else if (redCore && redCore.hp / redCore.maxHp < 0.45) {
+      game.message = "压制赤方 · 下一波 " + Math.ceil(game.waveTimer) + "s";
+    } else {
+      game.message = "第 " + Math.max(1, game.waveNumber) + " 波 · 下一波 " + Math.ceil(game.waveTimer) + "s";
+    }
+  }
+
+  function moveUnit(unit, nx, ny, dt, speed) {
+    const slow = unit.slow ? 1 - unit.slow : 1;
+    unit.face = Math.atan2(ny, nx);
+    unit.x = clamp(unit.x + nx * speed * slow * dt, 34, WORLD_W - 34);
+    unit.y = clamp(unit.y + ny * speed * slow * dt, 34, WORLD_H - 34);
+  }
+
+  function moveToward(unit, point, dt, speed) {
+    const n = normalize(point.x - unit.x, point.y - unit.y);
+    if (n.len < 2) return;
+    moveUnit(unit, n.x, n.y, dt, speed);
+  }
+
+  function validTarget(target, team) {
+    return target && target.alive && target.team !== team;
+  }
+
+  function allDamageables(includeObjectives = true) {
+    const units = [
+      ...entities.heroes,
+      ...entities.minions,
+      ...entities.structures
+    ];
+    if (includeObjectives) units.push(...entities.objectives, ...entities.jungle);
+    return units.filter(unit => unit.alive);
+  }
+
+  function nearestEnemy(unit, range, preferHero) {
+    const enemies = allDamageables().filter(target => {
+      if (target.team === unit.team || distance(unit, target) > range + target.r) return false;
+      if (target.kind === "objective" && (unit.kind === "minion" || !unit.isPlayer)) return false;
+      if (target.kind === "jungle" && (unit.kind === "minion" || !unit.isPlayer)) return false;
+      return true;
+    });
+    if (enemies.length === 0) return null;
+    enemies.sort((a, b) => {
+      const ah = preferHero && a.kind === "hero" ? -180 : 0;
+      const bh = preferHero && b.kind === "hero" ? -180 : 0;
+      const as = a.kind === "minion" ? -30 : 0;
+      const bs = b.kind === "minion" ? -30 : 0;
+      return distance(unit, a) + ah + as - (distance(unit, b) + bh + bs);
+    });
+    return enemies[0];
+  }
+
+  function chooseStructureTarget(structure) {
+    const enemies = allDamageables(false).filter(target => target.team !== structure.team && distance(structure, target) <= structure.range + target.r);
+    if (enemies.length === 0) return null;
+    enemies.sort((a, b) => structureThreatScore(structure, a) - structureThreatScore(structure, b));
+    return enemies[0];
+  }
+
+  function structureThreatScore(structure, target) {
+    let score = distance(structure, target);
+    if (target.kind === "minion") score -= target.type === "siege" ? 180 : 120;
+    if (target.kind === "hero") score -= target.target === structure ? 90 : 35;
+    if (target.kind === "structure") score += 240;
+    if (target.hitFlash > 0) score -= 25;
+    return score;
+  }
+
+  function hasNearbyMinion(point, team, radius = 285) {
+    return entities.minions.some(minion => minion.alive && minion.team === team && distance(point, minion) <= radius);
+  }
+
+  function firstEnemyHit(projectile) {
+    const enemies = allDamageables().filter(unit => unit.team !== projectile.team);
+    for (const unit of enemies) {
+      if (distance(projectile, unit) <= projectile.r + unit.r) return unit;
+    }
+    return null;
+  }
+
+  function autoAttack(hero) {
+    if (!hero.alive) return;
+    if (!validTarget(hero.target, hero.team) || distance(hero, hero.target) > hero.range + hero.target.r + 70) {
+      hero.target = nearestEnemy(hero, hero.range, true);
+    }
+    if (hero.target && distance(hero, hero.target) <= hero.range + hero.target.r) {
+      tryAttack(hero, hero.target);
+    }
+  }
+
+  function tryAttack(attacker, target) {
+    if (attacker.attackTimer > 0 || !target || !target.alive) return;
+    attacker.attackTimer = attacker.attackCd;
+    attacker.attackFlash = 0.18;
+    attacker.face = Math.atan2(target.y - attacker.y, target.x - attacker.x);
+    const ranged = attacker.kind !== "minion" || attacker.type === "caster" || attacker.kind === "structure";
+    if (ranged) {
+      launchTargetProjectile(attacker, target, attacker.damage, attacker.kind === "structure" ? "#f4ca58" : teamColor[attacker.team], "普攻");
+    } else {
+      damageUnit(target, attacker.damage, attacker, "普攻");
+      burst(target.x, target.y, teamColor[attacker.team], 5);
+    }
+  }
+
+  function launchTargetProjectile(source, target, damage, color, name) {
+    entities.projectiles.push({
+      x: source.x,
+      y: source.y,
+      r: source.kind === "structure" ? 6 : 5,
+      team: source.team,
+      source,
+      target,
+      damage,
+      color,
+      name,
+      speed: source.kind === "structure" ? 430 : 360,
+      dead: false
+    });
+  }
+
+  function damageUnit(unit, amount, source, name) {
+    if (!unit.alive) return;
+    let damage = amount;
+    if (source?.buffTime > 0) damage *= 1.18;
+    if (source?.emberTime > 0) damage *= 1.14;
+    if (source && source.team !== NEUTRAL && teamBuffs[source.team]?.duration > 0) {
+      damage *= source.kind === "minion" ? 1.24 : 1.08;
+      if (unit.kind === "tower" || unit.kind === "core") damage *= 1.1;
+    }
+    if (unit.kind === "objective" && source && source.team !== NEUTRAL) {
+      unit.aggroTarget = source;
+      unit.aggroTime = 6;
+    }
+    if (unit.kind === "jungle" && source && source.team !== NEUTRAL) {
+      unit.aggroTarget = source;
+      unit.aggroTime = 5.5;
+    }
+    if ((unit.kind === "tower" || unit.kind === "core") && source?.kind === "hero" && source.team !== unit.team && !hasNearbyMinion(unit, source.team)) {
+      damage *= source.guardTime > 0 ? 0.62 : 0.42;
+    }
+    if (unit.bulwarkTime > 0) damage *= 0.88;
+    if (unit.shield > 0) {
+      const absorbed = Math.min(unit.shield, damage);
+      unit.shield -= absorbed;
+      damage -= absorbed;
+    }
+    if (damage <= 0) return;
+    unit.hp -= damage;
+    unit.hitFlash = 0.16;
+    floatingText(unit.x, unit.y - unit.r - 8, Math.round(damage), source ? teamColor[source.team] : "#ffffff");
+    if (unit.hp <= 0) killUnit(unit, source, name);
+  }
+
+  function killUnit(unit, source, name) {
+    unit.hp = 0;
+    unit.alive = false;
+    burst(unit.x, unit.y, unit.kind === "structure" ? "#f4ca58" : teamColor[unit.team], unit.kind === "structure" ? 26 : 16);
+
+    if (unit.kind === "core") {
+      endGame(1 - unit.team);
+      return;
+    }
+
+    if (unit.kind === "tower") {
+      pushFeed(unit.name + " 被摧毁");
+      rewardPlayer(unit, source, 150, 110);
+      return;
+    }
+
+    if (unit.kind === "objective") {
+      unit.respawn = OBJECTIVE_RESPAWN;
+      unit.aggroTarget = null;
+      unit.aggroTime = 0;
+      grantObjectiveBuff(unit, source);
+      rewardPlayer(unit, source, unit.gold, unit.xp);
+      return;
+    }
+
+    if (unit.kind === "jungle") {
+      unit.respawn = unit.respawnDelay;
+      unit.aggroTarget = null;
+      unit.aggroTime = 0;
+      grantJungleBuff(unit, source);
+      rewardPlayer(unit, source, unit.gold, unit.xp);
+      return;
+    }
+
+    if (unit.kind === "hero") {
+      unit.respawn = unit.isPlayer ? 8 : 10;
+      if (unit.isPlayer) {
+        game.deaths += 1;
+        queuedAbility = null;
+      }
+      if (source && source.team === BLUE) game.kills += unit.team === RED ? 1 : 0;
+      pushFeed((source?.name || "兵线") + " 击败 " + unit.name);
+      rewardPlayer(unit, source, 180, 150);
+      return;
+    }
+
+    rewardPlayer(unit, source, unit.gold, unit.xp);
+  }
+
+  function grantJungleBuff(unit, source) {
+    if (!source || source.kind !== "hero" || source.team === NEUTRAL) return;
+    const hero = source;
+    if (unit.type === "ember") {
+      hero.emberTime = Math.max(hero.emberTime || 0, 30);
+      hero.buffTime = Math.max(hero.buffTime || 0, 8);
+      floatingText(hero.x, hero.y - 38, "余烬", unit.color);
+      if (hero.isPlayer) showToast("获得余烬增伤");
+    } else if (unit.type === "aether") {
+      hero.aetherTime = Math.max(hero.aetherTime || 0, 30);
+      hero.mana = hero.maxMana;
+      for (const key of ["q", "w", "e"]) hero.cooldowns[key] = Math.max(0, hero.cooldowns[key] - 2);
+      floatingText(hero.x, hero.y - 38, "苍蓝", unit.color);
+      if (hero.isPlayer) showToast("获得苍蓝回能");
+    } else if (unit.type === "bulwark") {
+      hero.bulwarkTime = Math.max(hero.bulwarkTime || 0, 28);
+      hero.guardTime = Math.max(hero.guardTime || 0, 16);
+      hero.shield = Math.max(hero.shield || 0, 120 + hero.level * 24);
+      hero.shieldTime = Math.max(hero.shieldTime || 0, 6);
+      floatingText(hero.x, hero.y - 38, "石甲", unit.color);
+      if (hero.isPlayer) showToast("获得石甲护盾");
+    }
+    burst(unit.x, unit.y, unit.color, 24);
+  }
+
+  function grantObjectiveBuff(unit, source) {
+    if (!source || source.team === NEUTRAL || !teamBuffs[source.team]) {
+      pushFeed(unit.name + " 被击败");
+      return;
+    }
+    teamBuffs[source.team].duration = Math.max(teamBuffs[source.team].duration, OBJECTIVE_BUFF_DURATION);
+    for (const hero of entities.heroes) {
+      if (hero.team !== source.team || !hero.alive) continue;
+      hero.buffTime = Math.max(hero.buffTime || 0, 12);
+      hero.mana = Math.min(hero.maxMana, hero.mana + 55);
+      floatingText(hero.x, hero.y - 38, "晶潮", teamColor[source.team]);
+    }
+    burst(unit.x, unit.y, teamColor[source.team], 34);
+    pushFeed(teamName[source.team] + " 击败 " + unit.name + "，获得晶潮推进");
+    if (source.team === BLUE) showToast("晶潮推进已激活");
+  }
+
+  function rewardPlayer(unit, source, gold, xp) {
+    if (!source || source.team !== BLUE) return;
+    const nearby = distance(player, unit) < 520;
+    const major = unit.kind === "hero" || unit.kind === "tower" || unit.kind === "objective" || unit.kind === "jungle";
+    if (source === player || nearby || major) {
+      const share = source === player ? 1 : unit.kind === "objective" ? 0.85 : major ? 0.65 : 0.42;
+      const gainedGold = Math.max(1, Math.round(gold * share));
+      const gainedXp = Math.max(1, Math.round(xp * share));
+      player.gold += gainedGold;
+      player.xp += gainedXp;
+      floatingText(player.x, player.y - 34, "+" + gainedGold + "G", "#f4ca58");
+      checkLevelUp();
+    }
+  }
+
+  function checkLevelUp() {
+    while (player.level < 6 && player.xp >= xpNeed(player.level)) {
+      player.xp -= xpNeed(player.level);
+      player.level += 1;
+      player.maxHp += 86;
+      player.hp = Math.min(player.maxHp, player.hp + 160);
+      player.maxMana += 24;
+      player.mana = player.maxMana;
+      player.damage += 7;
+      abilityRenderKey = "";
+      showToast("等级提升 " + player.level);
+      burst(player.x, player.y, "#67d784", 24);
+    }
+  }
+
+  function xpNeed(level) {
+    return 95 + level * 72;
+  }
+
+  function respawnHero(hero) {
+    const core = getCore(hero.team);
+    hero.alive = true;
+    hero.hp = hero.maxHp;
+    hero.mana = hero.maxMana;
+    hero.shield = 0;
+    hero.shieldTime = 0;
+    hero.emberTime = 0;
+    hero.aetherTime = 0;
+    hero.bulwarkTime = 0;
+    hero.target = null;
+    hero.moveTarget = null;
+    hero.x = core ? core.x + (hero.team === BLUE ? 45 : -45) : hero.x;
+    hero.y = core ? core.y + (hero.team === BLUE ? -45 : 45) : hero.y;
+    pushFeed(hero.name + " 回到战场");
+  }
+
+  function getCore(team) {
+    return entities.structures.find(item => item.kind === "core" && item.team === team);
+  }
+
+  function queueAbility(key) {
+    if (!game.started || game.paused || game.over || !player.alive) return;
+    key = key.toLowerCase();
+    const def = abilityDefs[key];
+    if (!def) return;
+    if (key === "r" && player.level < 3) {
+      showToast("R 技能需要 3 级");
+      return;
+    }
+    if (player.cooldowns[key] > 0) {
+      showToast(def.name + " 冷却中");
+      return;
+    }
+    if (player.mana < def.cost) {
+      showToast("能量不足");
+      return;
+    }
+    queuedAbility = queuedAbility === key ? null : key;
+    abilityRenderKey = "";
+    showToast(queuedAbility ? "选择 " + def.key + " 落点" : "取消技能");
+    updateUI();
+  }
+
+  function useAbility(key) {
+    if (!game.started || game.paused || game.over || !player.alive) return;
+    key = key.toLowerCase();
+    const def = abilityDefs[key];
+    if (!def) return;
+    if (key === "r" && player.level < 3) {
+      showToast("R 技能需要 3 级");
+      return;
+    }
+    if (player.cooldowns[key] > 0) return;
+    if (player.mana < def.cost) {
+      showToast("能量不足");
+      return;
+    }
+    player.mana -= def.cost;
+    player.cooldowns[key] = def.cd;
+    queuedAbility = null;
+    abilityRenderKey = "";
+
+    if (key === "q") castSkillshot(player, pointer, key);
+    if (key === "w") castDash(player, pointer);
+    if (key === "e") castAoe(player, pointer, key);
+    if (key === "r") castMeteor(player, pointer);
+    updateUI();
+  }
+
+  function castSkillshot(caster, point, key) {
+    const def = abilityDefs[key] || abilityDefs.q;
+    const n = normalize(point.x - caster.x, point.y - caster.y);
+    caster.face = Math.atan2(n.y, n.x);
+    caster.attackFlash = 0.2;
+    entities.projectiles.push({
+      x: caster.x + n.x * 24,
+      y: caster.y + n.y * 24,
+      vx: n.x * 540,
+      vy: n.y * 540,
+      r: 8,
+      team: caster.team,
+      source: caster,
+      damage: caster.isPlayer ? 88 + caster.level * 18 : 62,
+      color: caster.team === BLUE ? "#7ee3ff" : "#ff9a82",
+      name: "弧光刃",
+      life: def.range / 540,
+      dead: false
+    });
+    caster.cooldowns.q = abilityDefs.q.cd;
+    caster.mana = Math.max(0, caster.mana - (caster.isPlayer ? 0 : 24));
+    burst(caster.x, caster.y, caster.team === BLUE ? "#4ec5e8" : "#ff6c5f", 8);
+  }
+
+  function castDash(caster, point) {
+    const n = normalize(point.x - caster.x, point.y - caster.y);
+    caster.face = Math.atan2(n.y, n.x);
+    const distanceToMove = Math.min(abilityDefs.w.range, n.len || abilityDefs.w.range);
+    caster.x = clamp(caster.x + n.x * distanceToMove, 34, WORLD_W - 34);
+    caster.y = clamp(caster.y + n.y * distanceToMove, 34, WORLD_H - 34);
+    caster.shield = 96 + caster.level * 18;
+    caster.shieldTime = 2.4;
+    caster.cooldowns.w = abilityDefs.w.cd;
+    caster.mana = Math.max(0, caster.mana - (caster.isPlayer ? 0 : abilityDefs.w.cost));
+    burst(caster.x, caster.y, "#67d784", 20);
+  }
+
+  function castAoe(caster, point, key) {
+    const def = abilityDefs[key] || abilityDefs.e;
+    const n = normalize(point.x - caster.x, point.y - caster.y);
+    caster.face = Math.atan2(n.y, n.x);
+    caster.attackFlash = 0.22;
+    const range = Math.min(def.range, n.len);
+    const x = caster.x + n.x * range;
+    const y = caster.y + n.y * range;
+    entities.aoes.push({
+      x,
+      y,
+      r: 88,
+      team: caster.team,
+      source: caster,
+      damage: caster.isPlayer ? 28 + caster.level * 4 : 20,
+      name: "星沼",
+      slow: true,
+      life: 2.4,
+      tick: 0.05,
+      color: caster.team === BLUE ? "rgba(103, 215, 132, 0.25)" : "rgba(255, 108, 95, 0.22)"
+    });
+    caster.cooldowns.e = abilityDefs.e.cd;
+    caster.mana = Math.max(0, caster.mana - (caster.isPlayer ? 0 : 34));
+  }
+
+  function castMeteor(caster, point) {
+    const n = normalize(point.x - caster.x, point.y - caster.y);
+    caster.face = Math.atan2(n.y, n.x);
+    caster.attackFlash = 0.28;
+    const range = Math.min(abilityDefs.r.range, n.len);
+    const x = caster.x + n.x * range;
+    const y = caster.y + n.y * range;
+    entities.aoes.push({
+      x,
+      y,
+      r: 124,
+      team: caster.team,
+      source: caster,
+      damage: 84 + caster.level * 15,
+      name: "晶陨",
+      life: 1.05,
+      tick: 0.16,
+      color: "rgba(244, 202, 88, 0.26)"
+    });
+    caster.cooldowns.r = abilityDefs.r.cd;
+    caster.mana = Math.max(0, caster.mana - (caster.isPlayer ? 0 : abilityDefs.r.cost));
+    shockRing(x, y, 124, "#f4ca58");
+  }
+
+  function buyUpgrade(type) {
+    if (!player || game.over) return;
+    const costs = { attack: 90, health: 110, haste: 130 };
+    const cost = costs[type];
+    if (player.gold < cost) {
+      showToast("金币不足");
+      return;
+    }
+    player.gold -= cost;
+    if (type === "attack") {
+      player.damage += 9;
+      showToast("攻击提升");
+    } else if (type === "health") {
+      player.maxHp += 120;
+      player.hp = Math.min(player.maxHp, player.hp + 120);
+      showToast("生命提升");
+    } else if (type === "haste") {
+      player.haste += 0.08;
+      showToast("冷却加速");
+    }
+    updateUI();
+  }
+
+  function checkWin() {
+    const blueCore = getCore(BLUE);
+    const redCore = getCore(RED);
+    if (blueCore && !blueCore.alive) endGame(RED);
+    if (redCore && !redCore.alive) endGame(BLUE);
+  }
+
+  function endGame(winner) {
+    if (game.over) return;
+    game.over = true;
+    game.winner = winner;
+    queuedAbility = null;
+    const won = winner === BLUE;
+    resultTitle.textContent = won ? "胜利" : "失败";
+    resultCopy.textContent = `用时 ${formatTime(game.time)} · 击败 ${game.kills} · 阵亡 ${game.deaths} · 第 ${game.waveNumber} 波`;
+    resultModal.classList.add("show");
+    pushFeed(won ? "赤晶核被摧毁" : "蓝晶核被摧毁");
+    showToast(won ? "胜利" : "失败");
+  }
+
+  function cleanupEntities() {
+    entities.projectiles = entities.projectiles.filter(p => !p.dead);
+    entities.aoes = entities.aoes.filter(a => a.life > 0);
+    entities.particles = entities.particles.filter(p => p.life > 0);
+    entities.texts = entities.texts.filter(t => t.life > 0);
+    entities.minions = entities.minions.filter(m => m.alive);
+  }
+
+  function updateParticles(dt) {
+    for (const p of entities.particles) {
+      p.life -= dt;
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.vy += 18 * dt;
+    }
+  }
+
+  function updateFloatingTexts(dt) {
+    for (const t of entities.texts) {
+      t.life -= dt;
+      t.y -= 28 * dt;
+    }
+  }
+
+  function updateToast(dt) {
+    if (toastTimer > 0) {
+      toastTimer -= dt;
+      if (toastTimer <= 0) toast.classList.remove("show");
+    }
+  }
+
+  function burst(x, y, color, count) {
+    for (let i = 0; i < count; i += 1) {
+      const a = Math.random() * Math.PI * 2;
+      const s = 45 + Math.random() * 120;
+      entities.particles.push({
+        x,
+        y,
+        vx: Math.cos(a) * s,
+        vy: Math.sin(a) * s,
+        r: 2 + Math.random() * 3,
+        color,
+        life: 0.45 + Math.random() * 0.35
+      });
+    }
+  }
+
+  function shockRing(x, y, r, color) {
+    entities.particles.push({
+      x,
+      y,
+      vx: 0,
+      vy: 0,
+      r,
+      color,
+      ring: true,
+      life: 0.55
+    });
+  }
+
+  function floatingText(x, y, text, color) {
+    entities.texts.push({ x, y, text, color, life: 0.85 });
+  }
+
+  function showToast(message) {
+    toast.textContent = message;
+    toast.classList.add("show");
+    toastTimer = 1.5;
+  }
+
+  function pushFeed(message) {
+    const line = document.createElement("div");
+    line.className = "feed-line";
+    line.textContent = formatTime(game.time) + "  " + message;
+    feed.prepend(line);
+    while (feed.children.length > 9) feed.removeChild(feed.lastChild);
+  }
+
+  function updateUI() {
+    if (!player) return;
+    statusText.textContent = game.over ? (game.winner === BLUE ? "胜利" : "失败") : game.paused ? "暂停" : game.message;
+    timerText.textContent = formatTime(game.time);
+    levelValue.textContent = `${player.level} (${Math.floor(player.xp)}/${xpNeed(player.level)})`;
+    goldValue.textContent = Math.floor(player.gold);
+    const blueCore = getCore(BLUE);
+    const redCore = getCore(RED);
+    blueCoreValue.textContent = blueCore ? percent(blueCore.hp, blueCore.maxHp) : "0%";
+    redCoreValue.textContent = redCore ? percent(redCore.hp, redCore.maxHp) : "0%";
+    renderObjectivePanel();
+    renderLaneBoard();
+    buyAttack.disabled = player.gold < 90;
+    buyHealth.disabled = player.gold < 110;
+    buyHaste.disabled = player.gold < 130;
+    renderAbilities();
+  }
+
+  function renderObjectivePanel() {
+    const objective = entities.objectives[0];
+    const buffs = [BLUE, RED]
+      .filter(team => teamBuffs[team].duration > 0)
+      .map(team => `${teamName[team].slice(0, 1)} ${Math.ceil(teamBuffs[team].duration)}s`);
+    const personalBuffs = [];
+    if (player.emberTime > 0) personalBuffs.push(`余烬 ${Math.ceil(player.emberTime)}s`);
+    if (player.aetherTime > 0) personalBuffs.push(`苍蓝 ${Math.ceil(player.aetherTime)}s`);
+    if (player.bulwarkTime > 0) personalBuffs.push(`石甲 ${Math.ceil(player.bulwarkTime)}s`);
+    const allBuffs = [...buffs, ...personalBuffs];
+    teamBuffValue.textContent = allBuffs.length ? allBuffs.join(" / ") : "无增益";
+    if (!objective) {
+      objectiveValue.textContent = "远古晶兽";
+      objectiveTimer.textContent = "未出现";
+      return;
+    }
+    objectiveValue.textContent = objective.alive ? `${objective.name} ${percent(objective.hp, objective.maxHp)}` : objective.name;
+    objectiveTimer.textContent = objective.alive ? "可争夺 · 击败强化兵线" : `刷新 ${Math.ceil(Math.max(0, objective.respawn))}s`;
+  }
+
+  function renderLaneBoard() {
+    const laneStates = lanes.map((lane, index) => {
+      const pressure = lanePressure(index);
+      const score = Math.round(pressure * 100);
+      const label = pressure > 0.18 ? "蓝方推进" : pressure < -0.18 ? "赤方推进" : "均势";
+      return { lane, pressure, score, label };
+    });
+    const nextKey = laneStates.map(state => `${state.score}:${state.label}`).join("|");
+    if (nextKey === laneRenderKey) return;
+    laneRenderKey = nextKey;
+    laneBoard.innerHTML = laneStates.map(state => {
+      const position = clamp(50 + state.pressure * 42, 7, 93);
+      const color = state.pressure >= 0 ? teamColor[BLUE] : teamColor[RED];
+      return `
+        <div class="lane-state">
+          <div class="lane-row"><strong>${state.lane.name}</strong><span>${state.label}</span></div>
+          <div class="lane-track"><i class="lane-marker" style="left:${position}%;background:${color}"></i></div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  function lanePressure(laneIndex) {
+    const blueMinions = entities.minions.filter(m => m.alive && m.team === BLUE && m.lane === laneIndex).length;
+    const redMinions = entities.minions.filter(m => m.alive && m.team === RED && m.lane === laneIndex).length;
+    const blueTower = entities.structures.some(s => s.alive && s.kind === "tower" && s.team === BLUE && s.lane === laneIndex) ? 1 : 0;
+    const redTower = entities.structures.some(s => s.alive && s.kind === "tower" && s.team === RED && s.lane === laneIndex) ? 1 : 0;
+    const blueHeroes = entities.heroes.filter(h => h.alive && h.team === BLUE && h.lane === laneIndex).length;
+    const redHeroes = entities.heroes.filter(h => h.alive && h.team === RED && h.lane === laneIndex).length;
+    return clamp((blueMinions - redMinions) * 0.09 + (blueTower - redTower) * 0.22 + (blueHeroes - redHeroes) * 0.06, -1, 1);
+  }
+
+  function renderAbilities() {
+    const nextKey = ["q", "w", "e", "r"].map(key => {
+      const def = abilityDefs[key];
+      const locked = key === "r" && player.level < 3;
+      return [
+        key,
+        queuedAbility === key ? 1 : 0,
+        locked ? 1 : 0,
+        Math.ceil(player.cooldowns[key] * 10),
+        player.mana >= def.cost ? 1 : 0,
+        player.alive ? 1 : 0,
+        game.paused ? 1 : 0,
+        game.over ? 1 : 0
+      ].join(":");
+    }).join("|");
+    if (nextKey === abilityRenderKey) return;
+    abilityRenderKey = nextKey;
+    abilityGrid.innerHTML = "";
+    for (const key of ["q", "w", "e", "r"]) {
+      const def = abilityDefs[key];
+      const cd = player.cooldowns[key];
+      const locked = key === "r" && player.level < 3;
+      const button = document.createElement("button");
+      button.className = "ability-btn";
+      if (queuedAbility === key) button.classList.add("armed");
+      button.disabled = locked || cd > 0 || player.mana < def.cost || !player.alive || game.paused || game.over;
+      button.innerHTML = `<strong>${def.key} ${def.name}</strong><span>${locked ? "3 级解锁" : cd > 0 ? cd.toFixed(1) + "s" : def.cost + " 能量"}</span>`;
+      button.addEventListener("click", () => queueAbility(key));
+      abilityGrid.appendChild(button);
+    }
+  }
+
+  function percent(value, max) {
+    return Math.max(0, Math.ceil(value / max * 100)) + "%";
+  }
+
+  function formatTime(time) {
+    const minutes = Math.floor(time / 60).toString().padStart(2, "0");
+    const seconds = Math.floor(time % 60).toString().padStart(2, "0");
+    return minutes + ":" + seconds;
+  }
+
+  function draw() {
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.save();
+    ctx.translate(view.ox, view.oy);
+    ctx.scale(view.scale, view.scale);
+
+    drawMap();
+    drawJungleCamps();
+    drawRunes();
+    drawRanges();
+    drawAbilityPreview();
+    drawAoes();
+    drawStructures();
+    drawObjectives();
+    drawMinions();
+    drawHeroes();
+    drawProjectiles();
+    drawParticles();
+    drawTexts();
+    drawCursor();
+
+    ctx.restore();
+    drawScreenHud();
+  }
+
+  function drawRanges() {
+    if (!game.started || !player?.alive) return;
+    ctx.save();
+    ctx.strokeStyle = "rgba(78, 197, 232, 0.22)";
+    ctx.lineWidth = 2;
+    ctx.setLineDash([11, 14]);
+    ctx.beginPath();
+    ctx.arc(player.x, player.y, player.range + player.r, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    for (const tower of entities.structures) {
+      if (!tower.alive || tower.kind !== "tower" || tower.team === player.team) continue;
+      const close = distance(player, tower) < tower.range + 80;
+      if (!close) continue;
+      ctx.strokeStyle = "rgba(255, 108, 95, 0.26)";
+      ctx.fillStyle = "rgba(255, 108, 95, 0.035)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(tower.x, tower.y, tower.range, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+    }
+
+    for (const objective of entities.objectives) {
+      if (!objective.alive || distance(player, objective) >= objective.range + 120) continue;
+      ctx.strokeStyle = "rgba(244, 202, 88, 0.28)";
+      ctx.fillStyle = "rgba(244, 202, 88, 0.04)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(objective.x, objective.y, objective.range, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+    }
+
+    if (player.target?.alive) {
+      ctx.strokeStyle = "rgba(244, 202, 88, 0.72)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(player.x, player.y);
+      ctx.lineTo(player.target.x, player.target.y);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(player.target.x, player.target.y, player.target.r + 10, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function drawAbilityPreview() {
+    if (!queuedAbility || !player?.alive) return;
+    const def = abilityDefs[queuedAbility];
+    const n = normalize(pointer.x - player.x, pointer.y - player.y);
+    const range = Math.min(def.range, n.len || def.range);
+    const end = {
+      x: player.x + n.x * range,
+      y: player.y + n.y * range
+    };
+
+    ctx.save();
+    ctx.strokeStyle = "rgba(244, 202, 88, 0.86)";
+    ctx.fillStyle = "rgba(244, 202, 88, 0.12)";
+    ctx.lineWidth = 3;
+    if (queuedAbility === "q") {
+      ctx.beginPath();
+      ctx.moveTo(player.x, player.y);
+      ctx.lineTo(player.x + n.x * def.range, player.y + n.y * def.range);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(end.x, end.y, 14, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+    } else if (queuedAbility === "w") {
+      ctx.setLineDash([14, 10]);
+      ctx.beginPath();
+      ctx.moveTo(player.x, player.y);
+      ctx.lineTo(end.x, end.y);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.beginPath();
+      ctx.arc(end.x, end.y, player.r + 12, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+    } else {
+      const radius = queuedAbility === "r" ? 124 : 88;
+      ctx.beginPath();
+      ctx.arc(end.x, end.y, radius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(player.x, player.y);
+      ctx.lineTo(end.x, end.y);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function drawMap() {
+    const bg = ctx.createLinearGradient(0, 0, WORLD_W, WORLD_H);
+    bg.addColorStop(0, "#254336");
+    bg.addColorStop(0.5, "#1c362b");
+    bg.addColorStop(1, "#2a301f");
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, WORLD_W, WORLD_H);
+
+    drawRiver();
+    ctx.fillStyle = "#173025";
+    drawForest(0, 0, 360, 320);
+    drawForest(1320, 760, 480, 420);
+    drawForest(0, 1035, 360, 145);
+    drawForest(1530, 0, 270, 235);
+    drawForest(675, 780, 255, 230);
+    drawForest(930, 175, 245, 230);
+    drawJungleOrnaments();
+    drawJungleCampGrounds();
+
+    ctx.strokeStyle = "rgba(86, 145, 113, 0.26)";
+    ctx.lineWidth = 42;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(285, 1085);
+    ctx.bezierCurveTo(525, 865, 650, 750, 910, 600);
+    ctx.bezierCurveTo(1150, 460, 1345, 290, 1555, 90);
+    ctx.stroke();
+
+    for (const lane of lanes) drawLane(lane.points);
+    drawLanePressure();
+
+    drawBaseAura(170, 1000, teamColor[BLUE]);
+    drawBaseAura(1630, 180, teamColor[RED]);
+  }
+
+  function drawLanePressure() {
+    ctx.save();
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = "800 13px 'Segoe UI', sans-serif";
+    for (let laneIndex = 0; laneIndex < lanes.length; laneIndex += 1) {
+      const lane = lanes[laneIndex];
+      const blueCount = entities.minions.filter(m => m.alive && m.team === BLUE && m.lane === laneIndex).length;
+      const redCount = entities.minions.filter(m => m.alive && m.team === RED && m.lane === laneIndex).length;
+      const diff = clamp(blueCount - redCount, -6, 6);
+      const mid = lane.points[Math.floor(lane.points.length / 2)];
+      const x = mid.x + diff * 9;
+      const y = mid.y - 42;
+      ctx.fillStyle = diff >= 0 ? "rgba(78, 197, 232, 0.18)" : "rgba(255, 108, 95, 0.18)";
+      ctx.strokeStyle = diff >= 0 ? "rgba(78, 197, 232, 0.54)" : "rgba(255, 108, 95, 0.54)";
+      ctx.lineWidth = 2;
+      roundRect(x - 42, y - 15, 84, 30, 8);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = "rgba(240, 247, 237, 0.86)";
+      ctx.fillText(lane.name + " " + Math.abs(diff), x, y);
+    }
+    ctx.restore();
+  }
+
+  function drawRiver() {
+    const river = ctx.createLinearGradient(260, 1080, 1580, 100);
+    river.addColorStop(0, "rgba(69, 151, 145, 0.2)");
+    river.addColorStop(0.5, "rgba(79, 197, 232, 0.22)");
+    river.addColorStop(1, "rgba(69, 151, 145, 0.16)");
+    ctx.strokeStyle = river;
+    ctx.lineWidth = 86;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(250, 1040);
+    ctx.bezierCurveTo(510, 890, 650, 725, 900, 595);
+    ctx.bezierCurveTo(1160, 455, 1370, 270, 1580, 95);
+    ctx.stroke();
+
+    ctx.strokeStyle = "rgba(222, 246, 236, 0.12)";
+    ctx.lineWidth = 2;
+    for (let i = 0; i < 10; i += 1) {
+      ctx.beginPath();
+      ctx.moveTo(330 + i * 126, 990 - i * 88);
+      ctx.quadraticCurveTo(382 + i * 118, 956 - i * 90, 438 + i * 126, 930 - i * 88);
+      ctx.stroke();
+    }
+  }
+
+  function drawForest(x, y, w, h) {
+    ctx.fillStyle = "#173025";
+    ctx.beginPath();
+    ctx.rect(x, y, w, h);
+    ctx.fill();
+    ctx.fillStyle = "rgba(84, 135, 82, 0.16)";
+    for (let i = 0; i < 18; i += 1) {
+      const px = x + (i * 47) % Math.max(1, w);
+      const py = y + (i * 31) % Math.max(1, h);
+      ctx.beginPath();
+      ctx.arc(px, py, 18 + (i % 4) * 5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  function drawJungleOrnaments() {
+    const stones = [
+      [455, 765, 18], [500, 812, 11], [1310, 415, 16], [1368, 452, 12],
+      [735, 410, 13], [1015, 755, 15], [340, 820, 10], [1510, 300, 11],
+      [690, 980, 16], [1110, 230, 14]
+    ];
+    for (const [x, y, r] of stones) {
+      ctx.fillStyle = "rgba(202, 211, 177, 0.12)";
+      ctx.beginPath();
+      ctx.ellipse(x, y, r, r * 0.62, -0.35, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.strokeStyle = "rgba(103, 215, 132, 0.16)";
+    ctx.lineWidth = 3;
+    for (let i = 0; i < 38; i += 1) {
+      const x = 120 + (i * 181) % (WORLD_W - 240);
+      const y = 95 + (i * 137) % (WORLD_H - 190);
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x + Math.sin(i) * 16, y - 18 - (i % 3) * 7);
+      ctx.stroke();
+    }
+  }
+
+  function drawJungleCampGrounds() {
+    for (const spot of jungleCampSpots) {
+      ctx.save();
+      ctx.translate(spot.x, spot.y);
+      ctx.fillStyle = "rgba(7, 13, 10, 0.38)";
+      ctx.strokeStyle = spot.color;
+      ctx.globalAlpha = 0.5;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.ellipse(0, 12, 58, 36, -0.2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.globalAlpha = 0.18;
+      ctx.setLineDash([10, 9]);
+      ctx.beginPath();
+      ctx.arc(0, 0, 74, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
+
+  function drawLane(points) {
+    ctx.strokeStyle = "rgba(83, 67, 43, 0.32)";
+    ctx.lineWidth = 58;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < points.length; i += 1) ctx.lineTo(points[i].x, points[i].y);
+    ctx.stroke();
+
+    ctx.strokeStyle = "rgba(205, 190, 128, 0.22)";
+    ctx.lineWidth = 42;
+    ctx.stroke();
+
+    ctx.strokeStyle = "rgba(244, 225, 151, 0.16)";
+    ctx.lineWidth = 4;
+    ctx.setLineDash([18, 16]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  function drawBaseAura(x, y, color) {
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.globalAlpha = 0.45;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(x, y, 78, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawJungleCamps() {
+    for (const camp of entities.jungle) {
+      ctx.save();
+      ctx.translate(camp.x, camp.y);
+      drawUnitShadow(0, camp.r * 0.8, camp.r * 1.85, camp.r * 0.48);
+      if (!camp.alive) {
+        ctx.globalAlpha = 0.46;
+        ctx.strokeStyle = camp.color;
+        ctx.fillStyle = "rgba(7, 13, 10, 0.42)";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(0, 0, camp.r + 10, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = "rgba(240, 247, 237, 0.86)";
+        ctx.font = "900 13px 'Segoe UI', sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(Math.ceil(Math.max(0, camp.respawn)), 0, 1);
+        ctx.restore();
+        continue;
+      }
+
+      const pulse = 1 + Math.sin(camp.pulse) * 0.045;
+      ctx.scale(pulse, pulse);
+      if (camp.attackFlash > 0) {
+        ctx.strokeStyle = camp.color;
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.arc(0, 0, camp.r + 14 + camp.attackFlash * 24, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      ctx.fillStyle = camp.hitFlash > 0 ? "#fff8d5" : "rgba(18, 28, 23, 0.96)";
+      ctx.strokeStyle = camp.color;
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      if (camp.type === "bulwark") {
+        roundRect(-camp.r * 0.9, -camp.r * 0.78, camp.r * 1.8, camp.r * 1.56, 8);
+      } else if (camp.type === "ember") {
+        for (let i = 0; i < 7; i += 1) {
+          const a = Math.PI * 2 / 7 * i - Math.PI / 2;
+          const r = i % 2 === 0 ? camp.r * 1.04 : camp.r * 0.68;
+          const x = Math.cos(a) * r;
+          const y = Math.sin(a) * r;
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+      } else {
+        ctx.arc(0, 0, camp.r, 0, Math.PI * 2);
+      }
+      ctx.fill();
+      ctx.stroke();
+      ctx.strokeStyle = "rgba(240, 247, 237, 0.42)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(0, 0, camp.r * 0.48, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+
+      drawBar(camp.x - 34, camp.y - camp.r - 18, 68, 6, camp.hp / camp.maxHp, camp.color);
+      ctx.fillStyle = "#f0f7ed";
+      ctx.font = "800 11px 'Segoe UI', sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "alphabetic";
+      ctx.fillText(camp.name, camp.x, camp.y + camp.r + 17);
+    }
+  }
+
+  function drawRunes() {
+    for (const rune of entities.runes) {
+      const spin = rune.pulse;
+      ctx.save();
+      ctx.translate(rune.x, rune.y);
+      ctx.rotate(spin * 0.42);
+      ctx.globalAlpha = rune.available ? 1 : 0.34;
+      drawUnitShadow(0, 17, 32, 9);
+      ctx.strokeStyle = rune.color;
+      ctx.fillStyle = rune.available ? "rgba(12, 18, 15, 0.82)" : "rgba(12, 18, 15, 0.52)";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      for (let i = 0; i < 6; i += 1) {
+        const a = Math.PI / 3 * i;
+        const r = i % 2 === 0 ? rune.r : rune.r * 0.58;
+        ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+      }
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.rotate(-spin * 0.84);
+      ctx.strokeStyle = rune.available ? rune.color : "rgba(180, 190, 180, 0.45)";
+      ctx.beginPath();
+      ctx.arc(0, 0, rune.r + 8 + Math.sin(spin) * 2, 0, Math.PI * 2);
+      ctx.stroke();
+      if (!rune.available) {
+        ctx.fillStyle = "rgba(240, 247, 237, 0.76)";
+        ctx.font = "800 11px 'Segoe UI', sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(Math.ceil(rune.timer), 0, 1);
+      }
+      ctx.restore();
+    }
+  }
+
+  function drawObjectives() {
+    for (const objective of entities.objectives) {
+      ctx.save();
+      ctx.translate(objective.x, objective.y);
+      drawUnitShadow(0, objective.r * 0.72, objective.r * 1.8, objective.r * 0.46);
+      if (!objective.alive) {
+        ctx.globalAlpha = 0.46;
+        ctx.strokeStyle = "rgba(244, 202, 88, 0.46)";
+        ctx.fillStyle = "rgba(244, 202, 88, 0.08)";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(0, 0, objective.r + 8, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = "rgba(240, 247, 237, 0.88)";
+        ctx.font = "900 15px 'Segoe UI', sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(Math.ceil(Math.max(0, objective.respawn)), 0, 1);
+        ctx.restore();
+        continue;
+      }
+
+      const pulse = 1 + Math.sin(objective.pulse) * 0.045;
+      ctx.scale(pulse, pulse);
+      if (objective.attackFlash > 0) {
+        ctx.strokeStyle = "rgba(244, 202, 88, 0.72)";
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.arc(0, 0, objective.r + 18 + objective.attackFlash * 28, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      ctx.fillStyle = objective.hitFlash > 0 ? "#fff8d5" : "rgba(42, 55, 43, 0.94)";
+      ctx.strokeStyle = teamColor[NEUTRAL];
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      for (let i = 0; i < 8; i += 1) {
+        const a = Math.PI / 4 * i + Math.PI / 8;
+        const r = i % 2 === 0 ? objective.r : objective.r * 0.62;
+        ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+      }
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.strokeStyle = "rgba(244, 202, 88, 0.42)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(0, 0, objective.r * 0.48, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(-objective.r * 0.64, 0);
+      ctx.lineTo(objective.r * 0.64, 0);
+      ctx.moveTo(0, -objective.r * 0.64);
+      ctx.lineTo(0, objective.r * 0.64);
+      ctx.stroke();
+      ctx.restore();
+
+      drawBar(objective.x - 40, objective.y - objective.r - 20, 80, 7, objective.hp / objective.maxHp, teamColor[NEUTRAL]);
+      ctx.fillStyle = "#f0f7ed";
+      ctx.font = "800 12px 'Segoe UI', sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "alphabetic";
+      ctx.fillText(objective.name, objective.x, objective.y + objective.r + 19);
+    }
+  }
+
+  function drawStructures() {
+    for (const structure of entities.structures) {
+      if (!structure.alive && structure.kind !== "core") continue;
+      ctx.save();
+      ctx.translate(structure.x, structure.y);
+      drawUnitShadow(0, structure.r * 0.75, structure.r * 1.5, structure.r * 0.42);
+      if (structure.attackFlash > 0) {
+        ctx.strokeStyle = "rgba(244, 202, 88, 0.74)";
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.arc(0, 0, structure.range * (0.18 + structure.attackFlash), 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      ctx.fillStyle = structure.hitFlash > 0 ? "#fff8d5" : structure.alive ? teamSoft[structure.team] : "rgba(80,80,80,0.38)";
+      ctx.strokeStyle = structure.alive ? teamColor[structure.team] : "#777";
+      ctx.lineWidth = 3;
+      if (structure.kind === "core") {
+        const pulse = 1 + Math.sin(performance.now() * 0.004 + structure.team) * 0.06;
+        ctx.scale(pulse, pulse);
+        ctx.beginPath();
+        for (let i = 0; i < 8; i += 1) {
+          const a = Math.PI / 4 * i + Math.PI / 8;
+          const r = i % 2 === 0 ? structure.r : structure.r * 0.66;
+          ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+        }
+        ctx.closePath();
+      } else {
+        ctx.fillStyle = structure.hitFlash > 0 ? "#fff8d5" : "rgba(16, 20, 19, 0.72)";
+        ctx.beginPath();
+        ctx.arc(0, 16, 27, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = structure.hitFlash > 0 ? "#fff8d5" : teamSoft[structure.team];
+        roundRect(-21, -29, 42, 58, 7);
+      }
+      ctx.fill();
+      ctx.stroke();
+      if (structure.kind === "tower") {
+        ctx.fillStyle = teamColor[structure.team];
+        ctx.beginPath();
+        ctx.arc(0, -35, 8, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+      drawBar(structure.x - 34, structure.y - structure.r - 18, 68, 7, structure.hp / structure.maxHp, teamColor[structure.team]);
+    }
+  }
+
+  function drawMinions() {
+    for (const minion of entities.minions) {
+      if (!minion.alive) continue;
+      ctx.save();
+      ctx.translate(minion.x, minion.y);
+      ctx.rotate(minion.face || 0);
+      drawUnitShadow(0, minion.r * 0.6, minion.r * 1.4, minion.r * 0.42);
+      ctx.fillStyle = minion.hitFlash > 0 ? "#fff8d5" : minion.type === "caster" ? teamSoft[minion.team] : teamColor[minion.team];
+      ctx.strokeStyle = teamColor[minion.team];
+      ctx.lineWidth = 2;
+      if (minion.type === "siege") {
+        roundRect(-minion.r * 0.9, -minion.r * 0.65, minion.r * 1.8, minion.r * 1.3, 5);
+        ctx.moveTo(minion.r + 9, 0);
+        ctx.lineTo(minion.r * 0.25, -6);
+        ctx.lineTo(minion.r * 0.25, 6);
+        ctx.closePath();
+      } else if (minion.type === "caster") {
+        ctx.beginPath();
+        ctx.arc(0, 0, minion.r, 0, Math.PI * 2);
+        ctx.moveTo(minion.r + 6, 0);
+        ctx.arc(minion.r + 2, 0, 4, 0, Math.PI * 2);
+      } else {
+        ctx.beginPath();
+        ctx.moveTo(minion.r + 4, 0);
+        ctx.lineTo(-minion.r * 0.65, -minion.r);
+        ctx.lineTo(-minion.r * 0.65, minion.r);
+        ctx.closePath();
+      }
+      ctx.fill();
+      ctx.stroke();
+      if (minion.attackFlash > 0) {
+        ctx.strokeStyle = "rgba(244, 202, 88, 0.82)";
+        ctx.beginPath();
+        ctx.arc(0, 0, minion.r + 6, -0.9, 0.9);
+        ctx.stroke();
+      }
+      ctx.restore();
+      drawBar(minion.x - 16, minion.y - minion.r - 10, 32, 4, minion.hp / minion.maxHp, teamColor[minion.team]);
+    }
+  }
+
+  function drawHeroes() {
+    for (const hero of entities.heroes) {
+      if (!hero.alive) {
+        if (hero.isPlayer) {
+          ctx.fillStyle = "rgba(0,0,0,0.45)";
+          ctx.font = "900 26px 'Segoe UI', sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText("复活 " + Math.ceil(hero.respawn), WORLD_W / 2, WORLD_H / 2);
+        }
+        continue;
+      }
+      ctx.save();
+      ctx.translate(hero.x, hero.y);
+      ctx.rotate(hero.face || 0);
+      drawUnitShadow(0, hero.r * 0.75, hero.r * 1.7, hero.r * 0.48);
+      if (hero.isPlayer) {
+        ctx.strokeStyle = "rgba(240, 247, 237, 0.58)";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(0, 0, hero.r + 10, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      ctx.fillStyle = hero.hitFlash > 0 ? "#fff8d5" : hero.isPlayer ? "#f0f7ed" : teamColor[hero.team];
+      ctx.strokeStyle = teamColor[hero.team];
+      ctx.lineWidth = hero.isPlayer ? 5 : 3;
+      drawHeroSilhouette(hero);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = teamColor[hero.team];
+      ctx.beginPath();
+      ctx.moveTo(hero.r + 11, 0);
+      ctx.lineTo(hero.r - 2, -7);
+      ctx.lineTo(hero.r - 2, 7);
+      ctx.closePath();
+      ctx.fill();
+      if (hero.attackFlash > 0) {
+        ctx.strokeStyle = "rgba(244, 202, 88, 0.9)";
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.arc(0, 0, hero.r + 13, -0.82, 0.82);
+        ctx.stroke();
+      }
+      if (hero.shield > 0) {
+        ctx.strokeStyle = "#f4ca58";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(0, 0, hero.r + 8, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      drawBar(hero.x - 30, hero.y - hero.r - 18, 60, 6, hero.hp / hero.maxHp, teamColor[hero.team]);
+      drawBar(hero.x - 30, hero.y - hero.r - 10, 60, 4, hero.mana / hero.maxMana, "#67d784");
+      ctx.fillStyle = "#f0f7ed";
+      ctx.font = "700 12px 'Segoe UI', sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(hero.name + " " + hero.level, hero.x, hero.y + hero.r + 17);
+    }
+  }
+
+  function drawHeroSilhouette(hero) {
+    const r = hero.r;
+    ctx.beginPath();
+    if (hero.role === "guard") {
+      roundRect(-r * 0.92, -r * 0.86, r * 1.84, r * 1.72, 7);
+    } else if (hero.role === "mage") {
+      ctx.moveTo(0, -r * 1.12);
+      ctx.lineTo(r * 0.96, 0);
+      ctx.lineTo(0, r * 1.12);
+      ctx.lineTo(-r * 0.96, 0);
+      ctx.closePath();
+    } else if (hero.role === "ranger") {
+      ctx.moveTo(r * 1.1, 0);
+      ctx.lineTo(-r * 0.72, -r * 0.92);
+      ctx.lineTo(-r * 0.28, 0);
+      ctx.lineTo(-r * 0.72, r * 0.92);
+      ctx.closePath();
+    } else {
+      ctx.arc(0, 0, r, 0, Math.PI * 2);
+    }
+  }
+
+  function drawUnitShadow(x, y, w, h) {
+    ctx.save();
+    ctx.fillStyle = "rgba(0, 0, 0, 0.28)";
+    ctx.beginPath();
+    ctx.ellipse(x, y, w, h, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawProjectiles() {
+    for (const p of entities.projectiles) {
+      ctx.save();
+      ctx.strokeStyle = p.color;
+      ctx.globalAlpha = 0.38;
+      ctx.lineWidth = Math.max(2, p.r * 0.9);
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      if (p.target) {
+        ctx.moveTo(p.x, p.y);
+        const n = normalize((p.target?.x || p.x) - p.x, (p.target?.y || p.y) - p.y);
+        ctx.lineTo(p.x - n.x * 24, p.y - n.y * 24);
+      } else {
+        ctx.moveTo(p.x, p.y);
+        ctx.lineTo(p.x - (p.vx || 0) * 0.045, p.y - (p.vy || 0) * 0.045);
+      }
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  function drawAoes() {
+    for (const area of entities.aoes) {
+      ctx.save();
+      ctx.globalAlpha = Math.max(0.16, area.life / 2.5);
+      ctx.fillStyle = area.color;
+      ctx.strokeStyle = area.team === BLUE ? "#67d784" : "#ff6c5f";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(area.x, area.y, area.r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
+
+  function drawParticles() {
+    for (const p of entities.particles) {
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, p.life / 0.8);
+      if (p.ring) {
+        ctx.strokeStyle = p.color;
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r * (1.1 - p.life), 0, Math.PI * 2);
+        ctx.stroke();
+      } else {
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+  }
+
+  function drawTexts() {
+    ctx.font = "800 15px 'Segoe UI', sans-serif";
+    ctx.textAlign = "center";
+    for (const t of entities.texts) {
+      ctx.globalAlpha = Math.max(0, t.life / 0.85);
+      ctx.fillStyle = t.color;
+      ctx.fillText(t.text, t.x, t.y);
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function drawCursor() {
+    if (!game.started || game.over) return;
+    ctx.strokeStyle = "rgba(244, 202, 88, 0.75)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(pointer.x, pointer.y, 12, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  function drawScreenHud() {
+    if (!game.started || !player) {
+      drawMinimap();
+      return;
+    }
+    const d = view.dpr;
+    const barW = Math.min(360 * d, canvas.width * 0.44);
+    const x = (canvas.width - barW) / 2;
+    const y = canvas.height - 48 * d;
+    ctx.save();
+    drawObjectiveHud(d);
+    ctx.fillStyle = "rgba(5, 8, 7, 0.68)";
+    ctx.strokeStyle = "rgba(221, 238, 213, 0.18)";
+    ctx.lineWidth = d;
+    roundRect(x - 12 * d, y - 12 * d, barW + 24 * d, 40 * d, 8 * d);
+    ctx.fill();
+    ctx.stroke();
+    hudBar(x, y, barW, 9 * d, player.hp / player.maxHp, "#4ec5e8", "生命");
+    hudBar(x, y + 13 * d, barW, 7 * d, player.mana / player.maxMana, "#67d784", "能量");
+    hudBar(x, y + 24 * d, barW, 5 * d, player.xp / xpNeed(player.level), "#f4ca58", "经验");
+
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+    ctx.font = `${Math.round(12 * d)}px "Segoe UI", sans-serif`;
+    ctx.fillStyle = "rgba(240, 247, 237, 0.92)";
+    ctx.fillText(`Lv.${player.level}  ${Math.floor(player.gold)}G  K/D ${game.kills}/${game.deaths}`, canvas.width / 2, y - 9 * d);
+
+    drawAbilityHud(d);
+    drawMinimap();
+    ctx.restore();
+  }
+
+  function hudBar(x, y, w, h, ratio, color) {
+    ctx.fillStyle = "rgba(0, 0, 0, 0.52)";
+    roundRect(x, y, w, h, h / 2);
+    ctx.fill();
+    ctx.fillStyle = color;
+    roundRect(x, y, w * clamp(ratio, 0, 1), h, h / 2);
+    ctx.fill();
+  }
+
+  function drawObjectiveHud(d) {
+    const blueCore = getCore(BLUE);
+    const redCore = getCore(RED);
+    const w = Math.min(470 * d, canvas.width - 34 * d);
+    const h = 56 * d;
+    const x = (canvas.width - w) / 2;
+    const y = 14 * d;
+    const objective = entities.objectives[0];
+    const objectiveText = objective
+      ? objective.alive
+        ? `晶兽 ${percent(objective.hp, objective.maxHp)}`
+        : `晶兽刷新 ${Math.ceil(Math.max(0, objective.respawn))}s`
+      : "晶兽未出现";
+    const buffText = [BLUE, RED]
+      .filter(team => teamBuffs[team].duration > 0)
+      .map(team => `${teamName[team]}晶潮 ${Math.ceil(teamBuffs[team].duration)}s`)
+      .join(" · ");
+    const personalBuffText = [
+      player.emberTime > 0 ? `余烬 ${Math.ceil(player.emberTime)}s` : "",
+      player.aetherTime > 0 ? `苍蓝 ${Math.ceil(player.aetherTime)}s` : "",
+      player.bulwarkTime > 0 ? `石甲 ${Math.ceil(player.bulwarkTime)}s` : ""
+    ].filter(Boolean).join(" · ");
+    const allBuffText = [buffText, personalBuffText].filter(Boolean).join(" · ");
+    ctx.fillStyle = "rgba(5, 8, 7, 0.62)";
+    ctx.strokeStyle = "rgba(221, 238, 213, 0.16)";
+    ctx.lineWidth = d;
+    roundRect(x, y, w, h, 8 * d);
+    ctx.fill();
+    ctx.stroke();
+    hudBar(x + 12 * d, y + 11 * d, w * 0.34, 8 * d, blueCore ? blueCore.hp / blueCore.maxHp : 0, teamColor[BLUE]);
+    hudBar(x + w - 12 * d - w * 0.34, y + 11 * d, w * 0.34, 8 * d, redCore ? redCore.hp / redCore.maxHp : 0, teamColor[RED]);
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = `${Math.round(13 * d)}px "Segoe UI", sans-serif`;
+    ctx.fillStyle = "rgba(240, 247, 237, 0.94)";
+    ctx.fillText(`第 ${Math.max(1, game.waveNumber)} 波`, x + w / 2, y + 15 * d);
+    ctx.font = `${Math.round(11 * d)}px "Segoe UI", sans-serif`;
+    ctx.fillStyle = "rgba(244, 202, 88, 0.95)";
+    ctx.fillText(`${objectiveText} · 下一波 ${Math.ceil(game.waveTimer)}s`, x + w / 2, y + 31 * d);
+    ctx.fillStyle = allBuffText ? "rgba(103, 215, 132, 0.95)" : "rgba(167, 184, 166, 0.84)";
+    ctx.fillText(allBuffText || "无增益", x + w / 2, y + 45 * d);
+  }
+
+  function drawAbilityHud(d) {
+    const size = 42 * d;
+    const gap = 8 * d;
+    const keys = ["q", "w", "e", "r"];
+    const total = keys.length * size + (keys.length - 1) * gap;
+    const compact = canvas.width < 760 * d;
+    const x = compact ? 14 * d : (canvas.width - total) / 2;
+    const y = compact ? canvas.height - 112 * d : canvas.height - 103 * d;
+    for (let i = 0; i < keys.length; i += 1) {
+      const key = keys[i];
+      const def = abilityDefs[key];
+      const bx = x + i * (size + gap);
+      const locked = key === "r" && player.level < 3;
+      const ready = !locked && player.cooldowns[key] <= 0 && player.mana >= def.cost && player.alive;
+      ctx.fillStyle = ready ? "rgba(20, 32, 26, 0.82)" : "rgba(5, 8, 7, 0.66)";
+      ctx.strokeStyle = queuedAbility === key ? "#f4ca58" : ready ? "rgba(221, 238, 213, 0.24)" : "rgba(221, 238, 213, 0.12)";
+      ctx.lineWidth = queuedAbility === key ? 2.5 * d : d;
+      roundRect(bx, y, size, size, 8 * d);
+      ctx.fill();
+      ctx.stroke();
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.font = `${Math.round(17 * d)}px "Segoe UI", sans-serif`;
+      ctx.fillStyle = ready ? "#f0f7ed" : "rgba(167, 184, 166, 0.72)";
+      ctx.fillText(def.key, bx + size / 2, y + size * 0.38);
+      ctx.font = `${Math.round(10 * d)}px "Segoe UI", sans-serif`;
+      ctx.fillStyle = "rgba(167, 184, 166, 0.95)";
+      const label = locked ? "锁定" : player.cooldowns[key] > 0 ? player.cooldowns[key].toFixed(1) : def.cost;
+      ctx.fillText(label, bx + size / 2, y + size * 0.72);
+    }
+  }
+
+  function drawMinimap() {
+    const d = view.dpr;
+    const w = Math.min(190 * d, canvas.width * 0.26);
+    const h = w * WORLD_H / WORLD_W;
+    const x = canvas.width - w - 14 * d;
+    const y = canvas.height - h - 14 * d;
+    const sx = w / WORLD_W;
+    const sy = h / WORLD_H;
+
+    ctx.save();
+    ctx.fillStyle = "rgba(8, 13, 10, 0.74)";
+    ctx.strokeStyle = "rgba(221, 238, 213, 0.22)";
+    ctx.lineWidth = d;
+    roundRect(x, y, w, h, 8 * d);
+    ctx.fill();
+    ctx.stroke();
+    ctx.save();
+    ctx.beginPath();
+    roundRect(x, y, w, h, 8 * d);
+    ctx.clip();
+    ctx.translate(x, y);
+
+    ctx.strokeStyle = "rgba(244, 225, 151, 0.3)";
+    ctx.lineWidth = 5 * d;
+    ctx.lineCap = "round";
+    for (const lane of lanes) {
+      ctx.beginPath();
+      ctx.moveTo(lane.points[0].x * sx, lane.points[0].y * sy);
+      for (let i = 1; i < lane.points.length; i += 1) {
+        ctx.lineTo(lane.points[i].x * sx, lane.points[i].y * sy);
+      }
+      ctx.stroke();
+    }
+
+    for (const structure of entities.structures) {
+      miniDot(structure.x, structure.y, structure.alive ? teamColor[structure.team] : "#59615b", structure.kind === "core" ? 4.4 * d : 3.2 * d, sx, sy);
+    }
+    for (const minion of entities.minions) {
+      if (minion.alive) miniDot(minion.x, minion.y, teamColor[minion.team], 1.5 * d, sx, sy);
+    }
+    for (const objective of entities.objectives) {
+      miniDot(objective.x, objective.y, objective.alive ? teamColor[NEUTRAL] : "#70613b", 3.7 * d, sx, sy);
+    }
+    for (const camp of entities.jungle) {
+      miniDot(camp.x, camp.y, camp.alive ? camp.color : "#70613b", 2.8 * d, sx, sy);
+    }
+    for (const hero of entities.heroes) {
+      if (hero.alive) miniDot(hero.x, hero.y, hero.isPlayer ? "#f0f7ed" : teamColor[hero.team], 4 * d, sx, sy);
+    }
+
+    const vx = -view.ox / view.scale * sx;
+    const vy = -view.oy / view.scale * sy;
+    const vw = canvas.width / view.scale * sx;
+    const vh = canvas.height / view.scale * sy;
+    ctx.strokeStyle = "rgba(240, 247, 237, 0.74)";
+    ctx.lineWidth = 1.3 * d;
+    ctx.strokeRect(vx, vy, vw, vh);
+    ctx.restore();
+    ctx.restore();
+  }
+
+  function miniDot(x, y, color, r, sx, sy) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(x * sx, y * sy, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  function drawBar(x, y, w, h, ratio, color) {
+    ctx.fillStyle = "rgba(0,0,0,0.5)";
+    ctx.fillRect(x, y, w, h);
+    ctx.fillStyle = color;
+    ctx.fillRect(x, y, w * clamp(ratio, 0, 1), h);
+    ctx.strokeStyle = "rgba(255,255,255,0.22)";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(x, y, w, h);
+  }
+
+  function roundRect(x, y, w, h, r) {
+    const radius = Math.min(r, w / 2, h / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.lineTo(x + w - radius, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+    ctx.lineTo(x + w, y + h - radius);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+    ctx.lineTo(x + radius, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+    ctx.lineTo(x, y + radius);
+    ctx.quadraticCurveTo(x, y, x + radius, y);
+    ctx.closePath();
+  }
+
+  function onPointer(event, down) {
+    const p = screenToWorld(event);
+    pointer.x = p.x;
+    pointer.y = p.y;
+    pointer.down = down;
+    if (!down || !game.started || game.paused || game.over || !player?.alive) return;
+    event.preventDefault();
+    if (queuedAbility) {
+      useAbility(queuedAbility);
+      return;
+    }
+    const target = allDamageables()
+      .filter(unit => unit.team !== player.team && distance(unit, p) <= unit.r + 12)
+      .sort((a, b) => distance(a, p) - distance(b, p))[0];
+    if (target) {
+      player.target = target;
+      player.moveTarget = null;
+      showToast("锁定 " + target.name);
+    } else {
+      player.moveTarget = p;
+      player.target = null;
+    }
+  }
+
+  function togglePause() {
+    if (!game.started || game.over) return;
+    game.paused = !game.paused;
+    pauseBtn.textContent = game.paused ? "▶" : "Ⅱ";
+    showToast(game.paused ? "暂停" : "继续");
+    updateUI();
+  }
+
+  function loop(time) {
+    const dt = Math.min(0.05, lastTime ? (time - lastTime) / 1000 : 1 / 60);
+    lastTime = time;
+    update(dt);
+    updateCamera(dt);
+    draw();
+    requestAnimationFrame(loop);
+  }
+
+  canvas.addEventListener("pointermove", event => {
+    const p = screenToWorld(event);
+    pointer.x = p.x;
+    pointer.y = p.y;
+  });
+  canvas.addEventListener("pointerdown", event => onPointer(event, true));
+  canvas.addEventListener("pointerup", event => onPointer(event, false));
+  canvas.addEventListener("contextmenu", event => event.preventDefault());
+
+  window.addEventListener("keydown", event => {
+    keys.add(event.code);
+    if (["KeyQ", "KeyW", "KeyE", "KeyR"].includes(event.code)) {
+      event.preventDefault();
+      useAbility(event.code.slice(3).toLowerCase());
+    }
+    if (event.code === "Space" || event.code === "KeyP") {
+      event.preventDefault();
+      togglePause();
+    }
+  });
+  window.addEventListener("keyup", event => keys.delete(event.code));
+  window.addEventListener("resize", resize);
+
+  startBtn.addEventListener("click", startGame);
+  againBtn.addEventListener("click", startGame);
+  restartBtn.addEventListener("click", startGame);
+  pauseBtn.addEventListener("click", togglePause);
+  buyAttack.addEventListener("click", () => buyUpgrade("attack"));
+  buyHealth.addEventListener("click", () => buyUpgrade("health"));
+  buyHaste.addEventListener("click", () => buyUpgrade("haste"));
+
+  resize();
+  if (new URLSearchParams(window.location.search).get("autostart") === "1") startGame();
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

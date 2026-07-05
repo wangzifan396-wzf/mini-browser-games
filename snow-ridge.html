@@ -1,0 +1,1808 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>雪岭快逃</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='8' fill='%23101a24'/%3E%3Cpath d='M10 50 27 18l8 15 7-11 12 28H10Z' fill='%23f7fbff'/%3E%3Cpath d='M16 48h36' stroke='%234d8daf' stroke-width='5' stroke-linecap='round'/%3E%3Ccircle cx='42' cy='18' r='7' fill='%23f2c84b'/%3E%3C/svg%3E">
+    <style>
+      :root {
+        --ink: #101722;
+        --muted: #526372;
+        --line: #89a4b2;
+        --paper: #f6fbff;
+        --panel: #fffdf5;
+        --blue: #2f7395;
+        --blue-dark: #1d4d6b;
+        --green: #2f7b64;
+        --gold: #d9a844;
+        --red: #b94c3e;
+        --violet: #675b8c;
+        --shadow: rgba(5, 15, 24, 0.26);
+        --radius: 8px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        min-height: 100%;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+        background:
+          linear-gradient(rgba(246, 251, 255, 0.06) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(246, 251, 255, 0.06) 1px, transparent 1px),
+          linear-gradient(135deg, #0c1721, #12314a 48%, #20314f);
+        background-size: 28px 28px, 28px 28px, auto;
+        overflow-x: hidden;
+      }
+
+      button {
+        font: inherit;
+      }
+
+      .app-shell {
+        width: min(1440px, calc(100vw - 28px));
+        margin: 14px auto;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 16px 20px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: linear-gradient(90deg, rgba(246, 251, 255, 0.98), rgba(238, 249, 255, 0.95));
+        box-shadow: 0 16px 36px var(--shadow);
+      }
+
+      .eyebrow {
+        margin: 0 0 5px;
+        color: #84631b;
+        font-size: 12px;
+        font-weight: 900;
+        letter-spacing: 0;
+      }
+
+      h1,
+      h2,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(32px, 7vw, 66px);
+        line-height: 0.95;
+        letter-spacing: 0;
+      }
+
+      .top-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .primary-button,
+      .quiet-button,
+      .icon-button {
+        min-height: 40px;
+        border: 1px solid #7c6722;
+        border-radius: var(--radius);
+        background: #fff7dd;
+        color: var(--ink);
+        font-weight: 900;
+        cursor: pointer;
+        box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.1);
+        transition:
+          transform 140ms ease,
+          box-shadow 140ms ease;
+      }
+
+      .primary-button {
+        padding: 11px 18px;
+        background: var(--blue);
+        border-color: var(--blue-dark);
+        color: #fffdf5;
+      }
+
+      .quiet-button {
+        padding: 9px 13px;
+      }
+
+      .icon-button {
+        width: 44px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+      }
+
+      .primary-button:hover,
+      .quiet-button:hover,
+      .icon-button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 22px var(--shadow), inset 0 -2px 0 rgba(0, 0, 0, 0.1);
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(560px, 1fr) 320px;
+        gap: 14px;
+        align-items: start;
+        margin-top: 14px;
+      }
+
+      .game-panel {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        min-height: 520px;
+        max-height: calc(100vh - 132px);
+        border: 1px solid #7694a4;
+        border-radius: var(--radius);
+        overflow: hidden;
+        background: #113048;
+        box-shadow: 0 22px 46px var(--shadow);
+        touch-action: none;
+      }
+
+      #gameCanvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+        background: #113048;
+      }
+
+      .hud {
+        position: absolute;
+        inset: 12px 12px auto;
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 8px;
+        pointer-events: none;
+      }
+
+      .stat {
+        min-width: 0;
+        padding: 8px 8px 7px;
+        border: 1px solid rgba(255, 253, 245, 0.42);
+        border-radius: var(--radius);
+        background: rgba(10, 22, 31, 0.66);
+        color: #fffdf5;
+        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.16);
+      }
+
+      .stat span {
+        display: block;
+        color: rgba(255, 253, 245, 0.72);
+        font-size: 11px;
+        font-weight: 800;
+      }
+
+      .stat b {
+        display: block;
+        margin-top: 2px;
+        font-size: clamp(15px, 2.2vw, 22px);
+        line-height: 1.05;
+        white-space: nowrap;
+      }
+
+      .cue {
+        position: absolute;
+        left: 50%;
+        bottom: 76px;
+        min-width: 146px;
+        min-height: 42px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 8px 14px;
+        transform: translateX(-50%);
+        border: 1px solid rgba(255, 253, 245, 0.7);
+        border-radius: var(--radius);
+        background: rgba(17, 24, 34, 0.8);
+        color: #fffdf5;
+        font-size: 18px;
+        font-weight: 900;
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.32);
+        pointer-events: none;
+      }
+
+      .cue.active {
+        display: flex;
+      }
+
+      .touch-pad {
+        position: absolute;
+        left: 12px;
+        right: 12px;
+        bottom: 12px;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        pointer-events: none;
+      }
+
+      .touch-pad .icon-button {
+        width: 100%;
+        height: 50px;
+        border-color: rgba(255, 253, 245, 0.6);
+        background: rgba(255, 253, 245, 0.9);
+        pointer-events: auto;
+        user-select: none;
+      }
+
+      .touch-pad .main-action {
+        font-size: 22px;
+      }
+
+      .overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(9, 18, 26, 0.42);
+      }
+
+      .overlay[hidden] {
+        display: none;
+      }
+
+      .modal {
+        width: min(410px, 100%);
+        padding: 18px;
+        border: 1px solid #a9934f;
+        border-radius: var(--radius);
+        background: rgba(255, 253, 245, 0.96);
+        box-shadow: 0 20px 44px rgba(0, 0, 0, 0.34);
+      }
+
+      .modal h2 {
+        margin-bottom: 8px;
+        font-size: clamp(26px, 6vw, 40px);
+        line-height: 1;
+        letter-spacing: 0;
+      }
+
+      .modal p {
+        margin: 0 0 14px;
+        color: var(--muted);
+        font-size: 14px;
+        font-weight: 800;
+      }
+
+      .modal-actions,
+      .result-grid {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .modal-actions .primary-button,
+      .modal-actions .quiet-button {
+        flex: 1 1 130px;
+      }
+
+      .result-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        margin: 12px 0 14px;
+      }
+
+      .result-item {
+        padding: 9px 8px;
+        border: 1px solid #d8c78f;
+        border-radius: var(--radius);
+        background: #fff7dd;
+      }
+
+      .result-item span {
+        display: block;
+        color: #6e5c27;
+        font-size: 11px;
+        font-weight: 900;
+      }
+
+      .result-item b {
+        display: block;
+        margin-top: 3px;
+        font-size: 18px;
+      }
+
+      .side-panel {
+        display: grid;
+        gap: 14px;
+      }
+
+      .board {
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: rgba(255, 253, 245, 0.96);
+        box-shadow: 0 16px 36px var(--shadow);
+      }
+
+      .board h2 {
+        margin: 0 0 12px;
+        font-size: 22px;
+      }
+
+      .record-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .record-tile {
+        min-width: 0;
+        padding: 10px 9px;
+        border: 1px solid #d8c78f;
+        border-radius: var(--radius);
+        background: #fff7dd;
+      }
+
+      .record-tile span {
+        display: block;
+        color: #725f26;
+        font-size: 12px;
+        font-weight: 900;
+      }
+
+      .record-tile b {
+        display: block;
+        margin-top: 4px;
+        font-size: clamp(18px, 2.2vw, 26px);
+        line-height: 1;
+      }
+
+      .mission-list {
+        display: grid;
+        gap: 9px;
+      }
+
+      .mission {
+        display: grid;
+        grid-template-columns: 38px minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 9px;
+        padding: 10px;
+        border: 1px solid #d2c88d;
+        border-radius: var(--radius);
+        background: #fffaf0;
+      }
+
+      .mission-icon {
+        width: 38px;
+        height: 38px;
+        display: grid;
+        place-items: center;
+        border-radius: var(--radius);
+        background: #e7f4ff;
+        font-size: 20px;
+        font-weight: 900;
+      }
+
+      .mission strong {
+        display: block;
+        font-size: 14px;
+        line-height: 1.15;
+      }
+
+      .mission meter {
+        display: block;
+        width: 100%;
+        height: 10px;
+        margin-top: 6px;
+      }
+
+      .mission b {
+        min-width: 42px;
+        text-align: right;
+        color: var(--blue-dark);
+      }
+
+      .status-line {
+        min-height: 22px;
+        margin: 10px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      @media (max-width: 1040px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .game-panel {
+          min-height: 500px;
+          max-height: none;
+        }
+      }
+
+      @media (max-width: 620px) {
+        .app-shell {
+          width: min(100vw - 16px, 720px);
+          margin: 8px auto;
+        }
+
+        .topbar {
+          display: grid;
+          padding: 12px;
+        }
+
+        .top-actions {
+          justify-content: stretch;
+        }
+
+        .top-actions .primary-button,
+        .top-actions .quiet-button {
+          flex: 1 1 96px;
+        }
+
+        .game-panel {
+          aspect-ratio: 9 / 13;
+          min-height: 560px;
+        }
+
+        .hud {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 6px;
+        }
+
+        .stat {
+          padding: 7px;
+        }
+
+        .touch-pad .icon-button {
+          height: 46px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">横版雪坡逃生</p>
+          <h1>雪岭快逃</h1>
+        </div>
+        <div class="top-actions">
+          <button class="primary-button" id="startTop" type="button">开始</button>
+          <button class="quiet-button" id="pauseTop" type="button">暂停</button>
+          <button class="icon-button" id="muteTop" type="button" title="音效" aria-label="音效">♪</button>
+        </div>
+      </header>
+
+      <main class="layout">
+        <section class="game-panel" id="gamePanel" aria-label="雪岭快逃游戏区域">
+          <canvas id="gameCanvas"></canvas>
+
+          <div class="hud">
+            <div class="stat"><span>距离</span><b id="distanceText">0m</b></div>
+            <div class="stat"><span>松果</span><b id="coinText">0</b></div>
+            <div class="stat"><span>速度</span><b id="speedText">1.0x</b></div>
+            <div class="stat"><span>雪崩</span><b id="gapText">稳</b></div>
+            <div class="stat"><span>连段</span><b id="comboText">x1</b></div>
+          </div>
+
+          <div class="cue" id="cueText">跳</div>
+
+          <div class="overlay" id="readyOverlay">
+            <div class="modal">
+              <h2>雪线已经裂开</h2>
+              <p>沿着坡面滑行，越过石块，干净落地会甩开雪崩。</p>
+              <div class="modal-actions">
+                <button class="primary-button" id="startButton" type="button">出发</button>
+                <button class="quiet-button" id="copyButton" type="button">复制战报</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="overlay" id="pauseOverlay" hidden>
+            <div class="modal">
+              <h2>风雪暂停</h2>
+              <p>滑雪板停在坡面上。</p>
+              <div class="modal-actions">
+                <button class="primary-button" id="resumeButton" type="button">继续</button>
+                <button class="quiet-button" id="restartPauseButton" type="button">重开</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="overlay" id="gameOverOverlay" hidden>
+            <div class="modal">
+              <h2>本轮结算</h2>
+              <div class="result-grid">
+                <div class="result-item"><span>距离</span><b id="resultDistance">0m</b></div>
+                <div class="result-item"><span>松果</span><b id="resultCoins">0</b></div>
+                <div class="result-item"><span>分数</span><b id="resultScore">0</b></div>
+              </div>
+              <div class="modal-actions">
+                <button class="primary-button" id="restartButton" type="button">再滑</button>
+                <button class="quiet-button" id="copyResultButton" type="button">复制战报</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="touch-pad">
+            <button class="icon-button" id="spinLeftButton" type="button" aria-label="向左旋转">↶</button>
+            <button class="icon-button main-action" id="jumpButton" type="button" aria-label="跳跃">↑</button>
+            <button class="icon-button" id="spinRightButton" type="button" aria-label="向右旋转">↷</button>
+            <button class="icon-button" id="boostButton" type="button" aria-label="冲刺">≫</button>
+          </div>
+        </section>
+
+        <aside class="side-panel">
+          <section class="board">
+            <h2>本地战绩</h2>
+            <div class="record-grid">
+              <div class="record-tile"><span>最佳距离</span><b id="recordDistance">0m</b></div>
+              <div class="record-tile"><span>最高分</span><b id="recordScore">0</b></div>
+              <div class="record-tile"><span>总松果</span><b id="recordCoins">0</b></div>
+              <div class="record-tile"><span>最佳翻转</span><b id="recordFlips">0</b></div>
+            </div>
+            <p class="status-line" id="statusLine">雪坡已生成。</p>
+          </section>
+
+          <section class="board">
+            <h2>今日任务</h2>
+            <div class="mission-list" id="missionList"></div>
+          </section>
+        </aside>
+      </main>
+    </div>
+
+    <script>
+      (() => {
+        "use strict";
+
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const panel = document.getElementById("gamePanel");
+        const ui = {
+          startTop: document.getElementById("startTop"),
+          pauseTop: document.getElementById("pauseTop"),
+          muteTop: document.getElementById("muteTop"),
+          startButton: document.getElementById("startButton"),
+          copyButton: document.getElementById("copyButton"),
+          resumeButton: document.getElementById("resumeButton"),
+          restartPauseButton: document.getElementById("restartPauseButton"),
+          restartButton: document.getElementById("restartButton"),
+          copyResultButton: document.getElementById("copyResultButton"),
+          readyOverlay: document.getElementById("readyOverlay"),
+          pauseOverlay: document.getElementById("pauseOverlay"),
+          gameOverOverlay: document.getElementById("gameOverOverlay"),
+          spinLeftButton: document.getElementById("spinLeftButton"),
+          jumpButton: document.getElementById("jumpButton"),
+          spinRightButton: document.getElementById("spinRightButton"),
+          boostButton: document.getElementById("boostButton"),
+          cueText: document.getElementById("cueText"),
+          distanceText: document.getElementById("distanceText"),
+          coinText: document.getElementById("coinText"),
+          speedText: document.getElementById("speedText"),
+          gapText: document.getElementById("gapText"),
+          comboText: document.getElementById("comboText"),
+          resultDistance: document.getElementById("resultDistance"),
+          resultCoins: document.getElementById("resultCoins"),
+          resultScore: document.getElementById("resultScore"),
+          recordDistance: document.getElementById("recordDistance"),
+          recordScore: document.getElementById("recordScore"),
+          recordCoins: document.getElementById("recordCoins"),
+          recordFlips: document.getElementById("recordFlips"),
+          missionList: document.getElementById("missionList"),
+          statusLine: document.getElementById("statusLine")
+        };
+
+        const storageKey = "snow-ridge-records-v1";
+        const meterScale = 22;
+        const gravity = 1420;
+        const startSpeed = 410;
+        const minSpeed = 220;
+        const maxSpeed = 760;
+        const playerRadius = 28;
+        const missions = [
+          { icon: "↻", title: "完成 3 次翻转", target: 3, value: () => run.flips },
+          { icon: "◎", title: "收集 60 颗松果", target: 60, value: () => run.coins },
+          { icon: "↟", title: "滑行 900 米", target: 900, value: () => Math.floor(run.distance) }
+        ];
+
+        let width = 1;
+        let height = 1;
+        let dpr = 1;
+        let lastTime = 0;
+        let rafId = 0;
+        let state = "ready";
+        let muted = false;
+        let audioCtx = null;
+        let cameraX = 0;
+        let input = {
+          left: false,
+          right: false,
+          steady: false
+        };
+        let records = loadRecords();
+        let run = makeRun();
+        let player = makePlayer();
+
+        function loadRecords() {
+          try {
+            const parsed = JSON.parse(localStorage.getItem(storageKey) || "{}");
+            return {
+              bestDistance: Number(parsed.bestDistance) || 0,
+              bestScore: Number(parsed.bestScore) || 0,
+              totalCoins: Number(parsed.totalCoins) || 0,
+              bestFlips: Number(parsed.bestFlips) || 0
+            };
+          } catch (error) {
+            return { bestDistance: 0, bestScore: 0, totalCoins: 0, bestFlips: 0 };
+          }
+        }
+
+        function saveRecords() {
+          localStorage.setItem(storageKey, JSON.stringify(records));
+        }
+
+        function makeRun() {
+          return {
+            distance: 0,
+            coins: 0,
+            score: 0,
+            flips: 0,
+            combo: 1,
+            comboClock: 0,
+            passengers: 0,
+            ride: null,
+            rideTimer: 0,
+            rideHits: 0,
+            boost: 0,
+            invuln: 0,
+            shake: 0,
+            avalancheX: -520,
+            nextEventX: 760,
+            nextCoinX: 520,
+            items: [],
+            particles: [],
+            seed: seedFromDate(),
+            endedBy: "雪崩"
+          };
+        }
+
+        function makePlayer() {
+          const x = 0;
+          return {
+            x,
+            y: terrainY(x),
+            vy: 0,
+            speed: startSpeed,
+            grounded: true,
+            angle: 0,
+            spin: 0,
+            flipProgress: 0,
+            pendingFlips: 0,
+            jumpGrace: 0,
+            stumble: 0,
+            bob: 0
+          };
+        }
+
+        function seedFromDate() {
+          const now = new Date();
+          return now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
+        }
+
+        function random() {
+          run.seed = (run.seed * 1664525 + 1013904223) >>> 0;
+          return run.seed / 4294967296;
+        }
+
+        function resizeCanvas() {
+          const rect = panel.getBoundingClientRect();
+          dpr = Math.min(window.devicePixelRatio || 1, 2);
+          width = Math.max(320, Math.floor(rect.width));
+          height = Math.max(420, Math.floor(rect.height));
+          canvas.width = Math.floor(width * dpr);
+          canvas.height = Math.floor(height * dpr);
+          canvas.style.width = `${width}px`;
+          canvas.style.height = `${height}px`;
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          if (player.grounded) player.y = terrainY(player.x);
+        }
+
+        function terrainY(x) {
+          const n =
+            0.61 +
+            Math.sin(x * 0.0034 + 0.4) * 0.105 +
+            Math.sin(x * 0.0076 + 2.2) * 0.052 +
+            Math.sin(x * 0.013 + 1.1) * 0.025;
+          return clamp(n, 0.44, 0.79) * height;
+        }
+
+        function terrainSlope(x) {
+          return (terrainY(x + 10) - terrainY(x - 10)) / 20;
+        }
+
+        function startGame() {
+          ensureAudio();
+          run = makeRun();
+          player = makePlayer();
+          state = "running";
+          input.left = false;
+          input.right = false;
+          input.steady = false;
+          ui.readyOverlay.hidden = true;
+          ui.pauseOverlay.hidden = true;
+          ui.gameOverOverlay.hidden = true;
+          ui.statusLine.textContent = "雪崩在身后轰鸣。";
+          spawnOpening();
+          beep(480, 0.07, "triangle", 0.04);
+          beep(720, 0.08, "triangle", 0.035, 0.07);
+          updateUi();
+        }
+
+        function pauseGame() {
+          if (state !== "running") return;
+          state = "paused";
+          ui.pauseOverlay.hidden = false;
+          ui.statusLine.textContent = "已暂停。";
+        }
+
+        function resumeGame() {
+          if (state !== "paused") return;
+          state = "running";
+          ui.pauseOverlay.hidden = true;
+          lastTime = performance.now();
+          ui.statusLine.textContent = "继续滑。";
+        }
+
+        function endGame(reason) {
+          state = "gameover";
+          run.endedBy = reason;
+          ui.gameOverOverlay.hidden = false;
+          const finalScore = scoreValue();
+          ui.resultDistance.textContent = `${Math.floor(run.distance)}m`;
+          ui.resultCoins.textContent = String(run.coins);
+          ui.resultScore.textContent = String(finalScore);
+          records.bestDistance = Math.max(records.bestDistance, Math.floor(run.distance));
+          records.bestScore = Math.max(records.bestScore, finalScore);
+          records.totalCoins += run.coins;
+          records.bestFlips = Math.max(records.bestFlips, run.flips);
+          saveRecords();
+          ui.statusLine.textContent = reason === "雪崩" ? "雪崩追上来了。" : "落地失衡了。";
+          updateUi();
+          beep(170, 0.18, "sawtooth", 0.05);
+        }
+
+        function spawnOpening() {
+          for (let i = 0; i < 10; i += 1) {
+            const x = 260 + i * 72;
+            run.items.push({ kind: "coin", x, y: terrainY(x) - 78 - Math.sin(i * 0.7) * 24, taken: false });
+          }
+          run.items.push({ kind: "rock", x: 980, taken: false });
+          run.items.push({ kind: "stump", x: 1780, taken: false });
+          run.items.push({ kind: "snowman", x: 2700, taken: false });
+        }
+
+        function update(timestamp) {
+          if (!lastTime) lastTime = timestamp;
+          const dt = Math.min(0.033, (timestamp - lastTime) / 1000 || 0);
+          lastTime = timestamp;
+
+          if (state === "running") updateRun(dt);
+          draw();
+          rafId = requestAnimationFrame(update);
+        }
+
+        function updateRun(dt) {
+          player.bob += dt * Math.max(5, player.speed / 80);
+          if (run.comboClock > 0) run.comboClock = Math.max(0, run.comboClock - dt);
+          else run.combo = Math.max(1, Math.floor(run.combo * 0.98));
+          run.boost = Math.max(0, run.boost - dt);
+          run.invuln = Math.max(0, run.invuln - dt);
+          run.rideTimer = Math.max(0, run.rideTimer - dt);
+          if (run.rideTimer <= 0 && run.ride) {
+            run.ride = null;
+            run.rideHits = 0;
+          }
+          run.shake = Math.max(0, run.shake - dt * 18);
+          player.stumble = Math.max(0, player.stumble - dt);
+          player.jumpGrace = Math.max(0, player.jumpGrace - dt);
+
+          const slope = terrainSlope(player.x);
+          const downhill = clamp(slope, -0.45, 0.45);
+          const rideSpeed = run.ride === "sled" ? 170 : run.ride === "seal" ? 95 : 0;
+          const targetSpeed = startSpeed + rideSpeed + Math.max(0, downhill) * 520 + Math.min(180, run.distance * 0.08);
+
+          if (player.grounded) {
+            player.speed += (targetSpeed - player.speed) * dt * 1.6;
+            player.speed -= Math.max(0, -downhill) * 140 * dt;
+            player.y = terrainY(player.x);
+            player.vy = 0;
+          } else {
+            const airGravity = run.ride === "seal" ? gravity * 0.72 : gravity;
+            player.vy += airGravity * dt;
+            player.y += player.vy * dt;
+            if (input.left) player.spin -= 8.6 * dt;
+            if (input.right) player.spin += 8.6 * dt;
+            if (input.steady) {
+              player.spin *= Math.pow(0.04, dt);
+              player.angle *= Math.pow(0.18, dt);
+            }
+            player.angle += player.spin * dt;
+            player.flipProgress += Math.abs(player.spin * dt);
+            if (player.flipProgress >= Math.PI * 2) {
+              player.pendingFlips += 1;
+              player.flipProgress -= Math.PI * 2;
+              beep(760, 0.045, "sine", 0.03);
+            }
+            player.spin *= 0.992;
+          }
+
+          if (run.boost > 0) player.speed += (run.ride === "sled" ? 420 : 320) * dt;
+          player.speed = clamp(player.speed, minSpeed, maxSpeed + rideSpeed + (run.boost > 0 ? 170 : 0));
+          player.x += player.speed * dt;
+          run.distance = Math.max(0, player.x / meterScale);
+
+          const ground = terrainY(player.x);
+          if (!player.grounded && player.y >= ground) {
+            player.y = ground;
+            land();
+          }
+
+          cameraX += (player.x - width * 0.34 - cameraX) * Math.min(1, dt * 6);
+          spawnWorld();
+          updateAvalanche(dt);
+          checkItems();
+          updateParticles(dt);
+          cleanup();
+          updateUi();
+        }
+
+        function land() {
+          const upright = Math.abs(normalizeAngle(player.angle)) < 0.68;
+          player.grounded = true;
+          player.vy = 0;
+          player.spin = 0;
+
+          if (!upright) {
+            crash("翻车");
+          } else if (player.pendingFlips > 0) {
+            const gained = player.pendingFlips;
+            run.flips += gained;
+            run.combo = Math.min(12, run.combo + gained);
+            run.comboClock = 4.5;
+            run.score += gained * 420 * run.combo;
+            player.speed += 70 + gained * 35;
+            run.boost = Math.max(run.boost, 1.4 + gained * 0.42);
+            run.avalancheX -= 70 + gained * 34;
+            run.shake = Math.max(run.shake, 4 + gained * 2);
+            burst(player.x, player.y - 32, "#f5d36b", 16);
+            ui.statusLine.textContent = `${gained} 次干净翻转。`;
+            beep(920, 0.05, "triangle", 0.04);
+          }
+
+          player.angle = 0;
+          player.flipProgress = 0;
+          player.pendingFlips = 0;
+        }
+
+        function spawnWorld() {
+          const ahead = cameraX + width * 1.7;
+          while (run.nextCoinX < ahead) {
+            spawnCoinLine(run.nextCoinX);
+            run.nextCoinX += 520 + random() * 260;
+          }
+          while (run.nextEventX < ahead) {
+            spawnEvent(run.nextEventX);
+            run.nextEventX += 560 + random() * 230 - Math.min(120, run.distance * 0.04);
+          }
+        }
+
+        function spawnCoinLine(x) {
+          const count = 6 + Math.floor(random() * 4);
+          const arc = 28 + random() * 30;
+          for (let i = 0; i < count; i += 1) {
+            const px = x + i * 64;
+            const t = i / Math.max(1, count - 1);
+            run.items.push({
+              kind: "coin",
+              x: px,
+              y: terrainY(px) - 78 - Math.sin(t * Math.PI) * arc,
+              taken: false
+            });
+          }
+        }
+
+        function spawnEvent(x) {
+          const roll = random();
+          if (roll < 0.12) {
+            run.items.push({ kind: "seal", x, y: terrainY(x) - 62, taken: false });
+          } else if (roll < 0.2) {
+            run.items.push({ kind: "sled", x, taken: false });
+          } else if (roll < 0.34) {
+            run.items.push({ kind: "ramp", x, taken: false });
+          } else {
+            const kind = roll < 0.58 ? "rock" : roll < 0.78 ? "stump" : roll < 0.92 ? "snowman" : "cabin";
+            run.items.push({ kind, x, taken: false });
+          }
+        }
+
+        function updateAvalanche(dt) {
+          const gap = player.x - run.avalancheX;
+          const pressure = gap > 560 ? 124 : gap < 220 ? -18 : 42;
+          const avalancheSpeed = 348 + run.distance * 0.045 + pressure;
+          run.avalancheX += avalancheSpeed * dt;
+          if (player.x - run.avalancheX < 66) endGame("雪崩");
+        }
+
+        function checkItems() {
+          for (const item of run.items) {
+            if (item.taken) continue;
+            const sx = item.x - cameraX;
+            if (sx < -180 || sx > width + 220) continue;
+
+            if (item.kind === "coin") {
+              if (distance(item.x, item.y, player.x, player.y - 44) < 45) {
+                item.taken = true;
+                run.coins += 1;
+                run.score += 38 * run.combo;
+                burst(item.x, item.y, "#f4c84f", 7);
+                beep(880 + (run.coins % 6) * 35, 0.03, "sine", 0.018);
+              }
+              continue;
+            }
+
+            const ground = terrainY(item.x);
+            if (item.kind === "ramp") {
+              const rampHit = Math.abs(item.x - player.x) < 48 && player.grounded;
+              if (rampHit) {
+                item.taken = true;
+                launchRamp(item.x, ground);
+              }
+              continue;
+            }
+
+            const h = obstacleHeight(item.kind);
+            const jumpSafe = !player.grounded && player.jumpGrace > 0 && player.y < ground - 12;
+            const hit = Math.abs(item.x - player.x) < 28 && player.y > ground - h && !jumpSafe;
+
+            if (!hit) {
+              const helperY = item.y || ground - 26;
+              if ((item.kind === "seal" || item.kind === "sled") && distance(item.x, helperY, player.x, player.y - 28) < 48) {
+                item.taken = true;
+                collectHelper(item.kind, item.x, helperY + 26);
+              }
+              continue;
+            }
+
+            if (item.kind === "seal" || item.kind === "sled") {
+              item.taken = true;
+              collectHelper(item.kind, item.x, ground);
+            } else {
+              item.taken = true;
+              crash("障碍");
+              burst(item.x, ground - 26, "#d56a4a", 14);
+            }
+          }
+        }
+
+        function collectHelper(kind, x, y) {
+          if (kind === "seal") {
+            run.ride = "seal";
+            run.rideTimer = 8;
+            run.rideHits = 1;
+            player.speed += 130;
+            run.score += 300 * run.combo;
+            ui.statusLine.textContent = "雪海豹带你滑起来。";
+          } else {
+            run.ride = "sled";
+            run.rideTimer = 7.5;
+            run.rideHits = 2;
+            run.boost = 5.2;
+            player.speed += 210;
+            run.score += 520 * run.combo;
+            ui.statusLine.textContent = "雪橇冲刺。";
+          }
+          run.avalancheX -= 115;
+          run.shake = Math.max(run.shake, 7);
+          burst(x, y - 34, kind === "seal" ? "#80d0d7" : "#f0b24c", 18);
+          beep(640, 0.06, "triangle", 0.04);
+          beep(920, 0.08, "triangle", 0.03, 0.06);
+        }
+
+        function launchRamp(x, y) {
+          player.grounded = false;
+          player.y = y - 8;
+          player.vy = -820 - Math.min(150, player.speed * 0.15);
+          player.spin -= 1.8;
+          player.jumpGrace = 0.9;
+          player.speed += 120;
+          run.boost = Math.max(run.boost, 1.2);
+          run.score += 180 * run.combo;
+          run.avalancheX -= 40;
+          run.shake = Math.max(run.shake, 5);
+          ui.statusLine.textContent = "跳台起飞。";
+          burst(x, y - 12, "#f5d36b", 18);
+          beep(700, 0.05, "triangle", 0.04);
+        }
+
+        function crash(reason) {
+          if (run.invuln > 0) return;
+          run.invuln = 1.1;
+          player.stumble = 0.55;
+          player.pendingFlips = 0;
+          player.flipProgress = 0;
+          player.angle = 0;
+          player.spin = 0;
+          if (run.rideHits > 0) {
+            run.rideHits -= 1;
+            player.speed *= run.ride === "sled" ? 0.82 : 0.7;
+            run.avalancheX += run.ride === "sled" ? 38 : 58;
+            run.shake = Math.max(run.shake, 8);
+            if (run.rideHits <= 0 && run.ride !== "sled") run.ride = null;
+            ui.statusLine.textContent = run.ride === "sled" ? "雪橇撞开障碍。" : "伙伴替你扛了一下。";
+          } else {
+            player.speed = minSpeed;
+            run.avalancheX += 126;
+            ui.statusLine.textContent = reason === "翻车" ? "落地角度太歪。" : "撞上障碍了。";
+          }
+          run.combo = 1;
+          run.comboClock = 0;
+          beep(210, 0.08, "square", 0.04);
+        }
+
+        function updateParticles(dt) {
+          for (const p of run.particles) {
+            p.x += p.vx * dt;
+            p.y += p.vy * dt;
+            p.vy += 280 * dt;
+            p.life -= dt;
+          }
+          run.particles = run.particles.filter((p) => p.life > 0);
+        }
+
+        function cleanup() {
+          run.items = run.items.filter((item) => !item.taken && item.x > cameraX - 260);
+        }
+
+        function jumpOrSpin() {
+          if (state === "ready" || state === "gameover") {
+            startGame();
+            return;
+          }
+          if (state !== "running") return;
+          ensureAudio();
+          if (player.grounded) {
+            player.grounded = false;
+            player.y -= 4;
+            player.vy = -690 - Math.min(120, player.speed * 0.17);
+            player.spin *= 0.25;
+            player.jumpGrace = 0.74;
+            beep(540, 0.05, "sine", 0.035);
+          }
+        }
+
+        function releaseInput() {
+          input.left = false;
+          input.right = false;
+          input.steady = false;
+        }
+
+        function useBoost() {
+          if (state === "ready" || state === "gameover") {
+            startGame();
+            return;
+          }
+          if (state !== "running") return;
+          if (run.coins >= 12) {
+            run.coins -= 12;
+            run.boost = Math.max(run.boost, 2.4);
+            player.speed += 85;
+            run.avalancheX -= 35;
+            ui.statusLine.textContent = "热饮冲刺。";
+            beep(760, 0.05, "triangle", 0.04);
+          } else {
+            ui.statusLine.textContent = "松果还不够。";
+          }
+        }
+
+        function draw() {
+          ctx.clearRect(0, 0, width, height);
+          ctx.save();
+          if (run.shake > 0) {
+            ctx.translate((Math.random() - 0.5) * run.shake, (Math.random() - 0.5) * run.shake);
+          }
+          drawSky();
+          drawMountains();
+          drawAvalanche();
+          drawTerrain();
+          drawItems();
+          drawPlayer();
+          drawParticles();
+          drawWeather();
+          ctx.restore();
+          drawCue();
+        }
+
+        function drawSky() {
+          const sky = ctx.createLinearGradient(0, 0, 0, height);
+          sky.addColorStop(0, "#8fd8ee");
+          sky.addColorStop(0.42, "#d9f3f6");
+          sky.addColorStop(1, "#a9c9d5");
+          ctx.fillStyle = sky;
+          ctx.fillRect(0, 0, width, height);
+          ctx.fillStyle = "rgba(255, 247, 200, 0.92)";
+          ctx.beginPath();
+          ctx.arc(width * 0.78, height * 0.14, Math.max(28, width * 0.045), 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        function drawMountains() {
+          const layers = [
+            { color: "#86abc0", y: 0.48, amp: 60, speed: 0.11 },
+            { color: "#5c869c", y: 0.56, amp: 80, speed: 0.18 },
+            { color: "#315e73", y: 0.66, amp: 100, speed: 0.28 }
+          ];
+          for (const layer of layers) {
+            ctx.fillStyle = layer.color;
+            ctx.beginPath();
+            ctx.moveTo(0, height);
+            for (let sx = -80; sx <= width + 100; sx += 120) {
+              const wx = sx + cameraX * layer.speed;
+              const peak = height * layer.y - Math.sin(wx * 0.008) * layer.amp - layer.amp;
+              ctx.lineTo(sx, peak);
+              ctx.lineTo(sx + 60, height * layer.y + Math.sin(wx * 0.011) * 22);
+            }
+            ctx.lineTo(width, height);
+            ctx.closePath();
+            ctx.fill();
+          }
+        }
+
+        function drawAvalanche() {
+          const gap = player.x - run.avalancheX;
+          const x = width * 0.34 - gap;
+          if (x < -360) return;
+          ctx.save();
+          ctx.fillStyle = "rgba(246, 251, 255, 0.88)";
+          ctx.strokeStyle = "rgba(104, 145, 164, 0.65)";
+          ctx.lineWidth = 2;
+          for (let i = 0; i < 24; i += 1) {
+            const r = 38 + (i % 5) * 13;
+            const cx = x - 190 + i * 23 + Math.sin(run.distance * 0.18 + i) * 8;
+            const cy = height * (0.46 + (i % 4) * 0.07);
+            ctx.beginPath();
+            ctx.arc(cx, cy, r, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+          }
+          ctx.fillStyle = "rgba(225, 239, 247, 0.62)";
+          ctx.fillRect(Math.min(x - 320, 0), height * 0.38, Math.max(0, x + 120), height * 0.6);
+          ctx.restore();
+        }
+
+        function drawTerrain() {
+          ctx.save();
+          ctx.beginPath();
+          ctx.moveTo(0, height);
+          for (let sx = -20; sx <= width + 20; sx += 14) {
+            ctx.lineTo(sx, terrainY(cameraX + sx));
+          }
+          ctx.lineTo(width, height);
+          ctx.closePath();
+          const fill = ctx.createLinearGradient(0, height * 0.45, 0, height);
+          fill.addColorStop(0, "#f8fcff");
+          fill.addColorStop(0.36, "#d9ecf5");
+          fill.addColorStop(1, "#7197aa");
+          ctx.fillStyle = fill;
+          ctx.fill();
+
+          ctx.strokeStyle = "rgba(255, 255, 255, 0.94)";
+          ctx.lineWidth = 5;
+          ctx.beginPath();
+          for (let sx = -20; sx <= width + 20; sx += 14) {
+            const y = terrainY(cameraX + sx);
+            if (sx === -20) ctx.moveTo(sx, y);
+            else ctx.lineTo(sx, y);
+          }
+          ctx.stroke();
+
+          ctx.strokeStyle = "rgba(78, 127, 150, 0.25)";
+          ctx.lineWidth = 2;
+          for (let i = 0; i < 7; i += 1) {
+            const yOff = 24 + i * 28;
+            ctx.beginPath();
+            for (let sx = -20; sx <= width + 20; sx += 22) {
+              const y = terrainY(cameraX + sx) + yOff + Math.sin((cameraX + sx) * 0.01 + i) * 7;
+              if (sx === -20) ctx.moveTo(sx, y);
+              else ctx.lineTo(sx, y);
+            }
+            ctx.stroke();
+          }
+          ctx.restore();
+        }
+
+        function drawItems() {
+          const sorted = run.items.slice().sort((a, b) => a.x - b.x);
+          for (const item of sorted) {
+            const sx = item.x - cameraX;
+            if (sx < -180 || sx > width + 180) continue;
+            if (item.kind === "coin") drawCoin(sx, item.y);
+            else if (item.kind === "seal") drawSeal(sx, item.y ? item.y + 18 : terrainY(item.x));
+            else if (item.kind === "sled") drawSled(sx, terrainY(item.x));
+            else if (item.kind === "ramp") drawRamp(sx, terrainY(item.x));
+            else drawObstacle(item, sx, terrainY(item.x));
+          }
+        }
+
+        function drawCoin(x, y) {
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.scale(0.72 + Math.abs(Math.sin(run.distance * 0.09 + x * 0.02)) * 0.35, 1);
+          ctx.fillStyle = "#f4c84f";
+          ctx.beginPath();
+          ctx.arc(0, 0, 12, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = "#9b6b18";
+          ctx.lineWidth = 2;
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        function drawObstacle(item, x, ground) {
+          ctx.save();
+          if (item.kind === "rock") {
+            ctx.fillStyle = "#647985";
+            ctx.beginPath();
+            ctx.moveTo(x - 24, ground);
+            ctx.lineTo(x - 12, ground - 42);
+            ctx.lineTo(x + 20, ground - 34);
+            ctx.lineTo(x + 32, ground);
+            ctx.closePath();
+            ctx.fill();
+            ctx.fillStyle = "#9eb3be";
+            ctx.beginPath();
+            ctx.moveTo(x - 11, ground - 33);
+            ctx.lineTo(x + 5, ground - 28);
+            ctx.lineTo(x - 4, ground - 18);
+            ctx.closePath();
+            ctx.fill();
+          } else if (item.kind === "stump") {
+            ctx.fillStyle = "#71482b";
+            roundRect(x - 18, ground - 48, 36, 48, 8);
+            ctx.fill();
+            ctx.fillStyle = "#b37b3e";
+            ctx.beginPath();
+            ctx.ellipse(x, ground - 48, 20, 8, 0, 0, Math.PI * 2);
+            ctx.fill();
+          } else if (item.kind === "cabin") {
+            ctx.fillStyle = "#8a5630";
+            roundRect(x - 38, ground - 58, 76, 58, 6);
+            ctx.fill();
+            ctx.fillStyle = "#f8fcff";
+            ctx.beginPath();
+            ctx.moveTo(x - 46, ground - 58);
+            ctx.lineTo(x, ground - 94);
+            ctx.lineTo(x + 46, ground - 58);
+            ctx.closePath();
+            ctx.fill();
+            ctx.fillStyle = "#315e73";
+            ctx.fillRect(x - 13, ground - 32, 26, 32);
+          } else {
+            ctx.fillStyle = "#f8fcff";
+            ctx.beginPath();
+            ctx.arc(x, ground - 18, 22, 0, Math.PI * 2);
+            ctx.arc(x, ground - 50, 16, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = "#1d4d6b";
+            ctx.fillRect(x - 14, ground - 73, 28, 8);
+            ctx.fillStyle = "#b94c3e";
+            ctx.fillRect(x - 17, ground - 64, 34, 7);
+          }
+          drawWarningLabel(item, x, ground);
+          ctx.restore();
+        }
+
+        function drawWarningLabel(item, x, ground) {
+          const dx = item.x - player.x;
+          if (dx < 80 || dx > 520) return;
+          const alpha = 1 - (dx - 80) / 440;
+          ctx.save();
+          ctx.globalAlpha = 0.45 + alpha * 0.45;
+          ctx.fillStyle = "#b94c3e";
+          roundRect(x - 25, ground - obstacleHeight(item.kind) - 42, 50, 26, 6);
+          ctx.fill();
+          ctx.fillStyle = "#fffdf5";
+          ctx.font = "900 15px Microsoft YaHei, system-ui";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText("跳", x, ground - obstacleHeight(item.kind) - 29);
+          ctx.restore();
+        }
+
+        function drawSeal(x, ground) {
+          ctx.save();
+          ctx.translate(x, ground - 18);
+          ctx.fillStyle = "#76c8d2";
+          ctx.beginPath();
+          ctx.ellipse(0, 0, 34, 18, -0.06, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = "#d8f6fb";
+          ctx.beginPath();
+          ctx.arc(20, -9, 14, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = "#101722";
+          ctx.beginPath();
+          ctx.arc(24, -11, 3, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = "#4c7f89";
+          ctx.lineWidth = 4;
+          ctx.beginPath();
+          ctx.moveTo(-31, 2);
+          ctx.lineTo(-49, -10);
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        function drawSled(x, ground) {
+          ctx.save();
+          ctx.translate(x, ground - 12);
+          ctx.strokeStyle = "#71482b";
+          ctx.lineWidth = 5;
+          ctx.lineCap = "round";
+          ctx.beginPath();
+          ctx.moveTo(-40, 14);
+          ctx.lineTo(42, 14);
+          ctx.moveTo(-28, 14);
+          ctx.lineTo(-15, 28);
+          ctx.moveTo(28, 14);
+          ctx.lineTo(40, 28);
+          ctx.stroke();
+          ctx.fillStyle = "#f0b24c";
+          roundRect(-34, -24, 68, 32, 8);
+          ctx.fill();
+          ctx.fillStyle = "#fff1b7";
+          ctx.fillRect(-26, -15, 52, 9);
+          ctx.restore();
+        }
+
+        function drawRamp(x, ground) {
+          ctx.save();
+          ctx.translate(x, ground);
+          ctx.fillStyle = "#d9a844";
+          ctx.beginPath();
+          ctx.moveTo(-42, 0);
+          ctx.lineTo(38, 0);
+          ctx.lineTo(38, -34);
+          ctx.closePath();
+          ctx.fill();
+          ctx.strokeStyle = "#71482b";
+          ctx.lineWidth = 5;
+          ctx.lineCap = "round";
+          ctx.beginPath();
+          ctx.moveTo(-42, 0);
+          ctx.lineTo(38, -34);
+          ctx.stroke();
+          ctx.fillStyle = "#fff1b7";
+          ctx.fillRect(-8, -17, 34, 7);
+          ctx.restore();
+        }
+
+        function drawPlayer() {
+          const sx = player.x - cameraX;
+          const y = player.y;
+          const tilt = Math.atan(terrainSlope(player.x));
+          ctx.save();
+          ctx.translate(sx, y);
+          ctx.rotate(player.grounded ? tilt * 0.78 : player.angle);
+          if (run.invuln > 0 && Math.floor(run.invuln * 16) % 2 === 0) ctx.globalAlpha = 0.55;
+
+          if (run.boost > 0) {
+            ctx.strokeStyle = "rgba(242, 190, 78, 0.8)";
+            ctx.lineWidth = 5;
+            ctx.beginPath();
+            ctx.moveTo(-42, 16);
+            ctx.lineTo(-86, 26 + Math.sin(player.bob) * 8);
+            ctx.moveTo(-34, -8);
+            ctx.lineTo(-72, -22 + Math.cos(player.bob) * 8);
+            ctx.stroke();
+          }
+
+          if (run.ride === "sled") {
+            ctx.strokeStyle = "#623b23";
+            ctx.lineWidth = 5;
+            ctx.lineCap = "round";
+            ctx.beginPath();
+            ctx.moveTo(-48, 28);
+            ctx.lineTo(52, 28);
+            ctx.moveTo(-40, 18);
+            ctx.lineTo(-28, 31);
+            ctx.moveTo(34, 18);
+            ctx.lineTo(49, 31);
+            ctx.stroke();
+            ctx.fillStyle = "#f0b24c";
+            roundRect(-46, -2, 92, 25, 8);
+            ctx.fill();
+            ctx.fillStyle = "#fff1b7";
+            ctx.fillRect(-32, 6, 64, 7);
+          } else if (run.ride === "seal") {
+            ctx.fillStyle = "#76c8d2";
+            ctx.beginPath();
+            ctx.ellipse(0, 18, 48, 20, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = "#d8f6fb";
+            ctx.beginPath();
+            ctx.arc(28, 7, 15, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = "#101722";
+            ctx.beginPath();
+            ctx.arc(32, 4, 3, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = "#4c7f89";
+            ctx.lineWidth = 5;
+            ctx.beginPath();
+            ctx.moveTo(-36, 18);
+            ctx.lineTo(-58, 7);
+            ctx.stroke();
+          } else {
+            ctx.strokeStyle = "#623b23";
+            ctx.lineWidth = 5;
+            ctx.lineCap = "round";
+            ctx.beginPath();
+            ctx.moveTo(-34, 18);
+            ctx.lineTo(36, 18);
+            ctx.moveTo(-30, 25);
+            ctx.lineTo(40, 25);
+            ctx.stroke();
+          }
+
+          ctx.fillStyle = "#f0b24c";
+          ctx.beginPath();
+          ctx.ellipse(0, -16, 22, 28, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = "#e4563d";
+          roundRect(-17, -38, 34, 19, 7);
+          ctx.fill();
+          ctx.fillStyle = "#ffe0a6";
+          ctx.beginPath();
+          ctx.arc(0, -49, 16, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = "#24465a";
+          ctx.beginPath();
+          ctx.arc(-5, -52, 3, 0, Math.PI * 2);
+          ctx.arc(8, -52, 3, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = "#2f7395";
+          roundRect(-18, -68, 36, 12, 6);
+          ctx.fill();
+          ctx.beginPath();
+          ctx.arc(0, -68, 13, Math.PI, 0);
+          ctx.fill();
+
+          if (run.rideHits > 0) {
+            for (let i = 0; i < run.rideHits; i += 1) {
+              ctx.fillStyle = "#fffdf5";
+              ctx.beginPath();
+              ctx.arc(-28 - i * 13, -34, 5, 0, Math.PI * 2);
+              ctx.fill();
+            }
+          }
+
+          ctx.restore();
+        }
+
+        function drawParticles() {
+          ctx.save();
+          for (const p of run.particles) {
+            const sx = p.x - cameraX;
+            ctx.globalAlpha = Math.max(0, Math.min(1, p.life * 2));
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(sx, p.y, p.size, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.restore();
+        }
+
+        function drawWeather() {
+          ctx.save();
+          ctx.fillStyle = "rgba(255, 255, 255, 0.55)";
+          for (let i = 0; i < 34; i += 1) {
+            const x = (i * 97 - cameraX * 0.18) % (width + 120);
+            const y = (i * 53 + run.distance * 5) % height;
+            ctx.beginPath();
+            ctx.arc(x < -20 ? x + width + 120 : x, y, 1.5 + (i % 3), 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.restore();
+        }
+
+        function drawCue() {
+          const threat = nearestThreat();
+          ui.cueText.classList.remove("active");
+          if (!threat || state !== "running") return;
+          const time = (threat.x - player.x) / Math.max(1, player.speed);
+          if (time < 0.9 && time > 0.12) {
+            ui.cueText.textContent = "跳";
+            ui.cueText.classList.add("active");
+          }
+        }
+
+        function nearestThreat() {
+          let best = null;
+          for (const item of run.items) {
+            if (item.taken || !isObstacle(item.kind)) continue;
+            const dx = item.x - player.x;
+            if (dx < 0 || dx > 620) continue;
+            if (!best || dx < best.x - player.x) best = item;
+          }
+          return best;
+        }
+
+        function burst(x, y, color, count) {
+          for (let i = 0; i < count; i += 1) {
+            run.particles.push({
+              x,
+              y,
+              vx: (random() - 0.5) * 180,
+              vy: -80 - random() * 150,
+              size: 3 + random() * 5,
+              color,
+              life: 0.35 + random() * 0.45
+            });
+          }
+        }
+
+        function updateUi() {
+          const score = scoreValue();
+          const gap = player.x - run.avalancheX;
+          ui.distanceText.textContent = `${Math.floor(run.distance)}m`;
+          ui.coinText.textContent = String(run.coins);
+          ui.speedText.textContent = `${(player.speed / startSpeed).toFixed(1)}x`;
+          ui.gapText.textContent = gap > 430 ? "稳" : gap > 220 ? "近" : "危险";
+          ui.comboText.textContent = `x${Math.max(1, run.combo)}`;
+          ui.recordDistance.textContent = `${Math.floor(records.bestDistance)}m`;
+          ui.recordScore.textContent = String(Math.floor(records.bestScore));
+          ui.recordCoins.textContent = String(Math.floor(records.totalCoins));
+          ui.recordFlips.textContent = String(Math.floor(records.bestFlips));
+          renderMissions();
+          if (state === "gameover") {
+            ui.resultDistance.textContent = `${Math.floor(run.distance)}m`;
+            ui.resultCoins.textContent = String(run.coins);
+            ui.resultScore.textContent = String(score);
+          }
+        }
+
+        function renderMissions() {
+          ui.missionList.innerHTML = "";
+          for (const mission of missions) {
+            const value = Math.min(mission.target, mission.value());
+            const item = document.createElement("div");
+            item.className = "mission";
+            item.innerHTML = `
+              <div class="mission-icon">${mission.icon}</div>
+              <div>
+                <strong>${mission.title}</strong>
+                <meter min="0" max="${mission.target}" value="${value}"></meter>
+              </div>
+              <b>${Math.floor(value)}</b>
+            `;
+            ui.missionList.appendChild(item);
+          }
+        }
+
+        function scoreValue() {
+          return Math.floor(run.distance * 12 + run.coins * 42 + run.score);
+        }
+
+        function copyReport() {
+          const text = `我在《雪岭快逃》滑了 ${Math.floor(run.distance)}m，收集 ${run.coins} 颗松果，完成 ${run.flips} 次翻转，分数 ${scoreValue()}。`;
+          const done = () => {
+            ui.statusLine.textContent = "战报已复制。";
+          };
+          if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+          } else {
+            fallbackCopy(text, done);
+          }
+        }
+
+        function fallbackCopy(text, done) {
+          const input = document.createElement("textarea");
+          input.value = text;
+          input.setAttribute("readonly", "");
+          input.style.position = "fixed";
+          input.style.left = "-999px";
+          document.body.appendChild(input);
+          input.select();
+          try {
+            document.execCommand("copy");
+            done();
+          } catch (error) {
+            ui.statusLine.textContent = text;
+          } finally {
+            input.remove();
+          }
+        }
+
+        function ensureAudio() {
+          if (!audioCtx) {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (AudioContext) audioCtx = new AudioContext();
+          }
+          if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+        }
+
+        function beep(frequency, duration, type, gainValue, delay = 0) {
+          if (muted || !audioCtx) return;
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          const start = audioCtx.currentTime + delay;
+          osc.type = type;
+          osc.frequency.setValueAtTime(frequency, start);
+          gain.gain.setValueAtTime(0, start);
+          gain.gain.linearRampToValueAtTime(gainValue, start + 0.01);
+          gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(start);
+          osc.stop(start + duration + 0.02);
+        }
+
+        function bindEvents() {
+          window.addEventListener("resize", resizeCanvas);
+          document.addEventListener("keydown", (event) => {
+            if (event.repeat) return;
+            const key = event.key.toLowerCase();
+            if (key === " " || key === "arrowup" || key === "w") {
+              event.preventDefault();
+              jumpOrSpin();
+            } else if (key === "arrowleft" || key === "a") {
+              event.preventDefault();
+              input.left = true;
+            } else if (key === "arrowright" || key === "d") {
+              event.preventDefault();
+              input.right = true;
+            } else if (key === "arrowdown" || key === "s") {
+              event.preventDefault();
+              input.steady = true;
+            } else if (key === "e" || key === "shift") {
+              event.preventDefault();
+              useBoost();
+            } else if (key === "p") {
+              event.preventDefault();
+              state === "paused" ? resumeGame() : pauseGame();
+            } else if (key === "enter") {
+              event.preventDefault();
+              if (state === "paused") resumeGame();
+              else startGame();
+            }
+          });
+          document.addEventListener("keyup", (event) => {
+            const key = event.key.toLowerCase();
+            if (key === "arrowleft" || key === "a") input.left = false;
+            if (key === "arrowright" || key === "d") input.right = false;
+            if (key === "arrowdown" || key === "s") input.steady = false;
+          });
+
+          ui.startTop.addEventListener("click", startGame);
+          ui.startButton.addEventListener("click", startGame);
+          ui.pauseTop.addEventListener("click", () => (state === "paused" ? resumeGame() : pauseGame()));
+          ui.resumeButton.addEventListener("click", resumeGame);
+          ui.restartPauseButton.addEventListener("click", startGame);
+          ui.restartButton.addEventListener("click", startGame);
+          ui.copyButton.addEventListener("click", copyReport);
+          ui.copyResultButton.addEventListener("click", copyReport);
+          ui.muteTop.addEventListener("click", () => {
+            muted = !muted;
+            ui.muteTop.textContent = muted ? "×" : "♪";
+            ui.statusLine.textContent = muted ? "音效已关闭。" : "音效已开启。";
+            ensureAudio();
+          });
+
+          ui.spinLeftButton.addEventListener("pointerdown", (event) => {
+            event.preventDefault();
+            input.left = true;
+          });
+          ui.spinLeftButton.addEventListener("pointerup", (event) => {
+            event.preventDefault();
+            input.left = false;
+          });
+          ui.spinLeftButton.addEventListener("pointercancel", () => {
+            input.left = false;
+          });
+          ui.jumpButton.addEventListener("pointerdown", (event) => {
+            event.preventDefault();
+            jumpOrSpin();
+          });
+          ui.jumpButton.addEventListener("pointerup", (event) => {
+            event.preventDefault();
+          });
+          ui.spinRightButton.addEventListener("pointerdown", (event) => {
+            event.preventDefault();
+            input.right = true;
+          });
+          ui.spinRightButton.addEventListener("pointerup", (event) => {
+            event.preventDefault();
+            input.right = false;
+          });
+          ui.spinRightButton.addEventListener("pointercancel", () => {
+            input.right = false;
+          });
+          ui.boostButton.addEventListener("pointerdown", (event) => {
+            event.preventDefault();
+            useBoost();
+          });
+
+          panel.addEventListener("pointerdown", (event) => {
+            if (event.target.closest("button")) return;
+            event.preventDefault();
+            jumpOrSpin();
+          });
+          panel.addEventListener("pointerup", (event) => {
+            if (event.target.closest("button")) return;
+            event.preventDefault();
+          });
+        }
+
+        function obstacleHeight(kind) {
+          if (kind === "rock") return 46;
+          if (kind === "stump") return 54;
+          if (kind === "snowman") return 70;
+          if (kind === "cabin") return 92;
+          return 34;
+        }
+
+        function isObstacle(kind) {
+          return kind === "rock" || kind === "stump" || kind === "snowman" || kind === "cabin";
+        }
+
+        function distance(x1, y1, x2, y2) {
+          return Math.hypot(x1 - x2, y1 - y2);
+        }
+
+        function clamp(value, min, max) {
+          return Math.max(min, Math.min(max, value));
+        }
+
+        function normalizeAngle(angle) {
+          let a = angle % (Math.PI * 2);
+          if (a > Math.PI) a -= Math.PI * 2;
+          if (a < -Math.PI) a += Math.PI * 2;
+          return a;
+        }
+
+        function roundRect(x, y, w, h, r) {
+          const radius = Math.min(r, Math.abs(w) / 2, Math.abs(h) / 2);
+          ctx.beginPath();
+          ctx.moveTo(x + radius, y);
+          ctx.arcTo(x + w, y, x + w, y + h, radius);
+          ctx.arcTo(x + w, y + h, x, y + h, radius);
+          ctx.arcTo(x, y + h, x, y, radius);
+          ctx.arcTo(x, y, x + w, y, radius);
+          ctx.closePath();
+        }
+
+        bindEvents();
+        resizeCanvas();
+        updateUi();
+        rafId = requestAnimationFrame(update);
+        window.addEventListener("beforeunload", () => cancelAnimationFrame(rafId));
+      })();
+    </script>
+  </body>
+</html>

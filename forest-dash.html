@@ -1,0 +1,2046 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>松果快跑</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='8' fill='%2311181b'/%3E%3Cpath d='M16 44c3-17 11-27 22-30 10 7 13 20 8 34H18Z' fill='%23c77d3c'/%3E%3Cpath d='M22 18 13 10l3 13m25-8 10-6-5 13' fill='none' stroke='%23f0c96b' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='28' cy='34' r='3' fill='%2311181b'/%3E%3Ccircle cx='41' cy='34' r='3' fill='%2311181b'/%3E%3Cpath d='M30 44c4 3 8 3 12 0' stroke='%2311181b' stroke-width='4' stroke-linecap='round' fill='none'/%3E%3C/svg%3E">
+    <style>
+      :root {
+        --ink: #10171a;
+        --muted: #52636a;
+        --paper: #f4f7ef;
+        --panel: #fffdf6;
+        --line: #8c9b91;
+        --rail: #273238;
+        --leaf: #2f7a5e;
+        --leaf-dark: #1c5547;
+        --gold: #d9a93f;
+        --orange: #c96f35;
+        --red: #b83e3a;
+        --blue: #2f6f91;
+        --violet: #675989;
+        --shadow: rgba(7, 14, 16, 0.28);
+        --radius: 8px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        min-height: 100%;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+        background:
+          linear-gradient(90deg, rgba(244, 247, 239, 0.06) 1px, transparent 1px),
+          linear-gradient(0deg, rgba(244, 247, 239, 0.06) 1px, transparent 1px),
+          linear-gradient(135deg, #0f1b1d 0%, #123329 46%, #20263d 100%);
+        background-size: 28px 28px, 28px 28px, auto;
+        overflow-x: hidden;
+      }
+
+      button {
+        font: inherit;
+      }
+
+      .app-shell {
+        width: min(1440px, calc(100vw - 28px));
+        margin: 14px auto;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 16px 20px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: linear-gradient(90deg, rgba(244, 247, 239, 0.98), rgba(240, 249, 241, 0.95));
+        box-shadow: 0 16px 36px var(--shadow);
+      }
+
+      .brand {
+        min-width: 0;
+      }
+
+      .eyebrow {
+        margin: 0 0 5px;
+        color: #7c5c18;
+        font-size: 12px;
+        font-weight: 900;
+        letter-spacing: 0;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(32px, 7vw, 66px);
+        line-height: 0.95;
+        letter-spacing: 0;
+      }
+
+      .top-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .quiet-button,
+      .primary-button,
+      .icon-button,
+      .skin-button {
+        min-height: 40px;
+        border: 1px solid #8a691d;
+        border-radius: var(--radius);
+        background: #fff5dc;
+        color: var(--ink);
+        font-weight: 900;
+        cursor: pointer;
+        box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.1);
+        transition:
+          transform 140ms ease,
+          box-shadow 140ms ease,
+          filter 140ms ease;
+      }
+
+      .quiet-button {
+        padding: 9px 13px;
+      }
+
+      .primary-button {
+        padding: 11px 18px;
+        background: var(--leaf);
+        border-color: var(--leaf-dark);
+        color: #fffdf4;
+      }
+
+      .icon-button {
+        width: 44px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+      }
+
+      .quiet-button:hover,
+      .primary-button:hover,
+      .icon-button:hover,
+      .skin-button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 22px var(--shadow), inset 0 -2px 0 rgba(0, 0, 0, 0.1);
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(360px, 660px) minmax(270px, 1fr);
+        gap: 14px;
+        align-items: start;
+        margin-top: 14px;
+      }
+
+      .game-panel {
+        position: relative;
+        width: min(100%, 660px);
+        aspect-ratio: 9 / 14;
+        min-height: 580px;
+        max-height: calc(100vh - 132px);
+        justify-self: center;
+        border: 1px solid #74867d;
+        border-radius: var(--radius);
+        overflow: hidden;
+        background: #142226;
+        box-shadow: 0 22px 46px var(--shadow);
+        touch-action: none;
+      }
+
+      #gameCanvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+        background: #142226;
+      }
+
+      .hud {
+        position: absolute;
+        inset: 12px 12px auto;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 8px;
+        pointer-events: none;
+      }
+
+      .stat {
+        min-width: 0;
+        padding: 8px 8px 7px;
+        border: 1px solid rgba(255, 253, 246, 0.42);
+        border-radius: var(--radius);
+        background: rgba(13, 23, 26, 0.66);
+        color: #fffdf4;
+        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.16);
+      }
+
+      .stat span {
+        display: block;
+        color: rgba(255, 253, 246, 0.72);
+        font-size: 11px;
+        font-weight: 800;
+      }
+
+      .stat b {
+        display: block;
+        margin-top: 2px;
+        font-size: clamp(15px, 2.8vw, 22px);
+        line-height: 1.05;
+        white-space: nowrap;
+      }
+
+      .power-row {
+        position: absolute;
+        left: 12px;
+        right: 12px;
+        top: 82px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        pointer-events: none;
+      }
+
+      .power-chip {
+        display: none;
+        align-items: center;
+        gap: 6px;
+        min-height: 30px;
+        padding: 5px 8px;
+        border: 1px solid rgba(255, 253, 246, 0.46);
+        border-radius: var(--radius);
+        background: rgba(255, 253, 246, 0.88);
+        color: var(--ink);
+        font-size: 12px;
+        font-weight: 900;
+      }
+
+      .power-chip.active {
+        display: inline-flex;
+      }
+
+      .action-cue {
+        position: absolute;
+        left: 50%;
+        bottom: 76px;
+        min-width: 156px;
+        max-width: calc(100% - 32px);
+        min-height: 42px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 8px 14px;
+        transform: translateX(-50%);
+        border: 1px solid rgba(255, 253, 246, 0.7);
+        border-radius: var(--radius);
+        background: rgba(17, 24, 27, 0.78);
+        color: #fffdf4;
+        font-size: 18px;
+        font-weight: 900;
+        text-align: center;
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.32);
+        pointer-events: none;
+      }
+
+      .action-cue.active {
+        display: flex;
+      }
+
+      .action-cue.jump {
+        background: rgba(47, 111, 145, 0.86);
+      }
+
+      .action-cue.slide {
+        background: rgba(103, 89, 137, 0.88);
+      }
+
+      .action-cue.dodge {
+        background: rgba(184, 62, 58, 0.88);
+      }
+
+      .overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(9, 17, 19, 0.42);
+      }
+
+      .overlay[hidden] {
+        display: none;
+      }
+
+      .modal {
+        width: min(380px, 100%);
+        padding: 18px;
+        border: 1px solid #a9924e;
+        border-radius: var(--radius);
+        background: rgba(255, 253, 246, 0.96);
+        box-shadow: 0 20px 44px rgba(0, 0, 0, 0.34);
+      }
+
+      .modal h2 {
+        margin-bottom: 8px;
+        font-size: clamp(26px, 6vw, 40px);
+        line-height: 1;
+        letter-spacing: 0;
+      }
+
+      .modal p {
+        margin: 0 0 14px;
+        color: var(--muted);
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      .modal-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .modal-actions .primary-button,
+      .modal-actions .quiet-button {
+        flex: 1 1 120px;
+      }
+
+      .result-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+        margin: 12px 0 14px;
+      }
+
+      .result-item {
+        padding: 9px 8px;
+        border: 1px solid #d8c78f;
+        border-radius: var(--radius);
+        background: #fff6dc;
+      }
+
+      .result-item span {
+        display: block;
+        color: #6a5b2b;
+        font-size: 11px;
+        font-weight: 900;
+      }
+
+      .result-item b {
+        display: block;
+        margin-top: 3px;
+        font-size: 18px;
+      }
+
+      .touch-pad {
+        position: absolute;
+        left: 12px;
+        right: 12px;
+        bottom: 12px;
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 8px;
+        pointer-events: none;
+      }
+
+      .touch-pad .icon-button {
+        width: 100%;
+        height: 48px;
+        border-color: rgba(255, 253, 246, 0.5);
+        background: rgba(255, 253, 246, 0.86);
+        pointer-events: auto;
+        user-select: none;
+      }
+
+      .touch-pad .wide {
+        grid-column: span 2;
+      }
+
+      .side-panel {
+        display: grid;
+        gap: 14px;
+      }
+
+      .board {
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: rgba(255, 253, 246, 0.96);
+        box-shadow: 0 16px 36px var(--shadow);
+      }
+
+      .board h2 {
+        margin: 0 0 12px;
+        font-size: 22px;
+      }
+
+      .record-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .record-tile {
+        min-width: 0;
+        padding: 10px 9px;
+        border: 1px solid #d8c78f;
+        border-radius: var(--radius);
+        background: #fff6dc;
+      }
+
+      .record-tile span {
+        display: block;
+        color: #725f26;
+        font-size: 12px;
+        font-weight: 900;
+      }
+
+      .record-tile b {
+        display: block;
+        margin-top: 4px;
+        font-size: clamp(18px, 2.2vw, 26px);
+        line-height: 1;
+      }
+
+      .mission-list {
+        display: grid;
+        gap: 9px;
+      }
+
+      .mission {
+        display: grid;
+        grid-template-columns: 38px minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 9px;
+        padding: 10px;
+        border: 1px solid #d2c88d;
+        border-radius: var(--radius);
+        background: #fffaf0;
+      }
+
+      .mission-icon {
+        width: 38px;
+        height: 38px;
+        display: grid;
+        place-items: center;
+        border-radius: var(--radius);
+        background: #e7f2df;
+        font-size: 20px;
+        font-weight: 900;
+      }
+
+      .mission strong {
+        display: block;
+        font-size: 14px;
+        line-height: 1.15;
+      }
+
+      .mission meter {
+        display: block;
+        width: 100%;
+        height: 10px;
+        margin-top: 6px;
+      }
+
+      .mission b {
+        min-width: 42px;
+        text-align: right;
+        color: var(--leaf-dark);
+      }
+
+      .skin-row {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .skin-button {
+        min-height: 68px;
+        padding: 8px 6px;
+        background: #fffaf0;
+      }
+
+      .skin-button.active {
+        outline: 3px solid rgba(47, 122, 94, 0.32);
+        background: #edf7e8;
+      }
+
+      .skin-button span {
+        display: block;
+        font-size: 22px;
+        line-height: 1;
+      }
+
+      .skin-button b {
+        display: block;
+        margin-top: 6px;
+        font-size: 13px;
+      }
+
+      .status-line {
+        min-height: 22px;
+        margin: 10px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      @media (max-width: 920px) {
+        .app-shell {
+          width: min(100vw - 16px, 680px);
+          margin: 8px auto;
+        }
+
+        .topbar {
+          padding: 12px;
+          align-items: flex-start;
+        }
+
+        .layout {
+          grid-template-columns: 1fr;
+          margin-top: 8px;
+        }
+
+        .game-panel {
+          width: 100%;
+          min-height: 0;
+          max-height: none;
+        }
+
+        .side-panel {
+          grid-template-columns: 1fr;
+        }
+
+        .board {
+          padding: 12px;
+        }
+      }
+
+      @media (max-width: 560px) {
+        .topbar {
+          display: grid;
+        }
+
+        .top-actions {
+          justify-content: stretch;
+        }
+
+        .top-actions .primary-button,
+        .top-actions .quiet-button {
+          flex: 1 1 96px;
+        }
+
+        .hud {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 6px;
+        }
+
+        .power-row {
+          top: 128px;
+        }
+
+        .stat {
+          padding: 7px;
+        }
+
+        .touch-pad .icon-button {
+          height: 44px;
+        }
+
+        .record-grid,
+        .skin-row {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <p class="eyebrow">三车道原创跑酷</p>
+          <h1>松果快跑</h1>
+        </div>
+        <div class="top-actions">
+          <button class="primary-button" id="startTop" type="button">开始</button>
+          <button class="quiet-button" id="pauseTop" type="button">暂停</button>
+          <button class="icon-button" id="muteTop" type="button" title="音效" aria-label="音效">♪</button>
+        </div>
+      </header>
+
+      <main class="layout">
+        <section class="game-panel" id="gamePanel" aria-label="松果快跑游戏区域">
+          <canvas id="gameCanvas"></canvas>
+
+          <div class="hud">
+            <div class="stat"><span>距离</span><b id="distanceText">0m</b></div>
+            <div class="stat"><span>松果</span><b id="coinText">0</b></div>
+            <div class="stat"><span>速度</span><b id="speedText">1.0x</b></div>
+            <div class="stat"><span>最佳</span><b id="bestText">0m</b></div>
+          </div>
+
+          <div class="power-row">
+            <div class="power-chip" id="magnetChip">磁铁 <span>0</span>s</div>
+            <div class="power-chip" id="shieldChip">护盾 <span>0</span>s</div>
+            <div class="power-chip" id="boostChip">冲刺 <span>0</span>s</div>
+          </div>
+
+          <div class="action-cue" id="actionCue">看线躲避</div>
+
+          <div class="overlay" id="readyOverlay">
+            <div class="modal">
+              <h2>穿过林间铁道</h2>
+              <p>收松果、躲木栏、钻枝门，越跑越快。</p>
+              <div class="modal-actions">
+                <button class="primary-button" id="startButton" type="button">出发</button>
+                <button class="quiet-button" id="copyButton" type="button">复制战报</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="overlay" id="pauseOverlay" hidden>
+            <div class="modal">
+              <h2>暂停中</h2>
+              <p>赛道已经替你按住了。</p>
+              <div class="modal-actions">
+                <button class="primary-button" id="resumeButton" type="button">继续</button>
+                <button class="quiet-button" id="restartPauseButton" type="button">重开</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="overlay" id="gameOverOverlay" hidden>
+            <div class="modal">
+              <h2>本轮结算</h2>
+              <div class="result-grid">
+                <div class="result-item"><span>距离</span><b id="resultDistance">0m</b></div>
+                <div class="result-item"><span>松果</span><b id="resultCoins">0</b></div>
+                <div class="result-item"><span>分数</span><b id="resultScore">0</b></div>
+              </div>
+              <div class="modal-actions">
+                <button class="primary-button" id="restartButton" type="button">再跑</button>
+                <button class="quiet-button" id="copyResultButton" type="button">复制战报</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="touch-pad" aria-hidden="false">
+            <button class="icon-button" id="leftButton" type="button" title="向左" aria-label="向左">←</button>
+            <button class="icon-button" id="downButton" type="button" title="下滑" aria-label="下滑">↓</button>
+            <button class="icon-button wide" id="jumpButton" type="button" title="跳跃" aria-label="跳跃">↑</button>
+            <button class="icon-button" id="rightButton" type="button" title="向右" aria-label="向右">→</button>
+          </div>
+        </section>
+
+        <aside class="side-panel">
+          <section class="board">
+            <h2>本地战绩</h2>
+            <div class="record-grid">
+              <div class="record-tile"><span>最佳距离</span><b id="recordDistance">0m</b></div>
+              <div class="record-tile"><span>最高分</span><b id="recordScore">0</b></div>
+              <div class="record-tile"><span>总松果</span><b id="recordTotalCoins">0</b></div>
+            </div>
+            <p class="status-line" id="statusLine">今日赛道已就绪。</p>
+          </section>
+
+          <section class="board">
+            <h2>今日任务</h2>
+            <div class="mission-list" id="missionList"></div>
+          </section>
+
+          <section class="board">
+            <h2>角色</h2>
+            <div class="skin-row">
+              <button class="skin-button active" type="button" data-skin="cub"><span>栗</span><b>栗宝</b></button>
+              <button class="skin-button" type="button" data-skin="fox"><span>枫</span><b>枫枫</b></button>
+              <button class="skin-button" type="button" data-skin="mole"><span>矿</span><b>矿仔</b></button>
+            </div>
+          </section>
+        </aside>
+      </main>
+    </div>
+
+    <script>
+      (() => {
+        "use strict";
+
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const panel = document.getElementById("gamePanel");
+
+        const ui = {
+          startTop: document.getElementById("startTop"),
+          pauseTop: document.getElementById("pauseTop"),
+          muteTop: document.getElementById("muteTop"),
+          startButton: document.getElementById("startButton"),
+          copyButton: document.getElementById("copyButton"),
+          resumeButton: document.getElementById("resumeButton"),
+          restartPauseButton: document.getElementById("restartPauseButton"),
+          restartButton: document.getElementById("restartButton"),
+          copyResultButton: document.getElementById("copyResultButton"),
+          readyOverlay: document.getElementById("readyOverlay"),
+          pauseOverlay: document.getElementById("pauseOverlay"),
+          gameOverOverlay: document.getElementById("gameOverOverlay"),
+          distanceText: document.getElementById("distanceText"),
+          coinText: document.getElementById("coinText"),
+          speedText: document.getElementById("speedText"),
+          bestText: document.getElementById("bestText"),
+          resultDistance: document.getElementById("resultDistance"),
+          resultCoins: document.getElementById("resultCoins"),
+          resultScore: document.getElementById("resultScore"),
+          recordDistance: document.getElementById("recordDistance"),
+          recordScore: document.getElementById("recordScore"),
+          recordTotalCoins: document.getElementById("recordTotalCoins"),
+          statusLine: document.getElementById("statusLine"),
+          missionList: document.getElementById("missionList"),
+          magnetChip: document.getElementById("magnetChip"),
+          shieldChip: document.getElementById("shieldChip"),
+          boostChip: document.getElementById("boostChip"),
+          actionCue: document.getElementById("actionCue"),
+          leftButton: document.getElementById("leftButton"),
+          rightButton: document.getElementById("rightButton"),
+          jumpButton: document.getElementById("jumpButton"),
+          downButton: document.getElementById("downButton")
+        };
+
+        const storageKey = "forest-dash-records-v2";
+        const startZ = 1660;
+        const judgeZ = 0;
+        const meterScale = 18;
+        const laneList = [-1, 0, 1];
+        const actionLead = {
+          jump: 0.72,
+          slide: 0.54,
+          dodge: 0.58
+        };
+        const skins = {
+          cub: { body: "#c77d3c", belly: "#f1c67a", trim: "#63381c", cap: "#2f7a5e", glyph: "栗" },
+          fox: { body: "#d95f35", belly: "#ffe0a6", trim: "#4b2a1e", cap: "#675989", glyph: "枫" },
+          mole: { body: "#7a6558", belly: "#e1c09a", trim: "#2d2522", cap: "#2f6f91", glyph: "矿" }
+        };
+
+        const missions = [
+          { id: "coins", icon: "◎", title: "收集 80 颗松果", target: 80, value: () => run.coins },
+          { id: "distance", icon: "↟", title: "跑到 900 米", target: 900, value: () => Math.floor(run.distance) },
+          { id: "slide", icon: "⌄", title: "钻过 12 道枝门", target: 12, value: () => run.slides }
+        ];
+
+        const obstacleKinds = {
+          log: { need: "jump", label: "木栏", cue: "跳", color: "#8e542e" },
+          gate: { need: "slide", label: "枝门", cue: "下滑", color: "#466d3a" },
+          cart: { need: "dodge", label: "矿车", cue: "换道", color: "#42515a" },
+          sign: { need: "dodge", label: "路牌", cue: "换道", color: "#b8463f" }
+        };
+
+        let width = 1;
+        let height = 1;
+        let dpr = 1;
+        let lastTime = 0;
+        let rafId = 0;
+        let audioCtx = null;
+        let muted = false;
+        let selectedSkin = "cub";
+        let cameraShake = 0;
+        let swipeStart = null;
+
+        let records = loadRecords();
+        let state = "ready";
+        let run = makeRun();
+        let player = makePlayer();
+
+        function loadRecords() {
+          try {
+            const parsed = JSON.parse(localStorage.getItem(storageKey) || "{}");
+            return {
+              bestDistance: Number(parsed.bestDistance) || 0,
+              bestScore: Number(parsed.bestScore) || 0,
+              totalCoins: Number(parsed.totalCoins) || 0
+            };
+          } catch (error) {
+            return { bestDistance: 0, bestScore: 0, totalCoins: 0 };
+          }
+        }
+
+        function saveRecords() {
+          localStorage.setItem(storageKey, JSON.stringify(records));
+        }
+
+        function makeRun() {
+          return {
+            distance: 0,
+            worldDistance: 0,
+            coins: 0,
+            score: 0,
+            speed: 500,
+            spawnClock: 320,
+            coinClock: 90,
+            powerClock: 360,
+            obstacles: [],
+            coinsList: [],
+            powers: [],
+            particles: [],
+            scenery: [],
+            magnet: 0,
+            shield: 0,
+            boost: 0,
+            multiplier: 1,
+            slides: 0,
+            nearMisses: 0,
+            savedHits: 0,
+            patternIndex: 0,
+            lastCue: "",
+            seed: seedFromDate()
+          };
+        }
+
+        function makePlayer() {
+          return {
+            lane: 0,
+            xLane: 0,
+            jumpY: 0,
+            vy: 0,
+            slide: 0,
+            bob: 0,
+            blink: 0
+          };
+        }
+
+        function seedFromDate() {
+          const now = new Date();
+          return now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
+        }
+
+        function seededRandom() {
+          run.seed = (run.seed * 1664525 + 1013904223) >>> 0;
+          return run.seed / 4294967296;
+        }
+
+        function resizeCanvas() {
+          const rect = panel.getBoundingClientRect();
+          dpr = Math.min(window.devicePixelRatio || 1, 2);
+          width = Math.max(320, Math.floor(rect.width));
+          height = Math.max(480, Math.floor(rect.height));
+          canvas.width = Math.floor(width * dpr);
+          canvas.height = Math.floor(height * dpr);
+          canvas.style.width = `${width}px`;
+          canvas.style.height = `${height}px`;
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+
+        function startGame() {
+          ensureAudio();
+          run = makeRun();
+          player = makePlayer();
+          state = "running";
+          cameraShake = 0;
+          ui.readyOverlay.hidden = true;
+          ui.pauseOverlay.hidden = true;
+          ui.gameOverOverlay.hidden = true;
+          ui.statusLine.textContent = "林间铁道开跑。";
+          spawnOpening();
+          beep(440, 0.06, "triangle", 0.04);
+          beep(660, 0.08, "triangle", 0.035, 0.07);
+          updateAllUi();
+        }
+
+        function pauseGame() {
+          if (state !== "running") return;
+          state = "paused";
+          ui.pauseOverlay.hidden = false;
+          ui.statusLine.textContent = "已暂停。";
+        }
+
+        function resumeGame() {
+          if (state !== "paused") return;
+          state = "running";
+          ui.pauseOverlay.hidden = true;
+          lastTime = performance.now();
+          ui.statusLine.textContent = "继续冲。";
+          beep(520, 0.06, "sine", 0.04);
+        }
+
+        function endGame() {
+          state = "gameover";
+          ui.gameOverOverlay.hidden = false;
+          ui.resultDistance.textContent = `${Math.floor(run.distance)}m`;
+          ui.resultCoins.textContent = String(run.coins);
+          ui.resultScore.textContent = String(Math.floor(run.score));
+
+          const bestDistance = Math.max(records.bestDistance, Math.floor(run.distance));
+          const bestScore = Math.max(records.bestScore, Math.floor(run.score));
+          records = {
+            bestDistance,
+            bestScore,
+            totalCoins: records.totalCoins + run.coins
+          };
+          saveRecords();
+          ui.statusLine.textContent = bestDistance === Math.floor(run.distance) ? "新的最佳距离。" : "本轮结算完成。";
+          updateAllUi();
+          beep(180, 0.18, "sawtooth", 0.05);
+        }
+
+        function spawnOpening() {
+          for (let i = 0; i < 18; i += 1) {
+            run.coinsList.push({ lane: i % 3 - 1, z: 580 + i * 88, bob: seededRandom() * 10 });
+          }
+          run.powers.push({ type: "shield", lane: 0, z: 980, bob: seededRandom() * 9, taken: false });
+          run.powers.push({ type: "magnet", lane: -1, z: 1540, bob: seededRandom() * 9, taken: false });
+          for (let i = 0; i < 9; i += 1) {
+            run.scenery.push(makeScenery(700 + i * 240));
+          }
+        }
+
+        function update(timestamp) {
+          if (!lastTime) lastTime = timestamp;
+          const dt = Math.min(0.034, (timestamp - lastTime) / 1000 || 0);
+          lastTime = timestamp;
+
+          if (state === "running") {
+            updateRun(dt);
+          }
+
+          draw();
+          rafId = requestAnimationFrame(update);
+        }
+
+        function updateRun(dt) {
+          const difficulty = Math.min(1, run.distance / 1200);
+          run.speed = (500 + difficulty * 230) * (run.boost > 0 ? 1.24 : 1);
+          run.worldDistance += run.speed * dt;
+          run.distance = run.worldDistance / meterScale;
+          run.score += run.speed * dt * 0.2 * run.multiplier;
+          player.bob += dt * (run.speed / 70);
+          player.xLane += (player.lane - player.xLane) * Math.min(1, dt * 13);
+
+          if (player.jumpY > 0 || player.vy > 0) {
+            player.jumpY += player.vy * dt;
+            player.vy -= 1650 * dt;
+            if (player.jumpY <= 0) {
+              player.jumpY = 0;
+              player.vy = 0;
+            }
+          }
+          if (player.slide > 0) player.slide = Math.max(0, player.slide - dt);
+          if (player.blink > 0) player.blink = Math.max(0, player.blink - dt);
+
+          run.magnet = Math.max(0, run.magnet - dt);
+          run.shield = Math.max(0, run.shield - dt);
+          run.boost = Math.max(0, run.boost - dt);
+          cameraShake = Math.max(0, cameraShake - dt * 22);
+
+          moveEntities(run.obstacles, dt);
+          moveEntities(run.coinsList, dt);
+          moveEntities(run.powers, dt);
+          moveEntities(run.scenery, dt);
+          updateParticles(dt);
+          spawnWorld(dt, difficulty);
+          checkCoins();
+          checkPowers();
+          checkObstacles();
+          cleanupEntities();
+          updateAllUi();
+        }
+
+        function moveEntities(list, dt) {
+          for (const item of list) {
+            item.prevZ = item.z;
+            item.z -= run.speed * dt;
+          }
+        }
+
+        function updateParticles(dt) {
+          for (const p of run.particles) {
+            p.x += p.vx * dt;
+            p.y += p.vy * dt;
+            p.vy += 220 * dt;
+            p.life -= dt;
+          }
+          run.particles = run.particles.filter((p) => p.life > 0);
+        }
+
+        function spawnWorld(dt, difficulty) {
+          run.spawnClock -= run.speed * dt;
+          run.coinClock -= run.speed * dt;
+          run.powerClock -= run.speed * dt;
+
+          if (run.spawnClock <= 0) {
+            spawnPattern();
+            run.spawnClock = 560 - difficulty * 120 + seededRandom() * 180;
+          }
+
+          if (run.coinClock <= 0) {
+            spawnCoins();
+            run.coinClock = 420 + seededRandom() * 220;
+          }
+
+          if (run.powerClock <= 0) {
+            spawnPower();
+            run.powerClock = 620 + seededRandom() * 440;
+          }
+
+          if (run.scenery.length < 18) {
+            run.scenery.push(makeScenery(1650 + seededRandom() * 500));
+          }
+        }
+
+        function spawnPattern() {
+          const z = startZ;
+          const roll = seededRandom();
+          const lanes = shuffle(laneList);
+          const difficulty = Math.min(1, run.distance / 950);
+          run.patternIndex += 1;
+
+          if (run.distance < 70) return;
+
+          if (run.distance < 180 || roll < 0.42) {
+            const type = run.distance < 150 ? (roll < 0.55 ? "log" : "gate") : pickObstacleType(difficulty);
+            addObstacle(type, lanes[0], z);
+          } else if (roll < 0.72) {
+            const safeLane = lanes[0];
+            for (const lane of laneList) {
+              if (lane !== safeLane) addObstacle(pickObstacleType(difficulty), lane, z + seededRandom() * 55);
+            }
+            spawnGuideCoins(safeLane, z - 420, z - 120);
+          } else {
+            addObstacle(pickObstacleType(difficulty), lanes[0], z);
+            addObstacle(seededRandom() > 0.55 ? "log" : "gate", lanes[1], z + 260 + seededRandom() * 70);
+          }
+        }
+
+        function addObstacle(type, lane, z) {
+          run.obstacles.push({
+            type,
+            lane,
+            z,
+            prevZ: z,
+            hit: false,
+            scored: false,
+            judged: false
+          });
+        }
+
+        function pickObstacleType(difficulty) {
+          const roll = seededRandom();
+          if (difficulty < 0.25) return roll < 0.56 ? "log" : "gate";
+          if (roll < 0.34) return "log";
+          if (roll < 0.62) return "gate";
+          if (roll < 0.84) return "cart";
+          return "sign";
+        }
+
+        function spawnGuideCoins(lane, fromZ, toZ) {
+          const count = 5;
+          for (let i = 0; i < count; i += 1) {
+            const t = count === 1 ? 0 : i / (count - 1);
+            run.coinsList.push({
+              lane,
+              z: fromZ + (toZ - fromZ) * t,
+              bob: seededRandom() * 10,
+              taken: false
+            });
+          }
+        }
+
+        function spawnCoins() {
+          const z = 1080 + seededRandom() * 220;
+          const startLane = Math.floor(seededRandom() * 3) - 1;
+          const pattern = seededRandom();
+          for (let i = 0; i < 7; i += 1) {
+            let lane = startLane;
+            if (pattern > 0.58) lane = ((startLane + i) % 3 + 3) % 3 - 1;
+            if (pattern > 0.82) lane = i % 2 === 0 ? -1 : 1;
+            run.coinsList.push({ lane, z: z + i * 76, bob: seededRandom() * 10, taken: false });
+          }
+        }
+
+        function spawnPower() {
+          const types = run.distance < 320 ? ["magnet", "shield", "shield", "boost"] : ["magnet", "shield", "boost"];
+          run.powers.push({
+            type: types[Math.floor(seededRandom() * types.length)],
+            lane: Math.floor(seededRandom() * 3) - 1,
+            z: startZ + 80,
+            prevZ: startZ + 80,
+            bob: seededRandom() * 9,
+            taken: false
+          });
+        }
+
+        function makeScenery(z) {
+          return {
+            z,
+            side: seededRandom() > 0.5 ? 1 : -1,
+            kind: seededRandom() > 0.5 ? "tree" : "lamp",
+            offset: 1.55 + seededRandom() * 0.7,
+            sway: seededRandom() * Math.PI * 2
+          };
+        }
+
+        function shuffle(list) {
+          const copy = list.slice();
+          for (let i = copy.length - 1; i > 0; i -= 1) {
+            const j = Math.floor(seededRandom() * (i + 1));
+            [copy[i], copy[j]] = [copy[j], copy[i]];
+          }
+          return copy;
+        }
+
+        function checkCoins() {
+          for (const coin of run.coinsList) {
+            if (coin.taken) continue;
+            const sameLane = Math.abs(coin.lane - player.lane) < 0.1;
+            const close = coin.z < 118 && coin.z > -70;
+            const magnet = run.magnet > 0 && coin.z < 430 && Math.abs(coin.lane - player.lane) <= 1;
+            if ((sameLane && close) || magnet) {
+              coin.taken = true;
+              run.coins += 1;
+              run.score += 80 * run.multiplier;
+              spawnCoinBurst(coin);
+              beep(880 + Math.min(360, run.coins * 4), 0.035, "sine", 0.025);
+            }
+          }
+        }
+
+        function checkPowers() {
+          for (const power of run.powers) {
+            if (power.taken) continue;
+            const sameLane = Math.abs(power.lane - player.lane) < 0.1;
+            const close = power.z < 120 && power.z > -80;
+            const magnet = run.magnet > 0 && power.z < 330 && Math.abs(power.lane - player.lane) <= 1;
+            if ((sameLane && close) || magnet) {
+              power.taken = true;
+              if (power.type === "magnet") run.magnet = 9;
+              if (power.type === "shield") run.shield = 10;
+              if (power.type === "boost") run.boost = 6.5;
+              run.score += 250;
+              spawnPowerBurst(power);
+              beep(660, 0.06, "triangle", 0.045);
+              beep(990, 0.08, "triangle", 0.035, 0.06);
+            }
+          }
+        }
+
+        function checkObstacles() {
+          for (const obstacle of run.obstacles) {
+            if (obstacle.hit || obstacle.judged) continue;
+            if (!obstacle.scored && obstacle.z < -120) {
+              obstacle.scored = true;
+              run.score += 25;
+              if (obstacle.type === "gate" && player.slide > 0) run.slides += 1;
+            }
+            if (!crossedJudge(obstacle)) {
+              continue;
+            }
+
+            obstacle.judged = true;
+
+            if (Math.abs(obstacle.lane - player.lane) > 0.36) {
+              if (!obstacle.scored) {
+                run.nearMisses += 1;
+                obstacle.scored = true;
+                run.score += 40;
+              }
+              continue;
+            }
+
+            const kind = obstacleKinds[obstacle.type];
+            let avoided = false;
+            if (kind.need === "jump") avoided = player.jumpY > 42;
+            if (kind.need === "slide") avoided = player.slide > 0 && player.jumpY < 34;
+            if (kind.need === "dodge") avoided = false;
+
+            if (avoided) {
+              if (!obstacle.scored) {
+                obstacle.scored = true;
+                run.score += 120;
+                if (obstacle.type === "gate") run.slides += 1;
+              }
+              continue;
+            }
+
+            obstacle.hit = true;
+            handleHit(obstacle);
+          }
+        }
+
+        function crossedJudge(item) {
+          return item.prevZ >= judgeZ && item.z < judgeZ;
+        }
+
+        function handleHit(obstacle) {
+          if (run.shield > 0 || run.boost > 0) {
+            run.shield = Math.max(0, run.shield - 2.4);
+            run.savedHits += 1;
+            player.blink = 0.9;
+            cameraShake = 7;
+            run.score = Math.max(0, run.score - 120);
+            spawnImpact(obstacle);
+            beep(240, 0.08, "square", 0.04);
+            return;
+          }
+          cameraShake = 12;
+          spawnImpact(obstacle);
+          endGame();
+        }
+
+        function cleanupEntities() {
+          run.obstacles = run.obstacles.filter((item) => item.z > -180 && !item.hit);
+          run.coinsList = run.coinsList.filter((item) => item.z > -180 && !item.taken);
+          run.powers = run.powers.filter((item) => item.z > -180 && !item.taken);
+          run.scenery = run.scenery.filter((item) => item.z > -220);
+        }
+
+        function laneChange(direction) {
+          if (state === "ready" || state === "gameover") {
+            startGame();
+            return;
+          }
+          if (state !== "running") return;
+          const next = Math.max(-1, Math.min(1, player.lane + direction));
+          if (next === player.lane) return;
+          player.lane = next;
+          beep(360 + (next + 1) * 90, 0.04, "triangle", 0.025);
+        }
+
+        function jump() {
+          if (state === "ready" || state === "gameover") {
+            startGame();
+            return;
+          }
+          if (state !== "running") return;
+          if (player.jumpY > 0) return;
+          player.vy = 670;
+          player.jumpY = 1;
+          player.slide = 0;
+          beep(520, 0.045, "sine", 0.035);
+        }
+
+        function slide() {
+          if (state !== "running") return;
+          if (player.jumpY > 32) {
+            player.vy = -760;
+          }
+          player.slide = 0.62;
+          beep(260, 0.05, "triangle", 0.03);
+        }
+
+        function spawnCoinBurst(coin) {
+          const p = project(coin.lane, Math.max(0, coin.z));
+          for (let i = 0; i < 7; i += 1) {
+            run.particles.push({
+              x: p.x,
+              y: p.y - p.scale * 64,
+              vx: (seededRandom() - 0.5) * 120,
+              vy: -90 - seededRandom() * 80,
+              color: "#f5c84f",
+              size: 3 + seededRandom() * 4,
+              life: 0.35 + seededRandom() * 0.25
+            });
+          }
+        }
+
+        function spawnPowerBurst(power) {
+          const colors = { magnet: "#5eb1d5", shield: "#78d284", boost: "#e06a38" };
+          const p = project(power.lane, Math.max(0, power.z));
+          for (let i = 0; i < 14; i += 1) {
+            run.particles.push({
+              x: p.x,
+              y: p.y - p.scale * 82,
+              vx: (seededRandom() - 0.5) * 180,
+              vy: -120 - seededRandom() * 130,
+              color: colors[power.type],
+              size: 4 + seededRandom() * 5,
+              life: 0.45 + seededRandom() * 0.35
+            });
+          }
+        }
+
+        function spawnImpact(obstacle) {
+          const p = project(obstacle.lane, Math.max(0, obstacle.z));
+          for (let i = 0; i < 22; i += 1) {
+            run.particles.push({
+              x: p.x,
+              y: p.y - p.scale * 44,
+              vx: (seededRandom() - 0.5) * 240,
+              vy: -80 - seededRandom() * 180,
+              color: i % 2 ? "#d9a93f" : "#b83e3a",
+              size: 4 + seededRandom() * 6,
+              life: 0.6 + seededRandom() * 0.4
+            });
+          }
+        }
+
+        function draw() {
+          ctx.save();
+          if (cameraShake > 0) {
+            ctx.translate((Math.random() - 0.5) * cameraShake, (Math.random() - 0.5) * cameraShake);
+          }
+          drawSky();
+          drawTrack();
+          drawScenery();
+          drawItems();
+          drawPlayer();
+          drawParticles();
+          drawVignette();
+          ctx.restore();
+        }
+
+        function drawSky() {
+          const sky = ctx.createLinearGradient(0, 0, 0, height);
+          sky.addColorStop(0, "#8fd3e8");
+          sky.addColorStop(0.28, "#d7f2e2");
+          sky.addColorStop(0.62, "#45785d");
+          sky.addColorStop(1, "#192226");
+          ctx.fillStyle = sky;
+          ctx.fillRect(0, 0, width, height);
+
+          const horizon = height * 0.25;
+          ctx.fillStyle = "#2f6b56";
+          for (let i = 0; i < 9; i += 1) {
+            const x = (i / 8) * width;
+            const peak = horizon - 34 - Math.sin(i * 1.7) * 24;
+            ctx.beginPath();
+            ctx.moveTo(x - width * 0.18, horizon + 36);
+            ctx.lineTo(x, peak);
+            ctx.lineTo(x + width * 0.2, horizon + 36);
+            ctx.closePath();
+            ctx.fill();
+          }
+
+          ctx.fillStyle = "rgba(255, 250, 220, 0.86)";
+          ctx.beginPath();
+          ctx.arc(width * 0.78, height * 0.1, Math.max(24, width * 0.055), 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        function drawTrack() {
+          const horizonY = height * 0.27;
+          const bottomY = height * 0.965;
+          const leftBottom = width * 0.02;
+          const rightBottom = width * 0.98;
+          const leftTop = width * 0.42;
+          const rightTop = width * 0.58;
+
+          ctx.fillStyle = "#1d2a2d";
+          ctx.beginPath();
+          ctx.moveTo(leftTop, horizonY);
+          ctx.lineTo(rightTop, horizonY);
+          ctx.lineTo(rightBottom, bottomY);
+          ctx.lineTo(leftBottom, bottomY);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.fillStyle = "#24373c";
+          ctx.beginPath();
+          ctx.moveTo(width * 0.24, bottomY);
+          ctx.lineTo(width * 0.455, horizonY);
+          ctx.lineTo(width * 0.545, horizonY);
+          ctx.lineTo(width * 0.76, bottomY);
+          ctx.closePath();
+          ctx.fill();
+
+          for (let lane = -1; lane <= 1; lane += 1) {
+            drawRail(lane);
+          }
+
+          ctx.strokeStyle = "rgba(255, 253, 246, 0.28)";
+          ctx.lineWidth = 2;
+          for (let i = 0; i < 2; i += 1) {
+            const lane = i === 0 ? -0.5 : 0.5;
+            ctx.beginPath();
+            for (let s = 0; s <= 24; s += 1) {
+              const z = 1600 - s * 70 + (run.distance * 9) % 70;
+              const p = project(lane, z);
+              if (s === 0) ctx.moveTo(p.x, p.y);
+              else ctx.lineTo(p.x, p.y);
+            }
+            ctx.stroke();
+          }
+
+          for (let z = ((run.distance * 14) % 150); z < 1700; z += 150) {
+            const p0 = project(-1.36, z);
+            const p1 = project(1.36, z);
+            ctx.strokeStyle = "rgba(225, 192, 128, 0.46)";
+            ctx.lineWidth = Math.max(2, 8 * p0.scale);
+            ctx.beginPath();
+            ctx.moveTo(p0.x, p0.y);
+            ctx.lineTo(p1.x, p1.y);
+            ctx.stroke();
+          }
+
+          drawJudgementLine();
+        }
+
+        function drawJudgementLine() {
+          const p0 = project(-1.38, judgeZ);
+          const p1 = project(1.38, judgeZ);
+          const glow = ctx.createLinearGradient(p0.x, p0.y, p1.x, p1.y);
+          glow.addColorStop(0, "rgba(255, 230, 138, 0.05)");
+          glow.addColorStop(0.5, "rgba(255, 230, 138, 0.95)");
+          glow.addColorStop(1, "rgba(255, 230, 138, 0.05)");
+          ctx.save();
+          ctx.strokeStyle = "rgba(16, 23, 26, 0.76)";
+          ctx.lineWidth = 10;
+          ctx.beginPath();
+          ctx.moveTo(p0.x, p0.y);
+          ctx.lineTo(p1.x, p1.y);
+          ctx.stroke();
+          ctx.strokeStyle = glow;
+          ctx.lineWidth = 5;
+          ctx.beginPath();
+          ctx.moveTo(p0.x, p0.y);
+          ctx.lineTo(p1.x, p1.y);
+          ctx.stroke();
+          ctx.fillStyle = "rgba(255, 253, 246, 0.9)";
+          ctx.font = `900 ${Math.max(12, width * 0.024)}px "Microsoft YaHei", system-ui, sans-serif`;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "bottom";
+          ctx.fillText("判定线", width / 2, p0.y - 7);
+          ctx.restore();
+        }
+
+        function drawRail(lane) {
+          for (const offset of [-0.18, 0.18]) {
+            ctx.strokeStyle = "#a8b3ac";
+            ctx.lineWidth = Math.max(2, width * 0.007);
+            ctx.beginPath();
+            for (let s = 0; s <= 24; s += 1) {
+              const z = 1700 - s * 72;
+              const p = project(lane + offset, z);
+              if (s === 0) ctx.moveTo(p.x, p.y);
+              else ctx.lineTo(p.x, p.y);
+            }
+            ctx.stroke();
+          }
+        }
+
+        function drawScenery() {
+          const sorted = run.scenery.slice().sort((a, b) => b.z - a.z);
+          for (const item of sorted) {
+            const p = project(item.side * item.offset, item.z);
+            const scale = p.scale;
+            if (scale <= 0.05) continue;
+            if (item.kind === "tree") {
+              ctx.fillStyle = "#6a4628";
+              roundRect(p.x - 8 * scale, p.y - 76 * scale, 16 * scale, 76 * scale, 4 * scale);
+              ctx.fill();
+              ctx.fillStyle = item.side > 0 ? "#2f7a5e" : "#22644f";
+              ctx.beginPath();
+              ctx.moveTo(p.x, p.y - 148 * scale);
+              ctx.lineTo(p.x - 48 * scale, p.y - 48 * scale);
+              ctx.lineTo(p.x + 48 * scale, p.y - 48 * scale);
+              ctx.closePath();
+              ctx.fill();
+              ctx.fillStyle = "#3e9669";
+              ctx.beginPath();
+              ctx.moveTo(p.x, p.y - 190 * scale);
+              ctx.lineTo(p.x - 36 * scale, p.y - 98 * scale);
+              ctx.lineTo(p.x + 36 * scale, p.y - 98 * scale);
+              ctx.closePath();
+              ctx.fill();
+            } else {
+              ctx.strokeStyle = "#354449";
+              ctx.lineWidth = Math.max(2, 8 * scale);
+              ctx.beginPath();
+              ctx.moveTo(p.x, p.y);
+              ctx.lineTo(p.x, p.y - 140 * scale);
+              ctx.stroke();
+              ctx.fillStyle = "#ffe28a";
+              ctx.beginPath();
+              ctx.arc(p.x, p.y - 145 * scale, 18 * scale, 0, Math.PI * 2);
+              ctx.fill();
+            }
+          }
+        }
+
+        function drawItems() {
+          const things = [
+            ...run.coinsList.map((item) => ({ ...item, drawType: "coin" })),
+            ...run.powers.map((item) => ({ ...item, drawType: "power" })),
+            ...run.obstacles.map((item) => ({ ...item, drawType: "obstacle" }))
+          ].sort((a, b) => b.z - a.z);
+
+          for (const item of things) {
+            if (item.drawType === "coin") drawCoin(item);
+            if (item.drawType === "power") drawPower(item);
+            if (item.drawType === "obstacle") drawObstacle(item);
+          }
+        }
+
+        function drawCoin(coin) {
+          const p = project(coin.lane, coin.z);
+          if (p.scale <= 0.04) return;
+          const r = 17 * p.scale;
+          const y = p.y - 70 * p.scale + Math.sin(run.distance * 0.12 + coin.bob) * 8 * p.scale;
+          ctx.save();
+          ctx.translate(p.x, y);
+          ctx.scale(Math.max(0.34, Math.abs(Math.sin(run.distance * 0.12 + coin.bob))), 1);
+          ctx.fillStyle = "#f7cb4c";
+          ctx.beginPath();
+          ctx.arc(0, 0, r, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = "#9b6b18";
+          ctx.lineWidth = Math.max(1, 3 * p.scale);
+          ctx.stroke();
+          ctx.fillStyle = "#fff0a4";
+          ctx.beginPath();
+          ctx.arc(-r * 0.28, -r * 0.32, r * 0.22, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+
+        function drawPower(power) {
+          const p = project(power.lane, power.z);
+          if (p.scale <= 0.04) return;
+          const y = p.y - 86 * p.scale + Math.sin(run.distance * 0.1 + power.bob) * 10 * p.scale;
+          const r = 28 * p.scale;
+          const styles = {
+            magnet: ["#5eb1d5", "M"],
+            shield: ["#78d284", "S"],
+            boost: ["#e06a38", "B"]
+          };
+          const [color, glyph] = styles[power.type];
+          ctx.save();
+          ctx.translate(p.x, y);
+          ctx.rotate(Math.sin(run.distance * 0.05 + power.bob) * 0.16);
+          ctx.fillStyle = "rgba(255, 253, 246, 0.9)";
+          roundRect(-r, -r, r * 2, r * 2, 8 * p.scale);
+          ctx.fill();
+          ctx.fillStyle = color;
+          roundRect(-r * 0.72, -r * 0.72, r * 1.44, r * 1.44, 7 * p.scale);
+          ctx.fill();
+          ctx.fillStyle = "#fffdf4";
+          ctx.font = `900 ${Math.max(12, 28 * p.scale)}px system-ui, sans-serif`;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(glyph, 0, 1);
+          ctx.restore();
+        }
+
+        function drawObstacle(obstacle) {
+          const p = project(obstacle.lane, obstacle.z);
+          if (p.scale <= 0.04) return;
+          const kind = obstacleKinds[obstacle.type];
+          if (obstacle.z < 720 && obstacle.z > -80) drawLaneWarning(obstacle, p, kind);
+          if (obstacle.type === "log") drawLog(p);
+          if (obstacle.type === "gate") drawGate(p);
+          if (obstacle.type === "cart") drawCart(p);
+          if (obstacle.type === "sign") drawSign(p);
+          if (obstacle.z < 900 && obstacle.z > 40) drawActionBadge(obstacle, p, kind);
+        }
+
+        function drawLaneWarning(obstacle, p, kind) {
+          const hit = project(obstacle.lane, judgeZ);
+          const near = 1 - Math.max(0, Math.min(1, obstacle.z / 720));
+          const alpha = 0.16 + near * 0.34;
+          ctx.save();
+          ctx.strokeStyle = withAlpha(kind.color, alpha);
+          ctx.lineWidth = Math.max(8, 26 * p.scale);
+          ctx.lineCap = "round";
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(hit.x, hit.y);
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        function drawActionBadge(obstacle, p, kind) {
+          const seconds = obstacle.z / Math.max(1, run.speed);
+          const urgent = seconds <= actionLead[kind.need];
+          const text = urgent ? kind.cue : kind.label;
+          const y = p.y - (obstacle.type === "gate" ? 186 : 136) * p.scale;
+          const w = Math.max(34, (text.length * 22 + 18) * p.scale);
+          const h = Math.max(22, 32 * p.scale);
+          ctx.save();
+          ctx.fillStyle = urgent ? kind.color : "rgba(255, 253, 246, 0.88)";
+          ctx.strokeStyle = urgent ? "rgba(255, 253, 246, 0.86)" : kind.color;
+          ctx.lineWidth = Math.max(1, 2.5 * p.scale);
+          roundRect(p.x - w / 2, y - h / 2, w, h, 7 * p.scale);
+          ctx.fill();
+          ctx.stroke();
+          ctx.fillStyle = urgent ? "#fffdf4" : "#10171a";
+          ctx.font = `900 ${Math.max(12, 21 * p.scale)}px "Microsoft YaHei", system-ui, sans-serif`;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(text, p.x, y + 1);
+          ctx.restore();
+        }
+
+        function withAlpha(hex, alpha) {
+          const value = hex.replace("#", "");
+          const r = parseInt(value.slice(0, 2), 16);
+          const g = parseInt(value.slice(2, 4), 16);
+          const b = parseInt(value.slice(4, 6), 16);
+          return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+        }
+
+        function drawLog(p) {
+          const w = 108 * p.scale;
+          const h = 52 * p.scale;
+          const y = p.y - h;
+          ctx.fillStyle = "#5a351f";
+          roundRect(p.x - w / 2, y, w, h, 8 * p.scale);
+          ctx.fill();
+          ctx.strokeStyle = "#c08a4c";
+          ctx.lineWidth = Math.max(1, 5 * p.scale);
+          for (let i = -1; i <= 1; i += 1) {
+            ctx.beginPath();
+            ctx.moveTo(p.x - w * 0.38, y + h * (0.32 + i * 0.18));
+            ctx.lineTo(p.x + w * 0.38, y + h * (0.26 + i * 0.18));
+            ctx.stroke();
+          }
+          ctx.fillStyle = "#8c542e";
+          ctx.beginPath();
+          ctx.arc(p.x - w / 2, y + h / 2, h * 0.48, 0, Math.PI * 2);
+          ctx.arc(p.x + w / 2, y + h / 2, h * 0.48, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        function drawGate(p) {
+          const w = 126 * p.scale;
+          const h = 154 * p.scale;
+          const leg = 16 * p.scale;
+          const y = p.y - h;
+          ctx.fillStyle = "#355d35";
+          roundRect(p.x - w / 2, y, leg, h, 5 * p.scale);
+          ctx.fill();
+          roundRect(p.x + w / 2 - leg, y, leg, h, 5 * p.scale);
+          ctx.fill();
+          ctx.fillStyle = "#477b3d";
+          roundRect(p.x - w / 2, y, w, 42 * p.scale, 8 * p.scale);
+          ctx.fill();
+          ctx.fillStyle = "#e9d47b";
+          ctx.beginPath();
+          ctx.moveTo(p.x - 17 * p.scale, y + 18 * p.scale);
+          ctx.lineTo(p.x, y + 32 * p.scale);
+          ctx.lineTo(p.x + 17 * p.scale, y + 18 * p.scale);
+          ctx.lineTo(p.x, y + 8 * p.scale);
+          ctx.closePath();
+          ctx.fill();
+        }
+
+        function drawCart(p) {
+          const w = 118 * p.scale;
+          const h = 122 * p.scale;
+          const y = p.y - h;
+          ctx.fillStyle = "#34434a";
+          roundRect(p.x - w / 2, y, w, h, 8 * p.scale);
+          ctx.fill();
+          ctx.fillStyle = "#53656d";
+          roundRect(p.x - w * 0.38, y + 14 * p.scale, w * 0.76, h * 0.48, 6 * p.scale);
+          ctx.fill();
+          ctx.fillStyle = "#1e292e";
+          ctx.beginPath();
+          ctx.arc(p.x - w * 0.32, p.y - 8 * p.scale, 16 * p.scale, 0, Math.PI * 2);
+          ctx.arc(p.x + w * 0.32, p.y - 8 * p.scale, 16 * p.scale, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = "#f0c96b";
+          ctx.fillRect(p.x - w * 0.36, y + h * 0.18, w * 0.72, 8 * p.scale);
+        }
+
+        function drawSign(p) {
+          const w = 92 * p.scale;
+          const h = 112 * p.scale;
+          const y = p.y - h;
+          ctx.fillStyle = "#37474e";
+          roundRect(p.x - 7 * p.scale, y + 36 * p.scale, 14 * p.scale, h, 4 * p.scale);
+          ctx.fill();
+          ctx.fillStyle = "#b8463f";
+          roundRect(p.x - w / 2, y, w, 48 * p.scale, 7 * p.scale);
+          ctx.fill();
+          ctx.fillStyle = "#fffdf4";
+          ctx.beginPath();
+          ctx.moveTo(p.x - 22 * p.scale, y + 24 * p.scale);
+          ctx.lineTo(p.x + 6 * p.scale, y + 10 * p.scale);
+          ctx.lineTo(p.x + 6 * p.scale, y + 20 * p.scale);
+          ctx.lineTo(p.x + 24 * p.scale, y + 20 * p.scale);
+          ctx.lineTo(p.x + 24 * p.scale, y + 30 * p.scale);
+          ctx.lineTo(p.x + 6 * p.scale, y + 30 * p.scale);
+          ctx.lineTo(p.x + 6 * p.scale, y + 40 * p.scale);
+          ctx.closePath();
+          ctx.fill();
+        }
+
+        function drawPlayer() {
+          const base = project(player.xLane, 0);
+          const skin = skins[selectedSkin];
+          const scale = Math.max(0.92, Math.min(1.12, width / 560));
+          const y = base.y - 26 - player.jumpY;
+          const x = base.x;
+          const bob = Math.sin(player.bob) * 5;
+          const slideSquash = player.slide > 0 ? 0.62 : 1;
+          const shield = run.shield > 0 || player.blink > 0;
+
+          ctx.save();
+          ctx.translate(x, y + bob);
+          ctx.scale(scale, scale * slideSquash);
+          if (player.blink > 0 && Math.floor(player.blink * 18) % 2 === 0) {
+            ctx.globalAlpha = 0.45;
+          }
+
+          if (shield) {
+            ctx.strokeStyle = run.boost > 0 ? "rgba(224, 106, 56, 0.9)" : "rgba(120, 210, 132, 0.86)";
+            ctx.lineWidth = 5;
+            ctx.beginPath();
+            ctx.ellipse(0, -44, 54, 72, 0, 0, Math.PI * 2);
+            ctx.stroke();
+          }
+
+          ctx.fillStyle = "rgba(0, 0, 0, 0.24)";
+          ctx.beginPath();
+          ctx.ellipse(0, 46 / slideSquash, 44, 12 / slideSquash, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = skin.body;
+          ctx.beginPath();
+          ctx.ellipse(0, -28, 31, 39, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = skin.belly;
+          ctx.beginPath();
+          ctx.ellipse(0, -17, 18, 23, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = skin.body;
+          ctx.beginPath();
+          ctx.arc(-20, -66, 13, 0, Math.PI * 2);
+          ctx.arc(20, -66, 13, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = skin.body;
+          ctx.beginPath();
+          ctx.ellipse(0, -55, 33, 29, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = skin.cap;
+          roundRect(-26, -83, 52, 14, 6);
+          ctx.fill();
+          ctx.beginPath();
+          ctx.arc(0, -83, 19, Math.PI, 0);
+          ctx.fill();
+
+          ctx.fillStyle = "#10171a";
+          ctx.beginPath();
+          ctx.arc(-11, -58, 4.5, 0, Math.PI * 2);
+          ctx.arc(11, -58, 4.5, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.strokeStyle = skin.trim;
+          ctx.lineWidth = 4;
+          ctx.lineCap = "round";
+          ctx.beginPath();
+          ctx.moveTo(-9, -43);
+          ctx.quadraticCurveTo(0, -36, 10, -43);
+          ctx.stroke();
+
+          ctx.strokeStyle = skin.trim;
+          ctx.lineWidth = 7;
+          ctx.beginPath();
+          ctx.moveTo(-26, -21);
+          ctx.lineTo(-42, -3 + Math.sin(player.bob) * 5);
+          ctx.moveTo(26, -21);
+          ctx.lineTo(42, -3 - Math.sin(player.bob) * 5);
+          ctx.stroke();
+
+          ctx.strokeStyle = skin.trim;
+          ctx.lineWidth = 8;
+          ctx.beginPath();
+          ctx.moveTo(-13, 5);
+          ctx.lineTo(-23, 37 + Math.cos(player.bob) * 6);
+          ctx.moveTo(13, 5);
+          ctx.lineTo(23, 37 - Math.cos(player.bob) * 6);
+          ctx.stroke();
+
+          ctx.restore();
+        }
+
+        function drawParticles() {
+          for (const p of run.particles) {
+            ctx.globalAlpha = Math.max(0, Math.min(1, p.life * 2));
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.globalAlpha = 1;
+        }
+
+        function drawVignette() {
+          const gradient = ctx.createRadialGradient(width / 2, height * 0.45, width * 0.25, width / 2, height * 0.5, width * 0.75);
+          gradient.addColorStop(0, "rgba(0, 0, 0, 0)");
+          gradient.addColorStop(1, "rgba(0, 0, 0, 0.38)");
+          ctx.fillStyle = gradient;
+          ctx.fillRect(0, 0, width, height);
+        }
+
+        function project(lane, z) {
+          const depth = 1720;
+          const t = Math.max(0, Math.min(1, 1 - z / depth));
+          const eased = Math.pow(t, 1.62);
+          const horizonY = height * 0.27;
+          const bottomY = height * 0.82;
+          const y = horizonY + (bottomY - horizonY) * eased;
+          const laneGap = width * (0.032 + 0.205 * eased);
+          return {
+            x: width / 2 + lane * laneGap,
+            y,
+            scale: 0.12 + 1.08 * eased,
+            t: eased
+          };
+        }
+
+        function roundRect(x, y, w, h, r) {
+          const radius = Math.min(r, Math.abs(w) / 2, Math.abs(h) / 2);
+          ctx.beginPath();
+          ctx.moveTo(x + radius, y);
+          ctx.arcTo(x + w, y, x + w, y + h, radius);
+          ctx.arcTo(x + w, y + h, x, y + h, radius);
+          ctx.arcTo(x, y + h, x, y, radius);
+          ctx.arcTo(x, y, x + w, y, radius);
+          ctx.closePath();
+        }
+
+        function updateAllUi() {
+          ui.distanceText.textContent = `${Math.floor(run.distance)}m`;
+          ui.coinText.textContent = String(run.coins);
+          ui.speedText.textContent = `${(run.speed / 500).toFixed(1)}x`;
+          ui.bestText.textContent = `${Math.floor(records.bestDistance)}m`;
+          ui.recordDistance.textContent = `${Math.floor(records.bestDistance)}m`;
+          ui.recordScore.textContent = String(Math.floor(records.bestScore));
+          ui.recordTotalCoins.textContent = String(Math.floor(records.totalCoins));
+          updatePowerChip(ui.magnetChip, run.magnet);
+          updatePowerChip(ui.shieldChip, run.shield);
+          updatePowerChip(ui.boostChip, run.boost);
+          updateActionCue();
+          renderMissions();
+        }
+
+        function updatePowerChip(chip, value) {
+          chip.classList.toggle("active", value > 0);
+          chip.querySelector("span").textContent = Math.ceil(value);
+        }
+
+        function updateActionCue() {
+          const threat = getIncomingThreat();
+          ui.actionCue.className = "action-cue";
+          if (!threat || state !== "running") {
+            ui.actionCue.textContent = "看线躲避";
+            return;
+          }
+
+          const kind = obstacleKinds[threat.type];
+          const seconds = Math.max(0, threat.z / Math.max(1, run.speed));
+          if (seconds > actionLead[kind.need]) {
+            ui.actionCue.textContent = "看线躲避";
+            return;
+          }
+
+          ui.actionCue.classList.add("active", kind.need);
+          if (kind.need === "jump") ui.actionCue.textContent = `跳过 ${kind.label}`;
+          if (kind.need === "slide") ui.actionCue.textContent = `下滑过 ${kind.label}`;
+          if (kind.need === "dodge") ui.actionCue.textContent = `换道躲 ${kind.label}`;
+        }
+
+        function getIncomingThreat() {
+          let best = null;
+          for (const obstacle of run.obstacles) {
+            if (obstacle.hit || obstacle.judged || obstacle.z < -40 || obstacle.z > 900) continue;
+            if (Math.abs(obstacle.lane - player.lane) > 0.36) continue;
+            if (!best || obstacle.z < best.z) best = obstacle;
+          }
+          return best;
+        }
+
+        function renderMissions() {
+          ui.missionList.innerHTML = "";
+          for (const mission of missions) {
+            const value = Math.min(mission.target, mission.value());
+            const item = document.createElement("div");
+            item.className = "mission";
+            item.innerHTML = `
+              <div class="mission-icon">${mission.icon}</div>
+              <div>
+                <strong>${mission.title}</strong>
+                <meter min="0" max="${mission.target}" value="${value}"></meter>
+              </div>
+              <b>${Math.floor(value)}</b>
+            `;
+            ui.missionList.appendChild(item);
+          }
+        }
+
+        function ensureAudio() {
+          if (!audioCtx) {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (AudioContext) audioCtx = new AudioContext();
+          }
+          if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+        }
+
+        function beep(frequency, duration, type, gainValue, delay = 0) {
+          if (muted || !audioCtx) return;
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          const start = audioCtx.currentTime + delay;
+          osc.type = type;
+          osc.frequency.setValueAtTime(frequency, start);
+          gain.gain.setValueAtTime(0, start);
+          gain.gain.linearRampToValueAtTime(gainValue, start + 0.01);
+          gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(start);
+          osc.stop(start + duration + 0.02);
+        }
+
+        function copyReport() {
+          const text = `我在《松果快跑》跑了 ${Math.floor(run.distance)}m，收集 ${run.coins} 颗松果，分数 ${Math.floor(run.score)}。`;
+          const done = () => {
+            ui.statusLine.textContent = "战报已复制。";
+          };
+          if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+          } else {
+            fallbackCopy(text, done);
+          }
+        }
+
+        function fallbackCopy(text, done) {
+          const input = document.createElement("textarea");
+          input.value = text;
+          input.setAttribute("readonly", "");
+          input.style.position = "fixed";
+          input.style.left = "-999px";
+          document.body.appendChild(input);
+          input.select();
+          try {
+            document.execCommand("copy");
+            done();
+          } catch (error) {
+            ui.statusLine.textContent = text;
+          } finally {
+            input.remove();
+          }
+        }
+
+        function bindEvents() {
+          window.addEventListener("resize", resizeCanvas);
+          document.addEventListener("keydown", (event) => {
+            if (event.repeat) return;
+            const key = event.key.toLowerCase();
+            if (["arrowleft", "a"].includes(key)) {
+              event.preventDefault();
+              laneChange(-1);
+            } else if (["arrowright", "d"].includes(key)) {
+              event.preventDefault();
+              laneChange(1);
+            } else if (["arrowup", "w"].includes(key)) {
+              event.preventDefault();
+              jump();
+            } else if (["arrowdown", "s"].includes(key)) {
+              event.preventDefault();
+              slide();
+            } else if (key === " " || key === "enter") {
+              event.preventDefault();
+              if (state === "paused") resumeGame();
+              else if (state === "running") jump();
+              else startGame();
+            } else if (key === "p") {
+              event.preventDefault();
+              state === "paused" ? resumeGame() : pauseGame();
+            }
+          });
+
+          ui.startTop.addEventListener("click", startGame);
+          ui.startButton.addEventListener("click", startGame);
+          ui.pauseTop.addEventListener("click", () => (state === "paused" ? resumeGame() : pauseGame()));
+          ui.resumeButton.addEventListener("click", resumeGame);
+          ui.restartPauseButton.addEventListener("click", startGame);
+          ui.restartButton.addEventListener("click", startGame);
+          ui.copyButton.addEventListener("click", copyReport);
+          ui.copyResultButton.addEventListener("click", copyReport);
+          ui.muteTop.addEventListener("click", () => {
+            muted = !muted;
+            ui.muteTop.textContent = muted ? "×" : "♪";
+            ui.statusLine.textContent = muted ? "音效已关闭。" : "音效已开启。";
+            ensureAudio();
+          });
+
+          ui.leftButton.addEventListener("pointerdown", (event) => {
+            event.preventDefault();
+            laneChange(-1);
+          });
+          ui.rightButton.addEventListener("pointerdown", (event) => {
+            event.preventDefault();
+            laneChange(1);
+          });
+          ui.jumpButton.addEventListener("pointerdown", (event) => {
+            event.preventDefault();
+            jump();
+          });
+          ui.downButton.addEventListener("pointerdown", (event) => {
+            event.preventDefault();
+            slide();
+          });
+
+          panel.addEventListener("pointerdown", (event) => {
+            ensureAudio();
+            swipeStart = { x: event.clientX, y: event.clientY, time: performance.now() };
+          });
+          panel.addEventListener("pointerup", (event) => {
+            if (!swipeStart) return;
+            const dx = event.clientX - swipeStart.x;
+            const dy = event.clientY - swipeStart.y;
+            const absX = Math.abs(dx);
+            const absY = Math.abs(dy);
+            if (Math.max(absX, absY) < 24 && performance.now() - swipeStart.time < 260) {
+              jump();
+            } else if (absX > absY) {
+              laneChange(dx > 0 ? 1 : -1);
+            } else if (dy < 0) {
+              jump();
+            } else {
+              slide();
+            }
+            swipeStart = null;
+          });
+
+          document.querySelectorAll(".skin-button").forEach((button) => {
+            button.addEventListener("click", () => {
+              selectedSkin = button.dataset.skin;
+              document.querySelectorAll(".skin-button").forEach((item) => item.classList.toggle("active", item === button));
+              ui.statusLine.textContent = `${skins[selectedSkin].glyph} 已上场。`;
+            });
+          });
+        }
+
+        bindEvents();
+        resizeCanvas();
+        spawnOpening();
+        updateAllUi();
+        rafId = requestAnimationFrame(update);
+        window.addEventListener("beforeunload", () => cancelAnimationFrame(rafId));
+      })();
+    </script>
+  </body>
+</html>
