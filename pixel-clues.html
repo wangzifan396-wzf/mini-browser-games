@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>像素谜格</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23131b20'/%3E%3Cpath d='M14 14h36v36H14z' fill='%23fff4d8'/%3E%3Cpath d='M14 26h36M14 38h36M26 14v36M38 14v36' stroke='%23131b20' stroke-width='4'/%3E%3Cpath d='M27 27h10v10H27z' fill='%23287468'/%3E%3C/svg%3E">
+    <style>
+      :root { --ink:#10191f; --panel:#fffdf4; --line:#87989e; --teal:#287468; --gold:#d6a33d; --red:#bd5148; --shadow:rgba(5,12,16,.28); --radius:8px; }
+      *{box-sizing:border-box}
+      body{margin:0;min-height:100vh;color:var(--ink);font-family:"Microsoft YaHei","PingFang SC","Noto Sans SC",system-ui,sans-serif;background:linear-gradient(rgba(255,255,245,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,245,.06) 1px,transparent 1px),linear-gradient(135deg,#101d23,#17383b 46%,#433952);background-size:30px 30px,30px 30px,auto}
+      button{font:inherit}.app{width:min(1380px,calc(100vw - 28px));margin:14px auto}.topbar,.panel{border:1px solid var(--line);border-radius:var(--radius);background:rgba(255,253,244,.97);box-shadow:0 16px 36px var(--shadow)}
+      .topbar{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:16px 20px}.eyebrow{margin:0 0 5px;color:#856219;font-size:12px;font-weight:900}h1{margin:0;font-size:clamp(26px,4vw,44px);line-height:1}.actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}.btn{min-height:42px;padding:0 14px;border:1px solid #24534d;border-radius:var(--radius);color:#fffdf6;background:var(--teal);font-weight:900;cursor:pointer}.btn.secondary{color:var(--ink);background:#f0d17b;border-color:#9c7621}
+      .layout{display:grid;grid-template-columns:minmax(0,1fr) 316px;gap:14px;margin-top:14px;align-items:start}.stage{position:relative;overflow:hidden;min-height:620px}canvas{display:block;width:100%;height:620px;touch-action:none}.side{padding:16px}.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}.stat{padding:10px;border:1px solid #9da69e;border-radius:var(--radius);background:#f9f7eb}.stat b{display:block;font-size:24px;line-height:1.1}.stat small{color:#5e6d67;font-weight:800}
+      .tools{display:grid;grid-template-columns:1fr 1fr;gap:9px}.tools button{min-height:54px;border:1px solid #778981;border-radius:var(--radius);background:#fff8e6;color:var(--ink);font-weight:900;cursor:pointer}.tools button.active{background:var(--teal);color:#fffdf6}.hint{margin:14px 0 0;color:#566861;line-height:1.55;font-weight:700}
+      .overlay{position:absolute;inset:0;display:grid;place-items:center;padding:24px;background:rgba(16,28,31,.52)}.modal{width:min(460px,100%);padding:22px;border:1px solid #a4b4ad;border-radius:var(--radius);background:#fffdf6;box-shadow:0 24px 52px rgba(0,0,0,.32)}.modal h2{margin:0 0 10px;font-size:28px}.modal p{margin:0 0 16px;color:#53635f;line-height:1.6}.hidden{display:none}
+      @media(max-width:940px){.layout{grid-template-columns:1fr}.side{order:-1}.stage{min-height:540px}canvas{height:540px}}@media(max-width:620px){.app{width:min(100vw - 16px,1380px);margin-top:8px}.topbar{display:block;padding:14px}.actions{margin-top:12px;justify-content:stretch}.btn{flex:1 1 auto}.stage{min-height:500px}canvas{height:500px}}
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <header class="topbar"><div><p class="eyebrow">NONOGRAM PUZZLE</p><h1>像素谜格</h1></div><div class="actions"><button class="btn" id="startBtn">开始</button><button class="btn secondary" id="checkBtn">检查</button><button class="btn secondary" id="resetBtn">重开</button></div></header>
+      <section class="layout">
+        <div class="panel stage"><canvas id="gameCanvas" aria-label="像素谜格棋盘"></canvas><div class="overlay" id="overlay"><div class="modal"><h2 id="overlayTitle">点亮隐藏像素</h2><p id="overlayText">根据行列数字填黑格。数字表示连续黑格长度，右键或叉号模式可标记空格。</p><button class="btn" id="overlayBtn">开始解谜</button></div></div></div>
+        <aside class="panel side">
+          <div class="stats"><div class="stat"><b id="levelText">1</b><small>关卡</small></div><div class="stat"><b id="movesText">0</b><small>操作</small></div><div class="stat"><b id="mistakeText">0</b><small>错误</small></div><div class="stat"><b id="bestText">--</b><small>最佳</small></div></div>
+          <div class="tools"><button data-tool="fill" class="active">填黑</button><button data-tool="mark">画叉</button><button data-tool="erase">擦除</button><button id="nextBtn">下一题</button></div>
+          <p class="hint" id="hintText">左键按当前工具操作；右键可快速画叉。完成后会自动判定。</p>
+        </aside>
+      </section>
+    </main>
+    <script>
+      (() => {
+        const canvas=document.getElementById("gameCanvas"),ctx=canvas.getContext("2d"),overlay=document.getElementById("overlay"),overlayTitle=document.getElementById("overlayTitle"),overlayText=document.getElementById("overlayText"),overlayBtn=document.getElementById("overlayBtn");
+        const startBtn=document.getElementById("startBtn"),resetBtn=document.getElementById("resetBtn"),checkBtn=document.getElementById("checkBtn"),nextBtn=document.getElementById("nextBtn"),levelText=document.getElementById("levelText"),movesText=document.getElementById("movesText"),mistakeText=document.getElementById("mistakeText"),bestText=document.getElementById("bestText"),hintText=document.getElementById("hintText");
+        const storageKey="miniPixelCluesRecords";
+        const puzzles=[
+          {name:"小帆船",grid:["00100","01110","11111","00100","01110"]},
+          {name:"钥匙",grid:["01100","10010","01100","00100","00111"]},
+          {name:"山月",grid:["00100","01110","10101","11111","01010"]},
+          {name:"小屋",grid:["00100","01110","11111","10101","11111"]},
+          {name:"星灯",grid:["00100","10101","01110","10101","00100"]}
+        ];
+        let w=900,h=620,dpr=1,tool="fill",state=makeState(0);
+        function records(){try{return JSON.parse(localStorage.getItem(storageKey)||"{}");}catch(e){return{};}}
+        function save(level,moves){const r=records(),k=`p${level}`;if(!r[k]||moves<r[k])r[k]=moves;localStorage.setItem(storageKey,JSON.stringify(r));return r[k];}
+        function makeState(index){const p=puzzles[index];return{mode:"menu",index,moves:0,mistakes:0,cells:p.grid.map(row=>row.split("").map(()=>0)),solved:false};}
+        function solution(){return puzzles[state.index].grid.map(r=>r.split("").map(Number));}
+        function resize(){const rect=canvas.getBoundingClientRect();dpr=Math.max(1,Math.min(2,window.devicePixelRatio||1));w=Math.max(320,rect.width);h=Math.max(480,rect.height);canvas.width=Math.floor(w*dpr);canvas.height=Math.floor(h*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);draw();}
+        function start(index=state.index){state=makeState(index);state.mode="playing";overlay.classList.add("hidden");updateHud();draw();}
+        function clues(lines){return lines.map(line=>{const out=[];let run=0;for(const v of line){if(v)run++;else if(run){out.push(run);run=0;}}if(run)out.push(run);return out.length?out:[0];});}
+        function rowClues(){return clues(solution());}
+        function colClues(){const sol=solution(),cols=sol[0].length;const lines=[];for(let x=0;x<cols;x++){lines.push(sol.map(row=>row[x]));}return clues(lines);}
+        function metrics(){const rows=solution().length,cols=solution()[0].length;const clue=96;const size=Math.floor(Math.min((w-54-clue)/cols,(h-64-clue)/rows));return{size,clue,x:Math.floor((w-(cols*size+clue))/2),y:Math.floor((h-(rows*size+clue))/2)+10};}
+        function setCell(x,y,value){if(state.mode!=="playing")return;const sol=solution();if(x<0||y<0||y>=sol.length||x>=sol[0].length)return;if(state.cells[y][x]===value)return;state.cells[y][x]=value;state.moves++;autoCheck(false);updateHud();draw();}
+        function autoCheck(show){const sol=solution();let complete=true,mistakes=0;for(let y=0;y<sol.length;y++){for(let x=0;x<sol[y].length;x++){if(state.cells[y][x]===1&&sol[y][x]!==1)mistakes++;if(sol[y][x]===1&&state.cells[y][x]!==1)complete=false;}}state.mistakes=mistakes;if(show&&mistakes>0){hintText.textContent=`还有 ${mistakes} 个黑格填错了。`;}if(complete&&mistakes===0){state.solved=true;state.mode="solved";const best=save(state.index,state.moves);overlayTitle.textContent="图案完成";overlayText.textContent=`${puzzles[state.index].name} 用了 ${state.moves} 步，最佳 ${best} 步。`;overlayBtn.textContent=state.index+1<puzzles.length?"下一题":"从第一题开始";overlay.classList.remove("hidden");}updateHud();}
+        function rr(x,y,width,height,r,fill,stroke){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+width,y,x+width,y+height,r);ctx.arcTo(x+width,y+height,x,y+height,r);ctx.arcTo(x,y+height,x,y,r);ctx.arcTo(x,y,x+width,y,r);if(fill){ctx.fillStyle=fill;ctx.fill();}if(stroke){ctx.strokeStyle=stroke;ctx.stroke();}}
+        function draw(){ctx.clearRect(0,0,w,h);const g=ctx.createLinearGradient(0,0,0,h);g.addColorStop(0,"#fff8e8");g.addColorStop(.58,"#eef7ee");g.addColorStop(1,"#d9d1b0");ctx.fillStyle=g;ctx.fillRect(0,0,w,h);const sol=solution(),rows=sol.length,cols=sol[0].length,m=metrics();rr(m.x-14,m.y-14,cols*m.size+m.clue+28,rows*m.size+m.clue+28,8,"rgba(17,25,31,.9)","#87989e");
+          const rowsC=rowClues(),colsC=colClues();ctx.fillStyle="#fffdf4";ctx.fillRect(m.x+m.clue,m.y+m.clue,cols*m.size,rows*m.size);ctx.font=`900 ${Math.max(14,m.size*.28)}px system-ui`;ctx.textAlign="right";ctx.textBaseline="middle";for(let y=0;y<rows;y++){ctx.fillStyle="#fff8e6";ctx.fillRect(m.x,m.y+m.clue+y*m.size,m.clue,m.size-1);ctx.fillStyle="#10191f";ctx.fillText(rowsC[y].join(" "),m.x+m.clue-10,m.y+m.clue+y*m.size+m.size/2);}ctx.textAlign="center";for(let x=0;x<cols;x++){ctx.fillStyle="#fff8e6";ctx.fillRect(m.x+m.clue+x*m.size,m.y,m.size-1,m.clue);ctx.fillStyle="#10191f";colsC[x].forEach((n,i)=>ctx.fillText(n,m.x+m.clue+x*m.size+m.size/2,m.y+m.clue-12-(colsC[x].length-1-i)*20));}
+          for(let y=0;y<rows;y++){for(let x=0;x<cols;x++){const px=m.x+m.clue+x*m.size,py=m.y+m.clue+y*m.size;ctx.fillStyle=(x+y)%2?"#f4eed8":"#fff9e8";ctx.fillRect(px,py,m.size-1,m.size-1);const v=state.cells[y][x];if(v===1){ctx.fillStyle="#287468";ctx.fillRect(px+5,py+5,m.size-10,m.size-10);}else if(v===2){ctx.strokeStyle="#bd5148";ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(px+8,py+8);ctx.lineTo(px+m.size-8,py+m.size-8);ctx.moveTo(px+m.size-8,py+8);ctx.lineTo(px+8,py+m.size-8);ctx.stroke();}}}
+          ctx.fillStyle="#10191f";ctx.font="900 20px system-ui";ctx.textAlign="left";ctx.fillText(puzzles[state.index].name,22,34);}
+        function updateHud(){const r=records(),best=r[`p${state.index}`];levelText.textContent=`${state.index+1}/${puzzles.length}`;movesText.textContent=state.moves.toString();mistakeText.textContent=state.mistakes.toString();bestText.textContent=best?best.toString():"--";document.querySelectorAll("[data-tool]").forEach(b=>b.classList.toggle("active",b.dataset.tool===tool));}
+        function cellFromEvent(e){const rect=canvas.getBoundingClientRect(),m=metrics();return{x:Math.floor((e.clientX-rect.left-m.x-m.clue)/m.size),y:Math.floor((e.clientY-rect.top-m.y-m.clue)/m.size)};}
+        canvas.addEventListener("contextmenu",e=>e.preventDefault());canvas.addEventListener("pointerdown",e=>{const c=cellFromEvent(e);const value=e.button===2?2:tool==="fill"?1:tool==="mark"?2:0;setCell(c.x,c.y,value);});
+        document.querySelectorAll("[data-tool]").forEach(b=>b.addEventListener("click",()=>{tool=b.dataset.tool;updateHud();}));startBtn.addEventListener("click",()=>start(0));resetBtn.addEventListener("click",()=>start(state.index));checkBtn.addEventListener("click",()=>autoCheck(true));nextBtn.addEventListener("click",()=>start((state.index+1)%puzzles.length));overlayBtn.addEventListener("click",()=>start(state.mode==="solved"?(state.index+1)%puzzles.length:state.index));
+        document.addEventListener("keydown",e=>{if(e.code==="Digit1")tool="fill";if(e.code==="Digit2")tool="mark";if(e.code==="Digit3")tool="erase";if(e.code==="KeyR")start(state.index);updateHud();});
+        window.addEventListener("resize",resize);resize();updateHud();draw();
+      })();
+    </script>
+  </body>
+</html>

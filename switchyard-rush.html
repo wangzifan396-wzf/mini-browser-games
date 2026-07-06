@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>道岔快线</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23131b20'/%3E%3Cpath d='M12 46h40M12 20h17c13 0 13 26 23 26' fill='none' stroke='%23f1d16f' stroke-width='7' stroke-linecap='round'/%3E%3Cpath d='M19 14v38M45 14v38' stroke='%238bd0bb' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
+    <style>
+      :root {
+        --ink: #11191f;
+        --panel: #fffdf4;
+        --line: #87979d;
+        --teal: #287468;
+        --gold: #d6a33d;
+        --red: #bd5148;
+        --blue: #326d91;
+        --shadow: rgba(5, 12, 16, .28);
+        --radius: 8px;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--ink);
+        font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+        background:
+          linear-gradient(rgba(255,255,245,.06) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255,255,245,.06) 1px, transparent 1px),
+          linear-gradient(135deg, #101d23, #18363d 46%, #433952);
+        background-size: 30px 30px, 30px 30px, auto;
+      }
+      button { font: inherit; }
+      .app { width: min(1380px, calc(100vw - 28px)); margin: 14px auto; }
+      .topbar, .panel {
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: rgba(255,253,244,.97);
+        box-shadow: 0 16px 36px var(--shadow);
+      }
+      .topbar { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 16px 20px; }
+      .eyebrow { margin: 0 0 5px; color: #876318; font-size: 12px; font-weight: 900; }
+      h1 { margin: 0; font-size: clamp(26px, 4vw, 44px); line-height: 1; }
+      .actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+      .btn { min-height: 42px; padding: 0 14px; border: 1px solid #24534d; border-radius: var(--radius); color: #fffdf6; background: var(--teal); font-weight: 900; cursor: pointer; }
+      .btn.secondary { color: var(--ink); background: #f0d17b; border-color: #9c7621; }
+      .layout { display: grid; grid-template-columns: minmax(0, 1fr) 310px; gap: 14px; margin-top: 14px; align-items: start; }
+      .stage { position: relative; overflow: hidden; min-height: 620px; }
+      canvas { display: block; width: 100%; height: 620px; touch-action: none; }
+      .side { padding: 16px; }
+      .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+      .stat { padding: 10px; border: 1px solid #9da69e; border-radius: var(--radius); background: #f9f7eb; }
+      .stat b { display: block; font-size: 24px; line-height: 1.1; }
+      .stat small { color: #5f6d67; font-weight: 800; }
+      .switches { display: grid; gap: 9px; }
+      .switches button { min-height: 52px; border: 1px solid #788981; border-radius: var(--radius); background: #fff8e6; color: var(--ink); font-weight: 900; cursor: pointer; }
+      .switches button.on { color: #fffdf6; background: var(--teal); }
+      .hint { margin: 14px 0 0; color: #566861; line-height: 1.55; font-weight: 700; }
+      .overlay { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; background: rgba(16,28,31,.52); }
+      .modal { width: min(460px, 100%); padding: 22px; border: 1px solid #a4b4ad; border-radius: var(--radius); background: #fffdf6; box-shadow: 0 24px 52px rgba(0,0,0,.32); }
+      .modal h2 { margin: 0 0 10px; font-size: 28px; }
+      .modal p { margin: 0 0 16px; color: #53635f; line-height: 1.6; }
+      .hidden { display: none; }
+      @media (max-width: 940px) { .layout { grid-template-columns: 1fr; } .side { order: -1; } .stage { min-height: 540px; } canvas { height: 540px; } }
+      @media (max-width: 620px) { .app { width: min(100vw - 16px, 1380px); margin-top: 8px; } .topbar { display: block; padding: 14px; } .actions { margin-top: 12px; justify-content: stretch; } .btn { flex: 1 1 auto; } .stage { min-height: 500px; } canvas { height: 500px; } }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">RAIL DISPATCH</p>
+          <h1>道岔快线</h1>
+        </div>
+        <div class="actions">
+          <button class="btn" id="startBtn">发车</button>
+          <button class="btn secondary" id="pauseBtn">暂停</button>
+          <button class="btn secondary" id="resetBtn">重开</button>
+        </div>
+      </header>
+      <section class="layout">
+        <div class="panel stage">
+          <canvas id="gameCanvas" aria-label="道岔快线游戏画面"></canvas>
+          <div class="overlay" id="overlay">
+            <div class="modal">
+              <h2 id="overlayTitle">调度早高峰</h2>
+              <p id="overlayText">切换道岔，让列车进入同色站台。两车距离太近会追尾，错站会扣分。</p>
+              <button class="btn" id="overlayBtn">开始调度</button>
+            </div>
+          </div>
+        </div>
+        <aside class="panel side">
+          <div class="stats">
+            <div class="stat"><b id="scoreText">0</b><small>分数</small></div>
+            <div class="stat"><b id="deliveredText">0</b><small>到站</small></div>
+            <div class="stat"><b id="strikeText">0/3</b><small>事故</small></div>
+            <div class="stat"><b id="bestText">0</b><small>最佳</small></div>
+          </div>
+          <div class="switches" id="switchButtons"></div>
+          <p class="hint" id="hintText">点击画面中的道岔或用 1/2/3 键切换。红、蓝、绿车分别要进对应颜色站台。</p>
+        </aside>
+      </section>
+    </main>
+
+    <script>
+      (() => {
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const overlay = document.getElementById("overlay");
+        const overlayTitle = document.getElementById("overlayTitle");
+        const overlayText = document.getElementById("overlayText");
+        const overlayBtn = document.getElementById("overlayBtn");
+        const startBtn = document.getElementById("startBtn");
+        const pauseBtn = document.getElementById("pauseBtn");
+        const resetBtn = document.getElementById("resetBtn");
+        const switchButtons = document.getElementById("switchButtons");
+        const scoreText = document.getElementById("scoreText");
+        const deliveredText = document.getElementById("deliveredText");
+        const strikeText = document.getElementById("strikeText");
+        const bestText = document.getElementById("bestText");
+        const storageKey = "miniSwitchyardRushRecords";
+        const colors = {
+          red: { name: "红线", fill: "#bd5148", stop: 0 },
+          blue: { name: "蓝线", fill: "#326d91", stop: 1 },
+          green: { name: "绿线", fill: "#287468", stop: 2 }
+        };
+        let w = 900, h = 620, dpr = 1, lastFrame = 0, loopToken = 0;
+        let state = makeState();
+
+        function loadBest() { try { return JSON.parse(localStorage.getItem(storageKey) || "{}").best || 0; } catch (e) { return 0; } }
+        function saveBest(score) { const best = Math.max(loadBest(), score); localStorage.setItem(storageKey, JSON.stringify({ best })); return best; }
+        function makeState() {
+          return {
+            mode: "menu",
+            time: 0,
+            nextTrain: 600,
+            score: 0,
+            delivered: 0,
+            strikes: 0,
+            best: loadBest(),
+            switches: [0, 1, 0],
+            trains: [],
+            particles: []
+          };
+        }
+
+        function resizeCanvas() {
+          const rect = canvas.getBoundingClientRect();
+          dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+          w = Math.max(320, rect.width);
+          h = Math.max(480, rect.height);
+          canvas.width = Math.floor(w * dpr);
+          canvas.height = Math.floor(h * dpr);
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          draw();
+        }
+
+        function startGame() {
+          loopToken += 1;
+          state = makeState();
+          state.mode = "running";
+          overlay.classList.add("hidden");
+          lastFrame = performance.now();
+          buildSwitchButtons();
+          updateHud();
+          requestAnimationFrame((time) => loop(time, loopToken));
+        }
+
+        function togglePause() {
+          if (state.mode === "running") {
+            state.mode = "paused";
+            overlayTitle.textContent = "暂停调度";
+            overlayText.textContent = "站台广播先静音，回来继续切道岔。";
+            overlayBtn.textContent = "继续";
+            overlay.classList.remove("hidden");
+          } else if (state.mode === "paused") {
+            state.mode = "running";
+            overlay.classList.add("hidden");
+            lastFrame = performance.now();
+            loopToken += 1;
+            requestAnimationFrame((time) => loop(time, loopToken));
+          }
+        }
+
+        function finishGame() {
+          if (state.mode === "over") return;
+          state.mode = "over";
+          state.best = saveBest(state.score);
+          overlayTitle.textContent = "调度结束";
+          overlayText.textContent = `安全送达 ${state.delivered} 列，得分 ${state.score}。`;
+          overlayBtn.textContent = "再来一班";
+          overlay.classList.remove("hidden");
+          updateHud();
+        }
+
+        function spawnTrain() {
+          const keys = Object.keys(colors);
+          const color = keys[Math.floor(Math.random() * keys.length)];
+          state.trains.push({ id: Math.random(), color, t: 0, lane: 1, speed: 0.105 + Math.min(.07, state.time / 140000) + Math.random() * .018 });
+          state.nextTrain = state.time + Math.max(1500, 3700 - state.time / 35);
+        }
+
+        function routePoint(train) {
+          const t = train.t;
+          const startY = h * .5;
+          const midX = w * .48;
+          const endX = w - 70;
+          const stops = [h * .23, h * .5, h * .77];
+          const lane = train.lane;
+          if (t < .42) {
+            const k = t / .42;
+            return { x: 52 + (midX - 52) * k, y: startY };
+          }
+          const k = (t - .42) / .58;
+          const curve = Math.sin(k * Math.PI);
+          return { x: midX + (endX - midX) * k, y: startY + (stops[lane] - startY) * k - curve * 28 * (lane - 1) };
+        }
+
+        function update(dt) {
+          state.time += dt * 1000;
+          if (state.time > state.nextTrain) spawnTrain();
+          for (let i = state.trains.length - 1; i >= 0; i -= 1) {
+            const train = state.trains[i];
+            const oldT = train.t;
+            train.t += train.speed * dt;
+            if (oldT < .42 && train.t >= .42) {
+              const first = state.switches[0];
+              if (first === 0) train.lane = state.switches[1] === 0 ? 0 : 1;
+              else train.lane = state.switches[2] === 0 ? 1 : 2;
+            }
+            if (train.t >= 1) {
+              const correct = colors[train.color].stop === train.lane;
+              state.trains.splice(i, 1);
+              if (correct) {
+                state.delivered += 1;
+                state.score += 120 + Math.floor(state.time / 3000);
+                pop(w - 92, [h*.23,h*.5,h*.77][train.lane], "+120", "#d6a33d");
+              } else {
+                state.strikes += 1;
+                pop(w - 92, [h*.23,h*.5,h*.77][train.lane], "错站", "#bd5148");
+                if (state.strikes >= 3) finishGame();
+              }
+            }
+          }
+          for (let a = 0; a < state.trains.length; a += 1) {
+            for (let b = a + 1; b < state.trains.length; b += 1) {
+              const pa = routePoint(state.trains[a]);
+              const pb = routePoint(state.trains[b]);
+              if (Math.hypot(pa.x - pb.x, pa.y - pb.y) < 34) {
+                state.strikes += 1;
+                pop((pa.x + pb.x) / 2, (pa.y + pb.y) / 2, "追尾", "#bd5148");
+                state.trains.splice(b, 1);
+                state.trains.splice(a, 1);
+                if (state.strikes >= 3) finishGame();
+                a = state.trains.length;
+                break;
+              }
+            }
+          }
+          state.particles = state.particles.filter((p) => { p.y -= dt * 38; p.life -= dt * .85; return p.life > 0; });
+          updateHud();
+        }
+
+        function loop(now, token) {
+          if (token !== loopToken || state.mode !== "running") return;
+          const dt = Math.min(.05, (now - lastFrame) / 1000 || .016);
+          lastFrame = now;
+          update(dt);
+          draw();
+          if (state.mode === "running") requestAnimationFrame((time) => loop(time, token));
+        }
+
+        function pop(x, y, text, color) { state.particles.push({ x, y, text, color, life: 1 }); }
+        function toggleSwitch(index) { if (state.mode !== "running") return; state.switches[index] = 1 - state.switches[index]; buildSwitchButtons(); draw(); }
+
+        function roundRect(x, y, width, height, radius, fill, stroke) {
+          ctx.beginPath(); ctx.moveTo(x+radius,y); ctx.arcTo(x+width,y,x+width,y+height,radius); ctx.arcTo(x+width,y+height,x,y+height,radius); ctx.arcTo(x,y+height,x,y,radius); ctx.arcTo(x,y,x+width,y,radius);
+          if (fill) { ctx.fillStyle = fill; ctx.fill(); } if (stroke) { ctx.strokeStyle = stroke; ctx.stroke(); }
+        }
+
+        function drawTrack(points) {
+          ctx.strokeStyle = "#26373b";
+          ctx.lineWidth = 18;
+          ctx.lineCap = "round";
+          ctx.beginPath();
+          ctx.moveTo(points[0].x, points[0].y);
+          for (let i = 1; i < points.length; i += 1) ctx.lineTo(points[i].x, points[i].y);
+          ctx.stroke();
+          ctx.strokeStyle = "#f1d16f";
+          ctx.lineWidth = 5;
+          ctx.beginPath();
+          ctx.moveTo(points[0].x, points[0].y);
+          for (let i = 1; i < points.length; i += 1) ctx.lineTo(points[i].x, points[i].y);
+          ctx.stroke();
+        }
+
+        function draw() {
+          ctx.clearRect(0, 0, w, h);
+          const grad = ctx.createLinearGradient(0,0,0,h);
+          grad.addColorStop(0, "#fff8e8"); grad.addColorStop(.58, "#eef7ee"); grad.addColorStop(1, "#d4d7bb");
+          ctx.fillStyle = grad; ctx.fillRect(0,0,w,h);
+          const midX = w * .48;
+          drawTrack([{x:52,y:h*.5},{x:midX,y:h*.5},{x:w-70,y:h*.23}]);
+          drawTrack([{x:52,y:h*.5},{x:midX,y:h*.5},{x:w-70,y:h*.5}]);
+          drawTrack([{x:52,y:h*.5},{x:midX,y:h*.5},{x:w-70,y:h*.77}]);
+          [h*.23, h*.5, h*.77].forEach((y, index) => {
+            const color = Object.values(colors)[index].fill;
+            roundRect(w - 116, y - 30, 92, 60, 8, "#fffdf4", "#84979d");
+            ctx.fillStyle = color; ctx.fillRect(w - 104, y - 18, 68, 36);
+          });
+          const switchPoints = [{x:midX-8,y:h*.5},{x:midX+72,y:h*.37},{x:midX+72,y:h*.63}];
+          switchPoints.forEach((s, i) => {
+            ctx.fillStyle = state.switches[i] ? "#287468" : "#f1d16f";
+            ctx.beginPath(); ctx.arc(s.x, s.y, 18, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = "#11191f"; ctx.font = "900 16px system-ui"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(String(i+1), s.x, s.y+1);
+          });
+          for (const train of state.trains) {
+            const p = routePoint(train);
+            roundRect(p.x - 27, p.y - 17, 54, 34, 8, colors[train.color].fill, "#28373a");
+            ctx.fillStyle = "#fffdf4";
+            ctx.fillRect(p.x - 18, p.y - 8, 12, 10);
+            ctx.fillRect(p.x + 5, p.y - 8, 12, 10);
+          }
+          for (const p of state.particles) {
+            ctx.globalAlpha = p.life; ctx.fillStyle = p.color; ctx.font = "900 22px system-ui"; ctx.textAlign = "center"; ctx.fillText(p.text, p.x, p.y); ctx.globalAlpha = 1;
+          }
+        }
+
+        function buildSwitchButtons() {
+          switchButtons.innerHTML = "";
+          state.switches.forEach((value, index) => {
+            const button = document.createElement("button");
+            button.className = value ? "on" : "";
+            button.textContent = `道岔 ${index + 1} · ${value ? "右" : "左"}`;
+            button.addEventListener("click", () => toggleSwitch(index));
+            switchButtons.appendChild(button);
+          });
+        }
+
+        function updateHud() {
+          scoreText.textContent = state.score.toString();
+          deliveredText.textContent = state.delivered.toString();
+          strikeText.textContent = `${state.strikes}/3`;
+          bestText.textContent = Math.max(state.best, state.score).toString();
+        }
+
+        function pointSwitch(event) {
+          const rect = canvas.getBoundingClientRect();
+          const x = event.clientX - rect.left, y = event.clientY - rect.top;
+          const midX = w * .48;
+          const points = [{x:midX-8,y:h*.5},{x:midX+72,y:h*.37},{x:midX+72,y:h*.63}];
+          const index = points.findIndex((p) => Math.hypot(p.x - x, p.y - y) < 34);
+          if (index >= 0) toggleSwitch(index);
+        }
+
+        startBtn.addEventListener("click", startGame);
+        resetBtn.addEventListener("click", startGame);
+        pauseBtn.addEventListener("click", togglePause);
+        overlayBtn.addEventListener("click", () => state.mode === "paused" ? togglePause() : startGame());
+        canvas.addEventListener("pointerdown", pointSwitch);
+        document.addEventListener("keydown", (event) => {
+          if (event.code === "Digit1") toggleSwitch(0);
+          if (event.code === "Digit2") toggleSwitch(1);
+          if (event.code === "Digit3") toggleSwitch(2);
+          if (event.code === "Space") { event.preventDefault(); togglePause(); }
+          if (event.code === "KeyR") startGame();
+        });
+        window.addEventListener("resize", resizeCanvas);
+        resizeCanvas();
+        buildSwitchButtons();
+        updateHud();
+        draw();
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,785 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>棱镜果园</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23131a20'/%3E%3Cpath d='M32 9 52 48H12Z' fill='%23f5d36c'/%3E%3Cpath d='M32 9 41 48H12Z' fill='%238bd0bb'/%3E%3Cpath d='M32 9 52 48H31Z' fill='%23c86258'/%3E%3Ccircle cx='32' cy='37' r='7' fill='%23fff8e5'/%3E%3C/svg%3E">
+    <style>
+      :root {
+        --ink: #11191f;
+        --paper: #f8f1df;
+        --panel: #fffdf5;
+        --line: #86959b;
+        --teal: #2c7469;
+        --gold: #d5a33d;
+        --red: #c65b50;
+        --blue: #356d91;
+        --violet: #675a88;
+        --shadow: rgba(5, 12, 16, 0.28);
+        --radius: 8px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--ink);
+        font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+        background:
+          linear-gradient(rgba(248, 241, 223, 0.06) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(248, 241, 223, 0.06) 1px, transparent 1px),
+          linear-gradient(135deg, #101c22, #17343a 44%, #3c3a56);
+        background-size: 30px 30px, 30px 30px, auto;
+        overflow-x: hidden;
+      }
+
+      button {
+        font: inherit;
+      }
+
+      .app {
+        width: min(1380px, calc(100vw - 28px));
+        margin: 14px auto;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 16px 20px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: linear-gradient(90deg, rgba(255, 253, 245, 0.98), rgba(236, 250, 246, 0.95));
+        box-shadow: 0 16px 36px var(--shadow);
+      }
+
+      .eyebrow {
+        margin: 0 0 5px;
+        color: #836117;
+        font-size: 12px;
+        font-weight: 900;
+      }
+
+      h1,
+      h2,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(26px, 4vw, 44px);
+        line-height: 1;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 10px;
+      }
+
+      .btn {
+        min-height: 42px;
+        padding: 0 14px;
+        border: 1px solid #24534c;
+        border-radius: var(--radius);
+        color: #fffdf6;
+        background: #287066;
+        font-weight: 900;
+        cursor: pointer;
+        box-shadow: 0 8px 18px rgba(14, 48, 44, 0.22);
+      }
+
+      .btn.secondary {
+        color: var(--ink);
+        background: #f0d17d;
+        border-color: #9c7622;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 320px;
+        gap: 14px;
+        margin-top: 14px;
+        align-items: start;
+      }
+
+      .stage,
+      .side {
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: rgba(255, 253, 245, 0.96);
+        box-shadow: 0 16px 36px var(--shadow);
+      }
+
+      .stage {
+        position: relative;
+        overflow: hidden;
+        min-height: 640px;
+      }
+
+      canvas {
+        display: block;
+        width: 100%;
+        height: 640px;
+        touch-action: none;
+      }
+
+      .side {
+        padding: 16px;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+
+      .stat {
+        padding: 10px;
+        border: 1px solid #9ba69d;
+        border-radius: var(--radius);
+        background: #f8f6ea;
+      }
+
+      .stat b {
+        display: block;
+        font-size: 24px;
+        line-height: 1.1;
+      }
+
+      .stat small {
+        color: #5e6c66;
+        font-weight: 800;
+      }
+
+      .hint {
+        margin: 0 0 14px;
+        padding: 12px;
+        border: 1px solid #9ba69d;
+        border-radius: var(--radius);
+        background: #fff8e8;
+        color: #4f5f59;
+        line-height: 1.55;
+        font-weight: 700;
+      }
+
+      .toolbox {
+        display: grid;
+        gap: 10px;
+      }
+
+      .toolbox button {
+        min-height: 48px;
+        border: 1px solid #75877f;
+        border-radius: var(--radius);
+        background: #fbf5e2;
+        color: var(--ink);
+        font-weight: 900;
+        cursor: pointer;
+      }
+
+      .toolbox button.selected {
+        color: #fffdf6;
+        background: #2c7469;
+      }
+
+      .overlay {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background: rgba(15, 26, 31, 0.52);
+      }
+
+      .modal {
+        width: min(480px, 100%);
+        padding: 22px;
+        border: 1px solid #a2b2aa;
+        border-radius: var(--radius);
+        background: #fffdf6;
+        box-shadow: 0 24px 52px rgba(0, 0, 0, 0.32);
+      }
+
+      .modal h2 {
+        margin: 0 0 10px;
+        font-size: 28px;
+      }
+
+      .modal p {
+        margin-bottom: 16px;
+        color: #53635f;
+        line-height: 1.6;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      @media (max-width: 940px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .side {
+          order: -1;
+        }
+
+        .stage {
+          min-height: 560px;
+        }
+
+        canvas {
+          height: 560px;
+        }
+      }
+
+      @media (max-width: 620px) {
+        .app {
+          width: min(100vw - 16px, 1380px);
+          margin-top: 8px;
+        }
+
+        .topbar {
+          display: block;
+          padding: 14px;
+        }
+
+        .actions {
+          justify-content: stretch;
+          margin-top: 12px;
+        }
+
+        .btn {
+          flex: 1 1 auto;
+        }
+
+        canvas {
+          height: 500px;
+        }
+
+        .stage {
+          min-height: 500px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">LIGHT PUZZLE</p>
+          <h1>棱镜果园</h1>
+        </div>
+        <div class="actions">
+          <button class="btn" id="startBtn">开始</button>
+          <button class="btn secondary" id="checkBtn">点亮</button>
+          <button class="btn secondary" id="resetBtn">重开</button>
+        </div>
+      </header>
+
+      <section class="layout">
+        <div class="stage">
+          <canvas id="gameCanvas" aria-label="棱镜果园棋盘"></canvas>
+          <div class="overlay" id="overlay">
+            <div class="modal">
+              <h2 id="overlayTitle">修好果园灯路</h2>
+              <p id="overlayText">拖放镜片或点击格子旋转，把光从灯塔反射到所有果树。</p>
+              <button class="btn" id="overlayBtn">进入果园</button>
+            </div>
+          </div>
+        </div>
+        <aside class="side">
+          <div class="stats">
+            <div class="stat"><b id="levelText">1</b><small>关卡</small></div>
+            <div class="stat"><b id="movesText">0</b><small>操作</small></div>
+            <div class="stat"><b id="litText">0/0</b><small>果树</small></div>
+            <div class="stat"><b id="bestText">--</b><small>最佳</small></div>
+          </div>
+          <p class="hint" id="hintText">选择镜片后点空格放置；点已有镜片可旋转。分光棱镜会把光分成左右两路。</p>
+          <div class="toolbox">
+            <button data-tool="slash">/ 镜片 <span id="slashLeft">0</span></button>
+            <button data-tool="back">\ 镜片 <span id="backLeft">0</span></button>
+            <button data-tool="split">分光 <span id="splitLeft">0</span></button>
+            <button data-tool="remove">拆除</button>
+          </div>
+        </aside>
+      </section>
+    </main>
+
+    <script>
+      (() => {
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const startBtn = document.getElementById("startBtn");
+        const checkBtn = document.getElementById("checkBtn");
+        const resetBtn = document.getElementById("resetBtn");
+        const overlay = document.getElementById("overlay");
+        const overlayTitle = document.getElementById("overlayTitle");
+        const overlayText = document.getElementById("overlayText");
+        const overlayBtn = document.getElementById("overlayBtn");
+        const levelText = document.getElementById("levelText");
+        const movesText = document.getElementById("movesText");
+        const litText = document.getElementById("litText");
+        const bestText = document.getElementById("bestText");
+        const hintText = document.getElementById("hintText");
+        const slashLeft = document.getElementById("slashLeft");
+        const backLeft = document.getElementById("backLeft");
+        const splitLeft = document.getElementById("splitLeft");
+        const storageKey = "miniPrismOrchardRecords";
+
+        const levels = [
+          {
+            name: "一束晨光",
+            size: [7, 6],
+            source: { x: 0, y: 2, dir: 1 },
+            trees: [{ x: 6, y: 1 }, { x: 5, y: 4 }],
+            rocks: [{ x: 3, y: 2 }, { x: 2, y: 4 }],
+            inventory: { slash: 2, back: 2, split: 0 },
+            fixed: [{ x: 4, y: 2, type: "slash" }]
+          },
+          {
+            name: "双排梨树",
+            size: [8, 7],
+            source: { x: 1, y: 6, dir: 0 },
+            trees: [{ x: 7, y: 1 }, { x: 6, y: 5 }, { x: 2, y: 0 }],
+            rocks: [{ x: 3, y: 3 }, { x: 4, y: 3 }, { x: 5, y: 2 }],
+            inventory: { slash: 2, back: 2, split: 1 },
+            fixed: []
+          },
+          {
+            name: "暮色分光",
+            size: [9, 7],
+            source: { x: 0, y: 3, dir: 1 },
+            trees: [{ x: 8, y: 0 }, { x: 8, y: 6 }, { x: 5, y: 1 }, { x: 5, y: 5 }],
+            rocks: [{ x: 3, y: 2 }, { x: 3, y: 4 }, { x: 6, y: 3 }],
+            inventory: { slash: 3, back: 3, split: 1 },
+            fixed: [{ x: 2, y: 3, type: "split" }]
+          },
+          {
+            name: "满园灯会",
+            size: [9, 8],
+            source: { x: 4, y: 7, dir: 0 },
+            trees: [{ x: 0, y: 0 }, { x: 8, y: 0 }, { x: 1, y: 5 }, { x: 7, y: 5 }],
+            rocks: [{ x: 4, y: 3 }, { x: 2, y: 2 }, { x: 6, y: 2 }, { x: 2, y: 6 }, { x: 6, y: 6 }],
+            inventory: { slash: 4, back: 4, split: 2 },
+            fixed: []
+          }
+        ];
+
+        const dirs = [
+          { x: 0, y: -1 },
+          { x: 1, y: 0 },
+          { x: 0, y: 1 },
+          { x: -1, y: 0 }
+        ];
+
+        let dpr = 1;
+        let w = 900;
+        let h = 640;
+        let state;
+        let selectedTool = "slash";
+
+        function loadRecords() {
+          try {
+            return JSON.parse(localStorage.getItem(storageKey) || "{}");
+          } catch (error) {
+            return {};
+          }
+        }
+
+        function saveRecord(level, moves) {
+          const records = loadRecords();
+          const key = `level${level}`;
+          if (!records[key] || moves < records[key]) records[key] = moves;
+          localStorage.setItem(storageKey, JSON.stringify(records));
+          return records[key];
+        }
+
+        function key(x, y) {
+          return `${x},${y}`;
+        }
+
+        function makeState(levelIndex = 0) {
+          const level = levels[levelIndex];
+          const pieces = new Map();
+          for (const item of level.fixed) {
+            pieces.set(key(item.x, item.y), { type: item.type, fixed: true });
+          }
+          return {
+            mode: "menu",
+            levelIndex,
+            moves: 0,
+            inventory: { ...level.inventory },
+            pieces,
+            beams: [],
+            lit: new Set(),
+            solved: false
+          };
+        }
+
+        state = makeState(0);
+
+        function resizeCanvas() {
+          const rect = canvas.getBoundingClientRect();
+          dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+          w = Math.max(320, rect.width);
+          h = Math.max(500, rect.height);
+          canvas.width = Math.floor(w * dpr);
+          canvas.height = Math.floor(h * dpr);
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          traceLight();
+          draw();
+        }
+
+        function level() {
+          return levels[state.levelIndex];
+        }
+
+        function boardMetrics() {
+          const [cols, rows] = level().size;
+          const size = Math.floor(Math.min((w - 58) / cols, (h - 78) / rows));
+          return {
+            size,
+            x: Math.floor((w - cols * size) / 2),
+            y: Math.floor((h - rows * size) / 2) + 10
+          };
+        }
+
+        function inBounds(x, y) {
+          const [cols, rows] = level().size;
+          return x >= 0 && y >= 0 && x < cols && y < rows;
+        }
+
+        function isRock(x, y) {
+          return level().rocks.some((rock) => rock.x === x && rock.y === y);
+        }
+
+        function treeAt(x, y) {
+          return level().trees.find((tree) => tree.x === x && tree.y === y);
+        }
+
+        function sourceAt(x, y) {
+          return level().source.x === x && level().source.y === y;
+        }
+
+        function startLevel(index = state.levelIndex) {
+          state = makeState(index);
+          state.mode = "playing";
+          overlay.classList.add("hidden");
+          traceLight();
+          updateHud();
+          draw();
+        }
+
+        function setOverlay(title, text, button) {
+          overlayTitle.textContent = title;
+          overlayText.textContent = text;
+          overlayBtn.textContent = button;
+          overlay.classList.remove("hidden");
+        }
+
+        function reflect(dir, type) {
+          if (type === "slash") return [1, 0, 3, 2][dir];
+          if (type === "back") return [3, 2, 1, 0][dir];
+          return dir;
+        }
+
+        function traceLight() {
+          state.beams = [];
+          state.lit = new Set();
+          const queue = [{ x: level().source.x, y: level().source.y, dir: level().source.dir, start: true }];
+          const seen = new Set();
+          let guard = 0;
+          while (queue.length && guard < 300) {
+            guard += 1;
+            const ray = queue.shift();
+            let x = ray.x;
+            let y = ray.y;
+            let dir = ray.dir;
+            for (let step = 0; step < 40; step += 1) {
+              const nx = x + dirs[dir].x;
+              const ny = y + dirs[dir].y;
+              state.beams.push({ x1: x, y1: y, x2: nx, y2: ny, dir });
+              x = nx;
+              y = ny;
+              if (!inBounds(x, y) || isRock(x, y)) break;
+              const visitKey = `${x},${y},${dir}`;
+              if (seen.has(visitKey)) break;
+              seen.add(visitKey);
+              const tree = treeAt(x, y);
+              if (tree) state.lit.add(key(x, y));
+              const piece = state.pieces.get(key(x, y));
+              if (piece) {
+                if (piece.type === "split") {
+                  const left = (dir + 3) % 4;
+                  const right = (dir + 1) % 4;
+                  queue.push({ x, y, dir: left });
+                  queue.push({ x, y, dir: right });
+                  break;
+                }
+                dir = reflect(dir, piece.type);
+              }
+            }
+          }
+          const solved = level().trees.every((tree) => state.lit.has(key(tree.x, tree.y)));
+          if (solved && state.mode === "playing") {
+            state.solved = true;
+            state.mode = "solved";
+            const best = saveRecord(state.levelIndex, state.moves);
+            const next = state.levelIndex + 1;
+            if (next >= levels.length) {
+              setOverlay("果园全亮", `全部关卡完成，最后一关 ${state.moves} 步，最佳 ${best} 步。`, "从第一关开始");
+            } else {
+              setOverlay("点亮成功", `${level().name} 用了 ${state.moves} 步。`, "下一关");
+            }
+          }
+        }
+
+        function placeOrRotate(x, y) {
+          if (state.mode !== "playing") return;
+          if (!inBounds(x, y) || isRock(x, y) || treeAt(x, y) || sourceAt(x, y)) return;
+          const k = key(x, y);
+          const current = state.pieces.get(k);
+          if (selectedTool === "remove") {
+            if (current && !current.fixed) {
+              state.inventory[current.type] += 1;
+              state.pieces.delete(k);
+              state.moves += 1;
+            }
+          } else if (current) {
+            if (current.fixed) return;
+            if (current.type === selectedTool) {
+              current.type = current.type === "slash" ? "back" : "slash";
+              state.moves += 1;
+            } else if (state.inventory[selectedTool] > 0) {
+              state.inventory[current.type] += 1;
+              state.inventory[selectedTool] -= 1;
+              current.type = selectedTool;
+              state.moves += 1;
+            }
+          } else if (state.inventory[selectedTool] > 0) {
+            state.inventory[selectedTool] -= 1;
+            state.pieces.set(k, { type: selectedTool, fixed: false });
+            state.moves += 1;
+          }
+          traceLight();
+          updateHud();
+          draw();
+        }
+
+        function drawRoundRect(x, y, width, height, radius, fill, stroke) {
+          ctx.beginPath();
+          ctx.moveTo(x + radius, y);
+          ctx.arcTo(x + width, y, x + width, y + height, radius);
+          ctx.arcTo(x + width, y + height, x, y + height, radius);
+          ctx.arcTo(x, y + height, x, y, radius);
+          ctx.arcTo(x, y, x + width, y, radius);
+          if (fill) {
+            ctx.fillStyle = fill;
+            ctx.fill();
+          }
+          if (stroke) {
+            ctx.strokeStyle = stroke;
+            ctx.stroke();
+          }
+        }
+
+        function draw() {
+          ctx.clearRect(0, 0, w, h);
+          const grad = ctx.createLinearGradient(0, 0, 0, h);
+          grad.addColorStop(0, "#eef8ef");
+          grad.addColorStop(0.55, "#f8f0dc");
+          grad.addColorStop(1, "#d5d9bb");
+          ctx.fillStyle = grad;
+          ctx.fillRect(0, 0, w, h);
+
+          const { x: ox, y: oy, size } = boardMetrics();
+          const [cols, rows] = level().size;
+          drawRoundRect(ox - 14, oy - 14, cols * size + 28, rows * size + 28, 8, "rgba(17,25,31,.9)", "#8ca49d");
+
+          for (let y = 0; y < rows; y += 1) {
+            for (let x = 0; x < cols; x += 1) {
+              const px = ox + x * size;
+              const py = oy + y * size;
+              ctx.fillStyle = (x + y) % 2 ? "#f5ecd5" : "#fff9e9";
+              ctx.fillRect(px, py, size - 1, size - 1);
+              ctx.fillStyle = "rgba(44,116,105,.06)";
+              ctx.fillRect(px + 5, py + 5, size - 11, size - 11);
+              if (isRock(x, y)) {
+                drawRoundRect(px + size * 0.14, py + size * 0.16, size * 0.72, size * 0.68, 7, "#657078", "#303b40");
+              }
+            }
+          }
+
+          drawBeams(ox, oy, size);
+
+          const source = level().source;
+          drawSource(ox + source.x * size, oy + source.y * size, size, source.dir);
+          for (const tree of level().trees) {
+            drawTree(ox + tree.x * size, oy + tree.y * size, size, state.lit.has(key(tree.x, tree.y)));
+          }
+          for (const [pieceKey, piece] of state.pieces.entries()) {
+            const [x, y] = pieceKey.split(",").map(Number);
+            drawPiece(ox + x * size, oy + y * size, size, piece);
+          }
+
+          ctx.fillStyle = "#11191f";
+          ctx.font = "900 20px system-ui";
+          ctx.textAlign = "left";
+          ctx.fillText(level().name, 22, 34);
+        }
+
+        function drawBeams(ox, oy, size) {
+          ctx.save();
+          ctx.lineCap = "round";
+          for (const beam of state.beams) {
+            const x1 = ox + beam.x1 * size + size / 2;
+            const y1 = oy + beam.y1 * size + size / 2;
+            const x2 = ox + beam.x2 * size + size / 2;
+            const y2 = oy + beam.y2 * size + size / 2;
+            ctx.strokeStyle = "rgba(248, 204, 91, 0.38)";
+            ctx.lineWidth = Math.max(10, size * 0.18);
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+            ctx.strokeStyle = "rgba(255, 250, 212, 0.92)";
+            ctx.lineWidth = Math.max(3, size * 0.055);
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+          }
+          ctx.restore();
+        }
+
+        function drawSource(x, y, size, dir) {
+          drawRoundRect(x + size * 0.18, y + size * 0.22, size * 0.64, size * 0.56, 7, "#f2c75f", "#74551a");
+          ctx.fillStyle = "#172322";
+          ctx.font = `900 ${Math.max(15, size * 0.3)}px system-ui`;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText("灯", x + size / 2, y + size / 2);
+          const cx = x + size / 2 + dirs[dir].x * size * 0.28;
+          const cy = y + size / 2 + dirs[dir].y * size * 0.28;
+          ctx.fillStyle = "#fffbe1";
+          ctx.beginPath();
+          ctx.arc(cx, cy, size * 0.08, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        function drawTree(x, y, size, lit) {
+          ctx.fillStyle = "#5d6b40";
+          ctx.fillRect(x + size * 0.47, y + size * 0.48, size * 0.08, size * 0.26);
+          ctx.fillStyle = lit ? "#76b95f" : "#6f8f60";
+          ctx.beginPath();
+          ctx.arc(x + size * 0.5, y + size * 0.38, size * 0.24, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = lit ? "#f2c75f" : "#c65b50";
+          ctx.beginPath();
+          ctx.arc(x + size * 0.57, y + size * 0.36, size * 0.07, 0, Math.PI * 2);
+          ctx.fill();
+          if (lit) {
+            ctx.strokeStyle = "rgba(242, 199, 95, 0.65)";
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(x + size * 0.5, y + size * 0.38, size * 0.31, 0, Math.PI * 2);
+            ctx.stroke();
+          }
+        }
+
+        function drawPiece(x, y, size, piece) {
+          const fill = piece.fixed ? "#d8dbc8" : "#fffdf5";
+          drawRoundRect(x + size * 0.16, y + size * 0.16, size * 0.68, size * 0.68, 7, fill, "#6f8179");
+          ctx.strokeStyle = piece.type === "split" ? "#675a88" : "#2c7469";
+          ctx.lineWidth = Math.max(4, size * 0.08);
+          ctx.lineCap = "round";
+          ctx.beginPath();
+          if (piece.type === "slash") {
+            ctx.moveTo(x + size * 0.28, y + size * 0.72);
+            ctx.lineTo(x + size * 0.72, y + size * 0.28);
+          } else if (piece.type === "back") {
+            ctx.moveTo(x + size * 0.28, y + size * 0.28);
+            ctx.lineTo(x + size * 0.72, y + size * 0.72);
+          } else {
+            ctx.moveTo(x + size * 0.5, y + size * 0.25);
+            ctx.lineTo(x + size * 0.5, y + size * 0.75);
+            ctx.moveTo(x + size * 0.28, y + size * 0.5);
+            ctx.lineTo(x + size * 0.72, y + size * 0.5);
+          }
+          ctx.stroke();
+        }
+
+        function updateHud() {
+          const records = loadRecords();
+          const best = records[`level${state.levelIndex}`];
+          levelText.textContent = `${state.levelIndex + 1}/${levels.length}`;
+          movesText.textContent = state.moves.toString();
+          litText.textContent = `${state.lit.size}/${level().trees.length}`;
+          bestText.textContent = best ? best.toString() : "--";
+          slashLeft.textContent = state.inventory.slash;
+          backLeft.textContent = state.inventory.back;
+          splitLeft.textContent = state.inventory.split;
+          hintText.textContent = state.solved
+            ? "光路稳定，果树都亮起来了。"
+            : "选镜片点空格放置；点已有镜片会按当前工具替换；拆除会返还镜片。";
+          document.querySelectorAll("[data-tool]").forEach((button) => {
+            button.classList.toggle("selected", button.dataset.tool === selectedTool);
+          });
+        }
+
+        function pointerCell(event) {
+          const rect = canvas.getBoundingClientRect();
+          const { x: ox, y: oy, size } = boardMetrics();
+          return {
+            x: Math.floor((event.clientX - rect.left - ox) / size),
+            y: Math.floor((event.clientY - rect.top - oy) / size)
+          };
+        }
+
+        startBtn.addEventListener("click", () => startLevel(0));
+        resetBtn.addEventListener("click", () => startLevel(state.levelIndex));
+        checkBtn.addEventListener("click", () => {
+          traceLight();
+          updateHud();
+          draw();
+        });
+        overlayBtn.addEventListener("click", () => {
+          if (state.mode === "solved" && state.levelIndex + 1 < levels.length) startLevel(state.levelIndex + 1);
+          else startLevel(0);
+        });
+        document.querySelectorAll("[data-tool]").forEach((button) => {
+          button.addEventListener("click", () => {
+            selectedTool = button.dataset.tool;
+            updateHud();
+          });
+        });
+        canvas.addEventListener("pointerdown", (event) => {
+          const cell = pointerCell(event);
+          placeOrRotate(cell.x, cell.y);
+        });
+        document.addEventListener("keydown", (event) => {
+          if (event.code === "Digit1") selectedTool = "slash";
+          if (event.code === "Digit2") selectedTool = "back";
+          if (event.code === "Digit3") selectedTool = "split";
+          if (event.code === "KeyX") selectedTool = "remove";
+          if (event.code === "KeyR") startLevel(state.levelIndex);
+          updateHud();
+        });
+        window.addEventListener("resize", resizeCanvas);
+        resizeCanvas();
+        updateHud();
+        draw();
+      })();
+    </script>
+  </body>
+</html>

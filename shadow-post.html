@@ -1,0 +1,893 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>影邮潜行</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23131c22'/%3E%3Cpath d='M15 18h34v28H15z' fill='%23f3d36b'/%3E%3Cpath d='m15 18 17 15 17-15' fill='none' stroke='%23131c22' stroke-width='5' stroke-linejoin='round'/%3E%3Cpath d='M23 49c2-10 8-16 18-19 5 8 3 17-4 22-6 4-11 3-14-3Z' fill='%232a685c'/%3E%3C/svg%3E">
+    <style>
+      :root {
+        --ink: #101820;
+        --paper: #f5efe0;
+        --panel: #fffcf2;
+        --line: #83939c;
+        --night: #16252b;
+        --teal: #2f756a;
+        --blue: #315f8c;
+        --gold: #d4a43f;
+        --red: #b74a42;
+        --violet: #65577f;
+        --shadow: rgba(4, 11, 14, 0.28);
+        --radius: 8px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--ink);
+        font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+        background:
+          linear-gradient(rgba(245, 239, 224, 0.06) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(245, 239, 224, 0.06) 1px, transparent 1px),
+          linear-gradient(135deg, #0f1a21, #17333a 48%, #343047);
+        background-size: 30px 30px, 30px 30px, auto;
+        overflow-x: hidden;
+      }
+
+      button {
+        font: inherit;
+      }
+
+      .app {
+        width: min(1380px, calc(100vw - 28px));
+        margin: 14px auto;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 16px 20px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: linear-gradient(90deg, rgba(255, 252, 242, 0.98), rgba(233, 246, 241, 0.95));
+        box-shadow: 0 16px 36px var(--shadow);
+      }
+
+      .eyebrow {
+        margin: 0 0 5px;
+        color: #806017;
+        font-size: 12px;
+        font-weight: 900;
+      }
+
+      h1,
+      h2,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(26px, 4vw, 44px);
+        line-height: 1;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 10px;
+      }
+
+      .btn {
+        min-height: 42px;
+        padding: 0 14px;
+        border: 1px solid #214f49;
+        border-radius: var(--radius);
+        color: #fffdf6;
+        background: #24675e;
+        font-weight: 900;
+        cursor: pointer;
+        box-shadow: 0 8px 18px rgba(12, 45, 42, 0.22);
+      }
+
+      .btn.secondary {
+        color: var(--ink);
+        background: #efd07a;
+        border-color: #9c7924;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 320px;
+        gap: 14px;
+        margin-top: 14px;
+        align-items: start;
+      }
+
+      .stage,
+      .side {
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: rgba(255, 252, 242, 0.96);
+        box-shadow: 0 16px 36px var(--shadow);
+      }
+
+      .stage {
+        position: relative;
+        overflow: hidden;
+        min-height: 640px;
+      }
+
+      canvas {
+        display: block;
+        width: 100%;
+        height: 640px;
+        touch-action: none;
+      }
+
+      .side {
+        padding: 16px;
+      }
+
+      .stat-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .stat {
+        padding: 10px;
+        border: 1px solid #9aa59d;
+        border-radius: var(--radius);
+        background: #f8f6ea;
+      }
+
+      .stat b {
+        display: block;
+        font-size: 24px;
+        line-height: 1.1;
+      }
+
+      .stat small {
+        color: #5e6b68;
+        font-weight: 800;
+      }
+
+      .brief {
+        margin: 14px 0;
+        padding: 12px;
+        border: 1px solid #9aa59d;
+        border-radius: var(--radius);
+        background: #fff7e4;
+        color: #475752;
+        line-height: 1.55;
+        font-weight: 700;
+      }
+
+      .tools {
+        display: grid;
+        gap: 10px;
+      }
+
+      .tool {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 10px;
+        border: 1px solid #8f9e97;
+        border-radius: var(--radius);
+        background: #f3f8ec;
+      }
+
+      .tool button {
+        min-width: 82px;
+      }
+
+      .pad {
+        display: grid;
+        grid-template-columns: repeat(3, 58px);
+        justify-content: center;
+        gap: 8px;
+        margin-top: 16px;
+      }
+
+      .pad button {
+        width: 58px;
+        height: 50px;
+        border: 1px solid #667871;
+        border-radius: var(--radius);
+        background: #fbf5e3;
+        color: var(--ink);
+        font-size: 20px;
+        font-weight: 900;
+        cursor: pointer;
+      }
+
+      .pad .blank {
+        visibility: hidden;
+      }
+
+      .overlay {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background: rgba(14, 24, 29, 0.52);
+      }
+
+      .modal {
+        width: min(480px, 100%);
+        padding: 22px;
+        border: 1px solid #a1b1aa;
+        border-radius: var(--radius);
+        background: #fffdf6;
+        box-shadow: 0 24px 52px rgba(0, 0, 0, 0.32);
+      }
+
+      .modal h2 {
+        margin: 0 0 10px;
+        font-size: 28px;
+      }
+
+      .modal p {
+        margin-bottom: 16px;
+        color: #53635f;
+        line-height: 1.6;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      @media (max-width: 940px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .side {
+          order: -1;
+        }
+
+        .stage {
+          min-height: 560px;
+        }
+
+        canvas {
+          height: 560px;
+        }
+      }
+
+      @media (max-width: 620px) {
+        .app {
+          width: min(100vw - 16px, 1380px);
+          margin-top: 8px;
+        }
+
+        .topbar {
+          display: block;
+          padding: 14px;
+        }
+
+        .actions {
+          justify-content: stretch;
+          margin-top: 12px;
+        }
+
+        .btn {
+          flex: 1 1 auto;
+        }
+
+        canvas {
+          height: 500px;
+        }
+
+        .stage {
+          min-height: 500px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">TURN STEALTH</p>
+          <h1>影邮潜行</h1>
+        </div>
+        <div class="actions">
+          <button class="btn" id="startBtn">开始任务</button>
+          <button class="btn secondary" id="undoBtn">撤回</button>
+          <button class="btn secondary" id="resetBtn">重开</button>
+        </div>
+      </header>
+
+      <section class="layout">
+        <div class="stage">
+          <canvas id="gameCanvas" aria-label="影邮潜行棋盘"></canvas>
+          <div class="overlay" id="overlay">
+            <div class="modal">
+              <h2 id="overlayTitle">夜班派送</h2>
+              <p id="overlayText">规划路线，把信送进所有邮箱，再从出口离开。守卫每走一步就会转向或巡逻。</p>
+              <button class="btn" id="overlayBtn">开始潜行</button>
+            </div>
+          </div>
+        </div>
+        <aside class="side">
+          <div class="stat-grid">
+            <div class="stat"><b id="levelText">1</b><small>关卡</small></div>
+            <div class="stat"><b id="stepsText">0</b><small>步数</small></div>
+            <div class="stat"><b id="mailText">0/0</b><small>邮件</small></div>
+            <div class="stat"><b id="bestText">--</b><small>最佳</small></div>
+          </div>
+          <p class="brief" id="briefText">避开灯锥，踩阴影，必要时用一枚烟雾弹穿过视线。</p>
+          <div class="tools">
+            <div class="tool">
+              <span><b>烟雾弹</b><br><small>本回合无视灯光</small></span>
+              <button class="btn secondary" id="smokeBtn">使用</button>
+            </div>
+            <div class="tool">
+              <span><b>等一拍</b><br><small>不移动，让巡逻换位</small></span>
+              <button class="btn secondary" id="waitBtn">等待</button>
+            </div>
+          </div>
+          <div class="pad">
+            <button class="blank" aria-hidden="true"></button>
+            <button data-dir="up">↑</button>
+            <button class="blank" aria-hidden="true"></button>
+            <button data-dir="left">←</button>
+            <button data-dir="down">↓</button>
+            <button data-dir="right">→</button>
+          </div>
+        </aside>
+      </section>
+    </main>
+
+    <script>
+      (() => {
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const startBtn = document.getElementById("startBtn");
+        const resetBtn = document.getElementById("resetBtn");
+        const undoBtn = document.getElementById("undoBtn");
+        const smokeBtn = document.getElementById("smokeBtn");
+        const waitBtn = document.getElementById("waitBtn");
+        const overlay = document.getElementById("overlay");
+        const overlayTitle = document.getElementById("overlayTitle");
+        const overlayText = document.getElementById("overlayText");
+        const overlayBtn = document.getElementById("overlayBtn");
+        const levelText = document.getElementById("levelText");
+        const stepsText = document.getElementById("stepsText");
+        const mailText = document.getElementById("mailText");
+        const bestText = document.getElementById("bestText");
+        const briefText = document.getElementById("briefText");
+        const storageKey = "miniShadowPostRecords";
+
+        const levels = [
+          {
+            name: "后巷第一封",
+            map: [
+              "#########",
+              "#S..M..E#",
+              "#.###.#.#",
+              "#...#...#",
+              "#.#...#.#",
+              "#...G...#",
+              "#########"
+            ],
+            guards: [{ x: 4, y: 5, dir: 0, type: "turn" }],
+            smoke: 1,
+            par: 12
+          },
+          {
+            name: "灯下小巷",
+            map: [
+              "#########",
+              "#S..#..E#",
+              "#.#.#.#.#",
+              "#M..G..M#",
+              "#.#...#.#",
+              "#...#...#",
+              "#########"
+            ],
+            guards: [{ x: 4, y: 3, dir: 1, type: "turn" }],
+            smoke: 1,
+            par: 18
+          },
+          {
+            name: "双巡夜",
+            map: [
+              "##########",
+              "#S...#..E#",
+              "#.##.#.#.#",
+              "#M...G..M#",
+              "#.#.##.#.#",
+              "#..G.....#",
+              "##########"
+            ],
+            guards: [
+              { x: 5, y: 3, dir: 2, type: "turn" },
+              { x: 3, y: 5, dir: 1, type: "patrol", route: [[3, 5], [4, 5], [5, 5], [6, 5]], step: 0 }
+            ],
+            smoke: 2,
+            par: 24
+          },
+          {
+            name: "邮局天井",
+            map: [
+              "###########",
+              "#S..#....E#",
+              "#.#.#.###.#",
+              "#.#M..G...#",
+              "#...##.#M##",
+              "###....#..#",
+              "#..G......#",
+              "###########"
+            ],
+            guards: [
+              { x: 6, y: 3, dir: 0, type: "turn" },
+              { x: 3, y: 6, dir: 3, type: "patrol", route: [[3, 6], [4, 6], [5, 6], [6, 6], [7, 6]], step: 0 }
+            ],
+            smoke: 2,
+            par: 32
+          }
+        ];
+
+        const dirs = [
+          { x: 0, y: -1 },
+          { x: 1, y: 0 },
+          { x: 0, y: 1 },
+          { x: -1, y: 0 }
+        ];
+
+        let dpr = 1;
+        let w = 900;
+        let h = 640;
+        let state;
+
+        function loadRecords() {
+          try {
+            return JSON.parse(localStorage.getItem(storageKey) || "{}");
+          } catch (error) {
+            return {};
+          }
+        }
+
+        function saveRecord(level, steps) {
+          const records = loadRecords();
+          const key = `level${level}`;
+          if (!records[key] || steps < records[key]) records[key] = steps;
+          localStorage.setItem(storageKey, JSON.stringify(records));
+          return records[key];
+        }
+
+        function clone(value) {
+          return JSON.parse(JSON.stringify(value));
+        }
+
+        function makeState(levelIndex = 0) {
+          const level = levels[levelIndex];
+          const grid = level.map.map((row) => row.split(""));
+          const mail = [];
+          let player = { x: 1, y: 1 };
+          let exit = { x: 1, y: 1 };
+          for (let y = 0; y < grid.length; y += 1) {
+            for (let x = 0; x < grid[y].length; x += 1) {
+              if (grid[y][x] === "S") {
+                player = { x, y };
+                grid[y][x] = ".";
+              } else if (grid[y][x] === "E") {
+                exit = { x, y };
+                grid[y][x] = ".";
+              } else if (grid[y][x] === "M") {
+                mail.push({ x, y, done: false });
+                grid[y][x] = ".";
+              } else if (grid[y][x] === "G") {
+                grid[y][x] = ".";
+              }
+            }
+          }
+          return {
+            mode: "menu",
+            levelIndex,
+            grid,
+            player,
+            exit,
+            mail,
+            guards: clone(level.guards),
+            smoke: level.smoke,
+            smokeArmed: false,
+            steps: 0,
+            caught: false,
+            won: false,
+            history: []
+          };
+        }
+
+        state = makeState(0);
+
+        function resizeCanvas() {
+          const rect = canvas.getBoundingClientRect();
+          dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+          w = Math.max(320, rect.width);
+          h = Math.max(500, rect.height);
+          canvas.width = Math.floor(w * dpr);
+          canvas.height = Math.floor(h * dpr);
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          draw();
+        }
+
+        function tileSize() {
+          const cols = state.grid[0].length;
+          const rows = state.grid.length;
+          return Math.floor(Math.min((w - 54) / cols, (h - 74) / rows));
+        }
+
+        function boardOrigin() {
+          const size = tileSize();
+          return {
+            x: Math.floor((w - state.grid[0].length * size) / 2),
+            y: Math.floor((h - state.grid.length * size) / 2) + 10,
+            size
+          };
+        }
+
+        function startLevel(levelIndex = state.levelIndex) {
+          state = makeState(levelIndex);
+          state.mode = "playing";
+          overlay.classList.add("hidden");
+          updateHud();
+          draw();
+        }
+
+        function setOverlay(title, text, button) {
+          overlayTitle.textContent = title;
+          overlayText.textContent = text;
+          overlayBtn.textContent = button;
+          overlay.classList.remove("hidden");
+        }
+
+        function cell(x, y) {
+          return state.grid[y] && state.grid[y][x] ? state.grid[y][x] : "#";
+        }
+
+        function guardAt(x, y) {
+          return state.guards.find((guard) => guard.x === x && guard.y === y);
+        }
+
+        function canSee(guard, x, y) {
+          if (guard.x === x && guard.y === y) return true;
+          const dir = dirs[guard.dir];
+          for (let dist = 1; dist <= 4; dist += 1) {
+            const tx = guard.x + dir.x * dist;
+            const ty = guard.y + dir.y * dist;
+            if (cell(tx, ty) === "#") return false;
+            if (tx === x && ty === y) return true;
+          }
+          const sideA = (guard.dir + 1) % 4;
+          const sideB = (guard.dir + 3) % 4;
+          return [sideA, sideB].some((side) => {
+            const tx = guard.x + dirs[side].x;
+            const ty = guard.y + dirs[side].y;
+            return tx === x && ty === y;
+          });
+        }
+
+        function inDanger(x = state.player.x, y = state.player.y) {
+          return state.guards.some((guard) => canSee(guard, x, y));
+        }
+
+        function pushHistory() {
+          state.history.push({
+            player: clone(state.player),
+            guards: clone(state.guards),
+            mail: clone(state.mail),
+            smoke: state.smoke,
+            smokeArmed: state.smokeArmed,
+            steps: state.steps
+          });
+          if (state.history.length > 80) state.history.shift();
+        }
+
+        function restoreHistory() {
+          const last = state.history.pop();
+          if (!last || !["playing", "caught"].includes(state.mode)) return;
+          overlay.classList.add("hidden");
+          state.player = last.player;
+          state.guards = last.guards;
+          state.mail = last.mail;
+          state.smoke = last.smoke;
+          state.smokeArmed = last.smokeArmed;
+          state.steps = last.steps;
+          state.caught = false;
+          state.won = false;
+          state.mode = "playing";
+          updateHud();
+          draw();
+        }
+
+        function moveGuards() {
+          for (const guard of state.guards) {
+            if (guard.type === "turn") {
+              guard.dir = (guard.dir + 1) % 4;
+            } else if (guard.type === "patrol") {
+              const nextStep = (guard.step + 1) % guard.route.length;
+              const next = guard.route[nextStep];
+              const dx = next[0] - guard.x;
+              const dy = next[1] - guard.y;
+              if (dx === 1) guard.dir = 1;
+              else if (dx === -1) guard.dir = 3;
+              else if (dy === 1) guard.dir = 2;
+              else if (dy === -1) guard.dir = 0;
+              guard.x = next[0];
+              guard.y = next[1];
+              guard.step = nextStep;
+            }
+          }
+        }
+
+        function collectMail() {
+          for (const mail of state.mail) {
+            if (!mail.done && mail.x === state.player.x && mail.y === state.player.y) {
+              mail.done = true;
+            }
+          }
+        }
+
+        function allMailDone() {
+          return state.mail.every((mail) => mail.done);
+        }
+
+        function step(dx, dy) {
+          if (state.mode !== "playing") return;
+          const nx = state.player.x + dx;
+          const ny = state.player.y + dy;
+          if (cell(nx, ny) === "#" || guardAt(nx, ny)) return;
+          pushHistory();
+          state.player = { x: nx, y: ny };
+          state.steps += 1;
+          collectMail();
+          moveGuards();
+          resolveTurn();
+        }
+
+        function waitTurn() {
+          if (state.mode !== "playing") return;
+          pushHistory();
+          state.steps += 1;
+          moveGuards();
+          resolveTurn();
+        }
+
+        function resolveTurn() {
+          const protectedBySmoke = state.smokeArmed;
+          if (state.smokeArmed) state.smokeArmed = false;
+          if (inDanger() && !protectedBySmoke) {
+            state.caught = true;
+            state.mode = "caught";
+            setOverlay("被照到了", "守卫发现了脚步声。撤回一步或重新规划路线。", "重试本关");
+          } else if (state.player.x === state.exit.x && state.player.y === state.exit.y && allMailDone()) {
+            state.won = true;
+            const best = saveRecord(state.levelIndex, state.steps);
+            const next = state.levelIndex + 1;
+            if (next >= levels.length) {
+              state.mode = "done";
+              setOverlay("全部送达", `夜班完成，最后一关 ${state.steps} 步，最佳 ${best} 步。`, "从第一关开始");
+            } else {
+              state.mode = "won";
+              setOverlay("投递成功", `本关 ${state.steps} 步，目标 ${levels[state.levelIndex].par} 步。`, "下一关");
+            }
+          }
+          updateHud();
+          draw();
+        }
+
+        function armSmoke() {
+          if (state.mode !== "playing" || state.smoke <= 0 || state.smokeArmed) return;
+          state.smoke -= 1;
+          state.smokeArmed = true;
+          updateHud();
+          draw();
+        }
+
+        function drawRoundRect(x, y, width, height, radius, fill, stroke) {
+          ctx.beginPath();
+          ctx.moveTo(x + radius, y);
+          ctx.arcTo(x + width, y, x + width, y + height, radius);
+          ctx.arcTo(x + width, y + height, x, y + height, radius);
+          ctx.arcTo(x, y + height, x, y, radius);
+          ctx.arcTo(x, y, x + width, y, radius);
+          if (fill) {
+            ctx.fillStyle = fill;
+            ctx.fill();
+          }
+          if (stroke) {
+            ctx.strokeStyle = stroke;
+            ctx.stroke();
+          }
+        }
+
+        function draw() {
+          ctx.clearRect(0, 0, w, h);
+          const grad = ctx.createLinearGradient(0, 0, 0, h);
+          grad.addColorStop(0, "#eef7f0");
+          grad.addColorStop(0.58, "#f6efd9");
+          grad.addColorStop(1, "#d4d8bd");
+          ctx.fillStyle = grad;
+          ctx.fillRect(0, 0, w, h);
+
+          const { x: ox, y: oy, size } = boardOrigin();
+          drawRoundRect(ox - 14, oy - 14, state.grid[0].length * size + 28, state.grid.length * size + 28, 8, "rgba(17,28,34,.9)", "#8aa29a");
+
+          for (let y = 0; y < state.grid.length; y += 1) {
+            for (let x = 0; x < state.grid[y].length; x += 1) {
+              const px = ox + x * size;
+              const py = oy + y * size;
+              const wall = cell(x, y) === "#";
+              ctx.fillStyle = wall ? "#26363c" : ((x + y) % 2 ? "#f5edd8" : "#fff9e9");
+              ctx.fillRect(px, py, size - 1, size - 1);
+              if (!wall) {
+                ctx.fillStyle = "rgba(47,117,106,.06)";
+                ctx.fillRect(px + 5, py + 5, size - 11, size - 11);
+              }
+            }
+          }
+
+          for (const guard of state.guards) {
+            drawVision(guard, ox, oy, size);
+          }
+
+          const ex = ox + state.exit.x * size;
+          const ey = oy + state.exit.y * size;
+          drawRoundRect(ex + size * 0.18, ey + size * 0.18, size * 0.64, size * 0.64, 7, allMailDone() ? "#8fd0a5" : "#9aa6a2", "#28423c");
+          ctx.fillStyle = "#17302c";
+          ctx.font = `900 ${Math.max(15, size * 0.32)}px system-ui`;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText("出", ex + size / 2, ey + size / 2);
+
+          for (const mail of state.mail) {
+            const mx = ox + mail.x * size;
+            const my = oy + mail.y * size;
+            drawRoundRect(mx + size * 0.22, my + size * 0.26, size * 0.56, size * 0.42, 5, mail.done ? "#c8dccb" : "#f0c75b", "#725a19");
+            ctx.strokeStyle = "#725a19";
+            ctx.lineWidth = Math.max(1, size * 0.04);
+            ctx.beginPath();
+            ctx.moveTo(mx + size * 0.24, my + size * 0.28);
+            ctx.lineTo(mx + size * 0.5, my + size * 0.5);
+            ctx.lineTo(mx + size * 0.76, my + size * 0.28);
+            ctx.stroke();
+          }
+
+          for (const guard of state.guards) {
+            const gx = ox + guard.x * size + size / 2;
+            const gy = oy + guard.y * size + size / 2;
+            ctx.fillStyle = "#314a5a";
+            ctx.beginPath();
+            ctx.arc(gx, gy, size * 0.27, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = "#f4d36c";
+            const dir = dirs[guard.dir];
+            ctx.beginPath();
+            ctx.arc(gx + dir.x * size * 0.13, gy + dir.y * size * 0.13, size * 0.08, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          const px = ox + state.player.x * size + size / 2;
+          const py = oy + state.player.y * size + size / 2;
+          ctx.fillStyle = state.smokeArmed ? "#6b637d" : "#2f756a";
+          ctx.beginPath();
+          ctx.arc(px, py, size * 0.28, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = "#fffdf2";
+          ctx.font = `900 ${Math.max(16, size * 0.34)}px system-ui`;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText("邮", px, py + 1);
+
+          ctx.fillStyle = "#122127";
+          ctx.font = "900 20px system-ui";
+          ctx.textAlign = "left";
+          ctx.fillText(levels[state.levelIndex].name, 22, 34);
+        }
+
+        function drawVision(guard, ox, oy, size) {
+          ctx.fillStyle = "rgba(212, 164, 63, 0.28)";
+          const mark = (x, y, alpha) => {
+            if (cell(x, y) === "#") return false;
+            ctx.fillStyle = `rgba(212, 164, 63, ${alpha})`;
+            ctx.fillRect(ox + x * size + 3, oy + y * size + 3, size - 7, size - 7);
+            return true;
+          };
+          mark(guard.x, guard.y, 0.14);
+          const dir = dirs[guard.dir];
+          for (let dist = 1; dist <= 4; dist += 1) {
+            const x = guard.x + dir.x * dist;
+            const y = guard.y + dir.y * dist;
+            if (cell(x, y) === "#") break;
+            mark(x, y, 0.32 - dist * 0.035);
+          }
+          [1, 3].forEach((turn) => {
+            const side = dirs[(guard.dir + turn) % 4];
+            mark(guard.x + side.x, guard.y + side.y, 0.18);
+          });
+        }
+
+        function updateHud() {
+          const done = state.mail.filter((mail) => mail.done).length;
+          const records = loadRecords();
+          const best = records[`level${state.levelIndex}`];
+          levelText.textContent = `${state.levelIndex + 1}/${levels.length}`;
+          stepsText.textContent = state.steps.toString();
+          mailText.textContent = `${done}/${state.mail.length}`;
+          bestText.textContent = best ? best.toString() : "--";
+          smokeBtn.textContent = state.smokeArmed ? "已就绪" : `${state.smoke} 枚`;
+          smokeBtn.disabled = state.smoke <= 0 || state.smokeArmed || state.mode !== "playing";
+          briefText.textContent = state.smokeArmed
+            ? "烟雾弹已经就绪，下一步就算穿过灯光也不会被抓。"
+            : `本关目标 ${levels[state.levelIndex].par} 步，出口需要先送完所有邮件才会开启。`;
+        }
+
+        function pointerToCell(event) {
+          const rect = canvas.getBoundingClientRect();
+          const { x: ox, y: oy, size } = boardOrigin();
+          const x = Math.floor((event.clientX - rect.left - ox) / size);
+          const y = Math.floor((event.clientY - rect.top - oy) / size);
+          return { x, y };
+        }
+
+        startBtn.addEventListener("click", () => startLevel(0));
+        resetBtn.addEventListener("click", () => startLevel(state.levelIndex));
+        undoBtn.addEventListener("click", restoreHistory);
+        smokeBtn.addEventListener("click", armSmoke);
+        waitBtn.addEventListener("click", waitTurn);
+        overlayBtn.addEventListener("click", () => {
+          if (state.mode === "won") startLevel(state.levelIndex + 1);
+          else if (state.mode === "done") startLevel(0);
+          else startLevel(state.levelIndex);
+        });
+        document.querySelectorAll("[data-dir]").forEach((button) => {
+          button.addEventListener("click", () => {
+            const dir = button.dataset.dir;
+            if (dir === "up") step(0, -1);
+            if (dir === "down") step(0, 1);
+            if (dir === "left") step(-1, 0);
+            if (dir === "right") step(1, 0);
+          });
+        });
+        canvas.addEventListener("pointerdown", (event) => {
+          const target = pointerToCell(event);
+          const dx = target.x - state.player.x;
+          const dy = target.y - state.player.y;
+          if (Math.abs(dx) + Math.abs(dy) === 1) step(dx, dy);
+        });
+        document.addEventListener("keydown", (event) => {
+          if (event.repeat) return;
+          if (event.code === "ArrowUp" || event.code === "KeyW") step(0, -1);
+          if (event.code === "ArrowDown" || event.code === "KeyS") step(0, 1);
+          if (event.code === "ArrowLeft" || event.code === "KeyA") step(-1, 0);
+          if (event.code === "ArrowRight" || event.code === "KeyD") step(1, 0);
+          if (event.code === "Space") {
+            event.preventDefault();
+            waitTurn();
+          }
+          if (event.code === "KeyQ") armSmoke();
+          if (event.code === "KeyZ") restoreHistory();
+          if (event.code === "KeyR") startLevel(state.levelIndex);
+        });
+        window.addEventListener("resize", resizeCanvas);
+        resizeCanvas();
+        updateHud();
+        draw();
+      })();
+    </script>
+  </body>
+</html>

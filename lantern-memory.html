@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>灯阵记忆</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23131b20'/%3E%3Ccircle cx='22' cy='22' r='10' fill='%23bd5148'/%3E%3Ccircle cx='42' cy='22' r='10' fill='%23d6a33d'/%3E%3Ccircle cx='22' cy='42' r='10' fill='%23287468'/%3E%3Ccircle cx='42' cy='42' r='10' fill='%23326f91'/%3E%3C/svg%3E">
+    <style>
+      :root{--ink:#10191f;--panel:#fffdf4;--line:#87989e;--teal:#287468;--gold:#d6a33d;--red:#bd5148;--blue:#326f91;--shadow:rgba(5,12,16,.28);--radius:8px}
+      *{box-sizing:border-box}body{margin:0;min-height:100vh;color:var(--ink);font-family:"Microsoft YaHei","PingFang SC","Noto Sans SC",system-ui,sans-serif;background:linear-gradient(rgba(255,255,245,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,245,.06) 1px,transparent 1px),linear-gradient(135deg,#102024,#17383a 46%,#493654);background-size:30px 30px,30px 30px,auto}button{font:inherit}.app{width:min(1180px,calc(100vw - 28px));margin:14px auto}.topbar,.panel{border:1px solid var(--line);border-radius:var(--radius);background:rgba(255,253,244,.97);box-shadow:0 16px 36px var(--shadow)}.topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:16px 20px}.eyebrow{margin:0 0 5px;color:#856219;font-size:12px;font-weight:900}h1{margin:0;font-size:clamp(26px,4vw,44px);line-height:1}.actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}.btn{min-height:42px;padding:0 14px;border:1px solid #24534d;border-radius:var(--radius);color:#fffdf6;background:var(--teal);font-weight:900;cursor:pointer}.btn.secondary{color:var(--ink);background:#f0d17b;border-color:#9c7621}.layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:14px;margin-top:14px;align-items:start}.stage{position:relative;min-height:620px;padding:22px;display:grid;place-items:center}.grid{width:min(620px,100%);aspect-ratio:1;display:grid;grid-template-columns:repeat(2,1fr);gap:18px}.lamp{border:1px solid #536963;border-radius:8px;cursor:pointer;box-shadow:inset 0 -18px 0 rgba(0,0,0,.12),0 12px 24px rgba(0,0,0,.18);transition:transform .08s,filter .08s}.lamp:active,.lamp.on{transform:scale(.97);filter:brightness(1.45) saturate(1.25)}.side{padding:16px}.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}.stat{padding:10px;border:1px solid #9da69e;border-radius:var(--radius);background:#f9f7eb}.stat b{display:block;font-size:24px;line-height:1.1}.stat small{color:#5e6d67;font-weight:800}.hint{margin:14px 0 0;color:#566861;line-height:1.55;font-weight:700}.overlay{position:absolute;inset:0;display:grid;place-items:center;padding:24px;background:rgba(16,28,31,.52);border-radius:var(--radius)}.modal{width:min(460px,100%);padding:22px;border:1px solid #a4b4ad;border-radius:var(--radius);background:#fffdf6;box-shadow:0 24px 52px rgba(0,0,0,.32)}.modal h2{margin:0 0 10px;font-size:28px}.modal p{margin:0 0 16px;color:#53635f;line-height:1.6}.hidden{display:none}@media(max-width:860px){.layout{grid-template-columns:1fr}.side{order:-1}.stage{min-height:520px}}@media(max-width:620px){.app{width:min(100vw - 16px,1180px);margin-top:8px}.topbar{display:block;padding:14px}.actions{margin-top:12px;justify-content:stretch}.btn{flex:1 1 auto}.stage{min-height:430px}.grid{gap:12px}}
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <header class="topbar"><div><p class="eyebrow">MEMORY PATTERN</p><h1>灯阵记忆</h1></div><div class="actions"><button class="btn" id="startBtn">点灯</button><button class="btn secondary" id="replayBtn">重放</button><button class="btn secondary" id="resetBtn">重开</button></div></header>
+      <section class="layout">
+        <div class="panel stage">
+          <div class="grid" id="grid">
+            <button class="lamp" data-id="0" style="background:#bd5148"></button>
+            <button class="lamp" data-id="1" style="background:#d6a33d"></button>
+            <button class="lamp" data-id="2" style="background:#287468"></button>
+            <button class="lamp" data-id="3" style="background:#326f91"></button>
+          </div>
+          <div class="overlay" id="overlay"><div class="modal"><h2 id="overlayTitle">记住灯序</h2><p id="overlayText">观察灯阵闪烁，然后按同样顺序点回去。每轮会多一盏。</p><button class="btn" id="overlayBtn">开始记忆</button></div></div>
+        </div>
+        <aside class="panel side">
+          <div class="stats"><div class="stat"><b id="roundText">0</b><small>轮次</small></div><div class="stat"><b id="scoreText">0</b><small>分数</small></div><div class="stat"><b id="streakText">0</b><small>连对</small></div><div class="stat"><b id="bestText">0</b><small>最佳</small></div></div>
+          <p class="hint" id="hintText">键盘 1/2/3/4 也能点灯。重放会扣一点分，但能救命。</p>
+        </aside>
+      </section>
+    </main>
+    <script>
+      (()=>{const lamps=[...document.querySelectorAll(".lamp")],overlay=document.getElementById("overlay"),overlayTitle=document.getElementById("overlayTitle"),overlayText=document.getElementById("overlayText"),overlayBtn=document.getElementById("overlayBtn"),startBtn=document.getElementById("startBtn"),resetBtn=document.getElementById("resetBtn"),replayBtn=document.getElementById("replayBtn"),roundText=document.getElementById("roundText"),scoreText=document.getElementById("scoreText"),streakText=document.getElementById("streakText"),bestText=document.getElementById("bestText"),hintText=document.getElementById("hintText");const storageKey="miniLanternMemoryRecords";let state=makeState(),audio=null;
+      function best(){try{return JSON.parse(localStorage.getItem(storageKey)||"{}").best||0}catch(e){return 0}}function save(s){const b=Math.max(best(),s);localStorage.setItem(storageKey,JSON.stringify({best:b}));return b}
+      function makeState(){return{mode:"menu",seq:[],index:0,round:0,score:0,streak:0,best:best(),playing:false}}
+      function tone(id){if(!audio)audio=new (AudioContext||webkitAudioContext)();if(audio.state==="suspended")audio.resume();const o=audio.createOscillator(),g=audio.createGain();o.type="sine";o.frequency.value=[240,320,420,560][id];g.gain.setValueAtTime(.001,audio.currentTime);g.gain.linearRampToValueAtTime(.06,audio.currentTime+.02);g.gain.exponentialRampToValueAtTime(.001,audio.currentTime+.22);o.connect(g);g.connect(audio.destination);o.start();o.stop(audio.currentTime+.24)}
+      function flash(id,ms=360){lamps[id].classList.add("on");tone(id);setTimeout(()=>lamps[id].classList.remove("on"),ms)}
+      async function showSeq(){state.mode="show";state.playing=true;hintText.textContent="观察灯序。";for(const id of state.seq){flash(id);await new Promise(r=>setTimeout(r,560));}state.mode="input";state.index=0;state.playing=false;hintText.textContent="轮到你了，按刚才的顺序点灯。";update()}
+      function nextRound(){state.round++;state.seq.push(Math.floor(Math.random()*4));state.index=0;overlay.classList.add("hidden");update();showSeq()}
+      function start(){state=makeState();state.mode="input";nextRound()}
+      function press(id){if(state.mode!=="input"||state.playing)return;flash(id,180);if(id===state.seq[state.index]){state.index++;state.streak++;state.score+=20+state.round*5;if(state.index>=state.seq.length){state.score+=state.round*30;setTimeout(nextRound,520)}}else{state.best=save(state.score);state.mode="over";overlayTitle.textContent="灯序断了";overlayText.textContent=`坚持到第 ${state.round} 轮，分数 ${state.score}。`;overlayBtn.textContent="再记一次";overlay.classList.remove("hidden")}update()}
+      function replay(){if(state.mode!=="input"||state.playing)return;state.score=Math.max(0,state.score-15);showSeq();update()}
+      function update(){roundText.textContent=state.round;scoreText.textContent=state.score;streakText.textContent=state.streak;bestText.textContent=Math.max(state.best,state.score);replayBtn.disabled=state.mode!=="input"||state.playing}
+      lamps.forEach(l=>l.addEventListener("click",()=>press(Number(l.dataset.id))));startBtn.addEventListener("click",start);resetBtn.addEventListener("click",start);overlayBtn.addEventListener("click",start);replayBtn.addEventListener("click",replay);document.addEventListener("keydown",e=>{if(["Digit1","Digit2","Digit3","Digit4"].includes(e.code))press(Number(e.code.slice(-1))-1);if(e.code==="KeyR")start()});update();
+    })();
+    </script>
+  </body>
+</html>

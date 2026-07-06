@@ -8,5 +8,6 @@ Thumbs.db
 *.tmp
 
 # Generated verification artifacts
+output/
 ball-modes-*.png
 *.log

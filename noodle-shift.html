@@ -1,0 +1,864 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>夜市面摊</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23141b1c'/%3E%3Cpath d='M14 31h36l-5 21H19z' fill='%23f1dfb3'/%3E%3Cpath d='M18 31c2-9 8-14 14-14s12 5 14 14' fill='none' stroke='%23d65a4a' stroke-width='5' stroke-linecap='round'/%3E%3Cpath d='M24 26c5-9 12-9 17 0' fill='none' stroke='%23f3c45f' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+    <style>
+      :root {
+        --ink: #111c1d;
+        --paper: #fff3df;
+        --panel: #fffdf5;
+        --line: #8c9a90;
+        --teal: #2d7468;
+        --red: #c45447;
+        --gold: #d49e37;
+        --blue: #326886;
+        --leaf: #668d4e;
+        --shadow: rgba(8, 15, 14, 0.27);
+        --radius: 8px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--ink);
+        font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+        background:
+          linear-gradient(rgba(255, 243, 223, 0.07) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 243, 223, 0.07) 1px, transparent 1px),
+          linear-gradient(135deg, #122022, #263b35 46%, #533b3f);
+        background-size: 30px 30px, 30px 30px, auto;
+        overflow-x: hidden;
+      }
+
+      button {
+        font: inherit;
+      }
+
+      .app {
+        width: min(1380px, calc(100vw - 28px));
+        margin: 14px auto;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 16px 20px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: linear-gradient(90deg, rgba(255, 253, 245, 0.98), rgba(255, 245, 230, 0.96));
+        box-shadow: 0 16px 36px var(--shadow);
+      }
+
+      .eyebrow {
+        margin: 0 0 5px;
+        color: #8c6318;
+        font-size: 12px;
+        font-weight: 900;
+      }
+
+      h1,
+      h2,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(26px, 4vw, 44px);
+        line-height: 1;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 10px;
+      }
+
+      .btn {
+        min-height: 42px;
+        padding: 0 14px;
+        border: 1px solid #24534d;
+        border-radius: var(--radius);
+        color: #fffdf6;
+        background: #287066;
+        font-weight: 900;
+        cursor: pointer;
+        box-shadow: 0 8px 18px rgba(15, 45, 42, 0.22);
+      }
+
+      .btn.secondary {
+        color: var(--ink);
+        background: #f2d17a;
+        border-color: #9a7421;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 330px;
+        gap: 14px;
+        margin-top: 14px;
+        align-items: start;
+      }
+
+      .stage,
+      .side {
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: rgba(255, 253, 245, 0.96);
+        box-shadow: 0 16px 36px var(--shadow);
+      }
+
+      .stage {
+        position: relative;
+        overflow: hidden;
+        min-height: 640px;
+      }
+
+      canvas {
+        display: block;
+        width: 100%;
+        height: 640px;
+        touch-action: none;
+      }
+
+      .side {
+        padding: 16px;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+
+      .stat {
+        padding: 10px;
+        border: 1px solid #9ea69c;
+        border-radius: var(--radius);
+        background: #f9f7eb;
+      }
+
+      .stat b {
+        display: block;
+        font-size: 24px;
+        line-height: 1.1;
+      }
+
+      .stat small {
+        color: #5e6c66;
+        font-weight: 800;
+      }
+
+      .station-title {
+        margin: 12px 0 8px;
+        color: #475954;
+        font-size: 13px;
+        font-weight: 900;
+      }
+
+      .grid-buttons {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+      }
+
+      .grid-buttons button {
+        min-height: 58px;
+        border: 1px solid #778980;
+        border-radius: var(--radius);
+        background: #fff8e7;
+        color: var(--ink);
+        font-weight: 900;
+        cursor: pointer;
+      }
+
+      .grid-buttons button.selected {
+        background: #d9f0df;
+        border-color: #2d7468;
+      }
+
+      .grid-buttons .wide {
+        grid-column: span 3;
+        min-height: 48px;
+        color: #fffdf6;
+        background: #c45447;
+        border-color: #8e342d;
+      }
+
+      .queue {
+        display: grid;
+        gap: 8px;
+        margin-top: 8px;
+      }
+
+      .ticket {
+        padding: 9px;
+        border: 1px solid #9ea69c;
+        border-radius: var(--radius);
+        background: #fff9ea;
+      }
+
+      .ticket b {
+        display: block;
+        margin-bottom: 3px;
+      }
+
+      .ticket small {
+        color: #627069;
+        font-weight: 800;
+      }
+
+      .overlay {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background: rgba(16, 28, 29, 0.52);
+      }
+
+      .modal {
+        width: min(480px, 100%);
+        padding: 22px;
+        border: 1px solid #a6b1a9;
+        border-radius: var(--radius);
+        background: #fffdf6;
+        box-shadow: 0 24px 52px rgba(0, 0, 0, 0.32);
+      }
+
+      .modal h2 {
+        margin: 0 0 10px;
+        font-size: 28px;
+      }
+
+      .modal p {
+        margin-bottom: 16px;
+        color: #53635f;
+        line-height: 1.6;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      @media (max-width: 980px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .side {
+          order: -1;
+        }
+
+        .stage {
+          min-height: 560px;
+        }
+
+        canvas {
+          height: 560px;
+        }
+      }
+
+      @media (max-width: 620px) {
+        .app {
+          width: min(100vw - 16px, 1380px);
+          margin-top: 8px;
+        }
+
+        .topbar {
+          display: block;
+          padding: 14px;
+        }
+
+        .actions {
+          justify-content: stretch;
+          margin-top: 12px;
+        }
+
+        .btn {
+          flex: 1 1 auto;
+        }
+
+        canvas {
+          height: 500px;
+        }
+
+        .stage {
+          min-height: 500px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">TIME MANAGEMENT</p>
+          <h1>夜市面摊</h1>
+        </div>
+        <div class="actions">
+          <button class="btn" id="startBtn">开摊</button>
+          <button class="btn secondary" id="pauseBtn">暂停</button>
+          <button class="btn secondary" id="resetBtn">重开</button>
+        </div>
+      </header>
+
+      <section class="layout">
+        <div class="stage">
+          <canvas id="gameCanvas" aria-label="夜市面摊游戏画面"></canvas>
+          <div class="overlay" id="overlay">
+            <div class="modal">
+              <h2 id="overlayTitle">准备出摊</h2>
+              <p id="overlayText">煮面、加浇头、按订单出餐。锅会过熟，客人会失去耐心。</p>
+              <button class="btn" id="overlayBtn">开摊</button>
+            </div>
+          </div>
+        </div>
+        <aside class="side">
+          <div class="stats">
+            <div class="stat"><b id="moneyText">0</b><small>收入</small></div>
+            <div class="stat"><b id="servedText">0</b><small>出餐</small></div>
+            <div class="stat"><b id="comboText">0</b><small>连单</small></div>
+            <div class="stat"><b id="bestText">0</b><small>最佳</small></div>
+          </div>
+
+          <div class="station-title">锅位</div>
+          <div class="grid-buttons" id="potButtons">
+            <button data-pot="0">锅 1</button>
+            <button data-pot="1">锅 2</button>
+            <button data-pot="2">锅 3</button>
+          </div>
+
+          <div class="station-title">浇头</div>
+          <div class="grid-buttons" id="toppingButtons">
+            <button data-top="egg">卤蛋</button>
+            <button data-top="beef">牛肉</button>
+            <button data-top="veg">青菜</button>
+            <button class="wide" id="serveBtn">出餐</button>
+          </div>
+
+          <div class="station-title">订单</div>
+          <div class="queue" id="queueList"></div>
+        </aside>
+      </section>
+    </main>
+
+    <script>
+      (() => {
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const startBtn = document.getElementById("startBtn");
+        const pauseBtn = document.getElementById("pauseBtn");
+        const resetBtn = document.getElementById("resetBtn");
+        const overlay = document.getElementById("overlay");
+        const overlayBtn = document.getElementById("overlayBtn");
+        const overlayTitle = document.getElementById("overlayTitle");
+        const overlayText = document.getElementById("overlayText");
+        const moneyText = document.getElementById("moneyText");
+        const servedText = document.getElementById("servedText");
+        const comboText = document.getElementById("comboText");
+        const bestText = document.getElementById("bestText");
+        const queueList = document.getElementById("queueList");
+        const serveBtn = document.getElementById("serveBtn");
+        const storageKey = "miniNoodleShiftRecords";
+
+        const toppings = {
+          egg: { name: "卤蛋", icon: "蛋", color: "#f0c65a" },
+          beef: { name: "牛肉", icon: "肉", color: "#be5548" },
+          veg: { name: "青菜", icon: "菜", color: "#69a85c" }
+        };
+
+        const orderNames = ["码头工", "夜骑手", "收摊阿姨", "巡街人", "加班客", "学生"];
+        const recipes = [
+          ["egg"],
+          ["beef"],
+          ["veg"],
+          ["egg", "veg"],
+          ["beef", "veg"],
+          ["egg", "beef"],
+          ["egg", "beef", "veg"]
+        ];
+
+        let dpr = 1;
+        let w = 900;
+        let h = 640;
+        let state;
+        let lastFrame = 0;
+        let loopToken = 0;
+        let audioCtx = null;
+        let selectedPot = 0;
+        let floaters = [];
+
+        function loadBest() {
+          try {
+            return JSON.parse(localStorage.getItem(storageKey) || "{}").best || 0;
+          } catch (error) {
+            return 0;
+          }
+        }
+
+        function saveBest(value) {
+          const best = Math.max(loadBest(), value);
+          localStorage.setItem(storageKey, JSON.stringify({ best }));
+          return best;
+        }
+
+        function makeState() {
+          return {
+            mode: "menu",
+            time: 0,
+            duration: 90000,
+            nextOrder: 0,
+            orderGap: 5200,
+            money: 0,
+            served: 0,
+            combo: 0,
+            best: loadBest(),
+            orders: [],
+            pots: [
+              { cooking: false, cook: 0, toppings: [] },
+              { cooking: false, cook: 0, toppings: [] },
+              { cooking: false, cook: 0, toppings: [] }
+            ],
+            pausedAt: 0
+          };
+        }
+
+        state = makeState();
+
+        function resizeCanvas() {
+          const rect = canvas.getBoundingClientRect();
+          dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+          w = Math.max(320, rect.width);
+          h = Math.max(500, rect.height);
+          canvas.width = Math.floor(w * dpr);
+          canvas.height = Math.floor(h * dpr);
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          draw();
+        }
+
+        function ensureAudio() {
+          if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          if (audioCtx.state === "suspended") audioCtx.resume();
+        }
+
+        function beep(freq, duration, gain) {
+          if (!audioCtx) return;
+          const osc = audioCtx.createOscillator();
+          const amp = audioCtx.createGain();
+          osc.type = "sine";
+          osc.frequency.value = freq;
+          amp.gain.setValueAtTime(0, audioCtx.currentTime);
+          amp.gain.linearRampToValueAtTime(gain, audioCtx.currentTime + 0.01);
+          amp.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+          osc.connect(amp);
+          amp.connect(audioCtx.destination);
+          osc.start();
+          osc.stop(audioCtx.currentTime + duration + 0.02);
+        }
+
+        function setOverlay(title, text, button) {
+          overlayTitle.textContent = title;
+          overlayText.textContent = text;
+          overlayBtn.textContent = button;
+          overlay.classList.remove("hidden");
+        }
+
+        function hideOverlay() {
+          overlay.classList.add("hidden");
+        }
+
+        function startGame() {
+          ensureAudio();
+          loopToken += 1;
+          state = makeState();
+          state.mode = "running";
+          state.nextOrder = 600;
+          lastFrame = performance.now();
+          floaters = [];
+          selectedPot = 0;
+          hideOverlay();
+          updateHud();
+          requestAnimationFrame((time) => loop(time, loopToken));
+        }
+
+        function togglePause() {
+          if (state.mode === "running") {
+            state.mode = "paused";
+            setOverlay("暂停中", "面汤先小火温着，回来继续接单。", "继续");
+          } else if (state.mode === "paused") {
+            state.mode = "running";
+            hideOverlay();
+            lastFrame = performance.now();
+            loopToken += 1;
+            requestAnimationFrame((time) => loop(time, loopToken));
+          }
+        }
+
+        function finishGame() {
+          if (state.mode === "over") return;
+          state.mode = "over";
+          state.best = saveBest(state.money);
+          setOverlay("收摊", `卖出 ${state.served} 碗，收入 ${state.money}。`, "再开一摊");
+          updateHud();
+        }
+
+        function randomOrder() {
+          const base = recipes[Math.floor(Math.random() * recipes.length)];
+          const patience = 16500 + Math.random() * 7000 - Math.min(5000, state.time / 16);
+          return {
+            id: Math.random(),
+            name: orderNames[Math.floor(Math.random() * orderNames.length)],
+            toppings: [...base].sort(),
+            born: state.time,
+            patience: Math.max(9500, patience),
+            value: 18 + base.length * 8
+          };
+        }
+
+        function spawnOrders() {
+          if (state.time >= state.nextOrder && state.orders.length < 5) {
+            state.orders.push(randomOrder());
+            state.nextOrder = state.time + Math.max(2400, state.orderGap - state.time / 32);
+          }
+        }
+
+        function startPot(index) {
+          if (state.mode !== "running") return;
+          const pot = state.pots[index];
+          selectedPot = index;
+          if (!pot.cooking) {
+            pot.cooking = true;
+            pot.cook = 0;
+            pot.toppings = [];
+            beep(260, 0.08, 0.035);
+          }
+          updateHud();
+          draw();
+        }
+
+        function addTopping(key) {
+          if (state.mode !== "running") return;
+          const pot = state.pots[selectedPot];
+          if (!pot.cooking || pot.cook < 2300) return;
+          if (!pot.toppings.includes(key)) {
+            pot.toppings.push(key);
+            pot.toppings.sort();
+            beep(340 + pot.toppings.length * 80, 0.08, 0.035);
+          }
+          updateHud();
+          draw();
+        }
+
+        function arraysEqual(a, b) {
+          return a.length === b.length && a.every((item, index) => item === b[index]);
+        }
+
+        function serveSelected() {
+          if (state.mode !== "running") return;
+          const pot = state.pots[selectedPot];
+          if (!pot.cooking || pot.cook < 4200) return;
+          const overCook = pot.cook > 9800;
+          const matchIndex = state.orders.findIndex((order) => arraysEqual(order.toppings, pot.toppings));
+          if (matchIndex >= 0 && !overCook) {
+            const order = state.orders.splice(matchIndex, 1)[0];
+            const remaining = Math.max(0, 1 - (state.time - order.born) / order.patience);
+            state.combo += 1;
+            const gain = Math.round(order.value * (1 + remaining * 0.7) + state.combo * 3);
+            state.money += gain;
+            state.served += 1;
+            addFloat(`+${gain}`, potX(selectedPot), h * 0.5, "#d49e37");
+            beep(560 + Math.min(10, state.combo) * 24, 0.1, 0.05);
+          } else {
+            state.combo = 0;
+            state.money = Math.max(0, state.money - 8);
+            addFloat(overCook ? "糊了" : "错单", potX(selectedPot), h * 0.5, "#b74a42");
+            beep(130, 0.1, 0.04);
+          }
+          state.pots[selectedPot] = { cooking: false, cook: 0, toppings: [] };
+          updateHud();
+          draw();
+        }
+
+        function discardPot(index) {
+          state.pots[index] = { cooking: false, cook: 0, toppings: [] };
+          state.combo = 0;
+          updateHud();
+          draw();
+        }
+
+        function addFloat(text, x, y, color) {
+          floaters.push({ text, x, y, color, life: 1 });
+        }
+
+        function update(dt) {
+          state.time += dt * 1000;
+          if (state.time >= state.duration) {
+            finishGame();
+            return;
+          }
+          spawnOrders();
+          for (const pot of state.pots) {
+            if (pot.cooking) pot.cook += dt * 1000;
+          }
+          for (let i = state.orders.length - 1; i >= 0; i -= 1) {
+            const order = state.orders[i];
+            if (state.time - order.born > order.patience) {
+              state.orders.splice(i, 1);
+              state.combo = 0;
+              state.money = Math.max(0, state.money - 5);
+              addFloat("跑单", w - 130, 118 + i * 54, "#b74a42");
+            }
+          }
+          floaters = floaters.filter((item) => {
+            item.y -= dt * 42;
+            item.life -= dt * 0.9;
+            return item.life > 0;
+          });
+          updateHud();
+        }
+
+        function loop(now, token) {
+          if (token !== loopToken) return;
+          if (state.mode !== "running") return;
+          const dt = Math.min(0.05, (now - lastFrame) / 1000 || 0.016);
+          lastFrame = now;
+          update(dt);
+          draw();
+          if (state.mode === "running") requestAnimationFrame((time) => loop(time, token));
+        }
+
+        function potX(index) {
+          const gap = Math.min(42, w * 0.04);
+          const width = Math.min(190, (w - gap * 4) / 3);
+          return (w - width * 3 - gap * 2) / 2 + index * (width + gap) + width / 2;
+        }
+
+        function drawRoundRect(x, y, width, height, radius, fill, stroke) {
+          ctx.beginPath();
+          ctx.moveTo(x + radius, y);
+          ctx.arcTo(x + width, y, x + width, y + height, radius);
+          ctx.arcTo(x + width, y + height, x, y + height, radius);
+          ctx.arcTo(x, y + height, x, y, radius);
+          ctx.arcTo(x, y, x + width, y, radius);
+          if (fill) {
+            ctx.fillStyle = fill;
+            ctx.fill();
+          }
+          if (stroke) {
+            ctx.strokeStyle = stroke;
+            ctx.stroke();
+          }
+        }
+
+        function draw() {
+          ctx.clearRect(0, 0, w, h);
+          const grad = ctx.createLinearGradient(0, 0, 0, h);
+          grad.addColorStop(0, "#fff8e9");
+          grad.addColorStop(0.52, "#f7ead5");
+          grad.addColorStop(1, "#d8c19a");
+          ctx.fillStyle = grad;
+          ctx.fillRect(0, 0, w, h);
+
+          ctx.fillStyle = "#263536";
+          ctx.fillRect(0, h * 0.58, w, h * 0.42);
+          ctx.fillStyle = "#3d4b48";
+          ctx.fillRect(0, h * 0.61, w, 18);
+          ctx.fillStyle = "#d25a4b";
+          for (let x = 30; x < w; x += 72) {
+            ctx.beginPath();
+            ctx.arc(x, 68, 18, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = "#f1c45f";
+            ctx.fillRect(x - 1, 82, 2, 24);
+            ctx.fillStyle = "#d25a4b";
+          }
+
+          drawOrders();
+          drawPots();
+          drawClock();
+
+          for (const item of floaters) {
+            ctx.globalAlpha = item.life;
+            ctx.fillStyle = item.color;
+            ctx.font = "900 24px system-ui";
+            ctx.textAlign = "center";
+            ctx.fillText(item.text, item.x, item.y);
+            ctx.globalAlpha = 1;
+          }
+        }
+
+        function drawOrders() {
+          const startX = 30;
+          const y = 118;
+          const cardW = Math.min(168, (w - 60) / 5 - 8);
+          state.orders.forEach((order, index) => {
+            const x = startX + index * (cardW + 8);
+            const remain = Math.max(0, 1 - (state.time - order.born) / order.patience);
+            drawRoundRect(x, y, cardW, 104, 8, "#fffdf5", "#89978f");
+            ctx.fillStyle = "#132021";
+            ctx.font = "900 15px system-ui";
+            ctx.textAlign = "left";
+            ctx.fillText(order.name, x + 10, y + 24);
+            ctx.fillStyle = remain < 0.28 ? "#b74a42" : "#2d7468";
+            ctx.fillRect(x + 10, y + 34, (cardW - 20) * remain, 8);
+            order.toppings.forEach((top, topIndex) => {
+              const tx = x + 12 + topIndex * 44;
+              const ty = y + 56;
+              drawRoundRect(tx, ty, 36, 32, 7, toppings[top].color, "#59482a");
+              ctx.fillStyle = "#fffdf5";
+              ctx.font = "900 14px system-ui";
+              ctx.textAlign = "center";
+              ctx.fillText(toppings[top].icon, tx + 18, ty + 21);
+            });
+          });
+        }
+
+        function drawPots() {
+          const gap = Math.min(42, w * 0.04);
+          const potW = Math.min(190, (w - gap * 4) / 3);
+          const startX = (w - potW * 3 - gap * 2) / 2;
+          const y = h * 0.62;
+          for (let i = 0; i < 3; i += 1) {
+            const pot = state.pots[i];
+            const x = startX + i * (potW + gap);
+            drawRoundRect(x, y, potW, 142, 8, selectedPot === i ? "#fff6d6" : "#e9e6d5", "#72847c");
+            ctx.fillStyle = "#596967";
+            ctx.fillRect(x + 20, y + 78, potW - 40, 30);
+            ctx.fillStyle = "#293838";
+            ctx.beginPath();
+            ctx.ellipse(x + potW / 2, y + 74, potW * 0.34, 28, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = pot.cooking ? "#f2c45f" : "#cbd1c3";
+            ctx.beginPath();
+            ctx.ellipse(x + potW / 2, y + 68, potW * 0.3, 22, 0, 0, Math.PI * 2);
+            ctx.fill();
+            if (pot.cooking) {
+              const ready = Math.min(1, pot.cook / 4200);
+              const over = Math.max(0, (pot.cook - 9800) / 2600);
+              ctx.fillStyle = over > 0 ? "#b74a42" : "#2d7468";
+              ctx.fillRect(x + 18, y + 118, (potW - 36) * Math.min(1, over || ready), 8);
+              pot.toppings.forEach((top, index) => {
+                ctx.fillStyle = toppings[top].color;
+                ctx.beginPath();
+                ctx.arc(x + potW * 0.36 + index * 24, y + 64, 9, 0, Math.PI * 2);
+                ctx.fill();
+              });
+              for (let s = 0; s < 3; s += 1) {
+                const steamX = x + potW * (0.38 + s * 0.12);
+                ctx.strokeStyle = "rgba(255,255,255,.72)";
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(steamX, y + 36);
+                ctx.quadraticCurveTo(steamX - 12, y + 24, steamX + 3, y + 10);
+                ctx.stroke();
+              }
+            }
+            ctx.fillStyle = "#132021";
+            ctx.font = "900 17px system-ui";
+            ctx.textAlign = "center";
+            const label = pot.cooking ? (pot.cook < 4200 ? "煮面中" : pot.cook > 9800 ? "快糊了" : "可出餐") : "空锅";
+            ctx.fillText(`锅 ${i + 1} · ${label}`, x + potW / 2, y + 26);
+          }
+        }
+
+        function drawClock() {
+          const left = Math.max(0, Math.ceil((state.duration - state.time) / 1000));
+          drawRoundRect(w - 138, 24, 110, 46, 8, "rgba(255,253,245,.92)", "#87958d");
+          ctx.fillStyle = "#132021";
+          ctx.font = "900 22px system-ui";
+          ctx.textAlign = "center";
+          ctx.fillText(`${left}s`, w - 83, 54);
+        }
+
+        function updateHud() {
+          moneyText.textContent = state.money.toString();
+          servedText.textContent = state.served.toString();
+          comboText.textContent = state.combo.toString();
+          bestText.textContent = Math.max(state.best, state.money).toString();
+          document.querySelectorAll("[data-pot]").forEach((button) => {
+            button.classList.toggle("selected", Number(button.dataset.pot) === selectedPot);
+            const pot = state.pots[Number(button.dataset.pot)];
+            button.textContent = pot.cooking ? `锅 ${Number(button.dataset.pot) + 1} ${pot.cook >= 4200 ? "熟" : "煮"}` : `锅 ${Number(button.dataset.pot) + 1}`;
+          });
+          queueList.innerHTML = "";
+          state.orders.slice(0, 4).forEach((order) => {
+            const item = document.createElement("div");
+            item.className = "ticket";
+            const remain = Math.max(0, Math.ceil((order.patience - (state.time - order.born)) / 1000));
+            item.innerHTML = `<b>${order.name}</b><small>${order.toppings.map((top) => toppings[top].name).join(" + ")} · ${remain}s</small>`;
+            queueList.appendChild(item);
+          });
+        }
+
+        function pointPot(event) {
+          const rect = canvas.getBoundingClientRect();
+          const x = event.clientX - rect.left;
+          const y = event.clientY - rect.top;
+          const gap = Math.min(42, w * 0.04);
+          const potW = Math.min(190, (w - gap * 4) / 3);
+          const startX = (w - potW * 3 - gap * 2) / 2;
+          const py = h * 0.62;
+          for (let i = 0; i < 3; i += 1) {
+            const px = startX + i * (potW + gap);
+            if (x >= px && x <= px + potW && y >= py && y <= py + 142) return i;
+          }
+          return -1;
+        }
+
+        startBtn.addEventListener("click", startGame);
+        resetBtn.addEventListener("click", startGame);
+        pauseBtn.addEventListener("click", togglePause);
+        overlayBtn.addEventListener("click", () => {
+          if (state.mode === "paused") togglePause();
+          else startGame();
+        });
+        document.querySelectorAll("[data-pot]").forEach((button) => {
+          button.addEventListener("click", () => startPot(Number(button.dataset.pot)));
+        });
+        document.querySelectorAll("[data-top]").forEach((button) => {
+          button.addEventListener("click", () => addTopping(button.dataset.top));
+        });
+        serveBtn.addEventListener("click", serveSelected);
+        canvas.addEventListener("pointerdown", (event) => {
+          ensureAudio();
+          const pot = pointPot(event);
+          if (pot >= 0) {
+            if (selectedPot === pot && state.pots[pot].cooking && state.pots[pot].cook > 12000) discardPot(pot);
+            else startPot(pot);
+          }
+        });
+        document.addEventListener("keydown", (event) => {
+          if (event.repeat) return;
+          if (event.code === "Digit1") startPot(0);
+          if (event.code === "Digit2") startPot(1);
+          if (event.code === "Digit3") startPot(2);
+          if (event.code === "KeyQ") addTopping("egg");
+          if (event.code === "KeyW") addTopping("beef");
+          if (event.code === "KeyE") addTopping("veg");
+          if (event.code === "Space") {
+            event.preventDefault();
+            serveSelected();
+          }
+          if (event.code === "KeyP") togglePause();
+          if (event.code === "KeyR") startGame();
+        });
+        window.addEventListener("resize", resizeCanvas);
+        resizeCanvas();
+        updateHud();
+        draw();
+      })();
+    </script>
+  </body>
+</html>

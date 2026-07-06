@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>字灵守门</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23131b20'/%3E%3Cpath d='M14 50V14h36v36H14Z' fill='%23f4d36b'/%3E%3Cpath d='M24 25h16M24 34h16M32 18v28' stroke='%23131b20' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
+    <style>
+      :root {
+        --ink: #10191d;
+        --panel: #fffdf4;
+        --line: #879a94;
+        --teal: #287569;
+        --gold: #d6a43e;
+        --red: #be5048;
+        --blue: #356f91;
+        --shadow: rgba(5, 12, 14, 0.28);
+        --radius: 8px;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--ink);
+        font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+        background:
+          linear-gradient(rgba(255,255,245,.06) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255,255,245,.06) 1px, transparent 1px),
+          linear-gradient(135deg, #102025, #173b3c 45%, #3f3a57);
+        background-size: 30px 30px, 30px 30px, auto;
+      }
+
+      button, input { font: inherit; }
+
+      .app { width: min(1380px, calc(100vw - 28px)); margin: 14px auto; }
+
+      .topbar, .panel {
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: rgba(255, 253, 244, .97);
+        box-shadow: 0 16px 36px var(--shadow);
+      }
+
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 14px;
+        padding: 16px 20px;
+      }
+
+      .eyebrow { margin: 0 0 5px; color: #856219; font-size: 12px; font-weight: 900; }
+      h1 { margin: 0; font-size: clamp(26px, 4vw, 44px); line-height: 1; }
+
+      .actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+      .btn {
+        min-height: 42px;
+        padding: 0 14px;
+        border: 1px solid #24544d;
+        border-radius: var(--radius);
+        color: #fffdf6;
+        background: var(--teal);
+        font-weight: 900;
+        cursor: pointer;
+      }
+      .btn.secondary { color: var(--ink); background: #f1d27c; border-color: #9b7522; }
+
+      .layout { display: grid; grid-template-columns: minmax(0, 1fr) 318px; gap: 14px; margin-top: 14px; }
+      .stage { position: relative; overflow: hidden; min-height: 620px; }
+      canvas { display: block; width: 100%; height: 620px; touch-action: none; }
+      .side { padding: 16px; }
+
+      .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+      .stat { padding: 10px; border: 1px solid #9ba79e; border-radius: var(--radius); background: #f9f7eb; }
+      .stat b { display: block; font-size: 24px; line-height: 1.1; }
+      .stat small { color: #5d6c66; font-weight: 800; }
+
+      .typing {
+        display: grid;
+        gap: 10px;
+        padding: 12px;
+        border: 1px solid #9ba79e;
+        border-radius: var(--radius);
+        background: #fff8e7;
+      }
+      .typing input {
+        width: 100%;
+        min-height: 54px;
+        padding: 0 14px;
+        border: 1px solid #778981;
+        border-radius: var(--radius);
+        font-size: 26px;
+        font-weight: 900;
+        outline: none;
+      }
+      .typing input:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(40,117,105,.18); }
+      .hint { margin: 14px 0 0; color: #566861; line-height: 1.55; font-weight: 700; }
+
+      .overlay {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background: rgba(16, 28, 31, .52);
+      }
+      .modal {
+        width: min(460px, 100%);
+        padding: 22px;
+        border: 1px solid #a4b4ad;
+        border-radius: var(--radius);
+        background: #fffdf6;
+        box-shadow: 0 24px 52px rgba(0,0,0,.32);
+      }
+      .modal h2 { margin: 0 0 10px; font-size: 28px; }
+      .modal p { margin: 0 0 16px; color: #53635f; line-height: 1.6; }
+      .hidden { display: none; }
+
+      @media (max-width: 940px) {
+        .layout { grid-template-columns: 1fr; }
+        .side { order: -1; }
+        .stage { min-height: 540px; }
+        canvas { height: 540px; }
+      }
+
+      @media (max-width: 620px) {
+        .app { width: min(100vw - 16px, 1380px); margin-top: 8px; }
+        .topbar { display: block; padding: 14px; }
+        .actions { margin-top: 12px; justify-content: stretch; }
+        .btn { flex: 1 1 auto; }
+        .stage { min-height: 500px; }
+        canvas { height: 500px; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">TYPING DEFENSE</p>
+          <h1>字灵守门</h1>
+        </div>
+        <div class="actions">
+          <button class="btn" id="startBtn">开始</button>
+          <button class="btn secondary" id="burstBtn">清场</button>
+          <button class="btn secondary" id="resetBtn">重开</button>
+        </div>
+      </header>
+
+      <section class="layout">
+        <div class="panel stage">
+          <canvas id="gameCanvas" aria-label="字灵守门游戏画面"></canvas>
+          <div class="overlay" id="overlay">
+            <div class="modal">
+              <h2 id="overlayTitle">守住字门</h2>
+              <p id="overlayText">输入靠近城门的字灵拼音，完整命中后会把它驱散。连击会给清场充能。</p>
+              <button class="btn" id="overlayBtn">开始守门</button>
+            </div>
+          </div>
+        </div>
+
+        <aside class="panel side">
+          <div class="stats">
+            <div class="stat"><b id="scoreText">0</b><small>分数</small></div>
+            <div class="stat"><b id="comboText">0</b><small>连击</small></div>
+            <div class="stat"><b id="livesText">6</b><small>门耐久</small></div>
+            <div class="stat"><b id="bestText">0</b><small>最佳</small></div>
+          </div>
+          <div class="typing">
+            <input id="typeInput" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="latin" placeholder="输入字灵，例如 feng">
+            <button class="btn" id="submitBtn">击退</button>
+          </div>
+          <p class="hint" id="hintText">Enter 提交，空格释放清场。点画面中的字灵可把单词填入输入框。</p>
+        </aside>
+      </section>
+    </main>
+
+    <script>
+      (() => {
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const overlay = document.getElementById("overlay");
+        const overlayTitle = document.getElementById("overlayTitle");
+        const overlayText = document.getElementById("overlayText");
+        const overlayBtn = document.getElementById("overlayBtn");
+        const startBtn = document.getElementById("startBtn");
+        const resetBtn = document.getElementById("resetBtn");
+        const burstBtn = document.getElementById("burstBtn");
+        const submitBtn = document.getElementById("submitBtn");
+        const typeInput = document.getElementById("typeInput");
+        const scoreText = document.getElementById("scoreText");
+        const comboText = document.getElementById("comboText");
+        const livesText = document.getElementById("livesText");
+        const bestText = document.getElementById("bestText");
+        const hintText = document.getElementById("hintText");
+        const storageKey = "miniGlyphWardenRecords";
+        const words = ["mu", "lan", "feng", "yu", "bei", "shan", "yun", "xing", "qiu", "guang", "hai", "ye", "lin", "chuan", "huo", "shi", "zhu", "yue"];
+
+        let w = 900, h = 620, dpr = 1;
+        let state = makeState();
+        let lastFrame = 0;
+        let loopToken = 0;
+
+        function loadBest() {
+          try { return JSON.parse(localStorage.getItem(storageKey) || "{}").best || 0; }
+          catch (error) { return 0; }
+        }
+
+        function saveBest(score) {
+          const best = Math.max(loadBest(), score);
+          localStorage.setItem(storageKey, JSON.stringify({ best }));
+          return best;
+        }
+
+        function makeState() {
+          return {
+            mode: "menu",
+            time: 0,
+            duration: 90000,
+            nextSpawn: 400,
+            score: 0,
+            combo: 0,
+            lives: 6,
+            charge: 0,
+            enemies: [],
+            particles: [],
+            best: loadBest()
+          };
+        }
+
+        function resizeCanvas() {
+          const rect = canvas.getBoundingClientRect();
+          dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+          w = Math.max(320, rect.width);
+          h = Math.max(480, rect.height);
+          canvas.width = Math.floor(w * dpr);
+          canvas.height = Math.floor(h * dpr);
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          draw();
+        }
+
+        function startGame() {
+          loopToken += 1;
+          state = makeState();
+          state.mode = "running";
+          typeInput.value = "";
+          overlay.classList.add("hidden");
+          lastFrame = performance.now();
+          updateHud();
+          typeInput.focus({ preventScroll: true });
+          requestAnimationFrame((time) => loop(time, loopToken));
+        }
+
+        function finishGame() {
+          if (state.mode === "over") return;
+          state.mode = "over";
+          state.best = saveBest(state.score);
+          overlayTitle.textContent = "城门收声";
+          overlayText.textContent = `击退 ${state.score} 分，最高连击 ${state.combo}。`;
+          overlayBtn.textContent = "再守一局";
+          overlay.classList.remove("hidden");
+          updateHud();
+        }
+
+        function spawnEnemy() {
+          const word = words[Math.floor(Math.random() * words.length)];
+          const y = 86 + Math.random() * (h - 160);
+          const speed = 36 + Math.random() * 18 + state.time / 6500;
+          state.enemies.push({ word, x: w - 58, y, speed, r: 26 + word.length * 3, wobble: Math.random() * Math.PI * 2 });
+          state.nextSpawn = state.time + Math.max(620, 1700 - state.time / 95);
+        }
+
+        function submitWord() {
+          if (state.mode !== "running") return;
+          const value = typeInput.value.trim().toLowerCase();
+          if (!value) return;
+          let targetIndex = -1;
+          let minX = Infinity;
+          state.enemies.forEach((enemy, index) => {
+            if (enemy.word === value && enemy.x < minX) {
+              minX = enemy.x;
+              targetIndex = index;
+            }
+          });
+          if (targetIndex >= 0) {
+            const enemy = state.enemies.splice(targetIndex, 1)[0];
+            state.combo += 1;
+            state.charge = Math.min(100, state.charge + 12 + enemy.word.length);
+            const gain = 80 + enemy.word.length * 25 + state.combo * 6;
+            state.score += gain;
+            pop(enemy.x, enemy.y, `+${gain}`, "#d6a43e");
+            typeInput.value = "";
+          } else {
+            state.combo = 0;
+            pop(120, h - 60, "错字", "#be5048");
+          }
+          updateHud();
+        }
+
+        function burst() {
+          if (state.mode !== "running" || state.charge < 100) return;
+          const count = state.enemies.length;
+          state.score += count * 60;
+          state.enemies.forEach((enemy) => pop(enemy.x, enemy.y, "散", "#356f91"));
+          state.enemies = [];
+          state.charge = 0;
+          updateHud();
+        }
+
+        function pop(x, y, text, color) {
+          state.particles.push({ x, y, text, color, life: 1 });
+        }
+
+        function update(dt) {
+          state.time += dt * 1000;
+          if (state.time >= state.duration) finishGame();
+          while (state.time >= state.nextSpawn) spawnEnemy();
+          for (let i = state.enemies.length - 1; i >= 0; i -= 1) {
+            const enemy = state.enemies[i];
+            enemy.x -= enemy.speed * dt;
+            enemy.wobble += dt * 3;
+            if (enemy.x < 74) {
+              state.enemies.splice(i, 1);
+              state.lives -= 1;
+              state.combo = 0;
+              pop(82, enemy.y, "-1", "#be5048");
+              if (state.lives <= 0) finishGame();
+            }
+          }
+          state.particles = state.particles.filter((p) => {
+            p.y -= dt * 38;
+            p.life -= dt * 0.85;
+            return p.life > 0;
+          });
+          updateHud();
+        }
+
+        function loop(now, token) {
+          if (token !== loopToken || state.mode !== "running") return;
+          const dt = Math.min(0.05, (now - lastFrame) / 1000 || 0.016);
+          lastFrame = now;
+          update(dt);
+          draw();
+          if (state.mode === "running") requestAnimationFrame((time) => loop(time, token));
+        }
+
+        function roundRect(x, y, width, height, radius, fill, stroke) {
+          radius = Math.min(radius, width / 2, height / 2);
+          ctx.beginPath();
+          ctx.moveTo(x + radius, y);
+          ctx.arcTo(x + width, y, x + width, y + height, radius);
+          ctx.arcTo(x + width, y + height, x, y + height, radius);
+          ctx.arcTo(x, y + height, x, y, radius);
+          ctx.arcTo(x, y, x + width, y, radius);
+          if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+          if (stroke) { ctx.strokeStyle = stroke; ctx.stroke(); }
+        }
+
+        function draw() {
+          ctx.clearRect(0, 0, w, h);
+          const grad = ctx.createLinearGradient(0, 0, 0, h);
+          grad.addColorStop(0, "#fff7e5");
+          grad.addColorStop(.58, "#edf7ee");
+          grad.addColorStop(1, "#d9c69e");
+          ctx.fillStyle = grad;
+          ctx.fillRect(0, 0, w, h);
+
+          ctx.fillStyle = "#263638";
+          ctx.fillRect(32, 44, 34, h - 88);
+          ctx.fillStyle = "#d6a43e";
+          ctx.fillRect(58, 62, 8, h - 124);
+          ctx.fillStyle = "rgba(40,117,105,.08)";
+          for (let y = 70; y < h - 60; y += 46) ctx.fillRect(66, y, w - 100, 1);
+
+          for (const enemy of state.enemies) {
+            const bob = Math.sin(enemy.wobble) * 4;
+            ctx.save();
+            ctx.translate(enemy.x, enemy.y + bob);
+            ctx.shadowColor = "rgba(0,0,0,.22)";
+            ctx.shadowBlur = 12;
+            ctx.fillStyle = "#fffdf4";
+            ctx.beginPath();
+            ctx.arc(0, 0, enemy.r, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            ctx.strokeStyle = enemy.x < 190 ? "#be5048" : "#287569";
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            ctx.fillStyle = "#10191d";
+            ctx.font = "900 18px system-ui";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(enemy.word, 0, 1);
+            ctx.restore();
+          }
+
+          const left = Math.max(0, Math.ceil((state.duration - state.time) / 1000));
+          roundRect(w - 142, 22, 112, 48, 8, "rgba(255,253,244,.92)", "#879a94");
+          ctx.fillStyle = "#10191d";
+          ctx.font = "900 22px system-ui";
+          ctx.textAlign = "center";
+          ctx.fillText(`${left}s`, w - 86, 53);
+
+          roundRect(96, h - 54, w - 130, 18, 999, "#e9eadc", "#879a94");
+          ctx.fillStyle = "#287569";
+          ctx.fillRect(97, h - 53, (w - 132) * state.charge / 100, 16);
+
+          for (const p of state.particles) {
+            ctx.globalAlpha = p.life;
+            ctx.fillStyle = p.color;
+            ctx.font = "900 22px system-ui";
+            ctx.textAlign = "center";
+            ctx.fillText(p.text, p.x, p.y);
+            ctx.globalAlpha = 1;
+          }
+        }
+
+        function updateHud() {
+          scoreText.textContent = state.score.toString();
+          comboText.textContent = state.combo.toString();
+          livesText.textContent = state.lives.toString();
+          bestText.textContent = Math.max(state.best, state.score).toString();
+          burstBtn.textContent = state.charge >= 100 ? "清场" : `充能 ${Math.round(state.charge)}%`;
+          hintText.textContent = state.mode === "running" ? "优先输入最靠近城门的字灵；连击越高分数越多。" : "Enter 提交，空格释放清场。点画面中的字灵可把单词填入输入框。";
+        }
+
+        function pickEnemy(event) {
+          const rect = canvas.getBoundingClientRect();
+          const x = event.clientX - rect.left;
+          const y = event.clientY - rect.top;
+          const hit = state.enemies.find((enemy) => Math.hypot(enemy.x - x, enemy.y - y) < enemy.r + 10);
+          if (hit) {
+            typeInput.value = hit.word;
+            typeInput.focus({ preventScroll: true });
+            submitWord();
+          }
+        }
+
+        startBtn.addEventListener("click", startGame);
+        resetBtn.addEventListener("click", startGame);
+        overlayBtn.addEventListener("click", startGame);
+        submitBtn.addEventListener("click", submitWord);
+        burstBtn.addEventListener("click", burst);
+        canvas.addEventListener("pointerdown", pickEnemy);
+        typeInput.addEventListener("input", () => {
+          const value = typeInput.value.trim().toLowerCase();
+          if (state.enemies.some((enemy) => enemy.word === value)) submitWord();
+        });
+        document.addEventListener("keydown", (event) => {
+          if (event.code === "Enter") submitWord();
+          if (event.code === "Space" && document.activeElement !== typeInput) {
+            event.preventDefault();
+            burst();
+          }
+          if (event.code === "KeyR" && event.ctrlKey) startGame();
+        });
+        window.addEventListener("resize", resizeCanvas);
+        resizeCanvas();
+        updateHud();
+        draw();
+      })();
+    </script>
+  </body>
+</html>
