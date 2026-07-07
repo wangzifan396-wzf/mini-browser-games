@@ -294,8 +294,10 @@
   }
 
   .dialog {
-    width: min(430px, calc(100vw - 32px));
+    width: min(570px, calc(100vw - 32px));
     max-width: calc(100vw - 32px);
+    max-height: calc(100vh - 48px);
+    overflow: auto;
     padding: 24px;
     text-align: center;
     background: rgba(13, 19, 29, 0.96);
@@ -319,6 +321,60 @@
   .dialog p {
     margin: 10px 0 20px;
     color: var(--muted);
+  }
+
+  .meta-strip {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin: 0 0 14px;
+  }
+
+  .meta-pill {
+    min-height: 44px;
+    padding: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.11);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.045);
+    color: #f3f8ff;
+    font-size: 13px;
+    font-weight: 800;
+  }
+
+  .meta-pill span {
+    display: block;
+    margin-top: 3px;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .lobby-tabs {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+    margin: 0 0 14px;
+  }
+
+  .lobby-tab {
+    min-height: 42px;
+    border-radius: 8px;
+    font-size: 13px;
+    background: rgba(255, 255, 255, 0.055);
+  }
+
+  .lobby-tab.active {
+    border-color: rgba(70, 215, 196, 0.85);
+    color: #f3f8ff;
+    background: rgba(43, 158, 130, 0.28);
+  }
+
+  .lobby-panel {
+    display: none;
+  }
+
+  .lobby-panel.active {
+    display: block;
   }
 
   .mode-grid {
@@ -397,6 +453,34 @@
     font-size: 13px;
   }
 
+  .forge-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .forge-stat,
+  .pity-box {
+    min-height: 48px;
+    padding: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.16);
+    color: #f3f8ff;
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  .forge-stat span,
+  .pity-box span {
+    display: block;
+    margin-top: 4px;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 600;
+  }
+
   .forge-layout {
     display: grid;
     grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
@@ -449,6 +533,33 @@
     background: linear-gradient(90deg, #ffd166, #ff7a90, #67e8f9);
   }
 
+  .forge-meter.level i {
+    background: linear-gradient(90deg, #58edc8, #67e8f9);
+  }
+
+  .pity-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .rarity-row {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  .rarity-chip {
+    min-height: 30px;
+    padding: 6px 4px;
+    border-radius: 8px;
+    color: #dce9f8;
+    font-size: 11px;
+    background: rgba(255, 255, 255, 0.06);
+  }
+
   .forge-note {
     margin-top: 8px;
     color: var(--muted);
@@ -485,6 +596,11 @@
     text-overflow: ellipsis;
   }
 
+  .forge-prize.common { border-left: 3px solid #94a3b8; }
+  .forge-prize.rare { border-left: 3px solid #38bdf8; }
+  .forge-prize.epic { border-left: 3px solid #c084fc; }
+  .forge-prize.legendary { border-left: 3px solid #ffd166; }
+
   .forge-prize.unlocked {
     color: rgba(220, 233, 248, 0.54);
     text-decoration: line-through;
@@ -493,6 +609,80 @@
   .forge-log {
     margin-top: 10px;
     padding: 8px 10px;
+    color: #f8e7b3;
+    font-size: 12px;
+  }
+
+  .shop-panel {
+    margin: 0 0 16px;
+    text-align: left;
+  }
+
+  .shop-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .shop-card {
+    min-height: 96px;
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.11);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.045);
+    text-align: left;
+  }
+
+  .shop-card strong {
+    display: block;
+    margin-bottom: 6px;
+    color: #f3f8ff;
+    font-size: 14px;
+  }
+
+  .shop-card span {
+    display: block;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.35;
+  }
+
+  .shop-card button {
+    width: 100%;
+    min-height: 34px;
+    margin-top: 10px;
+    border-radius: 8px;
+    font-size: 12px;
+  }
+
+  .redeem-box {
+    padding: 12px;
+    border: 1px solid rgba(70, 215, 196, 0.18);
+    border-radius: 8px;
+    background: rgba(70, 215, 196, 0.055);
+  }
+
+  .redeem-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 88px;
+    gap: 8px;
+  }
+
+  .code-input {
+    min-width: 0;
+    min-height: 40px;
+    padding: 0 10px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 8px;
+    outline: none;
+    color: #f3f8ff;
+    background: rgba(0, 0, 0, 0.24);
+  }
+
+  .shop-message {
+    min-height: 18px;
+    margin-top: 8px;
     color: #f8e7b3;
     font-size: 12px;
   }
@@ -591,6 +781,16 @@
 
     .forge-layout {
       grid-template-columns: 1fr;
+    }
+
+    .meta-strip,
+    .forge-stats,
+    .shop-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .lobby-tabs {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .brand {
@@ -710,39 +910,55 @@
       <h2 id="resultTitle">本轮结束</h2>
       <div class="final-mass" id="finalMass">0</div>
       <p id="resultText">再来一局。</p>
-      <div class="mode-grid" id="modeGrid" aria-label="选择模式">
-        <button class="mode-card" type="button" data-mode="solo">
-          <strong>自由模式</strong>
-          <span>12 分钟限时，反复复活，按个人质量结算排名。</span>
-        </button>
-        <button class="mode-card" type="button" data-mode="team">
-          <strong>团队战</strong>
-          <span>10 队 5 人，队友可接分身，按队伍总质量结算。</span>
-        </button>
-        <button class="mode-card" type="button" data-mode="survival">
-          <strong>生存模式</strong>
-          <span>9 分钟生命制，吞噬加命，生命耗尽出局。</span>
-        </button>
-        <button class="mode-card active" type="button" data-mode="battle">
-          <strong>大逃杀</strong>
-          <span>100 人开局，安全区收缩，圈外掉质量，活到最后。</span>
-        </button>
-        <button class="mode-card" type="button" data-mode="control">
-          <strong>据点战</strong>
-          <span>4 队 6 人争夺 3 个星核据点，先到目标分获胜。</span>
-        </button>
+      <div class="meta-strip" id="metaStrip"></div>
+      <div class="lobby-tabs" id="lobbyTabs" aria-label="大厅入口">
+        <button class="lobby-tab active" type="button" data-lobby="play">开始</button>
+        <button class="lobby-tab" type="button" data-lobby="outfit">外观</button>
+        <button class="lobby-tab" type="button" data-lobby="shop">商店</button>
+        <button class="lobby-tab" type="button" data-lobby="forge">铁匠铺</button>
       </div>
-      <div class="lobby-loadout" id="lobbyLoadout">
-        <div class="loadout-group">
-          <strong>球体皮肤</strong>
-          <div class="cosmetic-grid" id="skinGrid"></div>
+      <section class="lobby-panel active" data-lobby-panel="play">
+        <div class="mode-grid" id="modeGrid" aria-label="选择模式">
+          <button class="mode-card" type="button" data-mode="solo">
+            <strong>自由模式</strong>
+            <span>12 分钟限时，反复复活，按个人质量结算排名。</span>
+          </button>
+          <button class="mode-card" type="button" data-mode="team">
+            <strong>团队战</strong>
+            <span>10 队 5 人，队友可接分身，按队伍总质量结算。</span>
+          </button>
+          <button class="mode-card" type="button" data-mode="survival">
+            <strong>生存模式</strong>
+            <span>9 分钟生命制，吞噬加命，生命耗尽出局。</span>
+          </button>
+          <button class="mode-card active" type="button" data-mode="battle">
+            <strong>大逃杀</strong>
+            <span>100 人开局，安全区收缩，圈外掉质量，活到最后。</span>
+          </button>
+          <button class="mode-card" type="button" data-mode="control">
+            <strong>据点战</strong>
+            <span>4 队 6 人争夺 3 个星核据点，先到目标分获胜。</span>
+          </button>
         </div>
-        <div class="loadout-group">
-          <strong>孢子样式</strong>
-          <div class="cosmetic-grid" id="sporeGrid"></div>
+      </section>
+      <section class="lobby-panel" data-lobby-panel="outfit">
+        <div class="lobby-loadout" id="lobbyLoadout">
+          <div class="loadout-group">
+            <strong>球体皮肤</strong>
+            <div class="cosmetic-grid" id="skinGrid"></div>
+          </div>
+          <div class="loadout-group">
+            <strong>孢子样式</strong>
+            <div class="cosmetic-grid" id="sporeGrid"></div>
+          </div>
         </div>
-      </div>
-      <div class="forge-panel" id="forgePanel"></div>
+      </section>
+      <section class="lobby-panel" data-lobby-panel="shop">
+        <div class="shop-panel" id="shopPanel"></div>
+      </section>
+      <section class="lobby-panel" data-lobby-panel="forge">
+        <div class="forge-panel" id="forgePanel"></div>
+      </section>
       <button id="playAgainBtn">再来一局</button>
     </div>
   </div>
@@ -771,11 +987,15 @@
   const resultTitle = document.getElementById("resultTitle");
   const resultText = document.getElementById("resultText");
   const finalMass = document.getElementById("finalMass");
+  const metaStrip = document.getElementById("metaStrip");
+  const lobbyTabs = document.getElementById("lobbyTabs");
+  const lobbyPanels = [...document.querySelectorAll("[data-lobby-panel]")];
   const modeGrid = document.getElementById("modeGrid");
   const playAgainBtn = document.getElementById("playAgainBtn");
   const menuBtn = document.getElementById("menuBtn");
   const skinGrid = document.getElementById("skinGrid");
   const sporeGrid = document.getElementById("sporeGrid");
+  const shopPanel = document.getElementById("shopPanel");
   const forgePanel = document.getElementById("forgePanel");
   const modeButtons = [...document.querySelectorAll("[data-mode]")];
 
@@ -813,12 +1033,12 @@
     { key: "jade", name: "玉环", color: "#34d399", type: "basic" },
     { key: "void", name: "幽紫", color: "#8b5cf6", type: "basic" },
     { key: "nova", name: "绯光", color: "#fb7185", type: "basic" },
-    { key: "comet", name: "彗星航线", color: "#3b82f6", accent: "#f8fafc", type: "special", pattern: "comet", rarity: "稀有", weight: 18 },
-    { key: "mecha", name: "机甲星环", color: "#64748b", accent: "#67e8f9", type: "special", pattern: "mecha", rarity: "稀有", weight: 17 },
-    { key: "tide", name: "潮汐之心", color: "#0f766e", accent: "#5eead4", type: "special", pattern: "tide", rarity: "稀有", weight: 16 },
-    { key: "flare", name: "赤焰风暴", color: "#ef4444", accent: "#ffd166", type: "special", pattern: "flare", rarity: "史诗", weight: 10 },
-    { key: "crown", name: "王冠星域", color: "#7c3aed", accent: "#ffd166", type: "special", pattern: "crown", rarity: "史诗", weight: 8 },
-    { key: "abyss", name: "深渊脉冲", color: "#111827", accent: "#a78bfa", type: "special", pattern: "abyss", rarity: "传说", weight: 5 }
+    { key: "comet", name: "彗星航线", color: "#3b82f6", accent: "#f8fafc", type: "special", pattern: "comet", tier: "common", rarity: "普通" },
+    { key: "mecha", name: "机甲星环", color: "#64748b", accent: "#67e8f9", type: "special", pattern: "mecha", tier: "common", rarity: "普通" },
+    { key: "tide", name: "潮汐之心", color: "#0f766e", accent: "#5eead4", type: "special", pattern: "tide", tier: "rare", rarity: "稀有" },
+    { key: "flare", name: "赤焰风暴", color: "#ef4444", accent: "#ffd166", type: "special", pattern: "flare", tier: "epic", rarity: "史诗" },
+    { key: "crown", name: "王冠星域", color: "#7c3aed", accent: "#ffd166", type: "special", pattern: "crown", tier: "epic", rarity: "史诗" },
+    { key: "abyss", name: "深渊脉冲", color: "#111827", accent: "#a78bfa", type: "special", pattern: "abyss", tier: "legendary", rarity: "传说" }
   ];
   const SPORES = [
     { key: "mint", name: "薄荷孢子", color: "#7dd3fc", type: "basic" },
@@ -830,12 +1050,12 @@
     { key: "star", name: "星砂孢子", color: "#c084fc", type: "basic" },
     { key: "wave", name: "潮光孢子", color: "#22d3ee", type: "basic" },
     { key: "cinder", name: "余烬孢子", color: "#fb923c", type: "basic" },
-    { key: "meteor", name: "流星尾焰", color: "#fb923c", accent: "#fff7ed", type: "special", pattern: "meteor", rarity: "稀有", weight: 18 },
-    { key: "bubble", name: "水晶泡泡", color: "#38bdf8", accent: "#e0f2fe", type: "special", pattern: "bubble", rarity: "稀有", weight: 17 },
-    { key: "spark", name: "电弧火花", color: "#a78bfa", accent: "#fef08a", type: "special", pattern: "spark", rarity: "稀有", weight: 16 },
-    { key: "vine", name: "藤蔓星种", color: "#34d399", accent: "#dcfce7", type: "special", pattern: "vine", rarity: "史诗", weight: 10 },
-    { key: "aurora", name: "极光羽片", color: "#22d3ee", accent: "#f0abfc", type: "special", pattern: "aurora", rarity: "史诗", weight: 8 },
-    { key: "royal", name: "王冠碎金", color: "#facc15", accent: "#ffffff", type: "special", pattern: "royal", rarity: "传说", weight: 5 }
+    { key: "meteor", name: "流星尾焰", color: "#fb923c", accent: "#fff7ed", type: "special", pattern: "meteor", tier: "common", rarity: "普通" },
+    { key: "bubble", name: "水晶泡泡", color: "#38bdf8", accent: "#e0f2fe", type: "special", pattern: "bubble", tier: "common", rarity: "普通" },
+    { key: "spark", name: "电弧火花", color: "#a78bfa", accent: "#fef08a", type: "special", pattern: "spark", tier: "rare", rarity: "稀有" },
+    { key: "vine", name: "藤蔓星种", color: "#34d399", accent: "#dcfce7", type: "special", pattern: "vine", tier: "epic", rarity: "史诗" },
+    { key: "aurora", name: "极光羽片", color: "#22d3ee", accent: "#f0abfc", type: "special", pattern: "aurora", tier: "epic", rarity: "史诗" },
+    { key: "royal", name: "王冠碎金", color: "#facc15", accent: "#ffffff", type: "special", pattern: "royal", tier: "legendary", rarity: "传说" }
   ];
   const GAME_MODES = {
     solo: {
@@ -914,7 +1134,31 @@
     { key: "magnet", label: "磁吸星尘", desc: "吃点范围扩大", duration: 24, eatReachMult: 1.52, foodRateMult: 1.1, color: "#44d7b6" },
     { key: "rush", label: "轻盈时间", desc: "全场移动加速", duration: 22, speedMult: 1.16, mergeMult: 0.82, color: "#7dd3fc" }
   ];
-  const META_VERSION = 2;
+  const RARITY_CONFIG = {
+    common: { label: "普通", chance: 0.58, exp: 18, color: "#94a3b8" },
+    rare: { label: "稀有", chance: 0.28, exp: 36, color: "#38bdf8" },
+    epic: { label: "史诗", chance: 0.11, exp: 72, color: "#c084fc" },
+    legendary: { label: "传说", chance: 0.03, exp: 160, color: "#ffd166" }
+  };
+  const RARITY_ORDER = ["common", "rare", "epic", "legendary"];
+  const FORGE_LEVEL_XP = [0, 90, 220, 390, 610, 880, 1200, 1580, 2020, 2520];
+  const FORGE_LEVEL_REWARDS = {
+    2: { dust: 80, tickets: 1 },
+    3: { dust: 110, tickets: 1 },
+    4: { dust: 140, tickets: 1 },
+    5: { dust: 170, tickets: 2 },
+    6: { dust: 210, tickets: 2 },
+    7: { dust: 250, tickets: 2 },
+    8: { dust: 300, tickets: 3 },
+    9: { dust: 360, tickets: 3 },
+    10: { dust: 500, tickets: 5 }
+  };
+  const REDEEM_CODES = {
+    STARS2026: { label: "星尘补给", dust: 320, tickets: 2, xp: 80 },
+    FORGE777: { label: "铁匠铺礼包", dust: 160, tickets: 3, xp: 160 },
+    BALL16X: { label: "爆发礼包", dust: 260, tickets: 1, xp: 260, unlock: "random" }
+  };
+  const META_VERSION = 3;
 
   let dpr = 1;
   let view = { w: 0, h: 0 };
@@ -942,6 +1186,7 @@
   let matchEvent = { active: null, nextAt: 0, endsAt: 0, recent: [], virusBank: 0 };
   let activeMode = "battle";
   let selectedMode = "battle";
+  let activeLobbyPanel = "play";
   let meta = loadMeta();
   let selectedSkin = localStorage.getItem("ballArenaSkin") || "aqua";
   let selectedSpore = localStorage.getItem("ballArenaSpore") || "mint";
@@ -1041,16 +1286,48 @@
     return matchEvent.active && matchEvent.active[key] !== undefined ? matchEvent.active[key] : fallback;
   }
 
+  function forgeLevelFromXp(xp) {
+    const safeXp = Math.max(0, Number(xp) || 0);
+    let level = 1;
+    for (let i = 1; i < FORGE_LEVEL_XP.length; i++) {
+      if (safeXp >= FORGE_LEVEL_XP[i]) level = i + 1;
+    }
+    return clamp(level, 1, 10);
+  }
+
+  function forgeLevelProgress() {
+    const xp = Math.max(0, Number(meta.forgeXp) || 0);
+    const level = forgeLevelFromXp(xp);
+    if (level >= 10) return { level, xp, current: xp - FORGE_LEVEL_XP[9], needed: 0, pct: 100, maxed: true };
+    const currentFloor = FORGE_LEVEL_XP[level - 1];
+    const next = FORGE_LEVEL_XP[level];
+    return {
+      level,
+      xp,
+      current: xp - currentFloor,
+      needed: next - currentFloor,
+      pct: clamp(((xp - currentFloor) / (next - currentFloor)) * 100, 0, 100),
+      maxed: false
+    };
+  }
+
   function defaultMeta() {
     return {
       metaVersion: META_VERSION,
       dust: 150,
       forgeLevel: 1,
       forgeLuck: 0,
+      forgeXp: 0,
+      forgeTickets: 2,
+      forgePityEpic: 0,
+      forgePityLegend: 0,
       unlockedSkins: SKINS.filter(skin => skin.type !== "special").map(skin => skin.key),
       unlockedSpores: SPORES.filter(spore => spore.type !== "special").map(spore => spore.key),
       crafted: 0,
       totalDust: 150,
+      redeemedCodes: [],
+      dailyPackDate: "",
+      shopMessage: "",
       lastForge: null
     };
   }
@@ -1060,15 +1337,27 @@
       const saved = JSON.parse(localStorage.getItem("ballArenaMeta") || "null");
       const base = defaultMeta();
       if (!saved || typeof saved !== "object") return base;
-      const migratedDust = Number.isFinite(saved.dust) ? saved.dust + (saved.metaVersion === META_VERSION ? 0 : 70) : base.dust;
+      const migratedDust = Number.isFinite(saved.dust) ? saved.dust + (saved.metaVersion === META_VERSION ? 0 : 90) : base.dust;
+      const migratedXp = Number.isFinite(saved.forgeXp)
+        ? saved.forgeXp
+        : Math.max(0, ((Number(saved.forgeLevel) || 1) - 1) * 120);
       const validSkins = new Set(SKINS.map(skin => skin.key));
       const validSpores = new Set(SPORES.map(spore => spore.key));
+      const forgeXp = Math.max(0, migratedXp);
       return {
         ...base,
         ...saved,
         metaVersion: META_VERSION,
         dust: migratedDust,
         forgeLuck: clamp(Number(saved.forgeLuck) || 0, 0, 99),
+        forgeXp,
+        forgeLevel: forgeLevelFromXp(forgeXp),
+        forgeTickets: Number.isFinite(saved.forgeTickets) ? Math.max(0, saved.forgeTickets) : base.forgeTickets,
+        forgePityEpic: clamp(Number(saved.forgePityEpic) || 0, 0, 10),
+        forgePityLegend: clamp(Number(saved.forgePityLegend) || 0, 0, 40),
+        redeemedCodes: Array.isArray(saved.redeemedCodes) ? saved.redeemedCodes : [],
+        dailyPackDate: saved.dailyPackDate || "",
+        shopMessage: saved.shopMessage || "",
         unlockedSkins: [...new Set([...(saved.unlockedSkins || []), ...base.unlockedSkins])].filter(key => validSkins.has(key)),
         unlockedSpores: [...new Set([...(saved.unlockedSpores || []), ...base.unlockedSpores])].filter(key => validSpores.has(key))
       };
@@ -1126,6 +1415,19 @@
     return item && item.rarity ? item.rarity : "基础";
   }
 
+  function tierClass(item) {
+    return item && item.tier ? item.tier : "common";
+  }
+
+  function renderMetaStrip() {
+    const progress = forgeLevelProgress();
+    metaStrip.innerHTML = `
+      <div class="meta-pill">星尘 ${Math.floor(meta.dust)}<span>对局与补给获得</span></div>
+      <div class="meta-pill">锻造券 ${Math.floor(meta.forgeTickets || 0)}<span>锻造优先消耗</span></div>
+      <div class="meta-pill">铁匠铺 Lv.${progress.level}<span>${progress.maxed ? `总经验 ${Math.floor(progress.xp)}` : `${Math.floor(progress.current)}/${progress.needed}`}</span></div>
+    `;
+  }
+
   function renderCosmetics() {
     skinGrid.innerHTML = SKINS.map(skin => `
       <button class="cosmetic-card${skin.key === selectedSkin ? " active" : ""}${isSpecial(skin) ? " special" : ""}" type="button" data-skin="${skin.key}" ${skinUnlocked(skin.key) ? "" : "disabled"} title="${skin.name} ${rarityText(skin)}">
@@ -1139,25 +1441,141 @@
         <span>${cosmeticLabel(spore, sporeUnlocked(spore))}</span>
       </button>
     `).join("");
+    renderMetaStrip();
     renderForge();
+    renderShop();
   }
 
   function forgeCost(type) {
     const level = Math.max(1, meta.forgeLevel || 1);
-    if (type === "skin") return 76 + level * 18;
-    if (type === "spore") return 62 + level * 16;
-    return 140 + level * 60;
+    if (type === "skin") return 82 + level * 8;
+    if (type === "spore") return 68 + level * 7;
+    return 76 + level * 8;
   }
 
-  function pickForgeItem(items) {
-    const levelBonus = Math.max(0, (meta.forgeLevel || 1) - 1) * 0.7;
-    const total = items.reduce((sum, item) => sum + (item.weight || 10) + (item.rarity === "传说" ? levelBonus : 0), 0);
-    let roll = Math.random() * Math.max(1, total);
-    for (const item of items) {
-      roll -= (item.weight || 10) + (item.rarity === "传说" ? levelBonus : 0);
-      if (roll <= 0) return item;
+  function canPayForge(type) {
+    return (meta.forgeTickets || 0) > 0 || meta.dust >= forgeCost(type);
+  }
+
+  function forgePaymentText(type) {
+    return (meta.forgeTickets || 0) > 0 ? "券" : `${forgeCost(type)}`;
+  }
+
+  function spendForgePayment(type) {
+    if ((meta.forgeTickets || 0) > 0) {
+      meta.forgeTickets -= 1;
+      return { ticket: true, cost: 0 };
     }
-    return items[0];
+    const cost = forgeCost(type);
+    if (meta.dust < cost) return null;
+    meta.dust -= cost;
+    return { ticket: false, cost };
+  }
+
+  function forgePool(type) {
+    return type === "spore" ? forgeSpores() : forgeSkins();
+  }
+
+  function randomItem(items) {
+    return items[Math.floor(Math.random() * items.length)] || items[0];
+  }
+
+  function rollForgeTier() {
+    if ((meta.forgePityLegend || 0) >= 39) return "legendary";
+    if ((meta.forgePityEpic || 0) >= 9) return Math.random() < 0.16 ? "legendary" : "epic";
+    let roll = Math.random();
+    for (const tier of RARITY_ORDER) {
+      roll -= RARITY_CONFIG[tier].chance;
+      if (roll <= 0) return tier;
+    }
+    return "common";
+  }
+
+  function updateForgePity(tier) {
+    if (tier === "legendary") {
+      meta.forgePityLegend = 0;
+      meta.forgePityEpic = 0;
+    } else {
+      meta.forgePityLegend = clamp((meta.forgePityLegend || 0) + 1, 0, 40);
+      meta.forgePityEpic = tier === "epic" ? 0 : clamp((meta.forgePityEpic || 0) + 1, 0, 10);
+    }
+  }
+
+  function pickForgeItem(type) {
+    const pool = forgePool(type);
+    let tier = rollForgeTier();
+    let items = pool.filter(item => tierClass(item) === tier);
+    if (!items.length) {
+      tier = "common";
+      items = pool.filter(item => tierClass(item) === tier);
+    }
+    updateForgePity(tier);
+    return randomItem(items.length ? items : pool);
+  }
+
+  function rollBurstMultiplier() {
+    const luck = clamp(meta.forgeLuck || 0, 0, 99);
+    const roll = Math.random();
+    const boost = luck / 1000;
+    let multiplier = 1;
+    if (roll < 0.004 + boost * 0.12) multiplier = 16;
+    else if (roll < 0.014 + boost * 0.22) multiplier = 8;
+    else if (roll < 0.05 + boost * 0.38) multiplier = 4;
+    else if (roll < 0.16 + boost * 0.58) multiplier = 2;
+    meta.forgeLuck = multiplier > 1 ? 0 : clamp(luck + 9, 0, 99);
+    return multiplier;
+  }
+
+  function grantForgeLevelRewards(fromLevel, toLevel) {
+    const rewards = [];
+    for (let level = fromLevel + 1; level <= toLevel; level++) {
+      const reward = FORGE_LEVEL_REWARDS[level];
+      if (!reward) continue;
+      meta.dust += reward.dust || 0;
+      meta.forgeTickets = (meta.forgeTickets || 0) + (reward.tickets || 0);
+      rewards.push(`Lv.${level} +${reward.dust || 0}星尘 +${reward.tickets || 0}券`);
+    }
+    return rewards;
+  }
+
+  function addForgeXp(amount) {
+    const gain = Math.max(0, Math.floor(amount));
+    const before = forgeLevelFromXp(meta.forgeXp || 0);
+    meta.forgeXp = Math.max(0, (meta.forgeXp || 0) + gain);
+    const after = forgeLevelFromXp(meta.forgeXp);
+    meta.forgeLevel = after;
+    return {
+      xp: gain,
+      levelBefore: before,
+      levelAfter: after,
+      rewards: grantForgeLevelRewards(before, after)
+    };
+  }
+
+  function hasForgeItem(type, key) {
+    return type === "spore" ? sporeUnlocked(key) : skinUnlocked(key);
+  }
+
+  function unlockForgeItem(type, item) {
+    if (type === "spore") {
+      if (!sporeUnlocked(item.key)) meta.unlockedSpores.push(item.key);
+      selectedSpore = item.key;
+      localStorage.setItem("ballArenaSpore", selectedSpore);
+    } else {
+      if (!skinUnlocked(item.key)) meta.unlockedSkins.push(item.key);
+      selectedSkin = item.key;
+      localStorage.setItem("ballArenaSkin", selectedSkin);
+    }
+  }
+
+  function formatForgeLog() {
+    if (!meta.lastForge) return "暂无锻造记录";
+    const parts = [`${meta.lastForge.type}：${meta.lastForge.item}`];
+    if (meta.lastForge.duplicate) parts.push(`重复转经验 +${meta.lastForge.xp}`);
+    else parts.push(`获得经验 +${meta.lastForge.xp}`);
+    if (meta.lastForge.burst > 1) parts.push(`人品大爆发 x${meta.lastForge.burst}`);
+    if (meta.lastForge.rewards && meta.lastForge.rewards.length) parts.push(meta.lastForge.rewards.join("，"));
+    return parts.join("，");
   }
 
   function renderForge() {
@@ -1165,78 +1583,192 @@
     const specialSpores = forgeSpores();
     const lockedSkins = specialSkins.filter(skin => !skinUnlocked(skin.key));
     const lockedSpores = specialSpores.filter(spore => !sporeUnlocked(spore.key));
+    const progress = forgeLevelProgress();
     const luck = clamp(meta.forgeLuck || 0, 0, 99);
-    const last = meta.lastForge ? `${meta.lastForge.type}：${meta.lastForge.item}${meta.lastForge.bonus ? `，返火 +${meta.lastForge.bonus}` : ""}` : "暂无锻造记录";
+    const last = formatForgeLog();
+    const nextEpic = Math.max(1, 10 - (meta.forgePityEpic || 0));
+    const nextLegend = Math.max(1, 40 - (meta.forgePityLegend || 0));
     forgePanel.innerHTML = `
       <div class="forge-row">
         <strong>星尘 ${Math.floor(meta.dust)}</strong>
-        <span>铁匠铺 Lv.${meta.forgeLevel} · 匠心 ${luck}/100</span>
+        <span>锻造券 ${Math.floor(meta.forgeTickets || 0)} · 人品 ${luck}/100</span>
+      </div>
+      <div class="forge-stats">
+        <div class="forge-stat">Lv.${progress.level}<span>${progress.maxed ? "满级经验继续累积" : "铁匠铺等级"}</span></div>
+        <div class="forge-stat">${Math.floor(meta.forgeXp || 0)}<span>累计经验</span></div>
+        <div class="forge-stat">${nextEpic}<span>史诗保底</span></div>
+        <div class="forge-stat">${nextLegend}<span>传说保底</span></div>
       </div>
       <div class="forge-layout">
         <div class="forge-core">
           <div class="forge-slots">
-            <span class="forge-slot">星尘</span>
-            <span class="forge-slot">碎光</span>
-            <span class="forge-slot">匠心</span>
+            <span class="forge-slot">普通 58%</span>
+            <span class="forge-slot">稀有 28%</span>
+            <span class="forge-slot">爆发 x2-x16</span>
           </div>
-          <div class="forge-meter"><i style="width:${luck}%"></i></div>
-          <div class="forge-note">锻造池只产出特殊皮肤和特殊孢子；基础纯色不再消耗星尘。</div>
+          <div class="forge-meter level"><i style="width:${progress.pct}%"></i></div>
+          <div class="pity-grid">
+            <div class="pity-box">史诗 11%<span>10 抽内保底</span></div>
+            <div class="pity-box">传说 3%<span>40 抽内保底</span></div>
+          </div>
+          <div class="rarity-row">
+            ${RARITY_ORDER.map(tier => `<span class="rarity-chip">${RARITY_CONFIG[tier].label} ${Math.round(RARITY_CONFIG[tier].chance * 100)}%</span>`).join("")}
+          </div>
+          <div class="forge-note">重复外观会转为铁匠铺经验，升级自动发星尘和锻造券。</div>
         </div>
         <div class="forge-prizes">
           <div class="forge-prize-title">特殊奖池 ${specialSkins.length - lockedSkins.length}/${specialSkins.length} · ${specialSpores.length - lockedSpores.length}/${specialSpores.length}</div>
           <div class="forge-prize-list">
-            ${[...specialSkins, ...specialSpores].map(item => `<span class="forge-prize${skinUnlocked(item.key) || sporeUnlocked(item.key) ? " unlocked" : ""}">${item.name}</span>`).join("")}
+            ${[...specialSkins, ...specialSpores].map(item => `<span class="forge-prize ${tierClass(item)}${skinUnlocked(item.key) || sporeUnlocked(item.key) ? " unlocked" : ""}">${item.name}</span>`).join("")}
           </div>
         </div>
       </div>
       <div class="forge-actions">
-        <button type="button" data-forge="skin" ${lockedSkins.length && meta.dust >= forgeCost("skin") ? "" : "disabled"}>特殊皮肤 ${forgeCost("skin")}</button>
-        <button type="button" data-forge="spore" ${lockedSpores.length && meta.dust >= forgeCost("spore") ? "" : "disabled"}>特殊孢子 ${forgeCost("spore")}</button>
-        <button type="button" data-forge="level" ${meta.dust >= forgeCost("level") ? "" : "disabled"}>升炉 ${forgeCost("level")}</button>
+        <button type="button" data-forge="skin" ${canPayForge("skin") ? "" : "disabled"}>锻皮肤 ${forgePaymentText("skin")}</button>
+        <button type="button" data-forge="spore" ${canPayForge("spore") ? "" : "disabled"}>锻孢子 ${forgePaymentText("spore")}</button>
+        <button type="button" data-forge="mixed" ${canPayForge("mixed") ? "" : "disabled"}>混合一锤 ${forgePaymentText("mixed")}</button>
       </div>
       <div class="forge-log">${last}</div>
     `;
   }
 
   function craftForge(type) {
-    const cost = forgeCost(type);
-    if (meta.dust < cost) return;
-    if (type === "skin") {
-      const locked = forgeSkins().filter(skin => !skinUnlocked(skin.key));
-      if (!locked.length) return;
-      const item = pickForgeItem(locked);
-      meta.dust -= cost;
-      meta.crafted += 1;
-      meta.unlockedSkins.push(item.key);
-      selectedSkin = item.key;
-      localStorage.setItem("ballArenaSkin", selectedSkin);
-      resolveForgeLuck("特殊皮肤", item, cost);
-    } else if (type === "spore") {
-      const locked = forgeSpores().filter(spore => !sporeUnlocked(spore.key));
-      if (!locked.length) return;
-      const item = pickForgeItem(locked);
-      meta.dust -= cost;
-      meta.crafted += 1;
-      meta.unlockedSpores.push(item.key);
-      selectedSpore = item.key;
-      localStorage.setItem("ballArenaSpore", selectedSpore);
-      resolveForgeLuck("特殊孢子", item, cost);
-    } else {
-      meta.dust -= cost;
-      meta.forgeLevel += 1;
-      meta.lastForge = { type: "铁匠铺", item: `升至 Lv.${meta.forgeLevel}`, bonus: 0 };
-    }
+    const actualType = type === "mixed" ? (Math.random() < 0.5 ? "skin" : "spore") : type;
+    if (actualType !== "skin" && actualType !== "spore") return;
+    const payment = spendForgePayment(type === "mixed" ? "mixed" : actualType);
+    if (!payment) return;
+    const item = pickForgeItem(actualType);
+    if (!item) return;
+    const duplicate = hasForgeItem(actualType, item.key);
+    const burst = rollBurstMultiplier();
+    const config = RARITY_CONFIG[tierClass(item)] || RARITY_CONFIG.common;
+    const xpBase = duplicate ? config.exp : Math.max(8, Math.round(config.exp * 0.42));
+    const xpGain = Math.max(1, Math.round(xpBase * burst));
+    const levelResult = addForgeXp(xpGain);
+    if (!duplicate) unlockForgeItem(actualType, item);
+    meta.crafted += 1;
+    meta.lastForge = {
+      type: actualType === "spore" ? "特殊孢子" : "特殊皮肤",
+      item: `${item.name} · ${rarityText(item)}`,
+      duplicate,
+      xp: xpGain,
+      burst,
+      ticket: payment.ticket,
+      cost: payment.cost,
+      rewards: levelResult.rewards
+    };
     saveMeta();
     renderCosmetics();
   }
 
-  function resolveForgeLuck(type, item, cost) {
-    const gain = (item.rarity === "传说" ? 34 : item.rarity === "史诗" ? 28 : 22) + Math.min(10, meta.forgeLevel * 2);
-    const filled = (meta.forgeLuck || 0) + gain >= 100;
-    const bonus = filled ? Math.round(cost * 0.34) : 0;
-    meta.forgeLuck = filled ? 0 : (meta.forgeLuck || 0) + gain;
-    if (bonus) meta.dust += bonus;
-    meta.lastForge = { type, item: `${item.name} · ${rarityText(item)}`, bonus };
+  function todayKey() {
+    const date = new Date();
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+  }
+
+  function renderShop() {
+    const claimed = meta.dailyPackDate === todayKey();
+    shopPanel.innerHTML = `
+      <div class="shop-grid">
+        <div class="shop-card">
+          <strong>每日补给</strong>
+          <span>星尘 120，锻造券 1。</span>
+          <button type="button" data-shop="daily" ${claimed ? "disabled" : ""}>${claimed ? "已领取" : "领取"}</button>
+        </div>
+        <div class="shop-card">
+          <strong>锻造券</strong>
+          <span>消耗 120 星尘，下一次锻造免费。</span>
+          <button type="button" data-shop="ticket" ${meta.dust >= 120 ? "" : "disabled"}>兑换</button>
+        </div>
+        <div class="shop-card">
+          <strong>匠心教材</strong>
+          <span>消耗 160 星尘，铁匠铺经验 +90。</span>
+          <button type="button" data-shop="xp" ${meta.dust >= 160 ? "" : "disabled"}>购买</button>
+        </div>
+      </div>
+      <div class="redeem-box">
+        <div class="redeem-row">
+          <input class="code-input" id="redeemCodeInput" maxlength="18" autocomplete="off" placeholder="兑换码">
+          <button type="button" data-shop="redeem">兑换</button>
+        </div>
+        <div class="shop-message">${meta.shopMessage || "可用：STARS2026、FORGE777、BALL16X"}</div>
+      </div>
+    `;
+  }
+
+  function setShopMessage(message) {
+    meta.shopMessage = message;
+  }
+
+  function applyReward(reward) {
+    const parts = [];
+    if (reward.dust) {
+      meta.dust += reward.dust;
+      meta.totalDust = (meta.totalDust || 0) + reward.dust;
+      parts.push(`星尘 +${reward.dust}`);
+    }
+    if (reward.tickets) {
+      meta.forgeTickets = (meta.forgeTickets || 0) + reward.tickets;
+      parts.push(`锻造券 +${reward.tickets}`);
+    }
+    if (reward.xp) {
+      const levelResult = addForgeXp(reward.xp);
+      parts.push(`经验 +${levelResult.xp}`);
+      if (levelResult.rewards.length) parts.push(levelResult.rewards.join("，"));
+    }
+    if (reward.unlock) {
+      const item = unlockRandomSpecial();
+      parts.push(item ? `外观 ${item.name}` : "全收集转经验 +120");
+    }
+    return parts.join("，");
+  }
+
+  function unlockRandomSpecial() {
+    const locked = [
+      ...forgeSkins().filter(item => !skinUnlocked(item.key)).map(item => ({ type: "skin", item })),
+      ...forgeSpores().filter(item => !sporeUnlocked(item.key)).map(item => ({ type: "spore", item }))
+    ];
+    if (!locked.length) {
+      addForgeXp(120);
+      return null;
+    }
+    const result = randomItem(locked);
+    unlockForgeItem(result.type, result.item);
+    return result.item;
+  }
+
+  function handleShopAction(action) {
+    if (action === "daily") {
+      if (meta.dailyPackDate === todayKey()) return;
+      meta.dailyPackDate = todayKey();
+      setShopMessage(`每日补给：${applyReward({ dust: 120, tickets: 1 })}`);
+    } else if (action === "ticket") {
+      if (meta.dust < 120) return;
+      meta.dust -= 120;
+      meta.forgeTickets = (meta.forgeTickets || 0) + 1;
+      setShopMessage("锻造券 +1");
+    } else if (action === "xp") {
+      if (meta.dust < 160) return;
+      meta.dust -= 160;
+      const levelResult = addForgeXp(90);
+      setShopMessage(`铁匠铺经验 +${levelResult.xp}${levelResult.rewards.length ? `，${levelResult.rewards.join("，")}` : ""}`);
+    } else if (action === "redeem") {
+      const input = shopPanel.querySelector("#redeemCodeInput");
+      const code = (input ? input.value : "").trim().toUpperCase();
+      const reward = REDEEM_CODES[code];
+      if (!code) {
+        setShopMessage("请输入兑换码。");
+      } else if (!reward) {
+        setShopMessage("兑换码无效。");
+      } else if ((meta.redeemedCodes || []).includes(code)) {
+        setShopMessage("这个兑换码已经领取过。");
+      } else {
+        meta.redeemedCodes = [...(meta.redeemedCodes || []), code];
+        setShopMessage(`${reward.label}：${applyReward(reward)}`);
+      }
+    }
+    saveMeta();
+    renderCosmetics();
   }
 
   function sporeColorFor(group) {
@@ -3083,8 +3615,8 @@
       finalMass.textContent = mass;
       resultText.textContent = `个人第 ${rank} 名，最高质量 ${mass}，淘汰 ${game.kills}，吃点 ${game.foodEaten}，星尘 +${dustReward}。`;
     }
-    modeGrid.style.display = "grid";
     renderCosmetics();
+    showLobbyPanel("play");
     playAgainBtn.textContent = "再来一局";
     overlay.style.display = "grid";
     updateHud(performance.now(), true);
@@ -3115,6 +3647,18 @@
     }
   }
 
+  function showLobbyPanel(panel) {
+    activeLobbyPanel = ["play", "outfit", "shop", "forge"].includes(panel) ? panel : "play";
+    for (const button of lobbyTabs.querySelectorAll("[data-lobby]")) {
+      button.classList.toggle("active", button.dataset.lobby === activeLobbyPanel);
+    }
+    for (const panelEl of lobbyPanels) {
+      panelEl.classList.toggle("active", panelEl.dataset.lobbyPanel === activeLobbyPanel);
+    }
+    if (activeLobbyPanel === "play") modeGrid.style.display = "grid";
+    playAgainBtn.style.display = activeLobbyPanel === "play" ? "inline-block" : "none";
+  }
+
   function showStartOverlay() {
     const config = selectedModeConfig();
     resultTitle.textContent = "星团大作战";
@@ -3122,6 +3666,7 @@
     resultText.textContent = `${config.description} 随机事件会在开局十几秒后自动出现。`;
     modeGrid.style.display = "grid";
     renderCosmetics();
+    showLobbyPanel("play");
     playAgainBtn.textContent = "开始游戏";
     overlay.style.display = "grid";
   }
@@ -4226,10 +4771,15 @@
   menuBtn.addEventListener("click", returnToLobby);
   document.getElementById("restartBtn").addEventListener("click", () => startGame(game.menu || game.over ? selectedMode : activeMode));
   playAgainBtn.addEventListener("click", () => startGame(selectedMode));
+  lobbyTabs.addEventListener("click", event => {
+    const button = event.target.closest("[data-lobby]");
+    if (!button) return;
+    showLobbyPanel(button.dataset.lobby);
+  });
   for (const button of modeButtons) {
     button.addEventListener("click", () => {
       setModeSelection(button.dataset.mode);
-      if (game.menu) showStartOverlay();
+      if (game.menu || game.over) showStartOverlay();
     });
   }
   skinGrid.addEventListener("click", event => {
@@ -4253,6 +4803,16 @@
     if (!button) return;
     craftForge(button.dataset.forge);
   });
+  shopPanel.addEventListener("click", event => {
+    const button = event.target.closest("[data-shop]");
+    if (!button) return;
+    handleShopAction(button.dataset.shop);
+  });
+  shopPanel.addEventListener("keydown", event => {
+    if (event.key !== "Enter") return;
+    if (!event.target.closest("#redeemCodeInput")) return;
+    handleShopAction("redeem");
+  });
   window.addEventListener("resize", resize);
 
   if (new URLSearchParams(window.location.search).has("debug")) {
@@ -4267,9 +4827,15 @@
           selectedSpore,
           skinType: selectedSkinDef().type,
           sporeType: selectedSporeDef().type,
+          lobbyPanel: activeLobbyPanel,
           dust: Math.floor(meta.dust),
           forgeLevel: meta.forgeLevel,
           forgeLuck: Math.floor(meta.forgeLuck || 0),
+          forgeXp: Math.floor(meta.forgeXp || 0),
+          forgeTickets: Math.floor(meta.forgeTickets || 0),
+          forgePityEpic: Math.floor(meta.forgePityEpic || 0),
+          forgePityLegend: Math.floor(meta.forgePityLegend || 0),
+          lastForge: meta.lastForge,
           unlockedSkins: meta.unlockedSkins.length,
           unlockedSpores: meta.unlockedSpores.length,
           forgeLockedSkins: forgeSkins().filter(skin => !skinUnlocked(skin.key)).length,
@@ -4370,6 +4936,10 @@
           lastForge: meta.lastForge,
           snapshot: this.snapshot()
         };
+      },
+      shopAction(action = "daily") {
+        handleShopAction(action);
+        return this.snapshot();
       },
       triggerEvent(key = "spore") {
         const event = MATCH_EVENTS.find(item => item.key === key) || MATCH_EVENTS[0];
