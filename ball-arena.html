@@ -213,7 +213,7 @@
     right: 18px;
     bottom: 18px;
     display: grid;
-    grid-template-columns: repeat(4, 56px);
+    grid-template-columns: repeat(5, 56px);
     gap: 10px;
     pointer-events: auto;
     touch-action: none;
@@ -361,6 +361,206 @@
     box-shadow: inset 0 0 0 1px rgba(70, 215, 196, 0.22);
   }
 
+  .lobby-loadout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 0 0 16px;
+    text-align: left;
+  }
+
+  .loadout-group {
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  .forge-panel {
+    margin: 0 0 16px;
+    padding: 14px;
+    border: 1px solid rgba(255, 209, 102, 0.18);
+    border-radius: 8px;
+    background:
+      linear-gradient(135deg, rgba(255, 209, 102, 0.12), rgba(79, 70, 229, 0.08)),
+      rgba(255, 255, 255, 0.045);
+    text-align: left;
+  }
+
+  .forge-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+    color: #f3f8ff;
+    font-size: 13px;
+  }
+
+  .forge-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .forge-core,
+  .forge-prizes,
+  .forge-log {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.16);
+  }
+
+  .forge-core {
+    padding: 10px;
+  }
+
+  .forge-slots {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .forge-slot {
+    min-height: 42px;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(255, 209, 102, 0.22);
+    border-radius: 8px;
+    color: #f8e7b3;
+    font-size: 12px;
+    background: rgba(255, 209, 102, 0.08);
+  }
+
+  .forge-meter {
+    height: 10px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.11);
+  }
+
+  .forge-meter i {
+    display: block;
+    height: 100%;
+    width: 0;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #ffd166, #ff7a90, #67e8f9);
+  }
+
+  .forge-note {
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .forge-prizes {
+    padding: 10px;
+  }
+
+  .forge-prize-title {
+    margin-bottom: 8px;
+    color: #f3f8ff;
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  .forge-prize-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .forge-prize {
+    min-width: 0;
+    padding: 6px 7px;
+    border-radius: 8px;
+    color: #dce9f8;
+    font-size: 11px;
+    background: rgba(255, 255, 255, 0.06);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .forge-prize.unlocked {
+    color: rgba(220, 233, 248, 0.54);
+    text-decoration: line-through;
+  }
+
+  .forge-log {
+    margin-top: 10px;
+    padding: 8px 10px;
+    color: #f8e7b3;
+    font-size: 12px;
+  }
+
+  .forge-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .forge-actions button {
+    min-height: 40px;
+    border-radius: 8px;
+    font-size: 12px;
+  }
+
+  .loadout-group strong {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 13px;
+    color: #f3f8ff;
+  }
+
+  .cosmetic-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .cosmetic-card {
+    min-height: 58px;
+    padding: 8px;
+    border-radius: 8px;
+    display: grid;
+    place-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--muted);
+    background: rgba(255, 255, 255, 0.045);
+  }
+
+  .cosmetic-card.active {
+    border-color: rgba(70, 215, 196, 0.86);
+    color: #f3f8ff;
+    background: rgba(43, 158, 130, 0.24);
+  }
+
+  .cosmetic-card.special {
+    border-color: rgba(255, 209, 102, 0.3);
+    background: rgba(255, 209, 102, 0.06);
+  }
+
+  .cosmetic-card:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .swatch {
+    width: 24px;
+    height: 24px;
+    border-radius: 999px;
+    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.28), 0 0 16px currentColor;
+  }
+
+  .swatch.special {
+    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.38), 0 0 18px currentColor;
+  }
+
   #playAgainBtn {
     min-width: 150px;
     min-height: 44px;
@@ -383,6 +583,14 @@
     .mode-card {
       min-height: 66px;
       padding: 10px;
+    }
+
+    .lobby-loadout {
+      grid-template-columns: 1fr;
+    }
+
+    .forge-layout {
+      grid-template-columns: 1fr;
     }
 
     .brand {
@@ -492,6 +700,7 @@
       <button class="icon-btn primary" id="splitBtn" title="分裂 空格" aria-label="分裂">分</button>
       <button class="icon-btn warn" id="ejectBtn" title="按住吐球 W" aria-label="按住吐球">吐</button>
       <button class="icon-btn" id="pauseBtn" title="暂停或继续 P" aria-label="暂停或继续">停</button>
+      <button class="icon-btn" id="menuBtn" title="返回主界面" aria-label="返回主界面">厅</button>
       <button class="icon-btn" id="restartBtn" title="重新开始 R" aria-label="重新开始">新</button>
     </nav>
   </div>
@@ -518,7 +727,22 @@
           <strong>大逃杀</strong>
           <span>100 人开局，安全区收缩，圈外掉质量，活到最后。</span>
         </button>
+        <button class="mode-card" type="button" data-mode="control">
+          <strong>据点战</strong>
+          <span>4 队 6 人争夺 3 个星核据点，先到目标分获胜。</span>
+        </button>
       </div>
+      <div class="lobby-loadout" id="lobbyLoadout">
+        <div class="loadout-group">
+          <strong>球体皮肤</strong>
+          <div class="cosmetic-grid" id="skinGrid"></div>
+        </div>
+        <div class="loadout-group">
+          <strong>孢子样式</strong>
+          <div class="cosmetic-grid" id="sporeGrid"></div>
+        </div>
+      </div>
+      <div class="forge-panel" id="forgePanel"></div>
       <button id="playAgainBtn">再来一局</button>
     </div>
   </div>
@@ -549,15 +773,19 @@
   const finalMass = document.getElementById("finalMass");
   const modeGrid = document.getElementById("modeGrid");
   const playAgainBtn = document.getElementById("playAgainBtn");
+  const menuBtn = document.getElementById("menuBtn");
+  const skinGrid = document.getElementById("skinGrid");
+  const sporeGrid = document.getElementById("sporeGrid");
+  const forgePanel = document.getElementById("forgePanel");
   const modeButtons = [...document.querySelectorAll("[data-mode]")];
 
   const WORLD = 7600;
-  const FOOD_BASE_COUNT = 2400;
-  const FOOD_MAX_COUNT = 4200;
+  const FOOD_BASE_COUNT = 2100;
+  const FOOD_MAX_COUNT = 3600;
   const FOOD_BUCKET = 180;
   const CELL_BUCKET = 460;
   const BOT_COUNT = 99;
-  const VIRUS_COUNT = 58;
+  const VIRUS_COUNT = 54;
   const MAX_CELLS = 16;
   const VIRUS_MASS = 95;
   const BIG_VIRUS_MASS = 260;
@@ -565,8 +793,8 @@
   const SPLIT_MIN_MASS = 32;
   const EJECT_MIN_MASS = 30;
   const EJECT_INTERVAL = 68;
-  const MAX_EJECTED = 420;
-  const MAX_PARTICLES = 720;
+  const MAX_EJECTED = 360;
+  const MAX_PARTICLES = 560;
   const MAX_RINGS = 96;
   const MINIMAP_FAST_INTERVAL = 130;
   const MINIMAP_SLOW_INTERVAL = 280;
@@ -575,6 +803,40 @@
   const TEAM_COLORS = ["#44d7b6", "#ff7a90", "#7dd3fc", "#ffd166", "#a78bfa", "#f59e0b", "#f472b6", "#34d399", "#e5e7eb", "#94a3b8"];
   const TEAM_NAMES = ["青队", "红队", "蓝队", "金队", "紫队", "橙队", "粉队", "绿队", "白队", "灰队"];
   const BOT_NAMES = ["青柠", "星火", "乌龙", "极光", "米粒", "山竹", "海盐", "月影", "薄荷", "赤焰", "云雀", "琥珀", "珊瑚", "北辰", "白桃", "竹叶", "蓝莓", "流星", "夜航", "银杏", "松子", "木星", "海雾"];
+  const SKINS = [
+    { key: "aqua", name: "青荧", color: "#44d7b6", type: "basic" },
+    { key: "solar", name: "日冕", color: "#ffd166", type: "basic" },
+    { key: "rose", name: "绯星", color: "#ff7a90", type: "basic" },
+    { key: "violet", name: "紫晶", color: "#a78bfa", type: "basic" },
+    { key: "frost", name: "霜蓝", color: "#67e8f9", type: "basic" },
+    { key: "ember", name: "熔火", color: "#f59e0b", type: "basic" },
+    { key: "jade", name: "玉环", color: "#34d399", type: "basic" },
+    { key: "void", name: "幽紫", color: "#8b5cf6", type: "basic" },
+    { key: "nova", name: "绯光", color: "#fb7185", type: "basic" },
+    { key: "comet", name: "彗星航线", color: "#3b82f6", accent: "#f8fafc", type: "special", pattern: "comet", rarity: "稀有", weight: 18 },
+    { key: "mecha", name: "机甲星环", color: "#64748b", accent: "#67e8f9", type: "special", pattern: "mecha", rarity: "稀有", weight: 17 },
+    { key: "tide", name: "潮汐之心", color: "#0f766e", accent: "#5eead4", type: "special", pattern: "tide", rarity: "稀有", weight: 16 },
+    { key: "flare", name: "赤焰风暴", color: "#ef4444", accent: "#ffd166", type: "special", pattern: "flare", rarity: "史诗", weight: 10 },
+    { key: "crown", name: "王冠星域", color: "#7c3aed", accent: "#ffd166", type: "special", pattern: "crown", rarity: "史诗", weight: 8 },
+    { key: "abyss", name: "深渊脉冲", color: "#111827", accent: "#a78bfa", type: "special", pattern: "abyss", rarity: "传说", weight: 5 }
+  ];
+  const SPORES = [
+    { key: "mint", name: "薄荷孢子", color: "#7dd3fc", type: "basic" },
+    { key: "gold", name: "金糖孢子", color: "#ffd166", type: "basic" },
+    { key: "pink", name: "桃雾孢子", color: "#f472b6", type: "basic" },
+    { key: "lime", name: "青芽孢子", color: "#9cff6e", type: "basic" },
+    { key: "ash", name: "银尘孢子", color: "#d7e1ea", type: "basic" },
+    { key: "hot", name: "焰点孢子", color: "#ff7a5c", type: "basic" },
+    { key: "star", name: "星砂孢子", color: "#c084fc", type: "basic" },
+    { key: "wave", name: "潮光孢子", color: "#22d3ee", type: "basic" },
+    { key: "cinder", name: "余烬孢子", color: "#fb923c", type: "basic" },
+    { key: "meteor", name: "流星尾焰", color: "#fb923c", accent: "#fff7ed", type: "special", pattern: "meteor", rarity: "稀有", weight: 18 },
+    { key: "bubble", name: "水晶泡泡", color: "#38bdf8", accent: "#e0f2fe", type: "special", pattern: "bubble", rarity: "稀有", weight: 17 },
+    { key: "spark", name: "电弧火花", color: "#a78bfa", accent: "#fef08a", type: "special", pattern: "spark", rarity: "稀有", weight: 16 },
+    { key: "vine", name: "藤蔓星种", color: "#34d399", accent: "#dcfce7", type: "special", pattern: "vine", rarity: "史诗", weight: 10 },
+    { key: "aurora", name: "极光羽片", color: "#22d3ee", accent: "#f0abfc", type: "special", pattern: "aurora", rarity: "史诗", weight: 8 },
+    { key: "royal", name: "王冠碎金", color: "#facc15", accent: "#ffffff", type: "special", pattern: "royal", rarity: "传说", weight: 5 }
+  ];
   const GAME_MODES = {
     solo: {
       label: "自由模式",
@@ -625,8 +887,34 @@
       respawn: false,
       ranking: "mass",
       playerStartMass: 220
+    },
+    control: {
+      label: "据点战",
+      short: "据点",
+      description: "4 队 6 人争夺 3 个星核据点，站入据点压制进度，先到目标分获胜。",
+      players: 24,
+      teams: 4,
+      teamSize: 6,
+      safeZone: false,
+      duration: 600,
+      respawn: true,
+      ranking: "control",
+      control: true,
+      controlScore: 220,
+      playerStartMass: 185
     }
   };
+
+  const MATCH_EVENTS = [
+    { key: "spore", label: "孢子暴雨", desc: "食点刷新变快", duration: 30, foodTargetMult: 1.12, foodRateMult: 1.55, foodMassMult: 1.12, color: "#ffd166" },
+    { key: "thorn", label: "刺球如林", desc: "刺球临时增多", duration: 32, virusBurst: 12, color: "#5eea80" },
+    { key: "merge", label: "极速合球", desc: "重组时间缩短", duration: 26, mergeMult: 0.52, color: "#67e8f9" },
+    { key: "eject", label: "极速喷射", desc: "吐球间隔缩短", duration: 24, ejectMult: 0.52, color: "#f472b6" },
+    { key: "rich", label: "巨星星屑", desc: "高价值食点增加", duration: 30, foodMassMult: 1.45, foodRateMult: 1.12, richChanceAdd: 0.08, color: "#a78bfa" },
+    { key: "magnet", label: "磁吸星尘", desc: "吃点范围扩大", duration: 24, eatReachMult: 1.52, foodRateMult: 1.1, color: "#44d7b6" },
+    { key: "rush", label: "轻盈时间", desc: "全场移动加速", duration: 22, speedMult: 1.16, mergeMult: 0.82, color: "#7dd3fc" }
+  ];
+  const META_VERSION = 2;
 
   let dpr = 1;
   let view = { w: 0, h: 0 };
@@ -649,8 +937,16 @@
   let joystick = { active: false, pointerId: null, x: 0, y: 0 };
   let game = {};
   let safeZone = {};
+  let controlPoints = [];
+  let teamScores = [];
+  let matchEvent = { active: null, nextAt: 0, endsAt: 0, recent: [], virusBank: 0 };
   let activeMode = "battle";
   let selectedMode = "battle";
+  let meta = loadMeta();
+  let selectedSkin = localStorage.getItem("ballArenaSkin") || "aqua";
+  let selectedSpore = localStorage.getItem("ballArenaSpore") || "mint";
+  if (!meta.unlockedSkins.includes(selectedSkin)) selectedSkin = "aqua";
+  if (!meta.unlockedSpores.includes(selectedSpore)) selectedSpore = "mint";
   let lastFrame = performance.now();
   let lastPlayerEject = 0;
   let hudTimer = 0;
@@ -741,15 +1037,250 @@
     return config.teams > 0 && a.team !== null && a.team !== undefined && a.team === b.team;
   }
 
+  function activeEventFactor(key, fallback = 1) {
+    return matchEvent.active && matchEvent.active[key] !== undefined ? matchEvent.active[key] : fallback;
+  }
+
+  function defaultMeta() {
+    return {
+      metaVersion: META_VERSION,
+      dust: 150,
+      forgeLevel: 1,
+      forgeLuck: 0,
+      unlockedSkins: SKINS.filter(skin => skin.type !== "special").map(skin => skin.key),
+      unlockedSpores: SPORES.filter(spore => spore.type !== "special").map(spore => spore.key),
+      crafted: 0,
+      totalDust: 150,
+      lastForge: null
+    };
+  }
+
+  function loadMeta() {
+    try {
+      const saved = JSON.parse(localStorage.getItem("ballArenaMeta") || "null");
+      const base = defaultMeta();
+      if (!saved || typeof saved !== "object") return base;
+      const migratedDust = Number.isFinite(saved.dust) ? saved.dust + (saved.metaVersion === META_VERSION ? 0 : 70) : base.dust;
+      const validSkins = new Set(SKINS.map(skin => skin.key));
+      const validSpores = new Set(SPORES.map(spore => spore.key));
+      return {
+        ...base,
+        ...saved,
+        metaVersion: META_VERSION,
+        dust: migratedDust,
+        forgeLuck: clamp(Number(saved.forgeLuck) || 0, 0, 99),
+        unlockedSkins: [...new Set([...(saved.unlockedSkins || []), ...base.unlockedSkins])].filter(key => validSkins.has(key)),
+        unlockedSpores: [...new Set([...(saved.unlockedSpores || []), ...base.unlockedSpores])].filter(key => validSpores.has(key))
+      };
+    } catch (_) {
+      return defaultMeta();
+    }
+  }
+
+  function saveMeta() {
+    localStorage.setItem("ballArenaMeta", JSON.stringify(meta));
+  }
+
+  function skinUnlocked(key) {
+    return meta.unlockedSkins.includes(key);
+  }
+
+  function sporeUnlocked(key) {
+    return meta.unlockedSpores.includes(key);
+  }
+
+  function selectedSkinDef() {
+    return SKINS.find(skin => skin.key === selectedSkin) || SKINS[0];
+  }
+
+  function selectedSporeDef() {
+    return SPORES.find(spore => spore.key === selectedSpore) || SPORES[0];
+  }
+
+  function isSpecial(item) {
+    return item && item.type === "special";
+  }
+
+  function forgeSkins() {
+    return SKINS.filter(isSpecial);
+  }
+
+  function forgeSpores() {
+    return SPORES.filter(isSpecial);
+  }
+
+  function swatchStyle(item) {
+    if (isSpecial(item)) {
+      const accent = item.accent || "#ffffff";
+      return `color:${accent};background:radial-gradient(circle at 30% 25%, ${accent}, ${item.color} 45%, #0f172a 100%)`;
+    }
+    return `color:${item.color};background:${item.color}`;
+  }
+
+  function cosmeticLabel(item, unlocked) {
+    if (unlocked) return item.name;
+    return isSpecial(item) ? "锻造" : "基础";
+  }
+
+  function rarityText(item) {
+    return item && item.rarity ? item.rarity : "基础";
+  }
+
+  function renderCosmetics() {
+    skinGrid.innerHTML = SKINS.map(skin => `
+      <button class="cosmetic-card${skin.key === selectedSkin ? " active" : ""}${isSpecial(skin) ? " special" : ""}" type="button" data-skin="${skin.key}" ${skinUnlocked(skin.key) ? "" : "disabled"} title="${skin.name} ${rarityText(skin)}">
+        <i class="swatch${isSpecial(skin) ? " special" : ""}" style="${swatchStyle(skin)}"></i>
+        <span>${cosmeticLabel(skin, skinUnlocked(skin))}</span>
+      </button>
+    `).join("");
+    sporeGrid.innerHTML = SPORES.map(spore => `
+      <button class="cosmetic-card${spore.key === selectedSpore ? " active" : ""}${isSpecial(spore) ? " special" : ""}" type="button" data-spore="${spore.key}" ${sporeUnlocked(spore.key) ? "" : "disabled"} title="${spore.name} ${rarityText(spore)}">
+        <i class="swatch${isSpecial(spore) ? " special" : ""}" style="${swatchStyle(spore)}"></i>
+        <span>${cosmeticLabel(spore, sporeUnlocked(spore))}</span>
+      </button>
+    `).join("");
+    renderForge();
+  }
+
+  function forgeCost(type) {
+    const level = Math.max(1, meta.forgeLevel || 1);
+    if (type === "skin") return 76 + level * 18;
+    if (type === "spore") return 62 + level * 16;
+    return 140 + level * 60;
+  }
+
+  function pickForgeItem(items) {
+    const levelBonus = Math.max(0, (meta.forgeLevel || 1) - 1) * 0.7;
+    const total = items.reduce((sum, item) => sum + (item.weight || 10) + (item.rarity === "传说" ? levelBonus : 0), 0);
+    let roll = Math.random() * Math.max(1, total);
+    for (const item of items) {
+      roll -= (item.weight || 10) + (item.rarity === "传说" ? levelBonus : 0);
+      if (roll <= 0) return item;
+    }
+    return items[0];
+  }
+
+  function renderForge() {
+    const specialSkins = forgeSkins();
+    const specialSpores = forgeSpores();
+    const lockedSkins = specialSkins.filter(skin => !skinUnlocked(skin.key));
+    const lockedSpores = specialSpores.filter(spore => !sporeUnlocked(spore.key));
+    const luck = clamp(meta.forgeLuck || 0, 0, 99);
+    const last = meta.lastForge ? `${meta.lastForge.type}：${meta.lastForge.item}${meta.lastForge.bonus ? `，返火 +${meta.lastForge.bonus}` : ""}` : "暂无锻造记录";
+    forgePanel.innerHTML = `
+      <div class="forge-row">
+        <strong>星尘 ${Math.floor(meta.dust)}</strong>
+        <span>铁匠铺 Lv.${meta.forgeLevel} · 匠心 ${luck}/100</span>
+      </div>
+      <div class="forge-layout">
+        <div class="forge-core">
+          <div class="forge-slots">
+            <span class="forge-slot">星尘</span>
+            <span class="forge-slot">碎光</span>
+            <span class="forge-slot">匠心</span>
+          </div>
+          <div class="forge-meter"><i style="width:${luck}%"></i></div>
+          <div class="forge-note">锻造池只产出特殊皮肤和特殊孢子；基础纯色不再消耗星尘。</div>
+        </div>
+        <div class="forge-prizes">
+          <div class="forge-prize-title">特殊奖池 ${specialSkins.length - lockedSkins.length}/${specialSkins.length} · ${specialSpores.length - lockedSpores.length}/${specialSpores.length}</div>
+          <div class="forge-prize-list">
+            ${[...specialSkins, ...specialSpores].map(item => `<span class="forge-prize${skinUnlocked(item.key) || sporeUnlocked(item.key) ? " unlocked" : ""}">${item.name}</span>`).join("")}
+          </div>
+        </div>
+      </div>
+      <div class="forge-actions">
+        <button type="button" data-forge="skin" ${lockedSkins.length && meta.dust >= forgeCost("skin") ? "" : "disabled"}>特殊皮肤 ${forgeCost("skin")}</button>
+        <button type="button" data-forge="spore" ${lockedSpores.length && meta.dust >= forgeCost("spore") ? "" : "disabled"}>特殊孢子 ${forgeCost("spore")}</button>
+        <button type="button" data-forge="level" ${meta.dust >= forgeCost("level") ? "" : "disabled"}>升炉 ${forgeCost("level")}</button>
+      </div>
+      <div class="forge-log">${last}</div>
+    `;
+  }
+
+  function craftForge(type) {
+    const cost = forgeCost(type);
+    if (meta.dust < cost) return;
+    if (type === "skin") {
+      const locked = forgeSkins().filter(skin => !skinUnlocked(skin.key));
+      if (!locked.length) return;
+      const item = pickForgeItem(locked);
+      meta.dust -= cost;
+      meta.crafted += 1;
+      meta.unlockedSkins.push(item.key);
+      selectedSkin = item.key;
+      localStorage.setItem("ballArenaSkin", selectedSkin);
+      resolveForgeLuck("特殊皮肤", item, cost);
+    } else if (type === "spore") {
+      const locked = forgeSpores().filter(spore => !sporeUnlocked(spore.key));
+      if (!locked.length) return;
+      const item = pickForgeItem(locked);
+      meta.dust -= cost;
+      meta.crafted += 1;
+      meta.unlockedSpores.push(item.key);
+      selectedSpore = item.key;
+      localStorage.setItem("ballArenaSpore", selectedSpore);
+      resolveForgeLuck("特殊孢子", item, cost);
+    } else {
+      meta.dust -= cost;
+      meta.forgeLevel += 1;
+      meta.lastForge = { type: "铁匠铺", item: `升至 Lv.${meta.forgeLevel}`, bonus: 0 };
+    }
+    saveMeta();
+    renderCosmetics();
+  }
+
+  function resolveForgeLuck(type, item, cost) {
+    const gain = (item.rarity === "传说" ? 34 : item.rarity === "史诗" ? 28 : 22) + Math.min(10, meta.forgeLevel * 2);
+    const filled = (meta.forgeLuck || 0) + gain >= 100;
+    const bonus = filled ? Math.round(cost * 0.34) : 0;
+    meta.forgeLuck = filled ? 0 : (meta.forgeLuck || 0) + gain;
+    if (bonus) meta.dust += bonus;
+    meta.lastForge = { type, item: `${item.name} · ${rarityText(item)}`, bonus };
+  }
+
+  function sporeColorFor(group) {
+    return group.isPlayer ? selectedSporeDef().color : group.color;
+  }
+
+  function sporePatternFor(group) {
+    const spore = group.isPlayer ? selectedSporeDef() : null;
+    return isSpecial(spore) ? spore.pattern : "round";
+  }
+
+  function eventTag() {
+    if (!matchEvent.active) return null;
+    const left = Math.max(0, matchEvent.endsAt - performance.now()) / 1000;
+    return `${matchEvent.active.label}: ${matchEvent.active.desc} ${Math.ceil(left)}s`;
+  }
+
+  function teamSpawnPoint(team) {
+    const bases = [
+      { x: WORLD * 0.22, y: WORLD * 0.50 },
+      { x: WORLD * 0.78, y: WORLD * 0.50 },
+      { x: WORLD * 0.50, y: WORLD * 0.22 },
+      { x: WORLD * 0.50, y: WORLD * 0.78 }
+    ];
+    const base = bases[team % bases.length];
+    const angle = rand(0, Math.PI * 2);
+    const dist = rand(40, 360);
+    return {
+      x: clamp(base.x + Math.cos(angle) * dist, 160, WORLD - 160),
+      y: clamp(base.y + Math.sin(angle) * dist, 160, WORLD - 160)
+    };
+  }
+
   function modeColor(index, isPlayer) {
     const config = modeConfig();
     if (config.teams > 0) return TEAM_COLORS[index % config.teams];
-    return isPlayer ? "#44d7b6" : randomColor(index + 2);
+    if (isPlayer) return selectedSkinDef().color;
+    return randomColor(index + 2);
   }
 
   function mergeCooldown(mass, type) {
     const scale = type === "virus-big" ? 0.54 : type === "virus" ? 0.48 : 0.38;
-    return clamp((30 + mass * 0.02) * scale, type === "split" ? 8 : 10, type === "virus-big" ? 30 : 24);
+    const eventMult = activeEventFactor("mergeMult", 1);
+    return clamp((30 + mass * 0.02) * scale * eventMult, type === "split" ? 8 * eventMult : 10 * eventMult, type === "virus-big" ? 30 : 24);
   }
 
   function formatTime(seconds) {
@@ -794,6 +1325,7 @@
       mass,
       radius: radiusFromMass(mass),
       mergeDelay: 0,
+      mergeMax: 0,
       dead: false,
       killedBy: null
     };
@@ -822,7 +1354,8 @@
         bravery: rand(0.72, 1.2),
         accuracy: rand(0.78, 1.14),
         teamwork: rand(0.62, 1.28),
-        rallyOffset: rand(-1, 1)
+        rallyOffset: rand(-1, 1),
+        controlBias: Math.random()
       }
     };
     group.cells.push(makeCell(group, p.x, p.y, startMass));
@@ -836,12 +1369,13 @@
   function foodTargetCount(now) {
     const elapsed = elapsedSeconds(now);
     const phaseBonus = Math.max(0, (safeZone.phase || 1) - 1) * 185;
-    return Math.floor(clamp(FOOD_BASE_COUNT + elapsed * 4.2 + phaseBonus, FOOD_BASE_COUNT, FOOD_MAX_COUNT));
+    const target = FOOD_BASE_COUNT + elapsed * 4.2 + phaseBonus;
+    return Math.floor(clamp(target * activeEventFactor("foodTargetMult", 1), FOOD_BASE_COUNT, FOOD_MAX_COUNT));
   }
 
   function foodSpawnRate(now) {
     const elapsed = elapsedSeconds(now);
-    return clamp(24 + elapsed * 0.34 + (safeZone.phase || 1) * 9, 24, 135);
+    return clamp((24 + elapsed * 0.34 + (safeZone.phase || 1) * 9) * activeEventFactor("foodRateMult", 1), 24, 180);
   }
 
   function foodKey(x, y) {
@@ -883,13 +1417,15 @@
   function makeFood() {
     const p = Math.random() < 0.78 ? randomPointInZone(60) : randomWorldPoint(60);
     const color = COLORS[Math.floor(Math.random() * COLORS.length)];
-    const lateChance = clamp(0.018 + (safeZone.phase || 1) * 0.006 + elapsedSeconds(performance.now()) / 9000, 0.02, 0.11);
+    const lateChance = clamp(0.018 + (safeZone.phase || 1) * 0.006 + elapsedSeconds(performance.now()) / 9000 + activeEventFactor("richChanceAdd", 0), 0.02, 0.20);
     const rich = Math.random() < lateChance;
+    const massMult = activeEventFactor("foodMassMult", 1);
+    const mass = (rich ? rand(5.8, 10.5) : rand(2.2, 5.2)) * massMult;
     return {
       x: p.x,
       y: p.y,
-      mass: rich ? rand(5.8, 10.5) : rand(2.2, 5.2),
-      radius: rich ? rand(6.2, 8.6) : rand(4.2, 6.4),
+      mass,
+      radius: (rich ? rand(6.2, 8.6) : rand(4.2, 6.4)) * Math.sqrt(massMult),
       color,
       pulse: rand(0, Math.PI * 2),
       rich
@@ -917,7 +1453,8 @@
     selectedMode = activeMode;
     setModeSelection(selectedMode);
     const config = modeConfig();
-    const start = { x: WORLD / 2, y: WORLD / 2 };
+    const playerTeam = teamForParticipant(0, config);
+    const start = config.control ? teamSpawnPoint(playerTeam || 0) : { x: WORLD / 2, y: WORLD / 2 };
     runId += 1;
     groups = [];
     foods = [];
@@ -936,6 +1473,9 @@
     perf.drawnCells = 0;
     input.ejectHeld = false;
     lastPlayerEject = 0;
+    controlPoints = [];
+    teamScores = [];
+    matchEvent = { active: null, nextAt: 0, endsAt: 0, recent: [], virusBank: 0 };
     hudTimer = 0;
     lastFrame = now;
     ejectBtn.classList.remove("active");
@@ -956,8 +1496,9 @@
       shrinkStart: now + 18000,
       shrinkEnd: now + 64000
     };
+    initControlPoints(config);
+    resetMatchEvents(now, config);
 
-    const playerTeam = teamForParticipant(0, config);
     const playerStartMass = config.playerStartMass || 220;
     playerGroup = makeGroup("player", PLAYER_NAME, modeColor(playerTeam || 0, true), true, playerStartMass, start, playerTeam);
     playerGroup.lives = config.lives || 0;
@@ -967,7 +1508,8 @@
     for (let i = 0; i < botCount; i++) {
       const participant = i + 1;
       const team = teamForParticipant(participant, config);
-      const group = makeGroup(`bot-${i}`, botName(i), modeColor(team ?? i, false), false, botStartMass(i, config), null, team);
+      const position = config.control ? teamSpawnPoint(team || 0) : null;
+      const group = makeGroup(`bot-${i}`, botName(i), modeColor(team ?? i, false), false, botStartMass(i, config), position, team);
       group.lives = config.lives || 0;
       groups.push(group);
     }
@@ -985,6 +1527,7 @@
       splitFlash: 0,
       zonePulse: 0,
       winnerShown: false,
+      dustRewarded: false,
       menu: !!opts.menu
     };
 
@@ -1006,6 +1549,150 @@
     }
     pauseBtn.textContent = "停";
     updateHud(now, true);
+  }
+
+  function resetMatchEvents(now, config) {
+    matchEvent = {
+      active: null,
+      nextAt: now + (config.control ? 9000 : 12000),
+      endsAt: 0,
+      recent: [],
+      virusBank: 0
+    };
+  }
+
+  function chooseMatchEvent() {
+    const pool = MATCH_EVENTS.filter(event => !matchEvent.recent.includes(event.key));
+    const source = pool.length ? pool : MATCH_EVENTS;
+    return source[Math.floor(Math.random() * source.length)];
+  }
+
+  function activateMatchEvent(event, now) {
+    matchEvent.active = event;
+    matchEvent.endsAt = now + event.duration * 1000;
+    matchEvent.virusBank = 0;
+    matchEvent.recent.push(event.key);
+    if (matchEvent.recent.length > 2) matchEvent.recent.shift();
+    if (event.virusBurst) {
+      for (let i = 0; i < event.virusBurst; i++) viruses.push(makeVirus(i % 5 === 0 ? "big" : "small"));
+    }
+    ring(safeZone.enabled ? safeZone.x : WORLD / 2, safeZone.enabled ? safeZone.y : WORLD / 2, event.color || "#ffffff", 360);
+  }
+
+  function updateMatchEvents(dt, now) {
+    if (game.menu || game.over) return;
+    if (matchEvent.active && now >= matchEvent.endsAt) {
+      matchEvent.active = null;
+      matchEvent.nextAt = now + rand(34000, 52000);
+      matchEvent.virusBank = 0;
+    }
+    if (!matchEvent.active && now >= matchEvent.nextAt) {
+      activateMatchEvent(chooseMatchEvent(), now);
+    }
+    if (matchEvent.active && matchEvent.active.key === "thorn") {
+      matchEvent.virusBank += dt * 0.34;
+      while (matchEvent.virusBank >= 1 && viruses.length < VIRUS_COUNT + 42) {
+        viruses.push(makeVirus(Math.random() < 0.18 ? "big" : "small"));
+        matchEvent.virusBank -= 1;
+      }
+    }
+  }
+
+  function initControlPoints(config) {
+    teamScores = Array.from({ length: config.teams || 0 }, () => 0);
+    controlPoints = [];
+    if (!config.control) return;
+    controlPoints = [
+      { label: "A", x: WORLD * 0.36, y: WORLD * 0.36 },
+      { label: "B", x: WORLD * 0.50, y: WORLD * 0.50 },
+      { label: "C", x: WORLD * 0.64, y: WORLD * 0.64 }
+    ].map(point => ({
+      ...point,
+      radius: 390,
+      owner: null,
+      captureTeam: null,
+      capture: 0,
+      contested: false,
+      pressure: 0
+    }));
+  }
+
+  function updateControlPoints(dt) {
+    const config = modeConfig();
+    if (!config.control || !controlPoints.length || game.over) return;
+    for (const point of controlPoints) {
+      const masses = Array.from({ length: config.teams }, () => 0);
+      for (const group of groups) {
+        if (group.dead || group.team === null || group.team === undefined) continue;
+        for (const cell of group.cells) {
+          if (cell.dead) continue;
+          const reach = point.radius + cell.radius * 0.45;
+          if (distSq(point, cell) < reach * reach) masses[group.team] += cell.mass;
+        }
+      }
+
+      const order = masses
+        .map((mass, team) => ({ team, mass }))
+        .sort((a, b) => b.mass - a.mass);
+      const top = order[0] || { team: null, mass: 0 };
+      const second = order[1] || { team: null, mass: 0 };
+      const hasPressure = top.team !== null && top.mass > 55 && top.mass > second.mass * 1.16 + 30;
+      point.contested = !hasPressure && top.mass > 45 && second.mass > 35;
+      point.pressure = top.mass;
+
+      if (hasPressure) {
+        if (point.owner === top.team) {
+          point.captureTeam = top.team;
+          point.capture = 100;
+        } else {
+          if (point.captureTeam !== top.team) {
+            point.captureTeam = top.team;
+            point.capture = Math.max(0, point.capture * 0.35);
+          }
+          point.capture += dt * (17 + Math.min(38, top.mass / 170));
+          if (point.capture >= 100) {
+            point.owner = top.team;
+            point.capture = 100;
+            ring(point.x, point.y, TEAM_COLORS[top.team % TEAM_COLORS.length], 250);
+          }
+        }
+      } else if (point.owner === null) {
+        point.capture = Math.max(0, point.capture - dt * 16);
+      }
+
+      if (point.owner !== null) {
+        teamScores[point.owner] = (teamScores[point.owner] || 0) + dt * 0.95;
+      }
+    }
+  }
+
+  function bestControlPointFor(group, center) {
+    const config = modeConfig();
+    if (!config.control || !controlPoints.length || group.team === null || group.team === undefined) return null;
+    let best = null;
+    let bestScore = -Infinity;
+    const ownScore = teamScores[group.team] || 0;
+    const topScore = Math.max(...teamScores, 0);
+    for (let i = 0; i < controlPoints.length; i++) {
+      const point = controlPoints[i];
+      const d = Math.max(1, distance(center, point));
+      const enemyOwned = point.owner !== null && point.owner !== group.team;
+      const allyOwned = point.owner === group.team;
+      const behind = topScore - ownScore > 34 ? 1.2 : 0;
+      const bias = group.ai ? Math.sin(group.ai.controlBias * Math.PI * 2 + i * 2.1) * 0.85 : 0;
+      const score =
+        (enemyOwned ? 4.5 : allyOwned ? 0.75 : 3.1) +
+        (point.contested ? 2.6 : 0) +
+        (point.captureTeam === group.team ? 0.8 : 0) +
+        bias +
+        behind -
+        d / 2600;
+      if (score > bestScore) {
+        bestScore = score;
+        best = point;
+      }
+    }
+    return best;
   }
 
   function groupMass(group) {
@@ -1110,6 +1797,7 @@
   function update(dt, now) {
     syncRadii();
     const aiSpace = buildCellGrid();
+    updateMatchEvents(dt, now);
     updateSafeZone(now, dt);
     updateAi(dt, now, aiSpace);
     updateGroupMovement(dt);
@@ -1123,6 +1811,7 @@
     lastCellSpace = worldSpace;
     renderCells = worldSpace.cells;
     updateGroupSeparation(dt);
+    updateControlPoints(dt);
     applyZoneDamage(dt);
     cleanupGroups();
     updateRespawns(now);
@@ -1342,6 +2031,21 @@
       ai.mode = "逃跑";
       ai.prey = null;
       return;
+    }
+
+    if (config.control) {
+      const point = bestControlPointFor(group, center);
+      if (point) {
+        const angle = rand(0, Math.PI * 2);
+        const radius = rand(0, point.radius * 0.42);
+        ai.target = {
+          x: clamp(point.x + Math.cos(angle) * radius, 80, WORLD - 80),
+          y: clamp(point.y + Math.sin(angle) * radius, 80, WORLD - 80)
+        };
+        ai.mode = point.owner === group.team ? "守点" : "占点";
+        ai.prey = null;
+        return;
+      }
     }
 
     if (config.teams > 0) {
@@ -1735,7 +2439,7 @@
         const dy = target.y - cell.y;
         const move = norm(dx, dy);
         const distanceScale = clamp(move.length / 210, 0.08, 1);
-        const baseSpeed = 352 / (1 + cell.radius / 96);
+        const baseSpeed = (352 / (1 + cell.radius / 96)) * activeEventFactor("speedMult", 1);
         const desiredX = move.x * baseSpeed * distanceScale;
         const desiredY = move.y * baseSpeed * distanceScale;
         const steer = Math.min(1, dt * (group.isPlayer ? 4.35 : 3.35));
@@ -1746,6 +2450,7 @@
         cell.x += cell.vx * dt;
         cell.y += cell.vy * dt;
         cell.mergeDelay = Math.max(0, cell.mergeDelay - dt);
+        if (cell.mergeDelay <= 0) cell.mergeMax = 0;
         cell.mass *= 1 - dt * (group.isPlayer ? 0.0014 : 0.0011);
         keepInside(cell);
       }
@@ -1822,7 +2527,7 @@
     for (const wrap of cells) {
       const cell = wrap.cell;
       if (cell.dead) continue;
-      const reach = cell.radius + 18;
+      const reach = (cell.radius + 18) * activeEventFactor("eatReachMult", 1);
       const minX = Math.floor((cell.x - reach) / FOOD_BUCKET);
       const maxX = Math.floor((cell.x + reach) / FOOD_BUCKET);
       const minY = Math.floor((cell.y - reach) / FOOD_BUCKET);
@@ -1957,6 +2662,7 @@
     if (available < 2 || totalMass < (big ? 180 : 120)) {
       cell.mass = totalMass;
       cell.mergeDelay = Math.max(cell.mergeDelay, mergeCooldown(totalMass, big ? "virus-big" : "virus"));
+      cell.mergeMax = Math.max(cell.mergeMax || 0, cell.mergeDelay);
       return;
     }
 
@@ -1970,6 +2676,7 @@
       c.vx = cell.vx * 0.24 + Math.cos(angle) * (big ? rand(390, 640) : rand(330, 560));
       c.vy = cell.vy * 0.24 + Math.sin(angle) * (big ? rand(390, 640) : rand(330, 560));
       c.mergeDelay = mergeCooldown(pieceMass, big ? "virus-big" : "virus");
+      c.mergeMax = c.mergeDelay;
       group.cells.push(c);
     }
 
@@ -2186,10 +2893,17 @@
   function maybeEndGame(now) {
     if (game.over) return;
     const config = modeConfig();
+    if (config.control) {
+      const winner = teamScores.findIndex(score => score >= config.controlScore);
+      if (winner >= 0) {
+        endGame(winner === playerGroup.team ? "据点胜利" : "据点结算");
+        return;
+      }
+    }
     if (game.endsAt && now >= game.endsAt) {
       if (config.teams > 0) {
         const rank = teamRank(playerGroup.team);
-        endGame(rank === 1 ? "团队胜利" : "团队结算");
+        endGame(rank === 1 ? (config.control ? "据点胜利" : "团队胜利") : (config.control ? "据点结算" : "团队结算"));
       } else if (config.ranking === "kills") {
         const rank = personalRank();
         endGame(rank === 1 ? "生存第一" : "生存结算");
@@ -2261,6 +2975,7 @@
       const cooldown = mergeCooldown(newMass, "split");
       cell.mass = newMass;
       cell.mergeDelay = cooldown;
+      cell.mergeMax = cooldown;
       cell.vx -= n.x * 50;
       cell.vy -= n.y * 50;
 
@@ -2268,6 +2983,7 @@
       child.vx = cell.vx + n.x * 650 * (opts.power || 1);
       child.vy = cell.vy + n.y * 650 * (opts.power || 1);
       child.mergeDelay = cooldown;
+      child.mergeMax = cooldown;
       group.cells.push(child);
       didSplit = true;
     }
@@ -2285,7 +3001,8 @@
 
   function ejectMass(group, target, now) {
     if (group.dead || game.paused || game.over) return false;
-    if (group.isPlayer && now - lastPlayerEject < EJECT_INTERVAL) return false;
+    const ejectInterval = EJECT_INTERVAL * activeEventFactor("ejectMult", 1);
+    if (group.isPlayer && now - lastPlayerEject < ejectInterval) return false;
     if (group.isPlayer) lastPlayerEject = now;
 
     let didEject = false;
@@ -2303,11 +3020,13 @@
         mass: amount,
         radius: radiusFromMass(amount),
         age: 0,
-        color: group.color,
+        color: sporeColorFor(group),
+        accent: group.isPlayer ? selectedSporeDef().accent || "#ffffff" : group.color,
+        spore: sporePatternFor(group),
         ownerId: group.id
       });
       if (ejected.length > MAX_EJECTED) ejected.splice(0, ejected.length - MAX_EJECTED);
-      if (Math.random() < 0.42) sparkle(cell.x + n.x * cell.radius, cell.y + n.y * cell.radius, group.color, 3, 110);
+      if (Math.random() < 0.42) sparkle(cell.x + n.x * cell.radius, cell.y + n.y * cell.radius, sporeColorFor(group), 3, 110);
       didEject = true;
     }
     return didEject;
@@ -2317,6 +3036,20 @@
     const r = entity.radius || 8;
     entity.x = clamp(entity.x, r, WORLD - r);
     entity.y = clamp(entity.y, r, WORLD - r);
+  }
+
+  function awardDust(rank, peakMass, config) {
+    if (game.dustRewarded || game.menu) return 0;
+    const rankBonus = Math.max(0, 30 - rank * 4);
+    const massBonus = Math.min(42, Math.floor(peakMass / 120));
+    const killBonus = Math.min(36, game.kills * 5);
+    const controlBonus = config.control ? Math.min(28, Math.floor((teamScores[playerGroup.team] || 0) / 8)) : 0;
+    const reward = Math.max(10, 14 + rankBonus + massBonus + killBonus + controlBonus + meta.forgeLevel * 2);
+    meta.dust += reward;
+    meta.totalDust = (meta.totalDust || 0) + reward;
+    game.dustRewarded = true;
+    saveMeta();
+    return reward;
   }
 
   function endGame(reason) {
@@ -2333,19 +3066,25 @@
     const rows = buildRanking();
     const rank = config.teams > 0 ? teamRank(playerGroup.team) : personalRank();
     const teamRow = config.teams > 0 ? rows.find(row => row.team === playerGroup.team) : null;
+    const dustReward = awardDust(rank, mass, config);
     resultTitle.textContent = reason;
     finalMass.style.display = "block";
-    if (config.teams > 0) {
+    if (config.control) {
+      const score = Math.floor(teamScores[playerGroup.team] || 0);
+      finalMass.textContent = score;
+      resultText.textContent = `队伍第 ${rank} 名，据点分 ${score}/${config.controlScore}，个人最高质量 ${mass}，淘汰 ${game.kills}，星尘 +${dustReward}。`;
+    } else if (config.teams > 0) {
       finalMass.textContent = Math.round(teamRow ? teamRow.mass : groupMass(playerGroup));
-      resultText.textContent = `队伍第 ${rank} 名，个人最高质量 ${mass}，淘汰 ${game.kills}。`;
+      resultText.textContent = `队伍第 ${rank} 名，个人最高质量 ${mass}，淘汰 ${game.kills}，星尘 +${dustReward}。`;
     } else if (config.ranking === "kills") {
       finalMass.textContent = game.kills;
-      resultText.textContent = `生存第 ${rank} 名，剩余生命 ${playerGroup.lives || 0}，最高质量 ${mass}。`;
+      resultText.textContent = `生存第 ${rank} 名，剩余生命 ${playerGroup.lives || 0}，最高质量 ${mass}，星尘 +${dustReward}。`;
     } else {
       finalMass.textContent = mass;
-      resultText.textContent = `个人第 ${rank} 名，最高质量 ${mass}，淘汰 ${game.kills}，吃点 ${game.foodEaten}。`;
+      resultText.textContent = `个人第 ${rank} 名，最高质量 ${mass}，淘汰 ${game.kills}，吃点 ${game.foodEaten}，星尘 +${dustReward}。`;
     }
     modeGrid.style.display = "grid";
+    renderCosmetics();
     playAgainBtn.textContent = "再来一局";
     overlay.style.display = "grid";
     updateHud(performance.now(), true);
@@ -2355,6 +3094,17 @@
     if (game.over || game.menu) return;
     game.paused = !game.paused;
     pauseBtn.textContent = game.paused ? "续" : "停";
+    updateHud(performance.now(), true);
+  }
+
+  function returnToLobby() {
+    game.menu = true;
+    game.paused = true;
+    game.over = false;
+    input.ejectHeld = false;
+    ejectBtn.classList.remove("active");
+    pauseBtn.textContent = "停";
+    showStartOverlay();
     updateHud(performance.now(), true);
   }
 
@@ -2369,8 +3119,9 @@
     const config = selectedModeConfig();
     resultTitle.textContent = "星团大作战";
     finalMass.style.display = "none";
-    resultText.textContent = `${config.description} 选择模式后开始。`;
+    resultText.textContent = `${config.description} 随机事件会在开局十几秒后自动出现。`;
     modeGrid.style.display = "grid";
+    renderCosmetics();
     playAgainBtn.textContent = "开始游戏";
     overlay.style.display = "grid";
   }
@@ -2425,15 +3176,18 @@
     ctx.translate(-camera.x, -camera.y);
     drawWorld(now);
     drawZone(now);
+    drawControlPoints(now);
     drawFoods(now);
     drawEjected();
     drawViruses(now);
     drawCells(now);
     drawEffects();
+    drawPlayerGuides(now);
     ctx.restore();
 
     if (game.paused) drawPauseLayer();
     if (game.splitFlash > 0) drawSplitFlash();
+    drawFinalPointers(now);
     if (now >= perf.nextMiniDraw || game.paused || game.over || game.menu) {
       drawMinimap();
       perf.nextMiniDraw = now + (perf.lowQuality ? MINIMAP_SLOW_INTERVAL : MINIMAP_FAST_INTERVAL);
@@ -2526,13 +3280,64 @@
     ctx.restore();
   }
 
+  function drawControlPoints(now) {
+    if (!controlPoints.length) return;
+    ctx.save();
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    for (const point of controlPoints) {
+      const ownerColor = point.owner === null ? "rgba(255, 255, 255, 0.72)" : TEAM_COLORS[point.owner % TEAM_COLORS.length];
+      const captureColor = point.captureTeam === null ? ownerColor : TEAM_COLORS[point.captureTeam % TEAM_COLORS.length];
+      const pulse = 0.5 + Math.sin(now / 420 + point.x * 0.001) * 0.08;
+
+      ctx.globalAlpha = point.contested ? 0.22 : 0.14;
+      ctx.fillStyle = ownerColor;
+      ctx.beginPath();
+      ctx.arc(point.x, point.y, point.radius, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.globalAlpha = 0.78;
+      ctx.strokeStyle = ownerColor;
+      ctx.lineWidth = (point.contested ? 9 : 6) / zoom;
+      ctx.beginPath();
+      ctx.arc(point.x, point.y, point.radius, 0, Math.PI * 2);
+      ctx.stroke();
+
+      if (point.capture > 0 && point.captureTeam !== null) {
+        ctx.globalAlpha = 0.95;
+        ctx.strokeStyle = captureColor;
+        ctx.lineWidth = 12 / zoom;
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, point.radius + 16, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * clamp(point.capture / 100, 0, 1));
+        ctx.stroke();
+      }
+
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = "rgba(4, 10, 16, 0.72)";
+      ctx.beginPath();
+      ctx.arc(point.x, point.y, 72 + pulse * 8, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = captureColor;
+      ctx.lineWidth = 4 / zoom;
+      ctx.stroke();
+
+      ctx.font = `900 ${34 / zoom}px Microsoft YaHei, Segoe UI, sans-serif`;
+      ctx.fillStyle = "#ffffff";
+      ctx.fillText(point.label, point.x, point.y - 8 / zoom);
+      ctx.font = `700 ${17 / zoom}px Microsoft YaHei, Segoe UI, sans-serif`;
+      ctx.fillStyle = point.contested ? "#ffd166" : "rgba(255, 255, 255, 0.86)";
+      ctx.fillText(point.contested ? "争夺" : point.owner === null ? "中立" : TEAM_NAMES[point.owner] || `队伍 ${point.owner + 1}`, point.x, point.y + 30 / zoom);
+    }
+    ctx.restore();
+  }
+
   function drawFoods(now) {
     const bounds = visibleBounds(30);
     const minX = Math.floor(bounds.left / FOOD_BUCKET);
     const maxX = Math.floor(bounds.right / FOOD_BUCKET);
     const minY = Math.floor(bounds.top / FOOD_BUCKET);
     const maxY = Math.floor(bounds.bottom / FOOD_BUCKET);
-    const maxDraw = perf.lowQuality ? 900 : 1800;
+    const maxDraw = perf.lowQuality ? 720 : 1500;
     let drawn = 0;
 
     for (let bx = minX; bx <= maxX; bx++) {
@@ -2577,6 +3382,7 @@
     const bounds = visibleBounds(60);
     for (const mass of ejected) {
       if (!isVisible(mass, bounds, 26)) continue;
+      const pattern = mass.spore || "round";
       ctx.save();
       ctx.globalAlpha = 0.94;
       ctx.fillStyle = mass.color;
@@ -2588,8 +3394,68 @@
       ctx.strokeStyle = "rgba(255, 255, 255, 0.34)";
       ctx.lineWidth = 1.5 / zoom;
       ctx.stroke();
+      if (pattern !== "round" && !perf.lowQuality) {
+        drawSporePattern(mass, pattern);
+      }
       ctx.restore();
     }
+  }
+
+  function drawSporePattern(mass, pattern) {
+    const r = mass.radius;
+    const accent = mass.accent || "#ffffff";
+    ctx.save();
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = accent;
+    ctx.fillStyle = accent;
+    ctx.lineWidth = 1.4 / zoom;
+    ctx.globalAlpha = 0.72;
+    if (pattern === "bubble") {
+      ctx.beginPath();
+      ctx.arc(mass.x - r * 0.18, mass.y - r * 0.2, r * 0.34, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.globalAlpha = 0.35;
+      ctx.beginPath();
+      ctx.arc(mass.x + r * 0.25, mass.y + r * 0.18, r * 0.18, 0, Math.PI * 2);
+      ctx.stroke();
+    } else if (pattern === "meteor" || pattern === "aurora") {
+      ctx.beginPath();
+      ctx.moveTo(mass.x - r * 0.58, mass.y + r * 0.1);
+      ctx.lineTo(mass.x + r * 0.48, mass.y - r * 0.22);
+      ctx.stroke();
+      ctx.globalAlpha = 0.46;
+      ctx.beginPath();
+      ctx.moveTo(mass.x - r * 0.2, mass.y + r * 0.44);
+      ctx.lineTo(mass.x + r * 0.42, mass.y + r * 0.08);
+      ctx.stroke();
+    } else if (pattern === "spark") {
+      ctx.beginPath();
+      ctx.moveTo(mass.x - r * 0.45, mass.y - r * 0.1);
+      ctx.lineTo(mass.x, mass.y + r * 0.02);
+      ctx.lineTo(mass.x - r * 0.12, mass.y + r * 0.42);
+      ctx.lineTo(mass.x + r * 0.48, mass.y - r * 0.18);
+      ctx.stroke();
+    } else if (pattern === "vine") {
+      ctx.beginPath();
+      ctx.arc(mass.x, mass.y, r * 0.48, Math.PI * 0.08, Math.PI * 1.35);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.ellipse(mass.x + r * 0.2, mass.y - r * 0.2, r * 0.18, r * 0.09, -0.65, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (pattern === "royal") {
+      ctx.beginPath();
+      for (let i = 0; i < 5; i++) {
+        const angle = -Math.PI / 2 + (i / 5) * Math.PI * 2;
+        const rr = i % 2 === 0 ? r * 0.5 : r * 0.2;
+        const x = mass.x + Math.cos(angle) * rr;
+        const y = mass.y + Math.sin(angle) * rr;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+      ctx.stroke();
+    }
+    ctx.restore();
   }
 
   function drawViruses(now) {
@@ -2695,17 +3561,141 @@
     }
     ctx.globalAlpha = 1;
 
+    drawSkinPattern(group, cell, now);
+
     if (cell.mergeDelay > 0) {
       ctx.strokeStyle = `rgba(255, 209, 102, ${0.18 + Math.sin(now / 120) * 0.10})`;
       ctx.lineWidth = 4 / zoom;
       ctx.beginPath();
       ctx.arc(cell.x, cell.y, r + 6, 0, Math.PI * 2);
       ctx.stroke();
+      if (group.isPlayer) {
+        const maxDelay = Math.max(cell.mergeMax || cell.mergeDelay, cell.mergeDelay, 0.1);
+        const ready = clamp(1 - cell.mergeDelay / maxDelay, 0, 1);
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.82)";
+        ctx.lineWidth = 3 / zoom;
+        ctx.beginPath();
+        ctx.arc(cell.x, cell.y, r + 13, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * ready);
+        ctx.stroke();
+        if (r > 30) {
+          ctx.font = `800 ${clamp(r * 0.22, 11, 18) / zoom}px Microsoft YaHei, Segoe UI, sans-serif`;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillStyle = "rgba(255, 245, 210, 0.92)";
+          ctx.fillText(`${Math.ceil(cell.mergeDelay)}s`, cell.x, cell.y + r * 0.58);
+        }
+      }
     }
 
     if (group.isPlayer || !perf.lowQuality || r > 34 || (r > 24 && zoom > 0.7)) {
       drawCellLabel(group, cell);
     }
+    ctx.restore();
+  }
+
+  function drawSkinPattern(group, cell, now) {
+    if (!group.isPlayer) return;
+    const skin = selectedSkinDef();
+    if (!isSpecial(skin)) return;
+    const r = cell.radius;
+    if (perf.lowQuality && r < 34) return;
+    const accent = skin.accent || "#ffffff";
+    const spin = now / 1600;
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cell.x, cell.y, r * 0.96, 0, Math.PI * 2);
+    ctx.clip();
+    ctx.shadowBlur = 0;
+
+    if (skin.pattern === "comet") {
+      ctx.globalAlpha = 0.26;
+      ctx.strokeStyle = accent;
+      ctx.lineWidth = Math.max(3, r * 0.09) / zoom;
+      for (let i = -2; i <= 2; i++) {
+        const y = cell.y + i * r * 0.26 + Math.sin(spin + i) * r * 0.06;
+        ctx.beginPath();
+        ctx.moveTo(cell.x - r * 1.1, y + r * 0.35);
+        ctx.lineTo(cell.x + r * 1.1, y - r * 0.35);
+        ctx.stroke();
+      }
+    } else if (skin.pattern === "mecha") {
+      ctx.globalAlpha = 0.34;
+      ctx.strokeStyle = accent;
+      ctx.lineWidth = 2 / zoom;
+      for (let i = 0; i < 3; i++) {
+        const rr = r * (0.34 + i * 0.18);
+        ctx.beginPath();
+        for (let j = 0; j < 6; j++) {
+          const angle = spin * 0.35 + (j / 6) * Math.PI * 2;
+          const x = cell.x + Math.cos(angle) * rr;
+          const y = cell.y + Math.sin(angle) * rr;
+          if (j === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+        ctx.stroke();
+      }
+    } else if (skin.pattern === "tide") {
+      ctx.globalAlpha = 0.28;
+      ctx.strokeStyle = accent;
+      ctx.lineWidth = Math.max(2, r * 0.055) / zoom;
+      for (let i = -2; i <= 2; i++) {
+        ctx.beginPath();
+        for (let step = 0; step <= 16; step++) {
+          const x = cell.x - r + (step / 16) * r * 2;
+          const y = cell.y + i * r * 0.24 + Math.sin(step * 0.85 + spin * 2 + i) * r * 0.08;
+          if (step === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+      }
+    } else if (skin.pattern === "flare") {
+      ctx.globalAlpha = 0.22;
+      ctx.fillStyle = accent;
+      for (let i = 0; i < 10; i++) {
+        const angle = spin + (i / 10) * Math.PI * 2;
+        const rr = r * (0.18 + (i % 4) * 0.12);
+        ctx.beginPath();
+        ctx.arc(cell.x + Math.cos(angle) * rr, cell.y + Math.sin(angle) * rr, r * 0.22, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    } else if (skin.pattern === "crown") {
+      ctx.globalAlpha = 0.32;
+      ctx.strokeStyle = accent;
+      ctx.fillStyle = accent;
+      ctx.lineWidth = 2.2 / zoom;
+      for (let i = 0; i < 6; i++) {
+        const angle = spin * 0.45 + (i / 6) * Math.PI * 2;
+        const x = cell.x + Math.cos(angle) * r * 0.48;
+        const y = cell.y + Math.sin(angle) * r * 0.48;
+        ctx.beginPath();
+        ctx.moveTo(x, y - r * 0.15);
+        ctx.lineTo(x - r * 0.12, y + r * 0.12);
+        ctx.lineTo(x + r * 0.12, y + r * 0.12);
+        ctx.closePath();
+        ctx.fill();
+      }
+    } else if (skin.pattern === "abyss") {
+      ctx.globalAlpha = 0.36;
+      const grad = ctx.createRadialGradient(cell.x, cell.y, r * 0.08, cell.x, cell.y, r * 0.78);
+      grad.addColorStop(0, "rgba(0, 0, 0, 0.72)");
+      grad.addColorStop(0.55, "rgba(17, 24, 39, 0.18)");
+      grad.addColorStop(1, accent);
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(cell.x, cell.y, r * 0.76, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+
+    ctx.save();
+    ctx.globalAlpha = perf.lowQuality ? 0.34 : 0.52;
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = (skin.rarity === "传说" ? 3.2 : 2.4) / zoom;
+    ctx.beginPath();
+    ctx.arc(cell.x, cell.y, r + 4 / zoom, spin, spin + Math.PI * 1.55);
+    ctx.stroke();
     ctx.restore();
   }
 
@@ -2761,6 +3751,101 @@
     }
   }
 
+  function worldToScreen(point) {
+    return {
+      x: (point.x - camera.x) * zoom + view.w / 2,
+      y: (point.y - camera.y) * zoom + view.h / 2
+    };
+  }
+
+  function drawPlayerGuides(now) {
+    if (!playerGroup || playerGroup.dead || game.menu || game.over || game.paused) return;
+    const center = groupCenter(playerGroup);
+    const source = center.largestCell;
+    if (!source || source.mass < 32 || playerGroup.cells.length >= MAX_CELLS) return;
+    const target = cursorPoint();
+    const n = norm(target.x - source.x, target.y - source.y);
+    if (n.length < 24) return;
+    const reach = clamp(source.radius * 1.3 + 90, 130, 260);
+    const land = {
+      x: clamp(source.x + n.x * reach, source.radius, WORLD - source.radius),
+      y: clamp(source.y + n.y * reach, source.radius, WORLD - source.radius)
+    };
+    const ghostRadius = radiusFromMass(source.mass * 0.5);
+    const pulse = 0.55 + Math.sin(now / 180) * 0.12;
+
+    ctx.save();
+    ctx.globalAlpha = 0.34;
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 2 / zoom;
+    ctx.setLineDash([10 / zoom, 12 / zoom]);
+    ctx.beginPath();
+    ctx.moveTo(source.x, source.y);
+    ctx.lineTo(land.x, land.y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.globalAlpha = 0.18 + pulse * 0.16;
+    ctx.fillStyle = playerGroup.color;
+    ctx.beginPath();
+    ctx.arc(land.x, land.y, ghostRadius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 0.72;
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 3 / zoom;
+    ctx.beginPath();
+    ctx.arc(land.x, land.y, ghostRadius + 6, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawFinalPointers(now) {
+    if (!safeZone.enabled || game.menu || game.over || game.paused || !playerGroup || playerGroup.dead) return;
+    const enemies = allLiveGroups().filter(group => group !== playerGroup && !sameTeam(group, playerGroup));
+    if (enemies.length < 1 || enemies.length > 4) return;
+    const margin = 42;
+    const playerCenter = groupCenter(playerGroup);
+
+    ctx.save();
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    for (const group of enemies) {
+      const center = groupCenter(group);
+      const screen = worldToScreen(center);
+      const inside = screen.x > margin && screen.x < view.w - margin && screen.y > margin && screen.y < view.h - margin;
+      const x = clamp(screen.x, margin, view.w - margin);
+      const y = clamp(screen.y, margin + 16, view.h - margin);
+      const angle = Math.atan2(screen.y - view.h / 2, screen.x - view.w / 2);
+      const dist = Math.hypot(center.x - playerCenter.x, center.y - playerCenter.y);
+
+      ctx.save();
+      ctx.translate(inside ? screen.x : x, inside ? screen.y : y);
+      ctx.rotate(angle);
+      ctx.fillStyle = group.color;
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.82)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(18, 0);
+      ctx.lineTo(-10, -11);
+      ctx.lineTo(-6, 0);
+      ctx.lineTo(-10, 11);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+
+      ctx.font = "800 12px Microsoft YaHei, Segoe UI, sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillStyle = "#ffffff";
+      ctx.strokeStyle = "rgba(0, 0, 0, 0.55)";
+      ctx.lineWidth = 4;
+      const label = `${Math.round(dist / 100)}格`;
+      ctx.strokeText(label, inside ? screen.x : x, (inside ? screen.y : y) + 24);
+      ctx.fillText(label, inside ? screen.x : x, (inside ? screen.y : y) + 24);
+    }
+    ctx.restore();
+  }
+
   function drawPauseLayer() {
     ctx.save();
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -2805,6 +3890,16 @@
       miniCtx.arc((safeZone.x / WORLD) * w, (safeZone.y / WORLD) * h, (safeZone.radius / WORLD) * w, 0, Math.PI * 2);
       miniCtx.stroke();
       miniCtx.restore();
+    }
+
+    for (const point of controlPoints) {
+      const color = point.owner === null ? "rgba(255, 255, 255, 0.78)" : TEAM_COLORS[point.owner % TEAM_COLORS.length];
+      miniCtx.strokeStyle = color;
+      miniCtx.lineWidth = 1.2;
+      miniCtx.beginPath();
+      miniCtx.arc((point.x / WORLD) * w, (point.y / WORLD) * h, 5.2, 0, Math.PI * 2);
+      miniCtx.stroke();
+      if (point.captureTeam !== null) miniDot(point.x, point.y, TEAM_COLORS[point.captureTeam % TEAM_COLORS.length], 2.8);
     }
 
     for (const virus of viruses) miniDot(virus.x, virus.y, virusColor(virus), virus.kind === "big" ? 3.4 : 2);
@@ -2854,16 +3949,18 @@
       }
       const rows = [];
       for (let team = 0; team < config.teams; team++) {
+        const score = teamScores[team] || 0;
         rows.push({
           name: `${TEAM_NAMES[team] || `队伍 ${team + 1}`} ${counts[team]}人`,
           mass: masses[team],
-          value: masses[team],
+          value: config.control ? score * 100000 + masses[team] : masses[team],
+          valueLabel: config.control ? `${Math.floor(score)}/${config.controlScore}` : null,
           color: TEAM_COLORS[team % TEAM_COLORS.length],
           player: team === playerGroup.team,
           team
         });
       }
-      rows.sort((a, b) => b.mass - a.mass);
+      rows.sort((a, b) => (b.value || b.mass) - (a.value || a.mass));
       return rows;
     }
 
@@ -2936,8 +4033,16 @@
     const seconds = String(elapsed % 60).padStart(2, "0");
     const tags = [];
     tags.push(`<span class="tag${safeZone.shrinking ? " danger" : ""}">${zoneText(now)}</span>`);
+    const activeTag = eventTag();
+    if (activeTag) tags.push(`<span class="tag danger">${activeTag}</span>`);
+    else if (matchEvent.nextAt) tags.push(`<span class="tag">事件 ${Math.max(0, Math.ceil((matchEvent.nextAt - now) / 1000))}s</span>`);
     if (game.endsAt) tags.push(`<span class="tag">剩余 ${formatTime((game.endsAt - now) / 1000)}</span>`);
     if (config.lives) tags.push(`<span class="tag">生命 ${playerGroup.lives || 0}</span>`);
+    if (config.control) {
+      tags.push(`<span class="tag">据点分 ${Math.floor(teamScores[playerGroup.team] || 0)}/${config.controlScore}</span>`);
+      const owned = controlPoints.filter(point => point.owner === playerGroup.team).length;
+      tags.push(`<span class="tag">我方据点 ${owned}/${controlPoints.length}</span>`);
+    }
     if (playerGroup.dead && playerGroup.respawnAt && !game.over) {
       tags.push(`<span class="tag">重生 ${formatTime((playerGroup.respawnAt - now) / 1000)}</span>`);
     }
@@ -3118,6 +4223,7 @@
     if (document.hidden) stopEjectHold();
   });
   pauseBtn.addEventListener("click", togglePause);
+  menuBtn.addEventListener("click", returnToLobby);
   document.getElementById("restartBtn").addEventListener("click", () => startGame(game.menu || game.over ? selectedMode : activeMode));
   playAgainBtn.addEventListener("click", () => startGame(selectedMode));
   for (const button of modeButtons) {
@@ -3126,6 +4232,27 @@
       if (game.menu) showStartOverlay();
     });
   }
+  skinGrid.addEventListener("click", event => {
+    const button = event.target.closest("[data-skin]");
+    if (!button) return;
+    if (!skinUnlocked(button.dataset.skin)) return;
+    selectedSkin = button.dataset.skin;
+    localStorage.setItem("ballArenaSkin", selectedSkin);
+    renderCosmetics();
+  });
+  sporeGrid.addEventListener("click", event => {
+    const button = event.target.closest("[data-spore]");
+    if (!button) return;
+    if (!sporeUnlocked(button.dataset.spore)) return;
+    selectedSpore = button.dataset.spore;
+    localStorage.setItem("ballArenaSpore", selectedSpore);
+    renderCosmetics();
+  });
+  forgePanel.addEventListener("click", event => {
+    const button = event.target.closest("[data-forge]");
+    if (!button) return;
+    craftForge(button.dataset.forge);
+  });
   window.addEventListener("resize", resize);
 
   if (new URLSearchParams(window.location.search).has("debug")) {
@@ -3136,6 +4263,17 @@
           world: WORLD,
           mode: activeMode,
           selectedMode,
+          selectedSkin,
+          selectedSpore,
+          skinType: selectedSkinDef().type,
+          sporeType: selectedSporeDef().type,
+          dust: Math.floor(meta.dust),
+          forgeLevel: meta.forgeLevel,
+          forgeLuck: Math.floor(meta.forgeLuck || 0),
+          unlockedSkins: meta.unlockedSkins.length,
+          unlockedSpores: meta.unlockedSpores.length,
+          forgeLockedSkins: forgeSkins().filter(skin => !skinUnlocked(skin.key)).length,
+          forgeLockedSpores: forgeSpores().filter(spore => !sporeUnlocked(spore.key)).length,
           menu: !!game.menu,
           paused: !!game.paused,
           over: !!game.over,
@@ -3150,6 +4288,9 @@
           foodTarget: foodTargetCount(now),
           foodRate: Math.round(foodSpawnRate(now) * 10) / 10,
           playerMass: Math.round(groupMass(playerGroup) * 10) / 10,
+          playerColor: playerGroup.color,
+          playerTeam: playerGroup.team,
+          playerTeamColor: playerGroup.team === null || playerGroup.team === undefined ? null : TEAM_COLORS[playerGroup.team % TEAM_COLORS.length],
           playerCells: playerGroup.cells.length,
           playerCellMasses: playerGroup.cells.map(cell => Math.round(cell.mass * 10) / 10),
           playerLives: playerGroup.lives || 0,
@@ -3174,6 +4315,22 @@
             radius: Math.round(safeZone.radius),
             shrinking: safeZone.shrinking
           },
+          event: {
+            active: matchEvent.active ? matchEvent.active.key : null,
+            label: matchEvent.active ? matchEvent.active.label : null,
+            nextIn: matchEvent.nextAt ? Math.max(0, Math.round((matchEvent.nextAt - now) / 1000)) : 0
+          },
+          control: {
+            scores: teamScores.map(score => Math.round(score)),
+            seekers: groups.filter(group => group.ai && (group.ai.mode === "占点" || group.ai.mode === "守点")).length,
+            points: controlPoints.map(point => ({
+              label: point.label,
+              owner: point.owner,
+              captureTeam: point.captureTeam,
+              capture: Math.round(point.capture),
+              contested: point.contested
+            }))
+          },
           ai: groups.filter(group => !group.isPlayer && !group.dead).slice(0, 6).map(group => ({
             name: group.name,
             mode: group.ai.mode,
@@ -3184,6 +4341,49 @@
       },
       startMode(modeKey = "battle") {
         startGame(modeKey);
+        return this.snapshot();
+      },
+      equipSkin(key) {
+        const item = SKINS.find(skin => skin.key === key);
+        if (!item) return null;
+        if (!skinUnlocked(key)) meta.unlockedSkins.push(key);
+        selectedSkin = key;
+        localStorage.setItem("ballArenaSkin", selectedSkin);
+        saveMeta();
+        renderCosmetics();
+        return this.snapshot();
+      },
+      equipSpore(key) {
+        const item = SPORES.find(spore => spore.key === key);
+        if (!item) return null;
+        if (!sporeUnlocked(key)) meta.unlockedSpores.push(key);
+        selectedSpore = key;
+        localStorage.setItem("ballArenaSpore", selectedSpore);
+        saveMeta();
+        renderCosmetics();
+        return this.snapshot();
+      },
+      forgeOnce(type = "skin") {
+        meta.dust = Math.max(meta.dust, forgeCost(type));
+        craftForge(type);
+        return {
+          lastForge: meta.lastForge,
+          snapshot: this.snapshot()
+        };
+      },
+      triggerEvent(key = "spore") {
+        const event = MATCH_EVENTS.find(item => item.key === key) || MATCH_EVENTS[0];
+        activateMatchEvent(event, performance.now());
+        updateHud(performance.now(), true);
+        return this.snapshot();
+      },
+      controlPointCheck() {
+        startGame("control");
+        const point = controlPoints[0];
+        playerGroup.cells = [makeCell(playerGroup, point.x, point.y, 320)];
+        syncRadii();
+        updateControlPoints(8);
+        updateHud(performance.now(), true);
         return this.snapshot();
       },
       forceTimeEnd() {
