@@ -1,0 +1,1477 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>芽阵前线</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --panel: rgba(9, 15, 13, 0.82);
+    --line: rgba(229, 241, 218, 0.2);
+    --text: #f2f8ed;
+    --muted: #a9b8a2;
+    --leaf: #73d87a;
+    --sun: #f5c95c;
+    --water: #67c9e8;
+    --danger: #ff6b5b;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at 12% 20%, rgba(115, 216, 122, 0.18), transparent 28%),
+      radial-gradient(circle at 82% 72%, rgba(245, 201, 92, 0.16), transparent 32%),
+      #07100d;
+    color: var(--text);
+    font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+  }
+
+  .app {
+    height: 100vh;
+    padding: 14px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 328px;
+    gap: 14px;
+  }
+
+  .stage,
+  .rail {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: rgba(8, 13, 11, 0.72);
+    overflow: hidden;
+    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.35);
+  }
+
+  .stage {
+    position: relative;
+  }
+
+  canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: #102018;
+  }
+
+  .hud {
+    position: absolute;
+    inset: 14px 14px auto 14px;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    pointer-events: none;
+  }
+
+  .brand,
+  .top-stats,
+  .modal-card,
+  .toast {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--panel);
+    backdrop-filter: blur(10px);
+  }
+
+  .brand {
+    min-width: 220px;
+    padding: 12px 14px;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(26px, 3.2vw, 40px);
+    line-height: 1;
+    letter-spacing: 0;
+  }
+
+  .subline {
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 800;
+  }
+
+  .top-stats {
+    min-width: 360px;
+    padding: 10px 12px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+
+  .stat span,
+  .meter span {
+    display: block;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 900;
+    margin-bottom: 3px;
+  }
+
+  .stat strong,
+  .meter strong {
+    display: block;
+    font-size: 21px;
+    line-height: 1.1;
+  }
+
+  .hud-actions {
+    pointer-events: auto;
+    display: flex;
+    gap: 8px;
+  }
+
+  .icon-btn,
+  .primary-btn,
+  .seed-card {
+    border: 1px solid rgba(229, 241, 218, 0.22);
+    border-radius: 8px;
+    background: rgba(18, 30, 24, 0.88);
+    color: var(--text);
+    font: inherit;
+    font-weight: 900;
+    cursor: pointer;
+    transition: transform 0.14s ease, border-color 0.14s ease, background 0.14s ease;
+  }
+
+  .icon-btn {
+    width: 44px;
+    height: 44px;
+    font-size: 18px;
+  }
+
+  .icon-btn:hover,
+  .primary-btn:hover,
+  .seed-card:hover,
+  .seed-card.selected {
+    transform: translateY(-1px);
+    border-color: rgba(245, 201, 92, 0.75);
+    background: rgba(36, 40, 22, 0.92);
+  }
+
+  .seed-card:disabled {
+    cursor: not-allowed;
+    opacity: 0.48;
+    transform: none;
+  }
+
+  .rail {
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .meter-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .meter,
+  .toolbox,
+  .seed-bank,
+  .brief {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: rgba(9, 15, 13, 0.62);
+    padding: 12px;
+  }
+
+  .bar {
+    height: 8px;
+    border-radius: 8px;
+    margin-top: 8px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.12);
+  }
+
+  .bar i {
+    display: block;
+    height: 100%;
+    width: 0%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--water), var(--leaf), var(--sun));
+  }
+
+  .toolbox {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .toolbox .icon-btn {
+    width: 100%;
+    min-height: 42px;
+  }
+
+  .seed-bank {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    overflow: auto;
+  }
+
+  .seed-card {
+    min-height: 86px;
+    padding: 8px;
+    text-align: left;
+    position: relative;
+  }
+
+  .seed-card strong {
+    display: block;
+    font-size: 14px;
+    line-height: 1.1;
+  }
+
+  .seed-card small {
+    display: block;
+    margin-top: 4px;
+    color: var(--muted);
+    line-height: 1.25;
+  }
+
+  .seed-cost {
+    position: absolute;
+    right: 8px;
+    bottom: 7px;
+    color: var(--sun);
+    font-size: 13px;
+  }
+
+  .cooldown-mask {
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 0%;
+    background: rgba(0, 0, 0, 0.46);
+    border-radius: 0 0 8px 8px;
+    pointer-events: none;
+  }
+
+  .brief h2 {
+    margin: 0 0 8px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .brief p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.55;
+    font-weight: 700;
+  }
+
+  .toast {
+    position: absolute;
+    left: 50%;
+    top: 112px;
+    min-width: 180px;
+    transform: translateX(-50%) translateY(-8px);
+    padding: 10px 16px;
+    color: var(--text);
+    opacity: 0;
+    pointer-events: none;
+    text-align: center;
+    font-weight: 900;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .modal {
+    position: absolute;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(3, 7, 6, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 5;
+  }
+
+  .modal.show {
+    display: flex;
+  }
+
+  .modal-card {
+    width: min(460px, calc(100% - 28px));
+    padding: 22px;
+  }
+
+  .modal-card h2 {
+    margin: 0 0 8px;
+    font-size: 30px;
+  }
+
+  .modal-card p {
+    margin: 0 0 18px;
+    color: var(--muted);
+    line-height: 1.6;
+    font-weight: 700;
+  }
+
+  .primary-btn {
+    width: 100%;
+    min-height: 46px;
+    font-size: 16px;
+  }
+
+  .mode-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin: 12px 0 16px;
+  }
+
+  .mode-btn {
+    min-height: 44px;
+    border: 1px solid rgba(229, 241, 218, 0.22);
+    border-radius: 8px;
+    background: rgba(18, 30, 24, 0.78);
+    color: var(--text);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 900;
+    cursor: pointer;
+  }
+
+  .mode-btn.selected {
+    border-color: rgba(245, 201, 92, 0.78);
+    background: rgba(45, 43, 22, 0.92);
+  }
+
+  @media (max-width: 980px) {
+    .app {
+      grid-template-columns: 1fr;
+      grid-template-rows: minmax(0, 1fr) auto;
+    }
+
+    .rail {
+      max-height: 38vh;
+      display: grid;
+      grid-template-columns: 240px minmax(0, 1fr);
+      overflow: auto;
+    }
+
+    .brief {
+      display: none;
+    }
+
+    .top-stats {
+      display: none;
+    }
+  }
+</style>
+</head>
+<body>
+<main class="app">
+  <section class="stage" aria-label="芽阵前线游戏区">
+    <canvas id="gameCanvas" aria-label="五路格子塔防画布"></canvas>
+    <div class="hud">
+      <div class="brand">
+        <h1>芽阵前线</h1>
+        <div class="subline"><span id="statusText">待命</span> · <span id="waveText">第 1 波</span></div>
+      </div>
+      <div class="top-stats">
+        <div class="stat"><span>日光</span><strong id="sunText">150</strong></div>
+        <div class="stat"><span>波次</span><strong id="waveStat">1/8</strong></div>
+        <div class="stat"><span>威胁</span><strong id="threatText">0</strong></div>
+        <div class="stat"><span>击退</span><strong id="killText">0</strong></div>
+      </div>
+      <div class="hud-actions">
+        <button class="icon-btn" id="pauseBtn" title="暂停" aria-label="暂停">Ⅱ</button>
+        <button class="icon-btn" id="restartBtn" title="重新开始" aria-label="重新开始">↻</button>
+      </div>
+    </div>
+    <div class="toast" id="toast">Ready</div>
+    <div class="modal show" id="startModal">
+      <div class="modal-card">
+        <h2>芽阵前线</h2>
+        <p>五路格子守线，收集日光，布置芽阵，挡住夜行队伍。</p>
+        <div class="mode-grid">
+          <button class="mode-btn selected" data-mode="classic">经典</button>
+          <button class="mode-btn" data-mode="level">闯关</button>
+          <button class="mode-btn" data-mode="challenge">挑战</button>
+        </div>
+        <button class="primary-btn" id="startBtn">开始守线</button>
+      </div>
+    </div>
+    <div class="modal" id="resultModal">
+      <div class="modal-card">
+        <h2 id="resultTitle">守住了</h2>
+        <p id="resultCopy">击退 0 个敌人</p>
+        <button class="primary-btn" id="againBtn">再来一局</button>
+      </div>
+    </div>
+  </section>
+  <aside class="rail">
+    <div class="meter-grid">
+      <div class="meter">
+        <span>过载</span>
+        <strong id="chargeText">0%</strong>
+        <div class="bar"><i id="chargeBar"></i></div>
+      </div>
+      <div class="meter">
+        <span>防线</span>
+        <strong id="guardText">5/5</strong>
+        <div class="bar"><i id="guardBar"></i></div>
+      </div>
+    </div>
+    <div class="toolbox">
+      <button class="icon-btn" id="shovelBtn" title="铲除" aria-label="铲除">铲</button>
+      <button class="icon-btn" id="overloadBtn" title="过载" aria-label="过载">载</button>
+    </div>
+    <div class="seed-bank" id="seedBank"></div>
+    <section class="brief">
+      <h2>部署</h2>
+      <p>选择卡片后点击草坪格。点击黄色日光收集资源。过载充满后点“载”，再点已有单位触发强化。</p>
+    </section>
+  </aside>
+</main>
+
+<script>
+(() => {
+  "use strict";
+
+  const canvas = document.getElementById("gameCanvas");
+  const ctx = canvas.getContext("2d");
+  const statusText = document.getElementById("statusText");
+  const waveText = document.getElementById("waveText");
+  const sunText = document.getElementById("sunText");
+  const waveStat = document.getElementById("waveStat");
+  const threatText = document.getElementById("threatText");
+  const killText = document.getElementById("killText");
+  const chargeText = document.getElementById("chargeText");
+  const chargeBar = document.getElementById("chargeBar");
+  const guardText = document.getElementById("guardText");
+  const guardBar = document.getElementById("guardBar");
+  const seedBank = document.getElementById("seedBank");
+  const shovelBtn = document.getElementById("shovelBtn");
+  const overloadBtn = document.getElementById("overloadBtn");
+  const pauseBtn = document.getElementById("pauseBtn");
+  const restartBtn = document.getElementById("restartBtn");
+  const startBtn = document.getElementById("startBtn");
+  const againBtn = document.getElementById("againBtn");
+  const startModal = document.getElementById("startModal");
+  const resultModal = document.getElementById("resultModal");
+  const resultTitle = document.getElementById("resultTitle");
+  const resultCopy = document.getElementById("resultCopy");
+  const toast = document.getElementById("toast");
+  const modeButtons = [...document.querySelectorAll(".mode-btn")];
+
+  const WORLD_W = 1180;
+  const WORLD_H = 720;
+  const ROWS = 5;
+  const COLS = 9;
+  const CELL_W = 92;
+  const CELL_H = 96;
+  const BOARD_X = 188;
+  const BOARD_Y = 128;
+  const modeConfigs = {
+    classic: {
+      label: "经典",
+      totalWaves: 8,
+      startSun: 125,
+      firstEnemy: 18,
+      gap: 24,
+      seedKeys: null,
+      difficulty: 1
+    },
+    level: {
+      label: "闯关",
+      totalWaves: 5,
+      startSun: 100,
+      firstEnemy: 22,
+      gap: 27,
+      seedKeys: ["sunleaf", "sprout", "frost", "shell", "burst", "spike"],
+      difficulty: 0.82
+    },
+    challenge: {
+      label: "挑战",
+      totalWaves: 10,
+      startSun: 150,
+      firstEnemy: 14,
+      gap: 21,
+      seedKeys: null,
+      difficulty: 1.18
+    }
+  };
+
+  const view = { dpr: 1, scale: 1, ox: 0, oy: 0 };
+  let plants = [];
+  let enemies = [];
+  let bullets = [];
+  let suns = [];
+  let particles = [];
+  let spawnPlan = [];
+  let seedCooldowns = {};
+  let lastTime = 0;
+  let toastTimer = 0;
+  let selectedSeed = "sprout";
+  let shovelMode = false;
+  let overloadMode = false;
+  let selectedMode = "classic";
+  const pointer = { x: 0, y: 0, inside: false };
+
+  const state = {
+    started: false,
+    paused: false,
+    over: false,
+    won: false,
+    mode: "classic",
+    totalWaves: 8,
+    difficulty: 1,
+    time: 0,
+    sun: 150,
+    wave: 1,
+    kills: 0,
+    charge: 0,
+    skySunTimer: 4,
+    laneGuards: Array(ROWS).fill(true)
+  };
+
+  const seedDefs = [
+    { key: "sunleaf", name: "向光芽", cost: 50, cd: 7, hp: 90, tag: "产日光" },
+    { key: "sprout", name: "豆荚芽", cost: 100, cd: 5, hp: 110, tag: "单发" },
+    { key: "twin", name: "双籽花", cost: 175, cd: 8, hp: 115, tag: "双发" },
+    { key: "frost", name: "霜瓣草", cost: 125, cd: 7, hp: 105, tag: "减速" },
+    { key: "shell", name: "坚壳墩", cost: 50, cd: 9, hp: 520, tag: "阻挡" },
+    { key: "burst", name: "爆裂莓", cost: 150, cd: 18, hp: 1, tag: "范围" },
+    { key: "spike", name: "地刺藤", cost: 100, cd: 7, hp: 90, tag: "踩踏" },
+    { key: "mortar", name: "玉粒炮", cost: 175, cd: 10, hp: 105, tag: "抛射" },
+    { key: "beam", name: "棱光草", cost: 200, cd: 12, hp: 100, tag: "贯穿" },
+    { key: "gourd", name: "护壳瓜", cost: 75, cd: 10, hp: 310, tag: "护盾" }
+  ];
+
+  const seedMap = Object.fromEntries(seedDefs.map(item => [item.key, item]));
+  const enemyDefs = {
+    walker: { name: "灰步者", hp: 120, speed: 16, damage: 13, color: "#9bb39a" },
+    cone: { name: "路障客", hp: 230, speed: 14, damage: 15, color: "#d1a75d" },
+    bucket: { name: "桶盔客", hp: 360, speed: 12, damage: 18, color: "#b7bdc0" },
+    runner: { name: "快跑客", hp: 95, speed: 30, damage: 12, color: "#ef7b61" },
+    pole: { name: "撑杆客", hp: 150, speed: 23, damage: 14, color: "#d98ec8", jump: true },
+    shield: { name: "盾牌客", hp: 260, shield: 180, speed: 12, damage: 16, color: "#79a7d9" },
+    horn: { name: "号角客", hp: 190, speed: 15, damage: 13, color: "#f1c85a", aura: true },
+    brute: { name: "重锤客", hp: 700, speed: 9, damage: 32, color: "#c46c60" }
+  };
+
+  function resize() {
+    const rect = canvas.getBoundingClientRect();
+    view.dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+    canvas.width = Math.max(1, Math.floor(rect.width * view.dpr));
+    canvas.height = Math.max(1, Math.floor(rect.height * view.dpr));
+    view.scale = Math.min(canvas.width / WORLD_W, canvas.height / WORLD_H);
+    view.ox = (canvas.width - WORLD_W * view.scale) / 2;
+    view.oy = (canvas.height - WORLD_H * view.scale) / 2;
+  }
+
+  function screenToWorld(event) {
+    const rect = canvas.getBoundingClientRect();
+    return {
+      x: ((event.clientX - rect.left) * view.dpr - view.ox) / view.scale,
+      y: ((event.clientY - rect.top) * view.dpr - view.oy) / view.scale
+    };
+  }
+
+  function clamp(value, min, max) {
+    return Math.max(min, Math.min(max, value));
+  }
+
+  function distance(a, b) {
+    return Math.hypot(a.x - b.x, a.y - b.y);
+  }
+
+  function cellCenter(row, col) {
+    return {
+      x: BOARD_X + col * CELL_W + CELL_W / 2,
+      y: BOARD_Y + row * CELL_H + CELL_H / 2
+    };
+  }
+
+  function pointToCell(point) {
+    const col = Math.floor((point.x - BOARD_X) / CELL_W);
+    const row = Math.floor((point.y - BOARD_Y) / CELL_H);
+    if (row < 0 || row >= ROWS || col < 0 || col >= COLS) return null;
+    return { row, col };
+  }
+
+  function plantAt(row, col) {
+    return plants.find(plant => plant.row === row && plant.col === col);
+  }
+
+  function startGame() {
+    const config = modeConfigs[selectedMode] || modeConfigs.classic;
+    plants = [];
+    enemies = [];
+    bullets = [];
+    suns = [];
+    particles = [];
+    seedCooldowns = {};
+    for (const seed of seedDefs) seedCooldowns[seed.key] = 0;
+    Object.assign(state, {
+      started: true,
+      paused: false,
+      over: false,
+      won: false,
+      mode: selectedMode,
+      totalWaves: config.totalWaves,
+      difficulty: config.difficulty,
+      time: 0,
+      sun: config.startSun,
+      wave: 1,
+      kills: 0,
+      charge: 0,
+      skySunTimer: 4.8,
+      laneGuards: Array(ROWS).fill(true)
+    });
+    selectedSeed = availableSeeds()[1]?.key || availableSeeds()[0]?.key || "sprout";
+    shovelMode = false;
+    overloadMode = false;
+    spawnPlan = buildSpawnPlan(config);
+    startModal.classList.remove("show");
+    resultModal.classList.remove("show");
+    pauseBtn.textContent = "Ⅱ";
+    showToast("守线开始");
+    renderSeeds(true);
+    updateUI();
+  }
+
+  function buildSpawnPlan(config) {
+    const plan = [];
+    let t = config.firstEnemy;
+    const waves = [
+      ["walker", "walker", "runner"],
+      ["walker", "cone", "walker", "runner"],
+      ["cone", "walker", "pole", "runner", "walker"],
+      ["cone", "shield", "walker", "runner", "horn"],
+      ["bucket", "cone", "pole", "shield", "runner", "walker"],
+      ["bucket", "shield", "horn", "pole", "cone", "runner"],
+      ["brute", "bucket", "shield", "horn", "pole", "runner", "cone"],
+      ["brute", "brute", "bucket", "shield", "horn", "pole", "runner", "cone"]
+    ];
+    waves.slice(0, config.totalWaves).forEach((wave, waveIndex) => {
+      plan.push({ t: t - 3, type: "flag", wave: waveIndex + 1 });
+      for (let i = 0; i < wave.length; i += 1) {
+        const row = (i * 2 + waveIndex) % ROWS;
+        plan.push({ t: t + i * Math.max(2, 3.2 - waveIndex * 0.1), type: wave[i], row });
+        if (waveIndex >= 3 && i % 2 === 0) {
+          plan.push({ t: t + i * 2.6 + 1.4, type: wave[Math.max(0, i - 1)], row: (row + 2) % ROWS });
+        }
+      }
+      t += config.gap + waveIndex * 2.5;
+    });
+    return plan.sort((a, b) => a.t - b.t);
+  }
+
+  function togglePause() {
+    if (!state.started || state.over) return;
+    state.paused = !state.paused;
+    pauseBtn.textContent = state.paused ? "▶" : "Ⅱ";
+    showToast(state.paused ? "暂停" : "继续");
+  }
+
+  function update(dt) {
+    updateToast(dt);
+    if (!state.started || state.paused || state.over) return;
+    state.time += dt;
+    for (const key of Object.keys(seedCooldowns)) seedCooldowns[key] = Math.max(0, seedCooldowns[key] - dt);
+    spawnScheduledEnemies();
+    updateSkySun(dt);
+    updatePlants(dt);
+    updateEnemies(dt);
+    updateBullets(dt);
+    updateSuns(dt);
+    updateParticles(dt);
+    checkWin();
+    updateUI();
+  }
+
+  function spawnScheduledEnemies() {
+    while (spawnPlan.length && spawnPlan[0].t <= state.time) {
+      const item = spawnPlan.shift();
+      if (item.type === "flag") {
+        state.wave = item.wave;
+        showToast(`第 ${item.wave} 波`);
+      } else {
+        spawnEnemy(item.type, item.row);
+      }
+    }
+  }
+
+  function spawnEnemy(type, row) {
+    const def = enemyDefs[type] || enemyDefs.walker;
+    enemies.push({
+      type,
+      row,
+      x: BOARD_X + COLS * CELL_W + 80,
+      y: BOARD_Y + row * CELL_H + CELL_H / 2 + 8,
+      hp: Math.round(def.hp * state.difficulty),
+      maxHp: Math.round(def.hp * state.difficulty),
+      shield: Math.round((def.shield || 0) * state.difficulty),
+      speed: def.speed * (0.95 + state.difficulty * 0.05),
+      damage: Math.round(def.damage * (0.9 + state.difficulty * 0.1)),
+      color: def.color,
+      attackTimer: 0,
+      slow: 0,
+      jumpReady: !!def.jump,
+      aura: !!def.aura,
+      hitFlash: 0
+    });
+  }
+
+  function updateSkySun(dt) {
+    state.skySunTimer -= dt;
+    if (state.skySunTimer <= 0) {
+      state.skySunTimer = clamp(6.5 + state.time * 0.025, 6.5, 11.2) + Math.random() * 1.4;
+      const col = Math.floor(Math.random() * COLS);
+      spawnSun(BOARD_X + col * CELL_W + CELL_W / 2, -30, 35, 46 + Math.random() * 350, true);
+    }
+  }
+
+  function updatePlants(dt) {
+    for (const plant of plants) {
+      plant.birth = Math.max(0, (plant.birth || 0) - dt);
+      plant.cool -= dt;
+      plant.boost = Math.max(0, plant.boost - dt);
+      if (plant.key === "sunleaf") {
+        plant.produce -= dt * (plant.boost > 0 ? 2.4 : 1);
+        if (plant.produce <= 0) {
+          plant.produce = plant.boost > 0 ? 4.2 : 9.6;
+          spawnSun(plant.x, plant.y - 26, plant.boost > 0 ? 40 : 25, plant.y + 10, false);
+        }
+      } else if (plant.key === "burst") {
+        plant.arm -= dt;
+        if (plant.arm <= 0) explode(plant.x, plant.y, plant.row, 118, plant.boost > 0 ? 420 : 300);
+        if (plant.arm <= 0) plant.dead = true;
+      } else if (plant.key === "spike") {
+        plant.cool -= dt;
+        if (plant.cool <= 0) {
+          plant.cool = plant.boost > 0 ? 0.32 : 0.58;
+          const victims = enemies.filter(enemy => enemy.row === plant.row && Math.abs(enemy.x - plant.x) < 52);
+          for (const enemy of victims) damageEnemy(enemy, plant.boost > 0 ? 22 : 14, { x: plant.x, y: plant.y });
+        }
+      } else if (plant.key !== "shell" && plant.key !== "gourd") {
+        const target = firstEnemyInRow(plant.row, plant.x - 12);
+        if (target && plant.cool <= 0) firePlant(plant, target);
+      }
+    }
+    plants = plants.filter(plant => !plant.dead && plant.hp > 0);
+  }
+
+  function firstEnemyInRow(row, minX) {
+    return enemies
+      .filter(enemy => enemy.row === row && enemy.x > minX)
+      .sort((a, b) => a.x - b.x)[0];
+  }
+
+  function firePlant(plant, target) {
+    const boosted = plant.boost > 0;
+    if (plant.key === "sprout") {
+      plant.cool = boosted ? 0.48 : 1.12;
+      bullets.push({ type: "pea", row: plant.row, x: plant.x + 24, y: plant.y - 12, vx: 360, dmg: boosted ? 32 : 22, color: "#82df78" });
+    } else if (plant.key === "twin") {
+      plant.cool = boosted ? 0.62 : 1.15;
+      bullets.push({ type: "pea", row: plant.row, x: plant.x + 24, y: plant.y - 18, vx: 380, dmg: boosted ? 26 : 18, color: "#7bdc8f" });
+      bullets.push({ type: "pea", row: plant.row, x: plant.x + 12, y: plant.y + 2, vx: 380, dmg: boosted ? 26 : 18, color: "#7bdc8f", delay: 0.12 });
+    } else if (plant.key === "frost") {
+      plant.cool = boosted ? 0.78 : 1.45;
+      bullets.push({ type: "frost", row: plant.row, x: plant.x + 24, y: plant.y - 10, vx: 310, dmg: boosted ? 24 : 15, color: "#76d8ef", slow: boosted ? 3.2 : 2.1 });
+    } else if (plant.key === "mortar") {
+      plant.cool = boosted ? 1.3 : 2.75;
+      bullets.push({ type: "mortar", row: plant.row, x: plant.x, y: plant.y - 30, tx: target.x, ty: target.y, life: 0.72, maxLife: 0.72, dmg: boosted ? 92 : 62, color: "#f0c45d" });
+    } else if (plant.key === "beam") {
+      plant.cool = boosted ? 1.05 : 2.1;
+      const hits = enemies.filter(enemy => enemy.row === plant.row && enemy.x > plant.x - 10);
+      for (const enemy of hits) damageEnemy(enemy, boosted ? 38 : 26, { x: enemy.x, y: enemy.y });
+      particles.push({ kind: "beam", x: plant.x + 16, y: plant.y - 12, w: 760, life: 0.18, color: "#b785ff" });
+    }
+  }
+
+  function updateEnemies(dt) {
+    for (const enemy of enemies) {
+      enemy.hitFlash = Math.max(0, enemy.hitFlash - dt);
+      enemy.slow = Math.max(0, enemy.slow - dt);
+      enemy.attackTimer -= dt;
+      const auraBoost = enemies.some(other => other !== enemy && other.aura && other.row === enemy.row && Math.abs(other.x - enemy.x) < 170);
+      const speed = enemy.speed * (enemy.slow > 0 ? 0.48 : 1) * (auraBoost ? 1.18 : 1);
+      const blocker = blockingPlant(enemy);
+      if (blocker) {
+        if (enemy.jumpReady) {
+          enemy.jumpReady = false;
+          enemy.x = blocker.x - 74;
+          particles.push({ kind: "ring", x: blocker.x, y: blocker.y, r: 30, life: 0.42, color: "#d98ec8" });
+        } else if (enemy.attackTimer <= 0) {
+          enemy.attackTimer = 0.72;
+          blocker.hp -= enemy.damage;
+          particles.push({ kind: "hit", x: blocker.x, y: blocker.y, life: 0.28, color: "#ff6b5b" });
+          if (blocker.hp <= 0) blocker.dead = true;
+        }
+      } else {
+        enemy.x -= speed * dt;
+      }
+
+      if (enemy.x < BOARD_X - 72) breachLane(enemy);
+    }
+    enemies = enemies.filter(enemy => enemy.hp > 0 && !enemy.dead);
+  }
+
+  function blockingPlant(enemy) {
+    return plants
+      .filter(plant => plant.row === enemy.row && plant.key !== "spike" && Math.abs(enemy.x - plant.x) < 44)
+      .sort((a, b) => b.x - a.x)[0];
+  }
+
+  function breachLane(enemy) {
+    if (state.laneGuards[enemy.row]) {
+      state.laneGuards[enemy.row] = false;
+      showToast("最后防线");
+      for (const other of enemies) {
+        if (other.row === enemy.row) other.dead = true;
+      }
+      particles.push({ kind: "sweep", row: enemy.row, life: 0.55, color: "#f5c95c" });
+    } else {
+      endGame(false);
+    }
+  }
+
+  function updateBullets(dt) {
+    for (const bullet of bullets) {
+      if (bullet.delay > 0) {
+        bullet.delay -= dt;
+        continue;
+      }
+      if (bullet.type === "mortar") {
+        bullet.life -= dt;
+        const t = 1 - bullet.life / bullet.maxLife;
+        bullet.x += (bullet.tx - bullet.x) * dt * 2.1;
+        bullet.y += (bullet.ty - bullet.y) * dt * 2.1 - Math.sin(t * Math.PI) * 2.6;
+        if (bullet.life <= 0) {
+          explode(bullet.tx, bullet.ty, bullet.row, 86, bullet.dmg);
+          bullet.dead = true;
+        }
+        continue;
+      }
+      bullet.x += bullet.vx * dt;
+      const hit = enemies.find(enemy => enemy.row === bullet.row && Math.abs(enemy.y - bullet.y) < 48 && Math.abs(enemy.x - bullet.x) < 24);
+      if (hit) {
+        damageEnemy(hit, bullet.dmg, bullet);
+        if (bullet.slow) hit.slow = Math.max(hit.slow, bullet.slow);
+        bullet.dead = true;
+      }
+      if (bullet.x > WORLD_W + 80) bullet.dead = true;
+    }
+    bullets = bullets.filter(bullet => !bullet.dead);
+  }
+
+  function updateSuns(dt) {
+    for (const sun of suns) {
+      if (sun.falling && sun.y < sun.targetY) {
+        sun.y += 46 * dt;
+      }
+      sun.life -= dt;
+    }
+    suns = suns.filter(sun => sun.life > 0 && !sun.dead);
+  }
+
+  function updateParticles(dt) {
+    for (const p of particles) {
+      p.life -= dt;
+      if (p.r) p.r += 80 * dt;
+    }
+    particles = particles.filter(p => p.life > 0);
+  }
+
+  function spawnSun(x, y, value, targetY, falling) {
+    suns.push({ x, y, value, targetY, falling, life: 10 });
+  }
+
+  function damageEnemy(enemy, amount, source) {
+    let damage = amount;
+    if (enemy.shield > 0) {
+      const blocked = Math.min(enemy.shield, damage);
+      enemy.shield -= blocked;
+      damage -= blocked * 0.65;
+    }
+    enemy.hp -= damage;
+    enemy.hitFlash = 0.14;
+    if (source) particles.push({ kind: "hit", x: enemy.x, y: enemy.y, life: 0.22, color: "#f2f8ed" });
+    if (enemy.hp <= 0) {
+      enemy.dead = true;
+      state.kills += 1;
+      state.charge = Math.min(100, state.charge + 8);
+      if (Math.random() < 0.18) spawnSun(enemy.x, enemy.y - 20, 25, enemy.y + 10, false);
+      particles.push({ kind: "burst", x: enemy.x, y: enemy.y, r: 8, life: 0.42, color: enemy.color });
+    }
+  }
+
+  function explode(x, y, row, radius, damage) {
+    for (const enemy of enemies) {
+      const sameBand = Math.abs(enemy.row - row) <= 1;
+      if (sameBand && Math.hypot(enemy.x - x, enemy.y - y) < radius) damageEnemy(enemy, damage, { x, y });
+    }
+    particles.push({ kind: "ring", x, y, r: radius * 0.32, life: 0.55, color: "#ff6b5b" });
+  }
+
+  function placeSeed(row, col) {
+    const def = seedMap[selectedSeed];
+    if (!def || plantAt(row, col) || state.sun < def.cost || seedCooldowns[selectedSeed] > 0) return;
+    const c = cellCenter(row, col);
+    state.sun -= def.cost;
+    seedCooldowns[selectedSeed] = def.cd;
+    const plant = {
+      key: selectedSeed,
+      name: def.name,
+      row,
+      col,
+      x: c.x,
+      y: c.y,
+      hp: def.hp,
+      maxHp: def.hp,
+      cool: 0,
+      boost: 0,
+      produce: 2.8,
+      arm: 0.55,
+      birth: 0.24
+    };
+    plants.push(plant);
+    if (plant.key === "burst") plant.boost = overloadMode ? 1 : 0;
+    shovelMode = false;
+    updateUI();
+  }
+
+  function applyOverload(plant) {
+    if (state.charge < 100 || !plant) return;
+    state.charge = 0;
+    overloadMode = false;
+    plant.boost = 8;
+    if (plant.key === "sunleaf") {
+      spawnSun(plant.x - 18, plant.y - 24, 50, plant.y, false);
+      spawnSun(plant.x + 18, plant.y - 24, 50, plant.y, false);
+    } else if (plant.key === "shell" || plant.key === "gourd") {
+      plant.hp = Math.min(plant.maxHp * 1.45, plant.hp + plant.maxHp * 0.75);
+      particles.push({ kind: "ring", x: plant.x, y: plant.y, r: 35, life: 0.7, color: "#73d87a" });
+    } else if (plant.key === "burst") {
+      explode(plant.x, plant.y, plant.row, 160, 480);
+      plant.dead = true;
+    } else if (plant.key === "spike") {
+      for (const enemy of enemies.filter(e => e.row === plant.row)) damageEnemy(enemy, 80, plant);
+    } else {
+      for (let i = 0; i < 4; i += 1) {
+        window.setTimeout(() => {
+          const target = firstEnemyInRow(plant.row, plant.x - 12);
+          if (target && plants.includes(plant)) firePlant(plant, target);
+        }, i * 140);
+      }
+    }
+    showToast("过载");
+    updateUI();
+  }
+
+  function handleCanvasClick(event) {
+    if (!state.started || state.paused || state.over) return;
+    const p = screenToWorld(event);
+    const sun = suns.find(item => Math.hypot(item.x - p.x, item.y - p.y) < 34);
+    if (sun) {
+      sun.dead = true;
+      state.sun += sun.value;
+      particles.push({ kind: "sun", x: sun.x, y: sun.y, life: 0.38, color: "#f5c95c" });
+      updateUI();
+      return;
+    }
+
+    const cell = pointToCell(p);
+    if (!cell) return;
+    const existing = plantAt(cell.row, cell.col);
+    if (overloadMode && existing) {
+      applyOverload(existing);
+      return;
+    }
+    if (shovelMode) {
+      if (existing) existing.dead = true;
+      shovelMode = false;
+      updateUI();
+      return;
+    }
+    placeSeed(cell.row, cell.col);
+  }
+
+  function checkWin() {
+    if (spawnPlan.length === 0 && enemies.length === 0 && state.started && !state.over) {
+      endGame(true);
+    }
+  }
+
+  function endGame(won) {
+    if (state.over) return;
+    state.over = true;
+    state.won = won;
+    resultTitle.textContent = won ? "防线稳住" : "防线失守";
+    resultCopy.textContent = `击退 ${state.kills} 个敌人 · 剩余防线 ${state.laneGuards.filter(Boolean).length}/5`;
+    resultModal.classList.add("show");
+    showToast(won ? "胜利" : "失败");
+  }
+
+  function updateUI() {
+    const threat = enemies.length;
+    statusText.textContent = state.over ? (state.won ? "胜利" : "失败") : state.paused ? "暂停" : overloadMode ? "选择过载目标" : shovelMode ? "铲除模式" : "守线";
+    waveText.textContent = `第 ${Math.min(state.wave, state.totalWaves)} 波`;
+    sunText.textContent = Math.floor(state.sun);
+    waveStat.textContent = `${Math.min(state.wave, state.totalWaves)}/${state.totalWaves}`;
+    threatText.textContent = threat;
+    killText.textContent = state.kills;
+    chargeText.textContent = `${Math.round(state.charge)}%`;
+    chargeBar.style.width = `${state.charge}%`;
+    const guards = state.laneGuards.filter(Boolean).length;
+    guardText.textContent = `${guards}/5`;
+    guardBar.style.width = `${guards / ROWS * 100}%`;
+    shovelBtn.classList.toggle("selected", shovelMode);
+    overloadBtn.classList.toggle("selected", overloadMode);
+    overloadBtn.disabled = state.charge < 100;
+    renderSeeds();
+  }
+
+  function availableSeeds() {
+    const config = modeConfigs[state.started ? state.mode : selectedMode] || modeConfigs.classic;
+    if (!config.seedKeys) return seedDefs;
+    return seedDefs.filter(seed => config.seedKeys.includes(seed.key));
+  }
+
+  function renderSeeds(force = false) {
+    if (force || seedBank.children.length === 0) {
+      seedBank.innerHTML = "";
+      for (const seed of availableSeeds()) {
+        const button = document.createElement("button");
+        button.className = "seed-card";
+        button.dataset.seed = seed.key;
+        button.innerHTML = `
+          <strong>${seed.name}</strong>
+          <small>${seed.tag}</small>
+          <span class="seed-cost">${seed.cost}</span>
+          <i class="cooldown-mask"></i>
+        `;
+        button.addEventListener("click", () => {
+          selectedSeed = seed.key;
+          shovelMode = false;
+          overloadMode = false;
+          updateUI();
+        });
+        seedBank.appendChild(button);
+      }
+    }
+    for (const button of seedBank.querySelectorAll(".seed-card")) {
+      const seed = seedMap[button.dataset.seed];
+      const cd = seedCooldowns[seed.key] || 0;
+      button.classList.toggle("selected", selectedSeed === seed.key && !shovelMode && !overloadMode);
+      button.disabled = state.sun < seed.cost || cd > 0 || state.over;
+      button.querySelector(".cooldown-mask").style.height = `${clamp(cd / seed.cd * 100, 0, 100)}%`;
+    }
+  }
+
+  function showToast(message) {
+    toast.textContent = message;
+    toast.classList.add("show");
+    toastTimer = 1.4;
+  }
+
+  function updateToast(dt) {
+    if (toastTimer <= 0) return;
+    toastTimer -= dt;
+    if (toastTimer <= 0) toast.classList.remove("show");
+  }
+
+  function draw() {
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.save();
+    ctx.translate(view.ox, view.oy);
+    ctx.scale(view.scale, view.scale);
+    drawWorld();
+    ctx.restore();
+  }
+
+  function drawWorld() {
+    drawBackground();
+    drawBoard();
+    drawLaneGuards();
+    for (const sun of suns) drawSun(sun);
+    for (const plant of plants) drawPlant(plant);
+    for (const bullet of bullets) drawBullet(bullet);
+    for (const enemy of enemies) drawEnemy(enemy);
+    drawParticles();
+    drawPlacementPreview();
+  }
+
+  function drawBackground() {
+    const bg = ctx.createLinearGradient(0, 0, WORLD_W, WORLD_H);
+    bg.addColorStop(0, "#173728");
+    bg.addColorStop(0.5, "#25492c");
+    bg.addColorStop(1, "#24311e");
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, WORLD_W, WORLD_H);
+    ctx.fillStyle = "rgba(8, 16, 12, 0.22)";
+    for (let i = 0; i < 40; i += 1) {
+      const x = 36 + (i * 163) % 1080;
+      const y = 94 + (i * 113) % 560;
+      ctx.beginPath();
+      ctx.ellipse(x, y, 28 + (i % 5) * 8, 15 + (i % 3) * 5, i, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  function drawBoard() {
+    ctx.fillStyle = "rgba(76, 118, 63, 0.5)";
+    ctx.strokeStyle = "rgba(230, 243, 218, 0.22)";
+    ctx.lineWidth = 2;
+    for (let row = 0; row < ROWS; row += 1) {
+      for (let col = 0; col < COLS; col += 1) {
+        const x = BOARD_X + col * CELL_W;
+        const y = BOARD_Y + row * CELL_H;
+        ctx.fillStyle = (row + col) % 2 ? "rgba(91, 140, 70, 0.56)" : "rgba(74, 125, 66, 0.56)";
+        roundRect(x + 3, y + 3, CELL_W - 6, CELL_H - 6, 8);
+        ctx.fill();
+        ctx.stroke();
+      }
+    }
+    ctx.fillStyle = "rgba(31, 35, 32, 0.8)";
+    ctx.fillRect(BOARD_X + COLS * CELL_W + 8, BOARD_Y, 56, ROWS * CELL_H);
+  }
+
+  function drawLaneGuards() {
+    for (let row = 0; row < ROWS; row += 1) {
+      const y = BOARD_Y + row * CELL_H + CELL_H / 2;
+      ctx.save();
+      ctx.translate(BOARD_X - 52, y);
+      ctx.fillStyle = state.laneGuards[row] ? "#f5c95c" : "rgba(120, 120, 112, 0.35)";
+      ctx.strokeStyle = "rgba(12, 16, 12, 0.72)";
+      ctx.lineWidth = 3;
+      roundRect(-28, -18, 56, 36, 8);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = "rgba(10, 12, 10, 0.55)";
+      ctx.fillRect(-18, -4, 36, 8);
+      ctx.restore();
+    }
+  }
+
+  function drawSun(sun) {
+    ctx.save();
+    ctx.translate(sun.x, sun.y);
+    const pulse = 1 + Math.sin(performance.now() * 0.006 + sun.x) * 0.08;
+    ctx.scale(pulse, pulse);
+    ctx.fillStyle = "#f5c95c";
+    ctx.strokeStyle = "rgba(255, 242, 176, 0.82)";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(0, 0, 18, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = "rgba(10, 12, 8, 0.55)";
+    ctx.font = "900 12px 'Segoe UI', sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(sun.value, 0, 1);
+    ctx.restore();
+  }
+
+  function drawPlant(plant) {
+    ctx.save();
+    ctx.translate(plant.x, plant.y);
+    const appear = plant.birth ? 1 - clamp(plant.birth / 0.24, 0, 1) : 1;
+    const scale = 0.68 + Math.sin(appear * Math.PI / 2) * 0.32;
+    ctx.scale(scale, scale);
+    const hp = plant.hp / plant.maxHp;
+    ctx.fillStyle = "rgba(0,0,0,0.22)";
+    ctx.beginPath();
+    ctx.ellipse(0, 28, 30, 12, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = plant.boost > 0 ? "#f5c95c" : "rgba(224, 241, 216, 0.72)";
+    ctx.lineWidth = plant.boost > 0 ? 4 : 2;
+    if (plant.key === "sunleaf") {
+      ctx.fillStyle = "#73d87a";
+      leafShape(0, 0, 30);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = "#f5c95c";
+      ctx.beginPath();
+      ctx.arc(0, -8, 13, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (plant.key === "shell" || plant.key === "gourd") {
+      ctx.fillStyle = plant.key === "shell" ? "#b99258" : "#e0a857";
+      roundRect(-26, -28, 52, 58, 14);
+      ctx.fill();
+      ctx.stroke();
+    } else if (plant.key === "burst") {
+      ctx.fillStyle = "#ff6b5b";
+      ctx.beginPath();
+      ctx.arc(0, 0, 24, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+    } else if (plant.key === "spike") {
+      ctx.fillStyle = "#315f3b";
+      for (let i = -2; i <= 2; i += 1) {
+        ctx.beginPath();
+        ctx.moveTo(i * 12, 20);
+        ctx.lineTo(i * 12 + 8, -18);
+        ctx.lineTo(i * 12 + 16, 20);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+      }
+    } else {
+      const colors = { sprout: "#78df75", twin: "#64d58e", frost: "#76d8ef", mortar: "#f0c45d", beam: "#b785ff" };
+      ctx.fillStyle = colors[plant.key] || "#73d87a";
+      leafShape(0, 4, 28);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = "rgba(12, 24, 18, 0.72)";
+      ctx.beginPath();
+      ctx.arc(8, -8, 12, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
+    roundRect(-28, -42, 56, 5, 3);
+    ctx.fill();
+    ctx.fillStyle = hp > 0.45 ? "#73d87a" : hp > 0.2 ? "#f5c95c" : "#ff6b5b";
+    roundRect(-28, -42, 56 * clamp(hp, 0, 1), 5, 3);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function leafShape(x, y, r) {
+    ctx.beginPath();
+    ctx.moveTo(x, y - r);
+    ctx.bezierCurveTo(x + r, y - r * 0.8, x + r * 1.05, y + r * 0.55, x, y + r);
+    ctx.bezierCurveTo(x - r * 1.05, y + r * 0.55, x - r, y - r * 0.8, x, y - r);
+    ctx.closePath();
+  }
+
+  function drawEnemy(enemy) {
+    ctx.save();
+    ctx.translate(enemy.x, enemy.y);
+    ctx.fillStyle = "rgba(0,0,0,0.26)";
+    ctx.beginPath();
+    ctx.ellipse(0, 28, 30, 12, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = enemy.hitFlash > 0 ? "#fff6d8" : enemy.color;
+    ctx.strokeStyle = "rgba(18, 20, 18, 0.82)";
+    ctx.lineWidth = 3;
+    roundRect(-22, -34, 44, 68, 13);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = "rgba(20, 24, 20, 0.72)";
+    ctx.beginPath();
+    ctx.arc(-7, -12, 4, 0, Math.PI * 2);
+    ctx.arc(8, -12, 4, 0, Math.PI * 2);
+    ctx.fill();
+    if (enemy.shield > 0) {
+      ctx.strokeStyle = "#79a7d9";
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.arc(0, 2, 30, -1.1, 1.1);
+      ctx.stroke();
+    }
+    if (enemy.slow > 0) {
+      ctx.strokeStyle = "#76d8ef";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(0, 0, 30, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    const hp = enemy.hp / enemy.maxHp;
+    ctx.fillStyle = "rgba(0,0,0,0.5)";
+    roundRect(-28, -48, 56, 5, 3);
+    ctx.fill();
+    ctx.fillStyle = hp > 0.45 ? "#73d87a" : hp > 0.2 ? "#f5c95c" : "#ff6b5b";
+    roundRect(-28, -48, 56 * clamp(hp, 0, 1), 5, 3);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawBullet(bullet) {
+    if (bullet.delay > 0) return;
+    ctx.save();
+    ctx.fillStyle = bullet.color;
+    if (bullet.type === "mortar") {
+      ctx.beginPath();
+      ctx.arc(bullet.x, bullet.y, 9, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      ctx.beginPath();
+      ctx.arc(bullet.x, bullet.y, bullet.type === "frost" ? 8 : 7, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  function drawParticles() {
+    for (const p of particles) {
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, p.life / 0.7);
+      if (p.kind === "beam") {
+        ctx.strokeStyle = p.color;
+        ctx.lineWidth = 8;
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+        ctx.lineTo(p.x + p.w, p.y);
+        ctx.stroke();
+      } else if (p.kind === "sweep") {
+        const y = BOARD_Y + p.row * CELL_H + CELL_H / 2;
+        ctx.strokeStyle = p.color;
+        ctx.lineWidth = 18;
+        ctx.beginPath();
+        ctx.moveTo(BOARD_X - 60, y);
+        ctx.lineTo(BOARD_X + COLS * CELL_W + 80, y);
+        ctx.stroke();
+      } else if (p.kind === "ring") {
+        ctx.strokeStyle = p.color;
+        ctx.lineWidth = 5;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.stroke();
+      } else {
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.kind === "burst" ? p.r : 8, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+  }
+
+  function drawPlacementPreview() {
+    if (!state.started || state.paused || state.over || !pointer.inside) return;
+    const cell = pointToCell(pointer);
+    if (!cell) return;
+    const existing = plantAt(cell.row, cell.col);
+    const c = cellCenter(cell.row, cell.col);
+    if (shovelMode || overloadMode) {
+      if (!existing) return;
+      ctx.save();
+      ctx.strokeStyle = shovelMode ? "#ff6b5b" : "#f5c95c";
+      ctx.lineWidth = 5;
+      ctx.setLineDash([10, 8]);
+      roundRect(c.x - CELL_W / 2 + 8, c.y - CELL_H / 2 + 8, CELL_W - 16, CELL_H - 16, 10);
+      ctx.stroke();
+      ctx.restore();
+      return;
+    }
+
+    const seed = seedMap[selectedSeed];
+    if (!seed) return;
+    const canPlace = !existing && state.sun >= seed.cost && seedCooldowns[selectedSeed] <= 0;
+    ctx.save();
+    ctx.fillStyle = canPlace ? "rgba(245, 201, 92, 0.16)" : "rgba(255, 107, 91, 0.14)";
+    ctx.strokeStyle = canPlace ? "rgba(245, 201, 92, 0.8)" : "rgba(255, 107, 91, 0.72)";
+    ctx.lineWidth = 4;
+    roundRect(c.x - CELL_W / 2 + 7, c.y - CELL_H / 2 + 7, CELL_W - 14, CELL_H - 14, 10);
+    ctx.fill();
+    ctx.stroke();
+    ctx.globalAlpha = canPlace ? 0.68 : 0.38;
+    drawPlant({
+      key: selectedSeed,
+      x: c.x,
+      y: c.y,
+      hp: seed.hp,
+      maxHp: seed.hp,
+      boost: 0
+    });
+    ctx.restore();
+  }
+
+  function roundRect(x, y, w, h, r) {
+    const radius = Math.min(r, w / 2, h / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.lineTo(x + w - radius, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+    ctx.lineTo(x + w, y + h - radius);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+    ctx.lineTo(x + radius, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+    ctx.lineTo(x, y + radius);
+    ctx.quadraticCurveTo(x, y, x + radius, y);
+    ctx.closePath();
+  }
+
+  function loop(time) {
+    const dt = Math.min(0.04, Math.max(0.001, lastTime ? (time - lastTime) / 1000 : 1 / 60));
+    lastTime = time;
+    update(dt);
+    draw();
+    requestAnimationFrame(loop);
+  }
+
+  canvas.addEventListener("click", handleCanvasClick);
+  canvas.addEventListener("pointermove", event => {
+    const p = screenToWorld(event);
+    pointer.x = p.x;
+    pointer.y = p.y;
+    pointer.inside = true;
+  });
+  canvas.addEventListener("pointerdown", event => {
+    const p = screenToWorld(event);
+    pointer.x = p.x;
+    pointer.y = p.y;
+    pointer.inside = true;
+  });
+  canvas.addEventListener("pointerleave", () => {
+    pointer.inside = false;
+  });
+  for (const button of modeButtons) {
+    button.addEventListener("click", () => {
+      selectedMode = button.dataset.mode || "classic";
+      modeButtons.forEach(item => item.classList.toggle("selected", item === button));
+      selectedSeed = availableSeeds()[1]?.key || availableSeeds()[0]?.key || "sprout";
+      renderSeeds(true);
+      updateUI();
+    });
+  }
+  startBtn.addEventListener("click", startGame);
+  againBtn.addEventListener("click", startGame);
+  restartBtn.addEventListener("click", startGame);
+  pauseBtn.addEventListener("click", togglePause);
+  shovelBtn.addEventListener("click", () => {
+    shovelMode = !shovelMode;
+    overloadMode = false;
+    updateUI();
+  });
+  overloadBtn.addEventListener("click", () => {
+    if (state.charge < 100) return;
+    overloadMode = !overloadMode;
+    shovelMode = false;
+    updateUI();
+  });
+  window.addEventListener("keydown", event => {
+    if (event.code === "Space" || event.code === "KeyP") {
+      event.preventDefault();
+      togglePause();
+    }
+    if (event.code === "Escape") {
+      shovelMode = false;
+      overloadMode = false;
+      updateUI();
+    }
+  });
+  window.addEventListener("resize", resize);
+
+  resize();
+  renderSeeds(true);
+  updateUI();
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

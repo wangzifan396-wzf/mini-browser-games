@@ -800,6 +800,10 @@
             regen: 0,
             armor: 0,
             invuln: 0,
+            dashCd: 0,
+            dashTime: 0,
+            dashX: 1,
+            dashY: 0,
             weapons: [
               { key: "twig", cooldown: 0.05, level: 1 },
               { key: "pan", cooldown: 0.9, level: 1 }
@@ -927,7 +931,21 @@
         }
       
         const len = Math.hypot(dx, dy);
-        if (len > 0) {
+        p.dashCd = Math.max(0, p.dashCd - dt);
+        if ((keys.has("ShiftLeft") || keys.has("ShiftRight")) && p.dashCd <= 0 && len > 0) {
+          p.dashX = dx / len;
+          p.dashY = dy / len;
+          p.dashTime = 0.18;
+          p.dashCd = 5.4;
+          p.invuln = Math.max(p.invuln, 0.34);
+          spawnParticles(p.x, p.y, "#f6c85f", 22);
+          state.floaters.push({ x: p.x, y: p.y - 30, text: "冲刺", life: 0.42, color: "#f6c85f" });
+        }
+        if (p.dashTime > 0) {
+          p.dashTime = Math.max(0, p.dashTime - dt);
+          p.x += p.dashX * p.speed * p.speedMult * 3.1 * dt;
+          p.y += p.dashY * p.speed * p.speedMult * 3.1 * dt;
+        } else if (len > 0) {
           const speed = p.speed * p.speedMult;
           p.x += (dx / len) * speed * dt;
           p.y += (dy / len) * speed * dt;
@@ -1784,6 +1802,7 @@
           ["护甲", p.armor],
           ["自愈", `${p.regen.toFixed(2)}/秒`],
           ["拾取", `${Math.round(p.pickupMult * 100)}%`],
+          ["冲刺", p.dashCd <= 0 ? "就绪" : `${p.dashCd.toFixed(1)}秒`],
           ["击倒", state.killCount]
         ]
           .map(([label, value]) => `<div class="stat-line"><span>${label}</span><strong>${value}</strong></div>`)

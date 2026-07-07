@@ -818,6 +818,7 @@
       shieldBonus: 0,
       turretTurn: 9,
       shellName: "标准弹",
+      pickupMagnet: 190,
       scrap: 0,
       kills: 0,
       deaths: 0,
@@ -1263,6 +1264,13 @@
       const part = parts[i];
       part.life -= dt;
       part.spin += dt * 3;
+      const playerDistance = distance(player, part);
+      if (player.hp > 0 && playerDistance < player.pickupMagnet) {
+        const pull = clamp(1 - playerDistance / player.pickupMagnet, 0.08, 1) * 520 * dt;
+        const n = norm(player.x - part.x, player.y - part.y);
+        part.x += n.x * pull;
+        part.y += n.y * pull;
+      }
       if (distance(player, part) < 42 && player.hp > 0) {
         collectPickup(player, part);
         parts.splice(i, 1);
