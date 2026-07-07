@@ -419,7 +419,7 @@
 
   .lobby-loadout {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
     margin: 0 0 16px;
     text-align: left;
@@ -689,7 +689,7 @@
 
   .forge-actions {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 8px;
   }
 
@@ -781,6 +781,10 @@
 
     .forge-layout {
       grid-template-columns: 1fr;
+    }
+
+    .forge-actions {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .meta-strip,
@@ -955,6 +959,10 @@
             <strong>球体光环</strong>
             <div class="cosmetic-grid" id="haloGrid"></div>
           </div>
+          <div class="loadout-group">
+            <strong>移动拖尾</strong>
+            <div class="cosmetic-grid" id="trailGrid"></div>
+          </div>
         </div>
       </section>
       <section class="lobby-panel" data-lobby-panel="shop">
@@ -1000,6 +1008,7 @@
   const skinGrid = document.getElementById("skinGrid");
   const sporeGrid = document.getElementById("sporeGrid");
   const haloGrid = document.getElementById("haloGrid");
+  const trailGrid = document.getElementById("trailGrid");
   const shopPanel = document.getElementById("shopPanel");
   const forgePanel = document.getElementById("forgePanel");
   const modeButtons = [...document.querySelectorAll("[data-mode]")];
@@ -1043,7 +1052,11 @@
     { key: "tide", name: "潮汐之心", color: "#0f766e", accent: "#5eead4", type: "special", pattern: "tide", tier: "rare", rarity: "稀有" },
     { key: "flare", name: "赤焰风暴", color: "#ef4444", accent: "#ffd166", type: "special", pattern: "flare", tier: "epic", rarity: "史诗" },
     { key: "crown", name: "王冠星域", color: "#7c3aed", accent: "#ffd166", type: "special", pattern: "crown", tier: "epic", rarity: "史诗" },
-    { key: "abyss", name: "深渊脉冲", color: "#111827", accent: "#a78bfa", type: "special", pattern: "abyss", tier: "legendary", rarity: "传说" }
+    { key: "pixel", name: "像素矩阵", color: "#0f172a", accent: "#58edc8", type: "special", pattern: "mecha", tier: "rare", rarity: "稀有" },
+    { key: "lotus", name: "莲华星盘", color: "#be185d", accent: "#f9a8d4", type: "special", pattern: "crown", tier: "epic", rarity: "史诗" },
+    { key: "prism", name: "棱镜幻面", color: "#2563eb", accent: "#f0abfc", type: "special", pattern: "comet", tier: "epic", rarity: "史诗" },
+    { key: "abyss", name: "深渊脉冲", color: "#111827", accent: "#a78bfa", type: "special", pattern: "abyss", tier: "legendary", rarity: "传说" },
+    { key: "dragon", name: "龙焰天幕", color: "#7f1d1d", accent: "#facc15", type: "special", pattern: "flare", tier: "legendary", rarity: "传说" }
   ];
   const SPORES = [
     { key: "mint", name: "薄荷孢子", color: "#7dd3fc", type: "basic" },
@@ -1060,7 +1073,10 @@
     { key: "spark", name: "电弧火花", color: "#a78bfa", accent: "#fef08a", type: "special", pattern: "spark", tier: "rare", rarity: "稀有" },
     { key: "vine", name: "藤蔓星种", color: "#34d399", accent: "#dcfce7", type: "special", pattern: "vine", tier: "epic", rarity: "史诗" },
     { key: "aurora", name: "极光羽片", color: "#22d3ee", accent: "#f0abfc", type: "special", pattern: "aurora", tier: "epic", rarity: "史诗" },
-    { key: "royal", name: "王冠碎金", color: "#facc15", accent: "#ffffff", type: "special", pattern: "royal", tier: "legendary", rarity: "传说" }
+    { key: "pearl", name: "珍珠泡影", color: "#e0f2fe", accent: "#38bdf8", type: "special", pattern: "bubble", tier: "rare", rarity: "稀有" },
+    { key: "rune", name: "符文星屑", color: "#c084fc", accent: "#fef3c7", type: "special", pattern: "spark", tier: "epic", rarity: "史诗" },
+    { key: "royal", name: "王冠碎金", color: "#facc15", accent: "#ffffff", type: "special", pattern: "royal", tier: "legendary", rarity: "传说" },
+    { key: "void-spore", name: "虚空碎片", color: "#312e81", accent: "#e0e7ff", type: "special", pattern: "meteor", tier: "legendary", rarity: "传说" }
   ];
   const HALOS = [
     { key: "none", name: "无光环", color: "#94a3b8", type: "basic" },
@@ -1069,7 +1085,21 @@
     { key: "pulse-ring", name: "磁暴光环", color: "#a78bfa", accent: "#fef08a", type: "special", pattern: "pulse", tier: "rare", rarity: "稀有" },
     { key: "sun-crown", name: "日冕光环", color: "#fb923c", accent: "#fff7ed", type: "special", pattern: "sun", tier: "epic", rarity: "史诗" },
     { key: "halo-crown", name: "王冠光环", color: "#ffd166", accent: "#ffffff", type: "special", pattern: "crown", tier: "epic", rarity: "史诗" },
-    { key: "gravity", name: "引力黑环", color: "#111827", accent: "#c084fc", type: "special", pattern: "gravity", tier: "legendary", rarity: "传说" }
+    { key: "nebula-ring", name: "星云光环", color: "#db2777", accent: "#f0abfc", type: "special", pattern: "pulse", tier: "rare", rarity: "稀有" },
+    { key: "lotus-ring", name: "莲华光环", color: "#be185d", accent: "#f9a8d4", type: "special", pattern: "crown", tier: "epic", rarity: "史诗" },
+    { key: "gravity", name: "引力黑环", color: "#111827", accent: "#c084fc", type: "special", pattern: "gravity", tier: "legendary", rarity: "传说" },
+    { key: "void-gate", name: "虚空门环", color: "#020617", accent: "#818cf8", type: "special", pattern: "gravity", tier: "legendary", rarity: "传说" }
+  ];
+  const TRAILS = [
+    { key: "none", name: "无拖尾", color: "#94a3b8", type: "basic" },
+    { key: "stardust", name: "星尘尾迹", color: "#7dd3fc", accent: "#f8fafc", type: "special", pattern: "dots", tier: "common", rarity: "普通" },
+    { key: "sakura", name: "樱粉尾迹", color: "#f472b6", accent: "#fff1f2", type: "special", pattern: "petals", tier: "common", rarity: "普通" },
+    { key: "bubble-trail", name: "泡泡航迹", color: "#38bdf8", accent: "#e0f2fe", type: "special", pattern: "bubbles", tier: "rare", rarity: "稀有" },
+    { key: "arc", name: "电弧残影", color: "#a78bfa", accent: "#fef08a", type: "special", pattern: "arc", tier: "rare", rarity: "稀有" },
+    { key: "flame-trail", name: "火焰航迹", color: "#f97316", accent: "#fef3c7", type: "special", pattern: "flame", tier: "epic", rarity: "史诗" },
+    { key: "aurora-trail", name: "极光缎带", color: "#22d3ee", accent: "#f0abfc", type: "special", pattern: "ribbon", tier: "epic", rarity: "史诗" },
+    { key: "data-trail", name: "数据残影", color: "#58edc8", accent: "#0f172a", type: "special", pattern: "squares", tier: "epic", rarity: "史诗" },
+    { key: "rift-trail", name: "裂隙拖尾", color: "#111827", accent: "#c084fc", type: "special", pattern: "rift", tier: "legendary", rarity: "传说" }
   ];
   const GAME_MODES = {
     solo: {
@@ -1146,7 +1176,12 @@
     { key: "eject", label: "极速喷射", desc: "吐球间隔缩短", duration: 24, ejectMult: 0.52, color: "#f472b6" },
     { key: "rich", label: "巨星星屑", desc: "高价值食点增加", duration: 30, foodMassMult: 1.45, foodRateMult: 1.12, richChanceAdd: 0.08, color: "#a78bfa" },
     { key: "magnet", label: "磁吸星尘", desc: "吃点范围扩大", duration: 24, eatReachMult: 1.52, foodRateMult: 1.1, color: "#44d7b6" },
-    { key: "rush", label: "轻盈时间", desc: "全场移动加速", duration: 22, speedMult: 1.16, mergeMult: 0.82, color: "#7dd3fc" }
+    { key: "rush", label: "轻盈时间", desc: "全场移动加速", duration: 22, speedMult: 1.16, mergeMult: 0.82, color: "#7dd3fc" },
+    { key: "harvest", label: "丰收潮汐", desc: "食点密度大幅提高", duration: 28, foodTargetMult: 1.28, foodRateMult: 1.85, foodMassMult: 1.08, color: "#9cff6e" },
+    { key: "gravity", label: "引力乱流", desc: "吃点范围暴涨但移速略降", duration: 24, eatReachMult: 1.95, speedMult: 0.94, color: "#c084fc" },
+    { key: "fracture", label: "裂变窗口", desc: "合体更快且移动微加速", duration: 22, mergeMult: 0.42, speedMult: 1.08, color: "#f0abfc" },
+    { key: "thornstorm", label: "刺潮爆发", desc: "刺球增多且食点更肥", duration: 26, virusBurst: 18, foodMassMult: 1.24, richChanceAdd: 0.035, color: "#5eea80" },
+    { key: "cometfall", label: "彗星坠落", desc: "高价值食点更常见", duration: 30, foodRateMult: 1.22, foodMassMult: 1.62, richChanceAdd: 0.12, color: "#ffd166" }
   ];
   const RARITY_CONFIG = {
     common: { label: "普通", chance: 0.58, exp: 18, color: "#94a3b8" },
@@ -1170,7 +1205,10 @@
   const REDEEM_CODES = {
     STARS2026: { label: "十连星尘补给", dust: 1200, tickets: 10, xp: 280 },
     FORGE777: { label: "铁匠铺十连包", dust: 777, tickets: 10, xp: 350, unlock: 1 },
-    BALL16X: { label: "爆发豪华包", dust: 1600, tickets: 16, xp: 500, unlock: 2 }
+    BALL16X: { label: "爆发豪华包", dust: 1600, tickets: 16, xp: 500, unlock: 2 },
+    HALO888: { label: "光环补给", dust: 888, tickets: 8, xp: 220, unlock: 1 },
+    TRAIL999: { label: "拖尾补给", dust: 999, tickets: 9, xp: 260, unlock: 1 },
+    ARENA2026: { label: "星团大礼包", dust: 2026, tickets: 20, xp: 720, unlock: 3 }
   };
   const META_VERSION = 4;
 
@@ -1205,9 +1243,11 @@
   let selectedSkin = localStorage.getItem("ballArenaSkin") || "aqua";
   let selectedSpore = localStorage.getItem("ballArenaSpore") || "mint";
   let selectedHalo = localStorage.getItem("ballArenaHalo") || "none";
+  let selectedTrail = localStorage.getItem("ballArenaTrail") || "none";
   if (!meta.unlockedSkins.includes(selectedSkin)) selectedSkin = "aqua";
   if (!meta.unlockedSpores.includes(selectedSpore)) selectedSpore = "mint";
   if (!meta.unlockedHalos.includes(selectedHalo)) selectedHalo = "none";
+  if (!meta.unlockedTrails.includes(selectedTrail)) selectedTrail = "none";
   let lastFrame = performance.now();
   let lastPlayerEject = 0;
   let hudTimer = 0;
@@ -1340,6 +1380,7 @@
       unlockedSkins: SKINS.filter(skin => skin.type !== "special").map(skin => skin.key),
       unlockedSpores: SPORES.filter(spore => spore.type !== "special").map(spore => spore.key),
       unlockedHalos: HALOS.filter(halo => halo.type !== "special").map(halo => halo.key),
+      unlockedTrails: TRAILS.filter(trail => trail.type !== "special").map(trail => trail.key),
       crafted: 0,
       totalDust: 150,
       redeemedCodes: [],
@@ -1361,6 +1402,7 @@
       const validSkins = new Set(SKINS.map(skin => skin.key));
       const validSpores = new Set(SPORES.map(spore => spore.key));
       const validHalos = new Set(HALOS.map(halo => halo.key));
+      const validTrails = new Set(TRAILS.map(trail => trail.key));
       const forgeXp = Math.max(0, migratedXp);
       return {
         ...base,
@@ -1378,7 +1420,8 @@
         shopMessage: saved.shopMessage || "",
         unlockedSkins: [...new Set([...(saved.unlockedSkins || []), ...base.unlockedSkins])].filter(key => validSkins.has(key)),
         unlockedSpores: [...new Set([...(saved.unlockedSpores || []), ...base.unlockedSpores])].filter(key => validSpores.has(key)),
-        unlockedHalos: [...new Set([...(saved.unlockedHalos || []), ...base.unlockedHalos])].filter(key => validHalos.has(key))
+        unlockedHalos: [...new Set([...(saved.unlockedHalos || []), ...base.unlockedHalos])].filter(key => validHalos.has(key)),
+        unlockedTrails: [...new Set([...(saved.unlockedTrails || []), ...base.unlockedTrails])].filter(key => validTrails.has(key))
       };
     } catch (_) {
       return defaultMeta();
@@ -1401,6 +1444,10 @@
     return meta.unlockedHalos.includes(key);
   }
 
+  function trailUnlocked(key) {
+    return meta.unlockedTrails.includes(key);
+  }
+
   function selectedSkinDef() {
     return SKINS.find(skin => skin.key === selectedSkin) || SKINS[0];
   }
@@ -1411,6 +1458,10 @@
 
   function selectedHaloDef() {
     return HALOS.find(halo => halo.key === selectedHalo) || HALOS[0];
+  }
+
+  function selectedTrailDef() {
+    return TRAILS.find(trail => trail.key === selectedTrail) || TRAILS[0];
   }
 
   function isSpecial(item) {
@@ -1427,6 +1478,10 @@
 
   function forgeHalos() {
     return HALOS.filter(isSpecial);
+  }
+
+  function forgeTrails() {
+    return TRAILS.filter(isSpecial);
   }
 
   function swatchStyle(item) {
@@ -1478,6 +1533,12 @@
         <span>${cosmeticLabel(halo, haloUnlocked(halo))}</span>
       </button>
     `).join("");
+    trailGrid.innerHTML = TRAILS.map(trail => `
+      <button class="cosmetic-card${trail.key === selectedTrail ? " active" : ""}${isSpecial(trail) ? " special" : ""}" type="button" data-trail="${trail.key}" ${trailUnlocked(trail.key) ? "" : "disabled"} title="${trail.name} ${rarityText(trail)}">
+        <i class="swatch${isSpecial(trail) ? " special" : ""}" style="${swatchStyle(trail)}"></i>
+        <span>${cosmeticLabel(trail, trailUnlocked(trail))}</span>
+      </button>
+    `).join("");
     renderMetaStrip();
     renderForge();
     renderShop();
@@ -1488,6 +1549,7 @@
     if (type === "skin") return 82 + level * 8;
     if (type === "spore") return 68 + level * 7;
     if (type === "halo") return 88 + level * 9;
+    if (type === "trail") return 80 + level * 8;
     return 76 + level * 8;
   }
 
@@ -1513,6 +1575,7 @@
   function forgePool(type) {
     if (type === "spore") return forgeSpores();
     if (type === "halo") return forgeHalos();
+    if (type === "trail") return forgeTrails();
     return forgeSkins();
   }
 
@@ -1595,11 +1658,16 @@
   function hasForgeItem(type, key) {
     if (type === "spore") return sporeUnlocked(key);
     if (type === "halo") return haloUnlocked(key);
+    if (type === "trail") return trailUnlocked(key);
     return skinUnlocked(key);
   }
 
   function unlockForgeItem(type, item) {
-    if (type === "halo") {
+    if (type === "trail") {
+      if (!trailUnlocked(item.key)) meta.unlockedTrails.push(item.key);
+      selectedTrail = item.key;
+      localStorage.setItem("ballArenaTrail", selectedTrail);
+    } else if (type === "halo") {
       if (!haloUnlocked(item.key)) meta.unlockedHalos.push(item.key);
       selectedHalo = item.key;
       localStorage.setItem("ballArenaHalo", selectedHalo);
@@ -1628,9 +1696,11 @@
     const specialSkins = forgeSkins();
     const specialSpores = forgeSpores();
     const specialHalos = forgeHalos();
+    const specialTrails = forgeTrails();
     const lockedSkins = specialSkins.filter(skin => !skinUnlocked(skin.key));
     const lockedSpores = specialSpores.filter(spore => !sporeUnlocked(spore.key));
     const lockedHalos = specialHalos.filter(halo => !haloUnlocked(halo.key));
+    const lockedTrails = specialTrails.filter(trail => !trailUnlocked(trail.key));
     const progress = forgeLevelProgress();
     const luck = clamp(meta.forgeLuck || 0, 0, 99);
     const last = formatForgeLog();
@@ -1665,9 +1735,9 @@
           <div class="forge-note">重复外观会转为铁匠铺经验，升级自动发星尘和锻造券。</div>
         </div>
         <div class="forge-prizes">
-          <div class="forge-prize-title">皮肤 ${specialSkins.length - lockedSkins.length}/${specialSkins.length} · 孢子 ${specialSpores.length - lockedSpores.length}/${specialSpores.length} · 光环 ${specialHalos.length - lockedHalos.length}/${specialHalos.length}</div>
+          <div class="forge-prize-title">皮肤 ${specialSkins.length - lockedSkins.length}/${specialSkins.length} · 孢子 ${specialSpores.length - lockedSpores.length}/${specialSpores.length} · 光环 ${specialHalos.length - lockedHalos.length}/${specialHalos.length} · 拖尾 ${specialTrails.length - lockedTrails.length}/${specialTrails.length}</div>
           <div class="forge-prize-list">
-            ${[...specialSkins.map(item => ({ type: "skin", item })), ...specialSpores.map(item => ({ type: "spore", item })), ...specialHalos.map(item => ({ type: "halo", item }))].map(entry => `<span class="forge-prize ${tierClass(entry.item)}${hasForgeItem(entry.type, entry.item.key) ? " unlocked" : ""}">${entry.item.name}</span>`).join("")}
+            ${[...specialSkins.map(item => ({ type: "skin", item })), ...specialSpores.map(item => ({ type: "spore", item })), ...specialHalos.map(item => ({ type: "halo", item })), ...specialTrails.map(item => ({ type: "trail", item }))].map(entry => `<span class="forge-prize ${tierClass(entry.item)}${hasForgeItem(entry.type, entry.item.key) ? " unlocked" : ""}">${entry.item.name}</span>`).join("")}
           </div>
         </div>
       </div>
@@ -1675,6 +1745,7 @@
         <button type="button" data-forge="skin" ${canPayForge("skin") ? "" : "disabled"}>锻皮肤 ${forgePaymentText("skin")}</button>
         <button type="button" data-forge="spore" ${canPayForge("spore") ? "" : "disabled"}>锻孢子 ${forgePaymentText("spore")}</button>
         <button type="button" data-forge="halo" ${canPayForge("halo") ? "" : "disabled"}>锻光环 ${forgePaymentText("halo")}</button>
+        <button type="button" data-forge="trail" ${canPayForge("trail") ? "" : "disabled"}>锻拖尾 ${forgePaymentText("trail")}</button>
         <button type="button" data-forge="mixed" ${canPayForge("mixed") ? "" : "disabled"}>混合一锤 ${forgePaymentText("mixed")}</button>
       </div>
       <div class="forge-log">${last}</div>
@@ -1682,8 +1753,8 @@
   }
 
   function craftForge(type) {
-    const actualType = type === "mixed" ? randomItem(["skin", "spore", "halo"]) : type;
-    if (actualType !== "skin" && actualType !== "spore" && actualType !== "halo") return;
+    const actualType = type === "mixed" ? randomItem(["skin", "spore", "halo", "trail"]) : type;
+    if (actualType !== "skin" && actualType !== "spore" && actualType !== "halo" && actualType !== "trail") return;
     const payment = spendForgePayment(type === "mixed" ? "mixed" : actualType);
     if (!payment) return;
     const item = pickForgeItem(actualType);
@@ -1697,7 +1768,7 @@
     if (!duplicate) unlockForgeItem(actualType, item);
     meta.crafted += 1;
     meta.lastForge = {
-      type: actualType === "halo" ? "特殊光环" : actualType === "spore" ? "特殊孢子" : "特殊皮肤",
+      type: actualType === "trail" ? "特殊拖尾" : actualType === "halo" ? "特殊光环" : actualType === "spore" ? "特殊孢子" : "特殊皮肤",
       item: `${item.name} · ${rarityText(item)}`,
       duplicate,
       xp: xpGain,
@@ -1718,6 +1789,7 @@
   function renderShop() {
     const claimed = meta.dailyPackDate === todayKey();
     const directHalo = HALOS.find(item => item.key === "orbit");
+    const directTrail = TRAILS.find(item => item.key === "aurora-trail");
     const directSkin = SKINS.find(item => item.key === "crown");
     const directSpore = SPORES.find(item => item.key === "royal");
     shopPanel.innerHTML = `
@@ -1748,6 +1820,11 @@
           <button type="button" data-shop="buy-halo-orbit" ${haloUnlocked(directHalo.key) || meta.dust < 760 ? "disabled" : ""}>${haloUnlocked(directHalo.key) ? "已拥有" : "直购"}</button>
         </div>
         <div class="shop-card">
+          <strong>${directTrail.name}</strong>
+          <span>直购史诗拖尾，消耗 1180 星尘。</span>
+          <button type="button" data-shop="buy-trail-aurora" ${trailUnlocked(directTrail.key) || meta.dust < 1180 ? "disabled" : ""}>${trailUnlocked(directTrail.key) ? "已拥有" : "直购"}</button>
+        </div>
+        <div class="shop-card">
           <strong>${directSkin.name}</strong>
           <span>直购史诗皮肤，消耗 1280 星尘。</span>
           <button type="button" data-shop="buy-skin-crown" ${skinUnlocked(directSkin.key) || meta.dust < 1280 ? "disabled" : ""}>${skinUnlocked(directSkin.key) ? "已拥有" : "直购"}</button>
@@ -1763,7 +1840,7 @@
           <input class="code-input" id="redeemCodeInput" maxlength="18" autocomplete="off" placeholder="兑换码">
           <button type="button" data-shop="redeem">兑换</button>
         </div>
-        <div class="shop-message">${meta.shopMessage || "可用：STARS2026、FORGE777、BALL16X"}</div>
+        <div class="shop-message">${meta.shopMessage || "可用：STARS2026、FORGE777、BALL16X、HALO888、TRAIL999、ARENA2026"}</div>
       </div>
     `;
   }
@@ -1807,7 +1884,8 @@
     const locked = [
       ...forgeSkins().filter(item => !skinUnlocked(item.key)).map(item => ({ type: "skin", item })),
       ...forgeSpores().filter(item => !sporeUnlocked(item.key)).map(item => ({ type: "spore", item })),
-      ...forgeHalos().filter(item => !haloUnlocked(item.key)).map(item => ({ type: "halo", item }))
+      ...forgeHalos().filter(item => !haloUnlocked(item.key)).map(item => ({ type: "halo", item })),
+      ...forgeTrails().filter(item => !trailUnlocked(item.key)).map(item => ({ type: "trail", item }))
     ];
     if (!locked.length) {
       addForgeXp(120);
@@ -1843,6 +1921,12 @@
       if (!item || haloUnlocked(item.key) || meta.dust < 760) return;
       meta.dust -= 760;
       unlockForgeItem("halo", item);
+      setShopMessage(`直购成功：${item.name}`);
+    } else if (action === "buy-trail-aurora") {
+      const item = TRAILS.find(trail => trail.key === "aurora-trail");
+      if (!item || trailUnlocked(item.key) || meta.dust < 1180) return;
+      meta.dust -= 1180;
+      unlockForgeItem("trail", item);
       setShopMessage(`直购成功：${item.name}`);
     } else if (action === "buy-skin-crown") {
       const item = SKINS.find(skin => skin.key === "crown");
@@ -4176,6 +4260,7 @@
     const simpleFill = perf.lowQuality && !group.isPlayer && r < 44;
 
     ctx.save();
+    drawTrailPattern(group, cell, now);
     drawHaloPattern(group, cell, now);
     if (!perf.lowQuality || group.isPlayer || r > 52) {
       ctx.shadowColor = group.color;
@@ -4250,6 +4335,62 @@
     if (splitCount > 10 && cell.radius < 42) return false;
     if (perf.lowQuality && cell.radius < 58) return false;
     return true;
+  }
+
+  function drawTrailPattern(group, cell, now) {
+    const trail = selectedTrailDef();
+    if (!isSpecial(trail) || !shouldDrawPlayerCosmetic(group, cell, 26)) return;
+    const speed = Math.hypot(cell.vx, cell.vy);
+    if (speed < 16) return;
+    const r = cell.radius;
+    const dir = norm(-cell.vx, -cell.vy);
+    const side = { x: -dir.y, y: dir.x };
+    const accent = trail.accent || "#ffffff";
+    const base = trail.color || group.color;
+    const count = perf.lowQuality ? 2 : 4;
+    const pulse = Math.sin(now / 160 + cell.x * 0.01) * 0.18;
+
+    ctx.save();
+    ctx.shadowBlur = perf.lowQuality ? 0 : 10 / zoom;
+    ctx.shadowColor = accent;
+    for (let i = 0; i < count; i++) {
+      const t = i + 1;
+      const dist = r * (0.72 + t * 0.36);
+      const wobble = Math.sin(now / 220 + i * 1.7) * r * 0.1;
+      const x = cell.x + dir.x * dist + side.x * wobble;
+      const y = cell.y + dir.y * dist + side.y * wobble;
+      const size = Math.max(3, r * (0.17 - i * 0.026));
+      ctx.globalAlpha = clamp(0.34 - i * 0.055 + pulse * 0.05, 0.08, 0.38);
+      ctx.fillStyle = i % 2 ? accent : base;
+      ctx.strokeStyle = accent;
+      ctx.lineWidth = 1.3 / zoom;
+      if (trail.pattern === "arc" || trail.pattern === "rift") {
+        ctx.beginPath();
+        ctx.moveTo(x - side.x * size, y - side.y * size);
+        ctx.lineTo(x + dir.x * size * 0.5, y + dir.y * size * 0.5);
+        ctx.lineTo(x + side.x * size, y + side.y * size);
+        ctx.stroke();
+      } else if (trail.pattern === "ribbon") {
+        ctx.beginPath();
+        ctx.ellipse(x, y, size * 1.35, size * 0.45, Math.atan2(dir.y, dir.x), 0, Math.PI * 2);
+        ctx.fill();
+      } else if (trail.pattern === "squares") {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(now / 500 + i);
+        ctx.fillRect(-size * 0.55, -size * 0.55, size * 1.1, size * 1.1);
+        ctx.restore();
+      } else if (trail.pattern === "petals") {
+        ctx.beginPath();
+        ctx.ellipse(x, y, size * 0.65, size * 1.05, Math.atan2(side.y, side.x), 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        ctx.beginPath();
+        ctx.arc(x, y, trail.pattern === "bubbles" ? size * 0.78 : size, 0, Math.PI * 2);
+        trail.pattern === "bubbles" ? ctx.stroke() : ctx.fill();
+      }
+    }
+    ctx.restore();
   }
 
   function drawHaloPattern(group, cell, now) {
@@ -4997,6 +5138,14 @@
     localStorage.setItem("ballArenaHalo", selectedHalo);
     renderCosmetics();
   });
+  trailGrid.addEventListener("click", event => {
+    const button = event.target.closest("[data-trail]");
+    if (!button) return;
+    if (!trailUnlocked(button.dataset.trail)) return;
+    selectedTrail = button.dataset.trail;
+    localStorage.setItem("ballArenaTrail", selectedTrail);
+    renderCosmetics();
+  });
   forgePanel.addEventListener("click", event => {
     const button = event.target.closest("[data-forge]");
     if (!button) return;
@@ -5025,9 +5174,11 @@
           selectedSkin,
           selectedSpore,
           selectedHalo,
+          selectedTrail,
           skinType: selectedSkinDef().type,
           sporeType: selectedSporeDef().type,
           haloType: selectedHaloDef().type,
+          trailType: selectedTrailDef().type,
           lobbyPanel: activeLobbyPanel,
           dust: Math.floor(meta.dust),
           forgeLevel: meta.forgeLevel,
@@ -5040,9 +5191,11 @@
           unlockedSkins: meta.unlockedSkins.length,
           unlockedSpores: meta.unlockedSpores.length,
           unlockedHalos: meta.unlockedHalos.length,
+          unlockedTrails: meta.unlockedTrails.length,
           forgeLockedSkins: forgeSkins().filter(skin => !skinUnlocked(skin.key)).length,
           forgeLockedSpores: forgeSpores().filter(spore => !sporeUnlocked(spore.key)).length,
           forgeLockedHalos: forgeHalos().filter(halo => !haloUnlocked(halo.key)).length,
+          forgeLockedTrails: forgeTrails().filter(trail => !trailUnlocked(trail.key)).length,
           menu: !!game.menu,
           paused: !!game.paused,
           over: !!game.over,
@@ -5138,6 +5291,16 @@
         if (!haloUnlocked(key)) meta.unlockedHalos.push(key);
         selectedHalo = key;
         localStorage.setItem("ballArenaHalo", selectedHalo);
+        saveMeta();
+        renderCosmetics();
+        return this.snapshot();
+      },
+      equipTrail(key) {
+        const item = TRAILS.find(trail => trail.key === key);
+        if (!item) return null;
+        if (!trailUnlocked(key)) meta.unlockedTrails.push(key);
+        selectedTrail = key;
+        localStorage.setItem("ballArenaTrail", selectedTrail);
         saveMeta();
         renderCosmetics();
         return this.snapshot();
