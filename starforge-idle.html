@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>星炉工坊</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23101824'/%3E%3Ccircle cx='32' cy='32' r='14' fill='%23f0d16f'/%3E%3Cpath d='M32 8v12M32 44v12M8 32h12M44 32h12M17 17l8 8M39 39l8 8M47 17l-8 8M25 39l-8 8' stroke='%238bd0bb' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
+    <style>
+      :root{--ink:#10191f;--panel:#fffdf4;--line:#87989e;--teal:#287468;--gold:#d6a33d;--red:#bd5148;--blue:#326f91;--shadow:rgba(5,12,16,.28);--radius:8px}
+      *{box-sizing:border-box}body{margin:0;min-height:100vh;color:var(--ink);font-family:"Microsoft YaHei","PingFang SC","Noto Sans SC",system-ui,sans-serif;background:linear-gradient(rgba(255,255,245,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,245,.05) 1px,transparent 1px),linear-gradient(135deg,#0b1724,#143a3b 48%,#383345);background-size:30px 30px,30px 30px,auto}button,textarea{font:inherit}.app{width:min(1460px,calc(100vw - 28px));margin:14px auto}.topbar,.panel{border:1px solid var(--line);border-radius:var(--radius);background:rgba(255,253,244,.97);box-shadow:0 16px 36px var(--shadow)}.topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:16px 20px}.eyebrow{margin:0 0 5px;color:#856219;font-size:12px;font-weight:900}h1{margin:0;font-size:clamp(26px,4vw,44px);line-height:1}.actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}.btn{min-height:42px;padding:0 14px;border:1px solid #24534d;border-radius:var(--radius);color:#fffdf6;background:var(--teal);font-weight:900;cursor:pointer}.btn.secondary{color:var(--ink);background:#f0d17b;border-color:#9c7621}.btn.warn{background:var(--red);border-color:#82322e}.layout{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(340px,.92fr);gap:14px;margin-top:14px;align-items:start}.stage{position:relative;overflow:hidden;min-height:650px}canvas{display:block;width:100%;height:650px;touch-action:none}.hud{position:absolute;left:16px;right:16px;bottom:16px;display:grid;grid-template-columns:repeat(5,1fr);gap:10px;pointer-events:none}.chip{padding:10px;border:1px solid rgba(255,253,244,.26);border-radius:var(--radius);background:rgba(12,24,31,.72);color:#fffdf4}.chip b{display:block;font-size:clamp(18px,2.4vw,28px);line-height:1.1}.chip small{color:#c9d9d3;font-weight:800}.side{display:grid;gap:12px}.section{padding:14px}.section h2{margin:0 0 10px;font-size:20px}.resources{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.res{padding:10px;border:1px solid #9da69e;border-radius:var(--radius);background:#f9f7eb}.res b{display:block;font-size:22px;line-height:1.1}.res small{color:#5e6d67;font-weight:800}.tabs{display:flex;gap:8px;flex-wrap:wrap}.tab{min-height:38px;padding:0 12px;border:1px solid #87989e;border-radius:var(--radius);background:#fff8e6;font-weight:900;cursor:pointer}.tab.active{background:#287468;color:#fffdf4;border-color:#24534d}.view{display:none}.view.active{display:block}.list{display:grid;gap:9px}.item{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:10px;border:1px solid #9da69e;border-radius:var(--radius);background:#fffaf0}.item h3{margin:0 0 4px;font-size:16px}.item p{margin:0;color:#5d6b66;font-size:13px;line-height:1.35;font-weight:700}.buy{min-width:88px;min-height:42px;padding:0 10px;border:1px solid #24534d;border-radius:var(--radius);background:#287468;color:#fffdf4;font-weight:900;cursor:pointer}.buy:disabled{opacity:.45;cursor:not-allowed}.cost{color:#856219}.log{min-height:42px;margin:0;color:#5d6b66;font-weight:800;line-height:1.45}.savebox{width:100%;min-height:92px;resize:vertical;border:1px solid #87989e;border-radius:var(--radius);padding:10px;background:#fffaf0;color:#10191f}.savegrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.toast{position:fixed;left:50%;bottom:18px;z-index:5;transform:translateX(-50%);max-width:min(560px,calc(100vw - 24px));padding:12px 16px;border:1px solid #87989e;border-radius:var(--radius);background:#fffdf4;box-shadow:0 18px 42px rgba(0,0,0,.28);font-weight:900}.hidden{display:none}@media(max-width:1050px){.layout{grid-template-columns:1fr}.stage{min-height:560px}canvas{height:560px}.hud{grid-template-columns:repeat(3,1fr)}}@media(max-width:640px){.app{width:min(100vw - 16px,1460px);margin-top:8px}.topbar{display:block;padding:14px}.actions{margin-top:12px;justify-content:stretch}.btn{flex:1 1 auto}.stage{min-height:520px}canvas{height:520px}.hud{position:static;grid-template-columns:1fr 1fr;margin:10px}.resources{grid-template-columns:1fr 1fr}.item{grid-template-columns:1fr}.buy{width:100%}}
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <header class="topbar">
+        <div><p class="eyebrow">IDLE WORKSHOP</p><h1>星炉工坊</h1></div>
+        <div class="actions"><button class="btn" id="tapBtn">校准星炉</button><button class="btn secondary" id="exportBtn">导出</button><button class="btn secondary" id="importBtn">导入</button><button class="btn warn" id="hardResetBtn">清档</button></div>
+      </header>
+      <section class="layout">
+        <div class="panel stage">
+          <canvas id="gameCanvas" aria-label="星炉工坊挂机游戏画面"></canvas>
+          <div class="hud">
+            <div class="chip"><b id="dustHud">0</b><small>星尘</small></div>
+            <div class="chip"><b id="crystalHud">0</b><small>晶矿</small></div>
+            <div class="chip"><b id="alloyHud">0</b><small>星合金</small></div>
+            <div class="chip"><b id="scienceHud">0</b><small>研究</small></div>
+            <div class="chip"><b id="coreHud">0</b><small>星核</small></div>
+          </div>
+        </div>
+        <aside class="side">
+          <section class="panel section">
+            <div class="resources">
+              <div class="res"><b id="dustText">0</b><small>星尘 / <span id="dustRate">0/s</span></small></div>
+              <div class="res"><b id="crystalText">0</b><small>晶矿 / <span id="crystalRate">0/s</span></small></div>
+              <div class="res"><b id="alloyText">0</b><small>合金 / <span id="alloyRate">0/s</span></small></div>
+              <div class="res"><b id="scienceText">0</b><small>研究 / <span id="scienceRate">0/s</span></small></div>
+            </div>
+            <p class="log" id="logText">星炉已待命。先手动校准几次，再购买探针。</p>
+          </section>
+          <section class="panel section">
+            <div class="tabs"><button class="tab active" data-view="build">建筑</button><button class="tab" data-view="research">研究</button><button class="tab" data-view="orders">委托</button><button class="tab" data-view="legacy">星核</button><button class="tab" data-view="save">存档</button></div>
+          </section>
+          <section class="panel section view active" id="buildView"><h2>生产建筑</h2><div class="list" id="buildingList"></div></section>
+          <section class="panel section view" id="researchView"><h2>研究升级</h2><div class="list" id="researchList"></div></section>
+          <section class="panel section view" id="ordersView"><h2>行星委托</h2><div class="list" id="orderList"></div></section>
+          <section class="panel section view" id="legacyView"><h2>星核重启</h2><div class="list"><div class="item"><div><h3>点燃下一轮宇宙</h3><p id="prestigeInfo">累计星尘达到 250K 后可获得星核。每颗星核永久提升全局产量 8%。</p></div><button class="buy" id="prestigeBtn">重启</button></div></div></section>
+          <section class="panel section view" id="saveView"><h2>存档同步</h2><p class="log">本机自动保存。导出存档码后可以发到手机导入；以后接云存档也会用同一份 JSON 数据。</p><textarea class="savebox" id="saveBox" spellcheck="false" placeholder="导出的存档码会出现在这里，也可以粘贴存档码后点导入。"></textarea><div class="savegrid"><button class="btn secondary" id="copyBtn">复制存档码</button><button class="btn" id="loadBoxBtn">导入文本框</button></div></section>
+        </aside>
+      </section>
+    </main>
+    <div class="toast hidden" id="toast"></div>
+    <script>
+      (()=> {
+        const $=id=>document.getElementById(id),canvas=$("gameCanvas"),ctx=canvas.getContext("2d"),storageKey="miniStarforgeIdleSaveV1";
+        const buildings=[
+          {id:"probe",name:"星尘探针",desc:"自动校准星炉，稳定收集星尘。",cost:{dust:15},growth:1.16,need:()=>true},
+          {id:"miner",name:"月背矿机",desc:"把星尘轨道上的碎片筛成晶矿。",cost:{dust:95},growth:1.18,need:s=>s.stats.totalDust>=70||s.b.miner>0},
+          {id:"smelter",name:"微型熔炉",desc:"把晶矿压进星炉，产出星合金。",cost:{dust:220,crystal:38},growth:1.20,need:s=>s.crystal>=18||s.b.smelter>0},
+          {id:"lab",name:"轨道实验室",desc:"消耗工坊数据，缓慢产出研究。",cost:{crystal:120,alloy:8},growth:1.22,need:s=>s.alloy>=4||s.b.lab>0},
+          {id:"relay",name:"深空信标",desc:"提供全局产量加成，并少量产出研究。",cost:{alloy:42,science:16},growth:1.25,need:s=>s.science>=8||s.b.relay>0}
+        ];
+        const researches=[
+          {id:"rProbe",name:"探针编队",desc:"星尘探针产量 x2。",cost:{science:8},need:s=>s.b.lab>0||s.science>=4},
+          {id:"rMiner",name:"晶脉测绘",desc:"月背矿机产量 x2。",cost:{science:24,crystal:120},need:s=>s.b.miner>=4},
+          {id:"rForge",name:"热核坩埚",desc:"微型熔炉产量 x2。",cost:{science:64,alloy:22},need:s=>s.b.smelter>=3},
+          {id:"rOrders",name:"贸易航线",desc:"委托奖励提升 50%。",cost:{science:110,alloy:45},need:s=>s.ordersDone>=2},
+          {id:"rOffline",name:"冬眠引擎",desc:"离线收益上限从 12 小时提升到 24 小时。",cost:{science:180,alloy:80},need:s=>s.science>=80},
+          {id:"rCore",name:"星核透镜",desc:"星核结算收益提升 25%。",cost:{science:360,alloy:160},need:s=>prestigeGain(s)>0}
+        ];
+        let w=900,h=650,dpr=1,last=performance.now(),saveTimer=0,hudTimer=0,toastTimer=0,orders=[],fx=[];
+        let state=load();
+        function fresh(){return{v:1,dust:0,crystal:0,alloy:0,science:0,cores:0,b:{probe:0,miner:0,smelter:0,lab:0,relay:0},r:{},ordersDone:0,stats:{totalDust:0,lifetimeDust:0,manual:0,bestCores:0},last:Date.now()}}
+        function merge(s){const d=fresh();s=s&&typeof s==="object"?s:{};return{...d,...s,b:{...d.b,...s.b},r:{...d.r,...s.r},stats:{...d.stats,...s.stats}}}
+        function load(){let s=fresh();try{s=merge(JSON.parse(localStorage.getItem(storageKey)||"{}"))}catch(e){}const now=Date.now(),off=Math.max(0,Math.min((now-(s.last||now))/1000,offlineCap(s)));if(off>10){const gain=produce(s,off);toast(`离线 ${time(off)}，获得 ${fmt(gain.dust)} 星尘、${fmt(gain.crystal)} 晶矿、${fmt(gain.alloy)} 合金、${fmt(gain.science)} 研究。`,5200)}s.last=now;localStorage.setItem(storageKey,JSON.stringify(s));return s}
+        function save(){state.last=Date.now();localStorage.setItem(storageKey,JSON.stringify(state))}
+        function rates(s=state){const g=globalMult(s),probe=(s.r.rProbe?2:1),miner=(s.r.rMiner?2:1),forge=(s.r.rForge?2:1);return{dust:s.b.probe*.35*g*probe,crystal:s.b.miner*.075*g*miner,alloy:s.b.smelter*.024*g*forge,science:(s.b.lab*.016+s.b.relay*.012)*g}}
+        function globalMult(s=state){return(1+s.cores*.08+s.b.relay*.045)*(s.r.rCore?1.06:1)}
+        function produce(s,dt){const r=rates(s),gain={dust:r.dust*dt,crystal:r.crystal*dt,alloy:r.alloy*dt,science:r.science*dt};s.dust+=gain.dust;s.crystal+=gain.crystal;s.alloy+=gain.alloy;s.science+=gain.science;s.stats.totalDust+=gain.dust;s.stats.lifetimeDust+=gain.dust;return gain}
+        function offlineCap(s=state){return(s.r.rOffline?24:12)*3600}
+        function costOf(o,s=state){const n=s.b[o.id]||0,c={};for(const k in o.cost)c[k]=o.cost[k]*Math.pow(o.growth,n);return c}
+        function canPay(c,s=state){return Object.entries(c).every(([k,v])=>s[k]>=v)}function pay(c,s=state){for(const k in c)s[k]-=c[k]}
+        function fmt(n){n=Number(n)||0;if(n<1000)return n<10?n.toFixed(1):Math.floor(n).toString();const u=["K","M","B","T","Qa","Qi"],e=Math.min(u.length,Math.floor(Math.log10(n)/3));return(n/Math.pow(1000,e)).toFixed(n>=1e6?2:1)+u[e-1]}
+        function time(sec){sec=Math.floor(sec);const h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),s=sec%60;return h?`${h}小时${m}分`:m?`${m}分${s}秒`:`${s}秒`}
+        function costText(c){return Object.entries(c).map(([k,v])=>`${resName(k)} ${fmt(v)}`).join(" / ")}function resName(k){return{dust:"星尘",crystal:"晶矿",alloy:"合金",science:"研究",cores:"星核"}[k]||k}
+        function updateHud(){const r=rates();for(const k of ["dust","crystal","alloy","science"])$(k+"Text").textContent=fmt(state[k]),$(k+"Hud").textContent=fmt(state[k]),$(k+"Rate").textContent=fmt(r[k])+"/s";$("coreHud").textContent=fmt(state.cores);document.querySelectorAll("[data-buy]").forEach(btn=>{const o=buildings.find(x=>x.id===btn.dataset.buy);btn.disabled=!o||!canPay(costOf(o))});document.querySelectorAll("[data-research]").forEach(btn=>{const o=researches.find(x=>x.id===btn.dataset.research);btn.disabled=!o||state.r[o.id]||!canPay(o.cost)});document.querySelectorAll("[data-order]").forEach(btn=>{const o=orders[+btn.dataset.order];btn.disabled=!o||!canPay(o.req)});const gain=prestigeGain();$("prestigeInfo").textContent=`本轮累计星尘 ${fmt(state.stats.totalDust)}。重启可获得 ${fmt(gain)} 星核；当前星核提供 +${Math.round(state.cores*8)}% 全局产量。`;$("prestigeBtn").disabled=gain<=0}
+        function buyBuilding(id){const o=buildings.find(x=>x.id===id),c=costOf(o);if(!o||!canPay(c))return;pay(c);state.b[id]++;log(`${o.name} +1`);burst();save();render()}
+        function buyResearch(id){const o=researches.find(x=>x.id===id);if(!o||state.r[id]||!canPay(o.cost))return;pay(o.cost);state.r[id]=1;log(`完成研究：${o.name}`);burst();save();render()}
+        function manual(){const add=(1+Math.sqrt(state.b.probe+1)*.75)*globalMult();state.dust+=add;state.stats.totalDust+=add;state.stats.lifetimeDust+=add;state.stats.manual++;fx.push({x:w*.5,y:h*.5,text:`+${fmt(add)}`,life:1,color:"#f0d16f"});save();render()}
+        function makeOrders(){const s=Math.pow(1.17,state.ordersDone),bonus=state.r.rOrders?1.5:1;orders=[{name:"近地补给",req:{dust:140*s,crystal:18*s},rew:{science:6*s*bonus,dust:65*s*bonus}},{name:"环月船坞",req:{crystal:80*s,alloy:8*s},rew:{science:18*s*bonus,alloy:5*s*bonus}},{name:"深空灯塔",req:{dust:900*s,alloy:28*s,science:18*s},rew:{science:55*s*bonus,crystal:110*s*bonus}}]}
+        function completeOrder(i){const o=orders[i];if(!o||!canPay(o.req))return;pay(o.req);for(const k in o.rew)state[k]+=o.rew[k];state.ordersDone++;makeOrders();log(`完成委托：${o.name}`);burst();save();render()}
+        function prestigeGain(s=state){if(s.stats.totalDust<250000)return 0;const base=Math.floor(Math.sqrt(s.stats.totalDust/250000));return Math.floor(base*(s.r.rCore?1.25:1))}
+        function prestige(){const gain=prestigeGain();if(gain<=0)return;if(!confirm(`重启会清空本轮建筑和研究，获得 ${gain} 星核。继续吗？`))return;const keep=state.cores+gain,best=Math.max(state.stats.bestCores||0,keep),life=state.stats.lifetimeDust;state=fresh();state.cores=keep;state.stats.bestCores=best;state.stats.lifetimeDust=life;makeOrders();log(`星核重启完成，永久产量 +${Math.round(state.cores*8)}%。`);save();render()}
+        function exportSave(){const raw=JSON.stringify({...state,last:Date.now()});const code="SFI1-"+btoa(unescape(encodeURIComponent(raw)));$("saveBox").value=code;toast("存档码已生成，可以复制到手机导入。")}
+        function importSave(text){try{const raw=text.trim().replace(/^SFI1-/,"");const data=JSON.parse(decodeURIComponent(escape(atob(raw))));state=merge(data);state.last=Date.now();makeOrders();save();render();toast("导入成功。")}catch(e){toast("导入失败：存档码格式不对。",3600)}}
+        function hardReset(){if(confirm("确定清空星炉工坊存档吗？")){state=fresh();makeOrders();save();render();toast("已清档。")}}
+        function log(t){$("logText").textContent=t}function toast(t,ms=2800){const el=$("toast");el.textContent=t;el.classList.remove("hidden");toastTimer=ms}
+        function burst(){for(let i=0;i<18;i++)fx.push({x:w*.5,y:h*.5,life:1,ang:Math.random()*Math.PI*2,spd:40+Math.random()*120,color:["#f0d16f","#8bd0bb","#bd5148","#326f91"][i%4]})}
+        function render(){makeOrders();$("buildingList").innerHTML=buildings.filter(o=>o.need(state)).map(o=>{const c=costOf(o),ok=canPay(c);return `<div class="item"><div><h3>${o.name} Lv.${state.b[o.id]||0}</h3><p>${o.desc}</p><p class="cost">${costText(c)}</p></div><button class="buy" data-buy="${o.id}" ${ok?"":"disabled"}>购买</button></div>`}).join("");$("researchList").innerHTML=researches.filter(o=>o.need(state)||state.r[o.id]).map(o=>{const ok=canPay(o.cost)&&!state.r[o.id];return `<div class="item"><div><h3>${state.r[o.id]?"已完成 ":""}${o.name}</h3><p>${o.desc}</p><p class="cost">${costText(o.cost)}</p></div><button class="buy" data-research="${o.id}" ${ok?"":"disabled"}>${state.r[o.id]?"完成":"研究"}</button></div>`}).join("");$("orderList").innerHTML=orders.map((o,i)=>`<div class="item"><div><h3>${o.name}</h3><p>需求：${costText(o.req)}</p><p class="cost">奖励：${costText(o.rew)}</p></div><button class="buy" data-order="${i}" ${canPay(o.req)?"":"disabled"}>交付</button></div>`).join("");updateHud()}
+        function resize(){const r=canvas.getBoundingClientRect();dpr=Math.max(1,Math.min(2,devicePixelRatio||1));w=Math.max(320,r.width);h=Math.max(480,r.height);canvas.width=Math.floor(w*dpr);canvas.height=Math.floor(h*dpr);ctx.setTransform(dpr,0,0,dpr,0,0)}
+        function draw(now){const dt=Math.min(.05,(now-last)/1000||.016);last=now;if(state){produce(state,dt);saveTimer+=dt;hudTimer+=dt;if(hudTimer>.25){hudTimer=0;updateHud()}if(saveTimer>5){saveTimer=0;save()}renderLight(dt)}if(toastTimer>0){toastTimer-=dt*1000;if(toastTimer<=0)$("toast").classList.add("hidden")}requestAnimationFrame(draw)}
+        function renderLight(dt){ctx.clearRect(0,0,w,h);const g=ctx.createLinearGradient(0,0,0,h);g.addColorStop(0,"#101824");g.addColorStop(1,"#243347");ctx.fillStyle=g;ctx.fillRect(0,0,w,h);ctx.fillStyle="rgba(255,255,255,.14)";for(let i=0;i<90;i++)ctx.fillRect((i*83+performance.now()*.012)%w,(i*47)%h,2,2);const cx=w*.5,cy=h*.47,pulse=1+Math.sin(performance.now()*.004)*.05;ctx.strokeStyle="rgba(139,208,187,.32)";ctx.lineWidth=2;for(let r=90;r<260;r+=42){ctx.beginPath();ctx.ellipse(cx,cy,r*pulse,r*.42*pulse,0,0,Math.PI*2);ctx.stroke()}ctx.fillStyle="rgba(240,209,111,.12)";ctx.beginPath();ctx.arc(cx,cy,125*pulse,0,Math.PI*2);ctx.fill();const core=52+Math.log10(state.dust+10)*3;const rg=ctx.createRadialGradient(cx-18,cy-20,4,cx,cy,core);rg.addColorStop(0,"#fffdf4");rg.addColorStop(.38,"#f0d16f");rg.addColorStop(1,"#bd5148");ctx.fillStyle=rg;ctx.beginPath();ctx.arc(cx,cy,core,0,Math.PI*2);ctx.fill();drawMachines(cx,cy);fx=fx.filter(p=>{p.life-=dt;if(p.ang!==undefined){p.x+=Math.cos(p.ang)*p.spd*dt;p.y+=Math.sin(p.ang)*p.spd*dt;ctx.globalAlpha=p.life;ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(p.x,p.y,4,0,Math.PI*2);ctx.fill()}else{p.y-=dt*42;ctx.globalAlpha=p.life;ctx.fillStyle=p.color;ctx.font="900 22px system-ui";ctx.textAlign="center";ctx.fillText(p.text,p.x,p.y)}ctx.globalAlpha=1;return p.life>0});ctx.fillStyle="rgba(255,253,244,.9)";ctx.font="900 20px system-ui";ctx.textAlign="center";ctx.fillText(`全局产量 x${globalMult().toFixed(2)}  ·  离线保留 ${time(offlineCap())}`,cx,42)}
+        function drawMachines(cx,cy){const total=state.b.probe+state.b.miner+state.b.smelter+state.b.lab+state.b.relay,shown=Math.min(34,total);for(let i=0;i<shown;i++){const a=i/shown*Math.PI*2+performance.now()*.0004*(i%2?1:-1),r=150+(i%4)*22,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*.45;ctx.fillStyle=["#8bd0bb","#326f91","#d6a33d","#bd5148"][i%4];ctx.beginPath();ctx.roundRect?ctx.roundRect(x-10,y-7,20,14,4):(ctx.rect(x-10,y-7,20,14));ctx.fill();ctx.strokeStyle="rgba(255,253,244,.7)";ctx.stroke()}ctx.fillStyle="rgba(255,253,244,.82)";ctx.font="800 16px system-ui";ctx.fillText(`${total} 座装置在线`,cx,cy+120)}
+        document.addEventListener("click",e=>{const b=e.target.closest("[data-buy]"),r=e.target.closest("[data-research]"),o=e.target.closest("[data-order]");if(b)buyBuilding(b.dataset.buy);if(r)buyResearch(r.dataset.research);if(o)completeOrder(+o.dataset.order)});
+        document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));t.classList.add("active");$(t.dataset.view+"View").classList.add("active")}));
+        $("tapBtn").addEventListener("click",manual);canvas.addEventListener("pointerdown",manual);$("prestigeBtn").addEventListener("click",prestige);$("exportBtn").addEventListener("click",exportSave);$("importBtn").addEventListener("click",()=>$("saveBox").focus());$("copyBtn").addEventListener("click",async()=>{exportSave();try{await navigator.clipboard.writeText($("saveBox").value);toast("已复制存档码。")}catch(e){toast("已生成存档码，请手动复制。")}});$("loadBoxBtn").addEventListener("click",()=>importSave($("saveBox").value));$("hardResetBtn").addEventListener("click",hardReset);window.addEventListener("beforeunload",save);window.addEventListener("resize",resize);
+        makeOrders();resize();render();requestAnimationFrame(draw);
+      })();
+    </script>
+  </body>
+</html>
