@@ -419,7 +419,7 @@
 
   .lobby-loadout {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 12px;
     margin: 0 0 16px;
     text-align: left;
@@ -689,7 +689,7 @@
 
   .forge-actions {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 8px;
   }
 
@@ -951,6 +951,10 @@
             <strong>孢子样式</strong>
             <div class="cosmetic-grid" id="sporeGrid"></div>
           </div>
+          <div class="loadout-group">
+            <strong>球体光环</strong>
+            <div class="cosmetic-grid" id="haloGrid"></div>
+          </div>
         </div>
       </section>
       <section class="lobby-panel" data-lobby-panel="shop">
@@ -995,6 +999,7 @@
   const menuBtn = document.getElementById("menuBtn");
   const skinGrid = document.getElementById("skinGrid");
   const sporeGrid = document.getElementById("sporeGrid");
+  const haloGrid = document.getElementById("haloGrid");
   const shopPanel = document.getElementById("shopPanel");
   const forgePanel = document.getElementById("forgePanel");
   const modeButtons = [...document.querySelectorAll("[data-mode]")];
@@ -1056,6 +1061,15 @@
     { key: "vine", name: "藤蔓星种", color: "#34d399", accent: "#dcfce7", type: "special", pattern: "vine", tier: "epic", rarity: "史诗" },
     { key: "aurora", name: "极光羽片", color: "#22d3ee", accent: "#f0abfc", type: "special", pattern: "aurora", tier: "epic", rarity: "史诗" },
     { key: "royal", name: "王冠碎金", color: "#facc15", accent: "#ffffff", type: "special", pattern: "royal", tier: "legendary", rarity: "传说" }
+  ];
+  const HALOS = [
+    { key: "none", name: "无光环", color: "#94a3b8", type: "basic" },
+    { key: "orbit", name: "星轨光环", color: "#38bdf8", accent: "#e0f2fe", type: "special", pattern: "orbit", tier: "common", rarity: "普通" },
+    { key: "frost-ring", name: "霜轮光环", color: "#67e8f9", accent: "#ffffff", type: "special", pattern: "frost", tier: "common", rarity: "普通" },
+    { key: "pulse-ring", name: "磁暴光环", color: "#a78bfa", accent: "#fef08a", type: "special", pattern: "pulse", tier: "rare", rarity: "稀有" },
+    { key: "sun-crown", name: "日冕光环", color: "#fb923c", accent: "#fff7ed", type: "special", pattern: "sun", tier: "epic", rarity: "史诗" },
+    { key: "halo-crown", name: "王冠光环", color: "#ffd166", accent: "#ffffff", type: "special", pattern: "crown", tier: "epic", rarity: "史诗" },
+    { key: "gravity", name: "引力黑环", color: "#111827", accent: "#c084fc", type: "special", pattern: "gravity", tier: "legendary", rarity: "传说" }
   ];
   const GAME_MODES = {
     solo: {
@@ -1154,11 +1168,11 @@
     10: { dust: 500, tickets: 5 }
   };
   const REDEEM_CODES = {
-    STARS2026: { label: "星尘补给", dust: 320, tickets: 2, xp: 80 },
-    FORGE777: { label: "铁匠铺礼包", dust: 160, tickets: 3, xp: 160 },
-    BALL16X: { label: "爆发礼包", dust: 260, tickets: 1, xp: 260, unlock: "random" }
+    STARS2026: { label: "十连星尘补给", dust: 1200, tickets: 10, xp: 280 },
+    FORGE777: { label: "铁匠铺十连包", dust: 777, tickets: 10, xp: 350, unlock: 1 },
+    BALL16X: { label: "爆发豪华包", dust: 1600, tickets: 16, xp: 500, unlock: 2 }
   };
-  const META_VERSION = 3;
+  const META_VERSION = 4;
 
   let dpr = 1;
   let view = { w: 0, h: 0 };
@@ -1190,8 +1204,10 @@
   let meta = loadMeta();
   let selectedSkin = localStorage.getItem("ballArenaSkin") || "aqua";
   let selectedSpore = localStorage.getItem("ballArenaSpore") || "mint";
+  let selectedHalo = localStorage.getItem("ballArenaHalo") || "none";
   if (!meta.unlockedSkins.includes(selectedSkin)) selectedSkin = "aqua";
   if (!meta.unlockedSpores.includes(selectedSpore)) selectedSpore = "mint";
+  if (!meta.unlockedHalos.includes(selectedHalo)) selectedHalo = "none";
   let lastFrame = performance.now();
   let lastPlayerEject = 0;
   let hudTimer = 0;
@@ -1323,6 +1339,7 @@
       forgePityLegend: 0,
       unlockedSkins: SKINS.filter(skin => skin.type !== "special").map(skin => skin.key),
       unlockedSpores: SPORES.filter(spore => spore.type !== "special").map(spore => spore.key),
+      unlockedHalos: HALOS.filter(halo => halo.type !== "special").map(halo => halo.key),
       crafted: 0,
       totalDust: 150,
       redeemedCodes: [],
@@ -1343,6 +1360,7 @@
         : Math.max(0, ((Number(saved.forgeLevel) || 1) - 1) * 120);
       const validSkins = new Set(SKINS.map(skin => skin.key));
       const validSpores = new Set(SPORES.map(spore => spore.key));
+      const validHalos = new Set(HALOS.map(halo => halo.key));
       const forgeXp = Math.max(0, migratedXp);
       return {
         ...base,
@@ -1359,7 +1377,8 @@
         dailyPackDate: saved.dailyPackDate || "",
         shopMessage: saved.shopMessage || "",
         unlockedSkins: [...new Set([...(saved.unlockedSkins || []), ...base.unlockedSkins])].filter(key => validSkins.has(key)),
-        unlockedSpores: [...new Set([...(saved.unlockedSpores || []), ...base.unlockedSpores])].filter(key => validSpores.has(key))
+        unlockedSpores: [...new Set([...(saved.unlockedSpores || []), ...base.unlockedSpores])].filter(key => validSpores.has(key)),
+        unlockedHalos: [...new Set([...(saved.unlockedHalos || []), ...base.unlockedHalos])].filter(key => validHalos.has(key))
       };
     } catch (_) {
       return defaultMeta();
@@ -1378,12 +1397,20 @@
     return meta.unlockedSpores.includes(key);
   }
 
+  function haloUnlocked(key) {
+    return meta.unlockedHalos.includes(key);
+  }
+
   function selectedSkinDef() {
     return SKINS.find(skin => skin.key === selectedSkin) || SKINS[0];
   }
 
   function selectedSporeDef() {
     return SPORES.find(spore => spore.key === selectedSpore) || SPORES[0];
+  }
+
+  function selectedHaloDef() {
+    return HALOS.find(halo => halo.key === selectedHalo) || HALOS[0];
   }
 
   function isSpecial(item) {
@@ -1396,6 +1423,10 @@
 
   function forgeSpores() {
     return SPORES.filter(isSpecial);
+  }
+
+  function forgeHalos() {
+    return HALOS.filter(isSpecial);
   }
 
   function swatchStyle(item) {
@@ -1441,6 +1472,12 @@
         <span>${cosmeticLabel(spore, sporeUnlocked(spore))}</span>
       </button>
     `).join("");
+    haloGrid.innerHTML = HALOS.map(halo => `
+      <button class="cosmetic-card${halo.key === selectedHalo ? " active" : ""}${isSpecial(halo) ? " special" : ""}" type="button" data-halo="${halo.key}" ${haloUnlocked(halo.key) ? "" : "disabled"} title="${halo.name} ${rarityText(halo)}">
+        <i class="swatch${isSpecial(halo) ? " special" : ""}" style="${swatchStyle(halo)}"></i>
+        <span>${cosmeticLabel(halo, haloUnlocked(halo))}</span>
+      </button>
+    `).join("");
     renderMetaStrip();
     renderForge();
     renderShop();
@@ -1450,6 +1487,7 @@
     const level = Math.max(1, meta.forgeLevel || 1);
     if (type === "skin") return 82 + level * 8;
     if (type === "spore") return 68 + level * 7;
+    if (type === "halo") return 88 + level * 9;
     return 76 + level * 8;
   }
 
@@ -1473,7 +1511,9 @@
   }
 
   function forgePool(type) {
-    return type === "spore" ? forgeSpores() : forgeSkins();
+    if (type === "spore") return forgeSpores();
+    if (type === "halo") return forgeHalos();
+    return forgeSkins();
   }
 
   function randomItem(items) {
@@ -1553,11 +1593,17 @@
   }
 
   function hasForgeItem(type, key) {
-    return type === "spore" ? sporeUnlocked(key) : skinUnlocked(key);
+    if (type === "spore") return sporeUnlocked(key);
+    if (type === "halo") return haloUnlocked(key);
+    return skinUnlocked(key);
   }
 
   function unlockForgeItem(type, item) {
-    if (type === "spore") {
+    if (type === "halo") {
+      if (!haloUnlocked(item.key)) meta.unlockedHalos.push(item.key);
+      selectedHalo = item.key;
+      localStorage.setItem("ballArenaHalo", selectedHalo);
+    } else if (type === "spore") {
       if (!sporeUnlocked(item.key)) meta.unlockedSpores.push(item.key);
       selectedSpore = item.key;
       localStorage.setItem("ballArenaSpore", selectedSpore);
@@ -1581,8 +1627,10 @@
   function renderForge() {
     const specialSkins = forgeSkins();
     const specialSpores = forgeSpores();
+    const specialHalos = forgeHalos();
     const lockedSkins = specialSkins.filter(skin => !skinUnlocked(skin.key));
     const lockedSpores = specialSpores.filter(spore => !sporeUnlocked(spore.key));
+    const lockedHalos = specialHalos.filter(halo => !haloUnlocked(halo.key));
     const progress = forgeLevelProgress();
     const luck = clamp(meta.forgeLuck || 0, 0, 99);
     const last = formatForgeLog();
@@ -1617,15 +1665,16 @@
           <div class="forge-note">重复外观会转为铁匠铺经验，升级自动发星尘和锻造券。</div>
         </div>
         <div class="forge-prizes">
-          <div class="forge-prize-title">特殊奖池 ${specialSkins.length - lockedSkins.length}/${specialSkins.length} · ${specialSpores.length - lockedSpores.length}/${specialSpores.length}</div>
+          <div class="forge-prize-title">皮肤 ${specialSkins.length - lockedSkins.length}/${specialSkins.length} · 孢子 ${specialSpores.length - lockedSpores.length}/${specialSpores.length} · 光环 ${specialHalos.length - lockedHalos.length}/${specialHalos.length}</div>
           <div class="forge-prize-list">
-            ${[...specialSkins, ...specialSpores].map(item => `<span class="forge-prize ${tierClass(item)}${skinUnlocked(item.key) || sporeUnlocked(item.key) ? " unlocked" : ""}">${item.name}</span>`).join("")}
+            ${[...specialSkins.map(item => ({ type: "skin", item })), ...specialSpores.map(item => ({ type: "spore", item })), ...specialHalos.map(item => ({ type: "halo", item }))].map(entry => `<span class="forge-prize ${tierClass(entry.item)}${hasForgeItem(entry.type, entry.item.key) ? " unlocked" : ""}">${entry.item.name}</span>`).join("")}
           </div>
         </div>
       </div>
       <div class="forge-actions">
         <button type="button" data-forge="skin" ${canPayForge("skin") ? "" : "disabled"}>锻皮肤 ${forgePaymentText("skin")}</button>
         <button type="button" data-forge="spore" ${canPayForge("spore") ? "" : "disabled"}>锻孢子 ${forgePaymentText("spore")}</button>
+        <button type="button" data-forge="halo" ${canPayForge("halo") ? "" : "disabled"}>锻光环 ${forgePaymentText("halo")}</button>
         <button type="button" data-forge="mixed" ${canPayForge("mixed") ? "" : "disabled"}>混合一锤 ${forgePaymentText("mixed")}</button>
       </div>
       <div class="forge-log">${last}</div>
@@ -1633,8 +1682,8 @@
   }
 
   function craftForge(type) {
-    const actualType = type === "mixed" ? (Math.random() < 0.5 ? "skin" : "spore") : type;
-    if (actualType !== "skin" && actualType !== "spore") return;
+    const actualType = type === "mixed" ? randomItem(["skin", "spore", "halo"]) : type;
+    if (actualType !== "skin" && actualType !== "spore" && actualType !== "halo") return;
     const payment = spendForgePayment(type === "mixed" ? "mixed" : actualType);
     if (!payment) return;
     const item = pickForgeItem(actualType);
@@ -1648,7 +1697,7 @@
     if (!duplicate) unlockForgeItem(actualType, item);
     meta.crafted += 1;
     meta.lastForge = {
-      type: actualType === "spore" ? "特殊孢子" : "特殊皮肤",
+      type: actualType === "halo" ? "特殊光环" : actualType === "spore" ? "特殊孢子" : "特殊皮肤",
       item: `${item.name} · ${rarityText(item)}`,
       duplicate,
       xp: xpGain,
@@ -1668,6 +1717,9 @@
 
   function renderShop() {
     const claimed = meta.dailyPackDate === todayKey();
+    const directHalo = HALOS.find(item => item.key === "orbit");
+    const directSkin = SKINS.find(item => item.key === "crown");
+    const directSpore = SPORES.find(item => item.key === "royal");
     shopPanel.innerHTML = `
       <div class="shop-grid">
         <div class="shop-card">
@@ -1676,14 +1728,34 @@
           <button type="button" data-shop="daily" ${claimed ? "disabled" : ""}>${claimed ? "已领取" : "领取"}</button>
         </div>
         <div class="shop-card">
+          <strong>十连券包</strong>
+          <span>消耗 900 星尘，锻造券 +10。</span>
+          <button type="button" data-shop="ticket10" ${meta.dust >= 900 ? "" : "disabled"}>兑换</button>
+        </div>
+        <div class="shop-card">
           <strong>锻造券</strong>
-          <span>消耗 120 星尘，下一次锻造免费。</span>
+          <span>消耗 120 星尘，锻造券 +1。</span>
           <button type="button" data-shop="ticket" ${meta.dust >= 120 ? "" : "disabled"}>兑换</button>
         </div>
         <div class="shop-card">
           <strong>匠心教材</strong>
           <span>消耗 160 星尘，铁匠铺经验 +90。</span>
           <button type="button" data-shop="xp" ${meta.dust >= 160 ? "" : "disabled"}>购买</button>
+        </div>
+        <div class="shop-card">
+          <strong>${directHalo.name}</strong>
+          <span>直购光环，消耗 760 星尘。</span>
+          <button type="button" data-shop="buy-halo-orbit" ${haloUnlocked(directHalo.key) || meta.dust < 760 ? "disabled" : ""}>${haloUnlocked(directHalo.key) ? "已拥有" : "直购"}</button>
+        </div>
+        <div class="shop-card">
+          <strong>${directSkin.name}</strong>
+          <span>直购史诗皮肤，消耗 1280 星尘。</span>
+          <button type="button" data-shop="buy-skin-crown" ${skinUnlocked(directSkin.key) || meta.dust < 1280 ? "disabled" : ""}>${skinUnlocked(directSkin.key) ? "已拥有" : "直购"}</button>
+        </div>
+        <div class="shop-card">
+          <strong>${directSpore.name}</strong>
+          <span>直购传说孢子，消耗 1680 星尘。</span>
+          <button type="button" data-shop="buy-spore-royal" ${sporeUnlocked(directSpore.key) || meta.dust < 1680 ? "disabled" : ""}>${sporeUnlocked(directSpore.key) ? "已拥有" : "直购"}</button>
         </div>
       </div>
       <div class="redeem-box">
@@ -1717,8 +1789,16 @@
       if (levelResult.rewards.length) parts.push(levelResult.rewards.join("，"));
     }
     if (reward.unlock) {
-      const item = unlockRandomSpecial();
-      parts.push(item ? `外观 ${item.name}` : "全收集转经验 +120");
+      const count = Math.max(1, Math.floor(Number(reward.unlock) || 1));
+      const names = [];
+      let fallback = 0;
+      for (let i = 0; i < count; i++) {
+        const item = unlockRandomSpecial();
+        if (item) names.push(item.name);
+        else fallback += 1;
+      }
+      if (names.length) parts.push(`外观 ${names.join("、")}`);
+      if (fallback) parts.push(`全收集转经验 +${fallback * 120}`);
     }
     return parts.join("，");
   }
@@ -1726,7 +1806,8 @@
   function unlockRandomSpecial() {
     const locked = [
       ...forgeSkins().filter(item => !skinUnlocked(item.key)).map(item => ({ type: "skin", item })),
-      ...forgeSpores().filter(item => !sporeUnlocked(item.key)).map(item => ({ type: "spore", item }))
+      ...forgeSpores().filter(item => !sporeUnlocked(item.key)).map(item => ({ type: "spore", item })),
+      ...forgeHalos().filter(item => !haloUnlocked(item.key)).map(item => ({ type: "halo", item }))
     ];
     if (!locked.length) {
       addForgeXp(120);
@@ -1747,11 +1828,34 @@
       meta.dust -= 120;
       meta.forgeTickets = (meta.forgeTickets || 0) + 1;
       setShopMessage("锻造券 +1");
+    } else if (action === "ticket10") {
+      if (meta.dust < 900) return;
+      meta.dust -= 900;
+      meta.forgeTickets = (meta.forgeTickets || 0) + 10;
+      setShopMessage("十连券包：锻造券 +10");
     } else if (action === "xp") {
       if (meta.dust < 160) return;
       meta.dust -= 160;
       const levelResult = addForgeXp(90);
       setShopMessage(`铁匠铺经验 +${levelResult.xp}${levelResult.rewards.length ? `，${levelResult.rewards.join("，")}` : ""}`);
+    } else if (action === "buy-halo-orbit") {
+      const item = HALOS.find(halo => halo.key === "orbit");
+      if (!item || haloUnlocked(item.key) || meta.dust < 760) return;
+      meta.dust -= 760;
+      unlockForgeItem("halo", item);
+      setShopMessage(`直购成功：${item.name}`);
+    } else if (action === "buy-skin-crown") {
+      const item = SKINS.find(skin => skin.key === "crown");
+      if (!item || skinUnlocked(item.key) || meta.dust < 1280) return;
+      meta.dust -= 1280;
+      unlockForgeItem("skin", item);
+      setShopMessage(`直购成功：${item.name}`);
+    } else if (action === "buy-spore-royal") {
+      const item = SPORES.find(spore => spore.key === "royal");
+      if (!item || sporeUnlocked(item.key) || meta.dust < 1680) return;
+      meta.dust -= 1680;
+      unlockForgeItem("spore", item);
+      setShopMessage(`直购成功：${item.name}`);
     } else if (action === "redeem") {
       const input = shopPanel.querySelector("#redeemCodeInput");
       const code = (input ? input.value : "").trim().toUpperCase();
@@ -4072,6 +4176,7 @@
     const simpleFill = perf.lowQuality && !group.isPlayer && r < 44;
 
     ctx.save();
+    drawHaloPattern(group, cell, now);
     if (!perf.lowQuality || group.isPlayer || r > 52) {
       ctx.shadowColor = group.color;
       ctx.shadowBlur = (group.isPlayer ? 20 : 13) / zoom;
@@ -4138,12 +4243,98 @@
     ctx.restore();
   }
 
+  function shouldDrawPlayerCosmetic(group, cell, minRadius = 24) {
+    if (!group.isPlayer) return false;
+    if (cell.radius < minRadius) return false;
+    const splitCount = playerGroup ? playerGroup.cells.length : 1;
+    if (splitCount > 10 && cell.radius < 42) return false;
+    if (perf.lowQuality && cell.radius < 58) return false;
+    return true;
+  }
+
+  function drawHaloPattern(group, cell, now) {
+    const halo = selectedHaloDef();
+    if (!isSpecial(halo) || !shouldDrawPlayerCosmetic(group, cell, 30)) return;
+    const r = cell.radius;
+    const accent = halo.accent || "#ffffff";
+    const base = halo.color || group.color;
+    const spin = now / 1500;
+    const outer = r + 12 / zoom;
+
+    ctx.save();
+    ctx.shadowBlur = perf.lowQuality ? 0 : 13 / zoom;
+    ctx.shadowColor = accent;
+    ctx.globalAlpha = perf.lowQuality ? 0.36 : 0.58;
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = 2.4 / zoom;
+
+    if (halo.pattern === "orbit") {
+      ctx.beginPath();
+      ctx.arc(cell.x, cell.y, outer, spin, spin + Math.PI * 1.45);
+      ctx.stroke();
+      ctx.globalAlpha *= 0.68;
+      ctx.strokeStyle = base;
+      ctx.beginPath();
+      ctx.arc(cell.x, cell.y, outer + 8 / zoom, spin + Math.PI, spin + Math.PI * 1.9);
+      ctx.stroke();
+    } else if (halo.pattern === "frost") {
+      ctx.setLineDash([6 / zoom, 8 / zoom]);
+      ctx.beginPath();
+      ctx.arc(cell.x, cell.y, outer, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    } else if (halo.pattern === "pulse") {
+      for (let i = 0; i < 2; i++) {
+        ctx.globalAlpha = (perf.lowQuality ? 0.24 : 0.44) - i * 0.12;
+        ctx.beginPath();
+        ctx.arc(cell.x, cell.y, outer + i * 9 / zoom + Math.sin(spin * 2 + i) * 2 / zoom, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+    } else if (halo.pattern === "sun") {
+      ctx.beginPath();
+      for (let i = 0; i < 18; i++) {
+        const angle = spin + (i / 18) * Math.PI * 2;
+        const inner = outer + (i % 2) * 3 / zoom;
+        const tip = outer + (i % 2 === 0 ? 13 : 8) / zoom;
+        ctx.moveTo(cell.x + Math.cos(angle) * inner, cell.y + Math.sin(angle) * inner);
+        ctx.lineTo(cell.x + Math.cos(angle) * tip, cell.y + Math.sin(angle) * tip);
+      }
+      ctx.stroke();
+    } else if (halo.pattern === "crown") {
+      ctx.beginPath();
+      ctx.arc(cell.x, cell.y, outer, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.fillStyle = accent;
+      ctx.globalAlpha = perf.lowQuality ? 0.28 : 0.46;
+      for (let i = 0; i < 5; i++) {
+        const angle = spin * 0.6 + (i / 5) * Math.PI * 2;
+        const x = cell.x + Math.cos(angle) * (outer + 3 / zoom);
+        const y = cell.y + Math.sin(angle) * (outer + 3 / zoom);
+        ctx.beginPath();
+        ctx.arc(x, y, Math.max(2.5, r * 0.055), 0, Math.PI * 2);
+        ctx.fill();
+      }
+    } else if (halo.pattern === "gravity") {
+      ctx.strokeStyle = accent;
+      ctx.lineWidth = 3 / zoom;
+      ctx.beginPath();
+      ctx.arc(cell.x, cell.y, outer, spin, spin + Math.PI * 1.72);
+      ctx.stroke();
+      ctx.globalAlpha = perf.lowQuality ? 0.18 : 0.34;
+      ctx.strokeStyle = base;
+      ctx.beginPath();
+      ctx.arc(cell.x, cell.y, outer + 10 / zoom, -spin, -spin + Math.PI * 1.2);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
   function drawSkinPattern(group, cell, now) {
     if (!group.isPlayer) return;
     const skin = selectedSkinDef();
     if (!isSpecial(skin)) return;
     const r = cell.radius;
-    if (perf.lowQuality && r < 34) return;
+    if (!shouldDrawPlayerCosmetic(group, cell, 24)) return;
     const accent = skin.accent || "#ffffff";
     const spin = now / 1600;
 
@@ -4798,6 +4989,14 @@
     localStorage.setItem("ballArenaSpore", selectedSpore);
     renderCosmetics();
   });
+  haloGrid.addEventListener("click", event => {
+    const button = event.target.closest("[data-halo]");
+    if (!button) return;
+    if (!haloUnlocked(button.dataset.halo)) return;
+    selectedHalo = button.dataset.halo;
+    localStorage.setItem("ballArenaHalo", selectedHalo);
+    renderCosmetics();
+  });
   forgePanel.addEventListener("click", event => {
     const button = event.target.closest("[data-forge]");
     if (!button) return;
@@ -4825,8 +5024,10 @@
           selectedMode,
           selectedSkin,
           selectedSpore,
+          selectedHalo,
           skinType: selectedSkinDef().type,
           sporeType: selectedSporeDef().type,
+          haloType: selectedHaloDef().type,
           lobbyPanel: activeLobbyPanel,
           dust: Math.floor(meta.dust),
           forgeLevel: meta.forgeLevel,
@@ -4838,8 +5039,10 @@
           lastForge: meta.lastForge,
           unlockedSkins: meta.unlockedSkins.length,
           unlockedSpores: meta.unlockedSpores.length,
+          unlockedHalos: meta.unlockedHalos.length,
           forgeLockedSkins: forgeSkins().filter(skin => !skinUnlocked(skin.key)).length,
           forgeLockedSpores: forgeSpores().filter(spore => !sporeUnlocked(spore.key)).length,
+          forgeLockedHalos: forgeHalos().filter(halo => !haloUnlocked(halo.key)).length,
           menu: !!game.menu,
           paused: !!game.paused,
           over: !!game.over,
@@ -4925,6 +5128,16 @@
         if (!sporeUnlocked(key)) meta.unlockedSpores.push(key);
         selectedSpore = key;
         localStorage.setItem("ballArenaSpore", selectedSpore);
+        saveMeta();
+        renderCosmetics();
+        return this.snapshot();
+      },
+      equipHalo(key) {
+        const item = HALOS.find(halo => halo.key === key);
+        if (!item) return null;
+        if (!haloUnlocked(key)) meta.unlockedHalos.push(key);
+        selectedHalo = key;
+        localStorage.setItem("ballArenaHalo", selectedHalo);
         saveMeta();
         renderCosmetics();
         return this.snapshot();
