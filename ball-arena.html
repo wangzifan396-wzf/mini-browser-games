@@ -802,6 +802,11 @@
     background: rgba(255, 209, 102, 0.06);
   }
 
+  .cosmetic-card.owned {
+    border-color: rgba(88, 237, 200, 0.5);
+    box-shadow: inset 0 0 0 1px rgba(88, 237, 200, 0.16);
+  }
+
   .cosmetic-card:disabled {
     opacity: 0.62;
     cursor: not-allowed;
@@ -1261,9 +1266,9 @@
       label: "魔王模式",
       short: "魔王",
       description: "勇者阵营合作发育，击败超大魔王和魔兵，限时吞掉魔王获胜。",
-      players: 20,
+      players: 10,
       teams: 2,
-      teamSize: 9,
+      teamSize: 4,
       safeZone: false,
       duration: 540,
       respawn: true,
@@ -1296,7 +1301,20 @@
   const DEMON_TEMPLATES = [
     { name: "深渊魔王", color: "#7f1d1d", mass: 6800, skill: "summon", label: "深渊召唤" },
     { name: "赤焰魔王", color: "#ef4444", mass: 5200, skill: "flare", label: "赤焰喷发" },
-    { name: "霜轮魔王", color: "#2563eb", mass: 5600, skill: "frost", label: "霜轮压制" }
+    { name: "霜轮魔王", color: "#2563eb", mass: 5600, skill: "frost", label: "霜轮压制" },
+    { name: "引力魔王", color: "#312e81", mass: 5900, skill: "gravity", label: "引力牵引" },
+    { name: "荆棘魔王", color: "#166534", mass: 5400, skill: "thorn", label: "荆棘滋生" },
+    { name: "饕餮魔王", color: "#92400e", mass: 6200, skill: "drain", label: "饕餮吞息" },
+    { name: "雷霆魔王", color: "#4338ca", mass: 5000, skill: "storm", label: "雷霆震荡" },
+    { name: "镜像魔王", color: "#0f766e", mass: 5100, skill: "mirror", label: "镜像魔兵" },
+    { name: "疫毒魔王", color: "#4d7c0f", mass: 5300, skill: "poison", label: "疫毒扩散" },
+    { name: "星陨魔王", color: "#f59e0b", mass: 5600, skill: "meteor", label: "星陨坠击" },
+    { name: "黑潮魔王", color: "#0f172a", mass: 6400, skill: "tide", label: "黑潮涌动" },
+    { name: "王冠魔王", color: "#a16207", mass: 6000, skill: "command", label: "王令集结" },
+    { name: "裂隙魔王", color: "#581c87", mass: 5700, skill: "rift", label: "裂隙喷射" },
+    { name: "熔核魔王", color: "#c2410c", mass: 6100, skill: "core", label: "熔核护体" },
+    { name: "极光魔王", color: "#0891b2", mass: 5200, skill: "aurora", label: "极光散射" },
+    { name: "终焉魔王", color: "#111827", mass: 7200, skill: "doom", label: "终焉压迫" }
   ];
   const RARITY_ORDER = ["common", "rare", "epic", "legendary"];
   const FORGE_LEVEL_XP = [0, 90, 220, 390, 610, 880, 1200, 1580, 2020, 2520];
@@ -1657,7 +1675,7 @@
 
   function cosmeticStateLabel(item, unlocked) {
     if (!isSpecial(item)) return "基础";
-    return unlocked ? rarityText(item) : `未解锁 · ${rarityText(item)}`;
+    return rarityText(item);
   }
 
   function rarityText(item) {
@@ -1679,28 +1697,28 @@
 
   function renderCosmetics() {
     skinGrid.innerHTML = SKINS.map(skin => `
-      <button class="cosmetic-card${skin.key === selectedSkin ? " active" : ""}${isSpecial(skin) ? " special" : ""}" type="button" data-skin="${skin.key}" ${skinUnlocked(skin.key) ? "" : "disabled"} title="${skin.name} ${rarityText(skin)}">
+      <button class="cosmetic-card${skin.key === selectedSkin ? " active" : ""}${isSpecial(skin) ? " special" : ""}${skinUnlocked(skin.key) && isSpecial(skin) ? " owned" : ""}" type="button" data-skin="${skin.key}" ${skinUnlocked(skin.key) ? "" : "disabled"} title="${skin.name} ${rarityText(skin)}">
         <i class="swatch${isSpecial(skin) ? " special" : ""}" style="${swatchStyle(skin)}"></i>
         <span>${cosmeticLabel(skin)}</span>
         <small>${cosmeticStateLabel(skin, skinUnlocked(skin))}</small>
       </button>
     `).join("");
     sporeGrid.innerHTML = SPORES.map(spore => `
-      <button class="cosmetic-card${spore.key === selectedSpore ? " active" : ""}${isSpecial(spore) ? " special" : ""}" type="button" data-spore="${spore.key}" ${sporeUnlocked(spore.key) ? "" : "disabled"} title="${spore.name} ${rarityText(spore)}">
+      <button class="cosmetic-card${spore.key === selectedSpore ? " active" : ""}${isSpecial(spore) ? " special" : ""}${sporeUnlocked(spore.key) && isSpecial(spore) ? " owned" : ""}" type="button" data-spore="${spore.key}" ${sporeUnlocked(spore.key) ? "" : "disabled"} title="${spore.name} ${rarityText(spore)}">
         <i class="swatch${isSpecial(spore) ? " special" : ""}" style="${swatchStyle(spore)}"></i>
         <span>${cosmeticLabel(spore)}</span>
         <small>${cosmeticStateLabel(spore, sporeUnlocked(spore))}</small>
       </button>
     `).join("");
     haloGrid.innerHTML = HALOS.map(halo => `
-      <button class="cosmetic-card${halo.key === selectedHalo ? " active" : ""}${isSpecial(halo) ? " special" : ""}" type="button" data-halo="${halo.key}" ${haloUnlocked(halo.key) ? "" : "disabled"} title="${halo.name} ${rarityText(halo)}">
+      <button class="cosmetic-card${halo.key === selectedHalo ? " active" : ""}${isSpecial(halo) ? " special" : ""}${haloUnlocked(halo.key) && isSpecial(halo) ? " owned" : ""}" type="button" data-halo="${halo.key}" ${haloUnlocked(halo.key) ? "" : "disabled"} title="${halo.name} ${rarityText(halo)}">
         <i class="swatch${isSpecial(halo) ? " special" : ""}" style="${swatchStyle(halo)}"></i>
         <span>${cosmeticLabel(halo)}</span>
         <small>${cosmeticStateLabel(halo, haloUnlocked(halo))}</small>
       </button>
     `).join("");
     trailGrid.innerHTML = TRAILS.map(trail => `
-      <button class="cosmetic-card${trail.key === selectedTrail ? " active" : ""}${isSpecial(trail) ? " special" : ""}" type="button" data-trail="${trail.key}" ${trailUnlocked(trail.key) ? "" : "disabled"} title="${trail.name} ${rarityText(trail)}">
+      <button class="cosmetic-card${trail.key === selectedTrail ? " active" : ""}${isSpecial(trail) ? " special" : ""}${trailUnlocked(trail.key) && isSpecial(trail) ? " owned" : ""}" type="button" data-trail="${trail.key}" ${trailUnlocked(trail.key) ? "" : "disabled"} title="${trail.name} ${rarityText(trail)}">
         <i class="swatch${isSpecial(trail) ? " special" : ""}" style="${swatchStyle(trail)}"></i>
         <span>${cosmeticLabel(trail)}</span>
         <small>${cosmeticStateLabel(trail, trailUnlocked(trail))}</small>
@@ -2237,28 +2255,48 @@
     return index < 8 ? rand(320, 680) : index < 34 ? rand(135, 430) : rand(72, 250);
   }
 
+  function rollDemonBossCount() {
+    const roll = Math.random();
+    if (roll < 0.045) return 4;
+    if (roll < 0.22) return 2;
+    return 1;
+  }
+
   function setupDemonMode(config) {
     const enemyGroups = groups.filter(group => !group.isPlayer && group.team === 1);
-    const bossCount = enemyGroups.length > 1 && Math.random() < 0.38 ? 2 : 1;
-    const bossPoints = [
-      { x: WORLD * 0.74, y: WORLD * 0.42 },
-      { x: WORLD * 0.72, y: WORLD * 0.62 }
-    ];
+    const bossCount = rollDemonBossCount();
+    while (enemyGroups.length < bossCount) {
+      const index = enemyGroups.length + 1;
+      const angle = (index / Math.max(1, bossCount)) * Math.PI * 2;
+      const group = makeGroup(`demon-boss-extra-${index}`, `魔王${index}`, TEAM_COLORS[1], false, 1000, {
+        x: clamp(WORLD * 0.72 + Math.cos(angle) * 520, 160, WORLD - 160),
+        y: clamp(WORLD * 0.52 + Math.sin(angle) * 980, 160, WORLD - 160)
+      }, 1);
+      groups.push(group);
+      enemyGroups.push(group);
+    }
     const bosses = enemyGroups.slice(0, bossCount);
     if (!bosses.length) return;
+    const templates = [...DEMON_TEMPLATES].sort(() => Math.random() - 0.5);
     game.demonBossIds = bosses.map(group => group.id);
+    game.demonBossBurst = bossCount;
     game.nextDemonSkillAt = performance.now() + 9000;
     for (let i = 0; i < bosses.length; i++) {
       const boss = bosses[i];
-      const template = DEMON_TEMPLATES[(Math.floor(Math.random() * DEMON_TEMPLATES.length) + i) % DEMON_TEMPLATES.length];
-      const point = bossPoints[i] || bossPoints[0];
+      const template = templates[i % templates.length];
+      const angle = bossCount === 1 ? 0 : (i / bossCount) * Math.PI * 2;
+      const point = {
+        x: clamp(WORLD * 0.72 + Math.cos(angle) * (bossCount > 2 ? 680 : 260), 220, WORLD - 220),
+        y: clamp(WORLD * 0.52 + Math.sin(angle) * (bossCount > 2 ? 1180 : 620), 220, WORLD - 220)
+      };
       boss.name = template.name;
       boss.color = template.color;
       boss.isBoss = true;
       boss.demonSkill = template.skill;
       boss.demonLabel = template.label;
-      boss.demonMassFloor = template.mass * 0.78;
-      boss.cells = [makeCell(boss, point.x, point.y, template.mass)];
+      const massScale = bossCount > 4 ? 0.52 : bossCount > 2 ? 0.68 : bossCount > 1 ? 0.82 : 1;
+      boss.demonMassFloor = template.mass * massScale * 0.78;
+      boss.cells = [makeCell(boss, point.x, point.y, template.mass * massScale)];
       boss.ai.bravery = 1.35;
       boss.ai.teamwork = 0.35;
       boss.ai.target = { x: WORLD * 0.45, y: WORLD * 0.5 };
@@ -2271,7 +2309,12 @@
     for (const group of groups) {
       if (group === playerGroup || group.isBoss) continue;
       if (group.team === 1) {
-        const boss = bosses[minionIndex % bosses.length] || bosses[0];
+      if (minionIndex > 3) {
+        group.dead = true;
+        group.cells = [];
+        continue;
+      }
+      const boss = bosses[minionIndex % bosses.length] || bosses[0];
         const center = groupCenter(boss);
         const angle = (minionIndex / 8) * Math.PI * 2;
         const dist = rand(360, 900);
@@ -2893,6 +2936,7 @@
         if (!cell.dead && boss.demonMassFloor) cell.mass = Math.max(cell.mass, boss.demonMassFloor / Math.max(1, boss.cells.length));
       }
     }
+    updateDemonAiTargets(bosses);
     if (!bosses.length || now < (game.nextDemonSkillAt || 0)) return;
     const boss = bosses[Math.floor(Math.random() * bosses.length)];
     castDemonSkill(boss);
@@ -2942,6 +2986,117 @@
           cell.vy *= 0.48;
           cell.mergeDelay = Math.max(cell.mergeDelay || 0, 1.6);
         }
+      }
+    } else if (boss.demonSkill === "gravity") {
+      for (const group of groups) {
+        if (group.dead || group.team === boss.team) continue;
+        for (const cell of group.cells) {
+          if (distSq(cell, center) > 1180 * 1180) continue;
+          const n = norm(center.x - cell.x, center.y - cell.y);
+          cell.vx += n.x * 220;
+          cell.vy += n.y * 220;
+        }
+      }
+    } else if (boss.demonSkill === "thorn") {
+      for (let i = 0; i < 5; i++) viruses.push(makeVirus(i % 2 ? "small" : "big"));
+    } else if (boss.demonSkill === "drain" || boss.demonSkill === "poison" || boss.demonSkill === "doom") {
+      let stolen = 0;
+      for (const group of groups) {
+        if (group.dead || group.team === boss.team) continue;
+        for (const cell of group.cells) {
+          if (distSq(cell, center) > 980 * 980 || cell.mass < MIN_CELL_MASS * 3) continue;
+          const bite = Math.min(cell.mass * 0.035, boss.demonSkill === "doom" ? 18 : 10);
+          cell.mass -= bite;
+          stolen += bite;
+        }
+      }
+      const main = boss.cells[0];
+      if (main) main.mass += stolen * 0.85;
+    } else if (boss.demonSkill === "storm") {
+      game.shake = Math.max(game.shake, 12);
+      for (const group of groups) {
+        if (group.dead || group.team === boss.team) continue;
+        for (const cell of group.cells) {
+          if (distSq(cell, center) > 900 * 900) continue;
+          const angle = rand(0, Math.PI * 2);
+          cell.vx += Math.cos(angle) * 260;
+          cell.vy += Math.sin(angle) * 260;
+        }
+      }
+    } else if (boss.demonSkill === "mirror" || boss.demonSkill === "command") {
+      const dead = groups.find(group => group.isDemonMinion && group.dead);
+      if (dead) {
+        const angle = rand(0, Math.PI * 2);
+        dead.dead = false;
+        dead.respawnAt = 0;
+        dead.cells = [makeCell(dead, clamp(center.x + Math.cos(angle) * 430, 160, WORLD - 160), clamp(center.y + Math.sin(angle) * 430, 160, WORLD - 160), rand(520, 940))];
+      }
+      for (const minion of groups.filter(group => group.isDemonMinion && !group.dead)) {
+        minion.ai.target = { x: playerGroup.cells[0]?.x || center.x, y: playerGroup.cells[0]?.y || center.y };
+        minion.ai.mode = "王令追击";
+      }
+    } else if (boss.demonSkill === "meteor" || boss.demonSkill === "rift" || boss.demonSkill === "aurora") {
+      const shots = boss.demonSkill === "meteor" ? 16 : 10;
+      for (let i = 0; i < shots; i++) {
+        const angle = (i / shots) * Math.PI * 2 + rand(-0.1, 0.1);
+        ejected.push({
+          x: center.x + Math.cos(angle) * (center.largest + 24),
+          y: center.y + Math.sin(angle) * (center.largest + 24),
+          vx: Math.cos(angle) * rand(260, 520),
+          vy: Math.sin(angle) * rand(260, 520),
+          mass: rand(7, boss.demonSkill === "meteor" ? 22 : 15),
+          radius: 8,
+          age: 0.2,
+          color: boss.color,
+          accent: "#ffffff",
+          spore: boss.demonSkill === "aurora" ? "aurora" : "meteor",
+          ownerId: boss.id
+        });
+      }
+      if (ejected.length > MAX_EJECTED) ejected.splice(0, ejected.length - MAX_EJECTED);
+    } else if (boss.demonSkill === "tide" || boss.demonSkill === "core") {
+      boss.demonMassFloor *= boss.demonSkill === "core" ? 1.04 : 1.02;
+      for (const cell of boss.cells) cell.mass += boss.demonSkill === "core" ? 90 : 45;
+    }
+  }
+
+  function updateDemonAiTargets(bosses) {
+    const heroes = groups.filter(group => !group.dead && group.team === 0 && group.cells.length);
+    const minions = groups.filter(group => group.isDemonMinion && !group.dead && group.cells.length);
+    if (!heroes.length) return;
+    const largestHero = heroes
+      .map(group => ({ group, center: groupCenter(group), mass: groupMass(group) }))
+      .sort((a, b) => b.mass - a.mass)[0];
+    for (const boss of bosses) {
+      if (!boss.ai || !largestHero) continue;
+      boss.ai.target = { x: largestHero.center.x, y: largestHero.center.y };
+      boss.ai.mode = "锁定勇者";
+      boss.ai.think = Math.min(boss.ai.think || 0, 0.18);
+    }
+    for (const minion of minions) {
+      if (!minion.ai) continue;
+      const center = groupCenter(minion);
+      const target = heroes
+        .map(group => ({ group, center: groupCenter(group), d: distSq(center, groupCenter(group)) }))
+        .sort((a, b) => a.d - b.d)[0];
+      if (target) {
+        minion.ai.target = { x: target.center.x, y: target.center.y };
+        minion.ai.mode = "魔兵追击";
+      }
+    }
+    for (const hero of heroes) {
+      if (hero.isPlayer || !hero.ai) continue;
+      const center = groupCenter(hero);
+      const nearestMinion = minions
+        .map(group => ({ group, center: groupCenter(group), d: distSq(center, groupCenter(group)) }))
+        .sort((a, b) => a.d - b.d)[0];
+      const boss = bosses
+        .map(group => ({ group, center: groupCenter(group), d: distSq(center, groupCenter(group)) }))
+        .sort((a, b) => a.d - b.d)[0];
+      const target = nearestMinion && nearestMinion.d < 1300 * 1300 ? nearestMinion : boss;
+      if (target) {
+        hero.ai.target = { x: target.center.x, y: target.center.y };
+        hero.ai.mode = target.group.isBoss ? "合力打王" : "清魔兵";
       }
     }
   }
@@ -4126,7 +4281,7 @@
     const killBonus = Math.min(36, game.kills * 5);
     const controlBonus = config.control ? Math.min(28, Math.floor((teamScores[playerGroup.team] || 0) / 8)) : 0;
     const livingBosses = config.demon ? groups.filter(group => group.isBoss && !group.dead && group.cells.length) : [];
-    const demonBonus = config.demon ? (livingBosses.length ? 24 : 70) : 0;
+    const demonBonus = config.demon ? (livingBosses.length ? 45 : 140) : 0;
     const reward = Math.max(10, 14 + rankBonus + massBonus + killBonus + controlBonus + demonBonus + meta.forgeLevel * 2);
     meta.dust += reward;
     meta.totalDust = (meta.totalDust || 0) + reward;
