@@ -785,6 +785,12 @@
     background: rgba(255, 255, 255, 0.045);
   }
 
+  .cosmetic-card small {
+    color: rgba(207, 220, 238, 0.68);
+    font-size: 10px;
+    line-height: 1.1;
+  }
+
   .cosmetic-card.active {
     border-color: rgba(70, 215, 196, 0.86);
     color: #f3f8ff;
@@ -797,7 +803,7 @@
   }
 
   .cosmetic-card:disabled {
-    opacity: 0.45;
+    opacity: 0.62;
     cursor: not-allowed;
   }
 
@@ -1124,6 +1130,10 @@
     { key: "pixel", name: "像素矩阵", color: "#0f172a", accent: "#58edc8", type: "special", pattern: "mecha", tier: "rare", rarity: "稀有" },
     { key: "lotus", name: "莲华星盘", color: "#be185d", accent: "#f9a8d4", type: "special", pattern: "crown", tier: "epic", rarity: "史诗" },
     { key: "prism", name: "棱镜幻面", color: "#2563eb", accent: "#f0abfc", type: "special", pattern: "comet", tier: "epic", rarity: "史诗" },
+    { key: "honeycomb", name: "蜂巢矩阵", color: "#92400e", accent: "#fde68a", type: "special", pattern: "mecha", tier: "rare", rarity: "稀有" },
+    { key: "thunder", name: "雷霆球核", color: "#4338ca", accent: "#fef08a", type: "special", pattern: "flare", tier: "epic", rarity: "史诗" },
+    { key: "ocean", name: "深海潮核", color: "#0e7490", accent: "#a7f3d0", type: "special", pattern: "tide", tier: "rare", rarity: "稀有" },
+    { key: "celestial", name: "天穹星眼", color: "#1e1b4b", accent: "#e0e7ff", type: "special", pattern: "abyss", tier: "legendary", rarity: "传说" },
     { key: "abyss", name: "深渊脉冲", color: "#111827", accent: "#a78bfa", type: "special", pattern: "abyss", tier: "legendary", rarity: "传说" },
     { key: "dragon", name: "龙焰天幕", color: "#7f1d1d", accent: "#facc15", type: "special", pattern: "flare", tier: "legendary", rarity: "传说" }
   ];
@@ -1144,6 +1154,10 @@
     { key: "aurora", name: "极光羽片", color: "#22d3ee", accent: "#f0abfc", type: "special", pattern: "aurora", tier: "epic", rarity: "史诗" },
     { key: "pearl", name: "珍珠泡影", color: "#e0f2fe", accent: "#38bdf8", type: "special", pattern: "bubble", tier: "rare", rarity: "稀有" },
     { key: "rune", name: "符文星屑", color: "#c084fc", accent: "#fef3c7", type: "special", pattern: "spark", tier: "epic", rarity: "史诗" },
+    { key: "candy", name: "糖星碎粒", color: "#fb7185", accent: "#fef3c7", type: "special", pattern: "bubble", tier: "common", rarity: "普通" },
+    { key: "snowflake", name: "雪晶孢子", color: "#bae6fd", accent: "#ffffff", type: "special", pattern: "spark", tier: "rare", rarity: "稀有" },
+    { key: "gear-spore", name: "齿轮孢子", color: "#94a3b8", accent: "#67e8f9", type: "special", pattern: "royal", tier: "epic", rarity: "史诗" },
+    { key: "dragon-ash", name: "龙烬孢子", color: "#f97316", accent: "#fef08a", type: "special", pattern: "meteor", tier: "legendary", rarity: "传说" },
     { key: "royal", name: "王冠碎金", color: "#facc15", accent: "#ffffff", type: "special", pattern: "royal", tier: "legendary", rarity: "传说" },
     { key: "void-spore", name: "虚空碎片", color: "#312e81", accent: "#e0e7ff", type: "special", pattern: "meteor", tier: "legendary", rarity: "传说" }
   ];
@@ -1156,6 +1170,9 @@
     { key: "halo-crown", name: "王冠光环", color: "#ffd166", accent: "#ffffff", type: "special", pattern: "crown", tier: "epic", rarity: "史诗" },
     { key: "nebula-ring", name: "星云光环", color: "#db2777", accent: "#f0abfc", type: "special", pattern: "pulse", tier: "rare", rarity: "稀有" },
     { key: "lotus-ring", name: "莲华光环", color: "#be185d", accent: "#f9a8d4", type: "special", pattern: "crown", tier: "epic", rarity: "史诗" },
+    { key: "chrono-ring", name: "时轮光环", color: "#0f766e", accent: "#99f6e4", type: "special", pattern: "orbit", tier: "rare", rarity: "稀有" },
+    { key: "gear-ring", name: "齿轮光环", color: "#475569", accent: "#67e8f9", type: "special", pattern: "frost", tier: "epic", rarity: "史诗" },
+    { key: "thunder-ring", name: "雷纹光环", color: "#4338ca", accent: "#fef08a", type: "special", pattern: "pulse", tier: "epic", rarity: "史诗" },
     { key: "gravity", name: "引力黑环", color: "#111827", accent: "#c084fc", type: "special", pattern: "gravity", tier: "legendary", rarity: "传说" },
     { key: "void-gate", name: "虚空门环", color: "#020617", accent: "#818cf8", type: "special", pattern: "gravity", tier: "legendary", rarity: "传说" }
   ];
@@ -1168,6 +1185,10 @@
     { key: "flame-trail", name: "火焰航迹", color: "#f97316", accent: "#fef3c7", type: "special", pattern: "flame", tier: "epic", rarity: "史诗" },
     { key: "aurora-trail", name: "极光缎带", color: "#22d3ee", accent: "#f0abfc", type: "special", pattern: "ribbon", tier: "epic", rarity: "史诗" },
     { key: "data-trail", name: "数据残影", color: "#58edc8", accent: "#0f172a", type: "special", pattern: "squares", tier: "epic", rarity: "史诗" },
+    { key: "ink-trail", name: "水墨流痕", color: "#0f172a", accent: "#e5e7eb", type: "special", pattern: "ribbon", tier: "rare", rarity: "稀有" },
+    { key: "snow-trail", name: "雪雾拖尾", color: "#bae6fd", accent: "#ffffff", type: "special", pattern: "bubbles", tier: "common", rarity: "普通" },
+    { key: "crown-trail", name: "碎金王迹", color: "#facc15", accent: "#ffffff", type: "special", pattern: "dots", tier: "epic", rarity: "史诗" },
+    { key: "demon-trail", name: "魔焰裂痕", color: "#7f1d1d", accent: "#f97316", type: "special", pattern: "rift", tier: "legendary", rarity: "传说" },
     { key: "rift-trail", name: "裂隙拖尾", color: "#111827", accent: "#c084fc", type: "special", pattern: "rift", tier: "legendary", rarity: "传说" }
   ];
   const GAME_MODES = {
@@ -1240,9 +1261,9 @@
       label: "魔王模式",
       short: "魔王",
       description: "勇者阵营合作发育，击败超大魔王和魔兵，限时吞掉魔王获胜。",
-      players: 36,
+      players: 20,
       teams: 2,
-      teamSize: 28,
+      teamSize: 9,
       safeZone: false,
       duration: 540,
       respawn: true,
@@ -1272,6 +1293,11 @@
     epic: { label: "史诗", chance: 0.11, exp: 72, color: "#c084fc" },
     legendary: { label: "传说", chance: 0.03, exp: 160, color: "#ffd166" }
   };
+  const DEMON_TEMPLATES = [
+    { name: "深渊魔王", color: "#7f1d1d", mass: 6800, skill: "summon", label: "深渊召唤" },
+    { name: "赤焰魔王", color: "#ef4444", mass: 5200, skill: "flare", label: "赤焰喷发" },
+    { name: "霜轮魔王", color: "#2563eb", mass: 5600, skill: "frost", label: "霜轮压制" }
+  ];
   const RARITY_ORDER = ["common", "rare", "epic", "legendary"];
   const FORGE_LEVEL_XP = [0, 90, 220, 390, 610, 880, 1200, 1580, 2020, 2520];
   const FORGE_LEVEL_REWARDS = {
@@ -1625,9 +1651,13 @@
     return `color:${item.color};background:${item.color}`;
   }
 
-  function cosmeticLabel(item, unlocked) {
-    if (unlocked) return item.name;
-    return isSpecial(item) ? "锻造" : "基础";
+  function cosmeticLabel(item) {
+    return item.name;
+  }
+
+  function cosmeticStateLabel(item, unlocked) {
+    if (!isSpecial(item)) return "基础";
+    return unlocked ? rarityText(item) : `未解锁 · ${rarityText(item)}`;
   }
 
   function rarityText(item) {
@@ -1651,25 +1681,29 @@
     skinGrid.innerHTML = SKINS.map(skin => `
       <button class="cosmetic-card${skin.key === selectedSkin ? " active" : ""}${isSpecial(skin) ? " special" : ""}" type="button" data-skin="${skin.key}" ${skinUnlocked(skin.key) ? "" : "disabled"} title="${skin.name} ${rarityText(skin)}">
         <i class="swatch${isSpecial(skin) ? " special" : ""}" style="${swatchStyle(skin)}"></i>
-        <span>${cosmeticLabel(skin, skinUnlocked(skin))}</span>
+        <span>${cosmeticLabel(skin)}</span>
+        <small>${cosmeticStateLabel(skin, skinUnlocked(skin))}</small>
       </button>
     `).join("");
     sporeGrid.innerHTML = SPORES.map(spore => `
       <button class="cosmetic-card${spore.key === selectedSpore ? " active" : ""}${isSpecial(spore) ? " special" : ""}" type="button" data-spore="${spore.key}" ${sporeUnlocked(spore.key) ? "" : "disabled"} title="${spore.name} ${rarityText(spore)}">
         <i class="swatch${isSpecial(spore) ? " special" : ""}" style="${swatchStyle(spore)}"></i>
-        <span>${cosmeticLabel(spore, sporeUnlocked(spore))}</span>
+        <span>${cosmeticLabel(spore)}</span>
+        <small>${cosmeticStateLabel(spore, sporeUnlocked(spore))}</small>
       </button>
     `).join("");
     haloGrid.innerHTML = HALOS.map(halo => `
       <button class="cosmetic-card${halo.key === selectedHalo ? " active" : ""}${isSpecial(halo) ? " special" : ""}" type="button" data-halo="${halo.key}" ${haloUnlocked(halo.key) ? "" : "disabled"} title="${halo.name} ${rarityText(halo)}">
         <i class="swatch${isSpecial(halo) ? " special" : ""}" style="${swatchStyle(halo)}"></i>
-        <span>${cosmeticLabel(halo, haloUnlocked(halo))}</span>
+        <span>${cosmeticLabel(halo)}</span>
+        <small>${cosmeticStateLabel(halo, haloUnlocked(halo))}</small>
       </button>
     `).join("");
     trailGrid.innerHTML = TRAILS.map(trail => `
       <button class="cosmetic-card${trail.key === selectedTrail ? " active" : ""}${isSpecial(trail) ? " special" : ""}" type="button" data-trail="${trail.key}" ${trailUnlocked(trail.key) ? "" : "disabled"} title="${trail.name} ${rarityText(trail)}">
         <i class="swatch${isSpecial(trail) ? " special" : ""}" style="${swatchStyle(trail)}"></i>
-        <span>${cosmeticLabel(trail, trailUnlocked(trail))}</span>
+        <span>${cosmeticLabel(trail)}</span>
+        <small>${cosmeticStateLabel(trail, trailUnlocked(trail))}</small>
       </button>
     `).join("");
     renderMetaStrip();
@@ -1940,8 +1974,11 @@
   function renderShop() {
     const claimed = meta.dailyPackDate === todayKey();
     const directHalo = HALOS.find(item => item.key === "orbit");
+    const directHalo2 = HALOS.find(item => item.key === "void-gate");
     const directTrail = TRAILS.find(item => item.key === "aurora-trail");
+    const directTrail2 = TRAILS.find(item => item.key === "demon-trail");
     const directSkin = SKINS.find(item => item.key === "crown");
+    const directSkin2 = SKINS.find(item => item.key === "thunder");
     const directSpore = SPORES.find(item => item.key === "royal");
     shopPanel.innerHTML = `
       <div class="shop-grid">
@@ -1974,6 +2011,21 @@
           <strong>${directTrail.name}</strong>
           <span>直购史诗拖尾，消耗 1180 星尘。</span>
           <button type="button" data-shop="buy-trail-aurora" ${trailUnlocked(directTrail.key) || meta.dust < 1180 ? "disabled" : ""}>${trailUnlocked(directTrail.key) ? "已拥有" : "直购"}</button>
+        </div>
+        <div class="shop-card">
+          <strong>${directSkin2.name}</strong>
+          <span>直购史诗皮肤，消耗 1560 星尘。</span>
+          <button type="button" data-shop="buy-skin-thunder" ${skinUnlocked(directSkin2.key) || meta.dust < 1560 ? "disabled" : ""}>${skinUnlocked(directSkin2.key) ? "已拥有" : "直购"}</button>
+        </div>
+        <div class="shop-card">
+          <strong>${directHalo2.name}</strong>
+          <span>直购传说光环，消耗 2380 星尘。</span>
+          <button type="button" data-shop="buy-halo-void" ${haloUnlocked(directHalo2.key) || meta.dust < 2380 ? "disabled" : ""}>${haloUnlocked(directHalo2.key) ? "已拥有" : "直购"}</button>
+        </div>
+        <div class="shop-card">
+          <strong>${directTrail2.name}</strong>
+          <span>直购传说拖尾，消耗 2280 星尘。</span>
+          <button type="button" data-shop="buy-trail-demon" ${trailUnlocked(directTrail2.key) || meta.dust < 2280 ? "disabled" : ""}>${trailUnlocked(directTrail2.key) ? "已拥有" : "直购"}</button>
         </div>
         <div class="shop-card">
           <strong>${directSkin.name}</strong>
@@ -2079,6 +2131,24 @@
       meta.dust -= 1180;
       unlockForgeItem("trail", item);
       setShopMessage(`直购成功：${item.name}`);
+    } else if (action === "buy-skin-thunder") {
+      const item = SKINS.find(skin => skin.key === "thunder");
+      if (!item || skinUnlocked(item.key) || meta.dust < 1560) return;
+      meta.dust -= 1560;
+      unlockForgeItem("skin", item);
+      setShopMessage(`直购成功：${item.name}`);
+    } else if (action === "buy-halo-void") {
+      const item = HALOS.find(halo => halo.key === "void-gate");
+      if (!item || haloUnlocked(item.key) || meta.dust < 2380) return;
+      meta.dust -= 2380;
+      unlockForgeItem("halo", item);
+      setShopMessage(`直购成功：${item.name}`);
+    } else if (action === "buy-trail-demon") {
+      const item = TRAILS.find(trail => trail.key === "demon-trail");
+      if (!item || trailUnlocked(item.key) || meta.dust < 2280) return;
+      meta.dust -= 2280;
+      unlockForgeItem("trail", item);
+      setShopMessage(`直购成功：${item.name}`);
     } else if (action === "buy-skin-crown") {
       const item = SKINS.find(skin => skin.key === "crown");
       if (!item || skinUnlocked(item.key) || meta.dust < 1280) return;
@@ -2168,36 +2238,52 @@
   }
 
   function setupDemonMode(config) {
-    const boss = groups.find(group => !group.isPlayer && group.team === 1) || groups.find(group => !group.isPlayer);
-    if (!boss) return;
-    const bossPoint = { x: WORLD * 0.74, y: WORLD * 0.5 };
-    boss.name = "深渊魔王";
-    boss.color = "#7f1d1d";
-    boss.isBoss = true;
-    boss.cells = [makeCell(boss, bossPoint.x, bossPoint.y, 6200)];
-    boss.ai.bravery = 1.35;
-    boss.ai.teamwork = 0.35;
-    boss.ai.target = { x: WORLD * 0.45, y: WORLD * 0.5 };
-    boss.ai.mode = "魔王压迫";
-    game.demonBossId = boss.id;
-    game.demonBossStartMass = groupMass(boss);
+    const enemyGroups = groups.filter(group => !group.isPlayer && group.team === 1);
+    const bossCount = enemyGroups.length > 1 && Math.random() < 0.38 ? 2 : 1;
+    const bossPoints = [
+      { x: WORLD * 0.74, y: WORLD * 0.42 },
+      { x: WORLD * 0.72, y: WORLD * 0.62 }
+    ];
+    const bosses = enemyGroups.slice(0, bossCount);
+    if (!bosses.length) return;
+    game.demonBossIds = bosses.map(group => group.id);
+    game.nextDemonSkillAt = performance.now() + 9000;
+    for (let i = 0; i < bosses.length; i++) {
+      const boss = bosses[i];
+      const template = DEMON_TEMPLATES[(Math.floor(Math.random() * DEMON_TEMPLATES.length) + i) % DEMON_TEMPLATES.length];
+      const point = bossPoints[i] || bossPoints[0];
+      boss.name = template.name;
+      boss.color = template.color;
+      boss.isBoss = true;
+      boss.demonSkill = template.skill;
+      boss.demonLabel = template.label;
+      boss.demonMassFloor = template.mass * 0.78;
+      boss.cells = [makeCell(boss, point.x, point.y, template.mass)];
+      boss.ai.bravery = 1.35;
+      boss.ai.teamwork = 0.35;
+      boss.ai.target = { x: WORLD * 0.45, y: WORLD * 0.5 };
+      boss.ai.mode = "魔王压迫";
+    }
+    game.demonBossStartMass = bosses.reduce((sum, boss) => sum + groupMass(boss), 0);
 
     let minionIndex = 1;
     let allyIndex = 1;
     for (const group of groups) {
-      if (group === playerGroup || group === boss) continue;
+      if (group === playerGroup || group.isBoss) continue;
       if (group.team === 1) {
+        const boss = bosses[minionIndex % bosses.length] || bosses[0];
+        const center = groupCenter(boss);
         const angle = (minionIndex / 8) * Math.PI * 2;
         const dist = rand(360, 900);
         group.name = `魔兵${minionIndex}`;
         group.color = minionIndex % 2 ? "#ef4444" : "#a855f7";
         group.isDemonMinion = true;
-        group.cells = [makeCell(group, clamp(bossPoint.x + Math.cos(angle) * dist, 160, WORLD - 160), clamp(bossPoint.y + Math.sin(angle) * dist, 160, WORLD - 160), rand(460, 980))];
+        group.cells = [makeCell(group, clamp(center.x + Math.cos(angle) * dist, 160, WORLD - 160), clamp(center.y + Math.sin(angle) * dist, 160, WORLD - 160), rand(420, 860))];
         group.ai.bravery = rand(1.0, 1.35);
         minionIndex += 1;
       } else {
         const base = { x: WORLD * 0.28, y: WORLD * 0.5 };
-        const angle = (allyIndex / 24) * Math.PI * 2;
+        const angle = (allyIndex / 9) * Math.PI * 2;
         group.name = `勇者${allyIndex}`;
         group.color = TEAM_COLORS[0];
         group.cells = [makeCell(group, clamp(base.x + Math.cos(angle) * rand(120, 820), 160, WORLD - 160), clamp(base.y + Math.sin(angle) * rand(120, 820), 160, WORLD - 160), rand(180, 440))];
@@ -2714,6 +2800,7 @@
     updateMatchEvents(dt, now);
     updateSafeZone(now, dt);
     updateAi(dt, now, aiSpace);
+    updateDemonMode(dt, now);
     updateGroupMovement(dt);
     updateEjected(dt);
     const worldSpace = buildCellGrid();
@@ -2795,6 +2882,68 @@
     }
 
     game.zonePulse = (game.zonePulse + dt * 2.4) % (Math.PI * 2);
+  }
+
+  function updateDemonMode(dt, now) {
+    const config = modeConfig();
+    if (!config.demon || game.over || game.menu) return;
+    const bosses = groups.filter(group => group.isBoss && !group.dead && group.cells.length);
+    for (const boss of bosses) {
+      for (const cell of boss.cells) {
+        if (!cell.dead && boss.demonMassFloor) cell.mass = Math.max(cell.mass, boss.demonMassFloor / Math.max(1, boss.cells.length));
+      }
+    }
+    if (!bosses.length || now < (game.nextDemonSkillAt || 0)) return;
+    const boss = bosses[Math.floor(Math.random() * bosses.length)];
+    castDemonSkill(boss);
+    game.nextDemonSkillAt = now + rand(9000, 13500);
+  }
+
+  function castDemonSkill(boss) {
+    const center = groupCenter(boss);
+    showEventBanner(boss.demonLabel || "魔王技能", boss.name, boss.color);
+    ring(center.x, center.y, boss.color, 430);
+    if (boss.demonSkill === "summon") {
+      let revived = 0;
+      for (const group of groups) {
+        if (revived >= 2) break;
+        if (!group.isDemonMinion || !group.dead) continue;
+        const angle = rand(0, Math.PI * 2);
+        group.dead = false;
+        group.respawnAt = 0;
+        group.cells = [makeCell(group, clamp(center.x + Math.cos(angle) * rand(280, 520), 160, WORLD - 160), clamp(center.y + Math.sin(angle) * rand(280, 520), 160, WORLD - 160), rand(380, 720))];
+        revived += 1;
+      }
+      for (let i = 0; i < 2; i++) viruses.push(makeVirus(i ? "small" : "big"));
+    } else if (boss.demonSkill === "flare") {
+      for (let i = 0; i < 12; i++) {
+        const angle = (i / 12) * Math.PI * 2;
+        ejected.push({
+          x: center.x + Math.cos(angle) * (center.largest + 22),
+          y: center.y + Math.sin(angle) * (center.largest + 22),
+          vx: Math.cos(angle) * rand(340, 520),
+          vy: Math.sin(angle) * rand(340, 520),
+          mass: rand(8, 18),
+          radius: 8,
+          age: 0.2,
+          color: boss.color,
+          accent: "#fef3c7",
+          spore: "meteor",
+          ownerId: boss.id
+        });
+      }
+      if (ejected.length > MAX_EJECTED) ejected.splice(0, ejected.length - MAX_EJECTED);
+    } else if (boss.demonSkill === "frost") {
+      for (const group of groups) {
+        if (group.dead || group.team === boss.team) continue;
+        for (const cell of group.cells) {
+          if (distSq(cell, center) > 980 * 980) continue;
+          cell.vx *= 0.48;
+          cell.vy *= 0.48;
+          cell.mergeDelay = Math.max(cell.mergeDelay || 0, 1.6);
+        }
+      }
+    }
   }
 
   function aiAttackMode(mode) {
@@ -3787,7 +3936,8 @@
     group.cells = [];
 
     if (config.demon && group.isBoss) {
-      endGame("魔王讨伐");
+      const livingBosses = groups.filter(item => item !== group && item.isBoss && !item.dead && item.cells.length);
+      if (!livingBosses.length) endGame("魔王讨伐");
       return;
     }
 
@@ -3813,8 +3963,9 @@
     if (game.over) return;
     const config = modeConfig();
     if (config.demon) {
-      const boss = groups.find(group => group.isBoss);
-      if (!boss || boss.dead || !boss.cells.length) {
+      const bosses = groups.filter(group => group.isBoss);
+      const livingBosses = bosses.filter(group => !group.dead && group.cells.length);
+      if (bosses.length && !livingBosses.length) {
         endGame("魔王讨伐");
         return;
       }
@@ -3974,8 +4125,8 @@
     const massBonus = Math.min(42, Math.floor(peakMass / 120));
     const killBonus = Math.min(36, game.kills * 5);
     const controlBonus = config.control ? Math.min(28, Math.floor((teamScores[playerGroup.team] || 0) / 8)) : 0;
-    const boss = config.demon ? groups.find(group => group.isBoss) : null;
-    const demonBonus = config.demon ? (boss && (boss.dead || !boss.cells.length) ? 70 : 24) : 0;
+    const livingBosses = config.demon ? groups.filter(group => group.isBoss && !group.dead && group.cells.length) : [];
+    const demonBonus = config.demon ? (livingBosses.length ? 24 : 70) : 0;
     const reward = Math.max(10, 14 + rankBonus + massBonus + killBonus + controlBonus + demonBonus + meta.forgeLevel * 2);
     meta.dust += reward;
     meta.totalDust = (meta.totalDust || 0) + reward;
@@ -4002,8 +4153,7 @@
     resultTitle.textContent = reason;
     finalMass.style.display = "block";
     if (config.demon) {
-      const boss = groups.find(group => group.isBoss);
-      const bossMass = boss && !boss.dead ? Math.round(groupMass(boss)) : 0;
+      const bossMass = Math.round(groups.filter(group => group.isBoss && !group.dead).reduce((sum, boss) => sum + groupMass(boss), 0));
       finalMass.textContent = bossMass ? bossMass : mass;
       resultText.textContent = bossMass
         ? `魔王剩余质量 ${bossMass}，个人最高质量 ${mass}，淘汰 ${game.kills}，星尘 +${dustReward}。`
@@ -5140,8 +5290,7 @@
       tags.push(`<span class="tag">我方据点 ${owned}/${controlPoints.length}</span>`);
     }
     if (config.demon) {
-      const boss = groups.find(group => group.isBoss);
-      const bossMass = boss && !boss.dead ? Math.round(groupMass(boss)) : 0;
+      const bossMass = Math.round(groups.filter(group => group.isBoss && !group.dead).reduce((sum, boss) => sum + groupMass(boss), 0));
       tags.push(`<span class="tag danger">魔王 ${bossMass}</span>`);
     }
     if (playerGroup.dead && playerGroup.respawnAt && !game.over) {
@@ -5479,10 +5628,8 @@
             }))
           },
           demon: {
-            bossMass: (() => {
-              const boss = groups.find(group => group.isBoss);
-              return boss && !boss.dead ? Math.round(groupMass(boss)) : 0;
-            })(),
+            bosses: groups.filter(group => group.isBoss && !group.dead).length,
+            bossMass: Math.round(groups.filter(group => group.isBoss && !group.dead).reduce((sum, boss) => sum + groupMass(boss), 0)),
             minions: groups.filter(group => group.isDemonMinion && !group.dead).length
           },
           ai: groups.filter(group => !group.isPlayer && !group.dead).slice(0, 6).map(group => ({
