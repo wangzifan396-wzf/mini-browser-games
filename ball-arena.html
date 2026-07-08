@@ -293,6 +293,42 @@
     overflow: auto;
   }
 
+  .event-banner,
+  .lobby-toast {
+    position: fixed;
+    left: 50%;
+    z-index: 12;
+    max-width: min(520px, calc(100vw - 32px));
+    padding: 12px 18px;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 8px;
+    color: #f8fbff;
+    text-align: center;
+    font-weight: 900;
+    letter-spacing: 0;
+    background: rgba(9, 14, 24, 0.88);
+    box-shadow: 0 18px 60px rgba(0, 0, 0, 0.42);
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(-50%, -18px) scale(0.96);
+    transition: opacity 160ms ease, transform 160ms ease;
+  }
+
+  .event-banner {
+    top: 18px;
+  }
+
+  .lobby-toast {
+    top: 50%;
+    color: #fff7d6;
+  }
+
+  .event-banner.show,
+  .lobby-toast.show {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+
   .dialog {
     width: min(570px, calc(100vw - 32px));
     max-width: calc(100vw - 32px);
@@ -433,6 +469,7 @@
   }
 
   .forge-panel {
+    --forge-theme: #ffd166;
     margin: 0 0 16px;
     padding: 14px;
     border: 1px solid rgba(255, 209, 102, 0.18);
@@ -441,6 +478,7 @@
       linear-gradient(135deg, rgba(255, 209, 102, 0.12), rgba(79, 70, 229, 0.08)),
       rgba(255, 255, 255, 0.045);
     text-align: left;
+    box-shadow: inset 0 0 0 1px var(--forge-theme);
   }
 
   .forge-row {
@@ -458,6 +496,29 @@
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 8px;
     margin-bottom: 10px;
+  }
+
+  .forge-skin {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+    padding: 9px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: #f8fbff;
+    background: rgba(255, 255, 255, 0.055);
+  }
+
+  .forge-skin span {
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  .forge-skin strong {
+    color: var(--forge-theme);
+    font-size: 13px;
   }
 
   .forge-stat,
@@ -857,6 +918,8 @@
 </head>
 <body>
   <canvas id="gameCanvas"></canvas>
+  <div class="event-banner" id="eventBanner"></div>
+  <div class="lobby-toast" id="lobbyToast"></div>
 
   <div class="hud">
     <section class="brand panel" aria-label="玩家状态">
@@ -943,6 +1006,10 @@
             <strong>据点战</strong>
             <span>4 队 6 人争夺 3 个星核据点，先到目标分获胜。</span>
           </button>
+          <button class="mode-card" type="button" data-mode="demon">
+            <strong>魔王模式</strong>
+            <span>勇者阵营围攻魔王和魔兵，限时吞掉魔王获胜。</span>
+          </button>
         </div>
       </section>
       <section class="lobby-panel" data-lobby-panel="outfit">
@@ -983,6 +1050,8 @@
   const ctx = canvas.getContext("2d");
   const miniCanvas = document.getElementById("miniCanvas");
   const miniCtx = miniCanvas.getContext("2d");
+  const eventBanner = document.getElementById("eventBanner");
+  const lobbyToast = document.getElementById("lobbyToast");
 
   const massValue = document.getElementById("massValue");
   const rankValue = document.getElementById("rankValue");
@@ -1166,6 +1235,20 @@
       control: true,
       controlScore: 220,
       playerStartMass: 185
+    },
+    demon: {
+      label: "魔王模式",
+      short: "魔王",
+      description: "勇者阵营合作发育，击败超大魔王和魔兵，限时吞掉魔王获胜。",
+      players: 36,
+      teams: 2,
+      teamSize: 28,
+      safeZone: false,
+      duration: 540,
+      respawn: true,
+      ranking: "demon",
+      demon: true,
+      playerStartMass: 260
     }
   };
 
@@ -1202,6 +1285,28 @@
     9: { dust: 360, tickets: 3 },
     10: { dust: 500, tickets: 5 }
   };
+  const FORGE_THEMES = [
+    { name: "旧铁小炉", color: "#94a3b8" },
+    { name: "青铜火膛", color: "#b45309" },
+    { name: "银纹炉台", color: "#d7e1ea" },
+    { name: "星尘砧座", color: "#58edc8" },
+    { name: "赤焰工坊", color: "#fb923c" },
+    { name: "霜轮锻炉", color: "#67e8f9" },
+    { name: "符文熔炉", color: "#c084fc" },
+    { name: "王冠炉心", color: "#ffd166" },
+    { name: "极光天炉", color: "#22d3ee" },
+    { name: "深渊黑炉", color: "#818cf8" },
+    { name: "莲华炉庭", color: "#f472b6" },
+    { name: "龙焰锻堂", color: "#facc15" },
+    { name: "星轨圣炉", color: "#7dd3fc" },
+    { name: "虚空门炉", color: "#a78bfa" },
+    { name: "彗星铸台", color: "#f8fafc" },
+    { name: "潮汐工坊", color: "#5eead4" },
+    { name: "魔王熔炉", color: "#ef4444" },
+    { name: "星界工坊", color: "#f0abfc" },
+    { name: "创世火种", color: "#fff7ed" },
+    { name: "无尽炉心", color: "#ffffff" }
+  ];
   const REDEEM_CODES = {
     STARS2026: { label: "十连星尘补给", dust: 1200, tickets: 10, xp: 280 },
     FORGE777: { label: "铁匠铺十连包", dust: 777, tickets: 10, xp: 350, unlock: 1 },
@@ -1252,6 +1357,8 @@
   let lastPlayerEject = 0;
   let hudTimer = 0;
   let runId = 0;
+  let eventBannerTimer = 0;
+  let lobbyToastTimer = 0;
 
   function resize() {
     dpr = Math.min(2, window.devicePixelRatio || 1);
@@ -1342,21 +1449,47 @@
     return matchEvent.active && matchEvent.active[key] !== undefined ? matchEvent.active[key] : fallback;
   }
 
+  function showEventBanner(title, desc, color) {
+    clearTimeout(eventBannerTimer);
+    eventBanner.textContent = `${title} · ${desc}`;
+    eventBanner.style.borderColor = color || "rgba(255, 255, 255, 0.22)";
+    eventBanner.style.boxShadow = `0 18px 60px rgba(0, 0, 0, 0.42), 0 0 24px ${color || "rgba(255, 255, 255, 0.24)"}`;
+    eventBanner.classList.add("show");
+    eventBannerTimer = setTimeout(() => eventBanner.classList.remove("show"), 2600);
+  }
+
+  function showLobbyToast(message, color = "#ffd166") {
+    clearTimeout(lobbyToastTimer);
+    lobbyToast.textContent = message;
+    lobbyToast.style.borderColor = color;
+    lobbyToast.style.boxShadow = `0 18px 60px rgba(0, 0, 0, 0.42), 0 0 28px ${color}`;
+    lobbyToast.classList.add("show");
+    lobbyToastTimer = setTimeout(() => lobbyToast.classList.remove("show"), 2400);
+  }
+
   function forgeLevelFromXp(xp) {
     const safeXp = Math.max(0, Number(xp) || 0);
     let level = 1;
-    for (let i = 1; i < FORGE_LEVEL_XP.length; i++) {
-      if (safeXp >= FORGE_LEVEL_XP[i]) level = i + 1;
+    while (safeXp >= forgeXpForLevel(level + 1) && level < 999) {
+      level += 1;
     }
-    return clamp(level, 1, 10);
+    return level;
+  }
+
+  function forgeXpForLevel(level) {
+    const target = Math.max(1, Math.floor(level));
+    let total = 0;
+    for (let i = 1; i < target; i++) {
+      total += 80 + i * 45 + Math.floor(Math.pow(i, 1.35) * 18);
+    }
+    return total;
   }
 
   function forgeLevelProgress() {
     const xp = Math.max(0, Number(meta.forgeXp) || 0);
     const level = forgeLevelFromXp(xp);
-    if (level >= 10) return { level, xp, current: xp - FORGE_LEVEL_XP[9], needed: 0, pct: 100, maxed: true };
-    const currentFloor = FORGE_LEVEL_XP[level - 1];
-    const next = FORGE_LEVEL_XP[level];
+    const currentFloor = forgeXpForLevel(level);
+    const next = forgeXpForLevel(level + 1);
     return {
       level,
       xp,
@@ -1632,8 +1765,10 @@
   function grantForgeLevelRewards(fromLevel, toLevel) {
     const rewards = [];
     for (let level = fromLevel + 1; level <= toLevel; level++) {
-      const reward = FORGE_LEVEL_REWARDS[level];
-      if (!reward) continue;
+      const reward = FORGE_LEVEL_REWARDS[level] || {
+        dust: Math.min(1200, 240 + level * 42),
+        tickets: Math.min(8, 1 + Math.floor(level / 4))
+      };
       meta.dust += reward.dust || 0;
       meta.forgeTickets = (meta.forgeTickets || 0) + (reward.tickets || 0);
       rewards.push(`Lv.${level} +${reward.dust || 0}星尘 +${reward.tickets || 0}券`);
@@ -1652,6 +1787,14 @@
       levelBefore: before,
       levelAfter: after,
       rewards: grantForgeLevelRewards(before, after)
+    };
+  }
+
+  function forgeThemeForLevel(level) {
+    if (level <= FORGE_THEMES.length) return FORGE_THEMES[level - 1];
+    return {
+      name: `无尽炉心 +${level - FORGE_THEMES.length}`,
+      color: FORGE_THEMES[FORGE_THEMES.length - 1].color
     };
   }
 
@@ -1702,14 +1845,20 @@
     const lockedHalos = specialHalos.filter(halo => !haloUnlocked(halo.key));
     const lockedTrails = specialTrails.filter(trail => !trailUnlocked(trail.key));
     const progress = forgeLevelProgress();
+    const theme = forgeThemeForLevel(progress.level);
     const luck = clamp(meta.forgeLuck || 0, 0, 99);
     const last = formatForgeLog();
     const nextEpic = Math.max(1, 10 - (meta.forgePityEpic || 0));
     const nextLegend = Math.max(1, 40 - (meta.forgePityLegend || 0));
+    forgePanel.style.setProperty("--forge-theme", theme.color);
     forgePanel.innerHTML = `
       <div class="forge-row">
         <strong>星尘 ${Math.floor(meta.dust)}</strong>
         <span>锻造券 ${Math.floor(meta.forgeTickets || 0)} · 人品 ${luck}/100</span>
+      </div>
+      <div class="forge-skin">
+        <span>工坊皮肤</span>
+        <strong>${theme.name}</strong>
       </div>
       <div class="forge-stats">
         <div class="forge-stat">Lv.${progress.level}<span>${progress.maxed ? "满级经验继续累积" : "铁匠铺等级"}</span></div>
@@ -1777,6 +1926,8 @@
       cost: payment.cost,
       rewards: levelResult.rewards
     };
+    if (burst > 1) showLobbyToast(`人品大爆发 x${burst}！${item.name}`, RARITY_CONFIG[tierClass(item)]?.color || "#ffd166");
+    else if (levelResult.rewards.length) showLobbyToast(`铁匠铺升至 Lv.${levelResult.levelAfter}`, "#58edc8");
     saveMeta();
     renderCosmetics();
   }
@@ -2016,6 +2167,47 @@
     return index < 8 ? rand(320, 680) : index < 34 ? rand(135, 430) : rand(72, 250);
   }
 
+  function setupDemonMode(config) {
+    const boss = groups.find(group => !group.isPlayer && group.team === 1) || groups.find(group => !group.isPlayer);
+    if (!boss) return;
+    const bossPoint = { x: WORLD * 0.74, y: WORLD * 0.5 };
+    boss.name = "深渊魔王";
+    boss.color = "#7f1d1d";
+    boss.isBoss = true;
+    boss.cells = [makeCell(boss, bossPoint.x, bossPoint.y, 6200)];
+    boss.ai.bravery = 1.35;
+    boss.ai.teamwork = 0.35;
+    boss.ai.target = { x: WORLD * 0.45, y: WORLD * 0.5 };
+    boss.ai.mode = "魔王压迫";
+    game.demonBossId = boss.id;
+    game.demonBossStartMass = groupMass(boss);
+
+    let minionIndex = 1;
+    let allyIndex = 1;
+    for (const group of groups) {
+      if (group === playerGroup || group === boss) continue;
+      if (group.team === 1) {
+        const angle = (minionIndex / 8) * Math.PI * 2;
+        const dist = rand(360, 900);
+        group.name = `魔兵${minionIndex}`;
+        group.color = minionIndex % 2 ? "#ef4444" : "#a855f7";
+        group.isDemonMinion = true;
+        group.cells = [makeCell(group, clamp(bossPoint.x + Math.cos(angle) * dist, 160, WORLD - 160), clamp(bossPoint.y + Math.sin(angle) * dist, 160, WORLD - 160), rand(460, 980))];
+        group.ai.bravery = rand(1.0, 1.35);
+        minionIndex += 1;
+      } else {
+        const base = { x: WORLD * 0.28, y: WORLD * 0.5 };
+        const angle = (allyIndex / 24) * Math.PI * 2;
+        group.name = `勇者${allyIndex}`;
+        group.color = TEAM_COLORS[0];
+        group.cells = [makeCell(group, clamp(base.x + Math.cos(angle) * rand(120, 820), 160, WORLD - 160), clamp(base.y + Math.sin(angle) * rand(120, 820), 160, WORLD - 160), rand(180, 440))];
+        group.ai.teamwork = rand(1.0, 1.45);
+        allyIndex += 1;
+      }
+    }
+    syncRadii();
+  }
+
   function teamForParticipant(index, config) {
     if (!config.teams) return null;
     const size = config.teamSize || Math.max(1, Math.ceil(config.players / config.teams));
@@ -2250,6 +2442,7 @@
       dustRewarded: false,
       menu: !!opts.menu
     };
+    if (config.demon) setupDemonMode(config);
 
     for (let i = 0; i < FOOD_BASE_COUNT; i++) addFood(makeFood());
     for (let i = 0; i < VIRUS_COUNT; i++) viruses.push(makeVirus(i % 4 === 0 ? "big" : "small"));
@@ -2297,6 +2490,7 @@
       for (let i = 0; i < event.virusBurst; i++) viruses.push(makeVirus(i % 5 === 0 ? "big" : "small"));
     }
     ring(safeZone.enabled ? safeZone.x : WORLD / 2, safeZone.enabled ? safeZone.y : WORLD / 2, event.color || "#ffffff", 360);
+    showEventBanner(event.label, event.desc, event.color);
   }
 
   function updateMatchEvents(dt, now) {
@@ -3592,6 +3786,11 @@
     group.dead = true;
     group.cells = [];
 
+    if (config.demon && group.isBoss) {
+      endGame("魔王讨伐");
+      return;
+    }
+
     if (config.respawn) {
       if (config.lives) {
         group.lives = Math.max(0, (group.lives || 0) - 1);
@@ -3613,6 +3812,17 @@
   function maybeEndGame(now) {
     if (game.over) return;
     const config = modeConfig();
+    if (config.demon) {
+      const boss = groups.find(group => group.isBoss);
+      if (!boss || boss.dead || !boss.cells.length) {
+        endGame("魔王讨伐");
+        return;
+      }
+      if (game.endsAt && now >= game.endsAt) {
+        endGame("讨伐失败");
+        return;
+      }
+    }
     if (config.control) {
       const winner = teamScores.findIndex(score => score >= config.controlScore);
       if (winner >= 0) {
@@ -3764,7 +3974,9 @@
     const massBonus = Math.min(42, Math.floor(peakMass / 120));
     const killBonus = Math.min(36, game.kills * 5);
     const controlBonus = config.control ? Math.min(28, Math.floor((teamScores[playerGroup.team] || 0) / 8)) : 0;
-    const reward = Math.max(10, 14 + rankBonus + massBonus + killBonus + controlBonus + meta.forgeLevel * 2);
+    const boss = config.demon ? groups.find(group => group.isBoss) : null;
+    const demonBonus = config.demon ? (boss && (boss.dead || !boss.cells.length) ? 70 : 24) : 0;
+    const reward = Math.max(10, 14 + rankBonus + massBonus + killBonus + controlBonus + demonBonus + meta.forgeLevel * 2);
     meta.dust += reward;
     meta.totalDust = (meta.totalDust || 0) + reward;
     game.dustRewarded = true;
@@ -3789,7 +4001,14 @@
     const dustReward = awardDust(rank, mass, config);
     resultTitle.textContent = reason;
     finalMass.style.display = "block";
-    if (config.control) {
+    if (config.demon) {
+      const boss = groups.find(group => group.isBoss);
+      const bossMass = boss && !boss.dead ? Math.round(groupMass(boss)) : 0;
+      finalMass.textContent = bossMass ? bossMass : mass;
+      resultText.textContent = bossMass
+        ? `魔王剩余质量 ${bossMass}，个人最高质量 ${mass}，淘汰 ${game.kills}，星尘 +${dustReward}。`
+        : `魔王已被吞噬，个人最高质量 ${mass}，淘汰 ${game.kills}，星尘 +${dustReward}。`;
+    } else if (config.control) {
       const score = Math.floor(teamScores[playerGroup.team] || 0);
       finalMass.textContent = score;
       resultText.textContent = `队伍第 ${rank} 名，据点分 ${score}/${config.controlScore}，个人最高质量 ${mass}，淘汰 ${game.kills}，星尘 +${dustReward}。`;
@@ -4920,6 +5139,11 @@
       const owned = controlPoints.filter(point => point.owner === playerGroup.team).length;
       tags.push(`<span class="tag">我方据点 ${owned}/${controlPoints.length}</span>`);
     }
+    if (config.demon) {
+      const boss = groups.find(group => group.isBoss);
+      const bossMass = boss && !boss.dead ? Math.round(groupMass(boss)) : 0;
+      tags.push(`<span class="tag danger">魔王 ${bossMass}</span>`);
+    }
     if (playerGroup.dead && playerGroup.respawnAt && !game.over) {
       tags.push(`<span class="tag">重生 ${formatTime((playerGroup.respawnAt - now) / 1000)}</span>`);
     }
@@ -5187,6 +5411,7 @@
           forgeTickets: Math.floor(meta.forgeTickets || 0),
           forgePityEpic: Math.floor(meta.forgePityEpic || 0),
           forgePityLegend: Math.floor(meta.forgePityLegend || 0),
+          forgeTheme: forgeThemeForLevel(meta.forgeLevel || 1).name,
           lastForge: meta.lastForge,
           unlockedSkins: meta.unlockedSkins.length,
           unlockedSpores: meta.unlockedSpores.length,
@@ -5252,6 +5477,13 @@
               capture: Math.round(point.capture),
               contested: point.contested
             }))
+          },
+          demon: {
+            bossMass: (() => {
+              const boss = groups.find(group => group.isBoss);
+              return boss && !boss.dead ? Math.round(groupMass(boss)) : 0;
+            })(),
+            minions: groups.filter(group => group.isDemonMinion && !group.dead).length
           },
           ai: groups.filter(group => !group.isPlayer && !group.dead).slice(0, 6).map(group => ({
             name: group.name,
