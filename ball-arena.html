@@ -1299,22 +1299,12 @@
     legendary: { label: "传说", chance: 0.03, exp: 160, color: "#ffd166" }
   };
   const DEMON_TEMPLATES = [
-    { name: "深渊魔王", color: "#7f1d1d", mass: 6800, skill: "summon", label: "深渊召唤" },
-    { name: "赤焰魔王", color: "#ef4444", mass: 5200, skill: "flare", label: "赤焰喷发" },
-    { name: "霜轮魔王", color: "#2563eb", mass: 5600, skill: "frost", label: "霜轮压制" },
-    { name: "引力魔王", color: "#312e81", mass: 5900, skill: "gravity", label: "引力牵引" },
-    { name: "荆棘魔王", color: "#166534", mass: 5400, skill: "thorn", label: "荆棘滋生" },
-    { name: "饕餮魔王", color: "#92400e", mass: 6200, skill: "drain", label: "饕餮吞息" },
-    { name: "雷霆魔王", color: "#4338ca", mass: 5000, skill: "storm", label: "雷霆震荡" },
-    { name: "镜像魔王", color: "#0f766e", mass: 5100, skill: "mirror", label: "镜像魔兵" },
-    { name: "疫毒魔王", color: "#4d7c0f", mass: 5300, skill: "poison", label: "疫毒扩散" },
-    { name: "星陨魔王", color: "#f59e0b", mass: 5600, skill: "meteor", label: "星陨坠击" },
-    { name: "黑潮魔王", color: "#0f172a", mass: 6400, skill: "tide", label: "黑潮涌动" },
-    { name: "王冠魔王", color: "#a16207", mass: 6000, skill: "command", label: "王令集结" },
-    { name: "裂隙魔王", color: "#581c87", mass: 5700, skill: "rift", label: "裂隙喷射" },
-    { name: "熔核魔王", color: "#c2410c", mass: 6100, skill: "core", label: "熔核护体" },
-    { name: "极光魔王", color: "#0891b2", mass: 5200, skill: "aurora", label: "极光散射" },
-    { name: "终焉魔王", color: "#111827", mass: 7200, skill: "doom", label: "终焉压迫" }
+    { name: "深渊魔王", color: "#7f1d1d", mass: 16500, skill: "summon", label: "深渊召唤" },
+    { name: "赤焰魔王", color: "#ef4444", mass: 14500, skill: "flare", label: "赤焰喷发" },
+    { name: "霜轮魔王", color: "#2563eb", mass: 15200, skill: "frost", label: "霜轮压制" },
+    { name: "引力魔王", color: "#312e81", mass: 16000, skill: "gravity", label: "引力牵引" },
+    { name: "饕餮魔王", color: "#92400e", mass: 17800, skill: "drain", label: "饕餮吞息" },
+    { name: "巨神魔王", color: "#111827", mass: 36000, skill: "titan", label: "巨神碾压" }
   ];
   const RARITY_ORDER = ["common", "rare", "epic", "legendary"];
   const FORGE_LEVEL_XP = [0, 90, 220, 390, 610, 880, 1200, 1580, 2020, 2520];
@@ -2294,11 +2284,14 @@
       boss.isBoss = true;
       boss.demonSkill = template.skill;
       boss.demonLabel = template.label;
-      const massScale = bossCount > 4 ? 0.52 : bossCount > 2 ? 0.68 : bossCount > 1 ? 0.82 : 1;
-      boss.demonMassFloor = template.mass * massScale * 0.78;
-      boss.cells = [makeCell(boss, point.x, point.y, template.mass * massScale)];
-      boss.ai.bravery = 1.35;
-      boss.ai.teamwork = 0.35;
+      const massScale = bossCount > 2 ? 0.72 : bossCount > 1 ? 0.86 : 1;
+      boss.demonBaseMass = template.mass * massScale;
+      boss.demonMassFloor = boss.demonBaseMass * 0.86;
+      boss.cells = [makeCell(boss, point.x, point.y, boss.demonBaseMass)];
+      boss.ai.bravery = 1.55;
+      boss.ai.accuracy = 1.14;
+      boss.ai.virusInterest = 0.92;
+      boss.ai.teamwork = 0.25;
       boss.ai.target = { x: WORLD * 0.45, y: WORLD * 0.5 };
       boss.ai.mode = "魔王压迫";
     }
@@ -2842,8 +2835,8 @@
     const aiSpace = buildCellGrid();
     updateMatchEvents(dt, now);
     updateSafeZone(now, dt);
-    updateAi(dt, now, aiSpace);
     updateDemonMode(dt, now);
+    updateAi(dt, now, aiSpace);
     updateGroupMovement(dt);
     updateEjected(dt);
     const worldSpace = buildCellGrid();
@@ -2936,11 +2929,10 @@
         if (!cell.dead && boss.demonMassFloor) cell.mass = Math.max(cell.mass, boss.demonMassFloor / Math.max(1, boss.cells.length));
       }
     }
-    updateDemonAiTargets(bosses);
     if (!bosses.length || now < (game.nextDemonSkillAt || 0)) return;
     const boss = bosses[Math.floor(Math.random() * bosses.length)];
     castDemonSkill(boss);
-    game.nextDemonSkillAt = now + rand(9000, 13500);
+    game.nextDemonSkillAt = now + rand(7800, 11800);
   }
 
   function castDemonSkill(boss) {
@@ -3012,6 +3004,19 @@
       }
       const main = boss.cells[0];
       if (main) main.mass += stolen * 0.85;
+    } else if (boss.demonSkill === "titan") {
+      game.shake = Math.max(game.shake, 16);
+      for (const group of groups) {
+        if (group.dead || group.team === boss.team) continue;
+        for (const cell of group.cells) {
+          if (distSq(cell, center) > 1280 * 1280) continue;
+          const n = norm(cell.x - center.x, cell.y - center.y);
+          cell.vx += n.x * 360;
+          cell.vy += n.y * 360;
+          cell.mergeDelay = Math.max(cell.mergeDelay || 0, 1.2);
+        }
+      }
+      for (const cell of boss.cells) cell.mass += 160;
     } else if (boss.demonSkill === "storm") {
       game.shake = Math.max(game.shake, 12);
       for (const group of groups) {
@@ -3060,49 +3065,237 @@
     }
   }
 
-  function updateDemonAiTargets(bosses) {
-    const heroes = groups.filter(group => !group.dead && group.team === 0 && group.cells.length);
-    const minions = groups.filter(group => group.isDemonMinion && !group.dead && group.cells.length);
-    if (!heroes.length) return;
-    const largestHero = heroes
-      .map(group => ({ group, center: groupCenter(group), mass: groupMass(group) }))
-      .sort((a, b) => b.mass - a.mass)[0];
-    for (const boss of bosses) {
-      if (!boss.ai || !largestHero) continue;
-      boss.ai.target = { x: largestHero.center.x, y: largestHero.center.y };
-      boss.ai.mode = "锁定勇者";
-      boss.ai.think = Math.min(boss.ai.think || 0, 0.18);
+  function chooseDemonTarget(group, now, space) {
+    if (group.isBoss) {
+      chooseDemonBossTarget(group, now, space);
+      return;
     }
-    for (const minion of minions) {
-      if (!minion.ai) continue;
-      const center = groupCenter(minion);
-      const target = heroes
-        .map(group => ({ group, center: groupCenter(group), d: distSq(center, groupCenter(group)) }))
-        .sort((a, b) => a.d - b.d)[0];
-      if (target) {
-        minion.ai.target = { x: target.center.x, y: target.center.y };
-        minion.ai.mode = "魔兵追击";
+
+    chooseAiTarget(group, now, space);
+    if (group.isDemonMinion) {
+      refineDemonMinionTarget(group, space);
+    } else if (group.team === 0) {
+      refineDemonHeroTarget(group, space);
+    }
+  }
+
+  function demonHeroes() {
+    return groups.filter(group => !group.dead && group.team === 0 && group.cells.length);
+  }
+
+  function demonBosses() {
+    return groups.filter(group => group.isBoss && !group.dead && group.cells.length);
+  }
+
+  function demonMinions() {
+    return groups.filter(group => group.isDemonMinion && !group.dead && group.cells.length);
+  }
+
+  function demonEnemyCells(group, center, range, space) {
+    const pool = space ? nearbyCells(space.grid, center, range) : allCells();
+    return pool.filter(wrap => wrap.group !== group && !wrap.group.dead && !wrap.cell.dead && !sameTeam(group, wrap.group));
+  }
+
+  function demonPassiveMode(mode) {
+    return mode === "吃点" || mode === "游走" || mode === "集结" || mode === "重组" || mode === "进圈";
+  }
+
+  function bestDemonCellTarget(group, candidates, center, range, ai) {
+    const largest = center.largestCell;
+    if (!largest) return null;
+    let best = null;
+    let bestScore = 0;
+    for (const candidate of candidates) {
+      if (candidate === group || candidate.dead || !candidate.cells.length) continue;
+      for (const cell of candidate.cells) {
+        if (cell.dead) continue;
+        const d = Math.max(1, distance(largest, cell));
+        if (d > range) continue;
+        const canEatNow = largest.radius > cell.radius * 1.09;
+        const canSplit = canSplitEatCell(largest, cell, ai);
+        if (!canEatNow && !canSplit) continue;
+        const playerBonus = candidate.isPlayer ? 1.2 : 0;
+        const bossBonus = candidate.isBoss ? 0.85 : 0;
+        const splitBonus = canSplit ? 1.55 : 0;
+        const score = cell.mass / Math.max(90, d) + playerBonus + bossBonus + splitBonus;
+        if (score > bestScore) {
+          bestScore = score;
+          best = { group: candidate, cell, distance: d, canSplit };
+        }
       }
     }
-    for (const hero of heroes) {
-      if (hero.isPlayer || !hero.ai) continue;
-      const center = groupCenter(hero);
-      const nearestMinion = minions
-        .map(group => ({ group, center: groupCenter(group), d: distSq(center, groupCenter(group)) }))
-        .sort((a, b) => a.d - b.d)[0];
-      const boss = bosses
-        .map(group => ({ group, center: groupCenter(group), d: distSq(center, groupCenter(group)) }))
-        .sort((a, b) => a.d - b.d)[0];
-      const target = nearestMinion && nearestMinion.d < 1300 * 1300 ? nearestMinion : boss;
-      if (target) {
-        hero.ai.target = { x: target.center.x, y: target.center.y };
-        hero.ai.mode = target.group.isBoss ? "合力打王" : "清魔兵";
+    return bestScore > 1.05 ? best : null;
+  }
+
+  function chooseDemonBossTarget(boss, now, space) {
+    const ai = boss.ai;
+    const center = groupCenter(boss);
+    const largest = center.largestCell;
+    if (!ai || !largest) return;
+
+    const heroes = demonHeroes();
+    if (!heroes.length) {
+      ai.target = randomPointInZone(160);
+      ai.mode = "游走";
+      ai.prey = null;
+      return;
+    }
+
+    let threat = null;
+    let prey = null;
+    let threatScore = 0;
+    let preyScore = 0;
+    const scanRange = center.largest * (11.2 + ai.bravery) + 1500;
+    const cells = demonEnemyCells(boss, center, scanRange, space);
+
+    for (const wrap of cells) {
+      const d = Math.max(1, distance(largest, wrap.cell));
+      const centerD = Math.max(1, distance(center, wrap.cell));
+      const enemyCanSplit = canSplitEatCell(wrap.cell, largest, { bravery: 1.08, accuracy: 1.02 }) && centerD < wrap.cell.radius * 6.1 + 520;
+      const fragmentThreat = boss.cells.length > 1 && wrap.cell.radius > largest.radius * 0.92 && centerD < wrap.cell.radius * 6.2 + 560;
+      const isThreat = (wrap.cell.radius > largest.radius * 1.05 || enemyCanSplit || fragmentThreat) && centerD < wrap.cell.radius * 7.2 + 760;
+      if (isThreat) {
+        const score = (wrap.cell.radius / Math.max(1, largest.radius)) * 1650 / centerD + (enemyCanSplit ? 2.4 : 0) + (fragmentThreat ? 1.4 : 0);
+        if (score > threatScore) {
+          threatScore = score;
+          threat = wrap;
+        }
       }
+
+      const canEat = largest.radius > wrap.cell.radius * 1.08 && d < largest.radius * (7.8 + ai.bravery * 0.38) + 1040;
+      const canSplit = canSplitEatCell(largest, wrap.cell, ai) && d < largest.radius * (6.3 + ai.bravery * 0.72) + 760;
+      if (canEat || canSplit) {
+        const score = wrap.cell.mass / Math.max(100, d) + (wrap.group.isPlayer ? 1.35 : 0) + (canSplit ? 1.8 : 0) + Math.max(0, 1600 - d) / 1600;
+        if (score > preyScore) {
+          preyScore = score;
+          prey = wrap;
+        }
+      }
+    }
+
+    if (threat && threatScore > 2.15) {
+      const counterVirus = bestVirusShot(center, threat.cell);
+      if (counterVirus && ai.ejectCooldown <= 0) {
+        ai.target = { x: counterVirus.x, y: counterVirus.y };
+        ai.mode = "炸刺反打";
+        ai.prey = threat;
+        return;
+      }
+
+      const away = norm(center.x - threat.cell.x, center.y - threat.cell.y);
+      ai.target = {
+        x: clamp(center.x + away.x * 920 + (WORLD * 0.56 - center.x) * 0.12, 100, WORLD - 100),
+        y: clamp(center.y + away.y * 920 + (WORLD * 0.50 - center.y) * 0.12, 100, WORLD - 100)
+      };
+      ai.mode = "魔王回撤";
+      ai.prey = null;
+      return;
+    }
+
+    if (prey) {
+      const attackVirus = bestVirusShot(center, prey.cell);
+      if (attackVirus && ai.ejectCooldown <= 0 && prey.cell.mass > 240) {
+        ai.target = { x: attackVirus.x, y: attackVirus.y };
+        ai.mode = "炸刺进攻";
+        ai.prey = prey;
+        return;
+      }
+      ai.target = leadPoint(prey.cell, boss.cells.length > 1 ? 0.7 : 0.52);
+      ai.mode = "魔王追击";
+      ai.prey = prey;
+      return;
+    }
+
+    const pressure = heroes
+      .map(hero => {
+        const heroCenter = groupCenter(hero);
+        const d = Math.max(1, distance(center, heroCenter));
+        return { group: hero, center: heroCenter, distance: d, score: heroCenter.mass / d + (hero.isPlayer ? 0.55 : 0) };
+      })
+      .sort((a, b) => b.score - a.score)[0];
+    if (pressure && pressure.center.largestCell) {
+      const lead = leadPoint(pressure.center.largestCell, 0.72);
+      ai.target = {
+        x: clamp(lead.x, 120, WORLD - 120),
+        y: clamp(lead.y, 120, WORLD - 120)
+      };
+      ai.mode = "魔王压迫";
+      ai.prey = { group: pressure.group, cell: pressure.center.largestCell };
+      return;
+    }
+
+    const food = nearestFood(center);
+    ai.target = food ? { x: food.x, y: food.y } : randomPointInZone(160);
+    ai.mode = food ? "吃点" : "游走";
+    ai.prey = null;
+  }
+
+  function refineDemonHeroTarget(group, space) {
+    const ai = group.ai;
+    if (!ai || !demonPassiveMode(ai.mode)) return;
+    const center = groupCenter(group);
+    if (!center.largestCell) return;
+
+    const minionPrey = bestDemonCellTarget(group, demonMinions(), center, center.largest * 8.2 + 1080, ai);
+    if (minionPrey) {
+      ai.target = leadPoint(minionPrey.cell, 0.48);
+      ai.mode = "清魔兵";
+      ai.prey = minionPrey;
+      return;
+    }
+
+    const bossPrey = bestDemonCellTarget(group, demonBosses(), center, center.largest * 7.2 + 780, ai);
+    if (bossPrey) {
+      const attackVirus = bestVirusShot(center, bossPrey.cell);
+      if (attackVirus && center.mass > 230 && ai.ejectCooldown <= 0) {
+        ai.target = { x: attackVirus.x, y: attackVirus.y };
+        ai.mode = "炸刺进攻";
+        ai.prey = bossPrey;
+        return;
+      }
+      ai.target = leadPoint(bossPrey.cell, 0.5);
+      ai.mode = "合力打王";
+      ai.prey = bossPrey;
+    }
+  }
+
+  function refineDemonMinionTarget(group, space) {
+    const ai = group.ai;
+    if (!ai || !demonPassiveMode(ai.mode)) return;
+    const center = groupCenter(group);
+    if (!center.largestCell) return;
+
+    const heroPrey = bestDemonCellTarget(group, demonHeroes(), center, center.largest * 7.6 + 900, ai);
+    if (heroPrey) {
+      ai.target = leadPoint(heroPrey.cell, 0.45);
+      ai.mode = "魔兵追击";
+      ai.prey = heroPrey;
+      return;
+    }
+
+    const boss = demonBosses()
+      .map(item => ({ group: item, center: groupCenter(item), d: distance(center, groupCenter(item)) }))
+      .sort((a, b) => a.d - b.d)[0];
+    if (boss && boss.center.largestCell) {
+      if (center.mass > 150 && boss.d < 1260) {
+        ai.target = { x: boss.center.x, y: boss.center.y };
+        ai.mode = "喂球";
+        ai.prey = { group: boss.group, cell: boss.center.largestCell };
+        return;
+      }
+      const angle = Math.atan2(center.y - boss.center.y, center.x - boss.center.x) + group.ai.rallyOffset * 0.7;
+      const radius = clamp(boss.center.largest * 2.2 + 320, 520, 1150);
+      ai.target = {
+        x: clamp(boss.center.x + Math.cos(angle) * radius, 120, WORLD - 120),
+        y: clamp(boss.center.y + Math.sin(angle) * radius, 120, WORLD - 120)
+      };
+      ai.mode = "护王游走";
+      ai.prey = null;
     }
   }
 
   function aiAttackMode(mode) {
-    return mode === "追击" || mode === "围猎" || mode === "护航";
+    return mode === "追击" || mode === "围猎" || mode === "护航" || mode === "魔王追击" || mode === "魔王压迫" || mode === "魔兵追击" || mode === "清魔兵" || mode === "合力打王" || mode === "王令追击" || mode === "锁定勇者";
   }
 
   function aiEjectMode(mode) {
@@ -3133,13 +3326,16 @@
     if (!largest || !canSplitEatCell(largest, ai.prey.cell, ai)) return;
 
     const d = distance(largest, ai.prey.cell);
-    const modeBoost = ai.mode === "围猎" ? 430 : ai.mode === "护航" ? 360 : 290;
-    const reach = largest.radius * (5.2 + ai.bravery * 0.85) + modeBoost;
+    const modeBoost = group.isBoss ? 620 : group.isDemonMinion ? 330 : ai.mode === "围猎" ? 430 : ai.mode === "护航" ? 360 : 290;
+    const reach = largest.radius * (5.2 + ai.bravery * (group.isBoss ? 1.05 : 0.85)) + modeBoost;
     if (d > reach) return;
 
-    const target = leadPoint(ai.prey.cell, ai.mode === "围猎" ? 0.62 : 0.44);
-    if (splitGroup(group, target, { onlyLargest: true, power: clamp(1.03 * ai.accuracy + (ai.mode === "护航" ? 0.05 : 0), 0.96, 1.24) })) {
-      ai.splitCooldown = ai.mode === "护航" ? rand(1.25, 2.4) : rand(1.55, 3.1);
+    const target = leadPoint(ai.prey.cell, group.isBoss ? 0.68 : ai.mode === "围猎" ? 0.62 : 0.44);
+    const power = group.isBoss
+      ? clamp(1.14 * ai.accuracy, 1.04, 1.32)
+      : clamp(1.03 * ai.accuracy + (ai.mode === "护航" ? 0.05 : 0), 0.96, 1.24);
+    if (splitGroup(group, target, { onlyLargest: true, power })) {
+      ai.splitCooldown = group.isBoss ? rand(2.4, 4.4) : ai.mode === "护航" ? rand(1.25, 2.4) : rand(1.55, 3.1);
       ai.think = 0.04;
     }
   }
@@ -3153,8 +3349,13 @@
       ai.ejectCooldown = Math.max(0, ai.ejectCooldown - dt);
 
       if (ai.think <= 0) {
-        chooseAiTarget(group, now, space);
-        ai.think = rand(0.1, 0.42);
+        const demonOverride = modeConfig().demon && (group.isBoss || group.isDemonMinion || group.team === 0);
+        if (demonOverride) {
+          chooseDemonTarget(group, now, space);
+        } else {
+          chooseAiTarget(group, now, space);
+        }
+        ai.think = group.isBoss ? rand(0.06, 0.22) : rand(0.1, 0.42);
       }
 
       tryAiSplitAttack(group, ai);
@@ -3657,7 +3858,8 @@
         const dy = target.y - cell.y;
         const move = norm(dx, dy);
         const distanceScale = clamp(move.length / 210, 0.08, 1);
-        const baseSpeed = (352 / (1 + cell.radius / 96)) * activeEventFactor("speedMult", 1);
+        const demonMoveBoost = group.isBoss ? 1.28 : group.isDemonMinion ? 1.12 : 1;
+        const baseSpeed = (352 / (1 + cell.radius / 96)) * activeEventFactor("speedMult", 1) * demonMoveBoost;
         const desiredX = move.x * baseSpeed * distanceScale;
         const desiredY = move.y * baseSpeed * distanceScale;
         const steer = Math.min(1, dt * (group.isPlayer ? 4.35 : 3.35));
@@ -3669,7 +3871,11 @@
         cell.y += cell.vy * dt;
         cell.mergeDelay = Math.max(0, cell.mergeDelay - dt);
         if (cell.mergeDelay <= 0) cell.mergeMax = 0;
-        cell.mass *= 1 - dt * (group.isPlayer ? 0.0014 : 0.0011);
+        if (!group.isBoss) {
+          cell.mass *= 1 - dt * (group.isPlayer ? 0.0014 : 0.0011);
+        } else if (group.demonMassFloor) {
+          cell.mass = Math.max(cell.mass, group.demonMassFloor / Math.max(1, group.cells.length));
+        }
         keepInside(cell);
       }
     }
