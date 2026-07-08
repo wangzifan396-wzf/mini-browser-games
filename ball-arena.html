@@ -1120,7 +1120,7 @@
           </button>
           <button class="mode-card" type="button" data-mode="blitz">
             <strong>闪电乱斗</strong>
-            <span>高密度食点和密集事件，节奏更快，4 分半结算。</span>
+            <span>高密度食点和密集事件，节奏更快，3 分钟左右结算。</span>
           </button>
           <button class="mode-card" type="button" data-mode="control">
             <strong>据点战</strong>
@@ -1128,7 +1128,7 @@
           </button>
           <button class="mode-card" type="button" data-mode="giant">
             <strong>巨行星霸屏</strong>
-            <span>全员巨球开局，炸刺、十六分和霸屏进度决定胜负。</span>
+            <span>全员巨球开局，90% 霸屏并维持 5 秒决定胜负。</span>
           </button>
           <button class="mode-card" type="button" data-mode="demon">
             <strong>魔王模式</strong>
@@ -1417,25 +1417,25 @@
     blitz: {
       label: "闪电乱斗",
       short: "闪电",
-      description: "4 分半高密度发育，随机事件密集触发，适合快速爽局。",
-      players: 64,
+      description: "3 分钟高密度发育，随机事件密集触发，适合快速爽局。",
+      players: 88,
       teams: 0,
       safeZone: true,
-      duration: 270,
+      duration: 185,
       respawn: true,
       ranking: "mass",
-      playerStartMass: 285,
-      foodTargetScale: 1.32,
-      foodRateScale: 1.48,
-      speedScale: 1.12,
-      safeZoneRadius: 0.46,
-      safeZoneTargetRadius: 0.30,
-      safeZoneShrinkStart: 9000,
-      safeZoneShrinkEnd: 38000,
-      eventDelay: 5000,
-      eventIntervalMin: 12000,
-      eventIntervalMax: 19000,
-      virusCount: 42
+      playerStartMass: 320,
+      foodTargetScale: 1.42,
+      foodRateScale: 1.68,
+      speedScale: 1.16,
+      safeZoneRadius: 0.44,
+      safeZoneTargetRadius: 0.28,
+      safeZoneShrinkStart: 6500,
+      safeZoneShrinkEnd: 30000,
+      eventDelay: 4200,
+      eventIntervalMin: 8500,
+      eventIntervalMax: 13500,
+      virusCount: 54
     },
     control: {
       label: "据点战",
@@ -1456,25 +1456,25 @@
       label: "巨行星霸屏",
       short: "巨行星",
       description: "全员巨球开局，刺球更多，连续保持霸屏进度即可获胜。",
-      players: 28,
+      players: 42,
       teams: 0,
       safeZone: true,
       duration: 480,
-      respawn: true,
+      respawn: false,
       ranking: "mass",
-      playerStartMass: 2600,
-      botMassScale: 5.2,
+      playerStartMass: 4300,
+      botMassScale: 8.0,
       foodTargetScale: 0.86,
       foodRateScale: 0.92,
       speedScale: 0.82,
-      virusCount: 92,
+      virusCount: 120,
       domination: true,
-      dominationShare: 0.38,
-      dominationHold: 4,
-      safeZoneRadius: 0.34,
-      safeZoneTargetRadius: 0.24,
-      safeZoneShrinkStart: 12000,
-      safeZoneShrinkEnd: 42000,
+      dominationShare: 0.9,
+      dominationHold: 5,
+      safeZoneRadius: 0.30,
+      safeZoneTargetRadius: 0.20,
+      safeZoneShrinkStart: 8500,
+      safeZoneShrinkEnd: 32000,
       eventDelay: 9000,
       eventIntervalMin: 26000,
       eventIntervalMax: 38000
@@ -4894,7 +4894,7 @@
     const total = alive.reduce((sum, entry) => sum + entry.mass, 0);
     const leader = alive[0];
     if (!leader || total <= 0) return;
-    const share = leader.mass / total;
+    const share = leader.mass / Math.max(1, total);
     game.domination.share = share;
     if (share >= (config.dominationShare || 0.52)) {
       if (game.domination.leaderId === leader.group.id) {
@@ -6248,7 +6248,8 @@
     if (config.domination) {
       const share = Math.round((game.domination?.share || 0) * 100);
       const hold = Math.max(0, Math.ceil((config.dominationHold || 7) - (game.domination?.hold || 0)));
-      tags.push(`<span class="tag danger">霸屏 ${share}% · ${hold}s</span>`);
+      const target = Math.round((config.dominationShare || 0.52) * 100);
+      tags.push(`<span class="tag danger">霸屏 ${share}%/${target}% · ${hold}s</span>`);
     }
     const activeTag = eventTag();
     if (activeTag) tags.push(`<span class="tag danger">${activeTag}</span>`);
