@@ -213,7 +213,7 @@
     right: 18px;
     bottom: 18px;
     display: grid;
-    grid-template-columns: repeat(5, 56px);
+    grid-template-columns: repeat(6, 56px);
     gap: 10px;
     pointer-events: auto;
     touch-action: none;
@@ -330,7 +330,7 @@
   }
 
   .dialog {
-    width: min(570px, calc(100vw - 32px));
+    width: min(860px, calc(100vw - 32px));
     max-width: calc(100vw - 32px);
     max-height: calc(100vh - 48px);
     overflow: auto;
@@ -361,7 +361,7 @@
 
   .meta-strip {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 8px;
     margin: 0 0 14px;
   }
@@ -387,7 +387,7 @@
 
   .lobby-tabs {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 8px;
     margin: 0 0 14px;
   }
@@ -413,8 +413,27 @@
     display: block;
   }
 
+  .lobby-tools {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin: 0 0 14px;
+  }
+
+  .lobby-tools button {
+    min-height: 38px;
+    border-radius: 8px;
+    font-size: 12px;
+  }
+
+  .lobby-tools button.active {
+    border-color: rgba(88, 237, 200, 0.7);
+    background: rgba(43, 158, 130, 0.28);
+  }
+
   .mode-grid {
     display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
     margin: 18px 0;
     text-align: left;
@@ -544,7 +563,7 @@
 
   .forge-layout {
     display: grid;
-    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
     gap: 12px;
     margin-bottom: 12px;
   }
@@ -641,8 +660,10 @@
 
   .forge-prize-list {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 6px;
+    max-height: 260px;
+    overflow: auto;
   }
 
   .forge-prize {
@@ -663,8 +684,15 @@
   .forge-prize.legendary { border-left: 3px solid #ffd166; }
 
   .forge-prize.unlocked {
-    color: rgba(220, 233, 248, 0.54);
-    text-decoration: line-through;
+    color: #f8fbff;
+    background: rgba(43, 158, 130, 0.22);
+    box-shadow: inset 0 0 0 1px rgba(88, 237, 200, 0.18);
+  }
+
+  .forge-prize-list.compact {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-height: none;
+    margin-top: 8px;
   }
 
   .forge-log {
@@ -681,7 +709,7 @@
 
   .shop-grid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 10px;
     margin-bottom: 12px;
   }
@@ -724,10 +752,18 @@
     background: rgba(70, 215, 196, 0.055);
   }
 
+  .redeem-box + .redeem-box {
+    margin-top: 10px;
+  }
+
   .redeem-row {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 88px;
     gap: 8px;
+  }
+
+  .redeem-row + .redeem-row {
+    margin-top: 8px;
   }
 
   .code-input {
@@ -758,6 +794,63 @@
     min-height: 40px;
     border-radius: 8px;
     font-size: 12px;
+  }
+
+  .progress-panel {
+    margin: 0 0 16px;
+    text-align: left;
+  }
+
+  .progress-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .progress-card {
+    min-height: 82px;
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.11);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.045);
+  }
+
+  .progress-card strong {
+    display: block;
+    color: #f3f8ff;
+    font-size: 20px;
+    line-height: 1;
+  }
+
+  .progress-card span {
+    display: block;
+    margin-top: 7px;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.35;
+  }
+
+  .progress-road {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .progress-node {
+    min-height: 52px;
+    padding: 8px;
+    border: 1px solid rgba(255, 209, 102, 0.22);
+    border-radius: 8px;
+    color: #dce9f8;
+    background: rgba(255, 209, 102, 0.055);
+    font-size: 11px;
+  }
+
+  .progress-node.active {
+    border-color: rgba(88, 237, 200, 0.64);
+    color: #f8fbff;
+    background: rgba(43, 158, 130, 0.2);
   }
 
   .loadout-group strong {
@@ -842,6 +935,10 @@
 
     .dialog h2 { font-size: 28px; }
 
+    .mode-grid {
+      grid-template-columns: 1fr;
+    }
+
     .mode-card {
       min-height: 66px;
       padding: 10px;
@@ -861,7 +958,9 @@
 
     .meta-strip,
     .forge-stats,
-    .shop-grid {
+    .shop-grid,
+    .progress-grid,
+    .progress-road {
       grid-template-columns: 1fr;
     }
 
@@ -978,6 +1077,7 @@
       <button class="icon-btn primary" id="splitBtn" title="分裂 空格" aria-label="分裂">分</button>
       <button class="icon-btn warn" id="ejectBtn" title="按住吐球 W" aria-label="按住吐球">吐</button>
       <button class="icon-btn" id="pauseBtn" title="暂停或继续 P" aria-label="暂停或继续">停</button>
+      <button class="icon-btn" id="musicBtn" title="BGM 开关" aria-label="BGM 开关">音</button>
       <button class="icon-btn" id="menuBtn" title="返回主界面" aria-label="返回主界面">厅</button>
       <button class="icon-btn" id="restartBtn" title="重新开始 R" aria-label="重新开始">新</button>
     </nav>
@@ -994,6 +1094,11 @@
         <button class="lobby-tab" type="button" data-lobby="outfit">外观</button>
         <button class="lobby-tab" type="button" data-lobby="shop">商店</button>
         <button class="lobby-tab" type="button" data-lobby="forge">铁匠铺</button>
+        <button class="lobby-tab" type="button" data-lobby="growth">成长</button>
+      </div>
+      <div class="lobby-tools">
+        <button type="button" id="musicLobbyBtn">BGM 关</button>
+        <button type="button" id="randomLookBtn">随机已拥有外观</button>
       </div>
       <section class="lobby-panel active" data-lobby-panel="play">
         <div class="mode-grid" id="modeGrid" aria-label="选择模式">
@@ -1013,9 +1118,17 @@
             <strong>大逃杀</strong>
             <span>100 人开局，安全区收缩，圈外掉质量，活到最后。</span>
           </button>
+          <button class="mode-card" type="button" data-mode="blitz">
+            <strong>闪电乱斗</strong>
+            <span>高密度食点和密集事件，节奏更快，4 分半结算。</span>
+          </button>
           <button class="mode-card" type="button" data-mode="control">
             <strong>据点战</strong>
             <span>4 队 6 人争夺 3 个星核据点，先到目标分获胜。</span>
+          </button>
+          <button class="mode-card" type="button" data-mode="giant">
+            <strong>巨行星霸屏</strong>
+            <span>全员巨球开局，炸刺、十六分和霸屏进度决定胜负。</span>
           </button>
           <button class="mode-card" type="button" data-mode="demon">
             <strong>魔王模式</strong>
@@ -1049,6 +1162,9 @@
       <section class="lobby-panel" data-lobby-panel="forge">
         <div class="forge-panel" id="forgePanel"></div>
       </section>
+      <section class="lobby-panel" data-lobby-panel="growth">
+        <div class="progress-panel" id="progressPanel"></div>
+      </section>
       <button id="playAgainBtn">再来一局</button>
     </div>
   </div>
@@ -1073,6 +1189,7 @@
   const pauseBtn = document.getElementById("pauseBtn");
   const splitBtn = document.getElementById("splitBtn");
   const ejectBtn = document.getElementById("ejectBtn");
+  const musicBtn = document.getElementById("musicBtn");
   const joystickEl = document.getElementById("joystick");
   const joystickStick = document.getElementById("joystickStick");
   const overlay = document.getElementById("overlay");
@@ -1082,6 +1199,8 @@
   const metaStrip = document.getElementById("metaStrip");
   const lobbyTabs = document.getElementById("lobbyTabs");
   const lobbyPanels = [...document.querySelectorAll("[data-lobby-panel]")];
+  const musicLobbyBtn = document.getElementById("musicLobbyBtn");
+  const randomLookBtn = document.getElementById("randomLookBtn");
   const modeGrid = document.getElementById("modeGrid");
   const playAgainBtn = document.getElementById("playAgainBtn");
   const menuBtn = document.getElementById("menuBtn");
@@ -1091,6 +1210,7 @@
   const trailGrid = document.getElementById("trailGrid");
   const shopPanel = document.getElementById("shopPanel");
   const forgePanel = document.getElementById("forgePanel");
+  const progressPanel = document.getElementById("progressPanel");
   const modeButtons = [...document.querySelectorAll("[data-mode]")];
 
   const WORLD = 7600;
@@ -1196,6 +1316,53 @@
     { key: "demon-trail", name: "魔焰裂痕", color: "#7f1d1d", accent: "#f97316", type: "special", pattern: "rift", tier: "legendary", rarity: "传说" },
     { key: "rift-trail", name: "裂隙拖尾", color: "#111827", accent: "#c084fc", type: "special", pattern: "rift", tier: "legendary", rarity: "传说" }
   ];
+
+  SKINS.push(
+    { key: "neon-grid", name: "霓虹棋盘", color: "#111827", accent: "#22d3ee", type: "special", pattern: "mecha", tier: "rare", rarity: "稀有" },
+    { key: "phoenix", name: "凤焰星羽", color: "#b91c1c", accent: "#fde68a", type: "special", pattern: "flare", tier: "epic", rarity: "史诗" },
+    { key: "glacier", name: "冰川晶冠", color: "#0e7490", accent: "#e0f2fe", type: "special", pattern: "tide", tier: "epic", rarity: "史诗" },
+    { key: "sakura-moon", name: "樱月绮面", color: "#9d174d", accent: "#fbcfe8", type: "special", pattern: "crown", tier: "rare", rarity: "稀有" },
+    { key: "cosmic-koi", name: "星河锦鲤", color: "#0f766e", accent: "#fef08a", type: "special", pattern: "tide", tier: "legendary", rarity: "传说" },
+    { key: "storm-eye", name: "风暴之眼", color: "#1d4ed8", accent: "#bae6fd", type: "special", pattern: "abyss", tier: "legendary", rarity: "传说" },
+    { key: "candy-pop", name: "糖果爆弹", color: "#db2777", accent: "#fef3c7", type: "special", pattern: "comet", tier: "common", rarity: "普通" },
+    { key: "jade-dragon", name: "青玉龙鳞", color: "#047857", accent: "#bbf7d0", type: "special", pattern: "mecha", tier: "epic", rarity: "史诗" },
+    { key: "zero-code", name: "零号代码", color: "#020617", accent: "#58edc8", type: "special", pattern: "mecha", tier: "legendary", rarity: "传说" },
+    { key: "sunset", name: "落霞星幕", color: "#c2410c", accent: "#fed7aa", type: "special", pattern: "flare", tier: "rare", rarity: "稀有" }
+  );
+
+  SPORES.push(
+    { key: "firework", name: "烟火碎星", color: "#f97316", accent: "#fff7ed", type: "special", pattern: "spark", tier: "rare", rarity: "稀有" },
+    { key: "lotus-seed", name: "莲心星种", color: "#f472b6", accent: "#fdf2f8", type: "special", pattern: "vine", tier: "rare", rarity: "稀有" },
+    { key: "quartz", name: "石英泡影", color: "#e0f2fe", accent: "#a78bfa", type: "special", pattern: "bubble", tier: "common", rarity: "普通" },
+    { key: "phoenix-ash", name: "凤焰灰烬", color: "#ef4444", accent: "#fde68a", type: "special", pattern: "meteor", tier: "epic", rarity: "史诗" },
+    { key: "neon-bit", name: "霓虹字节", color: "#22d3ee", accent: "#58edc8", type: "special", pattern: "spark", tier: "epic", rarity: "史诗" },
+    { key: "storm-pearl", name: "风暴珍珠", color: "#2563eb", accent: "#fef08a", type: "special", pattern: "royal", tier: "legendary", rarity: "传说" },
+    { key: "koi-scale", name: "锦鲤鳞片", color: "#fb923c", accent: "#bbf7d0", type: "special", pattern: "bubble", tier: "epic", rarity: "史诗" },
+    { key: "blackhole-dust", name: "黑洞星砂", color: "#020617", accent: "#c084fc", type: "special", pattern: "meteor", tier: "legendary", rarity: "传说" }
+  );
+
+  HALOS.push(
+    { key: "phoenix-ring", name: "凤焰光环", color: "#ef4444", accent: "#fde68a", type: "special", pattern: "sun", tier: "epic", rarity: "史诗" },
+    { key: "koi-ring", name: "锦鲤游环", color: "#0f766e", accent: "#facc15", type: "special", pattern: "orbit", tier: "rare", rarity: "稀有" },
+    { key: "mirror-ring", name: "镜月光环", color: "#64748b", accent: "#e0f2fe", type: "special", pattern: "frost", tier: "rare", rarity: "稀有" },
+    { key: "neon-ring", name: "霓虹电环", color: "#22d3ee", accent: "#58edc8", type: "special", pattern: "pulse", tier: "epic", rarity: "史诗" },
+    { key: "lotus-crown", name: "莲华冠环", color: "#be185d", accent: "#fdf2f8", type: "special", pattern: "crown", tier: "legendary", rarity: "传说" },
+    { key: "storm-ring", name: "风眼光环", color: "#1d4ed8", accent: "#bae6fd", type: "special", pattern: "gravity", tier: "legendary", rarity: "传说" },
+    { key: "candy-ring", name: "糖霜光环", color: "#fb7185", accent: "#fef3c7", type: "special", pattern: "pulse", tier: "common", rarity: "普通" },
+    { key: "jade-ring", name: "青玉光环", color: "#047857", accent: "#bbf7d0", type: "special", pattern: "orbit", tier: "epic", rarity: "史诗" }
+  );
+
+  TRAILS.push(
+    { key: "phoenix-trail", name: "凤焰长羽", color: "#ef4444", accent: "#fde68a", type: "special", pattern: "flame", tier: "epic", rarity: "史诗" },
+    { key: "koi-trail", name: "锦鲤水痕", color: "#0f766e", accent: "#facc15", type: "special", pattern: "bubbles", tier: "rare", rarity: "稀有" },
+    { key: "mirror-trail", name: "镜月残光", color: "#94a3b8", accent: "#e0f2fe", type: "special", pattern: "arc", tier: "rare", rarity: "稀有" },
+    { key: "neon-trail", name: "霓虹脉线", color: "#22d3ee", accent: "#58edc8", type: "special", pattern: "squares", tier: "epic", rarity: "史诗" },
+    { key: "lotus-trail", name: "莲华花路", color: "#be185d", accent: "#fdf2f8", type: "special", pattern: "petals", tier: "epic", rarity: "史诗" },
+    { key: "storm-trail", name: "风暴电尾", color: "#1d4ed8", accent: "#bae6fd", type: "special", pattern: "arc", tier: "legendary", rarity: "传说" },
+    { key: "candy-trail", name: "糖霜泡带", color: "#fb7185", accent: "#fef3c7", type: "special", pattern: "dots", tier: "common", rarity: "普通" },
+    { key: "blackhole-trail", name: "黑洞拖影", color: "#020617", accent: "#c084fc", type: "special", pattern: "rift", tier: "legendary", rarity: "传说" }
+  );
+
   const GAME_MODES = {
     solo: {
       label: "自由模式",
@@ -1247,6 +1414,29 @@
       ranking: "mass",
       playerStartMass: 220
     },
+    blitz: {
+      label: "闪电乱斗",
+      short: "闪电",
+      description: "4 分半高密度发育，随机事件密集触发，适合快速爽局。",
+      players: 64,
+      teams: 0,
+      safeZone: true,
+      duration: 270,
+      respawn: true,
+      ranking: "mass",
+      playerStartMass: 285,
+      foodTargetScale: 1.32,
+      foodRateScale: 1.48,
+      speedScale: 1.12,
+      safeZoneRadius: 0.46,
+      safeZoneTargetRadius: 0.30,
+      safeZoneShrinkStart: 9000,
+      safeZoneShrinkEnd: 38000,
+      eventDelay: 5000,
+      eventIntervalMin: 12000,
+      eventIntervalMax: 19000,
+      virusCount: 42
+    },
     control: {
       label: "据点战",
       short: "据点",
@@ -1261,6 +1451,33 @@
       control: true,
       controlScore: 220,
       playerStartMass: 185
+    },
+    giant: {
+      label: "巨行星霸屏",
+      short: "巨行星",
+      description: "全员巨球开局，刺球更多，连续保持霸屏进度即可获胜。",
+      players: 28,
+      teams: 0,
+      safeZone: true,
+      duration: 480,
+      respawn: true,
+      ranking: "mass",
+      playerStartMass: 2600,
+      botMassScale: 5.2,
+      foodTargetScale: 0.86,
+      foodRateScale: 0.92,
+      speedScale: 0.82,
+      virusCount: 92,
+      domination: true,
+      dominationShare: 0.38,
+      dominationHold: 4,
+      safeZoneRadius: 0.34,
+      safeZoneTargetRadius: 0.24,
+      safeZoneShrinkStart: 12000,
+      safeZoneShrinkEnd: 42000,
+      eventDelay: 9000,
+      eventIntervalMin: 26000,
+      eventIntervalMax: 38000
     },
     demon: {
       label: "魔王模式",
@@ -1292,6 +1509,12 @@
     { key: "thornstorm", label: "刺潮爆发", desc: "刺球增多且食点更肥", duration: 26, virusBurst: 18, foodMassMult: 1.24, richChanceAdd: 0.035, color: "#5eea80" },
     { key: "cometfall", label: "彗星坠落", desc: "高价值食点更常见", duration: 30, foodRateMult: 1.22, foodMassMult: 1.62, richChanceAdd: 0.12, color: "#ffd166" }
   ];
+  MATCH_EVENTS.push(
+    { key: "royalfeast", label: "王冠盛宴", desc: "吃点范围和高价值食点提升", duration: 26, eatReachMult: 1.45, foodMassMult: 1.36, richChanceAdd: 0.07, color: "#facc15" },
+    { key: "neonrush", label: "霓虹疾走", desc: "移动与吐球节奏加快", duration: 22, speedMult: 1.22, ejectMult: 0.68, color: "#22d3ee" },
+    { key: "blackhole", label: "黑洞边界", desc: "吃点范围暴涨但移动变沉", duration: 22, eatReachMult: 2.25, speedMult: 0.88, color: "#a78bfa" },
+    { key: "thornstorm", label: "刺潮风暴", desc: "刺球持续涌入，适合炸刺翻盘", duration: 24, virusBurst: 20, foodMassMult: 1.16, richChanceAdd: 0.04, color: "#5eea80" }
+  );
   const RARITY_CONFIG = {
     common: { label: "普通", chance: 0.58, exp: 18, color: "#94a3b8" },
     rare: { label: "稀有", chance: 0.28, exp: 36, color: "#38bdf8" },
@@ -1347,8 +1570,36 @@
     BALL16X: { label: "爆发豪华包", dust: 1600, tickets: 16, xp: 500, unlock: 2 },
     HALO888: { label: "光环补给", dust: 888, tickets: 8, xp: 220, unlock: 1 },
     TRAIL999: { label: "拖尾补给", dust: 999, tickets: 9, xp: 260, unlock: 1 },
-    ARENA2026: { label: "星团大礼包", dust: 2026, tickets: 20, xp: 720, unlock: 3 }
+    ARENA2026: { label: "星团大礼包", dust: 2026, tickets: 20, xp: 720, unlock: 3 },
+    MUSIC2026: { label: "BGM 庆典包", dust: 888, tickets: 10, xp: 260, unlock: 1 },
+    HUNTER888: { label: "生存猎手包", dust: 1088, tickets: 8, xp: 320, unlock: 1 },
+    GIANT999: { label: "巨星训练包", dust: 999, tickets: 9, xp: 360, unlock: 1 },
+    NEON777: { label: "霓虹外观包", dust: 777, tickets: 7, xp: 220, unlock: 1 },
+    KOI2026: { label: "锦鲤幸运包", dust: 2026, tickets: 12, xp: 520, unlock: 2 }
   };
+  const SHOP_DIRECT_ITEMS = [
+    { action: "buy-halo-orbit", type: "halo", key: "orbit", cost: 760, desc: "普通光环" },
+    { action: "buy-trail-aurora", type: "trail", key: "aurora-trail", cost: 1180, desc: "史诗拖尾" },
+    { action: "buy-skin-thunder", type: "skin", key: "thunder", cost: 1560, desc: "史诗皮肤" },
+    { action: "buy-halo-void", type: "halo", key: "void-gate", cost: 2380, desc: "传说光环" },
+    { action: "buy-trail-demon", type: "trail", key: "demon-trail", cost: 2280, desc: "传说拖尾" },
+    { action: "buy-skin-crown", type: "skin", key: "crown", cost: 1280, desc: "史诗皮肤" },
+    { action: "buy-spore-royal", type: "spore", key: "royal", cost: 1680, desc: "传说孢子" },
+    { action: "buy-skin-phoenix", type: "skin", key: "phoenix", cost: 1480, desc: "史诗皮肤" },
+    { action: "buy-halo-neon", type: "halo", key: "neon-ring", cost: 1320, desc: "史诗光环" },
+    { action: "buy-trail-koi", type: "trail", key: "koi-trail", cost: 980, desc: "稀有拖尾" },
+    { action: "buy-spore-storm", type: "spore", key: "storm-pearl", cost: 1880, desc: "传说孢子" },
+    { action: "buy-skin-zero", type: "skin", key: "zero-code", cost: 2600, desc: "传说皮肤" },
+    { action: "buy-halo-lotus", type: "halo", key: "lotus-crown", cost: 2360, desc: "传说光环" },
+    { action: "buy-trail-blackhole", type: "trail", key: "blackhole-trail", cost: 2480, desc: "传说拖尾" }
+  ];
+  const PERK_SHOP_ITEMS = [
+    { key: "start", name: "开局补给仓", desc: "每级开局质量 +30。", baseCost: 520, max: 10 },
+    { key: "reward", name: "星尘结算仪", desc: "每级结算星尘 +6%。", baseCost: 680, max: 10 },
+    { key: "rebate", name: "锻造返利炉", desc: "每级锻造消耗降低 3.5%。", baseCost: 620, max: 10 },
+    { key: "daily", name: "每日补给扩容", desc: "每日补给随等级增加星尘、经验和券。", baseCost: 480, max: 10 },
+    { key: "luck", name: "人品护符", desc: "每级提高人品积累速度。", baseCost: 720, max: 10 }
+  ];
   const META_VERSION = 4;
 
   let dpr = 1;
@@ -1393,6 +1644,11 @@
   let runId = 0;
   let eventBannerTimer = 0;
   let lobbyToastTimer = 0;
+  let musicEnabled = localStorage.getItem("ballArenaMusic") === "on";
+  let audioCtx = null;
+  let musicGain = null;
+  let musicTimer = 0;
+  let musicStep = 0;
 
   function resize() {
     dpr = Math.min(2, window.devicePixelRatio || 1);
@@ -1501,6 +1757,78 @@
     lobbyToastTimer = setTimeout(() => lobbyToast.classList.remove("show"), 2400);
   }
 
+  function updateMusicButtons() {
+    const label = musicEnabled ? "BGM 开" : "BGM 关";
+    musicBtn.textContent = musicEnabled ? "乐" : "音";
+    musicBtn.classList.toggle("active", musicEnabled);
+    musicLobbyBtn.textContent = label;
+    musicLobbyBtn.classList.toggle("active", musicEnabled);
+  }
+
+  function ensureAudio() {
+    const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextCtor) return null;
+    if (!audioCtx) {
+      audioCtx = new AudioContextCtor();
+      musicGain = audioCtx.createGain();
+      musicGain.gain.value = 0.055;
+      musicGain.connect(audioCtx.destination);
+    }
+    if (audioCtx.state === "suspended") audioCtx.resume();
+    return audioCtx;
+  }
+
+  function playSynthTone(freq, time, duration, type = "sine", volume = 0.5) {
+    if (!audioCtx || !musicGain) return;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, time);
+    gain.gain.setValueAtTime(0.0001, time);
+    gain.gain.exponentialRampToValueAtTime(volume, time + 0.018);
+    gain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
+    osc.connect(gain);
+    gain.connect(musicGain);
+    osc.start(time);
+    osc.stop(time + duration + 0.04);
+  }
+
+  function scheduleMusicStep() {
+    if (!musicEnabled || !ensureAudio()) return;
+    const notes = [392, 494, 587, 659, 587, 494, 440, 523];
+    const bass = [98, 147, 123, 165];
+    const t = audioCtx.currentTime + 0.02;
+    const note = notes[musicStep % notes.length];
+    playSynthTone(note, t, 0.16, "triangle", 0.28);
+    if (musicStep % 2 === 0) playSynthTone(bass[(musicStep / 2) % bass.length], t, 0.22, "sine", 0.18);
+    if (musicStep % 8 === 6) playSynthTone(note * 1.5, t + 0.08, 0.12, "triangle", 0.16);
+    musicStep += 1;
+  }
+
+  function startMusic() {
+    if (!ensureAudio()) return;
+    clearInterval(musicTimer);
+    scheduleMusicStep();
+    musicTimer = setInterval(scheduleMusicStep, 220);
+  }
+
+  function stopMusic() {
+    clearInterval(musicTimer);
+    musicTimer = 0;
+  }
+
+  function setMusic(enabled) {
+    musicEnabled = !!enabled;
+    localStorage.setItem("ballArenaMusic", musicEnabled ? "on" : "off");
+    if (musicEnabled) startMusic();
+    else stopMusic();
+    updateMusicButtons();
+  }
+
+  function toggleMusic() {
+    setMusic(!musicEnabled);
+  }
+
   function forgeLevelFromXp(xp) {
     const safeXp = Math.max(0, Number(xp) || 0);
     let level = 1;
@@ -1552,6 +1880,7 @@
       totalDust: 150,
       redeemedCodes: [],
       dailyPackDate: "",
+      perks: { start: 0, reward: 0, rebate: 0, daily: 0, luck: 0 },
       shopMessage: "",
       lastForge: null
     };
@@ -1582,6 +1911,10 @@
         forgeTickets: Number.isFinite(saved.forgeTickets) ? Math.max(0, saved.forgeTickets) : base.forgeTickets,
         forgePityEpic: clamp(Number(saved.forgePityEpic) || 0, 0, 10),
         forgePityLegend: clamp(Number(saved.forgePityLegend) || 0, 0, 40),
+        perks: Object.fromEntries(Object.keys(base.perks).map(key => [
+          key,
+          clamp(Number(saved.perks && saved.perks[key]) || 0, 0, 10)
+        ])),
         redeemedCodes: Array.isArray(saved.redeemedCodes) ? saved.redeemedCodes : [],
         dailyPackDate: saved.dailyPackDate || "",
         shopMessage: saved.shopMessage || "",
@@ -1668,6 +2001,116 @@
     return rarityText(item);
   }
 
+  function ownedSpecialCount() {
+    return forgeSkins().filter(item => skinUnlocked(item.key)).length +
+      forgeSpores().filter(item => sporeUnlocked(item.key)).length +
+      forgeHalos().filter(item => haloUnlocked(item.key)).length +
+      forgeTrails().filter(item => trailUnlocked(item.key)).length;
+  }
+
+  function totalSpecialCount() {
+    return forgeSkins().length + forgeSpores().length + forgeHalos().length + forgeTrails().length;
+  }
+
+  function perkLevel(key) {
+    return clamp(Number(meta.perks && meta.perks[key]) || 0, 0, 10);
+  }
+
+  function perkCost(offer) {
+    const level = perkLevel(offer.key);
+    return Math.floor(offer.baseCost * (1 + level * 0.72));
+  }
+
+  function growthStats() {
+    const owned = ownedSpecialCount();
+    const total = totalSpecialCount();
+    const forgeLevel = Math.max(1, meta.forgeLevel || 1);
+    const crafted = Math.max(0, meta.crafted || 0);
+    const totalDust = Math.max(0, meta.totalDust || 0);
+    const level = Math.max(1,
+      Math.floor(owned / 3) +
+      Math.floor(forgeLevel / 2) +
+      Math.floor(crafted / 12) +
+      Math.floor(totalDust / 2600)
+    );
+    const startMass = Math.min(420,
+      18 +
+      owned * 4 +
+      forgeLevel * 9 +
+      Math.floor(crafted / 3) +
+      Math.floor(totalDust / 900) +
+      perkLevel("start") * 30
+    );
+    const rewardPct = Math.min(160,
+      8 +
+      owned * 2 +
+      forgeLevel * 3 +
+      Math.floor(crafted / 5) * 2 +
+      Math.floor(totalDust / 1200) * 2 +
+      perkLevel("reward") * 6
+    );
+    return { owned, total, level, startMass, rewardPct, forgeLevel, crafted, totalDust };
+  }
+
+  function playerStartMassFor(config) {
+    return (config.playerStartMass || 220) + growthStats().startMass;
+  }
+
+  function growthRewardMultiplier() {
+    return 1 + growthStats().rewardPct / 100;
+  }
+
+  function renderProgress() {
+    const stats = growthStats();
+    const theme = forgeThemeForLevel(meta.forgeLevel || 1);
+    const nodes = [4, 12, 24, 40, 60].map(target => ({
+      target,
+      active: stats.owned >= target,
+      label: `${target} 外观`
+    }));
+    progressPanel.innerHTML = `
+      <div class="progress-grid">
+        <div class="progress-card"><strong>Lv.${stats.level}</strong><span>收藏等级，外观和铁匠铺共同提升。</span></div>
+        <div class="progress-card"><strong>${stats.owned}/${stats.total}</strong><span>特殊外观收藏进度。</span></div>
+        <div class="progress-card"><strong>+${stats.startMass}</strong><span>每局开局质量加成。</span></div>
+        <div class="progress-card"><strong>+${stats.rewardPct}%</strong><span>结算星尘加成。</span></div>
+      </div>
+      <div class="progress-grid">
+        <div class="progress-card"><strong>${theme.name}</strong><span>当前铁匠铺外观。</span></div>
+        <div class="progress-card"><strong>${Math.floor(meta.crafted || 0)}</strong><span>累计锻造次数。</span></div>
+        <div class="progress-card"><strong>${Math.floor(meta.totalDust || 0)}</strong><span>累计获得星尘。</span></div>
+        <div class="progress-card"><strong>${Math.floor(meta.forgeTickets || 0)}</strong><span>可用锻造券。</span></div>
+      </div>
+      <div class="progress-grid">
+        <div class="progress-card"><strong>Lv.${perkLevel("start")}</strong><span>开局补给仓。</span></div>
+        <div class="progress-card"><strong>Lv.${perkLevel("reward")}</strong><span>星尘结算仪。</span></div>
+        <div class="progress-card"><strong>Lv.${perkLevel("rebate")}</strong><span>锻造返利炉。</span></div>
+        <div class="progress-card"><strong>Lv.${perkLevel("luck")}</strong><span>人品护符。</span></div>
+      </div>
+      <div class="progress-road">
+        ${nodes.map(node => `<div class="progress-node${node.active ? " active" : ""}"><strong>${node.label}</strong><br>${node.active ? "已激活" : `还差 ${Math.max(0, node.target - stats.owned)}`}</div>`).join("")}
+      </div>
+    `;
+  }
+
+  function chooseOwned(items, unlockedFn) {
+    const owned = items.filter(item => unlockedFn(item.key));
+    return randomItem(owned.length ? owned : items);
+  }
+
+  function randomizeOwnedLook() {
+    selectedSkin = chooseOwned(SKINS, skinUnlocked).key;
+    selectedSpore = chooseOwned(SPORES, sporeUnlocked).key;
+    selectedHalo = chooseOwned(HALOS, haloUnlocked).key;
+    selectedTrail = chooseOwned(TRAILS, trailUnlocked).key;
+    localStorage.setItem("ballArenaSkin", selectedSkin);
+    localStorage.setItem("ballArenaSpore", selectedSpore);
+    localStorage.setItem("ballArenaHalo", selectedHalo);
+    localStorage.setItem("ballArenaTrail", selectedTrail);
+    renderCosmetics();
+    showLobbyToast("已随机切换一套已拥有外观", "#58edc8");
+  }
+
   function rarityText(item) {
     return item && item.rarity ? item.rarity : "基础";
   }
@@ -1678,10 +2121,12 @@
 
   function renderMetaStrip() {
     const progress = forgeLevelProgress();
+    const growth = growthStats();
     metaStrip.innerHTML = `
       <div class="meta-pill">星尘 ${Math.floor(meta.dust)}<span>对局与补给获得</span></div>
       <div class="meta-pill">锻造券 ${Math.floor(meta.forgeTickets || 0)}<span>锻造优先消耗</span></div>
       <div class="meta-pill">铁匠铺 Lv.${progress.level}<span>${progress.maxed ? `总经验 ${Math.floor(progress.xp)}` : `${Math.floor(progress.current)}/${progress.needed}`}</span></div>
+      <div class="meta-pill">收藏 Lv.${growth.level}<span>开局 +${growth.startMass} · 星尘 +${growth.rewardPct}%</span></div>
     `;
   }
 
@@ -1717,15 +2162,18 @@
     renderMetaStrip();
     renderForge();
     renderShop();
+    renderProgress();
   }
 
   function forgeCost(type) {
     const level = Math.max(1, meta.forgeLevel || 1);
-    if (type === "skin") return 82 + level * 8;
-    if (type === "spore") return 68 + level * 7;
-    if (type === "halo") return 88 + level * 9;
-    if (type === "trail") return 80 + level * 8;
-    return 76 + level * 8;
+    let base;
+    if (type === "skin") base = 82 + level * 8;
+    else if (type === "spore") base = 68 + level * 7;
+    else if (type === "halo") base = 88 + level * 9;
+    else if (type === "trail") base = 80 + level * 8;
+    else base = 76 + level * 8;
+    return Math.max(25, Math.round(base * (1 - perkLevel("rebate") * 0.035)));
   }
 
   function canPayForge(type) {
@@ -1794,23 +2242,27 @@
   function rollBurstMultiplier() {
     const luck = clamp(meta.forgeLuck || 0, 0, 99);
     const roll = Math.random();
-    const boost = luck / 1000;
+    const boost = (luck + perkLevel("luck") * 5) / 1000;
     let multiplier = 1;
     if (roll < 0.004 + boost * 0.12) multiplier = 16;
     else if (roll < 0.014 + boost * 0.22) multiplier = 8;
     else if (roll < 0.05 + boost * 0.38) multiplier = 4;
     else if (roll < 0.16 + boost * 0.58) multiplier = 2;
-    meta.forgeLuck = multiplier > 1 ? 0 : clamp(luck + 9, 0, 99);
+    meta.forgeLuck = multiplier > 1 ? 0 : clamp(luck + 9 + perkLevel("luck"), 0, 99);
     return multiplier;
+  }
+
+  function forgeRewardForLevel(level) {
+    return FORGE_LEVEL_REWARDS[level] || {
+      dust: Math.min(1200, 240 + level * 42),
+      tickets: Math.min(8, 1 + Math.floor(level / 4))
+    };
   }
 
   function grantForgeLevelRewards(fromLevel, toLevel) {
     const rewards = [];
     for (let level = fromLevel + 1; level <= toLevel; level++) {
-      const reward = FORGE_LEVEL_REWARDS[level] || {
-        dust: Math.min(1200, 240 + level * 42),
-        tickets: Math.min(8, 1 + Math.floor(level / 4))
-      };
+      const reward = forgeRewardForLevel(level);
       meta.dust += reward.dust || 0;
       meta.forgeTickets = (meta.forgeTickets || 0) + (reward.tickets || 0);
       rewards.push(`Lv.${level} +${reward.dust || 0}星尘 +${reward.tickets || 0}券`);
@@ -1845,6 +2297,13 @@
     if (type === "halo") return haloUnlocked(key);
     if (type === "trail") return trailUnlocked(key);
     return skinUnlocked(key);
+  }
+
+  function cosmeticByType(type, key) {
+    if (type === "spore") return SPORES.find(item => item.key === key);
+    if (type === "halo") return HALOS.find(item => item.key === key);
+    if (type === "trail") return TRAILS.find(item => item.key === key);
+    return SKINS.find(item => item.key === key);
   }
 
   function unlockForgeItem(type, item) {
@@ -1892,6 +2351,12 @@
     const last = formatForgeLog();
     const nextEpic = Math.max(1, 10 - (meta.forgePityEpic || 0));
     const nextLegend = Math.max(1, 40 - (meta.forgePityLegend || 0));
+    const upcomingRewards = [1, 2, 3, 4].map(step => {
+      const level = progress.level + step;
+      const reward = forgeRewardForLevel(level);
+      const rewardTheme = forgeThemeForLevel(level);
+      return { level, reward, rewardTheme };
+    });
     forgePanel.style.setProperty("--forge-theme", theme.color);
     forgePanel.innerHTML = `
       <div class="forge-row">
@@ -1924,6 +2389,10 @@
             ${RARITY_ORDER.map(tier => `<span class="rarity-chip">${RARITY_CONFIG[tier].label} ${Math.round(RARITY_CONFIG[tier].chance * 100)}%</span>`).join("")}
           </div>
           <div class="forge-note">重复外观会转为铁匠铺经验，升级自动发星尘和锻造券。</div>
+          <div class="forge-prize-title" style="margin-top:10px">后续等级奖励</div>
+          <div class="forge-prize-list compact">
+            ${upcomingRewards.map(entry => `<span class="forge-prize unlocked">Lv.${entry.level} ${entry.rewardTheme.name}<br>+${entry.reward.dust || 0}星尘 +${entry.reward.tickets || 0}券</span>`).join("")}
+          </div>
         </div>
         <div class="forge-prizes">
           <div class="forge-prize-title">皮肤 ${specialSkins.length - lockedSkins.length}/${specialSkins.length} · 孢子 ${specialSpores.length - lockedSpores.length}/${specialSpores.length} · 光环 ${specialHalos.length - lockedHalos.length}/${specialHalos.length} · 拖尾 ${specialTrails.length - lockedTrails.length}/${specialTrails.length}</div>
@@ -1981,18 +2450,39 @@
 
   function renderShop() {
     const claimed = meta.dailyPackDate === todayKey();
-    const directHalo = HALOS.find(item => item.key === "orbit");
-    const directHalo2 = HALOS.find(item => item.key === "void-gate");
-    const directTrail = TRAILS.find(item => item.key === "aurora-trail");
-    const directTrail2 = TRAILS.find(item => item.key === "demon-trail");
-    const directSkin = SKINS.find(item => item.key === "crown");
-    const directSkin2 = SKINS.find(item => item.key === "thunder");
-    const directSpore = SPORES.find(item => item.key === "royal");
+    const dailyLevel = perkLevel("daily");
+    const dailyDust = 120 + dailyLevel * 45;
+    const dailyTickets = 1 + Math.floor(dailyLevel / 3);
+    const dailyXp = dailyLevel * 28;
+    const directCards = SHOP_DIRECT_ITEMS.map(offer => {
+      const item = cosmeticByType(offer.type, offer.key);
+      if (!item) return "";
+      const owned = hasForgeItem(offer.type, offer.key);
+      return `
+        <div class="shop-card">
+          <strong>${item.name}</strong>
+          <span>直购${offer.desc}，消耗 ${offer.cost} 星尘。</span>
+          <button type="button" data-shop="${offer.action}" ${owned || meta.dust < offer.cost ? "disabled" : ""}>${owned ? "已拥有" : "直购"}</button>
+        </div>
+      `;
+    }).join("");
+    const perkCards = PERK_SHOP_ITEMS.map(offer => {
+      const level = perkLevel(offer.key);
+      const maxed = level >= offer.max;
+      const cost = perkCost(offer);
+      return `
+        <div class="shop-card">
+          <strong>${offer.name} Lv.${level}</strong>
+          <span>${offer.desc}${maxed ? " 已满级。" : ` 下级消耗 ${cost} 星尘。`}</span>
+          <button type="button" data-shop="perk-${offer.key}" ${maxed || meta.dust < cost ? "disabled" : ""}>${maxed ? "已满级" : "升级"}</button>
+        </div>
+      `;
+    }).join("");
     shopPanel.innerHTML = `
       <div class="shop-grid">
         <div class="shop-card">
           <strong>每日补给</strong>
-          <span>星尘 120，锻造券 1。</span>
+          <span>星尘 ${dailyDust}，锻造券 ${dailyTickets}${dailyXp ? `，经验 ${dailyXp}` : ""}。</span>
           <button type="button" data-shop="daily" ${claimed ? "disabled" : ""}>${claimed ? "已领取" : "领取"}</button>
         </div>
         <div class="shop-card">
@@ -2011,53 +2501,47 @@
           <button type="button" data-shop="xp" ${meta.dust >= 160 ? "" : "disabled"}>购买</button>
         </div>
         <div class="shop-card">
-          <strong>${directHalo.name}</strong>
-          <span>直购光环，消耗 760 星尘。</span>
-          <button type="button" data-shop="buy-halo-orbit" ${haloUnlocked(directHalo.key) || meta.dust < 760 ? "disabled" : ""}>${haloUnlocked(directHalo.key) ? "已拥有" : "直购"}</button>
+          <strong>工坊冲刺包</strong>
+          <span>消耗 520 星尘，经验 +360，锻造券 +2。</span>
+          <button type="button" data-shop="forge-boost" ${meta.dust >= 520 ? "" : "disabled"}>购买</button>
         </div>
         <div class="shop-card">
-          <strong>${directTrail.name}</strong>
-          <span>直购史诗拖尾，消耗 1180 星尘。</span>
-          <button type="button" data-shop="buy-trail-aurora" ${trailUnlocked(directTrail.key) || meta.dust < 1180 ? "disabled" : ""}>${trailUnlocked(directTrail.key) ? "已拥有" : "直购"}</button>
+          <strong>随机特殊外观</strong>
+          <span>消耗 1280 星尘，随机解锁一个未拥有特殊外观。</span>
+          <button type="button" data-shop="random-special" ${meta.dust >= 1280 ? "" : "disabled"}>购买</button>
         </div>
         <div class="shop-card">
-          <strong>${directSkin2.name}</strong>
-          <span>直购史诗皮肤，消耗 1560 星尘。</span>
-          <button type="button" data-shop="buy-skin-thunder" ${skinUnlocked(directSkin2.key) || meta.dust < 1560 ? "disabled" : ""}>${skinUnlocked(directSkin2.key) ? "已拥有" : "直购"}</button>
+          <strong>传说火种</strong>
+          <span>消耗 760 星尘，传说保底进度 +10。</span>
+          <button type="button" data-shop="legend-seed" ${meta.dust >= 760 ? "" : "disabled"}>购买</button>
         </div>
-        <div class="shop-card">
-          <strong>${directHalo2.name}</strong>
-          <span>直购传说光环，消耗 2380 星尘。</span>
-          <button type="button" data-shop="buy-halo-void" ${haloUnlocked(directHalo2.key) || meta.dust < 2380 ? "disabled" : ""}>${haloUnlocked(directHalo2.key) ? "已拥有" : "直购"}</button>
-        </div>
-        <div class="shop-card">
-          <strong>${directTrail2.name}</strong>
-          <span>直购传说拖尾，消耗 2280 星尘。</span>
-          <button type="button" data-shop="buy-trail-demon" ${trailUnlocked(directTrail2.key) || meta.dust < 2280 ? "disabled" : ""}>${trailUnlocked(directTrail2.key) ? "已拥有" : "直购"}</button>
-        </div>
-        <div class="shop-card">
-          <strong>${directSkin.name}</strong>
-          <span>直购史诗皮肤，消耗 1280 星尘。</span>
-          <button type="button" data-shop="buy-skin-crown" ${skinUnlocked(directSkin.key) || meta.dust < 1280 ? "disabled" : ""}>${skinUnlocked(directSkin.key) ? "已拥有" : "直购"}</button>
-        </div>
-        <div class="shop-card">
-          <strong>${directSpore.name}</strong>
-          <span>直购传说孢子，消耗 1680 星尘。</span>
-          <button type="button" data-shop="buy-spore-royal" ${sporeUnlocked(directSpore.key) || meta.dust < 1680 ? "disabled" : ""}>${sporeUnlocked(directSpore.key) ? "已拥有" : "直购"}</button>
-        </div>
+        ${perkCards}
+        ${directCards}
       </div>
       <div class="redeem-box">
         <div class="redeem-row">
           <input class="code-input" id="redeemCodeInput" maxlength="18" autocomplete="off" placeholder="兑换码">
           <button type="button" data-shop="redeem">兑换</button>
         </div>
-        <div class="shop-message">${meta.shopMessage || "可用：STARS2026、FORGE777、BALL16X、HALO888、TRAIL999、ARENA2026"}</div>
+        <div class="shop-message">${meta.shopMessage || "可用：STARS2026、FORGE777、BALL16X、HALO888、TRAIL999、ARENA2026、MUSIC2026、HUNTER888、GIANT999、NEON777、KOI2026"}</div>
+      </div>
+      <div class="redeem-box">
+        <div class="redeem-row">
+          <input class="code-input" id="exportSaveInput" readonly placeholder="点击导出生成存档码">
+          <button type="button" data-shop="export-save">导出</button>
+        </div>
+        <div class="redeem-row">
+          <input class="code-input" id="importSaveInput" autocomplete="off" placeholder="粘贴存档码">
+          <button type="button" data-shop="import-save">导入</button>
+        </div>
       </div>
     `;
   }
 
   function setShopMessage(message) {
     meta.shopMessage = message;
+    const messageEl = shopPanel.querySelector(".shop-message");
+    if (messageEl) messageEl.textContent = message;
   }
 
   function applyReward(reward) {
@@ -2107,11 +2591,77 @@
     return result.item;
   }
 
+  function encodeSaveCode() {
+    const payload = {
+      meta,
+      selectedSkin,
+      selectedSpore,
+      selectedHalo,
+      selectedTrail
+    };
+    return btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+  }
+
+  function decodeSaveCode(code) {
+    return JSON.parse(decodeURIComponent(escape(atob(code.trim()))));
+  }
+
+  function exportSaveCode() {
+    const input = shopPanel.querySelector("#exportSaveInput");
+    if (!input) return;
+    input.value = encodeSaveCode();
+    input.focus();
+    if (input.select) input.select();
+    setShopMessage("存档码已生成，可复制到其他设备导入。");
+  }
+
+  function importSaveCode() {
+    const input = shopPanel.querySelector("#importSaveInput");
+    const raw = input ? input.value.trim() : "";
+    if (!raw) {
+      setShopMessage("请先粘贴存档码。");
+      return;
+    }
+    try {
+      const payload = decodeSaveCode(raw);
+      if (!payload || typeof payload !== "object" || !payload.meta) throw new Error("bad save");
+      localStorage.setItem("ballArenaMeta", JSON.stringify(payload.meta));
+      meta = loadMeta();
+      selectedSkin = SKINS.some(item => item.key === payload.selectedSkin) && skinUnlocked(payload.selectedSkin) ? payload.selectedSkin : "aqua";
+      selectedSpore = SPORES.some(item => item.key === payload.selectedSpore) && sporeUnlocked(payload.selectedSpore) ? payload.selectedSpore : "mint";
+      selectedHalo = HALOS.some(item => item.key === payload.selectedHalo) && haloUnlocked(payload.selectedHalo) ? payload.selectedHalo : "none";
+      selectedTrail = TRAILS.some(item => item.key === payload.selectedTrail) && trailUnlocked(payload.selectedTrail) ? payload.selectedTrail : "none";
+      localStorage.setItem("ballArenaSkin", selectedSkin);
+      localStorage.setItem("ballArenaSpore", selectedSpore);
+      localStorage.setItem("ballArenaHalo", selectedHalo);
+      localStorage.setItem("ballArenaTrail", selectedTrail);
+      saveMeta();
+      setShopMessage("存档导入成功。");
+    } catch (_) {
+      setShopMessage("存档码无法识别。");
+    }
+  }
+
   function handleShopAction(action) {
+    if (action === "export-save") {
+      exportSaveCode();
+      saveMeta();
+      return;
+    }
+    if (action === "import-save") {
+      importSaveCode();
+      renderCosmetics();
+      return;
+    }
     if (action === "daily") {
       if (meta.dailyPackDate === todayKey()) return;
       meta.dailyPackDate = todayKey();
-      setShopMessage(`每日补给：${applyReward({ dust: 120, tickets: 1 })}`);
+      const dailyLevel = perkLevel("daily");
+      setShopMessage(`每日补给：${applyReward({
+        dust: 120 + dailyLevel * 45,
+        tickets: 1 + Math.floor(dailyLevel / 3),
+        xp: dailyLevel * 28
+      })}`);
     } else if (action === "ticket") {
       if (meta.dust < 120) return;
       meta.dust -= 120;
@@ -2127,49 +2677,48 @@
       meta.dust -= 160;
       const levelResult = addForgeXp(90);
       setShopMessage(`铁匠铺经验 +${levelResult.xp}${levelResult.rewards.length ? `，${levelResult.rewards.join("，")}` : ""}`);
-    } else if (action === "buy-halo-orbit") {
-      const item = HALOS.find(halo => halo.key === "orbit");
-      if (!item || haloUnlocked(item.key) || meta.dust < 760) return;
-      meta.dust -= 760;
-      unlockForgeItem("halo", item);
-      setShopMessage(`直购成功：${item.name}`);
-    } else if (action === "buy-trail-aurora") {
-      const item = TRAILS.find(trail => trail.key === "aurora-trail");
-      if (!item || trailUnlocked(item.key) || meta.dust < 1180) return;
-      meta.dust -= 1180;
-      unlockForgeItem("trail", item);
-      setShopMessage(`直购成功：${item.name}`);
-    } else if (action === "buy-skin-thunder") {
-      const item = SKINS.find(skin => skin.key === "thunder");
-      if (!item || skinUnlocked(item.key) || meta.dust < 1560) return;
-      meta.dust -= 1560;
-      unlockForgeItem("skin", item);
-      setShopMessage(`直购成功：${item.name}`);
-    } else if (action === "buy-halo-void") {
-      const item = HALOS.find(halo => halo.key === "void-gate");
-      if (!item || haloUnlocked(item.key) || meta.dust < 2380) return;
-      meta.dust -= 2380;
-      unlockForgeItem("halo", item);
-      setShopMessage(`直购成功：${item.name}`);
-    } else if (action === "buy-trail-demon") {
-      const item = TRAILS.find(trail => trail.key === "demon-trail");
-      if (!item || trailUnlocked(item.key) || meta.dust < 2280) return;
-      meta.dust -= 2280;
-      unlockForgeItem("trail", item);
-      setShopMessage(`直购成功：${item.name}`);
-    } else if (action === "buy-skin-crown") {
-      const item = SKINS.find(skin => skin.key === "crown");
-      if (!item || skinUnlocked(item.key) || meta.dust < 1280) return;
+    } else if (action === "forge-boost") {
+      if (meta.dust < 520) return;
+      meta.dust -= 520;
+      meta.forgeTickets = (meta.forgeTickets || 0) + 2;
+      const levelResult = addForgeXp(360);
+      setShopMessage(`工坊冲刺：锻造券 +2，经验 +${levelResult.xp}${levelResult.rewards.length ? `，${levelResult.rewards.join("，")}` : ""}`);
+    } else if (action === "random-special") {
+      if (meta.dust < 1280) return;
       meta.dust -= 1280;
-      unlockForgeItem("skin", item);
-      setShopMessage(`直购成功：${item.name}`);
-    } else if (action === "buy-spore-royal") {
-      const item = SPORES.find(spore => spore.key === "royal");
-      if (!item || sporeUnlocked(item.key) || meta.dust < 1680) return;
-      meta.dust -= 1680;
-      unlockForgeItem("spore", item);
-      setShopMessage(`直购成功：${item.name}`);
-    } else if (action === "redeem") {
+      const item = unlockRandomSpecial();
+      setShopMessage(item ? `随机外观：${item.name}` : "特殊外观已全收集，转为经验 +120");
+    } else if (action === "legend-seed") {
+      if (meta.dust < 760) return;
+      meta.dust -= 760;
+      meta.forgePityLegend = clamp((meta.forgePityLegend || 0) + 10, 0, 39);
+      meta.forgePityEpic = clamp((meta.forgePityEpic || 0) + 3, 0, 9);
+      setShopMessage(`传说火种：传说保底进度 ${meta.forgePityLegend}/40`);
+    } else {
+      const perkOffer = PERK_SHOP_ITEMS.find(item => `perk-${item.key}` === action);
+      if (perkOffer) {
+        const level = perkLevel(perkOffer.key);
+        const cost = perkCost(perkOffer);
+        if (level >= perkOffer.max || meta.dust < cost) return;
+        meta.dust -= cost;
+        meta.perks = { ...(meta.perks || {}), [perkOffer.key]: level + 1 };
+        setShopMessage(`${perkOffer.name} 升至 Lv.${level + 1}`);
+        saveMeta();
+        renderCosmetics();
+        return;
+      }
+      const offer = SHOP_DIRECT_ITEMS.find(item => item.action === action);
+      if (!offer) {
+        if (action !== "redeem") return;
+      } else {
+        const item = cosmeticByType(offer.type, offer.key);
+        if (!item || hasForgeItem(offer.type, offer.key) || meta.dust < offer.cost) return;
+        meta.dust -= offer.cost;
+        unlockForgeItem(offer.type, item);
+        setShopMessage(`直购成功：${item.name}`);
+      }
+    }
+    if (action === "redeem") {
       const input = shopPanel.querySelector("#redeemCodeInput");
       const code = (input ? input.value : "").trim().toUpperCase();
       const reward = REDEEM_CODES[code];
@@ -2239,10 +2788,12 @@
   }
 
   function botStartMass(index, config) {
-    if (config.ranking === "kills") return index < 6 ? rand(230, 430) : rand(82, 240);
-    if (config.teams > 0) return index < 10 ? rand(220, 460) : rand(86, 270);
-    if (config.respawn) return index < 10 ? rand(260, 540) : index < 42 ? rand(120, 360) : rand(58, 230);
-    return index < 8 ? rand(320, 680) : index < 34 ? rand(135, 430) : rand(72, 250);
+    let mass;
+    if (config.ranking === "kills") mass = index < 6 ? rand(230, 430) : rand(82, 240);
+    else if (config.teams > 0) mass = index < 10 ? rand(220, 460) : rand(86, 270);
+    else if (config.respawn) mass = index < 10 ? rand(260, 540) : index < 42 ? rand(120, 360) : rand(58, 230);
+    else mass = index < 8 ? rand(320, 680) : index < 34 ? rand(135, 430) : rand(72, 250);
+    return mass * (config.botMassScale || 1);
   }
 
   function rollDemonBossCount() {
@@ -2402,14 +2953,17 @@
 
   function foodTargetCount(now) {
     const elapsed = elapsedSeconds(now);
+    const config = modeConfig();
     const phaseBonus = Math.max(0, (safeZone.phase || 1) - 1) * 185;
     const target = FOOD_BASE_COUNT + elapsed * 4.2 + phaseBonus;
-    return Math.floor(clamp(target * activeEventFactor("foodTargetMult", 1), FOOD_BASE_COUNT, FOOD_MAX_COUNT));
+    const scale = config.foodTargetScale || 1;
+    return Math.floor(clamp(target * activeEventFactor("foodTargetMult", 1) * scale, FOOD_BASE_COUNT * Math.min(1, scale), FOOD_MAX_COUNT * Math.max(1, scale)));
   }
 
   function foodSpawnRate(now) {
     const elapsed = elapsedSeconds(now);
-    return clamp((24 + elapsed * 0.34 + (safeZone.phase || 1) * 9) * activeEventFactor("foodRateMult", 1), 24, 180);
+    const scale = modeConfig().foodRateScale || 1;
+    return clamp((24 + elapsed * 0.34 + (safeZone.phase || 1) * 9) * activeEventFactor("foodRateMult", 1) * scale, 24, 220);
   }
 
   function foodKey(x, y) {
@@ -2514,26 +3068,28 @@
     lastFrame = now;
     ejectBtn.classList.remove("active");
 
+    const zoneRadius = WORLD * (config.safeZone ? (config.safeZoneRadius || 0.58) : 0.75);
+    const zoneTargetRadius = WORLD * (config.safeZone ? (config.safeZoneTargetRadius || 0.44) : 0.75);
     safeZone = {
       enabled: config.safeZone,
       x: WORLD / 2,
       y: WORLD / 2,
-      radius: config.safeZone ? WORLD * 0.58 : WORLD * 0.75,
+      radius: zoneRadius,
       fromX: WORLD / 2,
       fromY: WORLD / 2,
-      fromRadius: config.safeZone ? WORLD * 0.58 : WORLD * 0.75,
+      fromRadius: zoneRadius,
       targetX: WORLD / 2 + rand(-420, 420),
       targetY: WORLD / 2 + rand(-420, 420),
-      targetRadius: config.safeZone ? WORLD * 0.44 : WORLD * 0.75,
+      targetRadius: zoneTargetRadius,
       phase: 1,
       shrinking: false,
-      shrinkStart: now + 18000,
-      shrinkEnd: now + 64000
+      shrinkStart: now + (config.safeZoneShrinkStart || 18000),
+      shrinkEnd: now + (config.safeZoneShrinkEnd || 64000)
     };
     initControlPoints(config);
     resetMatchEvents(now, config);
 
-    const playerStartMass = config.playerStartMass || 220;
+    const playerStartMass = playerStartMassFor(config);
     playerGroup = makeGroup("player", PLAYER_NAME, modeColor(playerTeam || 0, true), true, playerStartMass, start, playerTeam);
     playerGroup.lives = config.lives || 0;
     groups.push(playerGroup);
@@ -2562,12 +3118,15 @@
       zonePulse: 0,
       winnerShown: false,
       dustRewarded: false,
+      domination: { leaderId: null, hold: 0, share: 0 },
       menu: !!opts.menu
     };
     if (config.demon) setupDemonMode(config);
 
-    for (let i = 0; i < FOOD_BASE_COUNT; i++) addFood(makeFood());
-    for (let i = 0; i < VIRUS_COUNT; i++) viruses.push(makeVirus(i % 4 === 0 ? "big" : "small"));
+    const initialFood = Math.floor(FOOD_BASE_COUNT * (config.initialFoodScale || Math.min(1.25, config.foodTargetScale || 1)));
+    for (let i = 0; i < initialFood; i++) addFood(makeFood());
+    const initialViruses = Math.floor(config.virusCount || VIRUS_COUNT);
+    for (let i = 0; i < initialViruses; i++) viruses.push(makeVirus(i % 4 === 0 ? "big" : "small"));
 
     camera = { ...start };
     zoom = 0.82;
@@ -2581,6 +3140,7 @@
       overlay.style.display = "none";
       modeGrid.style.display = "none";
       finalMass.style.display = "block";
+      if (musicEnabled) startMusic();
     }
     pauseBtn.textContent = "停";
     updateHud(now, true);
@@ -2589,7 +3149,7 @@
   function resetMatchEvents(now, config) {
     matchEvent = {
       active: null,
-      nextAt: now + (config.control ? 9000 : 12000),
+      nextAt: now + (config.eventDelay || (config.control ? 9000 : 12000)),
       endsAt: 0,
       recent: [],
       virusBank: 0
@@ -2619,15 +3179,16 @@
     if (game.menu || game.over) return;
     if (matchEvent.active && now >= matchEvent.endsAt) {
       matchEvent.active = null;
-      matchEvent.nextAt = now + rand(34000, 52000);
+      const config = modeConfig();
+      matchEvent.nextAt = now + rand(config.eventIntervalMin || 34000, config.eventIntervalMax || 52000);
       matchEvent.virusBank = 0;
     }
     if (!matchEvent.active && now >= matchEvent.nextAt) {
       activateMatchEvent(chooseMatchEvent(), now);
     }
-    if (matchEvent.active && matchEvent.active.key === "thorn") {
+    if (matchEvent.active && (matchEvent.active.key === "thorn" || matchEvent.active.key === "thornstorm")) {
       matchEvent.virusBank += dt * 0.34;
-      while (matchEvent.virusBank >= 1 && viruses.length < VIRUS_COUNT + 42) {
+      while (matchEvent.virusBank >= 1 && viruses.length < (modeConfig().virusCount || VIRUS_COUNT) + 42) {
         viruses.push(makeVirus(Math.random() < 0.18 ? "big" : "small"));
         matchEvent.virusBank -= 1;
       }
@@ -2854,6 +3415,7 @@
     updateRespawns(now);
     updateEffects(dt);
     updateCamera(dt);
+    updateDomination(dt);
     if (input.ejectHeld && !playerGroup.dead) ejectMass(playerGroup, cursorPoint(), now);
 
     const playerMass = groupMass(playerGroup);
@@ -3859,7 +4421,8 @@
         const move = norm(dx, dy);
         const distanceScale = clamp(move.length / 210, 0.08, 1);
         const demonMoveBoost = group.isBoss ? 1.28 : group.isDemonMinion ? 1.12 : 1;
-        const baseSpeed = (352 / (1 + cell.radius / 96)) * activeEventFactor("speedMult", 1) * demonMoveBoost;
+        const modeSpeed = modeConfig().speedScale || 1;
+        const baseSpeed = (352 / (1 + cell.radius / 96)) * activeEventFactor("speedMult", 1) * modeSpeed * demonMoveBoost;
         const desiredX = move.x * baseSpeed * distanceScale;
         const desiredY = move.y * baseSpeed * distanceScale;
         const steer = Math.min(1, dt * (group.isPlayer ? 4.35 : 3.35));
@@ -4258,7 +4821,7 @@
   function respawnGroup(group) {
     const config = modeConfig();
     const p = respawnPosition(group);
-    const mass = group.isPlayer ? (config.playerStartMass || 160) : botStartMass(24, config);
+    const mass = group.isPlayer ? playerStartMassFor(config) : botStartMass(24, config);
     group.dead = false;
     group.respawnAt = 0;
     group.cells = [makeCell(group, p.x, p.y, mass)];
@@ -4320,6 +4883,37 @@
     }
   }
 
+  function updateDomination(dt) {
+    const config = modeConfig();
+    if (!config.domination || game.over || game.menu) return;
+    const alive = groups
+      .filter(group => !group.dead && group.cells.length)
+      .map(group => ({ group, mass: groupMass(group) }))
+      .filter(entry => entry.mass > 0)
+      .sort((a, b) => b.mass - a.mass);
+    const total = alive.reduce((sum, entry) => sum + entry.mass, 0);
+    const leader = alive[0];
+    if (!leader || total <= 0) return;
+    const share = leader.mass / total;
+    game.domination.share = share;
+    if (share >= (config.dominationShare || 0.52)) {
+      if (game.domination.leaderId === leader.group.id) {
+        game.domination.hold += dt;
+      } else {
+        game.domination.leaderId = leader.group.id;
+        game.domination.hold = dt;
+      }
+    } else {
+      game.domination.leaderId = null;
+      game.domination.hold = 0;
+    }
+    if (game.domination.hold >= (config.dominationHold || 7)) {
+      game.domination.winnerName = leader.group.name;
+      game.domination.winShare = share;
+      endGame(leader.group.isPlayer ? "霸屏胜利" : "被霸屏");
+    }
+  }
+
   function maybeEndGame(now) {
     if (game.over) return;
     const config = modeConfig();
@@ -4343,7 +4937,9 @@
       }
     }
     if (game.endsAt && now >= game.endsAt) {
-      if (config.teams > 0) {
+      if (config.domination) {
+        endGame("霸屏结算");
+      } else if (config.teams > 0) {
         const rank = teamRank(playerGroup.team);
         endGame(rank === 1 ? (config.control ? "据点胜利" : "团队胜利") : (config.control ? "据点结算" : "团队结算"));
       } else if (config.ranking === "kills") {
@@ -4358,6 +4954,7 @@
 
     if (playerGroup.dead) return;
     const alive = allLiveGroups();
+    if (config.domination) return;
     if (config.respawn && config.ranking === "kills") {
       const contenders = groups.filter(group => !group.dead || (group.lives || 0) > 0);
       if (contenders.length === 1 && contenders[0] === playerGroup) endGame("生存第一");
@@ -4488,7 +5085,7 @@
     const controlBonus = config.control ? Math.min(28, Math.floor((teamScores[playerGroup.team] || 0) / 8)) : 0;
     const livingBosses = config.demon ? groups.filter(group => group.isBoss && !group.dead && group.cells.length) : [];
     const demonBonus = config.demon ? (livingBosses.length ? 45 : 140) : 0;
-    const reward = Math.max(10, 14 + rankBonus + massBonus + killBonus + controlBonus + demonBonus + meta.forgeLevel * 2);
+    const reward = Math.max(10, Math.round((14 + rankBonus + massBonus + killBonus + controlBonus + demonBonus + meta.forgeLevel * 2) * growthRewardMultiplier()));
     meta.dust += reward;
     meta.totalDust = (meta.totalDust || 0) + reward;
     game.dustRewarded = true;
@@ -4513,7 +5110,14 @@
     const dustReward = awardDust(rank, mass, config);
     resultTitle.textContent = reason;
     finalMass.style.display = "block";
-    if (config.demon) {
+    if (config.domination) {
+      const share = Math.round(((game.domination && (game.domination.winShare || game.domination.share)) || 0) * 100);
+      finalMass.textContent = `${share}%`;
+      const winner = game.domination?.winnerName || "无人";
+      resultText.textContent = reason === "霸屏胜利"
+        ? `你完成霸屏，占据全场 ${share}% 质量，最高质量 ${mass}，星尘 +${dustReward}。`
+        : `${reason === "霸屏结算" ? "时间到，未形成霸屏。" : `${winner} 完成霸屏。`} 你的最高质量 ${mass}，当前霸屏占比 ${share}%，星尘 +${dustReward}。`;
+    } else if (config.demon) {
       const bossMass = Math.round(groups.filter(group => group.isBoss && !group.dead).reduce((sum, boss) => sum + groupMass(boss), 0));
       finalMass.textContent = bossMass ? bossMass : mass;
       resultText.textContent = bossMass
@@ -4528,7 +5132,8 @@
       resultText.textContent = `队伍第 ${rank} 名，个人最高质量 ${mass}，淘汰 ${game.kills}，星尘 +${dustReward}。`;
     } else if (config.ranking === "kills") {
       finalMass.textContent = game.kills;
-      resultText.textContent = `生存第 ${rank} 名，剩余生命 ${playerGroup.lives || 0}，最高质量 ${mass}，星尘 +${dustReward}。`;
+      const lifeText = config.lives ? `，剩余生命 ${playerGroup.lives || 0}` : "";
+      resultText.textContent = `${config.short}第 ${rank} 名${lifeText}，最高质量 ${mass}，淘汰 ${game.kills}，星尘 +${dustReward}。`;
     } else {
       finalMass.textContent = mass;
       resultText.textContent = `个人第 ${rank} 名，最高质量 ${mass}，淘汰 ${game.kills}，吃点 ${game.foodEaten}，星尘 +${dustReward}。`;
@@ -4566,7 +5171,7 @@
   }
 
   function showLobbyPanel(panel) {
-    activeLobbyPanel = ["play", "outfit", "shop", "forge"].includes(panel) ? panel : "play";
+    activeLobbyPanel = ["play", "outfit", "shop", "forge", "growth"].includes(panel) ? panel : "play";
     for (const button of lobbyTabs.querySelectorAll("[data-lobby]")) {
       button.classList.toggle("active", button.dataset.lobby === activeLobbyPanel);
     }
@@ -5582,7 +6187,7 @@
         name: group.name,
         mass,
         value: config.ranking === "kills" ? group.kills * 10000 + (group.lives || 0) * 100 + mass : mass,
-        valueLabel: config.ranking === "kills" ? `${group.kills}/${group.lives || 0}` : null,
+        valueLabel: config.ranking === "kills" ? (config.lives ? `${group.kills}/${group.lives || 0}` : `${group.kills}杀`) : null,
         color: group.color,
         player: group.isPlayer
       };
@@ -5640,6 +6245,11 @@
     const seconds = String(elapsed % 60).padStart(2, "0");
     const tags = [];
     tags.push(`<span class="tag${safeZone.shrinking ? " danger" : ""}">${zoneText(now)}</span>`);
+    if (config.domination) {
+      const share = Math.round((game.domination?.share || 0) * 100);
+      const hold = Math.max(0, Math.ceil((config.dominationHold || 7) - (game.domination?.hold || 0)));
+      tags.push(`<span class="tag danger">霸屏 ${share}% · ${hold}s</span>`);
+    }
     const activeTag = eventTag();
     if (activeTag) tags.push(`<span class="tag danger">${activeTag}</span>`);
     else if (matchEvent.nextAt) tags.push(`<span class="tag">事件 ${Math.max(0, Math.ceil((matchEvent.nextAt - now) / 1000))}s</span>`);
@@ -5834,6 +6444,9 @@
     if (document.hidden) stopEjectHold();
   });
   pauseBtn.addEventListener("click", togglePause);
+  musicBtn.addEventListener("click", toggleMusic);
+  musicLobbyBtn.addEventListener("click", toggleMusic);
+  randomLookBtn.addEventListener("click", randomizeOwnedLook);
   menuBtn.addEventListener("click", returnToLobby);
   document.getElementById("restartBtn").addEventListener("click", () => startGame(game.menu || game.over ? selectedMode : activeMode));
   playAgainBtn.addEventListener("click", () => startGame(selectedMode));
@@ -6455,6 +7068,7 @@
   }
 
   resize();
+  updateMusicButtons();
   setModeSelection("battle");
   startGame(selectedMode, { menu: true });
   requestAnimationFrame(now => {
