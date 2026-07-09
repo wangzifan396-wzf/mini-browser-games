@@ -1374,7 +1374,10 @@
       duration: 720,
       respawn: true,
       ranking: "mass",
-      playerStartMass: 160
+      playerStartMass: 160,
+      foodTargetScale: 1.06,
+      foodRateScale: 1.08,
+      foodMassScale: 1.06
     },
     team: {
       label: "团队战",
@@ -1387,7 +1390,10 @@
       duration: 720,
       respawn: true,
       ranking: "teamMass",
-      playerStartMass: 170
+      playerStartMass: 170,
+      foodTargetScale: 1.08,
+      foodRateScale: 1.08,
+      foodMassScale: 1.08
     },
     survival: {
       label: "生存模式",
@@ -1400,7 +1406,10 @@
       respawn: true,
       lives: 3,
       ranking: "kills",
-      playerStartMass: 180
+      playerStartMass: 180,
+      foodTargetScale: 1.1,
+      foodRateScale: 1.12,
+      foodMassScale: 1.12
     },
     battle: {
       label: "大逃杀",
@@ -1412,7 +1421,10 @@
       duration: 0,
       respawn: false,
       ranking: "mass",
-      playerStartMass: 220
+      playerStartMass: 220,
+      foodTargetScale: 1.08,
+      foodRateScale: 1.12,
+      foodMassScale: 1.12
     },
     blitz: {
       label: "闪电乱斗",
@@ -1450,13 +1462,16 @@
       ranking: "control",
       control: true,
       controlScore: 220,
-      playerStartMass: 185
+      playerStartMass: 185,
+      foodTargetScale: 1.1,
+      foodRateScale: 1.12,
+      foodMassScale: 1.1
     },
     giant: {
       label: "巨行星霸屏",
       short: "巨行星",
       description: "全员巨球开局，刺球更多，连续保持霸屏进度即可获胜。",
-      players: 42,
+      players: 50,
       teams: 0,
       safeZone: true,
       duration: 0,
@@ -1464,17 +1479,21 @@
       ranking: "mass",
       playerStartMass: 4300,
       botMassScale: 8.0,
-      foodTargetScale: 0.86,
-      foodRateScale: 0.92,
-      speedScale: 0.82,
-      virusCount: 120,
+      foodTargetScale: 1.08,
+      foodRateScale: 1.24,
+      foodMassScale: 1.25,
+      speedScale: 0.88,
+      mergeScale: 0.72,
+      virusCount: 64,
+      virusMax: 82,
+      virusRegenRate: 0.62,
       domination: true,
       dominationShare: 0.9,
       dominationHold: 5,
-      safeZoneRadius: 0.30,
-      safeZoneTargetRadius: 0.20,
-      safeZoneShrinkStart: 8500,
-      safeZoneShrinkEnd: 32000,
+      staticZone: true,
+      safeZoneRadius: 0.32,
+      safeZoneTargetRadius: 0.32,
+      respawnShield: 3.2,
       eventDelay: 9000,
       eventIntervalMin: 26000,
       eventIntervalMax: 38000
@@ -1491,7 +1510,14 @@
       respawn: true,
       ranking: "demon",
       demon: true,
-      playerStartMass: 260
+      playerStartMass: 340,
+      foodTargetScale: 1.28,
+      foodRateScale: 1.38,
+      foodMassScale: 2.15,
+      mergeScale: 0.82,
+      eventDelay: 7000,
+      eventIntervalMin: 18000,
+      eventIntervalMax: 28000
     }
   };
 
@@ -1513,7 +1539,10 @@
     { key: "royalfeast", label: "王冠盛宴", desc: "吃点范围和高价值食点提升", duration: 26, eatReachMult: 1.45, foodMassMult: 1.36, richChanceAdd: 0.07, color: "#facc15" },
     { key: "neonrush", label: "霓虹疾走", desc: "移动与吐球节奏加快", duration: 22, speedMult: 1.22, ejectMult: 0.68, color: "#22d3ee" },
     { key: "blackhole", label: "黑洞边界", desc: "吃点范围暴涨但移动变沉", duration: 22, eatReachMult: 2.25, speedMult: 0.88, color: "#a78bfa" },
-    { key: "thornstorm", label: "刺潮风暴", desc: "刺球持续涌入，适合炸刺翻盘", duration: 24, virusBurst: 20, foodMassMult: 1.16, richChanceAdd: 0.04, color: "#5eea80" }
+    { key: "thornstorm", label: "刺潮风暴", desc: "刺球持续涌入，适合炸刺翻盘", duration: 24, virusBurst: 20, foodMassMult: 1.16, richChanceAdd: 0.04, color: "#5eea80" },
+    { key: "coretide", label: "星核潮汐", desc: "高价值资源大量出现", duration: 28, foodTargetMult: 1.16, foodRateMult: 1.45, foodMassMult: 1.85, richChanceAdd: 0.13, foodBurst: 90, burstMassMult: 2.8, color: "#67e8f9" },
+    { key: "supplydrop", label: "星核空投", desc: "中心区域落下大颗资源", duration: 18, foodRateMult: 1.18, foodMassMult: 1.35, foodBurst: 70, burstMassMult: 3.4, color: "#f8fafc" },
+    { key: "huntercall", label: "猎手号角", desc: "全场 AI 更敢追击和分身", duration: 24, speedMult: 1.08, aiAggroMult: 1.22, richChanceAdd: 0.04, color: "#ff7a90" }
   );
   const RARITY_CONFIG = {
     common: { label: "普通", chance: 0.58, exp: 18, color: "#94a3b8" },
@@ -1733,6 +1762,10 @@
   function sameTeam(a, b) {
     const config = modeConfig();
     return config.teams > 0 && a.team !== null && a.team !== undefined && a.team === b.team;
+  }
+
+  function groupInvincible(group, now = performance.now()) {
+    return !group.dead && (group.invincibleUntil || 0) > now;
   }
 
   function activeEventFactor(key, fallback = 1) {
@@ -2778,7 +2811,8 @@
   function mergeCooldown(mass, type) {
     const scale = type === "virus-big" ? 0.54 : type === "virus" ? 0.48 : 0.38;
     const eventMult = activeEventFactor("mergeMult", 1);
-    return clamp((30 + mass * 0.02) * scale * eventMult, type === "split" ? 8 * eventMult : 10 * eventMult, type === "virus-big" ? 30 : 24);
+    const modeMult = modeConfig().mergeScale || 1;
+    return clamp((30 + mass * 0.02) * scale * eventMult * modeMult, type === "split" ? 8 * eventMult * modeMult : 10 * eventMult * modeMult, type === "virus-big" ? 30 : 24);
   }
 
   function formatTime(seconds) {
@@ -2837,7 +2871,7 @@
       boss.demonLabel = template.label;
       const massScale = bossCount > 2 ? 0.72 : bossCount > 1 ? 0.86 : 1;
       boss.demonBaseMass = template.mass * massScale;
-      boss.demonMassFloor = boss.demonBaseMass * 0.86;
+      boss.demonMassFloor = boss.demonBaseMass * (template.skill === "titan" ? 0.68 : 0.58);
       boss.cells = [makeCell(boss, point.x, point.y, boss.demonBaseMass)];
       boss.ai.bravery = 1.55;
       boss.ai.accuracy = 1.14;
@@ -2927,6 +2961,7 @@
       cells: [],
       dead: false,
       respawnAt: 0,
+      invincibleUntil: 0,
       lives: 0,
       kills: 0,
       ai: isPlayer ? null : {
@@ -3005,19 +3040,39 @@
   function makeFood() {
     const p = Math.random() < 0.78 ? randomPointInZone(60) : randomWorldPoint(60);
     const color = COLORS[Math.floor(Math.random() * COLORS.length)];
-    const lateChance = clamp(0.018 + (safeZone.phase || 1) * 0.006 + elapsedSeconds(performance.now()) / 9000 + activeEventFactor("richChanceAdd", 0), 0.02, 0.20);
+    const config = modeConfig();
+    const lateChance = clamp(0.018 + (safeZone.phase || 1) * 0.006 + elapsedSeconds(performance.now()) / 9000 + activeEventFactor("richChanceAdd", 0) + (config.domination ? 0.055 : 0), 0.02, config.domination ? 0.32 : 0.20);
     const rich = Math.random() < lateChance;
     const massMult = activeEventFactor("foodMassMult", 1);
-    const mass = (rich ? rand(5.8, 10.5) : rand(2.2, 5.2)) * massMult;
+    const baseMass = config.domination
+      ? (rich ? rand(82, 170) : rand(18, 44))
+      : (rich ? rand(5.8, 10.5) : rand(2.2, 5.2));
+    const mass = baseMass * massMult * (config.foodMassScale || 1);
+    const radiusScale = config.domination ? 2.25 : 1;
     return {
       x: p.x,
       y: p.y,
       mass,
-      radius: (rich ? rand(6.2, 8.6) : rand(4.2, 6.4)) * Math.sqrt(massMult),
+      radius: (rich ? rand(6.2, 8.6) : rand(4.2, 6.4)) * Math.sqrt(massMult * (config.foodMassScale || 1)) * radiusScale,
       color,
       pulse: rand(0, Math.PI * 2),
       rich
     };
+  }
+
+  function makeBonusFood(event) {
+    const center = safeZone.enabled ? safeZone : { x: WORLD / 2, y: WORLD / 2, radius: WORLD * 0.38 };
+    const angle = rand(0, Math.PI * 2);
+    const dist = Math.sqrt(Math.random()) * Math.max(260, (center.radius || WORLD * 0.38) * 0.48);
+    const base = makeFood();
+    const massMult = event.burstMassMult || 2.4;
+    base.x = clamp(center.x + Math.cos(angle) * dist, 90, WORLD - 90);
+    base.y = clamp(center.y + Math.sin(angle) * dist, 90, WORLD - 90);
+    base.mass *= massMult;
+    base.radius *= Math.sqrt(massMult) * 1.08;
+    base.rich = true;
+    base.color = event.color || base.color;
+    return base;
   }
 
   function makeVirus(kind) {
@@ -3032,6 +3087,17 @@
       spin: rand(0, Math.PI * 2),
       kind: big ? "big" : "small"
     };
+  }
+
+  function virusLimit() {
+    const config = modeConfig();
+    return Math.max(0, Math.floor(config.virusMax || config.virusCount || VIRUS_COUNT));
+  }
+
+  function addVirus(kind) {
+    if (viruses.length >= virusLimit()) return false;
+    viruses.push(makeVirus(kind));
+    return true;
   }
 
   function startGame(modeKey, options) {
@@ -3082,6 +3148,7 @@
       targetY: WORLD / 2 + rand(-420, 420),
       targetRadius: zoneTargetRadius,
       phase: 1,
+      static: !!config.staticZone,
       shrinking: false,
       shrinkStart: now + (config.safeZoneShrinkStart || 18000),
       shrinkEnd: now + (config.safeZoneShrinkEnd || 64000)
@@ -3125,8 +3192,8 @@
 
     const initialFood = Math.floor(FOOD_BASE_COUNT * (config.initialFoodScale || Math.min(1.25, config.foodTargetScale || 1)));
     for (let i = 0; i < initialFood; i++) addFood(makeFood());
-    const initialViruses = Math.floor(config.virusCount || VIRUS_COUNT);
-    for (let i = 0; i < initialViruses; i++) viruses.push(makeVirus(i % 4 === 0 ? "big" : "small"));
+    const initialViruses = Math.min(Math.floor(config.virusCount || VIRUS_COUNT), virusLimit());
+    for (let i = 0; i < initialViruses; i++) addVirus(i % 4 === 0 ? "big" : "small");
 
     camera = { ...start };
     zoom = 0.82;
@@ -3169,7 +3236,11 @@
     matchEvent.recent.push(event.key);
     if (matchEvent.recent.length > 2) matchEvent.recent.shift();
     if (event.virusBurst) {
-      for (let i = 0; i < event.virusBurst; i++) viruses.push(makeVirus(i % 5 === 0 ? "big" : "small"));
+      for (let i = 0; i < event.virusBurst; i++) addVirus(i % 5 === 0 ? "big" : "small");
+    }
+    if (event.foodBurst) {
+      const cap = Math.floor(foodTargetCount(now) * 1.2);
+      for (let i = 0; i < event.foodBurst && foods.length < cap; i++) addFood(makeBonusFood(event));
     }
     ring(safeZone.enabled ? safeZone.x : WORLD / 2, safeZone.enabled ? safeZone.y : WORLD / 2, event.color || "#ffffff", 360);
     showEventBanner(event.label, event.desc, event.color);
@@ -3188,8 +3259,17 @@
     }
     if (matchEvent.active && (matchEvent.active.key === "thorn" || matchEvent.active.key === "thornstorm")) {
       matchEvent.virusBank += dt * 0.34;
-      while (matchEvent.virusBank >= 1 && viruses.length < (modeConfig().virusCount || VIRUS_COUNT) + 42) {
-        viruses.push(makeVirus(Math.random() < 0.18 ? "big" : "small"));
+      while (matchEvent.virusBank >= 1 && viruses.length < virusLimit()) {
+        addVirus(Math.random() < 0.18 ? "big" : "small");
+        matchEvent.virusBank -= 1;
+      }
+      if (viruses.length >= virusLimit()) matchEvent.virusBank = Math.min(matchEvent.virusBank, 1);
+    }
+    const regen = modeConfig().virusRegenRate || 0;
+    if (regen > 0 && viruses.length < virusLimit()) {
+      matchEvent.virusBank += dt * regen;
+      while (matchEvent.virusBank >= 1 && viruses.length < virusLimit()) {
+        addVirus(Math.random() < 0.22 ? "big" : "small");
         matchEvent.virusBank -= 1;
       }
     }
@@ -3199,13 +3279,14 @@
     teamScores = Array.from({ length: config.teams || 0 }, () => 0);
     controlPoints = [];
     if (!config.control) return;
-    controlPoints = [
+    const points = [
       { label: "A", x: WORLD * 0.36, y: WORLD * 0.36 },
       { label: "B", x: WORLD * 0.50, y: WORLD * 0.50 },
       { label: "C", x: WORLD * 0.64, y: WORLD * 0.64 }
-    ].map(point => ({
+    ];
+    controlPoints = points.map(point => ({
       ...point,
-      radius: 390,
+      radius: point.radius || 390,
       owner: null,
       captureTeam: null,
       capture: 0,
@@ -3450,6 +3531,11 @@
       return;
     }
 
+    if (safeZone.static) {
+      game.zonePulse = (game.zonePulse + dt * 1.8) % (Math.PI * 2);
+      return;
+    }
+
     if (!safeZone.shrinking && now >= safeZone.shrinkStart) {
       safeZone.shrinking = true;
     }
@@ -3497,8 +3583,19 @@
     game.nextDemonSkillAt = now + rand(7800, 11800);
   }
 
+  function spendDemonSkillMass(boss) {
+    if (!boss.demonBaseMass || !boss.cells.length) return;
+    const floor = (boss.demonMassFloor || 0) / Math.max(1, boss.cells.length);
+    const cost = boss.demonBaseMass * (boss.demonSkill === "titan" ? 0.008 : 0.012);
+    const perCell = cost / Math.max(1, boss.cells.length);
+    for (const cell of boss.cells) {
+      if (!cell.dead) cell.mass = Math.max(floor, cell.mass - perCell);
+    }
+  }
+
   function castDemonSkill(boss) {
     const center = groupCenter(boss);
+    spendDemonSkillMass(boss);
     showEventBanner(boss.demonLabel || "魔王技能", boss.name, boss.color);
     ring(center.x, center.y, boss.color, 430);
     if (boss.demonSkill === "summon") {
@@ -3512,7 +3609,7 @@
         group.cells = [makeCell(group, clamp(center.x + Math.cos(angle) * rand(280, 520), 160, WORLD - 160), clamp(center.y + Math.sin(angle) * rand(280, 520), 160, WORLD - 160), rand(380, 720))];
         revived += 1;
       }
-      for (let i = 0; i < 2; i++) viruses.push(makeVirus(i ? "small" : "big"));
+      for (let i = 0; i < 2; i++) addVirus(i ? "small" : "big");
     } else if (boss.demonSkill === "flare") {
       for (let i = 0; i < 12; i++) {
         const angle = (i / 12) * Math.PI * 2;
@@ -3552,7 +3649,7 @@
         }
       }
     } else if (boss.demonSkill === "thorn") {
-      for (let i = 0; i < 5; i++) viruses.push(makeVirus(i % 2 ? "small" : "big"));
+      for (let i = 0; i < 5; i++) addVirus(i % 2 ? "small" : "big");
     } else if (boss.demonSkill === "drain" || boss.demonSkill === "poison" || boss.demonSkill === "doom") {
       let stolen = 0;
       for (const group of groups) {
@@ -3888,16 +3985,17 @@
     if (!largest || !canSplitEatCell(largest, ai.prey.cell, ai)) return;
 
     const d = distance(largest, ai.prey.cell);
+    const dominationBoost = modeConfig().domination ? 420 : 0;
     const modeBoost = group.isBoss ? 620 : group.isDemonMinion ? 330 : ai.mode === "围猎" ? 430 : ai.mode === "护航" ? 360 : 290;
-    const reach = largest.radius * (5.2 + ai.bravery * (group.isBoss ? 1.05 : 0.85)) + modeBoost;
+    const reach = largest.radius * (5.2 + ai.bravery * (group.isBoss ? 1.05 : 0.85)) + modeBoost + dominationBoost;
     if (d > reach) return;
 
     const target = leadPoint(ai.prey.cell, group.isBoss ? 0.68 : ai.mode === "围猎" ? 0.62 : 0.44);
     const power = group.isBoss
       ? clamp(1.14 * ai.accuracy, 1.04, 1.32)
       : clamp(1.03 * ai.accuracy + (ai.mode === "护航" ? 0.05 : 0), 0.96, 1.24);
-    if (splitGroup(group, target, { onlyLargest: true, power })) {
-      ai.splitCooldown = group.isBoss ? rand(2.4, 4.4) : ai.mode === "护航" ? rand(1.25, 2.4) : rand(1.55, 3.1);
+    if (splitGroup(group, target, { onlyLargest: true, power: power + (modeConfig().domination ? 0.04 : 0) })) {
+      ai.splitCooldown = group.isBoss ? rand(2.4, 4.4) : ai.mode === "护航" ? rand(1.15, 2.1) : modeConfig().domination ? rand(1.05, 2.2) : rand(1.35, 2.75);
       ai.think = 0.04;
     }
   }
@@ -3954,7 +4052,8 @@
     let prey = null;
     let threatScore = 0;
     let preyScore = 0;
-    const scanRange = center.largest * (10.5 + ai.bravery) + 1100;
+    const aggression = (config.domination ? 1.28 : config.respawn ? 1.08 : 1) * activeEventFactor("aiAggroMult", 1);
+    const scanRange = center.largest * (10.5 + ai.bravery) * aggression + 1100;
     const cells = space ? nearbyCells(space.grid, center, scanRange) : allCells();
 
     for (const wrap of cells) {
@@ -3962,8 +4061,8 @@
       if (sameTeam(group, wrap.group)) continue;
       const d = Math.max(1, distance(largest, wrap.cell));
       const centerD = Math.max(1, distance(center, wrap.cell));
-      const enemyCanSplit = canSplitEatCell(wrap.cell, largest, { bravery: 1.04, accuracy: 1 }) && centerD < wrap.cell.radius * 5.7 + 360;
-      const isThreat = (wrap.cell.radius > center.largest * 1.07 || enemyCanSplit) && centerD < wrap.cell.radius * 6.9 + 690;
+      const enemyCanSplit = canSplitEatCell(wrap.cell, largest, { bravery: 1.08, accuracy: 1.02 }) && centerD < wrap.cell.radius * 6.1 + 460;
+      const isThreat = (wrap.cell.radius > center.largest * 1.05 || enemyCanSplit) && centerD < wrap.cell.radius * 7.4 + 760;
       if (isThreat) {
         const score = (wrap.cell.radius / center.largest) * 1450 / centerD + (enemyCanSplit ? 1.8 : 0);
         if (score > threatScore) {
@@ -3972,10 +4071,10 @@
         }
       }
 
-      const canEat = center.largest > wrap.cell.radius * 1.09 && d < center.largest * (9.4 + ai.bravery) + 820;
-      const canSplit = canSplitEatCell(largest, wrap.cell, ai) && d < center.largest * (5.6 + ai.bravery * 0.8) + 390;
+      const canEat = center.largest > wrap.cell.radius * 1.08 && d < center.largest * (9.4 + ai.bravery) * aggression + 820;
+      const canSplit = canSplitEatCell(largest, wrap.cell, ai) && d < center.largest * (5.9 + ai.bravery * 0.9) * aggression + 470;
       if (canEat || canSplit) {
-        const score = (wrap.cell.mass * (1.75 + ai.bravery * 0.34)) / d + (wrap.group.isPlayer ? 1.2 : 0) + (canSplit ? 1.4 : 0);
+        const score = (wrap.cell.mass * (1.75 + ai.bravery * 0.34)) / d + (wrap.group.isPlayer ? 1.2 : 0) + (canSplit ? (config.domination ? 2.35 : 1.75) : 0);
         if (score > preyScore) {
           preyScore = score;
           prey = wrap;
@@ -4006,8 +4105,8 @@
 
       const away = norm(center.x - threat.cell.x, center.y - threat.cell.y);
       ai.target = {
-        x: clamp(center.x + away.x * 820 + (safeZone.x - center.x) * 0.16, 80, WORLD - 80),
-        y: clamp(center.y + away.y * 820 + (safeZone.y - center.y) * 0.16, 80, WORLD - 80)
+        x: clamp(center.x + away.x * (config.domination ? 1180 : 900) + (safeZone.x - center.x) * 0.18, 80, WORLD - 80),
+        y: clamp(center.y + away.y * (config.domination ? 1180 : 900) + (safeZone.y - center.y) * 0.18, 80, WORLD - 80)
       };
       ai.mode = "逃跑";
       ai.prey = null;
@@ -4321,10 +4420,10 @@
     for (const ally of alliedGroups(group)) {
       const allyCenter = groupCenter(ally);
       const d = Math.max(1, distance(center, allyCenter));
-      if (d > 1080) continue;
+      if (d > 1360) continue;
       const allyIsCarry = ally.isPlayer || allyCenter.mass > center.mass * 1.02;
       const needsMass = allyIsCarry || ally.cells.some(cell => cell.mergeDelay > 0) || allyCenter.mass < center.mass * 0.62;
-      if (!needsMass || center.mass < 145) continue;
+      if (!needsMass || center.mass < 118) continue;
       const playerBonus = ally.isPlayer ? 1.15 : 0;
       const feedMode = allyIsCarry ? "喂球" : "支援";
       const score = (allyIsCarry ? 1.4 : 0.75) + playerBonus + group.ai.teamwork * 0.65 + Math.max(0, 760 - d) / 560 - Math.max(0, allyCenter.mass - center.mass * 2.6) / 900;
@@ -4333,7 +4432,7 @@
         best = { group: ally, center: allyCenter, mode: feedMode };
       }
     }
-    return bestScore > 2.05 ? best : null;
+    return bestScore > 1.72 ? best : null;
   }
 
   function teamRallyPoint(group, center) {
@@ -4493,7 +4592,7 @@
     };
     virus.mass = baseMass;
     virus.baseMass = baseMass;
-    viruses.push(extra);
+    if (viruses.length < virusLimit()) viruses.push(extra);
     ring(virus.x, virus.y, virusColor(virus), big ? 210 : 170);
   }
 
@@ -4565,6 +4664,7 @@
 
   function handleCellEating(space) {
     const { cells, grid } = space || buildCellGrid();
+    const now = performance.now();
     cells.sort((a, b) => b.cell.radius - a.cell.radius);
     for (let i = 0; i < cells.length; i++) {
       const big = cells[i];
@@ -4574,6 +4674,7 @@
         if (small === big) continue;
         if (small.cell.dead || small.group === big.group) continue;
         const teammate = sameTeam(big.group, small.group);
+        if (!teammate && (groupInvincible(big.group, now) || groupInvincible(small.group, now))) continue;
         if (teammate && liveCellCount(small.group) <= 1) continue;
         if (teammate ? canEatTeammate(big.cell, small.cell) : canEat(big.cell, small.cell)) {
           big.cell.mass += small.cell.mass * (teammate ? 0.96 : 0.84);
@@ -4682,7 +4783,7 @@
     virus.dead = true;
     viruses.splice(index, 1);
     setTimeout(() => {
-      if (runId === currentRun && !game.over) viruses.push(makeVirus());
+      if (runId === currentRun && !game.over) addVirus();
     }, 900 + Math.random() * 1300);
   }
 
@@ -4804,6 +4905,30 @@
 
   function respawnPosition(group) {
     const config = modeConfig();
+    if (config.domination) {
+      let best = randomPointInZone(260);
+      let bestScore = -Infinity;
+      const threats = groups
+        .filter(item => item !== group && !item.dead && item.cells.length)
+        .map(item => ({ item, center: groupCenter(item) }))
+        .sort((a, b) => b.center.mass - a.center.mass)
+        .slice(0, 8);
+      for (let i = 0; i < 16; i++) {
+        const point = randomPointInZone(300);
+        let nearest = Infinity;
+        for (const threat of threats) {
+          const d = distance(point, threat.center) - threat.center.largest * 1.35;
+          nearest = Math.min(nearest, d);
+        }
+        const centerPull = safeZone.enabled ? distance(point, safeZone) / Math.max(1, safeZone.radius) : 0;
+        const score = nearest - centerPull * 220 + rand(-60, 60);
+        if (score > bestScore) {
+          bestScore = score;
+          best = point;
+        }
+      }
+      return best;
+    }
     if (config.teams > 0 && group.team !== null && group.team !== undefined) {
       const allies = groups.filter(item => item !== group && !item.dead && item.team === group.team && item.cells.length);
       if (allies.length) {
@@ -4820,16 +4945,18 @@
 
   function respawnGroup(group) {
     const config = modeConfig();
+    const now = performance.now();
     const p = respawnPosition(group);
     const mass = group.isPlayer ? playerStartMassFor(config) : botStartMass(24, config);
     group.dead = false;
     group.respawnAt = 0;
+    group.invincibleUntil = now + (config.respawnShield || 1.8) * 1000;
     group.cells = [makeCell(group, p.x, p.y, mass)];
     if (group.ai) {
       group.ai.target = randomPointInZone(120);
       group.ai.mode = "重生";
       group.ai.think = rand(0.2, 0.8);
-      group.ai.splitCooldown = Math.max(group.ai.splitCooldown || 0, 1.5);
+      group.ai.splitCooldown = Math.max(group.ai.splitCooldown || 0, config.respawnShield || 1.8);
     }
     if (group.isPlayer) {
       camera = { x: p.x, y: p.y };
@@ -5528,21 +5655,25 @@
 
   function drawViruses(now) {
     const bounds = visibleBounds(140);
+    let drawn = 0;
+    const limit = modeConfig().domination ? (perf.lowQuality ? 42 : 62) : (perf.lowQuality ? 58 : 110);
     for (const virus of viruses) {
       if (!isVisible(virus, bounds, virus.radius + 90)) continue;
+      if (drawn >= limit) continue;
       drawVirus(virus, now);
+      drawn += 1;
     }
   }
 
   function drawVirus(virus, now) {
     const big = virus.kind === "big";
-    const spikes = big ? 31 : 23;
+    const spikes = perf.lowQuality ? (big ? 19 : 15) : (big ? 31 : 23);
     const spin = virus.spin + now / (big ? 3400 : 2600);
     const color = virusColor(virus);
     ctx.save();
     ctx.fillStyle = color;
     ctx.shadowColor = color;
-    ctx.shadowBlur = (big ? 26 : 18) / zoom;
+    ctx.shadowBlur = perf.lowQuality ? 0 : (big ? 26 : 18) / zoom;
     ctx.beginPath();
     for (let i = 0; i < spikes; i++) {
       const angle = spin + (i / spikes) * Math.PI * 2;
@@ -5619,6 +5750,22 @@
     ctx.lineWidth = (group.isPlayer ? 4 : 2.4) / zoom;
     ctx.strokeStyle = group.isPlayer ? "rgba(255, 255, 255, 0.74)" : "rgba(255, 255, 255, 0.34)";
     ctx.stroke();
+
+    if (groupInvincible(group, now)) {
+      const left = Math.max(0, group.invincibleUntil - now) / 1000;
+      ctx.strokeStyle = `rgba(103, 232, 249, ${0.34 + Math.sin(now / 120) * 0.12})`;
+      ctx.lineWidth = 4 / zoom;
+      ctx.beginPath();
+      ctx.arc(cell.x, cell.y, r + (10 + Math.sin(now / 160) * 4) / zoom, 0, Math.PI * 2);
+      ctx.stroke();
+      if (group.isPlayer && r > 34) {
+        ctx.font = `800 ${clamp(r * 0.18, 11, 18) / zoom}px Microsoft YaHei, Segoe UI, sans-serif`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = "rgba(224, 242, 254, 0.9)";
+        ctx.fillText(`${Math.ceil(left)}s`, cell.x, cell.y - r * 0.62);
+      }
+    }
 
     ctx.globalAlpha = 0.13;
     ctx.strokeStyle = "#ffffff";
@@ -6210,6 +6357,7 @@
 
   function zoneText(now) {
     if (!safeZone.enabled) return `${modeConfig().short}模式`;
+    if (safeZone.static) return "固定霸屏区";
     if (safeZone.shrinking) {
       const left = Math.max(0, Math.ceil((safeZone.shrinkEnd - now) / 1000));
       return `安全区收缩 ${left}s`;
@@ -6256,6 +6404,7 @@
     else if (matchEvent.nextAt) tags.push(`<span class="tag">事件 ${Math.max(0, Math.ceil((matchEvent.nextAt - now) / 1000))}s</span>`);
     if (game.endsAt) tags.push(`<span class="tag">剩余 ${formatTime((game.endsAt - now) / 1000)}</span>`);
     if (config.lives) tags.push(`<span class="tag">生命 ${playerGroup.lives || 0}</span>`);
+    if (groupInvincible(playerGroup, now)) tags.push(`<span class="tag">复活护盾 ${Math.ceil((playerGroup.invincibleUntil - now) / 1000)}s</span>`);
     if (config.control) {
       tags.push(`<span class="tag">据点分 ${Math.floor(teamScores[playerGroup.team] || 0)}/${config.controlScore}</span>`);
       const owned = controlPoints.filter(point => point.owner === playerGroup.team).length;
