@@ -5010,6 +5010,20 @@
     }
   }
 
+  function groupScreenCoverage(group) {
+    const screenArea = Math.max(1, view.w * view.h);
+    let covered = 0;
+    for (const cell of group.cells) {
+      if (cell.dead) continue;
+      const sx = (cell.x - camera.x) * zoom + view.w / 2;
+      const sy = (cell.y - camera.y) * zoom + view.h / 2;
+      const r = cell.radius * zoom;
+      if (sx + r < 0 || sx - r > view.w || sy + r < 0 || sy - r > view.h) continue;
+      covered += Math.PI * r * r;
+    }
+    return clamp(covered / screenArea, 0, 1);
+  }
+
   function updateDomination(dt) {
     const config = modeConfig();
     if (!config.domination || game.over || game.menu) return;
@@ -5021,15 +5035,23 @@
     const total = alive.reduce((sum, entry) => sum + entry.mass, 0);
     const leader = alive[0];
     if (!leader || total <= 0) return;
-    const share = leader.mass / Math.max(1, total);
+    const massShare = leader.mass / Math.max(1, total);
+    const screenShare = leader.group.isPlayer ? groupScreenCoverage(leader.group) : 0;
+    const share = Math.max(massShare, screenShare);
     game.domination.share = share;
-    if (share >= (config.dominationShare || 0.52)) {
+    game.domination.massShare = massShare;
+    game.domination.screenShare = screenShare;
+    const targetShare = config.dominationShare || 0.52;
+    const softShare = Math.max(0, targetShare - 0.055);
+    if (share >= targetShare) {
       if (game.domination.leaderId === leader.group.id) {
         game.domination.hold += dt;
       } else {
         game.domination.leaderId = leader.group.id;
         game.domination.hold = dt;
       }
+    } else if (game.domination.leaderId === leader.group.id && share >= softShare) {
+      game.domination.hold = Math.max(0, game.domination.hold - dt * 0.18);
     } else {
       game.domination.leaderId = null;
       game.domination.hold = 0;
@@ -6395,9 +6417,12 @@
     tags.push(`<span class="tag${safeZone.shrinking ? " danger" : ""}">${zoneText(now)}</span>`);
     if (config.domination) {
       const share = Math.round((game.domination?.share || 0) * 100);
+      const massShare = Math.round((game.domination?.massShare || 0) * 100);
+      const screenShare = Math.round((game.domination?.screenShare || 0) * 100);
       const hold = Math.max(0, Math.ceil((config.dominationHold || 7) - (game.domination?.hold || 0)));
       const target = Math.round((config.dominationShare || 0.52) * 100);
       tags.push(`<span class="tag danger">霸屏 ${share}%/${target}% · ${hold}s</span>`);
+      tags.push(`<span class="tag">质量 ${massShare}% · 屏幕 ${screenShare}%</span>`);
     }
     const activeTag = eventTag();
     if (activeTag) tags.push(`<span class="tag danger">${activeTag}</span>`);
