@@ -79,10 +79,10 @@
           {id:"relay",name:"深空信标",desc:"提供全局产量加成，并凝聚星能。",cost:{alloy:42,science:16},growth:1.25,out:{science:.012,energy:.038},need:s=>s.science>=8||s.b.relay>0},
           {id:"condenser",name:"星云冷凝塔",desc:"中期复合产线，同时沉降星尘与晶矿。",cost:{dust:9000,crystal:900,alloy:90},growth:1.24,out:{dust:1.25,crystal:.12,energy:.018},need:s=>s.stats.totalDust>=12000||s.b.condenser>0},
           {id:"archive",name:"遗物档案库",desc:"长期养成核心，缓慢产出研究和遗物碎片。",cost:{crystal:2600,alloy:220,science:140},growth:1.28,out:{science:.07,fragments:.0025},need:s=>s.science>=80||s.fragments>0||s.b.archive>0},
-          {id:"plasmaRing",name:"星辉环炉",desc:"把战利组件和合金压进恒星环，产出高阶资源星辉。",cost:{alloy:1400,science:900,salvage:480},growth:1.32,out:{plasma:.018,energy:.08},need:s=>s.stats.highestZone>=10||s.plasma>0||s.b.plasmaRing>0},
-          {id:"databank",name:"星图数据库",desc:"整理远航和战斗数据，产出数据并反哺研究。",cost:{science:1800,plasma:120,fragments:90},growth:1.34,out:{data:.014,science:.09,fragments:.004},need:s=>s.plasma>=40||s.data>0||s.b.databank>0},
-          {id:"embassy",name:"星盟通讯厅",desc:"把委托网络和远航报告整理成声望，推进星盟路线。",cost:{science:2400,data:180,salvage:420},growth:1.36,out:{influence:.018,data:.01},need:s=>s.data>=90||s.influence>0||s.b.embassy>0},
-          {id:"voidWell",name:"暗质井",desc:"从高战区残响中凝析暗质，服务天象和奇点装备。",cost:{plasma:320,data:420,influence:240},growth:1.38,out:{dark:.004,plasma:.012,energy:.06},need:s=>s.stats.highestZone>=18||s.dark>0||s.b.voidWell>0}
+          {id:"plasmaRing",name:"星辉环炉",desc:"把战利组件和合金压进恒星环，产出高阶资源星辉。",cost:{alloy:1050,science:650,salvage:320},growth:1.3,out:{plasma:.028,energy:.1},need:s=>s.stats.highestZone>=10||s.plasma>0||s.b.plasmaRing>0},
+          {id:"databank",name:"星图数据库",desc:"整理远航和战斗数据，产出数据并反哺研究。",cost:{science:1250,plasma:70,fragments:56},growth:1.32,out:{data:.023,science:.11,fragments:.006},need:s=>s.plasma>=28||s.data>0||s.b.databank>0},
+          {id:"embassy",name:"星盟通讯厅",desc:"把委托网络和远航报告整理成声望，推进星盟路线。",cost:{science:1650,data:105,salvage:290},growth:1.34,out:{influence:.028,data:.014},need:s=>s.data>=60||s.influence>0||s.b.embassy>0},
+          {id:"voidWell",name:"暗质井",desc:"从高战区残响中凝析暗质，服务天象和奇点装备。",cost:{plasma:190,data:250,influence:135},growth:1.36,out:{dark:.008,plasma:.016,energy:.08},need:s=>s.stats.highestZone>=16||s.dark>0||s.b.voidWell>0}
         ];
         const researches=[
           {id:"rProbe",name:"探针编队",desc:"星尘探针产量 x2。",cost:{science:8},need:s=>s.b.lab>0||s.science>=4},
@@ -96,8 +96,8 @@
           {id:"rBattleData",name:"战斗数据链",desc:"击破目标会逐步提升全局产量，上限 40%。",cost:{science:420,alloy:180,salvage:35},need:s=>s.stats.kills>=3||s.salvage>=20},
           {id:"rDroneSwarm",name:"蜂群战术",desc:"无人机装备的战斗秒伤和生产反哺提升 50%。",cost:{science:680,fragments:34,salvage:95},need:s=>level(s.gear,"drone")>=2||s.stats.highestZone>=8},
           {id:"rArchive",name:"折叠档案",desc:"遗物档案库产出的研究和碎片 x2。",cost:{science:520,fragments:34},need:s=>s.b.archive>0||s.fragments>=24},
-          {id:"rCouncil",name:"星盟议程",desc:"委托会额外产生声望，声望收益和兑换包更肥。",cost:{science:980,data:120,influence:45},need:s=>s.influence>=25||s.b.embassy>0},
-          {id:"rVoid",name:"暗质凝析",desc:"高战区和暗隙远航的暗质收益提升，并解锁更深层演算。",cost:{science:1400,plasma:180,dark:18},need:s=>s.dark>=8||s.b.voidWell>0},
+          {id:"rCouncil",name:"星盟议程",desc:"委托会额外产生声望，声望收益和兑换包更肥。",cost:{science:780,data:80,influence:30},need:s=>s.influence>=25||s.b.embassy>0},
+          {id:"rVoid",name:"暗质凝析",desc:"高战区和暗隙远航的暗质收益提升，并解锁更深层演算。",cost:{science:1100,plasma:115,dark:10},need:s=>s.dark>=8||s.b.voidWell>0},
           {id:"rCore",name:"星核透镜",desc:"星核结算收益提升 25%。",cost:{science:760,alloy:320,fragments:60},need:s=>prestigeGain(s)>0||s.cores>0}
         ];
         const matrix=[
@@ -107,30 +107,30 @@
           {id:"voyage",name:"远航矩阵",desc:"每级远航耗时 -2%，碎片收益 +4%。",cost:{science:340,alloy:130,fragments:10},growth:1.66,max:12,need:s=>s.stats.expeditions>0||s.fragments>=8||level(s.rLv,"voyage")>0},
           {id:"logistics",name:"后勤矩阵",desc:"每级委托奖励 +7%，专员训练成本更顺滑。",cost:{science:420,crystal:900,alloy:90},growth:1.68,max:10,need:s=>s.stats.orders>=2||level(s.rLv,"logistics")>0},
           {id:"reactor",name:"脉冲矩阵",desc:"每级星能上限 +12，超频和时砂跃迁收益更稳。",cost:{science:520,energy:90,salvage:80},growth:1.7,max:10,need:s=>s.energy>=70||level(s.rLv,"reactor")>0},
-          {id:"diplomacy",name:"星盟矩阵",desc:"每级委托奖励和声望收益提高，星盟资源回流更快。",cost:{science:900,data:120,influence:70},growth:1.72,max:10,need:s=>s.influence>=40||level(s.rLv,"diplomacy")>0},
-          {id:"singularity",name:"奇点矩阵",desc:"每级暗质收益和时间跃迁长度提高。",cost:{science:1300,plasma:160,dark:22},growth:1.76,max:10,need:s=>s.dark>=12||level(s.rLv,"singularity")>0}
+          {id:"diplomacy",name:"星盟矩阵",desc:"每级委托奖励和声望收益提高，星盟资源回流更快。",cost:{science:760,data:85,influence:45},growth:1.68,max:10,need:s=>s.influence>=35||level(s.rLv,"diplomacy")>0},
+          {id:"singularity",name:"奇点矩阵",desc:"每级暗质收益和时间跃迁长度提高。",cost:{science:1100,plasma:110,dark:12},growth:1.72,max:10,need:s=>s.dark>=9||level(s.rLv,"singularity")>0}
         ];
         const crew=[
           {id:"engineer",name:"炉心工程师",desc:"提升星尘与手动校准收益。",cost:{dust:1200,crystal:90},growth:1.62,need:()=>true},
           {id:"geologist",name:"晶脉地质师",desc:"提升晶矿和星合金产量。",cost:{crystal:260,alloy:14},growth:1.58,need:s=>s.b.miner>=2||s.crew.geologist>0},
           {id:"scholar",name:"轨道学者",desc:"提升研究速度，并小幅提升碎片收益。",cost:{science:36,crystal:420},growth:1.66,need:s=>s.science>=18||s.crew.scholar>0},
           {id:"pilot",name:"远航领航员",desc:"缩短远航耗时，提升碎片收益与离线保留。",cost:{alloy:85,science:80},growth:1.68,need:s=>s.ordersDone>=2||s.crew.pilot>0},
-          {id:"envoy",name:"星盟使节",desc:"提升委托、声望和资源包收益，让中后期库存流动更快。",cost:{science:360,data:70,influence:45},growth:1.68,need:s=>s.influence>=25||s.crew.envoy>0}
+          {id:"envoy",name:"星盟使节",desc:"提升委托、声望和资源包收益，让中后期库存流动更快。",cost:{science:300,data:45,influence:26},growth:1.64,need:s=>s.influence>=18||s.crew.envoy>0}
         ];
         const crewRanks=[
           {id:"engineer",name:"炉心督导",desc:"强化手动校准、星尘产线，并小幅提升舰队攻击。",cost:{dust:16000,science:120,salvage:35},growth:1.72,max:6,need:s=>level(s.crew,"engineer")>=3||level(s.crewRank,"engineer")>0},
           {id:"geologist",name:"晶脉总监",desc:"强化晶矿、合金和战斗打捞收益。",cost:{crystal:1800,alloy:140,salvage:45},growth:1.72,max:6,need:s=>level(s.crew,"geologist")>=3||level(s.crewRank,"geologist")>0},
           {id:"scholar",name:"轨道院士",desc:"强化研究速度，降低研究矩阵成本。",cost:{science:260,fragments:16,salvage:40},growth:1.74,max:6,need:s=>level(s.crew,"scholar")>=3||level(s.crewRank,"scholar")>0},
           {id:"pilot",name:"星路指挥",desc:"强化远航、离线效率和碎片收益。",cost:{alloy:220,science:240,fragments:20},growth:1.74,max:6,need:s=>level(s.crew,"pilot")>=3||level(s.crewRank,"pilot")>0},
-          {id:"envoy",name:"星盟执政",desc:"强化委托、声望、暗质演算和局外资源包。",cost:{influence:130,data:180,dark:10},growth:1.78,max:6,need:s=>level(s.crew,"envoy")>=2||level(s.crewRank,"envoy")>0}
+          {id:"envoy",name:"星盟执政",desc:"强化委托、声望、暗质演算和局外资源包。",cost:{influence:90,data:120,dark:6},growth:1.72,max:6,need:s=>level(s.crew,"envoy")>=2||level(s.crewRank,"envoy")>0}
         ];
         const voyages=[
           {id:"moon",name:"环月巡航",desc:"短线远航，适合早期拿第一批碎片。",duration:180,cost:{crystal:90,alloy:8},reward:{dust:520,science:28,fragments:4},need:s=>s.b.smelter>0||s.fragments>0},
           {id:"asteroid",name:"小行星采样",desc:"中线远航，带回合金、晶矿和更多碎片。",duration:480,cost:{alloy:46,science:30},reward:{crystal:320,alloy:24,fragments:13},need:s=>s.science>=28||s.stats.expeditions>0},
-          {id:"nebula",name:"星云残响",desc:"深空远航，主要服务遗物、声望和后期研究。",duration:1500,cost:{alloy:130,science:170,fragments:8},reward:{science:140,fragments:44,energy:70,data:18,influence:18},need:s=>s.r.rVoyage||s.fragments>=30},
-          {id:"pulsar",name:"脉冲星测绘",desc:"长线远航，稳定带回星辉、数据、声望和大批碎片。",duration:3600,cost:{plasma:35,science:420,energy:90},reward:{plasma:80,data:120,fragments:90,science:240,influence:70,dark:4},need:s=>s.plasma>=30||level(s.b,"plasmaRing")>0},
-          {id:"rift",name:"暗隙回声",desc:"超长线远航，适合挂机睡前派出，带回星环和天象材料。",duration:7200,cost:{plasma:120,data:180,fragments:60},reward:{plasma:210,data:360,fragments:180,influence:150,dark:18,timeFlux:4},need:s=>s.data>=120||level(s.projects,"voyage")>0},
-          {id:"beacon",name:"虚空灯塔",desc:"后期远航，专门补暗质、声望和时间跃迁材料。",duration:10800,cost:{dark:28,plasma:220,data:360,influence:180},reward:{dark:55,influence:360,plasma:260,data:420,timeFlux:7},need:s=>s.dark>=18||level(s.constellations,"void")>0}
+          {id:"nebula",name:"星云残响",desc:"深空远航，主要服务遗物、声望和后期研究。",duration:1500,cost:{alloy:130,science:170,fragments:8},reward:{science:160,fragments:52,energy:80,data:36,influence:30},need:s=>s.r.rVoyage||s.fragments>=30},
+          {id:"pulsar",name:"脉冲星测绘",desc:"长线远航，稳定带回星辉、数据、声望和大批碎片。",duration:3600,cost:{plasma:20,science:360,energy:80},reward:{plasma:95,data:150,fragments:110,science:260,influence:90,dark:7},need:s=>s.plasma>=24||level(s.b,"plasmaRing")>0},
+          {id:"rift",name:"暗隙回声",desc:"超长线远航，适合挂机睡前派出，带回星环和天象材料。",duration:7200,cost:{plasma:80,data:130,fragments:50},reward:{plasma:240,data:420,fragments:200,influence:210,dark:25,timeFlux:5},need:s=>s.data>=90||level(s.projects,"voyage")>0},
+          {id:"beacon",name:"虚空灯塔",desc:"后期远航，专门补暗质、声望和时间跃迁材料。",duration:10800,cost:{dark:18,plasma:160,data:260,influence:120},reward:{dark:75,influence:470,plasma:340,data:520,timeFlux:9},need:s=>s.dark>=14||level(s.constellations,"void")>0}
         ];
         const artifacts=[
           {id:"lens",name:"古代聚光镜",desc:"每级全局产量 +5%。",cost:10,growth:1.72},
@@ -185,44 +185,44 @@
           {id:"armor",name:"陨铁护壳",desc:"提升舰体耐久，并提高离线战斗稳定性。",cost:{crystal:780,alloy:76,salvage:10},growth:1.58},
           {id:"reactor",name:"脉冲反应堆",desc:"提升星能、研究和战斗续航。",cost:{science:120,energy:80,salvage:14},growth:1.62},
           {id:"drone",name:"蜂群无人机",desc:"提供额外秒伤，并小幅反哺星尘与晶矿。",cost:{dust:9000,fragments:10,salvage:18},growth:1.66},
-          {id:"matrix",name:"战术矩阵 AI",desc:"使用数据强化索敌、战利回收和战斗预判。",cost:{data:90,plasma:35,salvage:140},growth:1.64},
-          {id:"drive",name:"相位跃迁引擎",desc:"提升舰队续航，并缩短远航和时砂跃迁节奏。",cost:{plasma:80,energy:140,fragments:55},growth:1.68},
-          {id:"singularity",name:"奇点牵引炮",desc:"使用暗质放大战斗爆发，提高首领和暗质掉落。",cost:{dark:32,plasma:220,salvage:720},growth:1.72}
+          {id:"matrix",name:"战术矩阵 AI",desc:"使用数据强化索敌、战利回收和战斗预判。",cost:{data:60,plasma:22,salvage:120},growth:1.6},
+          {id:"drive",name:"相位跃迁引擎",desc:"提升舰队续航，并缩短远航和时砂跃迁节奏。",cost:{plasma:55,energy:120,fragments:45},growth:1.64},
+          {id:"singularity",name:"奇点牵引炮",desc:"使用暗质放大战斗爆发，提高首领和暗质掉落。",cost:{dark:20,plasma:150,salvage:650},growth:1.68}
         ];
         const projects=[
-          {id:"industry",name:"工业星环",desc:"每级全局产量 +6%，星辉产线额外提升。",cost:{plasma:70,data:60,alloy:900},growth:1.7,max:8},
-          {id:"research",name:"学会星环",desc:"每级研究和数据收益 +6%，研究矩阵成本更顺。",cost:{data:110,science:900,fragments:35},growth:1.72,max:8},
-          {id:"battle",name:"军械星环",desc:"每级舰队攻击和战斗掉落 +7%。",cost:{plasma:120,data:80,salvage:360},growth:1.74,max:8},
-          {id:"voyage",name:"远航星环",desc:"每级远航耗时 -3%，远航带回的数据和碎片更多。",cost:{plasma:90,data:160,fragments:80},growth:1.76,max:8},
-          {id:"crew",name:"议会星环",desc:"每级降低专员训练和进阶成本，并提高岗位加成。",cost:{data:200,science:1200,salvage:240},growth:1.78,max:8},
-          {id:"time",name:"时砂星环",desc:"每级提高时砂上限、离线整理和时间跃迁长度。",cost:{plasma:160,data:220,timeFlux:3},growth:1.8,max:8},
-          {id:"council",name:"星盟星环",desc:"每级委托奖励、声望收益和资源包收益 +6%。",cost:{influence:180,data:260,plasma:90},growth:1.82,max:8},
-          {id:"void",name:"暗质星环",desc:"每级暗质收益、Boss 掉落和天象演算奖励 +6%。",cost:{dark:36,plasma:240,timeFlux:4},growth:1.86,max:8}
+          {id:"industry",name:"工业星环",desc:"每级全局产量 +6%，星辉产线额外提升。",cost:{plasma:48,data:42,alloy:760},growth:1.64,max:8},
+          {id:"research",name:"学会星环",desc:"每级研究和数据收益 +6%，研究矩阵成本更顺。",cost:{data:76,science:760,fragments:28},growth:1.66,max:8},
+          {id:"battle",name:"军械星环",desc:"每级舰队攻击和战斗掉落 +7%。",cost:{plasma:82,data:56,salvage:300},growth:1.68,max:8},
+          {id:"voyage",name:"远航星环",desc:"每级远航耗时 -3%，远航带回的数据和碎片更多。",cost:{plasma:62,data:115,fragments:64},growth:1.7,max:8},
+          {id:"crew",name:"议会星环",desc:"每级降低专员训练和进阶成本，并提高岗位加成。",cost:{data:140,science:980,salvage:200},growth:1.72,max:8},
+          {id:"time",name:"时砂星环",desc:"每级提高时砂上限、离线整理和时间跃迁长度。",cost:{plasma:110,data:155,timeFlux:2},growth:1.74,max:8},
+          {id:"council",name:"星盟星环",desc:"每级委托奖励、声望收益和资源包收益 +6%。",cost:{influence:120,data:180,plasma:62},growth:1.76,max:8},
+          {id:"void",name:"暗质星环",desc:"每级暗质收益、Boss 掉落和天象演算奖励 +6%。",cost:{dark:24,plasma:165,timeFlux:3},growth:1.8,max:8}
         ];
         const constellations=[
-          {id:"forge",name:"炉心天象",desc:"每级星尘、合金和星辉收益 +5%。",cost:{influence:80,data:80,plasma:30},growth:1.56,max:10},
-          {id:"scholar",name:"学会天象",desc:"每级研究、数据和矩阵节奏 +5%。",cost:{influence:110,data:170,science:1200},growth:1.58,max:10},
-          {id:"war",name:"军势天象",desc:"每级舰队攻击、战利和首领奖励 +5%。",cost:{influence:140,plasma:90,salvage:420},growth:1.6,max:10},
-          {id:"voyage",name:"星路天象",desc:"每级远航耗时 -2%，远航声望和碎片收益更高。",cost:{influence:150,data:180,fragments:95},growth:1.62,max:10},
-          {id:"council",name:"议会天象",desc:"每级委托、专员和声望回流 +6%。",cost:{influence:220,data:260,science:1600},growth:1.64,max:10},
-          {id:"void",name:"虚空天象",desc:"每级暗质、时砂和高阶演算收益 +8%。",cost:{dark:42,plasma:220,timeFlux:4},growth:1.68,max:10}
+          {id:"forge",name:"炉心天象",desc:"每级星尘、合金和星辉收益 +5%。",cost:{influence:55,data:55,plasma:22},growth:1.52,max:10},
+          {id:"scholar",name:"学会天象",desc:"每级研究、数据和矩阵节奏 +5%。",cost:{influence:76,data:120,science:980},growth:1.54,max:10},
+          {id:"war",name:"军势天象",desc:"每级舰队攻击、战利和首领奖励 +5%。",cost:{influence:96,plasma:62,salvage:340},growth:1.56,max:10},
+          {id:"voyage",name:"星路天象",desc:"每级远航耗时 -2%，远航声望和碎片收益更高。",cost:{influence:105,data:125,fragments:76},growth:1.58,max:10},
+          {id:"council",name:"议会天象",desc:"每级委托、专员和声望回流 +6%。",cost:{influence:150,data:185,science:1300},growth:1.6,max:10},
+          {id:"void",name:"虚空天象",desc:"每级暗质、时砂和高阶演算收益 +8%。",cost:{dark:28,plasma:155,timeFlux:3},growth:1.64,max:10}
         ];
         const trials=[
-          {id:"supply",name:"工坊供给演算",desc:"把基础产线压缩成声望和数据，适合建筑成型后循环。",cost:{dust:50000,crystal:3200,science:260},reward:{influence:35,data:22},growth:1.38,max:15,need:s=>s.stats.totalDust>=50000||level(s.trials,"supply")>0},
-          {id:"fleet",name:"舰队火力演算",desc:"消耗战利和合金，换取声望、星辉和少量暗质。",cost:{salvage:220,alloy:340,science:320},reward:{influence:60,plasma:34,dark:4},growth:1.44,max:15,need:s=>s.stats.highestZone>=8||level(s.trials,"fleet")>0},
-          {id:"relic",name:"遗物译码演算",desc:"把碎片和数据转为声望、暗质和时砂，远航玩家收益更明显。",cost:{fragments:46,data:90,energy:90},reward:{influence:88,dark:9,timeFlux:1},growth:1.48,max:15,need:s=>s.data>=60||level(s.trials,"relic")>0},
-          {id:"singularity",name:"奇点压缩演算",desc:"后期高阶演算，消耗星辉、数据和暗质换取大量天象材料。",cost:{plasma:190,data:300,dark:20},reward:{influence:170,dark:28,fragments:120},growth:1.54,max:12,need:s=>s.dark>=16||level(s.trials,"singularity")>0}
+          {id:"supply",name:"工坊供给演算",desc:"把基础产线压缩成声望和数据，适合建筑成型后循环。",cost:{dust:50000,crystal:3200,science:260},reward:{influence:55,data:40},growth:1.34,max:15,need:s=>s.stats.totalDust>=50000||level(s.trials,"supply")>0},
+          {id:"fleet",name:"舰队火力演算",desc:"消耗战利和合金，换取声望、星辉和少量暗质。",cost:{salvage:190,alloy:280,science:260},reward:{influence:90,plasma:52,dark:7},growth:1.38,max:15,need:s=>s.stats.highestZone>=8||level(s.trials,"fleet")>0},
+          {id:"relic",name:"遗物译码演算",desc:"把碎片和数据转为声望、暗质和时砂，远航玩家收益更明显。",cost:{fragments:40,data:70,energy:80},reward:{influence:120,dark:14,timeFlux:2},growth:1.42,max:15,need:s=>s.data>=45||level(s.trials,"relic")>0},
+          {id:"singularity",name:"奇点压缩演算",desc:"后期高阶演算，消耗星辉、数据和暗质换取大量天象材料。",cost:{plasma:140,data:210,dark:14},reward:{influence:240,dark:42,fragments:170},growth:1.48,max:12,need:s=>s.dark>=12||level(s.trials,"singularity")>0}
         ];
         const combatUps=[
           {id:"targeting",name:"星标火控",desc:"每级舰队攻击 +8%，适合推进高战区。",cost:{salvage:90,science:130},growth:1.58,max:10,need:s=>s.stats.kills>=5||level(s.combatUp,"targeting")>0},
           {id:"plating",name:"自修装甲",desc:"每级舰体、护甲和回复提高，离线战斗更稳。",cost:{salvage:110,alloy:90},growth:1.6,max:10,need:s=>s.stats.kills>=8||level(s.combatUp,"plating")>0},
           {id:"scavenger",name:"残骸回收",desc:"每级战斗掉落 +8%，Boss 碎片也会增加。",cost:{salvage:140,fragments:8},growth:1.62,max:10,need:s=>s.salvage>=80||level(s.combatUp,"scavenger")>0},
           {id:"command",name:"战术中枢",desc:"每级减少战败回退压力，并提升首领奖励。",cost:{salvage:180,science:240,alloy:120},growth:1.66,max:8,need:s=>s.stats.highestZone>=6||level(s.combatUp,"command")>0},
-          {id:"momentum",name:"战意引擎",desc:"每级战意充能和齐射伤害提高，战斗会更频繁爆发。",cost:{salvage:260,science:360,plasma:28},growth:1.64,max:12,need:s=>s.stats.kills>=12||level(s.combatUp,"momentum")>0},
-          {id:"barrage",name:"星辉弹幕",desc:"每级提高舰队攻击和首领资源掉落。",cost:{salvage:360,plasma:70,data:80},growth:1.68,max:10,need:s=>s.plasma>=40||level(s.combatUp,"barrage")>0},
-          {id:"overload",name:"过载齐射",desc:"每级提高齐射爆发，并在命中后短暂压低敌方火力。",cost:{salvage:520,plasma:110,data:120},growth:1.7,max:10,need:s=>s.plasma>=80||level(s.combatUp,"overload")>0},
-          {id:"voidHull",name:"暗质舰壳",desc:"每级提高生存、暗质掉落和离线战斗稳定性。",cost:{salvage:620,dark:16,influence:120},growth:1.74,max:8,need:s=>s.dark>=8||level(s.combatUp,"voidHull")>0},
-          {id:"bossMark",name:"首领弱点标记",desc:"每级提高对首领伤害、首领掉落和暗质收益。",cost:{salvage:900,fragments:110,influence:160},growth:1.78,max:8,need:s=>s.stats.bosses>=3||level(s.combatUp,"bossMark")>0}
+          {id:"momentum",name:"战意引擎",desc:"每级战意充能和齐射伤害提高，战斗会更频繁爆发。",cost:{salvage:220,science:280,plasma:12},growth:1.58,max:12,need:s=>s.stats.kills>=12||level(s.combatUp,"momentum")>0},
+          {id:"barrage",name:"星辉弹幕",desc:"每级提高舰队攻击和首领资源掉落。",cost:{salvage:300,plasma:45,data:45},growth:1.6,max:10,need:s=>s.plasma>=30||level(s.combatUp,"barrage")>0},
+          {id:"overload",name:"过载齐射",desc:"每级提高齐射爆发，并在命中后短暂压低敌方火力。",cost:{salvage:430,plasma:70,data:75},growth:1.62,max:10,need:s=>s.plasma>=55||level(s.combatUp,"overload")>0},
+          {id:"voidHull",name:"暗质舰壳",desc:"每级提高生存、暗质掉落和离线战斗稳定性。",cost:{salvage:520,dark:9,influence:80},growth:1.66,max:8,need:s=>s.dark>=6||level(s.combatUp,"voidHull")>0},
+          {id:"bossMark",name:"首领弱点标记",desc:"每级提高对首领伤害、首领掉落和暗质收益。",cost:{salvage:760,fragments:75,influence:95},growth:1.68,max:8,need:s=>s.stats.bosses>=3||level(s.combatUp,"bossMark")>0}
         ];
         const achievements=[
           {id:"firstTap",name:"第一束星尘",hint:"手动校准 1 次。",test:s=>s.stats.manual>=1},
@@ -376,7 +376,7 @@
         function combatDamage(s,p,e,dt=1){const boss=e.boss?1+level(s.combatUp,"bossMark")*.065+level(s.gear,"singularity")*.035+metaLevel("tactics",s)*.025:1;return p.attack*boss*dt}
         function salvoDamage(s,p,e){const base=2.45+level(s.combatUp,"momentum")*.18+level(s.combatUp,"overload")*.24+level(s.gear,"matrix")*.08+level(s.gear,"singularity")*.14+level(s.constellations,"war")*.06+metaLevel("tactics",s)*.18,boss=e.boss?1.16+level(s.combatUp,"bossMark")*.11+level(s.combatUp,"barrage")*.035:1;return p.attack*base*boss}
         function fireSalvo(s,p,e){const cap=momentumCap(s),dmg=salvoDamage(s,p,e);s.battle.momentum=Math.max(0,(s.battle.momentum||0)-cap);s.battle.suppress=Math.max(s.battle.suppress||0,1.4+level(s.combatUp,"overload")*.18+level(s.gear,"singularity")*.08);s.stats.salvos=(s.stats.salvos||0)+1;s.battle.enemyHp-=dmg;salvoFlashTimer=.55;spawnCombatFx(dmg,e.boss,"salvo");shakeTimer=e.boss?.36:.24;logBattle(`战意齐射命中 ${e.name}，造成 ${fmt(dmg)} 爆发`,s);return dmg}
-        function battleReward(s,e){const z=s.battle.zone,loot=(1+level(s.coreUp,"contract")*.08+level(s.artifacts,"ledger")*.04+level(s.gear,"weapon")*.015+level(s.gear,"matrix")*.035+level(s.gear,"singularity")*.045+level(s.rLv,"combat")*.05+level(s.projects,"battle")*.07+level(s.projects,"void")*.05+level(s.constellations,"war")*.05+level(s.combatUp,"scavenger")*.08+level(s.combatUp,"barrage")*.05+level(s.combatUp,"bossMark")*.05+level(s.crewRank,"geologist")*.02+metaLevel("battle",s)*.08)*stanceInfo(s.battle.stance).loot*protocolInfo(s).loot,bossFrag=e.boss?1+metaLevel("battle",s)*.1+level(s.combatUp,"command")*.05+level(s.combatUp,"scavenger")*.03+level(s.combatUp,"barrage")*.04+level(s.combatUp,"voidHull")*.03+level(s.combatUp,"bossMark")*.08:1,refine=metaLevel("salvage",s);return{dust:e.dust*loot,alloy:e.salvage*refine*.35,science:e.science*loot+e.salvage*refine*.22,fragments:e.fragments*loot*bossFrag,plasma:(e.boss?Math.max(0,z-8)*1.2:Math.max(0,z-12)*.18)*loot,data:(e.science*.18+Math.max(0,z-9)*.12)*loot,influence:(e.boss?12+z*1.35:Math.max(0,z-7)*.14)*loot,dark:(e.boss?Math.max(0,z-14)*.55:Math.max(0,z-20)*.08)*loot*bossFrag,salvage:e.salvage*loot}}
+        function battleReward(s,e){const z=s.battle.zone,loot=(1+level(s.coreUp,"contract")*.08+level(s.artifacts,"ledger")*.04+level(s.gear,"weapon")*.015+level(s.gear,"matrix")*.035+level(s.gear,"singularity")*.045+level(s.rLv,"combat")*.05+level(s.projects,"battle")*.07+level(s.projects,"void")*.05+level(s.constellations,"war")*.05+level(s.combatUp,"scavenger")*.08+level(s.combatUp,"barrage")*.05+level(s.combatUp,"bossMark")*.05+level(s.crewRank,"geologist")*.02+metaLevel("battle",s)*.08)*stanceInfo(s.battle.stance).loot*protocolInfo(s).loot,bossFrag=e.boss?1+metaLevel("battle",s)*.1+level(s.combatUp,"command")*.05+level(s.combatUp,"scavenger")*.03+level(s.combatUp,"barrage")*.04+level(s.combatUp,"voidHull")*.03+level(s.combatUp,"bossMark")*.08:1,refine=metaLevel("salvage",s);return{dust:e.dust*loot,alloy:e.salvage*refine*.35,science:e.science*loot+e.salvage*refine*.22,fragments:e.fragments*loot*bossFrag,plasma:(e.boss?Math.max(0,z-6)*1.65:Math.max(0,z-8)*.3)*loot,data:(e.science*.24+Math.max(0,z-6)*.2)*loot,influence:(e.boss?18+z*1.75:Math.max(0,z-5)*.24)*loot,dark:(e.boss?Math.max(0,z-11)*.85:Math.max(0,z-16)*.13)*loot*bossFrag,salvage:e.salvage*loot}}
         function logBattle(t,s=state){s.battleLog=[t,...(s.battleLog||[])].slice(0,6)}
         function grantBattleKill(s,e){const rew=battleReward(s,e);awardReward(s,rew,1);s.stats.kills++;if(e.boss)s.stats.bosses++;s.stats.highestZone=Math.max(s.stats.highestZone||1,s.battle.zone);logBattle(`${e.boss?"击破首领":"击破"} ${e.name}，获得 ${fmt(rew.salvage)} 战利`,s);return rew}
         function advanceBattle(s){const st=stanceInfo(s.battle.stance);if(st.advance)s.battle.zone++;const next=enemyStats(s.battle.zone);s.battle.enemyHp=next.hp}
