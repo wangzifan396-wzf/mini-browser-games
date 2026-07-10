@@ -190,6 +190,43 @@
     color: #ffd3da;
   }
 
+  .domination-meter {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid rgba(103, 232, 249, 0.22);
+    border-radius: 8px;
+    background: rgba(5, 12, 20, 0.52);
+  }
+
+  .meter-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    color: #dce9f8;
+    font-size: 12px;
+    line-height: 1.1;
+  }
+
+  .meter-track {
+    height: 8px;
+    margin-top: 7px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .meter-fill {
+    width: var(--p, 0%);
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #46d7c4, #ffd166);
+    transition: width 160ms ease;
+  }
+
+  .meter-fill.ready {
+    background: linear-gradient(90deg, #ffd166, #ff5f7a);
+  }
+
   .minimap {
     position: fixed;
     left: 18px;
@@ -1108,11 +1145,11 @@
           </button>
           <button class="mode-card" type="button" data-mode="team">
             <strong>团队战</strong>
-            <span>10 队 5 人，队友可接分身，按队伍总质量结算。</span>
+            <span>10 队 4 人，队友可接分身，按队伍总质量结算。</span>
           </button>
           <button class="mode-card" type="button" data-mode="survival">
             <strong>生存模式</strong>
-            <span>9 分钟生命制，吞噬加命，生命耗尽出局。</span>
+            <span>64 人生命制，吞噬加命，生命耗尽出局。</span>
           </button>
           <button class="mode-card active" type="button" data-mode="battle">
             <strong>大逃杀</strong>
@@ -1122,13 +1159,21 @@
             <strong>闪电乱斗</strong>
             <span>高密度食点和密集事件，节奏更快，3 分钟左右结算。</span>
           </button>
+          <button class="mode-card" type="button" data-mode="spore">
+            <strong>孢子风暴</strong>
+            <span>48 人孢子刺战场，所有刺都会炸出一圈可争夺孢子。</span>
+          </button>
+          <button class="mode-card" type="button" data-mode="screen">
+            <strong>霸屏模式</strong>
+            <span>22 人方形战场，A 快合、D 冲刺种刺，88% 区域占领获胜。</span>
+          </button>
           <button class="mode-card" type="button" data-mode="control">
             <strong>据点战</strong>
-            <span>4 队 6 人争夺 3 个星核据点，先到目标分获胜。</span>
+            <span>4 队 7 人争夺 3 个星核据点，先到目标分获胜。</span>
           </button>
           <button class="mode-card" type="button" data-mode="giant">
             <strong>巨行星霸屏</strong>
-            <span>全员巨球开局，90% 霸屏并维持 5 秒决定胜负。</span>
+            <span>36 人巨球开局，88% 固定区域占领并维持 6 秒决定胜负。</span>
           </button>
           <button class="mode-card" type="button" data-mode="demon">
             <strong>魔王模式</strong>
@@ -1227,7 +1272,7 @@
   const SPLIT_MIN_MASS = 32;
   const EJECT_MIN_MASS = 30;
   const EJECT_INTERVAL = 68;
-  const MAX_EJECTED = 360;
+  const MAX_EJECTED = 720;
   const MAX_PARTICLES = 560;
   const MAX_RINGS = 96;
   const MINIMAP_FAST_INTERVAL = 130;
@@ -1327,7 +1372,9 @@
     { key: "candy-pop", name: "糖果爆弹", color: "#db2777", accent: "#fef3c7", type: "special", pattern: "comet", tier: "common", rarity: "普通" },
     { key: "jade-dragon", name: "青玉龙鳞", color: "#047857", accent: "#bbf7d0", type: "special", pattern: "mecha", tier: "epic", rarity: "史诗" },
     { key: "zero-code", name: "零号代码", color: "#020617", accent: "#58edc8", type: "special", pattern: "mecha", tier: "legendary", rarity: "传说" },
-    { key: "sunset", name: "落霞星幕", color: "#c2410c", accent: "#fed7aa", type: "special", pattern: "flare", tier: "rare", rarity: "稀有" }
+    { key: "sunset", name: "落霞星幕", color: "#c2410c", accent: "#fed7aa", type: "special", pattern: "flare", tier: "rare", rarity: "稀有" },
+    { key: "spore-nebula", name: "孢子星云", color: "#be185d", accent: "#fdf2f8", type: "special", pattern: "comet", tier: "epic", rarity: "史诗" },
+    { key: "blitz-crown", name: "闪电王冠", color: "#1e3a8a", accent: "#fde047", type: "special", pattern: "crown", tier: "legendary", rarity: "传说" }
   );
 
   SPORES.push(
@@ -1338,7 +1385,8 @@
     { key: "neon-bit", name: "霓虹字节", color: "#22d3ee", accent: "#58edc8", type: "special", pattern: "spark", tier: "epic", rarity: "史诗" },
     { key: "storm-pearl", name: "风暴珍珠", color: "#2563eb", accent: "#fef08a", type: "special", pattern: "royal", tier: "legendary", rarity: "传说" },
     { key: "koi-scale", name: "锦鲤鳞片", color: "#fb923c", accent: "#bbf7d0", type: "special", pattern: "bubble", tier: "epic", rarity: "史诗" },
-    { key: "blackhole-dust", name: "黑洞星砂", color: "#020617", accent: "#c084fc", type: "special", pattern: "meteor", tier: "legendary", rarity: "传说" }
+    { key: "blackhole-dust", name: "黑洞星砂", color: "#020617", accent: "#c084fc", type: "special", pattern: "meteor", tier: "legendary", rarity: "传说" },
+    { key: "spore-burst", name: "孢子爆花", color: "#f472b6", accent: "#ffffff", type: "special", pattern: "spark", tier: "epic", rarity: "史诗" }
   );
 
   HALOS.push(
@@ -1349,7 +1397,8 @@
     { key: "lotus-crown", name: "莲华冠环", color: "#be185d", accent: "#fdf2f8", type: "special", pattern: "crown", tier: "legendary", rarity: "传说" },
     { key: "storm-ring", name: "风眼光环", color: "#1d4ed8", accent: "#bae6fd", type: "special", pattern: "gravity", tier: "legendary", rarity: "传说" },
     { key: "candy-ring", name: "糖霜光环", color: "#fb7185", accent: "#fef3c7", type: "special", pattern: "pulse", tier: "common", rarity: "普通" },
-    { key: "jade-ring", name: "青玉光环", color: "#047857", accent: "#bbf7d0", type: "special", pattern: "orbit", tier: "epic", rarity: "史诗" }
+    { key: "jade-ring", name: "青玉光环", color: "#047857", accent: "#bbf7d0", type: "special", pattern: "orbit", tier: "epic", rarity: "史诗" },
+    { key: "blitz-ring", name: "制霸电冕", color: "#2563eb", accent: "#fde047", type: "special", pattern: "crown", tier: "legendary", rarity: "传说" }
   );
 
   TRAILS.push(
@@ -1360,7 +1409,8 @@
     { key: "lotus-trail", name: "莲华花路", color: "#be185d", accent: "#fdf2f8", type: "special", pattern: "petals", tier: "epic", rarity: "史诗" },
     { key: "storm-trail", name: "风暴电尾", color: "#1d4ed8", accent: "#bae6fd", type: "special", pattern: "arc", tier: "legendary", rarity: "传说" },
     { key: "candy-trail", name: "糖霜泡带", color: "#fb7185", accent: "#fef3c7", type: "special", pattern: "dots", tier: "common", rarity: "普通" },
-    { key: "blackhole-trail", name: "黑洞拖影", color: "#020617", accent: "#c084fc", type: "special", pattern: "rift", tier: "legendary", rarity: "传说" }
+    { key: "blackhole-trail", name: "黑洞拖影", color: "#020617", accent: "#c084fc", type: "special", pattern: "rift", tier: "legendary", rarity: "传说" },
+    { key: "spore-trail", name: "孢子流萤", color: "#be185d", accent: "#fdf2f8", type: "special", pattern: "bubbles", tier: "epic", rarity: "史诗" }
   );
 
   const GAME_MODES = {
@@ -1382,24 +1432,25 @@
     team: {
       label: "团队战",
       short: "团队",
-      description: "10 队 5 人，队友可接分身，按队伍总质量结算。",
-      players: 50,
+      description: "10 队 4 人，队友可接分身，按队伍总质量结算。",
+      players: 40,
       teams: 10,
-      teamSize: 5,
+      teamSize: 4,
       safeZone: false,
       duration: 720,
       respawn: true,
       ranking: "teamMass",
       playerStartMass: 170,
-      foodTargetScale: 1.08,
-      foodRateScale: 1.08,
-      foodMassScale: 1.08
+      foodTargetScale: 1.14,
+      foodRateScale: 1.13,
+      foodMassScale: 1.08,
+      aiAggroScale: 0.94
     },
     survival: {
       label: "生存模式",
       short: "生存",
-      description: "9 分钟生命制，吞噬加命，生命耗尽出局。",
-      players: 60,
+      description: "64 人生命制，吞噬加命，生命耗尽出局。",
+      players: 64,
       teams: 0,
       safeZone: false,
       duration: 540,
@@ -1407,9 +1458,11 @@
       lives: 3,
       ranking: "kills",
       playerStartMass: 180,
-      foodTargetScale: 1.1,
-      foodRateScale: 1.12,
-      foodMassScale: 1.12
+      foodTargetScale: 1.14,
+      foodRateScale: 1.15,
+      foodMassScale: 1.12,
+      sporeVirus: true,
+      sporeVirusChance: 0.08
     },
     battle: {
       label: "大逃杀",
@@ -1447,56 +1500,172 @@
       eventDelay: 4200,
       eventIntervalMin: 8500,
       eventIntervalMax: 13500,
-      virusCount: 54
+      virusCount: 54,
+      sporeVirus: true,
+      sporeVirusChance: 0.16,
+      blitzSupremacy: true,
+      supremacyGrace: 45,
+      supremacyShare: 0.68,
+      supremacyLead: 4.2,
+      supremacyHold: 3
+    },
+    spore: {
+      label: "孢子风暴",
+      short: "孢子",
+      description: "48 人孢子刺战场，所有刺都会炸出一圈可争夺孢子。",
+      players: 48,
+      teams: 0,
+      safeZone: false,
+      duration: 360,
+      respawn: true,
+      ranking: "mass",
+      playerStartMass: 260,
+      foodTargetScale: 1.24,
+      foodRateScale: 1.36,
+      foodMassScale: 1.25,
+      speedScale: 1.06,
+      mergeScale: 0.68,
+      aiAggroScale: 0.9,
+      virusCount: 62,
+      virusMax: 92,
+      virusRegenRate: 0.9,
+      sporeVirus: true,
+      sporeVirusOnly: true,
+      sporeVirusChance: 1,
+      sporeVirusLossMin: 0.5,
+      sporeVirusLossMax: 0.5,
+      sporeVirusBurstMin: 18,
+      sporeVirusBurstMax: 30,
+      sporeVirusPieceMass: 18,
+      eventDelay: 5200,
+      eventIntervalMin: 10500,
+      eventIntervalMax: 16500
+    },
+    screen: {
+      label: "霸屏模式",
+      short: "霸屏",
+      description: "22 人方形战场，64 分身上限，用 A 快合、D 冲刺种刺完成区域霸屏。",
+      players: 22,
+      teams: 0,
+      safeZone: false,
+      rectArena: true,
+      arenaWidth: 0.72,
+      arenaHeight: 0.72,
+      duration: 420,
+      respawn: true,
+      ranking: "mass",
+      playerStartMass: 980,
+      botMassScale: 1.48,
+      foodTargetScale: 1.3,
+      foodRateScale: 1.38,
+      foodMassScale: 1.42,
+      speedScale: 1,
+      mergeScale: 0.52,
+      minZoom: 0.32,
+      splitMinZoom: 0.16,
+      aiAggroScale: 0.76,
+      ejectCellLimit: 10,
+      maxCells: 64,
+      botMaxCells: 24,
+      quickMerge: true,
+      quickMergeCooldown: 6200,
+      screenSkill: true,
+      screenSkillCooldown: 7600,
+      screenSkillDuration: 1.25,
+      screenSkillImpulse: 520,
+      screenSkillCost: 0.012,
+      screenSkillVirus: true,
+      screenSkillVirusCost: 42,
+      virusCount: 20,
+      virusMax: 34,
+      virusRegenRate: 0.24,
+      virusPlayerPieces: 6,
+      bigVirusPlayerPieces: 8,
+      sporeVirus: true,
+      sporeVirusChance: 0.1,
+      domination: true,
+      dominationMetric: "arena",
+      dominationShare: 0.88,
+      dominationHold: 6,
+      dominationHysteresis: 0.045,
+      dominationCandidates: 12,
+      coverageSamples: 26,
+      coverageRadiusMult: 1.08,
+      coverageRadiusBonus: 14,
+      coverageAreaWeight: 0.82,
+      coverageBoostLimit: 0.12,
+      respawnShield: 3.2,
+      eventDelay: 11500,
+      eventIntervalMin: 16500,
+      eventIntervalMax: 25500,
+      lateFoodRamp: 0.24,
+      comebackRespawn: true,
+      comebackMassScale: 0.15,
+      comebackMaxScale: 2.0
     },
     control: {
       label: "据点战",
       short: "据点",
-      description: "4 队 6 人争夺 3 个星核据点，站入据点压制进度，先到目标分获胜。",
-      players: 24,
+      description: "4 队 7 人争夺 3 个星核据点，站入据点压制进度，先到目标分获胜。",
+      players: 28,
       teams: 4,
-      teamSize: 6,
+      teamSize: 7,
       safeZone: false,
       duration: 600,
       respawn: true,
       ranking: "control",
       control: true,
-      controlScore: 220,
+      controlScore: 240,
       playerStartMass: 185,
-      foodTargetScale: 1.1,
-      foodRateScale: 1.12,
+      foodTargetScale: 1.16,
+      foodRateScale: 1.17,
       foodMassScale: 1.1
     },
     giant: {
       label: "巨行星霸屏",
       short: "巨行星",
-      description: "全员巨球开局，刺球更多，连续保持霸屏进度即可获胜。",
-      players: 50,
+      description: "全员巨球开局，低密度固定圆形战场，连续保持霸屏进度即可获胜。",
+      players: 36,
       teams: 0,
       safeZone: true,
       duration: 0,
       respawn: true,
       ranking: "mass",
       playerStartMass: 4300,
-      botMassScale: 8.0,
-      foodTargetScale: 1.08,
-      foodRateScale: 1.24,
-      foodMassScale: 1.25,
+      botMassScale: 5.35,
+      foodTargetScale: 1,
+      foodRateScale: 1.07,
+      foodMassScale: 1.08,
       speedScale: 0.88,
-      mergeScale: 0.72,
-      virusCount: 64,
-      virusMax: 82,
-      virusRegenRate: 0.62,
+      mergeScale: 0.48,
+      minZoom: 0.28,
+      splitMinZoom: 0.14,
+      aiAggroScale: 0.86,
+      virusCount: 44,
+      virusMax: 58,
+      virusRegenRate: 0.44,
+      virusPlayerPieces: 6,
+      bigVirusPlayerPieces: 8,
+      sporeVirus: true,
+      sporeVirusChance: 0.08,
       domination: true,
-      dominationShare: 0.9,
-      dominationHold: 5,
+      dominationMetric: "arena",
+      dominationShare: 0.88,
+      dominationHold: 6,
+      dominationHysteresis: 0.045,
+      dominationCandidates: 12,
+      coverageSamples: 28,
+      coverageRadiusMult: 1.1,
+      coverageRadiusBonus: 18,
+      coverageAreaWeight: 0.84,
+      coverageBoostLimit: 0.12,
       staticZone: true,
-      safeZoneRadius: 0.32,
-      safeZoneTargetRadius: 0.32,
+      safeZoneRadius: 0.38,
+      safeZoneTargetRadius: 0.38,
       respawnShield: 3.2,
-      eventDelay: 9000,
-      eventIntervalMin: 26000,
-      eventIntervalMax: 38000
+      eventDelay: 12000,
+      eventIntervalMin: 30000,
+      eventIntervalMax: 44000
     },
     demon: {
       label: "魔王模式",
@@ -1539,10 +1708,14 @@
     { key: "royalfeast", label: "王冠盛宴", desc: "吃点范围和高价值食点提升", duration: 26, eatReachMult: 1.45, foodMassMult: 1.36, richChanceAdd: 0.07, color: "#facc15" },
     { key: "neonrush", label: "霓虹疾走", desc: "移动与吐球节奏加快", duration: 22, speedMult: 1.22, ejectMult: 0.68, color: "#22d3ee" },
     { key: "blackhole", label: "黑洞边界", desc: "吃点范围暴涨但移动变沉", duration: 22, eatReachMult: 2.25, speedMult: 0.88, color: "#a78bfa" },
-    { key: "thornstorm", label: "刺潮风暴", desc: "刺球持续涌入，适合炸刺翻盘", duration: 24, virusBurst: 20, foodMassMult: 1.16, richChanceAdd: 0.04, color: "#5eea80" },
+    { key: "thornwave", label: "刺潮风暴", desc: "刺球持续涌入，适合炸刺翻盘", duration: 24, virusBurst: 20, foodMassMult: 1.16, richChanceAdd: 0.04, color: "#5eea80" },
     { key: "coretide", label: "星核潮汐", desc: "高价值资源大量出现", duration: 28, foodTargetMult: 1.16, foodRateMult: 1.45, foodMassMult: 1.85, richChanceAdd: 0.13, foodBurst: 90, burstMassMult: 2.8, color: "#67e8f9" },
     { key: "supplydrop", label: "星核空投", desc: "中心区域落下大颗资源", duration: 18, foodRateMult: 1.18, foodMassMult: 1.35, foodBurst: 70, burstMassMult: 3.4, color: "#f8fafc" },
-    { key: "huntercall", label: "猎手号角", desc: "全场 AI 更敢追击和分身", duration: 24, speedMult: 1.08, aiAggroMult: 1.22, richChanceAdd: 0.04, color: "#ff7a90" }
+    { key: "huntercall", label: "猎手号角", desc: "全场 AI 更敢追击和分身", duration: 24, speedMult: 1.08, aiAggroMult: 1.22, richChanceAdd: 0.04, color: "#ff7a90" },
+    { key: "screenburst", label: "霸屏超频", desc: "快合和冲刺冷却缩短", duration: 24, speedMult: 1.08, mergeMult: 0.5, quickMergeCooldownMult: 0.55, skillCooldownMult: 0.58, color: "#67e8f9" },
+    { key: "goldenfield", label: "金色矩阵", desc: "战场资源更密更肥", duration: 26, foodTargetMult: 1.3, foodRateMult: 1.8, foodMassMult: 1.35, richChanceAdd: 0.08, color: "#ffd166" },
+    { key: "sporethorn", label: "孢子刺潮", desc: "孢子刺球出现，碰到会喷出一部分质量", duration: 24, sporeVirusBurst: 8, sporeVirusChanceAdd: 0.18, foodMassMult: 1.12, color: "#f472b6" },
+    { key: "thornforge", label: "刺球工坊", desc: "战术刺球更频繁，适合围追反打", duration: 22, virusBurst: 10, skillCooldownMult: 0.62, richChanceAdd: 0.04, color: "#86efac" }
   );
   const RARITY_CONFIG = {
     common: { label: "普通", chance: 0.58, exp: 18, color: "#94a3b8" },
@@ -1623,11 +1796,12 @@
     { action: "buy-trail-blackhole", type: "trail", key: "blackhole-trail", cost: 2480, desc: "传说拖尾" }
   ];
   const PERK_SHOP_ITEMS = [
-    { key: "start", name: "开局补给仓", desc: "每级开局质量 +30。", baseCost: 520, max: 10 },
-    { key: "reward", name: "星尘结算仪", desc: "每级结算星尘 +6%。", baseCost: 680, max: 10 },
+    { key: "start", name: "开局补给仓", desc: "每级开局质量 +40。", baseCost: 520, max: 10 },
+    { key: "reward", name: "星尘结算仪", desc: "每级结算星尘 +8%。", baseCost: 680, max: 10 },
     { key: "rebate", name: "锻造返利炉", desc: "每级锻造消耗降低 3.5%。", baseCost: 620, max: 10 },
     { key: "daily", name: "每日补给扩容", desc: "每日补给随等级增加星尘、经验和券。", baseCost: 480, max: 10 },
-    { key: "luck", name: "人品护符", desc: "每级提高人品积累速度。", baseCost: 720, max: 10 }
+    { key: "luck", name: "人品护符", desc: "每级提高人品积累速度。", baseCost: 720, max: 10 },
+    { key: "resonance", name: "星图共鸣", desc: "每级同时提高开局质量、星尘结算和每日补给。", baseCost: 860, max: 20 }
   ];
   const META_VERSION = 4;
 
@@ -1725,12 +1899,29 @@
     return { x: dx / length, y: dy / length, length };
   }
 
+  function rectArenaBounds(margin = 0) {
+    const config = modeConfig();
+    if (!config.rectArena) return null;
+    const width = WORLD * (config.arenaWidth || 0.78);
+    const height = WORLD * (config.arenaHeight || 0.54);
+    const safeMargin = Math.min(Math.max(0, margin || 0), Math.max(0, Math.min(width, height) / 2 - 24));
+    return {
+      left: (WORLD - width) / 2 + safeMargin,
+      right: (WORLD + width) / 2 - safeMargin,
+      top: (WORLD - height) / 2 + safeMargin,
+      bottom: (WORLD + height) / 2 - safeMargin
+    };
+  }
+
   function randomWorldPoint(margin) {
     const m = margin || 80;
+    const rect = rectArenaBounds(m);
+    if (rect) return { x: rand(rect.left, rect.right), y: rand(rect.top, rect.bottom) };
     return { x: rand(m, WORLD - m), y: rand(m, WORLD - m) };
   }
 
   function randomPointInZone(margin) {
+    if (rectArenaBounds()) return randomWorldPoint(margin);
     if (!safeZone || !safeZone.radius || safeZone.enabled === false) return randomWorldPoint(margin);
     const r = Math.max(80, safeZone.radius - (margin || 120));
     const angle = rand(0, Math.PI * 2);
@@ -1738,6 +1929,20 @@
     return {
       x: clamp(safeZone.x + Math.cos(angle) * dist, margin || 80, WORLD - (margin || 80)),
       y: clamp(safeZone.y + Math.sin(angle) * dist, margin || 80, WORLD - (margin || 80))
+    };
+  }
+
+  function clampPlayablePoint(x, y, margin = 80) {
+    const rect = rectArenaBounds(margin);
+    if (rect) {
+      return {
+        x: clamp(x, rect.left, rect.right),
+        y: clamp(y, rect.top, rect.bottom)
+      };
+    }
+    return {
+      x: clamp(x, margin, WORLD - margin),
+      y: clamp(y, margin, WORLD - margin)
     };
   }
 
@@ -1770,6 +1975,12 @@
 
   function activeEventFactor(key, fallback = 1) {
     return matchEvent.active && matchEvent.active[key] !== undefined ? matchEvent.active[key] : fallback;
+  }
+
+  function maxCellsFor(group) {
+    const config = modeConfig();
+    const cap = group && !group.isPlayer && config.botMaxCells ? config.botMaxCells : config.maxCells;
+    return Math.max(1, Math.floor(cap || MAX_CELLS));
   }
 
   function showEventBanner(title, desc, color) {
@@ -2060,27 +2271,31 @@
     const forgeLevel = Math.max(1, meta.forgeLevel || 1);
     const crafted = Math.max(0, meta.crafted || 0);
     const totalDust = Math.max(0, meta.totalDust || 0);
+    const resonance = perkLevel("resonance");
     const level = Math.max(1,
       Math.floor(owned / 3) +
       Math.floor(forgeLevel / 2) +
-      Math.floor(crafted / 12) +
-      Math.floor(totalDust / 2600)
+      Math.floor(crafted / 10) +
+      Math.floor(totalDust / 2200) +
+      Math.floor(resonance / 2)
     );
-    const startMass = Math.min(420,
-      18 +
-      owned * 4 +
-      forgeLevel * 9 +
-      Math.floor(crafted / 3) +
-      Math.floor(totalDust / 900) +
-      perkLevel("start") * 30
+    const startMass = Math.round(
+      24 +
+      owned * 5 +
+      forgeLevel * 12 +
+      Math.floor(crafted / 2.5) +
+      Math.floor(totalDust / 720) +
+      perkLevel("start") * 40 +
+      resonance * 18
     );
-    const rewardPct = Math.min(160,
-      8 +
-      owned * 2 +
-      forgeLevel * 3 +
-      Math.floor(crafted / 5) * 2 +
-      Math.floor(totalDust / 1200) * 2 +
-      perkLevel("reward") * 6
+    const rewardPct = Math.round(
+      12 +
+      owned * 2.4 +
+      forgeLevel * 4 +
+      Math.floor(crafted / 4) * 3 +
+      Math.floor(totalDust / 950) * 3 +
+      perkLevel("reward") * 8 +
+      resonance * 3
     );
     return { owned, total, level, startMass, rewardPct, forgeLevel, crafted, totalDust };
   }
@@ -2119,6 +2334,7 @@
         <div class="progress-card"><strong>Lv.${perkLevel("reward")}</strong><span>星尘结算仪。</span></div>
         <div class="progress-card"><strong>Lv.${perkLevel("rebate")}</strong><span>锻造返利炉。</span></div>
         <div class="progress-card"><strong>Lv.${perkLevel("luck")}</strong><span>人品护符。</span></div>
+        <div class="progress-card"><strong>Lv.${perkLevel("resonance")}</strong><span>星图共鸣。</span></div>
       </div>
       <div class="progress-road">
         ${nodes.map(node => `<div class="progress-node${node.active ? " active" : ""}"><strong>${node.label}</strong><br>${node.active ? "已激活" : `还差 ${Math.max(0, node.target - stats.owned)}`}</div>`).join("")}
@@ -2484,7 +2700,8 @@
   function renderShop() {
     const claimed = meta.dailyPackDate === todayKey();
     const dailyLevel = perkLevel("daily");
-    const dailyDust = 120 + dailyLevel * 45;
+    const resonanceLevel = perkLevel("resonance");
+    const dailyDust = 120 + dailyLevel * 45 + resonanceLevel * 20;
     const dailyTickets = 1 + Math.floor(dailyLevel / 3);
     const dailyXp = dailyLevel * 28;
     const directCards = SHOP_DIRECT_ITEMS.map(offer => {
@@ -2690,8 +2907,9 @@
       if (meta.dailyPackDate === todayKey()) return;
       meta.dailyPackDate = todayKey();
       const dailyLevel = perkLevel("daily");
+      const resonanceLevel = perkLevel("resonance");
       setShopMessage(`每日补给：${applyReward({
-        dust: 120 + dailyLevel * 45,
+        dust: 120 + dailyLevel * 45 + resonanceLevel * 20,
         tickets: 1 + Math.floor(dailyLevel / 3),
         xp: dailyLevel * 28
       })}`);
@@ -2734,7 +2952,7 @@
         const cost = perkCost(perkOffer);
         if (level >= perkOffer.max || meta.dust < cost) return;
         meta.dust -= cost;
-        meta.perks = { ...(meta.perks || {}), [perkOffer.key]: level + 1 };
+      meta.perks = { ...(meta.perks || {}), [perkOffer.key]: level + 1 };
         setShopMessage(`${perkOffer.name} 升至 Lv.${level + 1}`);
         saveMeta();
         renderCosmetics();
@@ -2809,16 +3027,30 @@
   }
 
   function mergeCooldown(mass, type) {
-    const scale = type === "virus-big" ? 0.54 : type === "virus" ? 0.48 : 0.38;
+    const scale = type === "virus-big" ? 0.42 : type === "virus" ? 0.36 : 0.3;
     const eventMult = activeEventFactor("mergeMult", 1);
     const modeMult = modeConfig().mergeScale || 1;
-    return clamp((30 + mass * 0.02) * scale * eventMult * modeMult, type === "split" ? 8 * eventMult * modeMult : 10 * eventMult * modeMult, type === "virus-big" ? 30 : 24);
+    const minBase = type === "split" ? 4.2 : 6.5;
+    const maxBase = type === "virus-big" ? 18 : type === "virus" ? 15 : 12;
+    const min = minBase * eventMult * modeMult;
+    const max = Math.max(min + 0.8, maxBase * eventMult * modeMult);
+    return clamp((22 + mass * 0.012) * scale * eventMult * modeMult, min, max);
   }
 
   function formatTime(seconds) {
     const safe = Math.max(0, Math.ceil(seconds));
     const minutes = Math.floor(safe / 60);
     return `${minutes}:${String(safe % 60).padStart(2, "0")}`;
+  }
+
+  function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, char => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    }[char]));
   }
 
   function botStartMass(index, config) {
@@ -2990,15 +3222,18 @@
     const elapsed = elapsedSeconds(now);
     const config = modeConfig();
     const phaseBonus = Math.max(0, (safeZone.phase || 1) - 1) * 185;
-    const target = FOOD_BASE_COUNT + elapsed * 4.2 + phaseBonus;
+    const lateRamp = config.lateFoodRamp ? Math.max(0, elapsed - (config.dominationWarmup || 55)) * config.lateFoodRamp * 5 : 0;
+    const target = FOOD_BASE_COUNT + elapsed * 4.2 + phaseBonus + lateRamp;
     const scale = config.foodTargetScale || 1;
     return Math.floor(clamp(target * activeEventFactor("foodTargetMult", 1) * scale, FOOD_BASE_COUNT * Math.min(1, scale), FOOD_MAX_COUNT * Math.max(1, scale)));
   }
 
   function foodSpawnRate(now) {
     const elapsed = elapsedSeconds(now);
-    const scale = modeConfig().foodRateScale || 1;
-    return clamp((24 + elapsed * 0.34 + (safeZone.phase || 1) * 9) * activeEventFactor("foodRateMult", 1) * scale, 24, 220);
+    const config = modeConfig();
+    const scale = config.foodRateScale || 1;
+    const lateRamp = config.lateFoodRamp ? Math.max(0, elapsed - (config.dominationWarmup || 55)) * config.lateFoodRamp * 0.18 : 0;
+    return clamp((24 + elapsed * 0.34 + lateRamp + (safeZone.phase || 1) * 9) * activeEventFactor("foodRateMult", 1) * scale, 24, 220);
   }
 
   function foodKey(x, y) {
@@ -3041,11 +3276,13 @@
     const p = Math.random() < 0.78 ? randomPointInZone(60) : randomWorldPoint(60);
     const color = COLORS[Math.floor(Math.random() * COLORS.length)];
     const config = modeConfig();
-    const lateChance = clamp(0.018 + (safeZone.phase || 1) * 0.006 + elapsedSeconds(performance.now()) / 9000 + activeEventFactor("richChanceAdd", 0) + (config.domination ? 0.055 : 0), 0.02, config.domination ? 0.32 : 0.20);
+    const elapsed = elapsedSeconds(performance.now());
+    const ramp = config.lateFoodRamp ? clamp((elapsed - (config.dominationWarmup || 55)) / 240, 0, 1) : 0;
+    const lateChance = clamp(0.018 + (safeZone.phase || 1) * 0.006 + elapsed / 9000 + ramp * 0.055 + activeEventFactor("richChanceAdd", 0) + (config.domination ? 0.055 : 0), 0.02, config.domination ? 0.34 : 0.20);
     const rich = Math.random() < lateChance;
     const massMult = activeEventFactor("foodMassMult", 1);
     const baseMass = config.domination
-      ? (rich ? rand(82, 170) : rand(18, 44))
+      ? (rich ? rand(82 + ramp * 55, 170 + ramp * 120) : rand(18 + ramp * 7, 44 + ramp * 18))
       : (rich ? rand(5.8, 10.5) : rand(2.2, 5.2));
     const mass = baseMass * massMult * (config.foodMassScale || 1);
     const radiusScale = config.domination ? 2.25 : 1;
@@ -3066,8 +3303,9 @@
     const dist = Math.sqrt(Math.random()) * Math.max(260, (center.radius || WORLD * 0.38) * 0.48);
     const base = makeFood();
     const massMult = event.burstMassMult || 2.4;
-    base.x = clamp(center.x + Math.cos(angle) * dist, 90, WORLD - 90);
-    base.y = clamp(center.y + Math.sin(angle) * dist, 90, WORLD - 90);
+    const point = clampPlayablePoint(center.x + Math.cos(angle) * dist, center.y + Math.sin(angle) * dist, 90);
+    base.x = point.x;
+    base.y = point.y;
     base.mass *= massMult;
     base.radius *= Math.sqrt(massMult) * 1.08;
     base.rich = true;
@@ -3075,17 +3313,27 @@
     return base;
   }
 
+  function randomVirusKind(bigChance = 0.24) {
+    const config = modeConfig();
+    if (config.sporeVirusOnly) return "spore";
+    const sporeChance = (config.sporeVirusChance || 0) + activeEventFactor("sporeVirusChanceAdd", 0);
+    if (config.sporeVirus && Math.random() < sporeChance) return "spore";
+    return Math.random() < bigChance ? "big" : "small";
+  }
+
   function makeVirus(kind) {
-    const big = kind ? kind === "big" : Math.random() < 0.24;
+    const finalKind = kind || randomVirusKind();
+    const big = finalKind === "big";
+    const spore = finalKind === "spore";
     const p = Math.random() < 0.82 ? randomPointInZone(big ? 250 : 160) : randomWorldPoint(big ? 250 : 160);
     return {
       x: p.x,
       y: p.y,
-      radius: big ? rand(68, 86) : rand(38, 50),
-      mass: big ? BIG_VIRUS_MASS : VIRUS_MASS,
-      baseMass: big ? BIG_VIRUS_MASS : VIRUS_MASS,
+      radius: spore ? rand(42, 54) : big ? rand(68, 86) : rand(38, 50),
+      mass: spore ? VIRUS_MASS * 0.92 : big ? BIG_VIRUS_MASS : VIRUS_MASS,
+      baseMass: spore ? VIRUS_MASS * 0.92 : big ? BIG_VIRUS_MASS : VIRUS_MASS,
       spin: rand(0, Math.PI * 2),
-      kind: big ? "big" : "small"
+      kind: finalKind
     };
   }
 
@@ -3098,6 +3346,17 @@
     if (viruses.length >= virusLimit()) return false;
     viruses.push(makeVirus(kind));
     return true;
+  }
+
+  function trimEjectedMass() {
+    while (ejected.length > MAX_EJECTED) {
+      const playerId = playerGroup?.id;
+      let index = ejected.findIndex(mass => mass.ownerId !== playerId && mass.age > 1.5);
+      if (index < 0) index = ejected.findIndex(mass => mass.ownerId !== playerId);
+      if (index < 0) index = ejected.findIndex(mass => mass.age > 8);
+      if (index < 0) index = 0;
+      ejected.splice(index, 1);
+    }
   }
 
   function startGame(modeKey, options) {
@@ -3183,9 +3442,13 @@
       shake: 0,
       splitFlash: 0,
       zonePulse: 0,
+      quickMergeReadyAt: now,
+      screenSkillReadyAt: now,
+      screenSkillUntil: 0,
       winnerShown: false,
       dustRewarded: false,
-      domination: { leaderId: null, hold: 0, share: 0 },
+      blitzSupremacy: { hold: 0, share: 0, lead: 1 },
+      domination: { leaderId: null, currentLeaderId: null, currentLeaderName: "", hold: 0, share: 0, areaShare: 0, playerShare: 0 },
       menu: !!opts.menu
     };
     if (config.demon) setupDemonMode(config);
@@ -3193,7 +3456,7 @@
     const initialFood = Math.floor(FOOD_BASE_COUNT * (config.initialFoodScale || Math.min(1.25, config.foodTargetScale || 1)));
     for (let i = 0; i < initialFood; i++) addFood(makeFood());
     const initialViruses = Math.min(Math.floor(config.virusCount || VIRUS_COUNT), virusLimit());
-    for (let i = 0; i < initialViruses; i++) addVirus(i % 4 === 0 ? "big" : "small");
+    for (let i = 0; i < initialViruses; i++) addVirus(config.sporeVirusOnly ? "spore" : i % 4 === 0 ? "big" : randomVirusKind(0.08));
 
     camera = { ...start };
     zoom = 0.82;
@@ -3208,6 +3471,9 @@
       modeGrid.style.display = "none";
       finalMass.style.display = "block";
       if (musicEnabled) startMusic();
+      if (config.dominationWarmup) {
+        showEventBanner("霸屏预热", `${Math.ceil(config.dominationWarmup)}秒后开启胜利判定`, "#67e8f9");
+      }
     }
     pauseBtn.textContent = "停";
     updateHud(now, true);
@@ -3236,7 +3502,11 @@
     matchEvent.recent.push(event.key);
     if (matchEvent.recent.length > 2) matchEvent.recent.shift();
     if (event.virusBurst) {
-      for (let i = 0; i < event.virusBurst; i++) addVirus(i % 5 === 0 ? "big" : "small");
+      const config = modeConfig();
+      for (let i = 0; i < event.virusBurst; i++) addVirus(config.sporeVirusOnly ? "spore" : i % 5 === 0 ? "big" : randomVirusKind(0.08));
+    }
+    if (event.sporeVirusBurst) {
+      for (let i = 0; i < event.sporeVirusBurst; i++) addVirus("spore");
     }
     if (event.foodBurst) {
       const cap = Math.floor(foodTargetCount(now) * 1.2);
@@ -3257,10 +3527,10 @@
     if (!matchEvent.active && now >= matchEvent.nextAt) {
       activateMatchEvent(chooseMatchEvent(), now);
     }
-    if (matchEvent.active && (matchEvent.active.key === "thorn" || matchEvent.active.key === "thornstorm")) {
+    if (matchEvent.active && (matchEvent.active.key === "thorn" || matchEvent.active.key === "thornstorm" || matchEvent.active.key === "thornwave" || matchEvent.active.key === "sporethorn")) {
       matchEvent.virusBank += dt * 0.34;
       while (matchEvent.virusBank >= 1 && viruses.length < virusLimit()) {
-        addVirus(Math.random() < 0.18 ? "big" : "small");
+        addVirus(randomVirusKind(0.18));
         matchEvent.virusBank -= 1;
       }
       if (viruses.length >= virusLimit()) matchEvent.virusBank = Math.min(matchEvent.virusBank, 1);
@@ -3269,7 +3539,7 @@
     if (regen > 0 && viruses.length < virusLimit()) {
       matchEvent.virusBank += dt * regen;
       while (matchEvent.virusBank >= 1 && viruses.length < virusLimit()) {
-        addVirus(Math.random() < 0.22 ? "big" : "small");
+        addVirus(randomVirusKind(0.22));
         matchEvent.virusBank -= 1;
       }
     }
@@ -3479,7 +3749,7 @@
     updateSafeZone(now, dt);
     updateDemonMode(dt, now);
     updateAi(dt, now, aiSpace);
-    updateGroupMovement(dt);
+    updateGroupMovement(dt, now);
     updateEjected(dt);
     const worldSpace = buildCellGrid();
     handleFoodEating(now, worldSpace.cells);
@@ -3497,6 +3767,7 @@
     updateEffects(dt);
     updateCamera(dt);
     updateDomination(dt);
+    updateBlitzSupremacy(dt, now);
     if (input.ejectHeld && !playerGroup.dead) ejectMass(playerGroup, cursorPoint(), now);
 
     const playerMass = groupMass(playerGroup);
@@ -3627,7 +3898,7 @@
           ownerId: boss.id
         });
       }
-      if (ejected.length > MAX_EJECTED) ejected.splice(0, ejected.length - MAX_EJECTED);
+      trimEjectedMass();
     } else if (boss.demonSkill === "frost") {
       for (const group of groups) {
         if (group.dead || group.team === boss.team) continue;
@@ -3717,7 +3988,7 @@
           ownerId: boss.id
         });
       }
-      if (ejected.length > MAX_EJECTED) ejected.splice(0, ejected.length - MAX_EJECTED);
+      trimEjectedMass();
     } else if (boss.demonSkill === "tide" || boss.demonSkill === "core") {
       boss.demonMassFloor *= boss.demonSkill === "core" ? 1.04 : 1.02;
       for (const cell of boss.cells) cell.mass += boss.demonSkill === "core" ? 90 : 45;
@@ -3978,7 +4249,7 @@
   }
 
   function tryAiSplitAttack(group, ai) {
-    if (!aiAttackMode(ai.mode) || !ai.prey || ai.splitCooldown > 0 || group.cells.length >= MAX_CELLS) return;
+    if (!aiAttackMode(ai.mode) || !ai.prey || ai.splitCooldown > 0 || group.cells.length >= maxCellsFor(group)) return;
     if (!ai.prey.cell || !ai.prey.group || ai.prey.group.dead || ai.prey.cell.dead || sameTeam(group, ai.prey.group)) return;
     const center = groupCenter(group);
     const largest = center.largestCell;
@@ -4052,7 +4323,7 @@
     let prey = null;
     let threatScore = 0;
     let preyScore = 0;
-    const aggression = (config.domination ? 1.28 : config.respawn ? 1.08 : 1) * activeEventFactor("aiAggroMult", 1);
+    const aggression = (config.domination ? 1.28 : config.respawn ? 1.08 : 1) * (config.aiAggroScale || 1) * activeEventFactor("aiAggroMult", 1);
     const scanRange = center.largest * (10.5 + ai.bravery) * aggression + 1100;
     const cells = space ? nearbyCells(space.grid, center, scanRange) : allCells();
 
@@ -4094,20 +4365,18 @@
       const shelter = bestTeamShelter(group, center, threat);
       if (shelter) {
         const away = norm(center.x - threat.cell.x, center.y - threat.cell.y);
-        ai.target = {
-          x: clamp(shelter.center.x + away.x * 260, 80, WORLD - 80),
-          y: clamp(shelter.center.y + away.y * 260, 80, WORLD - 80)
-        };
+        ai.target = clampPlayablePoint(shelter.center.x + away.x * 260, shelter.center.y + away.y * 260, 80);
         ai.mode = "抱团避险";
         ai.prey = null;
         return;
       }
 
       const away = norm(center.x - threat.cell.x, center.y - threat.cell.y);
-      ai.target = {
-        x: clamp(center.x + away.x * (config.domination ? 1180 : 900) + (safeZone.x - center.x) * 0.18, 80, WORLD - 80),
-        y: clamp(center.y + away.y * (config.domination ? 1180 : 900) + (safeZone.y - center.y) * 0.18, 80, WORLD - 80)
-      };
+      ai.target = clampPlayablePoint(
+        center.x + away.x * (config.domination ? 1180 : 900) + (safeZone.x - center.x) * 0.18,
+        center.y + away.y * (config.domination ? 1180 : 900) + (safeZone.y - center.y) * 0.18,
+        80
+      );
       ai.mode = "逃跑";
       ai.prey = null;
       return;
@@ -4139,7 +4408,7 @@
 
       const rescue = bestAllyRescue(group, center, cells);
       if (rescue) {
-        if (canSplitEatCell(largest, rescue.threat.cell, ai) && group.cells.length < MAX_CELLS) {
+        if (canSplitEatCell(largest, rescue.threat.cell, ai) && group.cells.length < maxCellsFor(group)) {
           ai.target = leadPoint(rescue.threat.cell, 0.45);
           ai.mode = "护航";
           ai.prey = rescue.threat;
@@ -4188,7 +4457,7 @@
     }
 
     const virus = nearestVirus(center);
-    if (virus && group.cells.length < MAX_CELLS - 2 && center.mass > 280 && ai.virusInterest > 0.32 && distance(center, virus) < 820) {
+    if (virus && group.cells.length < maxCellsFor(group) - 2 && center.mass > 280 && ai.virusInterest > 0.32 && distance(center, virus) < 820) {
       ai.target = { x: virus.x, y: virus.y };
       ai.mode = "炸刺";
       ai.prey = null;
@@ -4502,14 +4771,17 @@
   }
 
   function virusBaseMass(virus) {
+    if (virus.kind === "spore") return virus.baseMass || VIRUS_MASS * 0.92;
     return virus.baseMass || (virus.kind === "big" ? BIG_VIRUS_MASS : VIRUS_MASS);
   }
 
   function virusColor(virus) {
+    if (virus.tactical) return "#86efac";
+    if (virus.kind === "spore") return "#f472b6";
     return virus.kind === "big" ? "#c7ff6f" : "#5eea80";
   }
 
-  function updateGroupMovement(dt) {
+  function updateGroupMovement(dt, now) {
     const playerTarget = cursorPoint();
     for (const group of groups) {
       if (group.dead) continue;
@@ -4521,7 +4793,8 @@
         const distanceScale = clamp(move.length / 210, 0.08, 1);
         const demonMoveBoost = group.isBoss ? 1.28 : group.isDemonMinion ? 1.12 : 1;
         const modeSpeed = modeConfig().speedScale || 1;
-        const baseSpeed = (352 / (1 + cell.radius / 96)) * activeEventFactor("speedMult", 1) * modeSpeed * demonMoveBoost;
+        const skillBoost = group.isPlayer && game.screenSkillUntil > now ? 1.18 : 1;
+        const baseSpeed = (352 / (1 + cell.radius / 96)) * activeEventFactor("speedMult", 1) * modeSpeed * demonMoveBoost * skillBoost;
         const desiredX = move.x * baseSpeed * distanceScale;
         const desiredY = move.y * baseSpeed * distanceScale;
         const steer = Math.min(1, dt * (group.isPlayer ? 4.35 : 3.35));
@@ -4568,7 +4841,8 @@
         }
       }
 
-      if (i < ejected.length && mass.age > 18) ejected.splice(i, 1);
+      const lifetime = mass.ownerId === playerGroup?.id ? 30 : 20;
+      if (i < ejected.length && mass.age > lifetime) ejected.splice(i, 1);
     }
   }
 
@@ -4613,6 +4887,7 @@
     for (const wrap of cells) {
       const cell = wrap.cell;
       if (cell.dead) continue;
+      if (groupInvincible(wrap.group, now)) continue;
       const reach = (cell.radius + 18) * activeEventFactor("eatReachMult", 1);
       const minX = Math.floor((cell.x - reach) / FOOD_BUCKET);
       const maxX = Math.floor((cell.x + reach) / FOOD_BUCKET);
@@ -4645,14 +4920,19 @@
     for (let i = ejected.length - 1; i >= 0; i--) {
       const mass = ejected[i];
       let eaten = false;
+      const ownerGroup = groups.find(item => item.id === mass.ownerId);
       const cells = nearbyCells(grid, mass, 760).sort((a, b) => b.cell.radius - a.cell.radius);
       for (const wrap of cells) {
         if (wrap.cell.dead) continue;
+        if (groupInvincible(wrap.group)) continue;
         const sameOwner = mass.ownerId === wrap.group.id;
-        if (sameOwner && mass.age < 0.56) continue;
+        const playerOwned = mass.ownerId === playerGroup?.id;
+        if (sameOwner && mass.age < (playerOwned ? 0.32 : 0.48)) continue;
+        if (playerOwned && !sameOwner && mass.age < 0.42) continue;
         if (!sameOwner && mass.age < 0.16) continue;
         if (distSq(wrap.cell, mass) < (wrap.cell.radius + mass.radius * 0.42) ** 2) {
-          wrap.cell.mass += mass.mass * 0.92;
+          const multiplier = sameOwner ? 1 : ownerGroup && sameTeam(wrap.group, ownerGroup) ? 0.96 : 0.92;
+          wrap.cell.mass += mass.mass * multiplier;
           if (wrap.group.isPlayer || isNearCamera(mass, 120)) sparkle(mass.x, mass.y, wrap.group.color, 5, 110);
           eaten = true;
           break;
@@ -4674,7 +4954,7 @@
         if (small === big) continue;
         if (small.cell.dead || small.group === big.group) continue;
         const teammate = sameTeam(big.group, small.group);
-        if (!teammate && (groupInvincible(big.group, now) || groupInvincible(small.group, now))) continue;
+        if (groupInvincible(big.group, now) || groupInvincible(small.group, now)) continue;
         if (teammate && liveCellCount(small.group) <= 1) continue;
         if (teammate ? canEatTeammate(big.cell, small.cell) : canEat(big.cell, small.cell)) {
           big.cell.mass += small.cell.mass * (teammate ? 0.96 : 0.84);
@@ -4726,14 +5006,68 @@
       for (const wrap of cells) {
         const cell = wrap.cell;
         if (cell.dead) continue;
-        const hitScale = virus.kind === "big" ? 0.94 : 1.08;
-        const biteScale = virus.kind === "big" ? 0.42 : 0.35;
+        if (groupInvincible(wrap.group, now)) continue;
+        const hitScale = virus.kind === "big" ? 0.94 : virus.kind === "spore" ? 1.0 : 1.08;
+        const biteScale = virus.kind === "big" ? 0.42 : virus.kind === "spore" ? 0.38 : 0.35;
         if (cell.radius > virus.radius * hitScale && distSq(cell, virus) < (cell.radius + virus.radius * biteScale) ** 2) {
-          splitCellByVirus(wrap.group, cell, virus, now);
+          if (virus.kind === "spore") burstCellBySporeVirus(wrap.group, cell, virus, now);
+          else splitCellByVirus(wrap.group, cell, virus, now);
           consumeVirus(v, virus);
           break;
         }
       }
+    }
+  }
+
+  function burstCellBySporeVirus(group, cell, virus, now) {
+    const color = virusColor(virus);
+    const config = modeConfig();
+    const massPressure = clamp((cell.mass - 800) / 9000, 0, 1);
+    const lossMin = config.sporeVirusLossMin !== undefined ? config.sporeVirusLossMin : 0.5;
+    const lossMax = config.sporeVirusLossMax !== undefined ? config.sporeVirusLossMax : 0.5;
+    const lossRatio = lerp(lossMin, lossMax, massPressure);
+    const loss = clamp(cell.mass * lossRatio, 54, Math.max(54, cell.mass - MIN_CELL_MASS * 4));
+    if (loss <= 0 || cell.mass - loss < MIN_CELL_MASS * 2) {
+      cell.mass += virusBaseMass(virus) * 0.42;
+      return;
+    }
+    const minPieces = config.sporeVirusBurstMin || 16;
+    const maxPieces = config.sporeVirusBurstMax || 30;
+    const pieceMassBase = config.sporeVirusPieceMass || 17;
+    const pieces = Math.floor(clamp(loss / pieceMassBase, minPieces, maxPieces));
+    const pieceMass = loss / Math.max(1, pieces);
+    cell.mass -= loss;
+    cell.mergeDelay = Math.max(cell.mergeDelay, mergeCooldown(cell.mass, "virus") * 0.42);
+    cell.mergeMax = Math.max(cell.mergeMax || 0, cell.mergeDelay);
+
+    for (let i = 0; i < pieces; i++) {
+      const angle = (Math.PI * 2 * i) / pieces + rand(-0.18, 0.18);
+      const speed = rand(420, 720);
+      ejected.push({
+        x: cell.x + Math.cos(angle) * (cell.radius + 12),
+        y: cell.y + Math.sin(angle) * (cell.radius + 12),
+        vx: cell.vx * 0.18 + Math.cos(angle) * speed,
+        vy: cell.vy * 0.18 + Math.sin(angle) * speed,
+        mass: pieceMass,
+        radius: radiusFromMass(pieceMass),
+        age: group.isPlayer ? 0.18 : 0,
+        color: sporeColorFor(group),
+        accent: group.isPlayer ? selectedSporeDef().accent || "#ffffff" : group.color,
+        spore: sporePatternFor(group),
+        ownerId: group.id,
+        sporeBurst: true
+      });
+    }
+    trimEjectedMass();
+    sparkle(virus.x, virus.y, color, group.isPlayer ? 48 : 60, 280);
+    ring(virus.x, virus.y, color, 210);
+    if (group.isPlayer) {
+      game.shake = Math.max(game.shake, 8);
+      game.splitFlash = Math.max(game.splitFlash, 0.24);
+      showEventBanner("孢子刺球", `命中分身损失 ${Math.round(lossRatio * 100)}% 质量`, color);
+    } else if (group.ai) {
+      group.ai.splitCooldown = Math.max(group.ai.splitCooldown, 1.4);
+      group.ai.mode = "回收孢子";
     }
   }
 
@@ -4742,7 +5076,7 @@
     if (index === -1) return;
     const big = virus.kind === "big";
     const color = virusColor(virus);
-    const available = MAX_CELLS - group.cells.length + 1;
+    const available = maxCellsFor(group) - group.cells.length + 1;
     const totalMass = cell.mass + virusBaseMass(virus) * (big ? 1.02 : 1.08);
     sparkle(virus.x, virus.y, color, big ? 68 : 40, big ? 310 : 250);
     ring(virus.x, virus.y, color, big ? 230 : 170);
@@ -4754,7 +5088,14 @@
       return;
     }
 
-    const pieces = Math.min(available, clamp(Math.floor(totalMass / (big ? 34 : 42)), big ? 10 : 7, MAX_CELLS));
+    const config = modeConfig();
+    const playerPieceCap = big
+      ? (config.bigVirusPlayerPieces || 8)
+      : (config.virusPlayerPieces || 6);
+    const pieceCap = Math.max(2, group.isPlayer ? playerPieceCap : (big ? 10 : 7));
+    const pieceFloor = Math.min(pieceCap, group.isPlayer ? (big ? 5 : 4) : (big ? 8 : 6));
+    const massDivisor = group.isPlayer ? (big ? 46 : 54) : (big ? 34 : 42);
+    const pieces = Math.min(available, clamp(Math.floor(totalMass / massDivisor), pieceFloor, pieceCap));
     const pieceMass = totalMass / pieces;
     group.cells.splice(index, 1);
 
@@ -4947,7 +5288,15 @@
     const config = modeConfig();
     const now = performance.now();
     const p = respawnPosition(group);
-    const mass = group.isPlayer ? playerStartMassFor(config) : botStartMass(24, config);
+    let mass = group.isPlayer ? playerStartMassFor(config) : botStartMass(24, config);
+    let comebackScale = 1;
+    if (config.comebackRespawn) {
+      const leaderMass = groups
+        .filter(item => item !== group && !item.dead && item.cells.length)
+        .reduce((best, item) => Math.max(best, groupMass(item)), 0);
+      comebackScale = clamp(1 + Math.max(0, leaderMass / Math.max(1, mass) - 3) * (config.comebackMassScale || 0.16), 1, config.comebackMaxScale || 2.2);
+      mass *= comebackScale;
+    }
     group.dead = false;
     group.respawnAt = 0;
     group.invincibleUntil = now + (config.respawnShield || 1.8) * 1000;
@@ -4961,6 +5310,7 @@
     if (group.isPlayer) {
       camera = { x: p.x, y: p.y };
       game.shake = Math.max(game.shake, 4);
+      if (comebackScale > 1.08) showEventBanner("翻盘补给", `复活质量 x${comebackScale.toFixed(1)}`, "#ffd166");
     }
   }
 
@@ -5011,17 +5361,124 @@
   }
 
   function groupScreenCoverage(group) {
+    const visible = group.cells
+      .filter(cell => !cell.dead)
+      .map(cell => ({
+        x: (cell.x - camera.x) * zoom + view.w / 2,
+        y: (cell.y - camera.y) * zoom + view.h / 2,
+        r: cell.radius * zoom
+      }))
+      .filter(cell => cell.x + cell.r >= 0 && cell.x - cell.r <= view.w && cell.y + cell.r >= 0 && cell.y - cell.r <= view.h);
+    if (!visible.length) return 0;
     const screenArea = Math.max(1, view.w * view.h);
+    const areaShare = clamp(
+      visible.reduce((sum, cell) => sum + Math.PI * cell.r * cell.r, 0) / screenArea,
+      0,
+      1
+    );
+    const cols = 16;
+    const rows = 10;
     let covered = 0;
-    for (const cell of group.cells) {
-      if (cell.dead) continue;
-      const sx = (cell.x - camera.x) * zoom + view.w / 2;
-      const sy = (cell.y - camera.y) * zoom + view.h / 2;
-      const r = cell.radius * zoom;
-      if (sx + r < 0 || sx - r > view.w || sy + r < 0 || sy - r > view.h) continue;
-      covered += Math.PI * r * r;
+    for (let y = 0; y < rows; y++) {
+      const sy = ((y + 0.5) / rows) * view.h;
+      for (let x = 0; x < cols; x++) {
+        const sx = ((x + 0.5) / cols) * view.w;
+        for (const cell of visible) {
+          const dx = sx - cell.x;
+          const dy = sy - cell.y;
+          if (dx * dx + dy * dy <= cell.r * cell.r) {
+            covered += 1;
+            break;
+          }
+        }
+      }
     }
-    return clamp(covered / screenArea, 0, 1);
+    const sampleShare = covered / (cols * rows);
+    return clamp(Math.max(sampleShare, areaShare * (modeConfig().coverageAreaWeight || 0.72)), 0, 1);
+  }
+
+  function dominationArea() {
+    const rect = rectArenaBounds();
+    if (rect) {
+      return {
+        type: "rect",
+        left: rect.left,
+        right: rect.right,
+        top: rect.top,
+        bottom: rect.bottom,
+        area: Math.max(1, (rect.right - rect.left) * (rect.bottom - rect.top))
+      };
+    }
+    if (safeZone.enabled) {
+      return {
+        type: "circle",
+        x: safeZone.x,
+        y: safeZone.y,
+        radius: safeZone.radius,
+        area: Math.max(1, Math.PI * safeZone.radius * safeZone.radius)
+      };
+    }
+    return { type: "rect", left: 0, right: WORLD, top: 0, bottom: WORLD, area: WORLD * WORLD };
+  }
+
+  function groupArenaCoverage(group) {
+    const config = modeConfig();
+    const area = dominationArea();
+    const radiusMult = config.coverageRadiusMult || 1.08;
+    const radiusBonus = config.coverageRadiusBonus || 12;
+    const cells = group.cells
+      .filter(cell => !cell.dead)
+      .map(cell => ({
+        x: cell.x,
+        y: cell.y,
+        actualRadius: cell.radius,
+        radius: cell.radius * radiusMult + radiusBonus
+      }))
+      .filter(cell => {
+        if (area.type === "circle") {
+          return distSq(cell, area) <= (area.radius + cell.radius) * (area.radius + cell.radius);
+        }
+        const x = clamp(cell.x, area.left, area.right);
+        const y = clamp(cell.y, area.top, area.bottom);
+        return distSq(cell, { x, y }) <= cell.radius * cell.radius;
+      });
+    if (!cells.length) return { score: 0, sampleShare: 0, areaShare: 0, controlAreaShare: 0 };
+    const areaShare = clamp(cells.reduce((sum, cell) => sum + Math.PI * cell.actualRadius * cell.actualRadius, 0) / area.area, 0, 1);
+    const controlAreaShare = clamp(cells.reduce((sum, cell) => sum + Math.PI * cell.radius * cell.radius, 0) / area.area, 0, 1);
+    const samples = config.coverageSamples || 24;
+    const cols = samples;
+    const rows = samples;
+    let total = 0;
+    let covered = 0;
+    for (let y = 0; y < rows; y++) {
+      const py = area.type === "circle"
+        ? area.y - area.radius + ((y + 0.5) / rows) * area.radius * 2
+        : area.top + ((y + 0.5) / rows) * (area.bottom - area.top);
+      for (let x = 0; x < cols; x++) {
+        const px = area.type === "circle"
+          ? area.x - area.radius + ((x + 0.5) / cols) * area.radius * 2
+          : area.left + ((x + 0.5) / cols) * (area.right - area.left);
+        if (area.type === "circle" && distSq({ x: px, y: py }, area) > area.radius * area.radius) continue;
+        total += 1;
+        for (const cell of cells) {
+          const dx = px - cell.x;
+          const dy = py - cell.y;
+          if (dx * dx + dy * dy <= cell.radius * cell.radius) {
+            covered += 1;
+            break;
+          }
+        }
+      }
+    }
+    const sampleShare = total ? covered / total : 0;
+    const boostLimit = config.coverageBoostLimit || 0.1;
+    const areaBoost = clamp(controlAreaShare - sampleShare, 0, boostLimit) * (config.coverageAreaWeight || 0.82);
+    return {
+      score: clamp(sampleShare + areaBoost, 0, 1),
+      sampleShare,
+      areaShare,
+      controlAreaShare
+    };
   }
 
   function updateDomination(dt) {
@@ -5033,33 +5490,132 @@
       .filter(entry => entry.mass > 0)
       .sort((a, b) => b.mass - a.mass);
     const total = alive.reduce((sum, entry) => sum + entry.mass, 0);
-    const leader = alive[0];
-    if (!leader || total <= 0) return;
+    if (!alive.length || total <= 0) return;
+
+    const topMass = alive[0].mass;
+    const candidateLimit = config.dominationCandidates || 10;
+    const candidates = alive.filter((entry, index) =>
+      index < candidateLimit ||
+      entry.group.isPlayer ||
+      entry.mass >= topMass * 0.18
+    );
+    let leader = null;
+    let playerCoverage = null;
+    for (const entry of candidates) {
+      const coverage = groupArenaCoverage(entry.group);
+      const share = coverage.score || 0;
+      if (entry.group.isPlayer) playerCoverage = coverage;
+      if (
+        !leader ||
+        share > leader.share + 0.01 ||
+        (Math.abs(share - leader.share) <= 0.01 && entry.mass > leader.mass)
+      ) {
+        leader = { ...entry, share, coverage };
+      }
+    }
+    if (!leader) return;
+
     const massShare = leader.mass / Math.max(1, total);
     const screenShare = leader.group.isPlayer ? groupScreenCoverage(leader.group) : 0;
-    const share = Math.max(massShare, screenShare);
+    const areaShare = leader.share;
+    const targetShare = config.dominationShare || 0.88;
+    const previousLeader = game.domination.currentLeaderId;
+    const previousShare = game.domination.share || 0;
+    const smoothing = clamp(dt * (areaShare >= previousShare ? 5.4 : 2.8), 0, 1);
+    const share = previousLeader === leader.group.id
+      ? previousShare + (areaShare - previousShare) * smoothing
+      : areaShare;
+    game.domination.currentLeaderId = leader.group.id;
+    game.domination.currentLeaderName = leader.group.name;
     game.domination.share = share;
+    game.domination.rawShare = areaShare;
     game.domination.massShare = massShare;
     game.domination.screenShare = screenShare;
-    const targetShare = config.dominationShare || 0.52;
-    const softShare = Math.max(0, targetShare - 0.055);
-    if (share >= targetShare) {
+    game.domination.areaShare = areaShare;
+    game.domination.sampleShare = leader.coverage.sampleShare || 0;
+    game.domination.controlAreaShare = leader.coverage.controlAreaShare || 0;
+    game.domination.playerShare = playerCoverage ? playerCoverage.score || 0 : 0;
+    game.domination.targetShare = targetShare;
+    const warmupLeft = Math.max(0, (config.dominationWarmup || 0) - elapsedSeconds(performance.now()));
+    game.domination.warmupLeft = warmupLeft;
+    if (warmupLeft > 0) {
+      game.domination.leaderId = null;
+      game.domination.hold = 0;
+      return;
+    }
+    const softShare = Math.max(0, targetShare - (config.dominationHysteresis || 0.045));
+    if (areaShare >= targetShare) {
       if (game.domination.leaderId === leader.group.id) {
         game.domination.hold += dt;
       } else {
         game.domination.leaderId = leader.group.id;
         game.domination.hold = dt;
+        game.domination.alertLeaderId = leader.group.id;
+        showEventBanner(
+          leader.group.isPlayer ? "霸屏压制" : "霸屏警报",
+          `${leader.group.name} 已达标，维持 ${config.dominationHold || 6} 秒`,
+          leader.group.isPlayer ? "#67e8f9" : "#ff5f7a"
+        );
       }
-    } else if (game.domination.leaderId === leader.group.id && share >= softShare) {
+    } else if (game.domination.leaderId === leader.group.id && areaShare >= softShare) {
       game.domination.hold = Math.max(0, game.domination.hold - dt * 0.18);
     } else {
       game.domination.leaderId = null;
+      game.domination.alertLeaderId = null;
       game.domination.hold = 0;
     }
     if (game.domination.hold >= (config.dominationHold || 7)) {
       game.domination.winnerName = leader.group.name;
       game.domination.winShare = share;
       endGame(leader.group.isPlayer ? "霸屏胜利" : "被霸屏");
+    }
+  }
+
+  function updateBlitzSupremacy(dt, now) {
+    const config = modeConfig();
+    if (!config.blitzSupremacy || game.over || game.menu) return;
+    const state = game.blitzSupremacy || (game.blitzSupremacy = { hold: 0, share: 0, lead: 1 });
+    if (elapsedSeconds(now) < (config.supremacyGrace || 45)) {
+      state.hold = 0;
+      return;
+    }
+
+    const entries = groups
+      .filter(group => !group.dead && group.cells.length)
+      .map(group => ({ group, mass: groupMass(group) }))
+      .filter(entry => entry.mass > 0)
+      .sort((a, b) => b.mass - a.mass);
+    const leader = entries[0];
+    if (!leader) return;
+    const total = entries.reduce((sum, entry) => sum + entry.mass, 0);
+    const second = entries.find(entry => entry.group !== leader.group);
+    const secondMass = second ? second.mass : 0;
+    const share = leader.mass / Math.max(1, total);
+    const lead = leader.mass / Math.max(1, secondMass);
+    const almostEmpty = entries.length <= 2 || secondMass < Math.max(260, leader.mass * 0.018);
+    const runaway = share >= (config.supremacyShare || 0.68) && lead >= (config.supremacyLead || 4.2);
+    const absoluteLock = leader.mass >= 42000 && lead >= 7.5 && share >= 0.54;
+    if (state.leaderId && state.leaderId !== leader.group.id) state.hold = 0;
+    state.share = share;
+    state.lead = lead;
+    state.leaderId = leader.group.id;
+    state.leaderName = leader.group.name;
+    state.leaderIsPlayer = leader.group.isPlayer;
+    if (almostEmpty || runaway || absoluteLock) {
+      const wasEmpty = state.hold <= 0;
+      state.hold += dt;
+      if (wasEmpty) {
+        showEventBanner(
+          leader.group.isPlayer ? "闪电制霸" : "制霸警报",
+          `${leader.group.name} 优势已不可逆，维持读秒提前结算`,
+          leader.group.isPlayer ? "#ffd166" : "#ff5f7a"
+        );
+      }
+    } else {
+      state.hold = Math.max(0, state.hold - dt * 1.2);
+    }
+    if (state.hold >= (config.supremacyHold || 3)) {
+      endGame(leader.group.isPlayer ? "闪电制霸" : "被闪电制霸");
     }
   }
 
@@ -5137,11 +5693,52 @@
   function updateCamera(dt) {
     if (playerGroup.dead || !playerGroup.cells.length) return;
     const center = groupCenter(playerGroup);
-    const smooth = Math.min(1, dt * 4.2);
-    camera.x += (center.x - camera.x) * smooth;
-    camera.y += (center.y - camera.y) * smooth;
-    const targetZoom = clamp(Math.min(view.w, view.h) / Math.max(620, center.largest * 9.6), 0.34, 1.08);
-    zoom += (targetZoom - zoom) * Math.min(1, dt * 2.25);
+    const config = modeConfig();
+    const cells = playerGroup.cells.filter(cell => !cell.dead);
+    if (!cells.length) return;
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+    let spread = center.largest;
+    for (const cell of cells) {
+      minX = Math.min(minX, cell.x - cell.radius);
+      minY = Math.min(minY, cell.y - cell.radius);
+      maxX = Math.max(maxX, cell.x + cell.radius);
+      maxY = Math.max(maxY, cell.y + cell.radius);
+      spread = Math.max(spread, Math.hypot(cell.x - center.x, cell.y - center.y) + cell.radius);
+    }
+
+    const boundsCenter = { x: (minX + maxX) / 2, y: (minY + maxY) / 2 };
+    const spreadRatio = spread / Math.max(1, center.largest);
+    const splitPressure = clamp((cells.length - 1) / Math.max(6, maxCellsFor(playerGroup) * 0.34), 0, 1);
+    const spreadPressure = clamp((spreadRatio - 1.55) / 4.2, 0, 1);
+    const viewPressure = clamp(Math.max(spreadPressure, splitPressure * 0.52 + spreadPressure * 0.48), 0, 1);
+    game.cameraViewPressure = viewPressure;
+    game.cameraSpreadRatio = spreadRatio;
+    const targetCenter = {
+      x: lerp(center.x, boundsCenter.x, viewPressure * 0.72),
+      y: lerp(center.y, boundsCenter.y, viewPressure * 0.72)
+    };
+    const smooth = Math.min(1, dt * (config.domination ? 4.7 : 4.2));
+    camera.x += (targetCenter.x - camera.x) * smooth;
+    camera.y += (targetCenter.y - camera.y) * smooth;
+
+    const baseMinZoom = config.minZoom || 0.34;
+    const splitMinZoom = config.splitMinZoom || Math.max(0.16, baseMinZoom * 0.62);
+    const minZoom = lerp(baseMinZoom, splitMinZoom, viewPressure);
+    const boundsW = Math.max(1, maxX - minX);
+    const boundsH = Math.max(1, maxY - minY);
+    const boundsMargin = Math.max(360, center.largest * 2.1, Math.sqrt(center.mass) * 1.2);
+    const boundsZoom = Math.min(view.w / (boundsW + boundsMargin), view.h / (boundsH + boundsMargin));
+    const massSpan = config.domination
+      ? Math.max(760, center.largest * 3.25 + 430)
+      : Math.max(620, center.largest * 9.6);
+    const massZoom = Math.min(view.w, view.h) / massSpan;
+    const wantedZoom = cells.length > 1 || spreadRatio > 1.8 ? Math.min(massZoom, boundsZoom) : massZoom;
+    const zoomSpeed = wantedZoom < zoom ? 3.8 : 2.35;
+    const targetZoom = clamp(wantedZoom, minZoom, 1.08);
+    zoom += (targetZoom - zoom) * Math.min(1, dt * zoomSpeed);
   }
 
   function splitGroup(group, target, options) {
@@ -5150,12 +5747,12 @@
     const sources = [...group.cells]
       .filter(cell => !cell.dead && cell.mass >= SPLIT_MIN_MASS)
       .sort((a, b) => b.mass - a.mass);
-    if (!sources.length || group.cells.length >= MAX_CELLS) return false;
+    if (!sources.length || group.cells.length >= maxCellsFor(group)) return false;
 
     let didSplit = false;
     const limit = opts.onlyLargest ? 1 : sources.length;
     for (let i = 0; i < sources.length && i < limit; i++) {
-      if (group.cells.length >= MAX_CELLS) break;
+      if (group.cells.length >= maxCellsFor(group)) break;
       const cell = sources[i];
       if (cell.dead || cell.mass < SPLIT_MIN_MASS) continue;
       const n = norm(target.x - cell.x, target.y - cell.y);
@@ -5187,14 +5784,107 @@
     return didSplit;
   }
 
+  function quickMergePlayer() {
+    const config = modeConfig();
+    if (!config.quickMerge || game.menu || game.over || game.paused || playerGroup.dead) return false;
+    if (playerGroup.cells.length <= 1) {
+      showEventBanner("快速合球", "当前只有一个球", "#67e8f9");
+      return false;
+    }
+    const now = performance.now();
+    const readyAt = game.quickMergeReadyAt || 0;
+    if (now < readyAt) {
+      showEventBanner("快速合球", `${Math.ceil((readyAt - now) / 1000)}秒后可用`, "#67e8f9");
+      return false;
+    }
+    const center = groupCenter(playerGroup);
+    const keep = center.largestCell || playerGroup.cells[0];
+    const total = groupMass(playerGroup);
+    for (const cell of playerGroup.cells) {
+      if (cell !== keep) cell.dead = true;
+    }
+    keep.mass = Math.max(MIN_CELL_MASS, total * 0.985);
+    keep.x = center.x;
+    keep.y = center.y;
+    keep.vx = 0;
+    keep.vy = 0;
+    keep.mergeDelay = 0;
+    keep.mergeMax = 0;
+    playerGroup.cells = [keep];
+    game.quickMergeReadyAt = now + (config.quickMergeCooldown || 6200) * activeEventFactor("quickMergeCooldownMult", 1);
+    game.shake = Math.max(game.shake, 5);
+    game.splitFlash = Math.max(game.splitFlash, 0.22);
+    syncRadii();
+    keepInside(keep);
+    ring(keep.x, keep.y, selectedSkinDef().accent || "#67e8f9", 240);
+    showEventBanner("快速合球", "A 键回收完成", "#67e8f9");
+    updateHud(now, true);
+    return true;
+  }
+
+  function screenDashPlayer() {
+    const config = modeConfig();
+    if (!config.screenSkill || game.menu || game.over || game.paused || playerGroup.dead) return false;
+    const now = performance.now();
+    const readyAt = game.screenSkillReadyAt || 0;
+    if (now < readyAt) {
+      showEventBanner("破阵冲刺", `${Math.ceil((readyAt - now) / 1000)}秒后可用`, "#f472b6");
+      return false;
+    }
+    const target = cursorPoint();
+    const center = groupCenter(playerGroup);
+    const aim = norm(target.x - center.x, target.y - center.y);
+    if (aim.length < 18) return false;
+    const impulse = config.screenSkillImpulse || 500;
+    const cost = config.screenSkillCost || 0.012;
+    for (const cell of playerGroup.cells) {
+      const n = norm(target.x - cell.x, target.y - cell.y);
+      cell.vx += n.x * impulse;
+      cell.vy += n.y * impulse;
+      cell.mass = Math.max(MIN_CELL_MASS, cell.mass * (1 - cost));
+    }
+    if (config.screenSkillVirus && viruses.length < virusLimit() && center.mass > 520) {
+      const seedDist = clamp(center.largest * 2.2 + 180, 260, 620);
+      const point = clampPlayablePoint(center.x + aim.x * seedDist, center.y + aim.y * seedDist, 170);
+      const seedCost = Math.min(config.screenSkillVirusCost || 42, center.mass * 0.035);
+      const largest = center.largestCell || playerGroup.cells[0];
+      if (largest && largest.mass > seedCost + MIN_CELL_MASS * 4) largest.mass -= seedCost;
+      viruses.push({
+        x: point.x,
+        y: point.y,
+        radius: rand(40, 48),
+        mass: VIRUS_MASS + seedCost * 0.35,
+        baseMass: VIRUS_MASS,
+        spin: rand(0, Math.PI * 2),
+        kind: "small",
+        tactical: true
+      });
+      sparkle(point.x, point.y, "#5eea80", 18, 180);
+      ring(point.x, point.y, "#5eea80", 190);
+    }
+    game.screenSkillUntil = now + (config.screenSkillDuration || 1.2) * 1000;
+    game.screenSkillReadyAt = now + (config.screenSkillCooldown || 7600) * activeEventFactor("skillCooldownMult", 1);
+    game.shake = Math.max(game.shake, 4);
+    syncRadii();
+    ring(center.x, center.y, "#f472b6", 260);
+    showEventBanner("破阵冲刺", config.screenSkillVirus ? "D 键冲刺并种刺" : "D 键爆发加速", "#f472b6");
+    updateHud(now, true);
+    return true;
+  }
+
   function ejectMass(group, target, now) {
     if (group.dead || game.paused || game.over) return false;
+    const config = modeConfig();
     const ejectInterval = EJECT_INTERVAL * activeEventFactor("ejectMult", 1);
     if (group.isPlayer && now - lastPlayerEject < ejectInterval) return false;
     if (group.isPlayer) lastPlayerEject = now;
 
     let didEject = false;
-    const cells = [...group.cells].filter(cell => !cell.dead && cell.mass >= EJECT_MIN_MASS);
+    let cells = [...group.cells]
+      .filter(cell => !cell.dead && cell.mass >= EJECT_MIN_MASS)
+      .sort((a, b) => b.mass - a.mass);
+    const ejectLimit = group.isPlayer ? (config.ejectCellLimit || 14) : (config.botEjectCellLimit || cells.length);
+    cells = cells.slice(0, ejectLimit);
     for (const cell of cells) {
       const n = norm(target.x - cell.x, target.y - cell.y);
       const amount = Math.min(14, Math.max(6, cell.mass * 0.09));
@@ -5213,7 +5903,7 @@
         spore: sporePatternFor(group),
         ownerId: group.id
       });
-      if (ejected.length > MAX_EJECTED) ejected.splice(0, ejected.length - MAX_EJECTED);
+      trimEjectedMass();
       if (Math.random() < 0.42) sparkle(cell.x + n.x * cell.radius, cell.y + n.y * cell.radius, sporeColorFor(group), 3, 110);
       didEject = true;
     }
@@ -5222,6 +5912,12 @@
 
   function keepInside(entity) {
     const r = entity.radius || 8;
+    const rect = rectArenaBounds(r);
+    if (rect) {
+      entity.x = clamp(entity.x, rect.left, rect.right);
+      entity.y = clamp(entity.y, rect.top, rect.bottom);
+      return;
+    }
     entity.x = clamp(entity.x, r, WORLD - r);
     entity.y = clamp(entity.y, r, WORLD - r);
   }
@@ -5263,9 +5959,10 @@
       const share = Math.round(((game.domination && (game.domination.winShare || game.domination.share)) || 0) * 100);
       finalMass.textContent = `${share}%`;
       const winner = game.domination?.winnerName || "无人";
+      const metricText = config.dominationMetric === "arena" ? "区域占领" : "霸屏进度";
       resultText.textContent = reason === "霸屏胜利"
-        ? `你完成霸屏，占据全场 ${share}% 质量，最高质量 ${mass}，星尘 +${dustReward}。`
-        : `${reason === "霸屏结算" ? "时间到，未形成霸屏。" : `${winner} 完成霸屏。`} 你的最高质量 ${mass}，当前霸屏占比 ${share}%，星尘 +${dustReward}。`;
+        ? `你完成霸屏，${metricText} ${share}%，最高质量 ${mass}，星尘 +${dustReward}。`
+        : `${reason === "霸屏结算" ? "时间到，未形成霸屏。" : `${winner} 完成霸屏。`} 你的最高质量 ${mass}，当前${metricText} ${share}%，星尘 +${dustReward}。`;
     } else if (config.demon) {
       const bossMass = Math.round(groups.filter(group => group.isBoss && !group.dead).reduce((sum, boss) => sum + groupMass(boss), 0));
       finalMass.textContent = bossMass ? bossMass : mass;
@@ -5276,6 +5973,14 @@
       const score = Math.floor(teamScores[playerGroup.team] || 0);
       finalMass.textContent = score;
       resultText.textContent = `队伍第 ${rank} 名，据点分 ${score}/${config.controlScore}，个人最高质量 ${mass}，淘汰 ${game.kills}，星尘 +${dustReward}。`;
+    } else if (config.blitzSupremacy && (reason === "闪电制霸" || reason === "被闪电制霸")) {
+      const share = Math.round((game.blitzSupremacy?.share || 0) * 100);
+      const lead = Math.max(1, game.blitzSupremacy?.lead || 1).toFixed(1);
+      const leaderName = game.blitzSupremacy?.leaderName || "领跑者";
+      finalMass.textContent = mass;
+      resultText.textContent = reason === "闪电制霸"
+        ? `你已形成闪电制霸，质量占比 ${share}%，领先 ${lead}x，最高质量 ${mass}，淘汰 ${game.kills}，星尘 +${dustReward}。`
+        : `${leaderName} 已形成闪电制霸，质量占比 ${share}%，领先 ${lead}x。你的最高质量 ${mass}，淘汰 ${game.kills}，星尘 +${dustReward}。`;
     } else if (config.teams > 0) {
       finalMass.textContent = Math.round(teamRow ? teamRow.mass : groupMass(playerGroup));
       resultText.textContent = `队伍第 ${rank} 名，个人最高质量 ${mass}，淘汰 ${game.kills}，星尘 +${dustReward}。`;
@@ -5473,6 +6178,23 @@
   }
 
   function drawZone(now) {
+    const rect = rectArenaBounds();
+    if (rect) {
+      ctx.save();
+      ctx.fillStyle = "rgba(103, 232, 249, 0.06)";
+      ctx.fillRect(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top);
+      ctx.strokeStyle = "#67e8f9";
+      ctx.lineWidth = 7 / zoom;
+      ctx.globalAlpha = 0.78 + Math.sin(now / 360) * 0.12;
+      ctx.strokeRect(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top);
+      ctx.globalAlpha = 0.32;
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 2 / zoom;
+      ctx.setLineDash([24 / zoom, 18 / zoom]);
+      ctx.strokeRect(rect.left + 24, rect.top + 24, rect.right - rect.left - 48, rect.bottom - rect.top - 48);
+      ctx.restore();
+      return;
+    }
     if (!safeZone.enabled) return;
     ctx.save();
     ctx.fillStyle = "rgba(255, 67, 102, 0.13)";
@@ -5689,17 +6411,20 @@
 
   function drawVirus(virus, now) {
     const big = virus.kind === "big";
-    const spikes = perf.lowQuality ? (big ? 19 : 15) : (big ? 31 : 23);
+    const spore = virus.kind === "spore";
+    const spikes = perf.lowQuality ? (big ? 19 : spore ? 13 : 15) : (big ? 31 : spore ? 19 : 23);
     const spin = virus.spin + now / (big ? 3400 : 2600);
     const color = virusColor(virus);
     ctx.save();
     ctx.fillStyle = color;
     ctx.shadowColor = color;
-    ctx.shadowBlur = perf.lowQuality ? 0 : (big ? 26 : 18) / zoom;
+    ctx.shadowBlur = perf.lowQuality ? 0 : (big ? 26 : spore ? 22 : 18) / zoom;
     ctx.beginPath();
     for (let i = 0; i < spikes; i++) {
       const angle = spin + (i / spikes) * Math.PI * 2;
-      const r = i % 2 === 0 ? virus.radius * (big ? 1.18 : 1.24) : virus.radius * (big ? 0.76 : 0.82);
+      const r = i % 2 === 0
+        ? virus.radius * (big ? 1.18 : spore ? 1.12 : 1.24)
+        : virus.radius * (big ? 0.76 : spore ? 0.72 : 0.82);
       const x = virus.x + Math.cos(angle) * r;
       const y = virus.y + Math.sin(angle) * r;
       if (i === 0) ctx.moveTo(x, y);
@@ -5707,24 +6432,34 @@
     }
     ctx.closePath();
     ctx.fill();
-    ctx.strokeStyle = big ? "rgba(255, 255, 255, 0.46)" : "rgba(255, 255, 255, 0.34)";
+    ctx.strokeStyle = big ? "rgba(255, 255, 255, 0.46)" : spore ? "rgba(255, 255, 255, 0.58)" : "rgba(255, 255, 255, 0.34)";
     ctx.lineWidth = (big ? 3 : 2) / zoom;
     ctx.stroke();
 
-    ctx.globalAlpha = big ? 0.22 : 0.16;
+    ctx.globalAlpha = big ? 0.22 : spore ? 0.28 : 0.16;
     ctx.strokeStyle = "#ffffff";
     ctx.lineWidth = 2 / zoom;
-    for (let i = 0; i < (big ? 3 : 2); i++) {
+    for (let i = 0; i < (big ? 3 : spore ? 3 : 2); i++) {
       ctx.beginPath();
       ctx.arc(virus.x, virus.y, virus.radius * (0.35 + i * 0.18), now / 1900 + i, Math.PI * 1.2 + now / 1700 + i);
       ctx.stroke();
     }
 
     ctx.globalAlpha = 0.38;
-    ctx.fillStyle = big ? "#f7ffd7" : "#d8ffe0";
+    ctx.fillStyle = big ? "#f7ffd7" : spore ? "#fdf2f8" : "#d8ffe0";
     ctx.beginPath();
     ctx.arc(virus.x - virus.radius * 0.18, virus.y - virus.radius * 0.22, virus.radius * 0.22, 0, Math.PI * 2);
     ctx.fill();
+    if (spore && !perf.lowQuality) {
+      ctx.globalAlpha = 0.55;
+      ctx.fillStyle = "#ffffff";
+      for (let i = 0; i < 5; i++) {
+        const angle = -spin * 0.7 + (i / 5) * Math.PI * 2;
+        ctx.beginPath();
+        ctx.arc(virus.x + Math.cos(angle) * virus.radius * 0.48, virus.y + Math.sin(angle) * virus.radius * 0.48, virus.radius * 0.08, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
     ctx.restore();
   }
 
@@ -5748,8 +6483,10 @@
     const simpleFill = perf.lowQuality && !group.isPlayer && r < 44;
 
     ctx.save();
-    drawTrailPattern(group, cell, now);
-    drawHaloPattern(group, cell, now);
+    if (!simpleFill) {
+      drawTrailPattern(group, cell, now);
+      drawHaloPattern(group, cell, now);
+    }
     if (!perf.lowQuality || group.isPlayer || r > 52) {
       ctx.shadowColor = group.color;
       ctx.shadowBlur = (group.isPlayer ? 20 : 13) / zoom;
@@ -6143,15 +6880,12 @@
     if (!playerGroup || playerGroup.dead || game.menu || game.over || game.paused) return;
     const center = groupCenter(playerGroup);
     const source = center.largestCell;
-    if (!source || source.mass < 32 || playerGroup.cells.length >= MAX_CELLS) return;
+    if (!source || source.mass < 32 || playerGroup.cells.length >= maxCellsFor(playerGroup)) return;
     const target = cursorPoint();
     const n = norm(target.x - source.x, target.y - source.y);
     if (n.length < 24) return;
     const reach = clamp(source.radius * 1.3 + 90, 130, 260);
-    const land = {
-      x: clamp(source.x + n.x * reach, source.radius, WORLD - source.radius),
-      y: clamp(source.y + n.y * reach, source.radius, WORLD - source.radius)
-    };
+    const land = clampPlayablePoint(source.x + n.x * reach, source.y + n.y * reach, source.radius);
     const ghostRadius = radiusFromMass(source.mass * 0.5);
     const pulse = 0.55 + Math.sin(now / 180) * 0.12;
 
@@ -6272,6 +7006,38 @@
       miniCtx.stroke();
       miniCtx.restore();
     }
+    const rect = rectArenaBounds();
+    if (rect) {
+      miniCtx.save();
+      miniCtx.strokeStyle = "#67e8f9";
+      miniCtx.lineWidth = 1.4;
+      miniCtx.strokeRect(
+        (rect.left / WORLD) * w,
+        (rect.top / WORLD) * h,
+        ((rect.right - rect.left) / WORLD) * w,
+        ((rect.bottom - rect.top) / WORLD) * h
+      );
+      miniCtx.restore();
+    }
+
+    if (modeConfig().domination && game.domination?.currentLeaderId) {
+      const leader = groups.find(group => group.id === game.domination.currentLeaderId);
+      if (leader && !leader.dead) {
+        miniCtx.save();
+        miniCtx.globalAlpha = 0.2;
+        miniCtx.fillStyle = leader.isPlayer ? "#ffffff" : leader.color;
+        miniCtx.strokeStyle = leader.isPlayer ? "rgba(255, 255, 255, 0.82)" : leader.color;
+        miniCtx.lineWidth = 0.8;
+        for (const cell of leader.cells) {
+          if (cell.dead) continue;
+          miniCtx.beginPath();
+          miniCtx.arc((cell.x / WORLD) * w, (cell.y / WORLD) * h, Math.max(2.2, (cell.radius / WORLD) * w), 0, Math.PI * 2);
+          miniCtx.fill();
+          miniCtx.stroke();
+        }
+        miniCtx.restore();
+      }
+    }
 
     for (const point of controlPoints) {
       const color = point.owner === null ? "rgba(255, 255, 255, 0.78)" : TEAM_COLORS[point.owner % TEAM_COLORS.length];
@@ -6378,6 +7144,10 @@
   }
 
   function zoneText(now) {
+    if (rectArenaBounds()) {
+      const config = modeConfig();
+      return Math.abs((config.arenaWidth || 0) - (config.arenaHeight || 0)) < 0.01 ? "方形霸屏区" : "矩形霸屏区";
+    }
     if (!safeZone.enabled) return `${modeConfig().short}模式`;
     if (safeZone.static) return "固定霸屏区";
     if (safeZone.shrinking) {
@@ -6418,11 +7188,43 @@
     if (config.domination) {
       const share = Math.round((game.domination?.share || 0) * 100);
       const massShare = Math.round((game.domination?.massShare || 0) * 100);
-      const screenShare = Math.round((game.domination?.screenShare || 0) * 100);
+      const playerShare = Math.round((game.domination?.playerShare || 0) * 100);
       const hold = Math.max(0, Math.ceil((config.dominationHold || 7) - (game.domination?.hold || 0)));
       const target = Math.round((config.dominationShare || 0.52) * 100);
-      tags.push(`<span class="tag danger">霸屏 ${share}%/${target}% · ${hold}s</span>`);
-      tags.push(`<span class="tag">质量 ${massShare}% · 屏幕 ${screenShare}%</span>`);
+      const warmup = Math.ceil(game.domination?.warmupLeft || 0);
+      const leaderName = escapeHtml(game.domination?.currentLeaderName || "无人");
+      const fill = clamp((share / Math.max(1, target)) * 100, 0, 100);
+      const timerText = warmup > 0
+        ? `预热 ${warmup}s`
+        : share >= target || (game.domination?.hold || 0) > 0
+          ? `维持 ${hold}s`
+          : `差 ${Math.max(0, target - share)}%`;
+      tags.push(`
+        <div class="domination-meter">
+          <div class="meter-head">
+            <span>霸屏 ${share}%/${target}%</span>
+            <span>${timerText}</span>
+          </div>
+          <div class="meter-track"><div class="meter-fill${share >= target ? " ready" : ""}" style="--p:${fill}%"></div></div>
+        </div>
+      `);
+      tags.push(`<span class="tag">领跑 ${leaderName} · 我的区域 ${playerShare}% · 质量 ${massShare}%</span>`);
+    }
+    if (config.quickMerge) {
+      const readyAt = game.quickMergeReadyAt || 0;
+      tags.push(`<span class="tag">A 快合 ${now >= readyAt ? "就绪" : `${Math.ceil((readyAt - now) / 1000)}s`}</span>`);
+    }
+    if (config.screenSkill) {
+      const readyAt = game.screenSkillReadyAt || 0;
+      const active = game.screenSkillUntil > now;
+      tags.push(`<span class="tag${active ? " danger" : ""}">D 冲刺 ${active ? "爆发" : now >= readyAt ? "就绪" : `${Math.ceil((readyAt - now) / 1000)}s`}</span>`);
+    }
+    if (config.blitzSupremacy) {
+      const state = game.blitzSupremacy || {};
+      const holdLeft = Math.max(0, Math.ceil((config.supremacyHold || 3) - (state.hold || 0)));
+      if ((state.hold || 0) > 0) {
+        tags.push(`<span class="tag danger">闪电制霸 ${holdLeft}s · ${escapeHtml(state.leaderName || "领跑者")} ${Math.max(1, state.lead || 1).toFixed(1)}x</span>`);
+      }
     }
     const activeTag = eventTag();
     if (activeTag) tags.push(`<span class="tag danger">${activeTag}</span>`);
@@ -6541,10 +7343,17 @@
   }, { passive: false });
 
   document.addEventListener("keydown", event => {
+    if (event.target && ["INPUT", "TEXTAREA", "SELECT"].includes(event.target.tagName)) return;
     const key = event.key.toLowerCase();
     if (event.code === "Space") {
       event.preventDefault();
       if (!event.repeat && !game.menu) splitGroup(playerGroup, cursorPoint(), { power: 1 });
+    } else if (key === "a" && modeConfig().quickMerge) {
+      event.preventDefault();
+      if (!event.repeat) quickMergePlayer();
+    } else if (key === "d" && modeConfig().screenSkill) {
+      event.preventDefault();
+      if (!event.repeat) screenDashPlayer();
     } else if (key === "w") {
       event.preventDefault();
       if (game.menu || game.over || game.paused) return;
@@ -6726,7 +7535,7 @@
           teams: modeConfig().teams,
           duration: game.duration,
           timeLeft: game.endsAt ? Math.max(0, Math.round((game.endsAt - now) / 1000)) : 0,
-          maxCells: MAX_CELLS,
+          maxCells: maxCellsFor(playerGroup),
           foodBase: FOOD_BASE_COUNT,
           foodMax: FOOD_MAX_COUNT,
           foodCount: foods.length,
@@ -6742,6 +7551,13 @@
           playerRank: modeConfig().teams > 0 ? teamRank(playerGroup.team) : personalRank(),
           playerDead: playerGroup.dead,
           respawnIn: playerGroup.respawnAt ? Math.max(0, Math.round((playerGroup.respawnAt - now) / 1000)) : 0,
+          camera: {
+            x: Math.round(camera.x),
+            y: Math.round(camera.y),
+            zoom: Math.round(zoom * 1000) / 1000,
+            viewPressure: Math.round((game.cameraViewPressure || 0) * 1000) / 1000,
+            spreadRatio: Math.round((game.cameraSpreadRatio || 0) * 1000) / 1000
+          },
           ejectHeld: input.ejectHeld,
           viruses: viruses.length,
           smallViruses: viruses.filter(virus => virus.kind !== "big").length,
@@ -6764,6 +7580,16 @@
             active: matchEvent.active ? matchEvent.active.key : null,
             label: matchEvent.active ? matchEvent.active.label : null,
             nextIn: matchEvent.nextAt ? Math.max(0, Math.round((matchEvent.nextAt - now) / 1000)) : 0
+          },
+          domination: {
+            enabled: !!modeConfig().domination,
+            leader: game.domination?.currentLeaderName || null,
+            leaderId: game.domination?.currentLeaderId || null,
+            share: Math.round((game.domination?.share || 0) * 1000) / 10,
+            rawShare: Math.round((game.domination?.rawShare || 0) * 1000) / 10,
+            playerShare: Math.round((game.domination?.playerShare || 0) * 1000) / 10,
+            target: Math.round((game.domination?.targetShare || modeConfig().dominationShare || 0) * 1000) / 10,
+            hold: Math.round((game.domination?.hold || 0) * 10) / 10
           },
           control: {
             scores: teamScores.map(score => Math.round(score)),
@@ -7010,12 +7836,13 @@
           if (group.dead || !group.cells.length) continue;
           const center = groupCenter(group);
           const total = Math.max(groupMass(group), group.isPlayer ? 3600 : rand(620, 1800));
-          const pieces = group.isPlayer ? MAX_CELLS : Math.floor(rand(5, 12));
+          const pieces = group.isPlayer ? maxCellsFor(group) : Math.floor(rand(5, 12));
           group.cells = [];
           for (let i = 0; i < pieces; i++) {
             const angle = (Math.PI * 2 * i) / pieces + rand(-0.22, 0.22);
             const dist = rand(24, 190);
-            const cell = makeCell(group, clamp(center.x + Math.cos(angle) * dist, 120, WORLD - 120), clamp(center.y + Math.sin(angle) * dist, 120, WORLD - 120), total / pieces);
+            const point = clampPlayablePoint(center.x + Math.cos(angle) * dist, center.y + Math.sin(angle) * dist, 120);
+            const cell = makeCell(group, point.x, point.y, total / pieces);
             cell.vx = Math.cos(angle) * rand(40, 180);
             cell.vy = Math.sin(angle) * rand(40, 180);
             cell.mergeDelay = rand(2, 12);
@@ -7136,13 +7963,14 @@
         this.resetPlayer(mass);
         const cell = groupCenter(playerGroup).largestCell;
         const big = kind === "big";
+        const spore = kind === "spore";
         const virus = {
           x: cell.x,
           y: cell.y,
-          radius: big ? 76 : 42,
-          mass: big ? BIG_VIRUS_MASS : VIRUS_MASS,
-          baseMass: big ? BIG_VIRUS_MASS : VIRUS_MASS,
-          kind: big ? "big" : "small",
+          radius: big ? 76 : spore ? 48 : 42,
+          mass: big ? BIG_VIRUS_MASS : spore ? VIRUS_MASS * 0.92 : VIRUS_MASS,
+          baseMass: big ? BIG_VIRUS_MASS : spore ? VIRUS_MASS * 0.92 : VIRUS_MASS,
+          kind: big ? "big" : spore ? "spore" : "small",
           spin: 0,
           debugId: `player-virus-${Math.random()}`
         };
@@ -7158,7 +7986,8 @@
           kind: virus.kind,
           virusRemoved: !viruses.includes(virus),
           virusesBefore: beforeViruses,
-          virusesAfter: viruses.length
+          virusesAfter: viruses.length,
+          ejected: ejected.length
         };
       },
       virusHitAi(mass = 720, kind = "small") {
@@ -7167,13 +7996,14 @@
         const center = groupCenter(group).largestCell || { x: WORLD / 2 + 300, y: WORLD / 2 };
         group.cells = [makeCell(group, center.x, center.y, mass)];
         const big = kind === "big";
+        const spore = kind === "spore";
         const virus = {
           x: center.x,
           y: center.y,
-          radius: big ? 76 : 42,
-          mass: big ? BIG_VIRUS_MASS : VIRUS_MASS,
-          baseMass: big ? BIG_VIRUS_MASS : VIRUS_MASS,
-          kind: big ? "big" : "small",
+          radius: big ? 76 : spore ? 48 : 42,
+          mass: big ? BIG_VIRUS_MASS : spore ? VIRUS_MASS * 0.92 : VIRUS_MASS,
+          baseMass: big ? BIG_VIRUS_MASS : spore ? VIRUS_MASS * 0.92 : VIRUS_MASS,
+          kind: big ? "big" : spore ? "spore" : "small",
           spin: 0,
           debugId: `ai-virus-${Math.random()}`
         };
@@ -7188,7 +8018,8 @@
           cells: group.cells.length,
           kind: virus.kind,
           mode: group.ai.mode,
-          virusRemoved: !viruses.includes(virus)
+          virusRemoved: !viruses.includes(virus),
+          ejected: ejected.length
         };
       },
       lateFoodPreview(seconds = 210) {
@@ -7230,11 +8061,12 @@
     const dt = Math.min(0.034, (now - lastFrame) / 1000 || 0.016);
     lastFrame = now;
     perf.avgFrame += (dt * 1000 - perf.avgFrame) * 0.06;
-    const cellPressure = renderCells.length > 620;
+    const highSplitMode = maxCellsFor(playerGroup) > 32;
+    const cellPressure = renderCells.length > (highSplitMode ? 500 : 620) || (playerGroup && playerGroup.cells.length > 42);
     const objectPressure = ejected.length > 260 || particles.length > MAX_PARTICLES * 0.78;
     if (perf.avgFrame > 23 || cellPressure || objectPressure) {
       perf.lowQuality = true;
-    } else if (perf.avgFrame < 17.5 && renderCells.length < 420 && ejected.length < 170 && particles.length < MAX_PARTICLES * 0.42) {
+    } else if (perf.avgFrame < 17.5 && renderCells.length < (highSplitMode ? 340 : 420) && ejected.length < 170 && particles.length < MAX_PARTICLES * 0.42 && (!playerGroup || playerGroup.cells.length < 28)) {
       perf.lowQuality = false;
     }
     if (!game.paused && !game.over) update(dt, now);
