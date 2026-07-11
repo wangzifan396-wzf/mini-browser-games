@@ -273,6 +273,8 @@
   .start-card,
   .upgrade-panel {
     width: min(760px, 96vw);
+    max-height: 94vh;
+    overflow: auto;
     padding: 18px;
   }
 
@@ -322,6 +324,19 @@
     font-size: 13px;
     line-height: 1.5;
   }
+
+  .garage-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .garage-block { padding: 10px; border: 1px solid var(--line); border-radius: 12px; background: rgba(8, 18, 24, 0.72); }
+  .garage-block h3 { margin: 0 0 8px; color: #9fb2c8; font-size: 12px; }
+  .garage-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+  .garage-card { min-height: 58px; padding: 8px; border: 1px solid var(--line); border-radius: 9px; background: rgba(21, 43, 54, 0.88); color: #eaf6ff; text-align: left; }
+  .garage-card.active { border-color: rgba(56, 217, 255, 0.78); background: rgba(56, 217, 255, 0.12); }
+  .garage-card strong { display: block; font-size: 11px; }
+  .garage-card span { display: block; margin-top: 3px; color: #9fb2c8; font-size: 9px; line-height: 1.3; }
+  .armory-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .armory-card { min-height: 58px; padding: 7px; }
+  .armory-card em { display: block; margin-top: 4px; color: #ffd166; font-size: 9px; font-style: normal; }
+  .garage-meta { margin: 10px 0 0; color: #ffd166; font-size: 10px; font-weight: 900; }
 
   .primary {
     margin-top: 16px;
@@ -402,7 +417,8 @@
     .fire-btn,
     .skill-btn { display: grid; }
     .mode-grid,
-    .upgrade-grid { grid-template-columns: 1fr; }
+    .upgrade-grid,
+    .garage-wrap { grid-template-columns: 1fr; }
     .mode-card,
     .upgrade-card { min-height: 0; }
   }
@@ -503,6 +519,15 @@
         <strong>终局竞技</strong>
         <span>16 辆坦克一命决斗，拾取模块变强，最后存活者第一。</span>
       </button>
+      <button class="mode-card" data-mode="storm">
+        <strong>风暴战线</strong>
+        <span>10 波高压行动，空袭与补给事件更加频繁，首领进入二阶段。</span>
+      </button>
+    </div>
+    <div class="garage-wrap">
+      <section class="garage-block"><h3>底盘选择</h3><div class="garage-grid" id="chassisGrid"></div></section>
+      <section class="garage-block"><h3>主炮选择</h3><div class="garage-grid" id="cannonGrid"></div></section>
+      <section class="garage-block" style="grid-column:1/-1"><h3>永久军械库</h3><div class="armory-grid" id="armoryGrid"></div><div class="garage-meta" id="garageMeta">军功 0</div></section>
     </div>
     <button class="primary" id="startBtn">启动战车</button>
   </section>
@@ -544,6 +569,10 @@
   const overlayText = document.getElementById("overlayText");
   const modeGrid = document.getElementById("modeGrid");
   const modeButtons = [...document.querySelectorAll("[data-mode]")];
+  const chassisGrid = document.getElementById("chassisGrid");
+  const cannonGrid = document.getElementById("cannonGrid");
+  const armoryGrid = document.getElementById("armoryGrid");
+  const garageMeta = document.getElementById("garageMeta");
   const startBtn = document.getElementById("startBtn");
   const upgradeOverlay = document.getElementById("upgradeOverlay");
   const upgradeTitle = document.getElementById("upgradeTitle");
@@ -558,13 +587,35 @@
     siege: { name: "守点压制", waves: 9, enemyScale: 1.24, barrelScale: 1.55, eliteScale: 1 },
     duel: { name: "精英猎杀", waves: 7, enemyScale: 0.72, barrelScale: 0.82, eliteScale: 1.28 },
     arena: { name: "计时死斗", waves: 1, enemyScale: 1, barrelScale: 1.18, eliteScale: 1, competitive: true, respawn: true, bots: 15, time: 210 },
-    elimination: { name: "终局竞技", waves: 1, enemyScale: 1, barrelScale: 1.08, eliteScale: 1, competitive: true, elimination: true, bots: 15, time: 0 }
+    elimination: { name: "终局竞技", waves: 1, enemyScale: 1, barrelScale: 1.08, eliteScale: 1, competitive: true, elimination: true, bots: 15, time: 0 },
+    storm: { name: "风暴战线", waves: 10, enemyScale: 1.34, barrelScale: 1.25, eliteScale: 1.5, storm: true }
   };
+  const CHASSIS = {
+    vanguard: { name: "先锋底盘", text: "属性均衡，适合所有武器。", hp: 1, speed: 1, reload: 1 },
+    interceptor: { name: "截击底盘", text: "速度 +22%，装甲 -20%，装填更快。", hp: 0.8, speed: 1.22, reload: 0.9 },
+    bastion: { name: "堡垒底盘", text: "装甲 +42%，正面减伤，移动较慢。", hp: 1.42, speed: 0.82, reload: 1.08, front: 0.18 },
+    engineer: { name: "工程底盘", text: "自带无人机与磁雷架，拾取范围更大。", hp: 1.02, speed: 0.96, reload: 1, drone: 1, mines: 4, magnet: 1.45 }
+  };
+  const CANNONS = {
+    cannon: { name: "制式加农炮", text: "可靠的伤害、反弹和射速。", damage: 1, reload: 1, speed: 1, bounce: 1 },
+    rail: { name: "磁轨长炮", text: "高伤高速穿透，装填较慢。", damage: 1.62, reload: 1.48, speed: 1.48, bounce: 0, pierce: 2, shell: "磁轨炮" },
+    scatter: { name: "霰裂短炮", text: "近距离五弹齐射，压制掩体后目标。", damage: 0.62, reload: 0.76, speed: 0.9, bounce: 0, scatter: 2, shell: "霰裂炮" },
+    rocket: { name: "爆燃火箭炮", text: "爆炸范围大，弹速与装填较慢。", damage: 1.2, reload: 1.42, speed: 0.74, bounce: 0, blast: 112, shell: "爆燃火箭" }
+  };
+  const ARMORY = {
+    power: { name: "炮膛校准", text: "每级伤害 +4%", max: 8, cost: level => 12 + level * 11 },
+    armor: { name: "复合车体", text: "每级装甲 +4", max: 8, cost: level => 10 + level * 10 },
+    salvage: { name: "战场回收", text: "每级军功 +6%", max: 8, cost: level => 14 + level * 12 }
+  };
+  const TANK_SAVE_KEY = "neonTankGarageV2";
   const ENEMY_TYPES = {
     scout: { name: "轻坦", hp: 42, speed: 150, reload: 1.15, damage: 13, score: 90, color: "#ffca5f", size: 34 },
     heavy: { name: "重坦", hp: 92, speed: 82, reload: 1.8, damage: 22, score: 160, color: "#ff6178", size: 46 },
     rocket: { name: "火箭车", hp: 58, speed: 104, reload: 2.2, damage: 28, score: 210, color: "#a78bfa", size: 40 },
     miner: { name: "布雷车", hp: 54, speed: 118, reload: 1.55, damage: 12, score: 150, color: "#4ade80", size: 36 },
+    shield: { name: "盾卫坦克", hp: 118, speed: 74, reload: 1.65, damage: 17, score: 220, color: "#63c7e5", size: 48, frontArmor: 0.34 },
+    artillery: { name: "远程炮车", hp: 48, speed: 70, reload: 2.45, damage: 34, score: 260, color: "#f39b63", size: 38, artillery: true },
+    repair: { name: "维修车", hp: 68, speed: 86, reload: 2.1, damage: 11, score: 240, color: "#70e0a0", size: 40, repair: true },
     boss: { name: "移动堡垒", hp: 520, speed: 58, reload: 0.92, damage: 24, score: 1200, color: "#38d9ff", size: 76 }
   };
   const UPGRADES = [
@@ -687,6 +738,9 @@
   let view = { w: 0, h: 0 };
   let camera = { x: WORLD / 2, y: WORLD / 2 };
   let selectedMode = "campaign";
+  let selectedChassis = "vanguard";
+  let selectedCannon = "cannon";
+  let garageSave = loadGarage();
   let game = {};
   let player;
   let walls = [];
@@ -699,6 +753,7 @@
   let barrels = [];
   let parts = [];
   let drones = [];
+  let airstrikes = [];
   let keys = new Set();
   let pointer = { x: window.innerWidth / 2, y: window.innerHeight / 2, worldX: WORLD / 2, worldY: WORLD / 2, down: false };
   let touchMove = { active: false, id: null, x: 0, y: 0, dx: 0, dy: 0 };
@@ -706,6 +761,39 @@
   let lastFrame = performance.now();
   let toastTimer = 0;
   let hudTimer = 0;
+
+  function loadGarage() {
+    try {
+      const value = JSON.parse(localStorage.getItem(TANK_SAVE_KEY) || "null");
+      if (value && value.version === 2) return value;
+    } catch (error) {}
+    return { version: 2, credits: 0, tech: { power: 0, armor: 0, salvage: 0 }, totalKills: 0, bosses: 0 };
+  }
+
+  function saveGarage() { localStorage.setItem(TANK_SAVE_KEY, JSON.stringify(garageSave)); }
+
+  function renderGarage() {
+    chassisGrid.innerHTML = Object.entries(CHASSIS).map(([key, item]) => `<button class="garage-card ${selectedChassis === key ? "active" : ""}" data-chassis="${key}"><strong>${item.name}</strong><span>${item.text}</span></button>`).join("");
+    cannonGrid.innerHTML = Object.entries(CANNONS).map(([key, item]) => `<button class="garage-card ${selectedCannon === key ? "active" : ""}" data-cannon="${key}"><strong>${item.name}</strong><span>${item.text}</span></button>`).join("");
+    armoryGrid.innerHTML = Object.entries(ARMORY).map(([key, item]) => {
+      const level = garageSave.tech[key] || 0;
+      const cost = item.cost(level);
+      const maxed = level >= item.max;
+      return `<button class="garage-card armory-card" data-armory="${key}" ${maxed || garageSave.credits < cost ? "disabled" : ""}><strong>${item.name} Lv.${level}</strong><span>${item.text}</span><em>${maxed ? "已满级" : `军功 ${cost}`}</em></button>`;
+    }).join("");
+    garageMeta.textContent = `军功 ${garageSave.credits} · 总击毁 ${garageSave.totalKills || 0} · 首领 ${garageSave.bosses || 0}`;
+  }
+
+  function buyArmory(key) {
+    const item = ARMORY[key];
+    const level = garageSave.tech[key] || 0;
+    const cost = item.cost(level);
+    if (level >= item.max || garageSave.credits < cost) return;
+    garageSave.credits -= cost;
+    garageSave.tech[key] = level + 1;
+    saveGarage();
+    renderGarage();
+  }
 
   function resize() {
     dpr = Math.min(2, window.devicePixelRatio || 1);
@@ -792,7 +880,7 @@
   }
 
   function makePlayer() {
-    return {
+    const tank = {
       x: WORLD / 2,
       y: WORLD / 2,
       vx: 0,
@@ -824,8 +912,29 @@
       deaths: 0,
       parts: [],
       frontArmor: 0,
-      respawnLeft: 0
+      respawnLeft: 0,
+      blast: 0,
+      chassis: selectedChassis,
+      cannon: selectedCannon
     };
+    const chassis = CHASSIS[selectedChassis];
+    const cannon = CANNONS[selectedCannon];
+    tank.maxHp = Math.round((tank.maxHp + (garageSave.tech.armor || 0) * 4) * chassis.hp);
+    tank.hp = tank.maxHp;
+    tank.speed *= chassis.speed;
+    tank.reload *= chassis.reload * cannon.reload;
+    tank.damage *= cannon.damage * (1 + (garageSave.tech.power || 0) * 0.04);
+    tank.bulletSpeed *= cannon.speed;
+    tank.bounces = cannon.bounce;
+    tank.pierce += cannon.pierce || 0;
+    tank.scatter += cannon.scatter || 0;
+    tank.blast = cannon.blast || 0;
+    tank.shellName = cannon.shell || "标准弹";
+    tank.frontArmor = chassis.front || 0;
+    tank.drones = chassis.drone || 0;
+    tank.skillMines = chassis.mines || 0;
+    tank.pickupMagnet *= chassis.magnet || 1;
+    return tank;
   }
 
   function newGame() {
@@ -840,6 +949,8 @@
       waveClearTimer: 0,
       arenaTime: config.time || 0,
       pickupTimer: 0,
+      eventTimer: config.storm ? 12 : 28,
+      eventCount: 0,
       eliminatedRank: 0,
       result: ""
     };
@@ -851,6 +962,7 @@
     floaters = [];
     parts = [];
     drones = [];
+    airstrikes = [];
     generateArena();
     if (config.competitive) startCompetitiveMatch();
     else spawnWave();
@@ -969,6 +1081,9 @@
         if (game.wave > 1 && Math.random() < 0.3) type = "heavy";
         if (game.wave > 2 && Math.random() < 0.25) type = "rocket";
         if (game.wave > 3 && Math.random() < 0.18) type = "miner";
+        if (game.wave > 4 && Math.random() < 0.16) type = "shield";
+        if (game.wave > 5 && Math.random() < 0.13) type = "artillery";
+        if (game.wave > 6 && Math.random() < 0.12) type = "repair";
         spawnEnemy(type, 0, 0, game.wave);
       }
     }
@@ -1030,6 +1145,11 @@
       color: elite ? "#ffffff" : spec.color,
       aiTime: rand(0, 2),
       strafe: Math.random() < 0.5 ? 1 : -1,
+      frontArmor: spec.frontArmor || 0,
+      artillery: Boolean(spec.artillery),
+      repair: Boolean(spec.repair),
+      repairTimer: rand(2, 4),
+      phaseTwo: false,
       elite
     };
     enemies.push(enemy);
@@ -1114,6 +1234,7 @@
       speed: player.bulletSpeed,
       color: player.scatter ? "#ffd166" : "#38d9ff",
       size: 6,
+      blast: player.blast,
       ownerTank: player
     });
     for (let i = 0; i < player.scatter; i++) {
@@ -1145,6 +1266,19 @@
     if (game.state !== "playing" || player.skillLeft > 0) return;
     player.skillLeft = player.skillCooldown;
     player.shieldUntil = performance.now() / 1000 + 1.15 + player.shieldBonus;
+    if (player.chassis === "interceptor") {
+      player.overdriveUntil = performance.now() / 1000 + 4.5;
+      player.reloadLeft = 0;
+      showToast("截击超频启动");
+    } else if (player.chassis === "bastion") {
+      player.shieldUntil += 2.4;
+      healPlayer(18);
+      showToast("堡垒壁垒展开");
+    } else if (player.chassis === "engineer") {
+      healPlayer(24);
+      player.skillMines = Math.max(6, player.skillMines);
+      showToast("工程支援释放");
+    }
     explosions.push({ x: player.x, y: player.y, r: 24, max: 360, life: 0.42, damage: 42, owner: "player", color: "#38d9ff", ownerTank: player });
     for (const enemy of enemies) {
       const d = distance(player, enemy);
@@ -1159,7 +1293,7 @@
       mines.push({ owner: "player", x: player.x + Math.cos(a) * 92, y: player.y + Math.sin(a) * 92, r: 12, arm: 0.55, life: 9, ownerTank: player });
     }
     burst(player.x, player.y, "#38d9ff", 34);
-    showToast("电磁脉冲已释放");
+    if (player.chassis === "vanguard") showToast("电磁脉冲已释放");
   }
 
   function update(dt, now) {
@@ -1173,6 +1307,7 @@
     updateDrones(dt);
     updateEnemies(dt);
     updateParts(dt);
+    updateBattleEvents(dt);
     updateBullets(dt);
     updateMines(dt);
     updateExplosions(dt);
@@ -1208,7 +1343,8 @@
     }
     const input = norm(ax, ay);
     const moving = Math.hypot(ax, ay) > 0.04;
-    const targetSpeed = moving ? player.speed : 0;
+    const overdrive = (player.overdriveUntil || 0) > performance.now() / 1000 ? 1.55 : 1;
+    const targetSpeed = moving ? player.speed * overdrive : 0;
     player.vx = lerp(player.vx, input.x * targetSpeed, 1 - Math.pow(0.001, dt));
     player.vy = lerp(player.vy, input.y * targetSpeed, 1 - Math.pow(0.001, dt));
     if (moving) player.bodyAngle = angleLerp(player.bodyAngle, Math.atan2(input.y, input.x), dt * 9);
@@ -1286,6 +1422,37 @@
     }
   }
 
+  function updateBattleEvents(dt) {
+    if (!isCompetitiveMode()) {
+      game.eventTimer -= dt;
+      if (game.eventTimer <= 0) {
+        game.eventCount += 1;
+        const barrage = game.eventCount % 2 === 0 || modeConfig().storm;
+        if (barrage) {
+          const count = modeConfig().storm ? 5 : 3;
+          for (let i = 0; i < count; i++) {
+            airstrikes.push({ x: clamp(player.x + rand(-520, 520), 100, WORLD - 100), y: clamp(player.y + rand(-420, 420), 100, WORLD - 100), r: rand(72, 118), warning: 1.7, life: 2.2, exploded: false });
+          }
+          showToast("空袭坐标已标记");
+        } else {
+          for (let i = 0; i < 4; i++) parts.push(makePickup(clamp(player.x + rand(-240, 240), 80, WORLD - 80), clamp(player.y + rand(-190, 190), 80, WORLD - 80), i === 0 ? "module" : null));
+          showToast("战术补给已投放");
+        }
+        game.eventTimer = modeConfig().storm ? rand(15, 21) : rand(26, 36);
+      }
+    }
+    for (const strike of airstrikes) {
+      strike.warning -= dt;
+      strike.life -= dt;
+      if (strike.warning <= 0 && !strike.exploded) {
+        strike.exploded = true;
+        explosions.push({ x: strike.x, y: strike.y, r: 20, max: strike.r * 1.45, life: 0.38, damage: 78, owner: "neutral", color: "#ff8b5f" });
+        burst(strike.x, strike.y, "#ff8b5f", 34);
+      }
+    }
+    airstrikes = airstrikes.filter(strike => strike.life > 0);
+  }
+
   function dropParts(x, y, count) {
     if (!isCompetitiveMode() && Math.random() > 0.35) return;
     for (let i = 0; i < count; i++) {
@@ -1357,6 +1524,24 @@
   function updateEnemies(dt) {
     for (const enemy of enemies) {
       enemy.aiTime -= dt;
+      if (enemy.repair) {
+        enemy.repairTimer -= dt;
+        if (enemy.repairTimer <= 0) {
+          enemy.repairTimer = 4.2;
+          for (const ally of enemies) {
+            if (ally !== enemy && distance(enemy, ally) < 260) ally.hp = Math.min(ally.maxHp, ally.hp + 24 + game.wave * 3);
+          }
+          explosions.push({ x: enemy.x, y: enemy.y, r: 20, max: 180, life: 0.34, damage: 0, owner: "enemy", color: "#70e0a0", visualOnly: true });
+        }
+      }
+      if (enemy.type === "boss" && enemy.hp < enemy.maxHp * 0.5 && !enemy.phaseTwo) {
+        enemy.phaseTwo = true;
+        enemy.reload *= 0.68;
+        enemy.speed *= 1.18;
+        spawnEnemy("shield", 0, 0, game.wave);
+        spawnEnemy("artillery", 0, 0, game.wave);
+        showToast("移动堡垒进入二阶段");
+      }
       const target = chooseEnemyTarget(enemy);
       const desiredPart = isCompetitiveMode() ? nearestPart(enemy) : null;
       const blocked = target && !hasLineOfSight(enemy, target);
@@ -1367,7 +1552,7 @@
       const dy = goal.y - enemy.y;
       const d = Math.hypot(dx, dy) || 1;
       const toGoal = { x: dx / d, y: dy / d };
-      const ideal = enemy.type === "rocket" ? 620 : enemy.type === "heavy" ? 360 : enemy.type === "boss" ? 510 : 430;
+      const ideal = enemy.artillery ? 720 : enemy.type === "rocket" ? 620 : enemy.type === "heavy" || enemy.type === "shield" ? 360 : enemy.type === "boss" ? 510 : 430;
       const close = d < ideal * 0.72;
       const far = d > ideal * 1.18;
       let mx = 0;
@@ -1398,7 +1583,7 @@
       if (Math.hypot(enemy.vx, enemy.vy) > 12) enemy.bodyAngle = angleLerp(enemy.bodyAngle, Math.atan2(enemy.vy, enemy.vx), dt * 5);
       const aimDx = target.x - enemy.x;
       const aimDy = target.y - enemy.y;
-      enemy.turretAngle = angleLerp(enemy.turretAngle, Math.atan2(aimDy, aimDx), dt * (enemy.type === "heavy" ? 3.4 : 5.2));
+      enemy.turretAngle = angleLerp(enemy.turretAngle, Math.atan2(aimDy, aimDx), dt * (enemy.type === "heavy" || enemy.type === "shield" ? 3.4 : 5.2));
       moveCircle(enemy, enemy.vx * dt, enemy.vy * dt, enemy.size * 0.48);
       enemy.reloadLeft -= dt;
       if (enemy.type === "miner" && enemy.reloadLeft < enemy.reload * 0.28 && Math.random() < dt * 0.65) {
@@ -1472,18 +1657,18 @@
   }
 
   function enemyFire(enemy, target) {
-    const spread = enemy.type === "boss" ? 0.18 : enemy.type === "rocket" ? 0.05 : 0.08;
+    const spread = enemy.type === "boss" ? 0.18 : enemy.type === "rocket" || enemy.artillery ? 0.05 : 0.08;
     const count = enemy.type === "boss" ? 3 : 1;
     for (let i = 0; i < count; i++) {
       const offset = count === 1 ? 0 : (i - 1) * spread;
-      const lead = target ? leadAngle(enemy, target, enemy.type === "rocket" ? 430 : 390) : enemy.turretAngle;
+      const lead = target ? leadAngle(enemy, target, enemy.type === "rocket" || enemy.artillery ? 430 : 390) : enemy.turretAngle;
       fireBullet("enemy", enemy.x + Math.cos(enemy.turretAngle) * enemy.size * 0.55, enemy.y + Math.sin(enemy.turretAngle) * enemy.size * 0.55, lead + offset + rand(-0.035, 0.035), {
         damage: enemy.damage,
         bounces: enemy.type === "boss" || enemy.bounces > 1 ? 1 : 0,
-        speed: enemy.type === "rocket" ? 430 : 390,
-        color: enemy.type === "rocket" ? "#a78bfa" : "#ff6178",
-        size: enemy.type === "rocket" ? 7 : 5.5,
-        blast: enemy.type === "rocket" ? 70 : 0,
+        speed: enemy.artillery ? 360 : enemy.type === "rocket" ? 430 : 390,
+        color: enemy.artillery ? "#f39b63" : enemy.type === "rocket" ? "#a78bfa" : "#ff6178",
+        size: enemy.type === "rocket" || enemy.artillery ? 7 : 5.5,
+        blast: enemy.artillery ? 105 : enemy.type === "rocket" ? 70 : 0,
         life: 2.9,
         ownerTank: enemy
       });
@@ -1874,6 +2059,11 @@
     game.state = "ended";
     game.best = Math.max(game.best, game.score);
     localStorage.setItem("tank_arena_best", String(game.best));
+    const credits = Math.max(1, Math.floor((game.score / 420 + player.kills * 1.4 + (won ? 10 : 0)) * (1 + (garageSave.tech.salvage || 0) * 0.06)));
+    garageSave.credits += credits;
+    garageSave.totalKills = (garageSave.totalKills || 0) + player.kills;
+    if (won && !isCompetitiveMode()) garageSave.bosses = (garageSave.bosses || 0) + 1;
+    saveGarage();
     if (isEliminationMode()) {
       const rank = won ? 1 : eliminationRank();
       overlayTitle.textContent = won ? "最后生还" : `淘汰排名第 ${rank}`;
@@ -1891,8 +2081,10 @@
         ? `你击穿了最终堡垒，得分 ${Math.round(game.score)}。最高纪录 ${Math.round(game.best)}。`
         : `你的战车停在第 ${game.wave} 波，得分 ${Math.round(game.score)}。最高纪录 ${Math.round(game.best)}。`;
     }
+    overlayText.textContent += ` 本次获得军功 ${credits}。`;
     startBtn.textContent = "重新部署";
     overlay.classList.remove("hidden");
+    renderGarage();
     updateHud(true);
   }
 
@@ -1923,7 +2115,8 @@
     shellValue.textContent = player.shellName;
     bounceValue.textContent = String(player.bounces);
     partValue.textContent = isCompetitiveMode() ? String(player.parts.length) : String(player.scrap || 0);
-    skillValue.textContent = player.skillLeft <= 0 ? "电磁脉冲" : `${player.skillLeft.toFixed(1)}s`;
+    const skillNames = { vanguard: "电磁脉冲", interceptor: "截击超频", bastion: "堡垒壁垒", engineer: "工程支援" };
+    skillValue.textContent = player.skillLeft <= 0 ? skillNames[player.chassis] : `${player.skillLeft.toFixed(1)}s`;
   }
 
   let shakePower = 0;
@@ -1967,6 +2160,7 @@
     drawWalls();
     drawBarrels();
     drawParts();
+    drawAirstrikes();
     drawMines();
     drawBullets();
     drawTanks();
@@ -2059,6 +2253,21 @@
       }
       ctx.stroke();
       ctx.restore();
+    }
+  }
+
+  function drawAirstrikes() {
+    for (const strike of airstrikes) {
+      if (strike.exploded) continue;
+      ctx.fillStyle = "rgba(255, 97, 120, 0.12)";
+      ctx.strokeStyle = "rgba(255, 139, 95, 0.9)";
+      ctx.lineWidth = 4;
+      ctx.setLineDash([14, 10]);
+      ctx.beginPath();
+      ctx.arc(strike.x, strike.y, strike.r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.setLineDash([]);
     }
   }
 
@@ -2399,6 +2608,22 @@
     selectedMode = button.dataset.mode;
     modeButtons.forEach(item => item.classList.toggle("active", item === button));
   });
+  chassisGrid.addEventListener("click", event => {
+    const button = event.target.closest("[data-chassis]");
+    if (!button) return;
+    selectedChassis = button.dataset.chassis;
+    renderGarage();
+  });
+  cannonGrid.addEventListener("click", event => {
+    const button = event.target.closest("[data-cannon]");
+    if (!button) return;
+    selectedCannon = button.dataset.cannon;
+    renderGarage();
+  });
+  armoryGrid.addEventListener("click", event => {
+    const button = event.target.closest("[data-armory]");
+    if (button) buyArmory(button.dataset.armory);
+  });
 
   function togglePause() {
     if (!game.state || game.state === "ended" || game.state === "upgrade") return;
@@ -2413,6 +2638,7 @@
   camera.y = player.y;
   bestValue.textContent = Number(localStorage.getItem("tank_arena_best")) || 0;
   generateArena();
+  renderGarage();
   requestAnimationFrame(loop);
 })();
 </script>
