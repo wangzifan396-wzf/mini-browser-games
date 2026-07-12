@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>静夜纸牌</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top, #18584b, #092c29);
+      color: #fff;
+      font-family: system-ui, "Microsoft YaHei";
+    }
+    .app {
+      min-height: 100vh;
+      padding: 12px;
+    }
+    .top {
+      max-width: 1020px;
+      margin: auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .stats {
+      display: flex;
+      gap: 16px;
+    }
+    button {
+      background: #d7b45c;
+      color: #241b08;
+      border: 0;
+      border-radius: 8px;
+      padding: 9px 13px;
+      font-weight: bold;
+    }
+    .table {
+      max-width: 1020px;
+      margin: 12px auto;
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 10px;
+    }
+    .pile {
+      min-height: 132px;
+      border: 2px dashed #ffffff38;
+      border-radius: 10px;
+      position: relative;
+    }
+    .stock {
+      grid-column: 1;
+    }
+    .waste {
+      grid-column: 2;
+    }
+    .foundation {
+      grid-row: 1;
+    }
+    .f0 {
+      grid-column: 4;
+    }
+    .f1 {
+      grid-column: 5;
+    }
+    .f2 {
+      grid-column: 6;
+    }
+    .f3 {
+      grid-column: 7;
+    }
+    .tab {
+      grid-row: 2;
+      min-height: 520px;
+    }
+    .card {
+      position: absolute;
+      left: 2%;
+      width: 96%;
+      height: 126px;
+      border-radius: 9px;
+      background: #fff;
+      color: #161616;
+      border: 1px solid #aaa;
+      padding: 7px;
+      font-weight: 800;
+      font-size: 20px;
+      box-shadow: 0 2px 6px #0006;
+      cursor: pointer;
+      user-select: none;
+    }
+    .card.red {
+      color: #c62937;
+    }
+    .card.back {
+      background: repeating-linear-gradient(
+        45deg,
+        #273d83 0 7px,
+        #4260b0 7px 14px
+      );
+      border: 5px solid white;
+      color: transparent;
+    }
+    .card.sel {
+      outline: 4px solid #ffd95e;
+      transform: translateY(-3px);
+    }
+    .label {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      color: #ffffff55;
+      font-size: 34px;
+    }
+    .help {
+      color: #c5e6df;
+      font-size: 13px;
+    }
+    @media (max-width: 650px) {
+      .table {
+        gap: 4px;
+      }
+      .pile {
+        min-height: 92px;
+      }
+      .card {
+        height: 88px;
+        font-size: 15px;
+        padding: 4px;
+      }
+      .tab {
+        min-height: 410px;
+      }
+      .stats {
+        font-size: 12px;
+        gap: 7px;
+      }
+    }
+  </style>
+  <main class="app">
+    <header class="top">
+      <div>
+        <h1 style="margin: 0">静夜纸牌</h1>
+        <div class="help">
+          单击选牌与目标牌堆；也可双击自动收入基础堆。支持翻三张、撤回和连胜记录。
+        </div>
+      </div>
+      <div class="stats">
+        <span>得分 <b id="score">0</b></span
+        ><span>步数 <b id="moves">0</b></span
+        ><span>连胜 <b id="streak">0</b></span
+        ><button id="undo">撤回</button><button id="newGame">新局</button>
+      </div>
+    </header>
+    <section class="table" id="table">
+      <div class="pile stock" id="stock"></div>
+      <div class="pile waste" id="waste"></div>
+      <div class="pile foundation f0" data-f="0">
+        <span class="label">♥</span>
+      </div>
+      <div class="pile foundation f1" data-f="1">
+        <span class="label">♦</span>
+      </div>
+      <div class="pile foundation f2" data-f="2">
+        <span class="label">♣</span>
+      </div>
+      <div class="pile foundation f3" data-f="3">
+        <span class="label">♠</span>
+      </div>
+    </section>
+  </main>
+  <script>
+    const suits = ["♥", "♦", "♣", "♠"],
+      red = (s) => s < 2;
+    let q,
+      sel = null,
+      hist = [];
+    const $ = (x) => document.getElementById(x);
+    function fresh() {
+      let d = [];
+      for (let s = 0; s < 4; s++)
+        for (let n = 1; n <= 13; n++) d.push({ s, n, up: false });
+      for (let i = d.length - 1; i; i--) {
+        let j = Math.floor(Math.random() * (i + 1));
+        [d[i], d[j]] = [d[j], d[i]];
+      }
+      let tabs = Array.from({ length: 7 }, () => []);
+      for (let i = 0; i < 7; i++)
+        for (let j = 0; j <= i; j++) {
+          let c = d.pop();
+          c.up = j === i;
+          tabs[i].push(c);
+        }
+      return {
+        stock: d,
+        waste: [],
+        f: [[], [], [], []],
+        tabs,
+        score: 0,
+        moves: 0,
+        streak: +localStorage.getItem("solitaire_streak") || 0,
+      };
+    }
+    function clone() {
+      return JSON.parse(JSON.stringify(q));
+    }
+    function snap() {
+      hist.push(clone());
+      hist = hist.slice(-60);
+    }
+    function val(n) {
+      return n === 1
+        ? "A"
+        : n === 11
+          ? "J"
+          : n === 12
+            ? "Q"
+            : n === 13
+              ? "K"
+              : n;
+    }
+    function source() {
+      if (!sel) return null;
+      if (sel.kind === "w") return q.waste.slice(-1);
+      if (sel.kind === "t") return q.tabs[sel.i].slice(sel.k);
+      if (sel.kind === "f") return q.f[sel.i].slice(-1);
+    }
+    function validTab(cards, i) {
+      let top = q.tabs[i].at(-1),
+        c = cards[0];
+      return top
+        ? top.up && red(top.s) !== red(c.s) && top.n === c.n + 1
+        : c.n === 13;
+    }
+    function validF(c, i) {
+      let top = q.f[i].at(-1);
+      return c.s === i && (!top ? c.n === 1 : top.n === c.n - 1);
+    }
+    function removeSel() {
+      if (sel.kind === "w") q.waste.pop();
+      if (sel.kind === "t") {
+        q.tabs[sel.i].splice(sel.k);
+        let t = q.tabs[sel.i].at(-1);
+        if (t && !t.up) {
+          t.up = true;
+          q.score += 5;
+        }
+      }
+      if (sel.kind === "f") q.f[sel.i].pop();
+    }
+    function moveTab(i) {
+      let a = source();
+      if (!a || !validTab(a, i) || (sel.kind === "t" && sel.i === i)) return;
+      snap();
+      removeSel();
+      q.tabs[i].push(...a);
+      q.moves++;
+      q.score += 5;
+      sel = null;
+      win();
+      draw();
+    }
+    function moveF(i) {
+      let a = source();
+      if (!a || a.length !== 1 || !validF(a[0], i)) return;
+      snap();
+      removeSel();
+      q.f[i].push(a[0]);
+      q.moves++;
+      q.score += 10;
+      sel = null;
+      win();
+      draw();
+    }
+    function choose(kind, i, k) {
+      if (sel) {
+        if (kind === "t") return moveTab(i);
+        if (kind === "f") return moveF(i);
+      }
+      sel = { kind, i, k };
+      draw();
+    }
+    function card(c, top, click, dbl) {
+      let e = document.createElement("div");
+      e.className = "card " + (!c.up ? "back" : red(c.s) ? "red" : "");
+      e.style.top = top + "px";
+      if (c.up)
+        e.innerHTML = `${val(c.n)}${suits[c.s]}<div style="font-size:34px;text-align:center">${suits[c.s]}</div>`;
+      e.onclick = (x) => {
+        x.stopPropagation();
+        click();
+      };
+      if (dbl)
+        e.ondblclick = (x) => {
+          x.stopPropagation();
+          dbl();
+        };
+      return e;
+    }
+    function auto(kind, i, k) {
+      sel = { kind, i, k };
+      let a = source();
+      if (a) moveF(a[0].s);
+    }
+    function draw() {
+      score.textContent = q.score;
+      moves.textContent = q.moves;
+      streak.textContent = q.streak;
+      stock.innerHTML = q.stock.length
+        ? '<div class="card back"></div>'
+        : '<span class="label">↻</span>';
+      waste.innerHTML = "";
+      q.waste.slice(-3).forEach((c, j, a) =>
+        waste.append(
+          card(
+            c,
+            j * 15,
+            () => choose("w"),
+            () => auto("w"),
+          ),
+        ),
+      );
+      document.querySelectorAll(".foundation").forEach((p, i) => {
+        p.querySelectorAll(".card").forEach((x) => x.remove());
+        let c = q.f[i].at(-1);
+        if (c) {
+          let e = card(c, 0, () => choose("f", i), null);
+          if (sel?.kind === "f" && sel.i === i) e.classList.add("sel");
+          p.append(e);
+        }
+        p.onclick = () => moveF(i);
+      });
+      document.querySelectorAll(".tab").forEach((x) => x.remove());
+      q.tabs.forEach((a, i) => {
+        let p = document.createElement("div");
+        p.className = "pile tab";
+        p.onclick = () => moveTab(i);
+        a.forEach((c, k) => {
+          let y = a.slice(0, k).reduce((v, x) => v + (x.up ? 30 : 14), 0),
+            e = card(
+              c,
+              y,
+              () => c.up && choose("t", i, k),
+              () => c.up && k === a.length - 1 && auto("t", i, k),
+            );
+          if (sel?.kind === "t" && sel.i === i && sel.k === k)
+            e.classList.add("sel");
+          p.append(e);
+        });
+        table.append(p);
+      });
+      save();
+    }
+    function save() {
+      localStorage.setItem("solitaire_active", JSON.stringify(q));
+    }
+    function win() {
+      if (q.f.every((x) => x.length === 13)) {
+        q.streak++;
+        localStorage.setItem("solitaire_streak", q.streak);
+        setTimeout(
+          () => alert(`完成！本局 ${q.moves} 步，连胜 ${q.streak}`),
+          50,
+        );
+      }
+    }
+    stock.onclick = () => {
+      snap();
+      sel = null;
+      if (q.stock.length) {
+        let n = Math.min(3, q.stock.length);
+        while (n--) {
+          let c = q.stock.pop();
+          c.up = true;
+          q.waste.push(c);
+        }
+      } else {
+        q.stock = q.waste.reverse().map((c) => ({ ...c, up: false }));
+        q.waste = [];
+        q.score = Math.max(0, q.score - 20);
+      }
+      q.moves++;
+      draw();
+    };
+    undo.onclick = () => {
+      if (hist.length) {
+        q = hist.pop();
+        sel = null;
+        draw();
+      }
+    };
+    newGame.onclick = () => {
+      if (confirm("开始一局新牌？")) {
+        q = fresh();
+        hist = [];
+        draw();
+      }
+    };
+    try {
+      q = JSON.parse(localStorage.getItem("solitaire_active")) || fresh();
+    } catch {
+      q = fresh();
+    }
+    draw();
+  </script>
+</html>

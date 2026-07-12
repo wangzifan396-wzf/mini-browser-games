@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>仓库推箱</title
+  ><style>
+    body {
+      margin: 0;
+      background: #171615;
+      color: #fff8e8;
+      font-family: system-ui;
+    }
+    .app {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 12px;
+    }
+    .shell {
+      padding: 15px;
+      border: 1px solid #73634c;
+      border-radius: 18px;
+      background: #29251f;
+    }
+    .top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .board {
+      display: grid;
+      gap: 3px;
+      margin-top: 12px;
+    }
+    .c {
+      width: min(8vw, 48px);
+      aspect-ratio: 1;
+      border-radius: 4px;
+      background: #3d372e;
+      display: grid;
+      place-items: center;
+      font-size: 24px;
+    }
+    .wall {
+      background: #766b59;
+    }
+    .goal {
+      box-shadow: inset 0 0 0 4px #ffd76b;
+    }
+    .box {
+      background: #a96b3d;
+    }
+    .player {
+      background: #5bbce5;
+      border-radius: 50%;
+    }
+    .row {
+      display: flex;
+      gap: 6px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    button {
+      padding: 9px;
+      border: 1px solid #8c795e;
+      border-radius: 8px;
+      background: #4b4134;
+      color: white;
+      font-weight: bold;
+    }
+    .pad {
+      display: grid;
+      grid-template-columns: repeat(3, 45px);
+    }
+    .pad button:first-child {
+      grid-column: 2;
+    }
+    .pad button:nth-child(2) {
+      grid-row: 2;
+      grid-column: 1;
+    }
+    .pad button:nth-child(3) {
+      grid-row: 2;
+      grid-column: 2;
+    }
+    .pad button:nth-child(4) {
+      grid-row: 2;
+      grid-column: 3;
+    }
+    .msg {
+      color: #dbc8aa;
+    }
+    @media (max-width: 650px) {
+      .app {
+        place-items: start center;
+      }
+    }
+  </style>
+  <main class="app">
+    <div class="shell">
+      <div class="top">
+        <div>
+          <h1>仓库推箱</h1>
+          <div class="msg" id="msg"></div>
+        </div>
+        <div>关卡 <b id="lv">1</b>　步数 <b id="steps">0</b></div>
+      </div>
+      <div class="board" id="b"></div>
+      <div class="row">
+        <button id="undo">撤回</button><button id="resetBtn">重开</button
+        ><button id="prev">上一关</button><button id="next">下一关</button>
+      </div>
+      <div class="pad">
+        <button data-d="0,-1">▲</button><button data-d="-1,0">◀</button
+        ><button data-d="0,1">▼</button><button data-d="1,0">▶</button>
+      </div>
+    </div>
+  </main>
+  <script>
+    const levels = [
+      ["#######", "#..g..#", "#..b..#", "#..p..#", "#######"],
+      ["########", "#..g...#", "#..b#..#", "#.b.gp.#", "#......#", "########"],
+      ["########", "#g..#..#", "#b..#..#", "#...b.g#", "#..p...#", "########"],
+      ["########", "#..gg..#", "#..bb..#", "#.####.#", "#...p..#", "########"],
+      [
+        "#########",
+        "#g..#..g#",
+        "#b..#..b#",
+        "#...p...#",
+        "#.......#",
+        "#########",
+      ],
+      [
+        "#########",
+        "#..g.g..#",
+        "#..b.b..#",
+        "#...#...#",
+        "#...p...#",
+        "#########",
+      ],
+      [
+        "#########",
+        "#g.....g#",
+        "#b.###.b#",
+        "#...p...#",
+        "#.......#",
+        "#########",
+      ],
+      [
+        "##########",
+        "#..g..g..#",
+        "#..b##b..#",
+        "#...p....#",
+        "#........#",
+        "##########",
+      ],
+    ];
+    let q = { lv: 0, h: [] };
+    function load() {
+      let a = levels[q.lv],
+        h = a.length,
+        w = Math.max(...a.map((r) => r.length));
+      q = {
+        lv: q.lv,
+        h: [],
+        w,
+        hh: h,
+        walls: new Set(),
+        goals: new Set(),
+        boxes: new Set(),
+        p: null,
+        steps: 0,
+      };
+      a.forEach((r, y) =>
+        [...r].forEach((v, x) => {
+          let k = x + "," + y;
+          if (v === "#") q.walls.add(k);
+          if (v === "g") q.goals.add(k);
+          if (v === "b") q.boxes.add(k);
+          if (v === "p") q.p = { x, y };
+        }),
+      );
+      msg.textContent = "把所有箱子推到金色目标格";
+      draw();
+    }
+    function snap() {
+      q.h.push({ p: { ...q.p }, boxes: new Set(q.boxes), steps: q.steps });
+    }
+    function move(dx, dy) {
+      let x = q.p.x + dx,
+        y = q.p.y + dy,
+        k = x + "," + y;
+      if (q.walls.has(k)) return;
+      snap();
+      if (q.boxes.has(k)) {
+        let bx = x + dx,
+          by = y + dy,
+          bk = bx + "," + by;
+        if (q.walls.has(bk) || q.boxes.has(bk)) {
+          q.h.pop();
+          return;
+        }
+        q.boxes.delete(k);
+        q.boxes.add(bk);
+      }
+      q.p = { x, y };
+      q.steps++;
+      if ([...q.boxes].every((x) => q.goals.has(x))) {
+        msg.textContent = "完成！可以进入下一关";
+        localStorage.setItem(
+          "sokoban_unlock",
+          Math.max(+localStorage.getItem("sokoban_unlock") || 1, q.lv + 2),
+        );
+      }
+      draw();
+    }
+    function draw() {
+      b.style.gridTemplateColumns = `repeat(${q.w},1fr)`;
+      b.innerHTML = "";
+      for (let y = 0; y < q.hh; y++)
+        for (let x = 0; x < q.w; x++) {
+          let k = x + "," + y,
+            d = document.createElement("div");
+          d.className =
+            "c " +
+            (q.walls.has(k) ? "wall " : "") +
+            (q.goals.has(k) ? "goal " : "") +
+            (q.boxes.has(k) ? "box " : "") +
+            (q.p.x === x && q.p.y === y ? "player" : "");
+          d.textContent = q.boxes.has(k)
+            ? "箱"
+            : q.p.x === x && q.p.y === y
+              ? "人"
+              : "";
+          b.append(d);
+        }
+      lv.textContent = q.lv + 1;
+      steps.textContent = q.steps;
+    }
+    function dir(dx, dy) {
+      move(dx, dy);
+    }
+    addEventListener("keydown", (e) => {
+      let m = {
+        ArrowUp: [0, -1],
+        KeyW: [0, -1],
+        ArrowDown: [0, 1],
+        KeyS: [0, 1],
+        ArrowLeft: [-1, 0],
+        KeyA: [-1, 0],
+        ArrowRight: [1, 0],
+        KeyD: [1, 0],
+      };
+      if (m[e.code]) move(...m[e.code]);
+      if (e.code === "KeyZ") undo.click();
+    });
+    document
+      .querySelectorAll("[data-d]")
+      .forEach(
+        (e) => (e.onclick = () => dir(...e.dataset.d.split(",").map(Number))),
+      );
+    undo.onclick = () => {
+      let s = q.h.pop();
+      if (s) {
+        q.p = s.p;
+        q.boxes = s.boxes;
+        q.steps = s.steps;
+        draw();
+      }
+    };
+    resetBtn.onclick = load;
+    prev.onclick = () => {
+      q.lv = Math.max(0, q.lv - 1);
+      load();
+    };
+    next.onclick = () => {
+      let u = +localStorage.getItem("sokoban_unlock") || 1;
+      if (q.lv + 1 < u) {
+        q.lv = Math.min(levels.length - 1, q.lv + 1);
+        load();
+      }
+    };
+    load();
+  </script>
+</html>

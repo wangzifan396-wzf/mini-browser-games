@@ -1,0 +1,538 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>符文自走棋</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #0b1020;
+      color: #eef2ff;
+      font-family: system-ui, "Microsoft YaHei";
+    }
+    .app {
+      min-height: 100vh;
+      padding: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .shell {
+      width: min(1050px, 100%);
+      background: #121b32;
+      border: 1px solid #34466c;
+      border-radius: 20px;
+      padding: 16px;
+      box-shadow: 0 18px 60px #0008;
+    }
+    .top,
+    .actions,
+    .shop,
+    .bench {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .top {
+      justify-content: space-between;
+    }
+    .stats {
+      display: flex;
+      gap: 12px;
+      color: #bdc9e8;
+    }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+      margin: 14px 0;
+    }
+    .cell {
+      height: 72px;
+      border: 1px solid #31466f;
+      background: #182745;
+      border-radius: 9px;
+      display: grid;
+      place-items: center;
+      position: relative;
+      min-width: 38px;
+    }
+    .cell.enemy {
+      background: #321d37;
+    }
+    .cell:nth-child(2n) {
+      filter: brightness(1.08);
+    }
+    .unit {
+      width: 90%;
+      height: 90%;
+      display: grid;
+      place-items: center;
+      border-radius: 9px;
+      background: #263f69;
+      cursor: pointer;
+      position: relative;
+      font-size: 25px;
+    }
+    .unit.enemy {
+      background: #67334b;
+    }
+    .unit.sel {
+      outline: 3px solid #ffd568;
+    }
+    .unit small {
+      position: absolute;
+      bottom: 1px;
+      font-size: 10px;
+    }
+    .unit b {
+      position: absolute;
+      top: 1px;
+      right: 3px;
+      color: #ffd568;
+      font-size: 12px;
+    }
+    .hp {
+      position: absolute;
+      left: 5%;
+      right: 5%;
+      bottom: -4px;
+      height: 4px;
+      background: #172033;
+    }
+    .hp i {
+      display: block;
+      height: 100%;
+      background: #63e49a;
+    }
+    .panel {
+      border: 1px solid #2d4268;
+      border-radius: 13px;
+      background: #0f1930;
+      padding: 10px;
+    }
+    .shop {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      margin-top: 8px;
+    }
+    .offer {
+      padding: 8px;
+      border: 1px solid #3d5b8c;
+      border-radius: 10px;
+      background: #1b2e51;
+      color: white;
+      min-height: 70px;
+    }
+    .offer:disabled {
+      opacity: 0.4;
+    }
+    .bench {
+      margin-top: 8px;
+    }
+    .slot {
+      width: 64px;
+      height: 64px;
+      border: 1px dashed #4c6387;
+      border-radius: 9px;
+      display: grid;
+      place-items: center;
+    }
+    .actions {
+      margin-top: 10px;
+    }
+    button {
+      border: 1px solid #4e6fa2;
+      border-radius: 9px;
+      background: #244879;
+      color: white;
+      padding: 9px 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    button:hover {
+      filter: brightness(1.15);
+    }
+    #fight {
+      background: #a64a55;
+    }
+    .log {
+      height: 76px;
+      overflow: auto;
+      color: #b6c8e8;
+      font-size: 13px;
+      margin-top: 8px;
+    }
+    .tag {
+      padding: 4px 8px;
+      border-radius: 20px;
+      background: #22385e;
+      font-size: 12px;
+    }
+    .help {
+      color: #91a4c7;
+      font-size: 13px;
+    }
+    @media (max-width: 650px) {
+      .shop {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .board {
+        gap: 2px;
+      }
+      .cell {
+        min-width: 0;
+        height: 52px;
+      }
+      .unit {
+        font-size: 18px;
+      }
+      .stats {
+        font-size: 12px;
+        gap: 6px;
+      }
+    }
+  </style>
+  <main class="app">
+    <section class="shell">
+      <div class="top">
+        <div>
+          <h1 style="margin: 0">符文自走棋</h1>
+          <div class="help">
+            购买英雄 → 点击英雄再点击己方格部署；凑齐 3 个同名自动升星
+          </div>
+        </div>
+        <div class="stats">
+          <span>❤️ <b id="life">100</b></span
+          ><span>💰 <b id="gold">10</b></span
+          ><span>等级 <b id="level">2</b></span
+          ><span>回合 <b id="round">1</b></span>
+        </div>
+      </div>
+      <div id="traits" class="actions"></div>
+      <div id="board" class="board"></div>
+      <div class="panel">
+        <b>备战席</b>
+        <div id="bench" class="bench"></div>
+        <div class="shop" id="shop"></div>
+        <div class="actions">
+          <button id="reroll">刷新商店（2）</button
+          ><button id="xp">研习经验（4）</button
+          ><button id="sell">出售选中</button
+          ><button id="fight">开始战斗</button
+          ><button id="restart">新赛季</button>
+        </div>
+        <div id="log" class="log"></div>
+      </div>
+    </section>
+  </main>
+  <script>
+    const D = [
+      ["盾卫", "🛡️", "守卫", 55, 7],
+      ["剑客", "⚔️", "战士", 42, 11],
+      ["游侠", "🏹", "游侠", 34, 13],
+      ["火法", "🔥", "法师", 30, 16],
+      ["医师", "💚", "秘术", 36, 7],
+      ["狼骑", "🐺", "战士", 45, 12],
+      ["冰女", "❄️", "法师", 31, 15],
+      ["枪手", "🔫", "游侠", 33, 14],
+      ["树灵", "🌳", "守卫", 62, 6],
+      ["雷君", "⚡", "秘术", 40, 18],
+    ].map((x, id) => ({ id, n: x[0], ic: x[1], t: x[2], hp: x[3], atk: x[4] }));
+    let q,
+      selected = null,
+      timer = null;
+    const $ = (x) => document.getElementById(x);
+    function fresh() {
+      return {
+        life: 100,
+        gold: 10,
+        lv: 2,
+        xp: 0,
+        round: 1,
+        units: [],
+        shop: [],
+        log: ["新赛季开始：先布置阵容。"],
+      };
+    }
+    function save() {
+      localStorage.setItem("auto_chess_save", JSON.stringify(q));
+    }
+    function load() {
+      try {
+        q = JSON.parse(localStorage.getItem("auto_chess_save")) || fresh();
+      } catch {
+        q = fresh();
+      }
+      roll(true);
+      draw();
+    }
+    function cap() {
+      return q.lv;
+    }
+    function roll(free = false) {
+      if (!free) {
+        if (q.gold < 2) return say("金币不足");
+        q.gold -= 2;
+      }
+      q.shop = Array.from({ length: 5 }, () =>
+        Math.floor(Math.random() * Math.min(D.length, 4 + q.lv)),
+      );
+      save();
+      draw();
+    }
+    function say(s) {
+      q.log.unshift(s);
+      q.log = q.log.slice(0, 10);
+    }
+    function buy(i) {
+      if (q.gold < 1 || q.units.length >= 15)
+        return say(q.gold < 1 ? "金币不足" : "备战席已满");
+      q.gold--;
+      q.units.push({ id: q.shop[i], star: 1, pos: null });
+      q.shop.splice(i, 1, -1);
+      merge();
+      save();
+      draw();
+    }
+    function merge() {
+      for (let id = 0; id < D.length; id++)
+        for (let star = 1; star < 3; star++) {
+          let a = q.units.filter((u) => u.id === id && u.star === star);
+          while (a.length >= 3) {
+            let keep = a[0],
+              gone = a.slice(1, 3);
+            keep.star++;
+            q.units = q.units.filter((u) => !gone.includes(u));
+            say(`${D[id].n} 合成 ${keep.star} 星！`);
+            a = q.units.filter((u) => u.id === id && u.star === star);
+          }
+        }
+    }
+    function place(idx, pos) {
+      let u = q.units[idx];
+      if (!u) return;
+      if (pos >= 21) {
+        let occupying = q.units.find((x) => x.pos === pos);
+        let deployed = q.units.filter((x) => x.pos !== null).length;
+        if (u.pos === null && !occupying && deployed >= cap()) {
+          say(`当前等级最多上阵 ${cap()} 名英雄`);
+          draw();
+          return;
+        }
+        if (occupying) occupying.pos = u.pos;
+        u.pos = pos;
+      } else u.pos = null;
+      selected = null;
+      save();
+      draw();
+    }
+    function enemyTeam() {
+      let n = Math.min(7, 2 + Math.floor(q.round / 2)),
+        ids = [];
+      for (let i = 0; i < n; i++)
+        ids.push({
+          id: Math.floor(
+            Math.random() * Math.min(D.length, 3 + Math.floor(q.round / 2)),
+          ),
+          star: 1 + +(q.round > 5 && Math.random() < 0.28),
+          pos: i,
+        });
+      return ids;
+    }
+    function battle() {
+      let ours = q.units.filter((u) => u.pos !== null);
+      if (!ours.length) return say("至少部署一名英雄");
+      if (timer) return;
+      let enemies = enemyTeam(),
+        A = ours.map((u) => fighter(u, false)),
+        B = enemies.map((u) => fighter(u, true));
+      $("fight").disabled = true;
+      say(`第 ${q.round} 回合交锋！`);
+      drawBattle(A, B);
+      timer = setInterval(() => {
+        let aliveA = A.filter((x) => x.hp > 0),
+          aliveB = B.filter((x) => x.hp > 0);
+        if (!aliveA.length || !aliveB.length) {
+          clearInterval(timer);
+          timer = null;
+          let win = aliveA.length > 0;
+          if (win) {
+            q.gold += 5 + Math.min(5, Math.floor(q.round / 3));
+            say("胜利！获得回合金币。");
+          } else {
+            let dmg = Math.max(4, aliveB.length * 3);
+            q.life -= dmg;
+            say(`败北，受到 ${dmg} 点伤害。`);
+          }
+          q.round++;
+          if (q.round % 3 === 0 && q.lv < 8) q.gold += 2;
+          q.gold += 2;
+          roll(true);
+          $("fight").disabled = false;
+          if (q.life <= 0) {
+            say("赛季结束，点击“新赛季”再来。");
+            $("fight").disabled = true;
+          }
+          save();
+          draw();
+          return;
+        }
+        for (const x of [...aliveA, ...aliveB]) {
+          x.cd--;
+          if (x.cd <= 0) {
+            let targets = x.enemy ? aliveA : aliveB,
+              t = targets[Math.floor(Math.random() * targets.length)],
+              def = D[t.id],
+              dmg = Math.max(
+                1,
+                Math.round(
+                  D[x.id].atk * Math.pow(1.7, x.star - 1) * (x.buff || 1) -
+                    (def.t === "守卫" ? 3 : 0),
+                ),
+              );
+            t.hp -= dmg;
+            if (D[x.id].t === "秘术") {
+              let team = x.enemy ? aliveB : aliveA,
+                low = team.sort((a, b) => a.hp - b.hp)[0];
+              low.hp = Math.min(low.max, low.hp + 5 * x.star);
+            }
+            x.cd = D[x.id].t === "游侠" ? 1 : 2;
+          }
+        }
+        drawBattle(A, B);
+      }, 550);
+    }
+    function fighter(u, enemy) {
+      let d = D[u.id],
+        mul = Math.pow(1.75, u.star - 1),
+        same = q.units.filter(
+          (x) => x.pos !== null && D[x.id].t === d.t,
+        ).length,
+        buff = same >= 4 ? 1.35 : same >= 2 ? 1.15 : 1;
+      return {
+        ...u,
+        enemy,
+        max: Math.round(d.hp * mul),
+        hp: Math.round(d.hp * mul),
+        cd: 1,
+        buff,
+      };
+    }
+    function drawBattle(A, B) {
+      let cells = [...$("board").children];
+      cells.forEach((c) => (c.innerHTML = ""));
+      B.forEach((u, i) => renderUnit(u, cells[i], true, i));
+      A.forEach((u) =>
+        renderUnit(
+          u,
+          cells[u.pos],
+          false,
+          q.units.findIndex((x) => x.id === u.id && x.pos === u.pos),
+        ),
+      );
+    }
+    function renderUnit(u, cell, enemy, idx) {
+      if (!cell) return;
+      let d = D[u.id],
+        el = document.createElement("div");
+      el.className =
+        "unit " + (enemy ? "enemy " : "") + (selected === idx ? "sel" : "");
+      el.innerHTML = `${d.ic}<b>${"★".repeat(u.star)}</b><small>${d.n}</small>${u.hp !== undefined ? `<span class="hp"><i style="width:${Math.max(0, (u.hp / u.max) * 100)}%"></i></span>` : ""}`;
+      if (!enemy)
+        el.onclick = (e) => {
+          e.stopPropagation();
+          selected = idx;
+          draw();
+        };
+      cell.append(el);
+    }
+    function draw() {
+      if (timer) return;
+      $("life").textContent = q.life;
+      $("gold").textContent = q.gold;
+      $("level").textContent = `${q.lv} (${q.xp}/${q.lv * 4})`;
+      $("round").textContent = q.round;
+      let b = $("board");
+      b.innerHTML = "";
+      for (let i = 0; i < 42; i++) {
+        let c = document.createElement("div");
+        c.className = "cell " + (i < 21 ? "enemy" : "");
+        if (i >= 21) c.onclick = () => selected !== null && place(selected, i);
+        b.append(c);
+      }
+      q.units.forEach((u, i) => {
+        if (u.pos !== null) renderUnit(u, b.children[u.pos], false, i);
+      });
+      let be = $("bench");
+      be.innerHTML = "";
+      q.units.forEach((u, i) => {
+        if (u.pos === null) {
+          let s = document.createElement("div");
+          s.className = "slot";
+          renderUnit(u, s, false, i);
+          be.append(s);
+        }
+      });
+      while (be.children.length < 8)
+        be.insertAdjacentHTML("beforeend", '<div class="slot"></div>');
+      $("shop").innerHTML = q.shop
+        .map((id, i) =>
+          id < 0
+            ? '<button class="offer" disabled>已购买</button>'
+            : `<button class="offer" data-i="${i}">${D[id].ic}<br><b>${D[id].n}</b><br><small>${D[id].t} · 1 金</small></button>`,
+        )
+        .join("");
+      $("shop")
+        .querySelectorAll("[data-i]")
+        .forEach((x) => (x.onclick = () => buy(+x.dataset.i)));
+      let counts = {};
+      q.units
+        .filter((u) => u.pos !== null)
+        .forEach((u) => (counts[D[u.id].t] = (counts[D[u.id].t] || 0) + 1));
+      $("traits").innerHTML = Object.entries(counts)
+        .map(
+          ([k, v]) =>
+            `<span class="tag">${k} ${v}${v >= 2 ? " · 已激活" : ""}</span>`,
+        )
+        .join("");
+      $("log").innerHTML = q.log.map((x) => `<div>• ${x}</div>`).join("");
+      $("fight").disabled = q.life <= 0;
+    }
+    reroll.onclick = () => roll();
+    xp.onclick = () => {
+      if (q.gold < 4) return say("金币不足");
+      q.gold -= 4;
+      q.xp += 4;
+      if (q.xp >= q.lv * 4 && q.lv < 8) {
+        q.xp -= q.lv * 4;
+        q.lv++;
+        say(`升到 ${q.lv} 级，人口上限提高！`);
+      }
+      save();
+      draw();
+    };
+    sell.onclick = () => {
+      if (selected === null) return;
+      let u = q.units[selected];
+      q.gold += u.star;
+      q.units.splice(selected, 1);
+      selected = null;
+      save();
+      draw();
+    };
+    fight.onclick = battle;
+    restart.onclick = () => {
+      if (confirm("确定开启新赛季？")) {
+        q = fresh();
+        save();
+        roll(true);
+      }
+    };
+    load();
+  </script>
+</html>

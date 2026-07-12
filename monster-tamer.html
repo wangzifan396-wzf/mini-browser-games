@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>灵兽远征</title
+  ><style>
+    body {
+      margin: 0;
+      background: #101827;
+      color: #eef8ff;
+      font-family: system-ui, "Microsoft YaHei";
+    }
+    .app {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 12px;
+    }
+    .shell {
+      width: min(920px, 100%);
+      padding: 16px;
+      border: 1px solid #405e82;
+      border-radius: 18px;
+      background: #18283b;
+    }
+    .top,
+    .battle {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .card {
+      padding: 12px;
+      border: 1px solid #3c5b79;
+      border-radius: 12px;
+      background: #132235;
+    }
+    .beast {
+      text-align: center;
+    }
+    .beast .icon {
+      font-size: 70px;
+    }
+    .hp {
+      height: 9px;
+      background: #253d54;
+      border-radius: 9px;
+      overflow: hidden;
+    }
+    .hp i {
+      display: block;
+      height: 100%;
+      background: #64e896;
+    }
+    .moves,
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 10px;
+    }
+    button {
+      padding: 10px;
+      border: 1px solid #5486aa;
+      border-radius: 9px;
+      background: #234b69;
+      color: white;
+      font-weight: bold;
+    }
+    .log {
+      height: 120px;
+      overflow: auto;
+      color: #b9d0e1;
+    }
+    .team {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+    }
+    .chip {
+      padding: 7px;
+      border: 1px solid #456a88;
+      border-radius: 8px;
+    }
+    .type-fire {
+      color: #ff846a;
+    }
+    .type-water {
+      color: #68d9ff;
+    }
+    .type-leaf {
+      color: #76e995;
+    }
+    @media (max-width: 650px) {
+      .top,
+      .battle {
+        grid-template-columns: 1fr;
+      }
+      .beast .icon {
+        font-size: 48px;
+      }
+    }
+  </style>
+  <main class="app">
+    <div class="shell">
+      <div class="top">
+        <div>
+          <h1>灵兽远征</h1>
+          <div id="stage">区域 1 · 晨露原野</div>
+        </div>
+        <div class="card">
+          金币 <b id="coins">100</b>　图鉴 <b id="dex">1/9</b>
+          <div class="team" id="team"></div>
+        </div>
+      </div>
+      <div class="battle">
+        <section class="card beast">
+          <div class="icon" id="pIcon">🌱</div>
+          <h2 id="pName">芽团</h2>
+          <div class="hp"><i id="pHp"></i></div>
+          <small id="pStat"></small>
+        </section>
+        <section class="card beast">
+          <div class="icon" id="eIcon">🔥</div>
+          <h2 id="eName">焰仔</h2>
+          <div class="hp"><i id="eHp"></i></div>
+          <small id="eStat"></small>
+        </section>
+      </div>
+      <div class="moves" id="moves"></div>
+      <div class="row">
+        <button id="capture">投掷灵球（20）</button
+        ><button id="switchBtn">切换队伍</button
+        ><button id="heal">营地治疗（30）</button
+        ><button id="next">寻找灵兽</button>
+      </div>
+      <div class="card log" id="log"></div>
+    </div>
+  </main>
+  <script>
+    const defs = [
+      ["芽团", "🌱", "leaf", 80, 15],
+      ["焰仔", "🔥", "fire", 72, 18],
+      ["水灵", "💧", "water", 86, 14],
+      ["雷雀", "⚡", "light", 68, 21],
+      ["岩龟", "🪨", "rock", 105, 12],
+      ["霜狐", "❄️", "ice", 74, 19],
+      ["月猫", "🌙", "dark", 78, 18],
+      ["光鹿", "✨", "light", 90, 17],
+      ["龙芽", "🐲", "fire", 125, 24],
+    ].map((a, i) => ({
+      id: i,
+      name: a[0],
+      icon: a[1],
+      type: a[2],
+      max: a[3],
+      atk: a[4],
+    }));
+    const strong = {
+      fire: "leaf",
+      leaf: "water",
+      water: "fire",
+      light: "dark",
+      dark: "light",
+      ice: "leaf",
+      rock: "fire",
+    };
+    let q = load();
+    function load() {
+      try {
+        return (
+          JSON.parse(localStorage.getItem("monster_tamer_save")) || fresh()
+        );
+      } catch {
+        return fresh();
+      }
+    }
+    function fresh() {
+      return {
+        stage: 1,
+        coins: 100,
+        owned: [{ id: 0, hp: 80, lv: 1, xp: 0 }],
+        active: 0,
+        enemy: null,
+        log: [],
+      };
+    }
+    function save() {
+      localStorage.setItem("monster_tamer_save", JSON.stringify(q));
+    }
+    function enemy() {
+      let max = Math.min(defs.length - 1, 2 + Math.floor(q.stage / 2)),
+        id =
+          q.stage % 5 === 0
+            ? Math.min(8, 4 + q.stage / 5)
+            : Math.floor(Math.random() * (max + 1)),
+        d = defs[id],
+        lv = 1 + Math.floor(q.stage / 2);
+      q.enemy = { id, hp: d.max + lv * 8, max: d.max + lv * 8, lv };
+      say(`野生${d.name}出现了！`);
+      draw();
+    }
+    function active() {
+      return q.owned[q.active];
+    }
+    function attack(power, type) {
+      if (!q.enemy) return;
+      let a = active(),
+        pd = defs[a.id],
+        ed = defs[q.enemy.id],
+        mult =
+          strong[type] === ed.type ? 1.6 : strong[ed.type] === type ? 0.72 : 1,
+        damage = Math.round(
+          (pd.atk + a.lv * 3) * power * mult * (0.85 + Math.random() * 0.3),
+        );
+      q.enemy.hp -= damage;
+      say(`${pd.name}造成 ${damage} 伤害${mult > 1 ? "，效果拔群！" : ""}`);
+      if (q.enemy.hp <= 0) return win();
+      let back = Math.round(
+        (ed.atk + q.enemy.lv * 2) * (0.8 + Math.random() * 0.35),
+      );
+      a.hp -= back;
+      say(`${ed.name}反击造成 ${back} 伤害`);
+      if (a.hp <= 0) {
+        a.hp = 0;
+        let n = q.owned.findIndex((x) => x.hp > 0);
+        if (n < 0) {
+          say("队伍失去战斗能力，已返回营地");
+          q.owned.forEach((x) => (x.hp = defs[x.id].max + x.lv * 8));
+          q.coins = Math.max(0, q.coins - 20);
+          q.enemy = null;
+        } else q.active = n;
+      }
+      draw();
+      save();
+    }
+    function win() {
+      let a = active();
+      q.coins += 25 + q.stage * 3;
+      a.xp += 20;
+      if (a.xp >= a.lv * 30) {
+        a.xp = 0;
+        a.lv++;
+        a.hp = defs[a.id].max + a.lv * 8;
+        say(`${defs[a.id].name}升到 Lv.${a.lv}`);
+      }
+      say("战斗胜利，获得金币");
+      q.stage++;
+      q.enemy = null;
+      save();
+      draw();
+    }
+    function say(t) {
+      q.log.unshift(t);
+      q.log = q.log.slice(0, 10);
+    }
+    function draw() {
+      let a = active(),
+        pd = defs[a.id],
+        e = q.enemy,
+        ed = e ? defs[e.id] : null;
+      stage.textContent = `区域 ${q.stage} · ${q.stage % 5 === 0 ? "道馆挑战" : "远征野地"}`;
+      coins.textContent = q.coins;
+      dex.textContent = `${q.owned.length}/9`;
+      pIcon.textContent = pd.icon;
+      pName.textContent = pd.name;
+      pStat.textContent = `${pd.type} · Lv.${a.lv} · ${a.hp}/${pd.max + a.lv * 8}`;
+      pHp.style.width = `${(a.hp / (pd.max + a.lv * 8)) * 100}%`;
+      eIcon.textContent = ed ? ed.icon : "❔";
+      eName.textContent = ed ? ed.name : "等待探索";
+      eStat.textContent = e
+        ? `${ed.type} · Lv.${e.lv} · ${Math.max(0, e.hp)}/${e.max}`
+        : "";
+      eHp.style.width = e ? `${(Math.max(0, e.hp) / e.max) * 100}%` : "0";
+      team.innerHTML = q.owned
+        .map(
+          (x, i) =>
+            `<button class="chip" data-i="${i}" ${x.hp <= 0 ? "disabled" : ""}>${defs[x.id].icon} Lv.${x.lv}${i === q.active ? " ✓" : ""}</button>`,
+        )
+        .join("");
+      team.querySelectorAll("button").forEach(
+        (b) =>
+          (b.onclick = () => {
+            q.active = +b.dataset.i;
+            draw();
+          }),
+      );
+      moves.innerHTML = [
+        ["普通攻击", 1, pd.type],
+        ["强力技能", 1.45, pd.type],
+        ["守势反击", 0.8, "rock"],
+      ]
+        .map((m, i) => `<button data-i="${i}">${m[0]}</button>`)
+        .join("");
+      moves
+        .querySelectorAll("button")
+        .forEach(
+          (b, i) =>
+            (b.onclick = () =>
+              attack([1, 1.45, 0.8][i], i === 2 ? "rock" : pd.type)),
+        );
+      log.innerHTML = q.log.map((x) => `<div>• ${x}</div>`).join("");
+    }
+    capture.onclick = () => {
+      if (!q.enemy || q.coins < 20) return;
+      q.coins -= 20;
+      let chance = 0.18 + (1 - q.enemy.hp / q.enemy.max) * 0.7;
+      if (Math.random() < chance) {
+        if (!q.owned.some((x) => x.id === q.enemy.id))
+          q.owned.push({
+            id: q.enemy.id,
+            hp: defs[q.enemy.id].max,
+            lv: q.enemy.lv,
+            xp: 0,
+          });
+        say("捕捉成功！");
+        q.enemy = null;
+        q.stage++;
+      } else {
+        say("灵球被挣脱了！");
+        attack(0, "rock");
+      }
+      draw();
+      save();
+    };
+    switchBtn.onclick = () => {
+      q.active = (q.active + 1) % q.owned.length;
+      draw();
+    };
+    heal.onclick = () => {
+      if (q.coins >= 30) {
+        q.coins -= 30;
+        q.owned.forEach((x) => (x.hp = defs[x.id].max + x.lv * 8));
+        say("队伍已恢复");
+        draw();
+        save();
+      }
+    };
+    next.onclick = () => {
+      if (!q.enemy) enemy();
+    };
+    if (!q.enemy) enemy();
+    draw();
+  </script>
+</html>

@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>烛火地牢</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #08090d;
+      color: #f4ead6;
+      font-family: system-ui, "Microsoft YaHei";
+    }
+    .app {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 10px;
+    }
+    .shell {
+      width: min(940px, 100%);
+    }
+    .top,
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 9px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .bars {
+      display: flex;
+      gap: 10px;
+    }
+    .bar {
+      width: 150px;
+      height: 12px;
+      background: #29232a;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .bar i {
+      display: block;
+      height: 100%;
+      background: #d34f58;
+    }
+    .xp i {
+      background: #7c75e8;
+    }
+    .stage {
+      position: relative;
+      margin-top: 9px;
+    }
+    canvas {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: #11131b;
+      border: 2px solid #54463d;
+      border-radius: 12px;
+      display: block;
+      touch-action: none;
+    }
+    .pad,
+    .skills {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    button {
+      padding: 9px 12px;
+      border: 1px solid #786455;
+      border-radius: 8px;
+      background: #332b2a;
+      color: #fff;
+      font-weight: bold;
+    }
+    .skill {
+      background: #513752;
+    }
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: #05060bd9;
+      display: none;
+      place-items: center;
+      border-radius: 12px;
+    }
+    .overlay.show {
+      display: grid;
+    }
+    .modal {
+      max-width: 650px;
+      text-align: center;
+    }
+    .choices {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 9px;
+    }
+    .choice {
+      padding: 16px;
+      background: #27213a;
+      border: 1px solid #766bb3;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+    .help {
+      font-size: 13px;
+      color: #b8aa9b;
+    }
+    @media (max-width: 650px) {
+      .app {
+        place-items: start center;
+      }
+      .choices {
+        grid-template-columns: 1fr;
+      }
+      .bar {
+        width: 100px;
+      }
+      .top {
+        font-size: 12px;
+      }
+    }
+  </style>
+  <main class="app">
+    <section class="shell">
+      <div class="top">
+        <div>
+          <h1 style="margin: 0">烛火地牢</h1>
+          <div class="help">
+            WASD / 方向键移动，鼠标瞄准，点击或空格攻击，Shift 冲刺，Q
+            释放圣火。
+          </div>
+        </div>
+        <div>
+          第 <b id="floor">1</b> 层 · 房间 <b id="room">1</b>/6　💰
+          <b id="gold">0</b>　最高 <b id="best">1</b> 层
+        </div>
+      </div>
+      <div class="row">
+        <div class="bars">
+          <span
+            >生命
+            <div class="bar"><i id="hpbar"></i></div></span
+          ><span
+            >经验
+            <div class="bar xp"><i id="xpbar"></i></div
+          ></span>
+        </div>
+        <div>Lv.<b id="level">1</b>　敌人 <b id="left">0</b></div>
+      </div>
+      <div class="stage">
+        <canvas id="c" width="960" height="540"></canvas>
+        <div class="overlay" id="overlay">
+          <div class="modal">
+            <h2 id="ovTitle">选择祝福</h2>
+            <div class="choices" id="choices"></div>
+            <button id="restart" style="display: none; margin-top: 12px">
+              重新深入地牢
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="skills">
+        <div class="pad" aria-label="移动方向">
+          <button data-key="KeyW">▲</button>
+          <button data-key="KeyA">◀</button>
+          <button data-key="KeyS">▼</button>
+          <button data-key="KeyD">▶</button>
+        </div>
+        <button class="skill" id="dash">冲刺 Shift</button
+        ><button class="skill" id="nova">圣火 Q</button
+        ><button id="pause">暂停 P</button><span id="msg" class="help"></span>
+      </div>
+    </section>
+  </main>
+  <script>
+    const cv = document.getElementById("c"),
+      x = cv.getContext("2d"),
+      keys = {},
+      mouse = { x: 700, y: 270, down: false };
+    let q,
+      raf,
+      last = 0;
+    const $ = (id) => document.getElementById(id);
+    function fresh() {
+      return {
+        floor: 1,
+        room: 1,
+        gold: 0,
+        lv: 1,
+        xp: 0,
+        need: 35,
+        p: {
+          x: 480,
+          y: 270,
+          hp: 100,
+          max: 100,
+          spd: 175,
+          atk: 18,
+          rate: 0.36,
+          shot: 0,
+          dash: 0,
+          nova: 0,
+          inv: 0,
+        },
+        en: [],
+        bul: [],
+        orbs: [],
+        paused: false,
+        choosing: false,
+      };
+    }
+    function spawn() {
+      q.en = [];
+      let n = 3 + q.floor + Math.floor(q.room / 2);
+      for (let i = 0; i < n; i++) {
+        let a = Math.random() * 6.28,
+          r = 190 + Math.random() * 180,
+          type = q.room === 6 ? 2 : Math.random() < 0.25 ? 1 : 0;
+        q.en.push({
+          x: 480 + Math.cos(a) * r,
+          y: 270 + Math.sin(a) * r,
+          hp: (type === 2 ? 150 : 28 + type * 22) * (1 + q.floor * 0.18),
+          max: (type === 2 ? 150 : 28 + type * 22) * (1 + q.floor * 0.18),
+          spd: type === 1 ? 55 : 70 + q.floor * 3,
+          type,
+          shot: Math.random(),
+        });
+      }
+      msg.textContent =
+        q.room === 6 ? "守门者苏醒了！" : "清理房间，出口才会开启。";
+      hud();
+    }
+    function shoot() {
+      if (q.p.shot > 0 || q.paused || q.choosing) return;
+      let a = Math.atan2(mouse.y - q.p.y, mouse.x - q.p.x);
+      q.bul.push({
+        x: q.p.x,
+        y: q.p.y,
+        vx: Math.cos(a) * 430,
+        vy: Math.sin(a) * 430,
+        d: q.p.atk,
+        foe: false,
+        life: 1.4,
+      });
+      q.p.shot = q.p.rate;
+    }
+    function novaSkill() {
+      if (q.p.nova > 0 || q.paused) return;
+      q.p.nova = 7;
+      q.en.forEach((e) => {
+        if (Math.hypot(e.x - q.p.x, e.y - q.p.y) < 170) e.hp -= q.p.atk * 2;
+      });
+      msg.textContent = "圣火环爆发！";
+    }
+    function dashSkill() {
+      if (q.p.dash > 0 || q.paused) return;
+      let dx =
+          (keys.KeyD || keys.ArrowRight ? 1 : 0) -
+          (keys.KeyA || keys.ArrowLeft ? 1 : 0),
+        dy =
+          (keys.KeyS || keys.ArrowDown ? 1 : 0) -
+          (keys.KeyW || keys.ArrowUp ? 1 : 0);
+      if (!dx && !dy) {
+        let a = Math.atan2(mouse.y - q.p.y, mouse.x - q.p.x);
+        dx = Math.cos(a);
+        dy = Math.sin(a);
+      }
+      let l = Math.hypot(dx, dy);
+      q.p.x += (dx / l) * 100;
+      q.p.y += (dy / l) * 100;
+      q.p.inv = 0.45;
+      q.p.dash = 2.5;
+    }
+    function hit(a, b, r) {
+      return Math.hypot(a.x - b.x, a.y - b.y) < r;
+    }
+    function update(dt) {
+      if (q.paused || q.choosing) return;
+      let p = q.p,
+        dx =
+          (keys.KeyD || keys.ArrowRight ? 1 : 0) -
+          (keys.KeyA || keys.ArrowLeft ? 1 : 0),
+        dy =
+          (keys.KeyS || keys.ArrowDown ? 1 : 0) -
+          (keys.KeyW || keys.ArrowUp ? 1 : 0),
+        l = Math.hypot(dx, dy) || 1;
+      p.x = Math.max(25, Math.min(935, p.x + (dx / l) * p.spd * dt));
+      p.y = Math.max(25, Math.min(515, p.y + (dy / l) * p.spd * dt));
+      p.shot = Math.max(0, p.shot - dt);
+      p.dash = Math.max(0, p.dash - dt);
+      p.nova = Math.max(0, p.nova - dt);
+      p.inv = Math.max(0, p.inv - dt);
+      if (mouse.down) shoot();
+      q.bul.forEach((b) => {
+        b.x += b.vx * dt;
+        b.y += b.vy * dt;
+        b.life -= dt;
+      });
+      for (const e of q.en) {
+        let a = Math.atan2(p.y - e.y, p.x - e.x),
+          dist = Math.hypot(p.x - e.x, p.y - e.y);
+        if (e.type === 1 && dist < 260) {
+          e.shot -= dt;
+          if (e.shot <= 0) {
+            q.bul.push({
+              x: e.x,
+              y: e.y,
+              vx: Math.cos(a) * 190,
+              vy: Math.sin(a) * 190,
+              d: 9 + q.floor,
+              foe: true,
+              life: 3,
+            });
+            e.shot = 1.5;
+          }
+        } else {
+          e.x += Math.cos(a) * e.spd * dt;
+          e.y += Math.sin(a) * e.spd * dt;
+        }
+        if (dist < 25 && p.inv <= 0) {
+          p.hp -= 8 + q.floor;
+          p.inv = 0.8;
+        }
+      }
+      for (const b of q.bul) {
+        if (b.life <= 0) continue;
+        if (b.foe) {
+          if (hit(b, p, 15) && p.inv <= 0) {
+            p.hp -= b.d;
+            p.inv = 0.6;
+            b.life = 0;
+          }
+        } else
+          for (const e of q.en)
+            if (e.hp > 0 && hit(b, e, 20)) {
+              e.hp -= b.d;
+              b.life = 0;
+              break;
+            }
+      }
+      q.bul = q.bul.filter(
+        (b) => b.life > 0 && b.x > 0 && b.x < 960 && b.y > 0 && b.y < 540,
+      );
+      let dead = q.en.filter((e) => e.hp <= 0);
+      dead.forEach((e) => {
+        q.orbs.push({ x: e.x, y: e.y, v: 8 + e.type * 8 });
+        if (Math.random() < 0.4) q.gold++;
+      });
+      q.en = q.en.filter((e) => e.hp > 0);
+      q.orbs = q.orbs.filter((o) => {
+        if (hit(o, p, 25)) {
+          q.xp += o.v;
+          return false;
+        }
+        return true;
+      });
+      if (q.xp >= q.need) {
+        q.xp -= q.need;
+        q.lv++;
+        q.need = Math.round(q.need * 1.35);
+        choose();
+      }
+      if (p.hp <= 0) return gameover();
+      if (!q.en.length && !q.choosing) {
+        q.room++;
+        if (q.room > 6) {
+          q.floor++;
+          q.room = 1;
+          localStorage.setItem(
+            "dungeon_best",
+            Math.max(q.floor, +localStorage.getItem("dungeon_best") || 1),
+          );
+          p.hp = Math.min(p.max, p.hp + 30);
+        }
+        spawn();
+      }
+      hud();
+    }
+    function choose() {
+      q.choosing = true;
+      let pool = [
+        ["锋利刀刃", "攻击 +6", () => (q.p.atk += 6)],
+        ["迅捷连弩", "攻速 +18%", () => (q.p.rate *= 0.82)],
+        [
+          "生命烛芯",
+          "最大生命 +25 并恢复",
+          () => {
+            q.p.max += 25;
+            q.p.hp += 25;
+          },
+        ],
+        ["轻盈长靴", "移速 +25", () => (q.p.spd += 25)],
+        ["贪婪印记", "立即获得 15 金币", () => (q.gold += 15)],
+        ["灼热圣火", "圣火伤害强化", () => (q.p.atk += 4)],
+      ];
+      pool.sort(() => Math.random() - 0.5);
+      overlay.classList.add("show");
+      ovTitle.textContent = `升级至 Lv.${q.lv} · 选择祝福`;
+      choices.innerHTML = pool
+        .slice(0, 3)
+        .map(
+          (a, i) =>
+            `<div class="choice" data-i="${i}"><b>${a[0]}</b><br><small>${a[1]}</small></div>`,
+        )
+        .join("");
+      choices.querySelectorAll("[data-i]").forEach(
+        (e) =>
+          (e.onclick = () => {
+            pool[+e.dataset.i][2]();
+            q.choosing = false;
+            overlay.classList.remove("show");
+            hud();
+          }),
+      );
+    }
+    function gameover() {
+      q.paused = true;
+      overlay.classList.add("show");
+      ovTitle.textContent = `倒在第 ${q.floor} 层 · 获得 ${q.gold} 金币`;
+      choices.innerHTML = "";
+      restart.style.display = "inline-block";
+    }
+    function hud() {
+      floor.textContent = q.floor;
+      room.textContent = q.room;
+      gold.textContent = q.gold;
+      best.textContent = Math.max(
+        q.floor,
+        +localStorage.getItem("dungeon_best") || 1,
+      );
+      level.textContent = q.lv;
+      left.textContent = q.en.length;
+      hpbar.style.width = Math.max(0, (q.p.hp / q.p.max) * 100) + "%";
+      xpbar.style.width = (q.xp / q.need) * 100 + "%";
+      dash.textContent = `冲刺 ${q.p.dash > 0 ? q.p.dash.toFixed(1) : "就绪"}`;
+      nova.textContent = `圣火 ${q.p.nova > 0 ? q.p.nova.toFixed(1) : "就绪"}`;
+    }
+    function render() {
+      x.fillStyle = "#10131c";
+      x.fillRect(0, 0, 960, 540);
+      x.strokeStyle = "#392f2b";
+      x.lineWidth = 3;
+      for (let i = 0; i < 12; i++)
+        x.strokeRect((i * 83) % 960, (i * 127) % 540, 80, 60);
+      q.orbs.forEach((o) => {
+        x.fillStyle = "#8b82ff";
+        x.beginPath();
+        x.arc(o.x, o.y, 6, 0, 7);
+        x.fill();
+      });
+      q.bul.forEach((b) => {
+        x.fillStyle = b.foe ? "#f46363" : "#ffe99c";
+        x.beginPath();
+        x.arc(b.x, b.y, 5, 0, 7);
+        x.fill();
+      });
+      q.en.forEach((e) => {
+        x.font = e.type === 2 ? "42px serif" : "28px serif";
+        x.textAlign = "center";
+        x.fillText(
+          e.type === 2 ? "👹" : e.type === 1 ? "🧙" : "💀",
+          e.x,
+          e.y + 10,
+        );
+        x.fillStyle = "#53252d";
+        x.fillRect(e.x - 20, e.y - 27, 40, 4);
+        x.fillStyle = "#e05f68";
+        x.fillRect(e.x - 20, e.y - 27, (40 * e.hp) / e.max, 4);
+      });
+      x.globalAlpha = q.p.inv > 0 ? 0.45 : 1;
+      x.font = "34px serif";
+      x.fillText("🕯️", q.p.x, q.p.y + 11);
+      x.globalAlpha = 1;
+      x.strokeStyle = "#ffe79a44";
+      x.beginPath();
+      x.arc(q.p.x, q.p.y, 70, 0, 7);
+      x.stroke();
+    }
+    function loop(t) {
+      let dt = Math.min(0.033, (t - last) / 1000 || 0);
+      last = t;
+      update(dt);
+      render();
+      raf = requestAnimationFrame(loop);
+    }
+    addEventListener("keydown", (e) => {
+      keys[e.code] = true;
+      if (e.code === "Space") shoot();
+      if (e.code === "ShiftLeft" || e.code === "ShiftRight") dashSkill();
+      if (e.code === "KeyQ") novaSkill();
+      if (e.code === "KeyP") {
+        q.paused = !q.paused;
+        pause.textContent = q.paused ? "继续 P" : "暂停 P";
+      }
+    });
+    addEventListener("keyup", (e) => (keys[e.code] = false));
+    cv.onmousemove = (e) => {
+      let r = cv.getBoundingClientRect();
+      mouse.x = ((e.clientX - r.left) * 960) / r.width;
+      mouse.y = ((e.clientY - r.top) * 540) / r.height;
+    };
+    cv.onmousedown = () => (mouse.down = true);
+    addEventListener("mouseup", () => (mouse.down = false));
+    cv.ontouchmove = (e) => {
+      let r = cv.getBoundingClientRect(),
+        t = e.touches[0];
+      mouse.x = ((t.clientX - r.left) * 960) / r.width;
+      mouse.y = ((t.clientY - r.top) * 540) / r.height;
+      mouse.down = true;
+    };
+    cv.ontouchend = () => (mouse.down = false);
+    document.querySelectorAll("[data-key]").forEach((button) => {
+      const code = button.dataset.key;
+      button.onpointerdown = (event) => {
+        event.preventDefault();
+        keys[code] = true;
+        button.setPointerCapture(event.pointerId);
+      };
+      button.onpointerup = button.onpointercancel = () => (keys[code] = false);
+    });
+    dash.onclick = dashSkill;
+    nova.onclick = novaSkill;
+    pause.onclick = () => {
+      q.paused = !q.paused;
+    };
+    restart.onclick = () => {
+      q = fresh();
+      restart.style.display = "none";
+      overlay.classList.remove("show");
+      spawn();
+    };
+    q = fresh();
+    spawn();
+    loop(0);
+  </script>
+</html>

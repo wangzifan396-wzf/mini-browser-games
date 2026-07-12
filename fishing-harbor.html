@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>潮汐渔港</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: linear-gradient(#091d35, #0d4261);
+      color: #effaff;
+      font-family: system-ui, "Microsoft YaHei";
+    }
+    .app {
+      min-height: 100vh;
+      padding: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .shell {
+      width: min(930px, 100%);
+      border: 1px solid #397896;
+      border-radius: 20px;
+      background: #0b2940dd;
+      padding: 16px;
+    }
+    .top,
+    .row,
+    .spots {
+      display: flex;
+      gap: 9px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .top {
+      justify-content: space-between;
+    }
+    .stats {
+      display: flex;
+      gap: 14px;
+    }
+    .sea {
+      height: 260px;
+      margin: 14px 0;
+      border-radius: 16px;
+      background: linear-gradient(#73c9e4 0 20%, #207caa 20% 52%, #09527d 52%);
+      position: relative;
+      overflow: hidden;
+      border: 1px solid #69c2df;
+    }
+    .sun {
+      position: absolute;
+      right: 9%;
+      top: 20px;
+      font-size: 42px;
+    }
+    .boat {
+      position: absolute;
+      left: 20%;
+      top: 35px;
+      font-size: 50px;
+      transition: left 0.5s;
+    }
+    .fish-shadow {
+      position: absolute;
+      font-size: 28px;
+      animation: swim 5s linear infinite;
+      opacity: 0.7;
+    }
+    @keyframes swim {
+      from {
+        left: -10%;
+      }
+      to {
+        left: 110%;
+      }
+    }
+    .meter {
+      height: 34px;
+      border-radius: 10px;
+      background: #142235;
+      position: relative;
+      overflow: hidden;
+      margin: 8px 0;
+    }
+    .zone {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      background: #54df91aa;
+    }
+    .needle {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 5px;
+      background: white;
+      box-shadow: 0 0 8px white;
+    }
+    .panel {
+      background: #0a2033;
+      border: 1px solid #31647f;
+      border-radius: 13px;
+      padding: 12px;
+    }
+    .spots button.active {
+      outline: 3px solid #ffe17a;
+    }
+    button {
+      padding: 9px 12px;
+      border: 1px solid #5da4bd;
+      border-radius: 9px;
+      background: #176486;
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    button:disabled {
+      opacity: 0.45;
+    }
+    .cast {
+      background: #dc8b35;
+      font-size: 17px;
+    }
+    .cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .book {
+      max-height: 170px;
+      overflow: auto;
+    }
+    .fishrow {
+      display: grid;
+      grid-template-columns: 35px 1fr auto;
+      gap: 7px;
+      padding: 5px;
+      border-bottom: 1px solid #ffffff18;
+    }
+    .quest {
+      color: #ffe28a;
+    }
+    .hint {
+      color: #a7cee0;
+      font-size: 13px;
+    }
+    @media (max-width: 650px) {
+      .cards {
+        grid-template-columns: 1fr;
+      }
+      .sea {
+        height: 210px;
+      }
+      .stats {
+        font-size: 12px;
+        gap: 6px;
+      }
+    }
+  </style>
+  <main class="app">
+    <section class="shell">
+      <div class="top">
+        <div>
+          <h1 style="margin: 0">潮汐渔港</h1>
+          <div id="weather" class="hint"></div>
+        </div>
+        <div class="stats">
+          <span>🪙 <b id="coins"></b></span><span>第 <b id="day"></b> 天</span
+          ><span>体力 <b id="energy"></b>/10</span
+          ><span>图鉴 <b id="dex"></b>/12</span>
+        </div>
+      </div>
+      <div class="spots" id="spots"></div>
+      <div class="sea">
+        <span class="sun" id="sky">☀️</span
+        ><span class="boat" id="boat">⛵</span
+        ><span class="fish-shadow" style="top: 120px; animation-delay: -2s"
+          >🐟</span
+        ><span class="fish-shadow" style="top: 190px; animation-duration: 7s"
+          >🐠</span
+        >
+      </div>
+      <div class="panel">
+        <div id="status">选择钓点，抛竿等待鱼讯。</div>
+        <div class="meter">
+          <i class="zone" id="zone"></i><i class="needle" id="needle"></i>
+        </div>
+        <div class="row">
+          <button class="cast" id="cast">抛竿</button
+          ><button id="sellAll">出售渔获</button
+          ><button id="sleep">返回港口休息</button
+          ><button id="rod">升级鱼竿（<span id="rodCost"></span>）</button
+          ><button id="line">升级钓线（<span id="lineCost"></span>）</button>
+        </div>
+      </div>
+      <div class="cards" style="margin-top: 10px">
+        <div class="panel">
+          <b>今日委托</b>
+          <div id="quest" class="quest"></div>
+          <div class="hint">
+            抛竿后等待“咬钩”，指针进入绿色区域时再次点击。稀有鱼区域更窄、挣扎更快。
+          </div>
+        </div>
+        <div class="panel book" id="book"></div>
+      </div>
+    </section>
+  </main>
+  <script>
+    const F = [
+        ["青鳞鱼", "🐟", 8, 1],
+        ["银鲫", "🐠", 12, 1],
+        ["泥鳅", "〰️", 15, 1],
+        ["河鲈", "🐡", 22, 2],
+        ["红鲷", "🔴", 28, 2],
+        ["飞鱼", "🪽", 34, 2],
+        ["灯笼鱼", "💡", 46, 3],
+        ["剑鱼", "🗡️", 60, 3],
+        ["金枪鱼", "🐟", 72, 3],
+        ["月光鳐", "🌙", 95, 4],
+        ["幽灵鲨", "🦈", 130, 4],
+        ["潮汐龙鱼", "🐉", 210, 5],
+      ].map((x, id) => ({ id, n: x[0], ic: x[1], v: x[2], r: x[3] })),
+      S = [
+        ["芦苇河湾", 0, 5],
+        ["珊瑚浅滩", 3, 8],
+        ["沉船深海", 6, 12],
+        ["月影海沟", 9, 12],
+      ];
+    let q,
+      timer = null,
+      phase = "idle",
+      pos = 0,
+      dir = 1,
+      target = null;
+    const $ = (x) => document.getElementById(x);
+    function fresh() {
+      return {
+        coins: 30,
+        day: 1,
+        energy: 10,
+        spot: 0,
+        rod: 1,
+        line: 1,
+        bag: [],
+        seen: {},
+        weather: 0,
+        quest: Math.floor(Math.random() * 6),
+      };
+    }
+    function load() {
+      try {
+        q = JSON.parse(localStorage.getItem("fishing_save")) || fresh();
+      } catch {
+        q = fresh();
+      }
+      draw();
+    }
+    function save() {
+      localStorage.setItem("fishing_save", JSON.stringify(q));
+    }
+    function pick() {
+      let s = S[q.spot],
+        max = Math.min(s[2], s[1] + 2 + q.rod),
+        pool = F.filter((x) => x.id >= s[1] && x.id <= max),
+        weights = pool.map((x) =>
+          Math.max(1, 8 - x.r + (q.weather === 1 ? x.r : 0) + q.rod * 0.3),
+        ),
+        sum = weights.reduce((a, b) => a + b),
+        r = Math.random() * sum;
+      for (let i = 0; i < pool.length; i++)
+        if ((r -= weights[i]) <= 0) return pool[i];
+      return pool[0];
+    }
+    function castLine() {
+      if (phase === "idle") {
+        if (q.energy <= 0) return msg("体力耗尽，回港休息吧。");
+        q.energy--;
+        phase = "wait";
+        cast.textContent = "等待鱼讯…";
+        cast.disabled = true;
+        msg("浮标落水，注意动静……");
+        let delay = 800 + Math.random() * 1800;
+        timer = setTimeout(() => {
+          target = pick();
+          phase = "hook";
+          cast.disabled = false;
+          cast.textContent = "提竿！";
+          let width = Math.max(9, 34 - target.r * 4 + q.line * 2),
+            start = 8 + Math.random() * (84 - width);
+          zone.style.left = start + "%";
+          zone.style.width = width + "%";
+          pos = 0;
+          dir = 1;
+          msg(`有鱼咬钩！${target.r >= 4 ? "水下的力量非常惊人！" : ""}`);
+          animate();
+        }, delay);
+      } else if (phase === "hook") resolve();
+    }
+    function animate() {
+      if (phase !== "hook") return;
+      pos += dir * (1.3 + target.r * 0.5 - q.line * 0.08);
+      if (pos >= 99 || pos <= 0) dir *= -1;
+      needle.style.left = pos + "%";
+      timer = requestAnimationFrame(animate);
+    }
+    function resolve() {
+      cancelAnimationFrame(timer);
+      let left = parseFloat(zone.style.left),
+        right = left + parseFloat(zone.style.width),
+        ok = pos >= left && pos <= right;
+      phase = "idle";
+      cast.textContent = "抛竿";
+      if (ok) {
+        let size = (0.7 + Math.random() * 0.8).toFixed(1),
+          value = Math.round(target.v * size * (1 + q.rod * 0.05));
+        q.bag.push({ id: target.id, size, value });
+        q.seen[target.id] = (q.seen[target.id] || 0) + 1;
+        msg(`钓到 ${target.ic}${target.n} · ${size}kg，估价 ${value} 金币！`);
+      } else msg(`${target.n} 挣脱了。升级钓线可扩大判定区。`);
+      target = null;
+      save();
+      draw();
+    }
+    function msg(s) {
+      status.textContent = s;
+    }
+    function nextDay() {
+      if (phase !== "idle") return;
+      q.day++;
+      q.energy = 10;
+      q.weather = Math.floor(Math.random() * 4);
+      q.quest = Math.floor(Math.random() * Math.min(10, 4 + q.day));
+      msg("新的一天开始，鱼群和天气已经变化。");
+      save();
+      draw();
+    }
+    function upgrade(k) {
+      let cost = 30 * q[k] * q[k];
+      if (q.coins < cost) return msg("金币不足。");
+      q.coins -= cost;
+      q[k]++;
+      save();
+      draw();
+    }
+    function draw() {
+      coins.textContent = q.coins;
+      day.textContent = q.day;
+      energy.textContent = q.energy;
+      dex.textContent = Object.keys(q.seen).length;
+      let w = [
+        "晴朗 · 常见鱼活跃",
+        "小雨 · 稀有鱼概率提升",
+        "海风 · 咬钩更快",
+        "满月潮 · 深海鱼出没",
+      ][q.weather];
+      weather.textContent = w;
+      sky.textContent = ["☀️", "🌧️", "🌬️", "🌕"][q.weather];
+      spots.innerHTML = S.map(
+        (s, i) =>
+          `<button data-i="${i}" class="${q.spot === i ? "active" : ""}" ${q.rod < i + 1 ? "disabled" : ""}>${s[0]} ${q.rod < i + 1 ? `🔒竿Lv.${i + 1}` : ""}</button>`,
+      ).join("");
+      spots.querySelectorAll("[data-i]").forEach(
+        (x) =>
+          (x.onclick = () => {
+            q.spot = +x.dataset.i;
+            boat.style.left = 12 + q.spot * 22 + "%";
+            save();
+            draw();
+          }),
+      );
+      rodCost.textContent = 30 * q.rod * q.rod;
+      lineCost.textContent = 30 * q.line * q.line;
+      rod.disabled = q.rod >= 5;
+      line.disabled = q.line >= 5;
+      let want = F[q.quest],
+        have = q.bag.filter((x) => x.id === want.id).length;
+      quest.textContent = `收集 2 条 ${want.ic}${want.n}（${Math.min(2, have)}/2）· 奖励 ${want.v * 3} 金币`;
+      if (have >= 2) {
+        let taken = 0;
+        q.bag = q.bag.filter((x) => x.id !== want.id || taken++ >= 2);
+        q.coins += want.v * 3;
+        q.quest = (q.quest + 3) % Math.min(10, 4 + q.day);
+        msg("委托完成，奖金已入账！");
+        save();
+      }
+      book.innerHTML =
+        "<b>渔获与图鉴</b>" +
+        F.map(
+          (f) =>
+            `<div class="fishrow"><span>${q.seen[f.id] ? f.ic : "❔"}</span><span>${q.seen[f.id] ? f.n : "尚未发现"} <small>捕获 ${q.seen[f.id] || 0}</small></span><span>${q.bag.filter((x) => x.id === f.id).length}</span></div>`,
+        ).join("");
+    }
+    cast.onclick = castLine;
+    sellAll.onclick = () => {
+      let v = q.bag.reduce((s, x) => s + x.value, 0);
+      q.coins += v;
+      q.bag = [];
+      msg(v ? `渔获售出，收入 ${v} 金币。` : "鱼篓还是空的。");
+      save();
+      draw();
+    };
+    sleep.onclick = nextDay;
+    rod.onclick = () => upgrade("rod");
+    line.onclick = () => upgrade("line");
+    load();
+  </script>
+</html>
