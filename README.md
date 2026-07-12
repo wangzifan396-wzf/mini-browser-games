@@ -1,6 +1,6 @@
 # 迷你游戏合集
 
-这个文件夹里有四十三个自包含的浏览器小游戏，直接打开 HTML 文件就可以玩。
+这个文件夹里有五十个自包含的浏览器小游戏，直接打开 HTML 文件就可以玩。
 
 ## 游戏
 
@@ -47,6 +47,13 @@
 - `connect-arena.html`：四子战线，带标准/高手 AI 和赛季比分的四子棋。
 - `penalty-rush.html`：点球热浪，带门将随机站位、蓄力和连击节奏的点球挑战。
 - `air-hockey.html`：霓虹冰球，带 AI 对手、连击球速与五分制赛局的空气曲棍球。
+- `flappy-glider.html`：像素飞翼，带区域加速、完美过门连击与本地纪录的一键飞行。
+- `stack-tower.html`：霓虹叠塔，带完美落点、塔宽恢复与风速变化的节奏叠塔。
+- `word-grid.html`：五字密语，六次机会、位置/字母反馈的 Wordle 式猜词。
+- `mahjong-link.html`：麻将连台，开放牌判断、洗牌与提示的麻将配对消除。
+- `maze-chase.html`：霓虹迷宫，带光豆、能量豆和多追猎者的迷宫追逐。
+- `merge-orbit.html`：星球大合成，带重力碰撞、尺寸成长与红线失败的物理合成。
+- `blackjack-table.html`：霓虹二十一点，带筹码、下注、要牌、停牌和加倍的桌面牌局。
 
 ## 新增热门街机游戏亮点
 
@@ -61,6 +68,13 @@
 - 四子战线：七列落子、四连胜判定、封堵/优先获胜的 AI，以及标准/高手两种决策随机度。
 - 点球热浪：六个射门区域、门将随机站位、三档蓄力、连续进球和十轮赛季比分。
 - 霓虹冰球：拖动球拍截击冰球，AI 会随比分提升追球速度，五分制赛局适合短局对抗。
+- 像素飞翼：单键扇翼穿越风门，每十分快速切换区域，完美过门与金门形成倍率追分。
+- 霓虹叠塔：移动方块一键落下，保留重叠区域；连续完美落点可恢复塔宽并挑战本地最佳。
+- 五字密语：六次猜词机会，绿色表示位置正确、金色表示字母存在，支持实体键盘和屏幕键盘。
+- 麻将连台：选择两个相同且至少一侧开放的麻将牌，支持洗牌、提示与完整清台目标。
+- 霓虹迷宫：吃完光豆完成迷宫，大能量豆会让追猎者进入可捕获状态。
+- 星球大合成：真实重力和圆形碰撞，相同星球接触后升级，堆过红线即结束。
+- 霓虹二十一点：完整筹码循环，支持下注、要牌、停牌和加倍，庄家按规则自动补牌。
 
 ## 星炉工坊亮点
 
@@ -657,3 +671,10 @@ python -m http.server 8000
 - `http://localhost:8000/connect-arena.html`
 - `http://localhost:8000/penalty-rush.html`
 - `http://localhost:8000/air-hockey.html`
+- `http://localhost:8000/flappy-glider.html`
+- `http://localhost:8000/stack-tower.html`
+- `http://localhost:8000/word-grid.html`
+- `http://localhost:8000/mahjong-link.html`
+- `http://localhost:8000/maze-chase.html`
+- `http://localhost:8000/merge-orbit.html`
+- `http://localhost:8000/blackjack-table.html`
