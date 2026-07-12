@@ -1,6 +1,6 @@
 # 迷你游戏合集
 
-这个文件夹里有三十二个自包含的浏览器小游戏，直接打开 HTML 文件就可以玩。
+这个文件夹里有三十七个自包含的浏览器小游戏，直接打开 HTML 文件就可以玩。
 
 ## 游戏
 
@@ -36,6 +36,19 @@
 - `signal-caravan.html`：信标车队，护送动作策略。
 - `gem-garden.html`：晶糖花园，交换三消收集目标。
 - `starforge-idle.html`：星炉工坊，带星辉/数据/声望/暗质资源、星环工程、天象演算、研究矩阵、专员进阶、装备战斗和时间跃迁的挂机经营。
+- `thunder-vanguard.html`：雷霆先锋，竖版空战射击与波次首领强化。
+- `block-forge.html`：方块熔炉，带七袋随机、暂存、幽灵落点和连消升级的俄罗斯方块。
+- `mine-matrix.html`：深空扫雷，带首击安全、标旗连开和提示的扫雷挑战。
+- `prism-breaker.html`：棱镜破阵，带多球、扩展、激光晶体和关卡阵列的打砖块。
+- `sky-hop.html`：云端跃迁，带浮台、弹簧、滑翔云与星片收集的无限跳跃平台。
+
+## 新增热门街机游戏亮点
+
+- 雷霆先锋：自动火力竖版射击，包含能量核心、波次首领和三选一武器协议；支持键盘与拖动操控。
+- 方块熔炉：标准十列落块、七袋随机、幽灵落点、暂存、硬降与连消等级加速。
+- 深空扫雷：新手/标准/硬核三种棋盘，首击安全、标旗、数字连开、限量扫描提示和本地最佳时间。
+- 棱镜破阵：拖动挡板反射光球，棱镜砖会提供多球、扩展或激光能力，砖阵随关卡加密。
+- 云端跃迁：自动弹跳的纵向平台玩法，收集星片、踩弹簧与滑翔云，平台会随着高度逐渐变窄。
 
 ## 星炉工坊亮点
 
@@ -621,3 +634,8 @@ python -m http.server 8000
 - `http://localhost:8000/signal-caravan.html`
 - `http://localhost:8000/gem-garden.html`
 - `http://localhost:8000/starforge-idle.html`
+- `http://localhost:8000/thunder-vanguard.html`
+- `http://localhost:8000/block-forge.html`
+- `http://localhost:8000/mine-matrix.html`
+- `http://localhost:8000/prism-breaker.html`
+- `http://localhost:8000/sky-hop.html`
