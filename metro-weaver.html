@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>口袋地铁</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #f2efe7;
+      color: #252525;
+      font-family: system-ui, "Microsoft YaHei";
+    }
+    .app {
+      min-height: 100vh;
+      padding: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .shell {
+      width: min(960px, 100%);
+      background: #fffdf7;
+      border: 1px solid #aaa69b;
+      border-radius: 20px;
+      padding: 16px;
+    }
+    .top,
+    .row,
+    .lines {
+      display: flex;
+      gap: 9px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .top {
+      justify-content: space-between;
+    }
+    .stats {
+      display: flex;
+      gap: 13px;
+    }
+    .stage {
+      position: relative;
+      margin: 12px 0;
+    }
+    canvas {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: #e8f0ed;
+      border: 1px solid #aaa;
+      border-radius: 13px;
+      display: block;
+      touch-action: none;
+    }
+    .lines button.active {
+      outline: 4px solid #222;
+    }
+    button {
+      padding: 9px 12px;
+      border: 1px solid #888;
+      border-radius: 9px;
+      background: white;
+      font-weight: bold;
+    }
+    .line0 {
+      color: #d43b44;
+    }
+    .line1 {
+      color: #2d73cf;
+    }
+    .line2 {
+      color: #d19516;
+    }
+    .line3 {
+      color: #358a54;
+    }
+    .help {
+      font-size: 13px;
+      color: #666;
+    }
+    .danger {
+      color: #c7353e;
+    }
+    @media (max-width: 650px) {
+      .stats {
+        font-size: 12px;
+        gap: 6px;
+      }
+      .app {
+        place-items: start center;
+      }
+    }
+  </style>
+  <main class="app">
+    <section class="shell">
+      <div class="top">
+        <div>
+          <h1 style="margin: 0">口袋地铁</h1>
+          <div class="help">
+            选择线路，再依次点击车站规划路线；列车会自动接送对应形状的乘客。
+          </div>
+        </div>
+        <div class="stats">
+          <span>第 <b id="week"></b> 周</span
+          ><span>运送 <b id="score"></b></span
+          ><span>车辆 <b id="trains"></b></span
+          ><span>压力 <b id="pressure"></b>%</span>
+        </div>
+      </div>
+      <div class="stage"><canvas id="c" width="960" height="540"></canvas></div>
+      <div class="row">
+        <div class="lines" id="lines"></div>
+        <button id="undo">撤销末站</button
+        ><button id="newTrain">购买车辆（40）</button
+        ><button id="pause">暂停</button><button id="restart">新城市</button
+        ><span id="msg" class="help"></span>
+      </div>
+    </section>
+  </main>
+  <script>
+    const cv = document.getElementById("c"),
+      g = cv.getContext("2d"),
+      colors = ["#d43b44", "#2d73cf", "#d19516", "#358a54"],
+      shapes = ["●", "■", "▲", "◆"];
+    let q,
+      last = 0,
+      raf;
+    const $ = (x) => document.getElementById(x);
+    function fresh() {
+      let st = [];
+      for (let i = 0; i < 8; i++) {
+        let a = (i / 8) * Math.PI * 2 + 0.2,
+          r = 170 + (i % 2) * 55;
+        st.push({
+          x: 480 + Math.cos(a) * r,
+          y: 270 + Math.sin(a) * r,
+          shape: i % 4,
+          wait: [],
+        });
+      }
+      return {
+        week: 1,
+        score: 0,
+        money: 0,
+        trains: 3,
+        selected: 0,
+        lines: [[], [], [], []],
+        cars: [],
+        stations: st,
+        spawn: 0,
+        clock: 0,
+        paused: false,
+        over: false,
+      };
+    }
+    function load() {
+      q = fresh();
+      syncCars();
+      drawUI();
+    }
+    function syncCars() {
+      q.cars = [];
+      let active = q.lines
+        .map((line, index) => (line.length > 1 ? index : -1))
+        .filter((index) => index >= 0);
+      if (!active.length) return;
+      for (let i = 0; i < q.trains; i++)
+        q.cars.push({
+          line: active[i % active.length],
+          seg: 0,
+          t: (i / q.trains) * 0.9,
+          dir: 1,
+          on: [],
+        });
+    }
+    function stationAt(x, y) {
+      return q.stations.findIndex((s) => Math.hypot(s.x - x, s.y - y) < 28);
+    }
+    function click(e) {
+      if (q.over) return;
+      let r = cv.getBoundingClientRect(),
+        x = ((e.clientX - r.left) * 960) / r.width,
+        y = ((e.clientY - r.top) * 540) / r.height,
+        i = stationAt(x, y);
+      if (i < 0) return;
+      let line = q.lines[q.selected];
+      if (line.at(-1) === i) return;
+      if (line.includes(i)) return note("同一线路不能重复经过车站。");
+      line.push(i);
+      syncCars();
+      drawUI();
+    }
+    function spawn() {
+      let s = q.stations[Math.floor(Math.random() * q.stations.length)],
+        dest = Math.floor(Math.random() * 4);
+      if (dest === s.shape) dest = (dest + 1) % 4;
+      s.wait.push(dest);
+    }
+    function connected(line, a, b) {
+      let L = q.lines[line];
+      return L.includes(a) && L.some((i) => q.stations[i].shape === b);
+    }
+    function update(dt) {
+      if (q.paused || q.over) return;
+      q.clock += dt;
+      q.spawn -= dt;
+      if (q.spawn <= 0) {
+        spawn();
+        q.spawn = Math.max(0.55, 2.1 - q.week * 0.09);
+      }
+      for (const car of q.cars) {
+        let L = q.lines[car.line];
+        if (L.length < 2) continue;
+        car.t += dt * (0.32 + q.week * 0.01);
+        if (car.t >= 1) {
+          car.t = 0;
+          car.seg += car.dir;
+          if (car.seg >= L.length - 1) {
+            car.seg = L.length - 1;
+            car.dir = -1;
+          } else if (car.seg <= 0) {
+            car.seg = 0;
+            car.dir = 1;
+          }
+          let si = L[car.seg],
+            s = q.stations[si];
+          let delivered = car.on.filter((d) => d === s.shape).length;
+          car.on = car.on.filter((d) => d !== s.shape);
+          q.score += delivered;
+          q.money += delivered;
+          for (let i = s.wait.length - 1; i >= 0 && car.on.length < 6; i--)
+            if (connected(car.line, si, s.wait[i]))
+              car.on.push(s.wait.splice(i, 1)[0]);
+        }
+      }
+      let max = Math.max(...q.stations.map((s) => s.wait.length));
+      if (max >= 12) {
+        q.over = true;
+        note("车站严重拥堵，城市停摆。点击“新城市”重试。");
+      }
+      q.week = 1 + Math.floor(q.clock / 22);
+      let tick = Math.floor(q.clock * 5);
+      if (tick !== q.uiTick) {
+        q.uiTick = tick;
+        drawUI();
+      }
+    }
+    function render() {
+      g.clearRect(0, 0, 960, 540);
+      g.strokeStyle = "#b7c8c2";
+      g.lineWidth = 3;
+      for (let i = 0; i < 6; i++) {
+        g.beginPath();
+        g.moveTo(0, 60 + i * 90);
+        g.bezierCurveTo(300, 20 + i * 100, 650, 110 + i * 60, 960, 40 + i * 90);
+        g.stroke();
+      }
+      q.lines.forEach((L, l) => {
+        g.strokeStyle = colors[l];
+        g.lineWidth = 8;
+        g.lineCap = "round";
+        g.beginPath();
+        L.forEach((i, j) => {
+          let s = q.stations[i];
+          j ? g.lineTo(s.x, s.y) : g.moveTo(s.x, s.y);
+        });
+        g.stroke();
+      });
+      q.stations.forEach((s) => {
+        g.fillStyle = "#fff";
+        g.strokeStyle = "#222";
+        g.lineWidth = 4;
+        g.beginPath();
+        g.arc(s.x, s.y, 20, 0, 7);
+        g.fill();
+        g.stroke();
+        g.fillStyle = "#222";
+        g.font = "24px sans-serif";
+        g.textAlign = "center";
+        g.fillText(shapes[s.shape], s.x, s.y + 8);
+        s.wait.forEach((d, i) => {
+          g.font = "13px sans-serif";
+          g.fillText(
+            shapes[d],
+            s.x - 25 + (i % 6) * 10,
+            s.y + 36 + Math.floor(i / 6) * 13,
+          );
+        });
+      });
+      q.cars.forEach((car) => {
+        let L = q.lines[car.line],
+          a = q.stations[L[car.seg]],
+          b = q.stations[L[car.seg + car.dir]] || a,
+          x = a.x + (b.x - a.x) * car.t,
+          y = a.y + (b.y - a.y) * car.t;
+        g.fillStyle = colors[car.line];
+        g.fillRect(x - 14, y - 9, 28, 18);
+        g.fillStyle = "white";
+        g.font = "11px sans-serif";
+        g.fillText(car.on.length, x, y + 4);
+      });
+      if (q.over) {
+        g.fillStyle = "#ffffffd9";
+        g.fillRect(0, 0, 960, 540);
+        g.fillStyle = "#222";
+        g.font = "bold 38px sans-serif";
+        g.fillText("城市网络超载", 480, 260);
+      }
+    }
+    function drawUI() {
+      week.textContent = q.week;
+      score.textContent = q.score;
+      trains.textContent = q.trains;
+      let max = Math.max(...q.stations.map((s) => s.wait.length));
+      pressure.textContent = Math.round((max / 12) * 100);
+      pressure.parentElement.className = max > 8 ? "danger" : "";
+      lines.innerHTML = colors
+        .map(
+          (c, i) =>
+            `<button data-i="${i}" class="line${i} ${q.selected === i ? "active" : ""}">线路 ${i + 1} · ${q.lines[i].length}站</button>`,
+        )
+        .join("");
+      lines.querySelectorAll("[data-i]").forEach(
+        (e) =>
+          (e.onclick = () => {
+            q.selected = +e.dataset.i;
+            drawUI();
+          }),
+      );
+      newTrain.textContent = `购买车辆（40，余额 ${q.money}）`;
+    }
+    function note(s) {
+      msg.textContent = s;
+    }
+    function loop(t) {
+      let dt = Math.min(0.04, (t - last) / 1000 || 0);
+      last = t;
+      update(dt);
+      render();
+      raf = requestAnimationFrame(loop);
+    }
+    cv.onclick = click;
+    undo.onclick = () => {
+      q.lines[q.selected].pop();
+      syncCars();
+      drawUI();
+    };
+    newTrain.onclick = () => {
+      if (q.money < 40) return note("运营余额不足。");
+      q.money -= 40;
+      q.trains++;
+      syncCars();
+      drawUI();
+    };
+    pause.onclick = () => {
+      q.paused = !q.paused;
+      pause.textContent = q.paused ? "继续" : "暂停";
+    };
+    restart.onclick = () => {
+      if (confirm("生成一座新城市？")) load();
+    };
+    load();
+    loop(0);
+  </script>
+</html>

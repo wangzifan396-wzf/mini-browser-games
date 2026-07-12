@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>万象炼金室</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #100f21;
+      color: #f4edff;
+      font-family: system-ui, "Microsoft YaHei";
+    }
+    .app {
+      min-height: 100vh;
+      padding: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .shell {
+      width: min(950px, 100%);
+      padding: 17px;
+      background: #1c1936;
+      border: 1px solid #625987;
+      border-radius: 20px;
+    }
+    .top,
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 9px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 310px;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .panel {
+      background: #15132a;
+      border: 1px solid #4e4771;
+      border-radius: 13px;
+      padding: 11px;
+    }
+    .elements {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    .el {
+      min-height: 75px;
+      border: 1px solid #625997;
+      border-radius: 10px;
+      background: #28234b;
+      color: white;
+      font-size: 25px;
+      cursor: pointer;
+    }
+    .el.sel {
+      outline: 3px solid #ffdc74;
+    }
+    .el small {
+      display: block;
+      font-size: 11px;
+    }
+    .cauldron {
+      min-height: 130px;
+      margin-top: 10px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #793d97, #251f45 60%);
+      display: grid;
+      place-items: center;
+      text-align: center;
+      font-size: 24px;
+    }
+    .panel button,
+    .row button {
+      padding: 9px 12px;
+      border: 1px solid #7b70a7;
+      border-radius: 9px;
+      background: #4a3d78;
+      color: #fff;
+      font-weight: bold;
+    }
+    .recipe {
+      display: flex;
+      justify-content: space-between;
+      padding: 5px;
+      border-bottom: 1px solid #ffffff18;
+    }
+    .scroll {
+      max-height: 250px;
+      overflow: auto;
+    }
+    .order {
+      color: #ffe17b;
+    }
+    .hint {
+      font-size: 13px;
+      color: #c3badd;
+    }
+    @media (max-width: 680px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      .elements {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      .app {
+        place-items: start center;
+      }
+    }
+  </style>
+  <main class="app">
+    <section class="shell">
+      <div class="top">
+        <div>
+          <h1 style="margin: 0">万象炼金室</h1>
+          <div class="hint">
+            选择两种素材投入坩埚，发现未知配方；相同素材也能组合。
+          </div>
+        </div>
+        <div>
+          ✨灵感 <b id="insight"></b>　🪙 <b id="coins"></b>　发现
+          <b id="found"></b>/18
+        </div>
+      </div>
+      <div class="layout">
+        <div>
+          <div class="panel">
+            <b>素材架</b>
+            <div class="elements" id="elements"></div>
+            <div class="cauldron" id="cauldron">等待投入两种素材</div>
+            <div class="row" style="margin-top: 10px">
+              <button id="brew">开始炼制</button
+              ><button id="clearBtn">清空</button
+              ><button id="research">研究提示（8 灵感）</button
+              ><span id="msg" class="hint"></span>
+            </div>
+          </div>
+        </div>
+        <aside>
+          <div class="panel">
+            <b>商会订单</b>
+            <div id="order" class="order"></div>
+            <button id="deliver">交付</button>
+          </div>
+          <div class="panel scroll" style="margin-top: 10px">
+            <b>配方图鉴</b>
+            <div id="recipes"></div>
+          </div>
+          <div class="panel" style="margin-top: 10px">
+            <b>成品仓库</b>
+            <div id="bag"></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+  <script>
+    const E = [
+      ["火", "🔥"],
+      ["水", "💧"],
+      ["土", "🪨"],
+      ["风", "🌬️"],
+      ["光", "✨"],
+      ["影", "🌑"],
+      ["生命", "🌿"],
+      ["金属", "⚙️"],
+      ["冰", "❄️"],
+      ["雷", "⚡"],
+      ["蒸汽", "♨️"],
+      ["泥", "🟤"],
+    ].map((x, id) => ({ id, n: x[0], ic: x[1] }));
+    const R = [
+      ["0,1", "蒸汽瓶", "♨️", 12],
+      ["1,2", "活性泥", "🟤", 11],
+      ["0,2", "熔岩珠", "🌋", 18],
+      ["1,3", "云朵精华", "☁️", 14],
+      ["0,3", "焰旋药剂", "🌪️", 17],
+      ["2,6", "生长药剂", "🌱", 16],
+      ["4,6", "治愈圣露", "💚", 24],
+      ["5,6", "夜行药剂", "🦉", 25],
+      ["0,7", "赤热合金", "🔩", 27],
+      ["3,7", "轻羽钢", "🪶", 28],
+      ["1,7", "水银镜", "🪞", 30],
+      ["4,5", "暮光结晶", "🔮", 36],
+      ["3,9", "雷暴瓶", "⛈️", 32],
+      ["1,8", "霜露", "🧊", 23],
+      ["0,8", "温泉石", "♨️", 29],
+      ["7,9", "磁力核心", "🧲", 38],
+      ["6,6", "生命种子", "🌳", 42],
+      ["4,4", "太阳结晶", "☀️", 50],
+    ].map((x, id) => ({ id, key: x[0], n: x[1], ic: x[2], v: x[3] }));
+    let q,
+      sel = [];
+    const $ = (x) => document.getElementById(x);
+    function fresh() {
+      return {
+        insight: 20,
+        coins: 20,
+        unlocked: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+        found: {},
+        bag: {},
+        order: Math.floor(Math.random() * 4),
+      };
+    }
+    function load() {
+      try {
+        q = JSON.parse(localStorage.getItem("alchemy_save")) || fresh();
+      } catch {
+        q = fresh();
+      }
+      draw();
+    }
+    function save() {
+      localStorage.setItem("alchemy_save", JSON.stringify(q));
+    }
+    function choose(id) {
+      if (sel.length >= 2) sel = [];
+      sel.push(id);
+      draw();
+    }
+    function brewIt() {
+      if (sel.length !== 2) return note("需要投入两种素材。");
+      let key = [...sel].sort((a, b) => a - b).join(","),
+        r = R.find((x) => x.key === key);
+      q.insight = Math.max(0, q.insight - 1);
+      if (r) {
+        let first = !q.found[r.id];
+        q.found[r.id] = (q.found[r.id] || 0) + 1;
+        q.bag[r.id] = (q.bag[r.id] || 0) + 1;
+        if (first) {
+          q.insight += 5;
+          note(`新发现：${r.ic}${r.n}！获得 5 灵感。`);
+        } else note(`炼成 ${r.ic}${r.n}。`);
+      } else note("配方失衡，只得到一团灰烬。");
+      sel = [];
+      save();
+      draw();
+    }
+    function note(s) {
+      msg.textContent = s;
+    }
+    function draw() {
+      insight.textContent = q.insight;
+      coins.textContent = q.coins;
+      found.textContent = Object.keys(q.found).length;
+      elements.innerHTML = q.unlocked
+        .map(
+          (id) =>
+            `<button class="el ${sel.includes(id) ? "sel" : ""}" data-i="${id}">${E[id].ic}<small>${E[id].n}</small></button>`,
+        )
+        .join("");
+      elements
+        .querySelectorAll("[data-i]")
+        .forEach((e) => (e.onclick = () => choose(+e.dataset.i)));
+      cauldron.innerHTML = sel.length
+        ? sel.map((id) => `${E[id].ic}${E[id].n}`).join(" ＋ ")
+        : "等待投入两种素材";
+      recipes.innerHTML = R.map(
+        (r) =>
+          `<div class="recipe"><span>${q.found[r.id] ? `${r.ic}${r.n}` : "❔ 未知配方"}</span><span>${
+            q.found[r.id]
+              ? r.key
+                  .split(",")
+                  .map((i) => E[i].ic)
+                  .join("+")
+              : "???"
+          }</span></div>`,
+      ).join("");
+      bag.innerHTML =
+        R.filter((r) => q.bag[r.id])
+          .map(
+            (r) =>
+              `<div class="recipe"><span>${r.ic}${r.n}</span><b>${q.bag[r.id]}</b></div>`,
+          )
+          .join("") || '<div class="hint">尚无成品</div>';
+      let r = R[q.order];
+      order.textContent = `需要 2 瓶 ${r.ic}${r.n}（${Math.min(2, q.bag[r.id] || 0)}/2）· 奖励 ${r.v * 4} 金币`;
+    }
+    brew.onclick = brewIt;
+    clearBtn.onclick = () => {
+      sel = [];
+      draw();
+    };
+    research.onclick = () => {
+      if (q.insight < 8) return note("灵感不足。");
+      let unknown = R.filter((r) => !q.found[r.id]);
+      if (!unknown.length) return note("所有配方都已发现！");
+      q.insight -= 8;
+      let r = unknown[Math.floor(Math.random() * unknown.length)];
+      note(
+        `研究线索：尝试 ${r.key
+          .split(",")
+          .map((i) => E[i].n)
+          .join(" ＋ ")}`,
+      );
+      save();
+      draw();
+    };
+    deliver.onclick = () => {
+      let r = R[q.order];
+      if ((q.bag[r.id] || 0) < 2) return note("成品数量不足。");
+      q.bag[r.id] -= 2;
+      q.coins += r.v * 4;
+      q.insight += 3;
+      q.order = Math.floor(Math.random() * R.length);
+      note("订单交付完成，商会声望提升！");
+      save();
+      draw();
+    };
+    load();
+  </script>
+</html>

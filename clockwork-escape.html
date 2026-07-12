@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>钟楼密室</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #17130f;
+      color: #f7e8ca;
+      font-family: system-ui, "Microsoft YaHei";
+    }
+    .app {
+      min-height: 100vh;
+      padding: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .shell {
+      width: min(930px, 100%);
+      background: #292018;
+      border: 1px solid #79654c;
+      border-radius: 20px;
+      padding: 16px;
+    }
+    .top,
+    .row,
+    .inv {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .top {
+      justify-content: space-between;
+    }
+    .scene {
+      height: 460px;
+      margin: 12px 0;
+      border: 2px solid #756047;
+      border-radius: 14px;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(#342b27 0 70%, #4a3927 70%);
+      box-shadow: inset 0 0 80px #000;
+    }
+    .obj {
+      position: absolute;
+      border: 1px solid #987b54;
+      background: #3d3025;
+      color: #ffecc5;
+      border-radius: 9px;
+      padding: 10px;
+      cursor: pointer;
+      font-size: 25px;
+    }
+    .obj:hover {
+      filter: brightness(1.25);
+    }
+    .door {
+      width: 130px;
+      height: 250px;
+      left: 43%;
+      top: 120px;
+      background: #493321;
+    }
+    .desk {
+      left: 8%;
+      bottom: 35px;
+      width: 180px;
+      height: 90px;
+    }
+    .clock {
+      right: 8%;
+      top: 35px;
+      border-radius: 50%;
+      width: 110px;
+      height: 110px;
+    }
+    .painting {
+      left: 12%;
+      top: 50px;
+      width: 130px;
+      height: 90px;
+    }
+    .safe {
+      right: 10%;
+      bottom: 45px;
+      width: 120px;
+      height: 100px;
+    }
+    .inv {
+      min-height: 55px;
+      padding: 8px;
+      background: #19130f;
+      border-radius: 10px;
+    }
+    .item {
+      padding: 8px;
+      border: 1px solid #8b7250;
+      border-radius: 8px;
+      background: #3c2e20;
+    }
+    .item.sel {
+      outline: 3px solid #ffd970;
+    }
+    button {
+      padding: 9px 12px;
+      border: 1px solid #8c7455;
+      border-radius: 9px;
+      background: #493725;
+      color: #fff;
+      font-weight: bold;
+    }
+    .dialog {
+      min-height: 45px;
+      color: #e5cda8;
+    }
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: #000b;
+      display: none;
+      place-items: center;
+    }
+    .modal.show {
+      display: grid;
+    }
+    .box {
+      background: #2d241c;
+      border: 1px solid #8d7452;
+      border-radius: 15px;
+      padding: 20px;
+      text-align: center;
+    }
+    .code {
+      font-size: 24px;
+      letter-spacing: 8px;
+      width: 180px;
+      padding: 8px;
+    }
+    @media (max-width: 650px) {
+      .scene {
+        height: 380px;
+      }
+      .obj {
+        transform: scale(0.82);
+      }
+      .app {
+        place-items: start center;
+      }
+    }
+  </style>
+  <main class="app">
+    <section class="shell">
+      <div class="top">
+        <div>
+          <h1 style="margin: 0">钟楼密室</h1>
+          <div class="hint">点击场景调查，选择道具后再点击目标使用。</div>
+        </div>
+        <div>线索 <b id="clues">0</b>/7　用时 <b id="time">00:00</b></div>
+      </div>
+      <div class="scene" id="scene">
+        <button class="obj painting" data-o="painting">🖼️ 旧画</button
+        ><button class="obj clock" data-o="clock">🕰️</button
+        ><button class="obj desk" data-o="desk">🗄️ 书桌</button
+        ><button class="obj door" data-o="door">🚪<br />顶层门</button
+        ><button class="obj safe" data-o="safe">🔒<br />保险箱</button>
+      </div>
+      <div class="dialog" id="dialog">
+        醒来时，钟楼的门已经锁死。空气里有齿轮转动的声音……
+      </div>
+      <div>
+        <b>道具栏</b>
+        <div class="inv" id="inv"></div>
+      </div>
+      <div class="row" style="margin-top: 8px">
+        <button id="hint">提示</button><button id="restart">重新开始</button>
+      </div>
+    </section>
+    <div class="modal" id="modal">
+      <div class="box">
+        <h2 id="modalTitle">输入密码</h2>
+        <input class="code" id="code" inputmode="numeric" maxlength="4" />
+        <div class="row" style="justify-content: center; margin-top: 12px">
+          <button id="confirmCode">确认</button
+          ><button id="closeModal">取消</button>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script>
+    let q = { items: [], used: {}, clues: 0, start: Date.now(), done: false },
+      selected = null;
+    const $ = (x) => document.getElementById(x);
+    function say(s) {
+      dialog.textContent = s;
+    }
+    function gain(item, icon) {
+      if (q.items.some((x) => x.n === item)) return;
+      q.items.push({ n: item, ic: icon });
+      q.clues++;
+      say(`获得道具：${icon}${item}`);
+      draw();
+    }
+    function inspect(o) {
+      let item = q.items[selected];
+      if (o === "painting") {
+        if (!q.used.paint) {
+          q.used.paint = true;
+          q.clues++;
+          say("画背写着：“长针指月，短针向晨”。画框里夹着半张星图。");
+        } else say("画中的月亮停在数字 9 上。");
+      }
+      if (o === "desk") {
+        if (!q.used.desk) {
+          q.used.desk = true;
+          gain("发条钥匙", "🗝️");
+        }
+        else if (item?.n === "铜钥匙" && !q.used.drawer) {
+          q.used.drawer = true;
+          gain("透明星盘", "💿");
+        } else
+          say(
+            q.used.drawer ? "抽屉已经空了。" : "右侧抽屉锁着，需要一把小钥匙。",
+          );
+      }
+      if (o === "clock") {
+        if (item?.n === "发条钥匙" && !q.used.clock) {
+          q.used.clock = true;
+          gain("铜钥匙", "🔑");
+          say("钟摆重新运动，掉出一把铜钥匙。表盘停在 06:45。");
+        } else
+          say(q.used.clock ? "时针指向 6，分针指向 9。" : "钟表缺少上弦钥匙。");
+      }
+      if (o === "safe") {
+        if (!q.used.clock) return say("四位密码盘旁刻着太阳与月亮。");
+        openCode("保险箱密码");
+        q.target = "safe";
+      }
+      if (o === "door") {
+        if (item?.n === "钟楼齿轮" && q.used.star && !q.done) {
+          q.done = true;
+          q.clues++;
+          say("齿轮嵌入门锁，晨光照进钟楼——逃脱成功！");
+          setTimeout(() => alert(`逃脱成功！用时 ${time.textContent}`), 100);
+        } else if (!q.used.star)
+          say("门锁缺少核心齿轮，门上的星轨似乎与画中线索有关。");
+        else say("需要把钟楼齿轮装回门锁。");
+      }
+      selected = null;
+      draw();
+    }
+    function openCode(title) {
+      modalTitle.textContent = title;
+      code.value = "";
+      modal.classList.add("show");
+      code.focus();
+    }
+    function submit() {
+      if (q.target === "safe") {
+        if (code.value === "0645") {
+          modal.classList.remove("show");
+          if (!q.used.safe) {
+            q.used.safe = true;
+            gain("星轨纸", "📜");
+          }
+          say("保险箱打开了：里面是一张完整星轨纸。");
+        } else say("密码错误，想想钟表停下的时刻。");
+      }
+      if (q.target === "star") {
+        if (code.value === "1969") {
+          modal.classList.remove("show");
+          q.used.star = true;
+          gain("钟楼齿轮", "⚙️");
+          say("星盘投出 1969 的光影，暗格弹开。");
+        }
+      }
+    }
+    function draw() {
+      clues.textContent = q.clues;
+      inv.innerHTML =
+        q.items
+          .map(
+            (a, i) =>
+              `<button class="item ${selected === i ? "sel" : ""}" data-i="${i}">${a.ic}${a.n}</button>`,
+          )
+          .join("") || "<span>暂无道具</span>";
+      inv.querySelectorAll("[data-i]").forEach(
+        (e) =>
+          (e.onclick = () => {
+            selected = +e.dataset.i;
+            draw();
+          }),
+      );
+      document.querySelector('[data-o="painting"]').textContent = q.used.paint
+        ? "🌙 星月旧画"
+        : "🖼️ 旧画";
+      if (
+        q.items.some((x) => x.n === "透明星盘") &&
+        q.items.some((x) => x.n === "星轨纸") &&
+        !q.used.star
+      ) {
+        say("透明星盘与星轨纸可以叠合。点击提示或直接输入星轨年代。");
+        q.target = "star";
+        openCode("星轨年代");
+      }
+      save();
+    }
+    function save() {
+      localStorage.setItem("escape_progress", JSON.stringify(q));
+    }
+    document
+      .querySelectorAll("[data-o]")
+      .forEach((e) => (e.onclick = () => inspect(e.dataset.o)));
+    confirmCode.onclick = submit;
+    closeModal.onclick = () => modal.classList.remove("show");
+    hint.onclick = () => {
+      let s = !q.used.desk
+        ? "先检查书桌和画。"
+        : !q.used.clock
+          ? "用发条钥匙启动钟表。"
+          : !q.used.safe
+            ? "钟表显示 06:45，这是保险箱密码。"
+            : !q.used.drawer
+              ? "铜钥匙能打开书桌抽屉。"
+              : !q.used.star
+                ? "将星盘与星轨纸叠合，重要年代是 1969。"
+                : "把齿轮装到顶层门。";
+      say(s);
+    };
+    restart.onclick = () => {
+      if (confirm("清除当前密室进度？")) {
+        localStorage.removeItem("escape_progress");
+        location.reload();
+      }
+    };
+    try {
+      let s = JSON.parse(localStorage.getItem("escape_progress"));
+      if (s) q = s;
+    } catch {}
+    setInterval(() => {
+      if (!q.done) {
+        let n = Math.floor((Date.now() - q.start) / 1000);
+        time.textContent =
+          String(Math.floor(n / 60)).padStart(2, "0") +
+          ":" +
+          String(n % 60).padStart(2, "0");
+      }
+    }, 1000);
+    draw();
+  </script>
+</html>

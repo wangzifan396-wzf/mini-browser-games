@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>余烬战棋</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #111723;
+      color: #eef3ff;
+      font-family: system-ui, "Microsoft YaHei";
+    }
+    .app {
+      min-height: 100vh;
+      padding: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .shell {
+      width: min(920px, 100%);
+      background: #1b2638;
+      border: 1px solid #536781;
+      border-radius: 20px;
+      padding: 16px;
+    }
+    .top,
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 9px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 250px;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 3px;
+      background: #0d1420;
+      padding: 7px;
+      border-radius: 12px;
+    }
+    .cell {
+      aspect-ratio: 1;
+      border: 1px solid #37475c;
+      border-radius: 6px;
+      background: #25354a;
+      display: grid;
+      place-items: center;
+      position: relative;
+      font-size: 27px;
+      cursor: pointer;
+    }
+    .cell:nth-child(3n) {
+      background: #293b4b;
+    }
+    .cell.move {
+      box-shadow: inset 0 0 0 3px #5be1a3;
+    }
+    .cell.attack {
+      box-shadow: inset 0 0 0 3px #ff6b70;
+    }
+    .cell.sel {
+      outline: 3px solid #ffd96c;
+    }
+    .cell small {
+      position: absolute;
+      bottom: 1px;
+      font-size: 10px;
+    }
+    .hp {
+      position: absolute;
+      left: 8%;
+      right: 8%;
+      top: 2px;
+      height: 4px;
+      background: #402831;
+    }
+    .hp i {
+      display: block;
+      height: 100%;
+      background: #68e49c;
+    }
+    .panel {
+      background: #121c2b;
+      border: 1px solid #41546d;
+      border-radius: 12px;
+      padding: 11px;
+      margin-bottom: 9px;
+    }
+    .unitrow {
+      padding: 6px;
+      border-bottom: 1px solid #ffffff18;
+    }
+    .log {
+      height: 130px;
+      overflow: auto;
+      color: #b8c8dd;
+      font-size: 13px;
+    }
+    button {
+      padding: 9px 11px;
+      border: 1px solid #607792;
+      border-radius: 9px;
+      background: #304c6c;
+      color: #fff;
+      font-weight: bold;
+    }
+    .end {
+      background: #8f454d;
+    }
+    @media (max-width: 680px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      .cell {
+        font-size: 20px;
+      }
+      .app {
+        place-items: start center;
+      }
+    }
+  </style>
+  <main class="app">
+    <section class="shell">
+      <div class="top">
+        <div>
+          <h1 style="margin: 0">余烬战棋</h1>
+          <div id="objective" style="color: #b7c9dd"></div>
+        </div>
+        <div>
+          任务 <b id="mission"></b>/6　回合 <b id="turn"></b>　⭐
+          <b id="stars"></b>
+        </div>
+      </div>
+      <div class="layout">
+        <div>
+          <div class="board" id="board"></div>
+          <div class="row" style="margin-top: 9px">
+            <button class="end" id="endTurn">结束回合</button
+            ><button id="skill">使用战术：治疗（2⭐）</button
+            ><button id="restart">重开任务</button><span id="msg"></span>
+          </div>
+        </div>
+        <aside>
+          <div class="panel">
+            <b>小队状态</b>
+            <div id="squad"></div>
+          </div>
+          <div class="panel">
+            <b>规则</b>
+            <div style="font-size: 13px; color: #b8c8dd">
+              点击己方单位，再点击绿色格移动或红色敌人攻击。每名单位每回合可行动一次；清除敌军后进入下一任务并获得强化。
+            </div>
+          </div>
+          <div class="panel log" id="log"></div>
+        </aside>
+      </div>
+    </section>
+  </main>
+  <script>
+    const T = {
+      knight: { n: "烬骑", ic: "🗡️", hp: 48, atk: 16, move: 3, range: 1 },
+      archer: { n: "弦手", ic: "🏹", hp: 34, atk: 13, move: 2, range: 3 },
+      mage: { n: "星术师", ic: "🔮", hp: 30, atk: 18, move: 2, range: 2 },
+      grunt: { n: "劫掠兵", ic: "👺", hp: 28, atk: 10, move: 2, range: 1 },
+      bow: { n: "弩手", ic: "💀", hp: 23, atk: 9, move: 2, range: 3 },
+      brute: { n: "蛮将", ic: "👹", hp: 60, atk: 15, move: 2, range: 1 },
+    };
+    let q,
+      sel = null;
+    const $ = (x) => document.getElementById(x),
+      xy = (i) => [i % 8, Math.floor(i / 8)],
+      dist = (a, b) => {
+        let A = xy(a),
+          B = xy(b);
+        return Math.abs(A[0] - B[0]) + Math.abs(A[1] - B[1]);
+      };
+    function fresh(m = 1) {
+      let heroes = [unit("knight", 56), unit("archer", 57), unit("mage", 48)],
+        en = [];
+      let n = 2 + m;
+      for (let i = 0; i < n; i++)
+        en.push(
+          unit(m === 6 && i === 0 ? "brute" : i % 3 === 1 ? "bow" : "grunt", i),
+        );
+      return {
+        mission: m,
+        turn: 1,
+        stars: 3,
+        heroes,
+        en,
+        log: ["选择一名队员开始行动。"],
+        buff: +localStorage.getItem("tactics_buff") || 0,
+      };
+    }
+    function unit(type, pos) {
+      let t = T[type];
+      return { type, pos, hp: t.hp, max: t.hp, done: false };
+    }
+    function load(m = 1) {
+      q = fresh(m);
+      sel = null;
+      draw();
+    }
+    function say(s) {
+      q.log.unshift(s);
+      q.log = q.log.slice(0, 12);
+    }
+    function occupied(pos) {
+      return [...q.heroes, ...q.en].find((u) => u.hp > 0 && u.pos === pos);
+    }
+    function clickCell(pos) {
+      let h = q.heroes.find((u) => u.pos === pos && u.hp > 0),
+        e = q.en.find((u) => u.pos === pos && u.hp > 0);
+      if (h && !h.done) {
+        sel = h;
+        return draw();
+      }
+      if (!sel) return;
+      if (e && dist(sel.pos, e.pos) <= T[sel.type].range) return attack(sel, e);
+      if (!occupied(pos) && dist(sel.pos, pos) <= T[sel.type].move) {
+        sel.pos = pos;
+        sel.done = true;
+        say(`${T[sel.type].n} 完成移动。`);
+        sel = null;
+        draw();
+      }
+    }
+    function attack(a, b) {
+      let dmg = T[a.type].atk + q.buff * 2 + Math.floor(Math.random() * 5);
+      b.hp -= dmg;
+      a.done = true;
+      say(`${T[a.type].n} 对 ${T[b.type].n} 造成 ${dmg} 伤害。`);
+      if (b.hp <= 0) {
+        q.stars++;
+        say(`${T[b.type].n} 被击败，获得 1 星。`);
+      }
+      sel = null;
+      q.en = q.en.filter((x) => x.hp > 0);
+      if (!q.en.length) return win();
+      draw();
+    }
+    function enemyTurn() {
+      endTurn.disabled = true;
+      let i = 0;
+      function act() {
+        if (i >= q.en.length) {
+          q.heroes = q.heroes.filter((x) => x.hp > 0);
+          if (!q.heroes.length) return lose();
+          q.heroes.forEach((x) => (x.done = false));
+          q.turn++;
+          endTurn.disabled = false;
+          draw();
+          return;
+        }
+        let e = q.en[i++],
+          targets = q.heroes
+            .filter((x) => x.hp > 0)
+            .sort((a, b) => dist(e.pos, a.pos) - dist(e.pos, b.pos)),
+          t = targets[0],
+          d = dist(e.pos, t.pos);
+        if (d <= T[e.type].range) {
+          let dmg = T[e.type].atk + Math.floor(q.mission / 2);
+          t.hp -= dmg;
+          say(`${T[e.type].n} 反击 ${T[t.type].n}，造成 ${dmg} 伤害。`);
+        } else {
+          let [ex, ey] = xy(e.pos),
+            [tx, ty] = xy(t.pos),
+            opts = [
+              [ex + Math.sign(tx - ex), ey],
+              [ex, ey + Math.sign(ty - ey)],
+            ].filter(
+              (a) =>
+                a[0] >= 0 &&
+                a[0] < 8 &&
+                a[1] >= 0 &&
+                a[1] < 8 &&
+                !occupied(a[1] * 8 + a[0]),
+            );
+          if (opts[0]) e.pos = opts[0][1] * 8 + opts[0][0];
+        }
+        setTimeout(act, 250);
+      }
+      act();
+    }
+    function win() {
+      say("任务完成！小队恢复并获得永久战力。");
+      q.buff++;
+      localStorage.setItem("tactics_buff", q.buff);
+      if (q.mission >= 6) {
+        draw();
+        setTimeout(() => alert("六项边境任务全部完成！"), 50);
+      } else setTimeout(() => load(q.mission + 1), 700);
+    }
+    function lose() {
+      say("小队全灭，任务失败。");
+      draw();
+    }
+    function draw() {
+      mission.textContent = q.mission;
+      turn.textContent = q.turn;
+      stars.textContent = q.stars;
+      objective.textContent =
+        q.mission === 6
+          ? "最终任务：击败蛮将与残余敌军"
+          : "目标：清除地图上的全部敌军";
+      board.innerHTML = "";
+      for (let i = 0; i < 64; i++) {
+        let c = document.createElement("button");
+        c.className = "cell";
+        let u = occupied(i);
+        if (sel) {
+          if (!u && dist(sel.pos, i) <= T[sel.type].move)
+            c.classList.add("move");
+          if (q.en.includes(u) && dist(sel.pos, i) <= T[sel.type].range)
+            c.classList.add("attack");
+        }
+        if (u) {
+          let t = T[u.type];
+          c.innerHTML = `<span class="hp"><i style="width:${Math.max(0, (u.hp / u.max) * 100)}%"></i></span>${t.ic}<small>${u.hp}/${u.max}${u.done ? " · 已动" : ""}</small>`;
+          if (u === sel) c.classList.add("sel");
+        }
+        c.onclick = () => clickCell(i);
+        board.append(c);
+      }
+      squad.innerHTML = q.heroes
+        .map(
+          (u) =>
+            `<div class="unitrow">${T[u.type].ic}${T[u.type].n}　${Math.max(0, u.hp)}/${u.max} ${u.done ? "✓" : ""}</div>`,
+        )
+        .join("");
+      log.innerHTML = q.log.map((s) => `<div>• ${s}</div>`).join("");
+      msg.textContent = q.heroes.every((x) => x.done)
+        ? "全员已行动，可结束回合。"
+        : "";
+    }
+    endTurn.onclick = enemyTurn;
+    skill.onclick = () => {
+      if (q.stars < 2) return say("星数不足。");
+      q.stars -= 2;
+      q.heroes.forEach((x) => (x.hp = Math.min(x.max, x.hp + 15)));
+      say("战术治疗：全队恢复 15 生命。");
+      draw();
+    };
+    restart.onclick = () => load(q.mission);
+    load();
+  </script>
+</html>

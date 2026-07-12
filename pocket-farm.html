@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>四季小农场</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #14271f;
+      color: #fff8dd;
+      font-family: system-ui, "Microsoft YaHei";
+    }
+    .app {
+      min-height: 100vh;
+      padding: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .shell {
+      width: min(920px, 100%);
+      background: #234332;
+      border: 1px solid #71926d;
+      border-radius: 20px;
+      padding: 16px;
+    }
+    .top,
+    .row,
+    .tools {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .top {
+      justify-content: space-between;
+    }
+    .stats {
+      display: flex;
+      gap: 13px;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .farm {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 6px;
+      background: #789552;
+      padding: 10px;
+      border-radius: 14px;
+    }
+    .plot {
+      aspect-ratio: 1;
+      border: 2px solid #745331;
+      border-radius: 10px;
+      background: #9b7042;
+      display: grid;
+      place-items: center;
+      font-size: 30px;
+      position: relative;
+      cursor: pointer;
+    }
+    .plot.dry {
+      filter: saturate(0.7);
+    }
+    .plot small {
+      position: absolute;
+      bottom: 2px;
+      font-size: 10px;
+    }
+    .panel {
+      background: #193627;
+      border: 1px solid #55785a;
+      border-radius: 13px;
+      padding: 11px;
+      margin-bottom: 9px;
+    }
+    .tools button.active {
+      outline: 3px solid #ffe077;
+    }
+    button {
+      padding: 9px 11px;
+      border: 1px solid #8fb27e;
+      border-radius: 9px;
+      background: #3f714b;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:disabled {
+      opacity: 0.45;
+    }
+    .book {
+      max-height: 180px;
+      overflow: auto;
+    }
+    .item {
+      display: flex;
+      justify-content: space-between;
+      padding: 5px;
+      border-bottom: 1px solid #ffffff18;
+    }
+    .quest {
+      color: #ffe084;
+    }
+    .hint {
+      font-size: 13px;
+      color: #c7dfc4;
+    }
+    @media (max-width: 680px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      .plot {
+        font-size: 23px;
+      }
+      .stats {
+        font-size: 12px;
+        gap: 6px;
+      }
+      .app {
+        place-items: start center;
+      }
+    }
+  </style>
+  <main class="app">
+    <section class="shell">
+      <div class="top">
+        <div>
+          <h1 style="margin: 0">四季小农场</h1>
+          <div id="season" class="hint"></div>
+        </div>
+        <div class="stats">
+          <span>第 <b id="day"></b> 天</span
+          ><span>☀️ <b id="energy"></b>/<b id="maxEnergy">12</b></span
+          ><span>🪙 <b id="coins"></b></span
+          ><span>等级 <b id="level"></b></span>
+        </div>
+      </div>
+      <div class="tools" id="tools"></div>
+      <div class="layout">
+        <div>
+          <div class="farm" id="farm"></div>
+          <div class="row" style="margin-top: 10px">
+            <button id="sleep">结束一天</button
+            ><button id="sell">出售收获</button
+            ><button id="upgrade">扩建水井（<span id="cost"></span>）</button
+            ><span id="msg" class="hint"></span>
+          </div>
+        </div>
+        <aside>
+          <div class="panel">
+            <b>村民委托</b>
+            <div id="quest" class="quest"></div>
+          </div>
+          <div class="panel">
+            <b>仓库</b>
+            <div id="bag"></div>
+          </div>
+          <div class="panel book">
+            <b>农场手册</b>
+            <div id="book"></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+  <script>
+    const C = [
+      ["萝卜", "🥕", 1, 3, 8],
+      ["小麦", "🌾", 2, 4, 13],
+      ["草莓", "🍓", 3, 5, 20],
+      ["南瓜", "🎃", 4, 7, 34],
+      ["葡萄", "🍇", 5, 8, 48],
+      ["星果", "⭐", 6, 10, 72],
+    ].map((x, id) => ({
+      id,
+      n: x[0],
+      ic: x[1],
+      lv: x[2],
+      grow: x[3],
+      v: x[4],
+    }));
+    let q,
+      tool = { kind: "seed", id: 0 };
+    const $ = (x) => document.getElementById(x);
+    function fresh() {
+      return {
+        day: 1,
+        energy: 12,
+        coins: 30,
+        lv: 1,
+        xp: 0,
+        well: 1,
+        plots: Array.from({ length: 36 }, () => null),
+        bag: {},
+        weather: 0,
+        quest: { id: 0, n: 3 },
+      };
+    }
+    function load() {
+      try {
+        q = JSON.parse(localStorage.getItem("pocket_farm_save")) || fresh();
+      } catch {
+        q = fresh();
+      }
+      draw();
+    }
+    function save() {
+      localStorage.setItem("pocket_farm_save", JSON.stringify(q));
+    }
+    function use(i) {
+      if (q.energy <= 0) return note("体力耗尽，结束一天恢复。");
+      let p = q.plots[i];
+      if (tool.kind === "seed") {
+        let c = C[tool.id];
+        if (p) return note("这块地已经种了东西。");
+        if (q.lv < c.lv) return note(`农场等级 ${c.lv} 解锁。`);
+        if (q.coins < 2 + c.id) return note("种子金币不足。");
+        q.coins -= 2 + c.id;
+        q.plots[i] = { id: c.id, age: 0, water: false };
+        q.energy--;
+      } else if (tool.kind === "water") {
+        if (!p || p.water) return;
+        q.energy--;
+        p.water = true;
+      } else if (tool.kind === "harvest") {
+        if (!p) return;
+        let c = C[p.id];
+        if (p.age < c.grow) return note(`还需 ${c.grow - p.age} 个生长点。`);
+        q.bag[p.id] = (q.bag[p.id] || 0) + 1;
+        q.plots[i] = null;
+        q.energy--;
+        q.xp += 4 + c.id;
+        if (q.xp >= q.lv * 12) {
+          q.xp -= q.lv * 12;
+          q.lv++;
+          note(`农场升到 ${q.lv} 级！`);
+        }
+        checkQuest();
+      }
+      save();
+      draw();
+    }
+    function checkQuest() {
+      let a = q.quest;
+      if ((q.bag[a.id] || 0) >= a.n) {
+        q.bag[a.id] -= a.n;
+        let reward = C[a.id].v * a.n * 2;
+        q.coins += reward;
+        q.quest = {
+          id: Math.min(
+            C.length - 1,
+            Math.floor(Math.random() * Math.min(C.length, q.lv + 1)),
+          ),
+          n: 2 + Math.floor(Math.random() * 4),
+        };
+        note(`委托完成，获得 ${reward} 金币。`);
+      }
+    }
+    function next() {
+      q.day++;
+      q.energy = 10 + q.well * 2;
+      q.weather = Math.floor(Math.random() * 4);
+      q.plots.forEach((p) => {
+        if (!p) return;
+        let gain = p.water ? 2 : 0;
+        if (q.weather === 1) gain += 2;
+        if (q.weather === 0) gain++;
+        p.age += gain;
+        p.water = q.weather === 1;
+      });
+      note("新的一天开始，作物继续生长。");
+      save();
+      draw();
+    }
+    function note(s) {
+      msg.textContent = s;
+    }
+    function draw() {
+      day.textContent = q.day;
+      energy.textContent = q.energy;
+      maxEnergy.textContent = 10 + q.well * 2;
+      coins.textContent = q.coins;
+      level.textContent = `${q.lv} (${q.xp}/${q.lv * 12})`;
+      season.textContent = [
+        "晴朗：作物生长 +1",
+        "雨天：自动浇水并生长 +2",
+        "多云：浇水后正常生长",
+        "丰收风：成熟作物售价提升",
+      ][q.weather];
+      tools.innerHTML =
+        C.map(
+          (c) =>
+            `<button data-seed="${c.id}" class="${tool.kind === "seed" && tool.id === c.id ? "active" : ""}" ${q.lv < c.lv ? "disabled" : ""}>${c.ic}${c.n}种子</button>`,
+        ).join("") +
+        `<button data-tool="water" class="${tool.kind === "water" ? "active" : ""}">💧浇水</button><button data-tool="harvest" class="${tool.kind === "harvest" ? "active" : ""}">🧺收获</button>`;
+      tools.querySelectorAll("[data-seed]").forEach(
+        (e) =>
+          (e.onclick = () => {
+            tool = { kind: "seed", id: +e.dataset.seed };
+            draw();
+          }),
+      );
+      tools.querySelectorAll("[data-tool]").forEach(
+        (e) =>
+          (e.onclick = () => {
+            tool = { kind: e.dataset.tool };
+            draw();
+          }),
+      );
+      farm.innerHTML = q.plots
+        .map((p, i) => {
+          if (!p) return `<button class="plot dry" data-i="${i}"></button>`;
+          let c = C[p.id],
+            stage = Math.min(3, Math.floor((p.age / c.grow) * 4)),
+            icons = ["·", "🌱", "🌿", c.ic];
+          return `<button class="plot ${p.water ? "" : "dry"}" data-i="${i}">${icons[stage]}<small>${Math.min(p.age, c.grow)}/${c.grow}${p.water ? " 💧" : ""}</small></button>`;
+        })
+        .join("");
+      farm
+        .querySelectorAll("[data-i]")
+        .forEach((e) => (e.onclick = () => use(+e.dataset.i)));
+      bag.innerHTML = C.map(
+        (c) =>
+          `<div class="item"><span>${c.ic}${c.n}</span><b>${q.bag[c.id] || 0}</b></div>`,
+      ).join("");
+      book.innerHTML = C.map(
+        (c) =>
+          `<div class="item"><span>${c.ic}${c.n} · ${c.grow} 生长点</span><span>Lv.${c.lv} · ${c.v}金</span></div>`,
+      ).join("");
+      let a = q.quest;
+      quest.textContent = `交付 ${a.n} 个 ${C[a.id].ic}${C[a.id].n}（${Math.min(a.n, q.bag[a.id] || 0)}/${a.n}）`;
+      cost.textContent = q.well * 45;
+      upgrade.disabled = q.well >= 4;
+    }
+    sleep.onclick = next;
+    sell.onclick = () => {
+      let v = 0;
+      C.forEach((c) => {
+        let n = q.bag[c.id] || 0;
+        v += n * c.v * (q.weather === 3 ? 1.3 : 1);
+        q.bag[c.id] = 0;
+      });
+      q.coins += Math.round(v);
+      note(v ? `收获售出，收入 ${Math.round(v)} 金币。` : "仓库里没有收获。");
+      save();
+      draw();
+    };
+    upgrade.onclick = () => {
+      let v = q.well * 45;
+      if (q.coins < v) return note("金币不足。");
+      q.coins -= v;
+      q.well++;
+      q.energy = 10 + q.well * 2;
+      note("水井扩建完成，今日体力获得补充。");
+      save();
+      draw();
+    };
+    load();
+  </script>
+</html>

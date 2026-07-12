@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>午夜棋局</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #111217;
+      color: #f2f2f3;
+      font-family: system-ui, "Microsoft YaHei";
+    }
+    .app {
+      min-height: 100vh;
+      padding: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .shell {
+      width: min(900px, 100%);
+      background: #1c1e26;
+      border: 1px solid #515665;
+      border-radius: 20px;
+      padding: 16px;
+    }
+    .top,
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 9px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(360px, 620px) 220px;
+      gap: 14px;
+      margin-top: 12px;
+    }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      border: 5px solid #3d332e;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .sq {
+      aspect-ratio: 1;
+      min-width: 0;
+      padding: 0;
+      border: 0;
+      background: #d5c6aa;
+      font-size: clamp(25px, 5vw, 48px);
+      display: grid;
+      place-items: center;
+      position: relative;
+      cursor: pointer;
+    }
+    .sq.dark {
+      background: #7b6554;
+    }
+    .sq.sel {
+      box-shadow: inset 0 0 0 5px #ffd84d;
+    }
+    .sq.move:after {
+      content: "";
+      width: 22%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: #3fbf7dcc;
+      position: absolute;
+    }
+    .sq.capture {
+      box-shadow: inset 0 0 0 5px #e24e58;
+    }
+    .sq small {
+      position: absolute;
+      left: 2px;
+      top: 1px;
+      color: #2227;
+      font-size: 9px;
+    }
+    .panel {
+      background: #13151b;
+      border: 1px solid #444956;
+      border-radius: 12px;
+      padding: 11px;
+      margin-bottom: 9px;
+    }
+    .history {
+      height: 300px;
+      overflow: auto;
+      font-family: ui-monospace, monospace;
+      color: #c2c6d0;
+    }
+    .history div {
+      padding: 4px;
+      border-bottom: 1px solid #ffffff13;
+    }
+    button,
+    select {
+      padding: 9px 11px;
+      border: 1px solid #606777;
+      border-radius: 9px;
+      background: #303440;
+      color: white;
+      font-weight: bold;
+    }
+    .status {
+      color: #ffd976;
+    }
+    @media (max-width: 680px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      .history {
+        height: 120px;
+      }
+      .app {
+        place-items: start center;
+      }
+      .sq {
+        font-size: clamp(25px, 10vw, 42px);
+      }
+    }
+  </style>
+  <main class="app">
+    <section class="shell">
+      <div class="top">
+        <div>
+          <h1 style="margin: 0">午夜棋局</h1>
+          <div class="status" id="status">白方行动</div>
+        </div>
+        <div class="row">
+          <label
+            >AI
+            <select id="difficulty">
+              <option value="1">休闲</option>
+              <option value="2" selected>标准</option>
+              <option value="3">高手</option>
+            </select></label
+          ><button id="undo">悔棋</button><button id="restart">新棋局</button>
+        </div>
+      </div>
+      <div class="layout">
+        <div class="board" id="board"></div>
+        <aside>
+          <div class="panel">
+            <b>对局信息</b>
+            <div id="info"></div>
+          </div>
+          <div class="panel history">
+            <b>着法记录</b>
+            <div id="history"></div>
+          </div>
+          <div class="panel" style="font-size: 13px; color: #b8bdc8">
+            执白先行。包含将军判定、王车禁入受攻格、兵升变、将死与和棋检测；为短局节奏暂不采用王车易位和吃过路兵。
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+  <script>
+    const icon = {
+        K: "♔",
+        Q: "♕",
+        R: "♖",
+        B: "♗",
+        N: "♘",
+        P: "♙",
+        k: "♚",
+        q: "♛",
+        r: "♜",
+        b: "♝",
+        n: "♞",
+        p: "♟",
+      },
+      value = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 20000 };
+    let q,
+      sel = null,
+      targets = [],
+      thinking = false;
+    const $ = (x) => document.getElementById(x),
+      white = (p) => p && p === p.toUpperCase(),
+      side = (p, w) => p && white(p) === w,
+      rc = (i) => [Math.floor(i / 8), i % 8],
+      idx = (r, c) => r * 8 + c,
+      inside = (r, c) => r >= 0 && r < 8 && c >= 0 && c < 8;
+    function fresh() {
+      let b = Array(64).fill(""),
+        back = ["r", "n", "b", "q", "k", "b", "n", "r"];
+      for (let c = 0; c < 8; c++) {
+        b[c] = back[c];
+        b[8 + c] = "p";
+        b[48 + c] = "P";
+        b[56 + c] = back[c].toUpperCase();
+      }
+      return { b, turn: true, moves: [], half: 0, result: "", snap: [] };
+    }
+    function pseudo(b, i, attacks = false) {
+      let p = b[i];
+      if (!p) return [];
+      let w = white(p),
+        [r, c] = rc(i),
+        out = [],
+        type = p.toLowerCase(),
+        add = (rr, cc) => {
+          if (!inside(rr, cc)) return false;
+          let j = idx(rr, cc);
+          if (!b[j]) {
+            out.push(j);
+            return true;
+          }
+          if (side(b[j], !w)) out.push(j);
+          return false;
+        };
+      if (type === "p") {
+        let d = w ? -1 : 1;
+        if (attacks) {
+          for (const dc of [-1, 1])
+            if (inside(r + d, c + dc)) out.push(idx(r + d, c + dc));
+        } else {
+          let j = idx(r + d, c);
+          if (inside(r + d, c) && !b[j]) {
+            out.push(j);
+            let home = w ? 6 : 1,
+              j2 = idx(r + d * 2, c);
+            if (r === home && !b[j2]) out.push(j2);
+          }
+          for (const dc of [-1, 1])
+            if (inside(r + d, c + dc) && side(b[idx(r + d, c + dc)], !w))
+              out.push(idx(r + d, c + dc));
+        }
+      }
+      if (type === "n")
+        for (const [dr, dc] of [
+          [2, 1],
+          [2, -1],
+          [-2, 1],
+          [-2, -1],
+          [1, 2],
+          [1, -2],
+          [-1, 2],
+          [-1, -2],
+        ])
+          add(r + dr, c + dc);
+      if (type === "k")
+        for (let dr = -1; dr <= 1; dr++)
+          for (let dc = -1; dc <= 1; dc++) if (dr || dc) add(r + dr, c + dc);
+      let dirs =
+        type === "b"
+          ? [
+              [1, 1],
+              [1, -1],
+              [-1, 1],
+              [-1, -1],
+            ]
+          : type === "r"
+            ? [
+                [1, 0],
+                [-1, 0],
+                [0, 1],
+                [0, -1],
+              ]
+            : type === "q"
+              ? [
+                  [1, 1],
+                  [1, -1],
+                  [-1, 1],
+                  [-1, -1],
+                  [1, 0],
+                  [-1, 0],
+                  [0, 1],
+                  [0, -1],
+                ]
+              : [];
+      for (const [dr, dc] of dirs)
+        for (let n = 1; n < 8; n++) if (!add(r + dr * n, c + dc * n)) break;
+      return out;
+    }
+    function attacked(b, square, byWhite) {
+      for (let i = 0; i < 64; i++)
+        if (side(b[i], byWhite) && pseudo(b, i, true).includes(square))
+          return true;
+      return false;
+    }
+    function inCheck(b, w) {
+      let k = b.findIndex((p) => p === (w ? "K" : "k"));
+      return k < 0 || attacked(b, k, !w);
+    }
+    function legalFrom(b, i) {
+      let p = b[i];
+      if (!p) return [];
+      let w = white(p);
+      return pseudo(b, i).filter((j) => {
+        let n = [...b];
+        n[j] = n[i];
+        n[i] = "";
+        if (n[j] === "P" && j < 8) n[j] = "Q";
+        if (n[j] === "p" && j >= 56) n[j] = "q";
+        return !inCheck(n, w);
+      });
+    }
+    function allMoves(b, w) {
+      let a = [];
+      for (let i = 0; i < 64; i++)
+        if (side(b[i], w)) for (const j of legalFrom(b, i)) a.push([i, j]);
+      return a;
+    }
+    function click(i) {
+      if (thinking || q.result || !q.turn) return;
+      let p = q.b[i];
+      if (sel !== null && targets.includes(i)) return play(sel, i);
+      if (side(p, true)) {
+        sel = i;
+        targets = legalFrom(q.b, i);
+        draw();
+      } else {
+        sel = null;
+        targets = [];
+        draw();
+      }
+    }
+    function notation(from, to, p, capture) {
+      let files = "abcdefgh",
+        [r, c] = rc(to);
+      return `${p.toUpperCase() === "P" ? "" : p.toUpperCase()}${capture ? "x" : ""}${files[c]}${8 - r}`;
+    }
+    function play(from, to, ai = false) {
+      q.snap.push(
+        JSON.stringify({
+          b: q.b,
+          moves: q.moves,
+          turn: q.turn,
+          half: q.half,
+          result: q.result,
+        }),
+      );
+      let p = q.b[from],
+        take = q.b[to];
+      q.b[to] = p;
+      q.b[from] = "";
+      if (p === "P" && to < 8) q.b[to] = "Q";
+      if (p === "p" && to >= 56) q.b[to] = "q";
+      q.half = p.toLowerCase() === "p" || take ? 0 : q.half + 1;
+      q.moves.push(notation(from, to, p, !!take));
+      q.turn = !q.turn;
+      sel = null;
+      targets = [];
+      finish();
+      draw();
+      if (!ai && !q.result) {
+        thinking = true;
+        status.textContent = "黑方思考中…";
+        setTimeout(aiMove, 250);
+      }
+    }
+    function finish() {
+      let moves = allMoves(q.b, q.turn);
+      if (!moves.length) {
+        q.result = inCheck(q.b, q.turn)
+          ? q.turn
+            ? "黑方将死白方"
+            : "白方将死黑方"
+          : "无子可动，和棋";
+      } else if (q.half >= 100) q.result = "五十回合规则，和棋";
+    }
+    function scoreMove(b, m, depth) {
+      let [from, to] = m,
+        p = b[from],
+        take = b[to],
+        s = take ? value[take.toLowerCase()] * 10 - value[p.toLowerCase()] : 0,
+        [r, c] = rc(to);
+      s += 14 - Math.abs(3.5 - r) - Math.abs(3.5 - c);
+      let n = [...b];
+      n[to] = n[from];
+      n[from] = "";
+      if (inCheck(n, true)) s += 40;
+      if (depth >= 3) {
+        let replies = allMoves(n, true),
+          best = -99999;
+        for (const [a, z] of replies.slice(0, 30)) {
+          let cap = n[z],
+            v = cap ? value[cap.toLowerCase()] : 0;
+          if (v > best) best = v;
+        }
+        s -= best * 0.7;
+      }
+      return s + Math.random() * 18;
+    }
+    function aiMove() {
+      let moves = allMoves(q.b, false);
+      if (!moves.length) {
+        thinking = false;
+        return;
+      }
+      let d = +difficulty.value,
+        m =
+          d === 1
+            ? moves[Math.floor(Math.random() * moves.length)]
+            : moves.sort(
+                (a, b) => scoreMove(q.b, b, d) - scoreMove(q.b, a, d),
+              )[0];
+      thinking = false;
+      play(m[0], m[1], true);
+    }
+    function draw() {
+      board.innerHTML = "";
+      for (let i = 0; i < 64; i++) {
+        let [r, c] = rc(i),
+          e = document.createElement("button");
+        e.className = "sq " + ((r + c) % 2 ? "dark" : "");
+        if (i === sel) e.classList.add("sel");
+        if (targets.includes(i)) e.classList.add(q.b[i] ? "capture" : "move");
+        e.innerHTML = `<small>${c === 0 ? 8 - r : ""}${r === 7 ? "abcdefgh"[c] : ""}</small>${icon[q.b[i]] || ""}`;
+        e.onclick = () => click(i);
+        board.append(e);
+      }
+      status.textContent =
+        q.result ||
+        `${q.turn ? "白方" : "黑方"}行动${inCheck(q.b, q.turn) ? " · 将军！" : ""}`;
+      info.innerHTML = `回合 ${Math.ceil((q.moves.length + 1) / 2)}<br>白方：你<br>黑方：AI · ${difficulty.options[difficulty.selectedIndex].text}<br>${q.result ? "<b>" + q.result + "</b>" : ""}`;
+      $("history").innerHTML = "";
+      for (let i = 0; i < q.moves.length; i += 2)
+        $("history").innerHTML += `<div>${i / 2 + 1}. ${q.moves[i] || ""}　${q.moves[i + 1] || ""}</div>`;
+    }
+    undo.onclick = () => {
+      if (thinking || q.snap.length < 2) return;
+      let s = JSON.parse(q.snap.splice(-2)[0]);
+      q = { ...q, ...s };
+      sel = null;
+      targets = [];
+      draw();
+    };
+    restart.onclick = () => {
+      if (thinking) return;
+      if (confirm("开始一盘新棋？")) {
+        q = fresh();
+        draw();
+      }
+    };
+    q = fresh();
+    draw();
+  </script>
+</html>
