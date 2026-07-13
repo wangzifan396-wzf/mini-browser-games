@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>逆转法庭</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #171a27;
+      color: #f6f1e5;
+      font-family: system-ui, "Microsoft YaHei";
+    }
+    .app {
+      min-height: 100vh;
+      padding: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .shell {
+      width: min(980px, 100%);
+      background: #252b40;
+      border: 1px solid #636c8d;
+      border-radius: 20px;
+      padding: 16px;
+    }
+    .top,
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 9px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .court {
+      min-height: 440px;
+      margin: 12px 0;
+      border-radius: 14px;
+      background: linear-gradient(#4b3a2c 0 58%, #7a5533 58%);
+      padding: 20px;
+      text-align: center;
+    }
+    .witness {
+      font-size: 80px;
+    }
+    .statement {
+      min-height: 105px;
+      background: #171b2ccc;
+      border: 1px solid #727b99;
+      border-radius: 12px;
+      padding: 18px;
+      font-size: 19px;
+      display: grid;
+      place-items: center;
+    }
+    .evidence {
+      display: flex;
+      gap: 7px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 12px;
+    }
+    .ev.sel {
+      outline: 3px solid #ffe16d;
+    }
+    .penalty {
+      display: flex;
+      gap: 5px;
+    }
+    .penalty i {
+      width: 35px;
+      height: 9px;
+      background: #61dc8c;
+      border-radius: 8px;
+    }
+    .penalty i.off {
+      background: #3b3f4c;
+    }
+    .log {
+      height: 75px;
+      overflow: auto;
+      color: #c2c8da;
+      font-size: 13px;
+    }
+    button {
+      padding: 9px 12px;
+      border: 1px solid #737c9c;
+      border-radius: 9px;
+      background: #394466;
+      color: white;
+      font-weight: bold;
+    }
+    .object {
+      background: #a3484d;
+      font-size: 18px;
+    }
+    .press {
+      background: #9b762f;
+    }
+    .help {
+      font-size: 13px;
+      color: #c3c9db;
+    }
+    @media (max-width: 650px) {
+      .court {
+        padding: 10px;
+      }
+      .statement {
+        font-size: 16px;
+      }
+      .app {
+        place-items: start center;
+      }
+    }
+  </style>
+  <main class="app">
+    <section class="shell">
+      <div class="top">
+        <div>
+          <h1 style="margin: 0">逆转法庭</h1>
+          <div id="trialTitle" class="help"></div>
+        </div>
+        <div>
+          审理 <b id="trialNo"></b>/4　可信度
+          <span class="penalty" id="penalty"></span>　评分 <b id="score"></b>
+        </div>
+      </div>
+      <div class="court">
+        <div class="witness" id="witness"></div>
+        <h3 id="witnessName"></h3>
+        <div class="statement" id="statement"></div>
+        <div class="row" style="justify-content: center">
+          <button id="prev">← 上一句</button
+          ><span>证词 <b id="lineNo"></b></span
+          ><button id="next">下一句 →</button>
+        </div>
+        <div class="evidence" id="evidence"></div>
+        <div class="row" style="justify-content: center">
+          <button class="press" id="press">追问证词</button
+          ><button class="object" id="object">异议！提交证物</button>
+        </div>
+        <div id="feedback"></div>
+      </div>
+      <div class="log" id="log"></div>
+      <button id="restart">重新开庭</button>
+    </section>
+  </main>
+  <script>
+    const TRIALS = [
+      {
+        t: "消失的甜点",
+        w: ["厨师阿麦", "👨‍🍳"],
+        lines: [
+          "我在晚上九点锁好厨房。",
+          "之后绝对没有人进入厨房。",
+          "蛋糕应该是从窗户被偷走的。",
+        ],
+        ev: [
+          ["门禁记录", "💳"],
+          ["雨水照片", "🌧️"],
+          ["蛋糕刀", "🔪"],
+        ],
+        correct: [1, 0],
+        explain: "门禁记录显示九点十分厨师再次刷卡，他说“无人进入”是谎言。",
+      },
+      {
+        t: "停电的珠宝店",
+        w: ["保安罗伊", "🧔"],
+        lines: [
+          "停电时店里一片漆黑。",
+          "我凭手电看到窃贼逃向北门。",
+          "我的手电电池是刚换的。",
+        ],
+        ev: [
+          ["空电池", "🔋"],
+          ["北门雪迹", "👣"],
+          ["珠宝盒", "💍"],
+        ],
+        correct: [1, 0],
+        explain: "手电里装的是耗尽的电池，保安不可能看清逃跑方向。",
+      },
+      {
+        t: "凌晨的快车",
+        w: ["乘务员莉娜", "👩‍✈️"],
+        lines: [
+          "列车凌晨一点准时经过青石站。",
+          "我一直在餐车清点库存。",
+          "那只箱子在到站前就不见了。",
+        ],
+        ev: [
+          ["延误通知", "📱"],
+          ["餐车清单", "📋"],
+          ["断裂封条", "🧷"],
+        ],
+        correct: [0, 0],
+        explain: "延误通知证明列车一点二十分才到站，第一句时间证词不成立。",
+      },
+      {
+        t: "终审：镜面剧院",
+        w: ["魔术师零", "🎩"],
+        lines: [
+          "演出时我从未离开舞台。",
+          "镜柜只有观众正面能够打开。",
+          "失窃钻石不可能藏在道具里。",
+          "后台录像一定是真实的。",
+        ],
+        ev: [
+          ["镜柜机关图", "📐"],
+          ["循环录像报告", "📹"],
+          ["道具重量表", "⚖️"],
+        ],
+        correct: [3, 1],
+        explain: "录像报告证明后台画面循环播放，所谓不在场证明完全失效。",
+      },
+    ];
+    let q = { trial: 0, line: 0, selected: null, hp: 5, score: 0, logs: [] };
+    const $ = (x) => document.getElementById(x);
+    function cur() {
+      return TRIALS[q.trial];
+    }
+    function submit() {
+      if (q.selected === null) return note("先选择一件证物。");
+      let c = cur();
+      if (q.line === c.correct[0] && q.selected === c.correct[1]) {
+        q.score += 100;
+        q.logs.unshift(`异议成立：${c.explain}`);
+        if (q.trial === TRIALS.length - 1) {
+          draw();
+          setTimeout(() => alert(`四案无罪判决！法庭评分 ${q.score}`), 50);
+        } else {
+          q.trial++;
+          q.line = 0;
+          q.selected = null;
+          q.hp = Math.min(5, q.hp + 1);
+          draw();
+        }
+      } else {
+        q.hp--;
+        q.score = Math.max(0, q.score - 15);
+        q.logs.unshift("证物与这句证词没有直接矛盾。");
+        if (q.hp <= 0) {
+          q.logs.unshift("可信度耗尽，但可重新开庭继续挑战。");
+          object.disabled = true;
+        }
+        draw();
+      }
+    }
+    function note(s) {
+      feedback.textContent = s;
+    }
+    function draw() {
+      let c = cur();
+      trialNo.textContent = q.trial + 1;
+      trialTitle.textContent = c.t;
+      score.textContent = q.score;
+      witness.textContent = c.w[1];
+      witnessName.textContent = c.w[0];
+      statement.textContent = "“" + c.lines[q.line] + "”";
+      lineNo.textContent = `${q.line + 1}/${c.lines.length}`;
+      evidence.innerHTML = c.ev
+        .map(
+          (e, i) =>
+            `<button class="ev ${q.selected === i ? "sel" : ""}" data-i="${i}">${e[1]} ${e[0]}</button>`,
+        )
+        .join("");
+      evidence.querySelectorAll("[data-i]").forEach(
+        (e) =>
+          (e.onclick = () => {
+            q.selected = +e.dataset.i;
+            draw();
+          }),
+      );
+      penalty.innerHTML = Array.from(
+        { length: 5 },
+        (_, i) => `<i class="${i >= q.hp ? "off" : ""}"></i>`,
+      ).join("");
+      log.innerHTML = q.logs.map((x) => `<div>• ${x}</div>`).join("");
+      prev.disabled = q.line === 0;
+      next.disabled = q.line === c.lines.length - 1;
+      object.disabled = q.hp <= 0;
+    }
+    prev.onclick = () => {
+      q.line--;
+      q.selected = null;
+      draw();
+    };
+    next.onclick = () => {
+      q.line++;
+      q.selected = null;
+      draw();
+    };
+    press.onclick = () =>
+      note(
+        [
+          "时间和地点是否准确？",
+          "这句话能被物证支持吗？",
+          "证人为何如此肯定？",
+        ][q.line % 3],
+      );
+    object.onclick = submit;
+    restart.onclick = () => {
+      q = { trial: 0, line: 0, selected: null, hp: 5, score: 0, logs: [] };
+      draw();
+    };
+    draw();
+  </script>
+</html>

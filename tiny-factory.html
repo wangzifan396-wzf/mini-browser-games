@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>微型流水线</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #161a1d;
+      color: #edf4f5;
+      font-family: system-ui, "Microsoft YaHei";
+    }
+    .app {
+      min-height: 100vh;
+      padding: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .shell {
+      width: min(980px, 100%);
+      background: #242b2f;
+      border: 1px solid #5f7077;
+      border-radius: 20px;
+      padding: 16px;
+    }
+    .top,
+    .row,
+    .tools {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .factory {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 3px;
+      background: #121719;
+      padding: 7px;
+      border-radius: 12px;
+    }
+    .cell {
+      height: 62px;
+      border: 1px solid #46555b;
+      border-radius: 5px;
+      background: #313a3e;
+      font-size: 24px;
+      position: relative;
+      padding: 0;
+    }
+    .cell.node {
+      box-shadow: inset 0 0 0 3px #856b45;
+    }
+    .cell small {
+      position: absolute;
+      bottom: 1px;
+      right: 2px;
+      font-size: 10px;
+    }
+    .packet {
+      position: absolute;
+      left: 35%;
+      top: 32%;
+      font-size: 14px;
+    }
+    .panel {
+      background: #191f22;
+      border: 1px solid #4c5c62;
+      border-radius: 11px;
+      padding: 10px;
+      margin-bottom: 9px;
+    }
+    .tools {
+      justify-content: flex-start;
+    }
+    .tools button.active {
+      outline: 3px solid #ffd56c;
+    }
+    .stat {
+      display: flex;
+      justify-content: space-between;
+      padding: 5px;
+      border-bottom: 1px solid #ffffff18;
+    }
+    .log {
+      height: 105px;
+      overflow: auto;
+      color: #bbc8cb;
+      font-size: 13px;
+    }
+    button {
+      padding: 9px 11px;
+      border: 1px solid #6a7b80;
+      border-radius: 9px;
+      background: #3b494e;
+      color: white;
+      font-weight: bold;
+    }
+    .run {
+      background: #88712c;
+    }
+    .help {
+      font-size: 13px;
+      color: #bdc8ca;
+    }
+    @media (max-width: 700px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      .cell {
+        height: auto;
+        aspect-ratio: 1;
+        font-size: 18px;
+      }
+      .app {
+        place-items: start center;
+      }
+    }
+  </style>
+  <main class="app">
+    <section class="shell">
+      <div class="top">
+        <div>
+          <h1 style="margin: 0">微型流水线</h1>
+          <div class="help">
+            在矿脉上放采矿机，用传送带连接熔炉、装配机和仓库，自动生产并完成订单。
+          </div>
+        </div>
+        <div>
+          资金 <b id="money"></b>　矿石 <b id="ore"></b>　锭
+          <b id="ingot"></b>　齿轮 <b id="gear"></b>
+        </div>
+      </div>
+      <div class="tools" id="tools"></div>
+      <div class="layout">
+        <div>
+          <div class="factory" id="factory"></div>
+          <div class="row" style="margin-top: 9px">
+            <button class="run" id="run">▶ 启动</button
+            ><button id="rotate">旋转方向</button
+            ><button id="erase">拆除模式</button
+            ><button id="restart">新厂区</button><span id="msg"></span>
+          </div>
+        </div>
+        <aside>
+          <div class="panel">
+            <b>生产订单</b>
+            <div id="order"></div>
+          </div>
+          <div class="panel">
+            <b>设备说明</b>
+            <div class="help">
+              ⛏️ 只能建在矿脉上并产出矿石<br />🔥 矿石变金属锭<br />⚙️
+              两个金属锭组装一枚齿轮<br />📦 自动出售到达的产品
+            </div>
+          </div>
+          <div class="panel log" id="log"></div>
+        </aside>
+      </div>
+    </section>
+  </main>
+  <script>
+    const T = {
+        belt: { n: "传送带", ic: "➡️", cost: 2 },
+        mine: { n: "采矿机", ic: "⛏️", cost: 12 },
+        furnace: { n: "熔炉", ic: "🔥", cost: 20 },
+        assembler: { n: "装配机", ic: "⚙️", cost: 30 },
+        depot: { n: "仓库", ic: "📦", cost: 18 },
+      },
+      dirs = [
+        [0, 1],
+        [1, 0],
+        [0, -1],
+        [-1, 0],
+      ],
+      arrows = ["➡️", "⬇️", "⬅️", "⬆️"];
+    let q,
+      tool = "belt",
+      dir = 0,
+      timer = null;
+    const $ = (x) => document.getElementById(x);
+    function fresh() {
+      let nodes = [];
+      while (nodes.length < 5) {
+        let i = Math.floor(Math.random() * 64);
+        if (!nodes.includes(i)) nodes.push(i);
+      }
+      return {
+        money: 120,
+        tiles: Array(64).fill(null),
+        nodes,
+        items: Array(64).fill(null),
+        stock: { ore: 0, ingot: 0, gear: 0 },
+        order: { type: "gear", n: 5 },
+        logs: ["铺设第一条自动化产线。"],
+        tick: 0,
+      };
+    }
+    function nextIndex(i, d) {
+      let r = Math.floor(i / 8),
+        c = i % 8,
+        [dr, dc] = dirs[d],
+        rr = r + dr,
+        cc = c + dc;
+      return rr >= 0 && rr < 8 && cc >= 0 && cc < 8 ? rr * 8 + cc : -1;
+    }
+    function build(i) {
+      if (tool === "erase") {
+        if (q.tiles[i]) {
+          q.money += Math.floor(T[q.tiles[i].type].cost * 0.35);
+          q.tiles[i] = null;
+          q.items[i] = null;
+        }
+        return draw();
+      }
+      let t = T[tool];
+      if (q.money < t.cost) return note("资金不足。");
+      if (q.tiles[i]) return note("格子已有设备。");
+      if (tool === "mine" && !q.nodes.includes(i))
+        return note("采矿机必须建在金色矿脉上。");
+      q.money -= t.cost;
+      q.tiles[i] = { type: tool, dir, buffer: 0 };
+      draw();
+    }
+    function step() {
+      q.tick++;
+      let next = [...q.items];
+      for (let i = 0; i < 64; i++) {
+        let t = q.tiles[i];
+        if (!t) continue;
+        if (t.type === "mine" && !next[i] && q.tick % 2 === 0) next[i] = "ore";
+        if (t.type === "furnace" && next[i] === "ore") {
+          next[i] = "ingot";
+        }
+        if (t.type === "assembler" && next[i] === "ingot") {
+          t.buffer++;
+          next[i] = null;
+          if (t.buffer >= 2) {
+            t.buffer = 0;
+            next[i] = "gear";
+          }
+        }
+        if (t.type === "depot" && next[i]) {
+          let item = next[i];
+          q.stock[item]++;
+          q.money += item === "gear" ? 18 : item === "ingot" ? 7 : 3;
+          next[i] = null;
+          checkOrder();
+        }
+      }
+      let moved = [...next];
+      for (let i = 0; i < 64; i++) {
+        let t = q.tiles[i];
+        if (!t || !next[i] || t.type === "depot") continue;
+        let j = nextIndex(i, t.dir);
+        if (j >= 0 && q.tiles[j] && !next[j] && !moved[j]) {
+          moved[j] = next[i];
+          moved[i] = null;
+        }
+      }
+      q.items = moved;
+      draw();
+    }
+    function checkOrder() {
+      let o = q.order;
+      if (q.stock[o.type] >= o.n) {
+        q.stock[o.type] -= o.n;
+        let reward = o.n * (o.type === "gear" ? 25 : 10);
+        q.money += reward;
+        q.logs.unshift(`订单完成，获得 ${reward} 资金！`);
+        q.order =
+          Math.random() < 0.7
+            ? { type: "gear", n: 5 + Math.floor(q.tick / 20) }
+            : { type: "ingot", n: 10 };
+      }
+    }
+    function note(s) {
+      msg.textContent = s;
+    }
+    function draw() {
+      money.textContent = q.money;
+      ore.textContent = q.stock.ore;
+      ingot.textContent = q.stock.ingot;
+      gear.textContent = q.stock.gear;
+      tools.innerHTML = Object.entries(T)
+        .map(
+          ([k, t]) =>
+            `<button data-k="${k}" class="${tool === k ? "active" : ""}">${t.ic}${t.n} ${t.cost}</button>`,
+        )
+        .join("");
+      tools.querySelectorAll("[data-k]").forEach(
+        (e) =>
+          (e.onclick = () => {
+            tool = e.dataset.k;
+            draw();
+          }),
+      );
+      factory.innerHTML = q.tiles
+        .map((t, i) => {
+          let node = q.nodes.includes(i),
+            ic = t
+              ? t.type === "belt"
+                ? arrows[t.dir]
+                : T[t.type].ic
+              : node
+                ? "🟫"
+                : "",
+            item = q.items[i];
+          return `<button class="cell ${node ? "node" : ""}" data-i="${i}">${ic}${item ? `<span class="packet">${item === "ore" ? "●" : item === "ingot" ? "▰" : "⚙"}</span>` : ""}${t?.buffer ? `<small>${t.buffer}/2</small>` : ""}</button>`;
+        })
+        .join("");
+      factory
+        .querySelectorAll("[data-i]")
+        .forEach((e) => (e.onclick = () => build(+e.dataset.i)));
+      order.innerHTML = `交付 ${q.order.n} 个${q.order.type === "gear" ? "⚙️齿轮" : "▰金属锭"}<br><span class="help">仓库售出产品时自动计入库存和订单。</span>`;
+      log.innerHTML = q.logs.map((x) => `<div>• ${x}</div>`).join("");
+      run.textContent = timer ? "■ 停止" : "▶ 启动";
+      rotate.textContent = `旋转方向 ${arrows[dir]}`;
+    }
+    run.onclick = () => {
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      } else timer = setInterval(step, 650);
+      draw();
+    };
+    rotate.onclick = () => {
+      dir = (dir + 1) % 4;
+      draw();
+    };
+    erase.onclick = () => {
+      tool = tool === "erase" ? "belt" : "erase";
+      draw();
+    };
+    restart.onclick = () => {
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
+      q = fresh();
+      draw();
+    };
+    q = fresh();
+    draw();
+  </script>
+</html>

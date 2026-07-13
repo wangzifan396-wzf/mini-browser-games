@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>背包角斗场</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #17131f;
+      color: #f6efff;
+      font-family: system-ui, "Microsoft YaHei";
+    }
+    .app {
+      min-height: 100vh;
+      padding: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .shell {
+      width: min(980px, 100%);
+      background: #282037;
+      border: 1px solid #6b5c83;
+      border-radius: 20px;
+      padding: 16px;
+    }
+    .top,
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 310px;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .bag {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 4px;
+      background: #161020;
+      padding: 8px;
+      border-radius: 12px;
+    }
+    .slot {
+      height: 72px;
+      border: 1px dashed #695c7b;
+      border-radius: 7px;
+      background: #302742;
+      display: grid;
+      place-items: center;
+      font-size: 25px;
+      position: relative;
+    }
+    .slot.valid {
+      outline: 3px solid #6ce0a2;
+    }
+    .slot small {
+      position: absolute;
+      bottom: 1px;
+      font-size: 9px;
+    }
+    .panel {
+      background: #1b1626;
+      border: 1px solid #554a68;
+      border-radius: 11px;
+      padding: 10px;
+      margin-bottom: 9px;
+    }
+    .shop {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
+    }
+    .offer {
+      min-height: 90px;
+    }
+    .offer.sel {
+      outline: 3px solid #ffd866;
+    }
+    .battle {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      text-align: center;
+    }
+    .fighter {
+      padding: 14px;
+      border-radius: 12px;
+      background: #332943;
+      font-size: 35px;
+    }
+    .bar {
+      height: 8px;
+      background: #211a2a;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .bar i {
+      display: block;
+      height: 100%;
+      background: #70dc9a;
+    }
+    .log {
+      height: 90px;
+      overflow: auto;
+      color: #c3b8d1;
+      font-size: 13px;
+    }
+    button {
+      padding: 9px 11px;
+      border: 1px solid #77678d;
+      border-radius: 9px;
+      background: #43345a;
+      color: white;
+      font-weight: bold;
+    }
+    .fight {
+      background: #9b4651;
+    }
+    .help {
+      font-size: 13px;
+      color: #c6b8d5;
+    }
+    @media (max-width: 700px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      .slot {
+        height: auto;
+        aspect-ratio: 1;
+        font-size: 20px;
+      }
+      .app {
+        place-items: start center;
+      }
+    }
+  </style>
+  <main class="app">
+    <section class="shell">
+      <div class="top">
+        <div>
+          <h1 style="margin: 0">背包角斗场</h1>
+          <div class="help">
+            购买装备后点击背包格放置；位置、相邻加成和有限空间共同决定自动战斗强度。
+          </div>
+        </div>
+        <div>
+          回合 <b id="round"></b>　生命 <b id="lives"></b>　金币
+          <b id="gold"></b>　胜场 <b id="wins"></b>
+        </div>
+      </div>
+      <div class="layout">
+        <div>
+          <div class="bag" id="bag"></div>
+          <div class="row" style="margin-top: 9px">
+            <button class="fight" id="fight">开始战斗</button
+            ><button id="sell">出售选中装备</button
+            ><button id="rotate">旋转待放装备</button
+            ><button id="restart">新赛季</button>
+          </div>
+          <div class="panel battle" style="margin-top: 10px">
+            <div class="fighter">
+              🧙
+              <div class="bar"><i id="php"></i></div>
+              <small id="pstats"></small>
+            </div>
+            <div class="fighter">
+              👹
+              <div class="bar"><i id="ehp"></i></div>
+              <small id="estats"></small>
+            </div>
+          </div>
+          <div class="panel log" id="log"></div>
+        </div>
+        <aside>
+          <div class="panel">
+            <b>装备商店</b>
+            <div class="shop" id="shop"></div>
+            <button id="reroll" style="margin-top: 8px">刷新（1 金币）</button>
+          </div>
+          <div class="panel">
+            <b>构筑统计</b>
+            <div id="stats"></div>
+            <div class="help">
+              武器输出伤害，护甲吸收攻击，食物提高生命；宝石会强化相邻装备，药水每战触发一次。
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+  <script>
+    const I = [
+      ["短剑", "🗡️", "weapon", 2, 1, 8],
+      ["长弓", "🏹", "weapon", 3, 2, 13],
+      ["圆盾", "🛡️", "armor", 2, 1, 7],
+      ["板甲", "🥋", "armor", 3, 2, 12],
+      ["苹果", "🍎", "food", 1, 1, 8],
+      ["药水", "🧪", "potion", 2, 1, 12],
+      ["红宝石", "♦️", "gem", 3, 1, 0],
+      ["战锤", "🔨", "weapon", 4, 2, 18],
+      ["奶酪", "🧀", "food", 2, 1, 13],
+    ].map((x, id) => ({
+      id,
+      n: x[0],
+      ic: x[1],
+      type: x[2],
+      cost: x[3],
+      size: x[4],
+      pow: x[5],
+    }));
+    let q,
+      selectedOffer = null,
+      selectedItem = null,
+      vertical = false,
+      timer = null;
+    const $ = (x) => document.getElementById(x);
+    function fresh() {
+      return {
+        round: 1,
+        lives: 5,
+        gold: 10,
+        wins: 0,
+        cells: Array(30).fill(null),
+        items: [],
+        shop: [],
+        logs: ["选择商店装备，再点击空背包格放置。"],
+        battle: null,
+      };
+    }
+    function roll(free = false) {
+      if (!free) {
+        if (q.gold < 1) return;
+        q.gold--;
+      }
+      q.shop = Array.from({ length: 3 }, () =>
+        Math.floor(Math.random() * I.length),
+      );
+      draw();
+    }
+    function cellsFor(start, size, vert) {
+      let r = Math.floor(start / 6),
+        c = start % 6,
+        out = [];
+      for (let k = 0; k < size; k++) {
+        let rr = r + (vert ? k : 0),
+          cc = c + (vert ? 0 : k);
+        if (rr >= 5 || cc >= 6) return [];
+        out.push(rr * 6 + cc);
+      }
+      return out;
+    }
+    function place(start) {
+      if (selectedOffer === null) return selectPlaced(start);
+      let d = I[q.shop[selectedOffer]],
+        cells = cellsFor(start, d.size, vertical);
+      if (cells.length !== d.size || cells.some((i) => q.cells[i] !== null))
+        return note("这里放不下该装备。");
+      if (q.gold < d.cost) return note("金币不足。");
+      q.gold -= d.cost;
+      let item = { uid: Date.now() + Math.random(), id: d.id, cells };
+      q.items.push(item);
+      cells.forEach((i) => (q.cells[i] = item.uid));
+      q.shop[selectedOffer] = -1;
+      selectedOffer = null;
+      draw();
+    }
+    function selectPlaced(i) {
+      let uid = q.cells[i];
+      selectedItem = uid === null ? null : q.items.find((x) => x.uid === uid);
+      draw();
+    }
+    function adjacent(item) {
+      let set = new Set(item.cells),
+        near = new Set();
+      for (const i of item.cells) {
+        let r = Math.floor(i / 6),
+          c = i % 6;
+        for (const j of [i - 6, i + 6, i - 1, i + 1])
+          if (
+            j >= 0 &&
+            j < 30 &&
+            Math.abs((j % 6) - c) + Math.abs(Math.floor(j / 6) - r) === 1 &&
+            !set.has(j) &&
+            q.cells[j] !== null
+          )
+            near.add(q.cells[j]);
+      }
+      return [...near];
+    }
+    function calc() {
+      let hp = 55,
+        atk = 2,
+        armor = 0,
+        heal = 0;
+      for (const item of q.items) {
+        let d = I[item.id],
+          gems = adjacent(item).filter(
+            (uid) => I[q.items.find((x) => x.uid === uid).id].type === "gem",
+          ).length,
+          mul = 1 + gems * 0.35;
+        if (d.type === "weapon") atk += d.pow * mul;
+        if (d.type === "armor") armor += d.pow * mul;
+        if (d.type === "food") hp += d.pow * mul;
+        if (d.type === "potion") heal += d.pow * mul;
+      }
+      return {
+        hp: Math.round(hp),
+        atk: Math.round(atk),
+        armor: Math.round(armor),
+        heal: Math.round(heal),
+      };
+    }
+    function battle() {
+      if (timer || !q.items.length) return note("背包里至少需要一件装备。");
+      let p = calc(),
+        e = {
+          hp: 50 + q.round * 18,
+          atk: 7 + q.round * 3,
+          armor: Math.floor(q.round * 1.5),
+        },
+        ph = p.hp,
+        eh = e.hp,
+        used = false;
+      q.battle = { p, ph, e, eh };
+      fight.disabled = true;
+      note(`第 ${q.round} 轮自动战斗开始！`);
+      timer = setInterval(() => {
+        let pd = Math.max(1, p.atk - e.armor),
+          ed = Math.max(1, e.atk - p.armor);
+        eh -= pd;
+        if (eh > 0) ph -= ed;
+        if (ph < p.hp * 0.35 && !used && p.heal) {
+          ph = Math.min(p.hp, ph + p.heal);
+          used = true;
+          q.logs.unshift(`药水恢复 ${p.heal} 生命。`);
+        }
+        q.battle.ph = ph;
+        q.battle.eh = eh;
+        if (ph <= 0 || eh <= 0) {
+          clearInterval(timer);
+          timer = null;
+          fight.disabled = false;
+          if (eh <= 0) {
+            q.wins++;
+            q.gold += 4 + Math.floor(q.round / 2);
+            q.logs.unshift("胜利！获得竞技场奖金。");
+          } else {
+            q.lives--;
+            q.logs.unshift("败北，损失一点赛季生命。");
+          }
+          q.round++;
+          if (q.lives <= 0) q.logs.unshift("赛季结束，重新整理背包再来。");
+          roll(true);
+        }
+        draw();
+      }, 500);
+    }
+    function note(s) {
+      q.logs.unshift(s);
+      q.logs = q.logs.slice(0, 10);
+      draw();
+    }
+    function draw() {
+      round.textContent = q.round;
+      lives.textContent = q.lives;
+      gold.textContent = q.gold;
+      wins.textContent = q.wins;
+      bag.innerHTML = q.cells
+        .map((uid, i) => {
+          let item = q.items.find((x) => x.uid === uid),
+            first = item && item.cells[0] === i;
+          return `<button class="slot ${selectedItem?.uid === uid ? "valid" : ""}" data-i="${i}">${first ? I[item.id].ic : ""}${first ? `<small>${I[item.id].n}</small>` : ""}</button>`;
+        })
+        .join("");
+      bag
+        .querySelectorAll("[data-i]")
+        .forEach((e) => (e.onclick = () => place(+e.dataset.i)));
+      shop.innerHTML = q.shop
+        .map((id, i) =>
+          id < 0
+            ? "<button disabled>已购买</button>"
+            : `<button class="offer ${selectedOffer === i ? "sel" : ""}" data-i="${i}">${I[id].ic}<br><b>${I[id].n}</b><br><small>${I[id].cost}金 · ${I[id].size}格</small></button>`,
+        )
+        .join("");
+      shop.querySelectorAll("[data-i]").forEach(
+        (e) =>
+          (e.onclick = () => {
+            selectedOffer = +e.dataset.i;
+            selectedItem = null;
+            draw();
+          }),
+      );
+      let s = calc();
+      stats.innerHTML = `生命 ${s.hp}<br>攻击 ${s.atk}<br>护甲 ${s.armor}<br>药水恢复 ${s.heal}`;
+      let b = q.battle;
+      php.style.width = (b ? Math.max(0, (b.ph / b.p.hp) * 100) : 100) + "%";
+      ehp.style.width = (b ? Math.max(0, (b.eh / b.e.hp) * 100) : 100) + "%";
+      pstats.textContent = b
+        ? `${Math.max(0, b.ph)}/${b.p.hp}`
+        : `${s.hp} HP · ${s.atk} 攻`;
+      estats.textContent = b ? `${Math.max(0, b.eh)}/${b.e.hp}` : `等待挑战`;
+      log.innerHTML = q.logs.map((x) => `<div>• ${x}</div>`).join("");
+      fight.disabled = !!timer || q.lives <= 0;
+    }
+    reroll.onclick = () => roll();
+    rotate.onclick = () => {
+      vertical = !vertical;
+      note(`待放装备已切换为${vertical ? "纵向" : "横向"}。`);
+    };
+    sell.onclick = () => {
+      if (!selectedItem) return;
+      let d = I[selectedItem.id];
+      q.gold += Math.ceil(d.cost / 2);
+      selectedItem.cells.forEach((i) => (q.cells[i] = null));
+      q.items = q.items.filter((x) => x !== selectedItem);
+      selectedItem = null;
+      draw();
+    };
+    fight.onclick = battle;
+    restart.onclick = () => {
+      q = fresh();
+      roll(true);
+    };
+    q = fresh();
+    roll(true);
+  </script>
+</html>

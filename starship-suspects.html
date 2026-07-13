@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>星舰疑云</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #080d1a;
+      color: #edf4ff;
+      font-family: system-ui, "Microsoft YaHei";
+    }
+    .app {
+      min-height: 100vh;
+      padding: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .shell {
+      width: min(980px, 100%);
+      background: #131d35;
+      border: 1px solid #40567b;
+      border-radius: 20px;
+      padding: 16px;
+    }
+    .top,
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .ship {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 9px;
+      margin: 12px 0;
+    }
+    .room {
+      min-height: 120px;
+      border: 1px solid #405676;
+      border-radius: 12px;
+      background: #1b2a47;
+      padding: 10px;
+    }
+    .crew {
+      display: inline-block;
+      padding: 6px;
+      border-radius: 50%;
+      margin: 3px;
+      background: #324b74;
+    }
+    .crew.dead {
+      filter: grayscale(1);
+      opacity: 0.35;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 12px;
+    }
+    .panel {
+      background: #0d172b;
+      border: 1px solid #344a6c;
+      border-radius: 11px;
+      padding: 10px;
+      margin-bottom: 9px;
+    }
+    .players button {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      margin: 5px 0;
+    }
+    .players button.sel {
+      outline: 3px solid #ffd965;
+    }
+    .log {
+      height: 140px;
+      overflow: auto;
+      color: #b9c9e2;
+      font-size: 13px;
+    }
+    button {
+      padding: 9px 11px;
+      border: 1px solid #526b91;
+      border-radius: 9px;
+      background: #29456e;
+      color: white;
+      font-weight: bold;
+    }
+    .task {
+      background: #38735b;
+    }
+    .vote {
+      background: #93464c;
+    }
+    .help {
+      font-size: 13px;
+      color: #b6c8df;
+    }
+    @media (max-width: 700px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      .ship {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .app {
+        place-items: start center;
+      }
+    }
+  </style>
+  <main class="app">
+    <section class="shell">
+      <div class="top">
+        <div>
+          <h1 style="margin: 0">星舰疑云</h1>
+          <div class="help">
+            完成任务获取行动记录，观察船员位置与口供；冒名者会制造破坏并逐轮袭击。
+          </div>
+        </div>
+        <div>
+          轮次 <b id="round"></b>/6　任务 <b id="tasks"></b>/8　存活
+          <b id="alive"></b>　警报 <b id="alarm"></b>
+        </div>
+      </div>
+      <div class="layout">
+        <div>
+          <div class="ship" id="ship"></div>
+          <div class="row">
+            <button class="task" id="doTask">执行所在舱任务</button
+            ><button id="move">移动舱室</button
+            ><button id="investigate">检查监控</button
+            ><button class="vote" id="meeting">召开会议</button>
+          </div>
+          <div class="panel log" id="log"></div>
+        </div>
+        <aside>
+          <div class="panel">
+            <b>船员与口供</b>
+            <div class="players" id="players"></div>
+          </div>
+          <div class="panel">
+            <b>调查笔记</b>
+            <div id="notes" class="help"></div>
+          </div>
+          <button id="vote">投票放逐选中船员</button
+          ><button id="restart">新航程</button>
+        </aside>
+      </div>
+    </section>
+  </main>
+  <script>
+    const rooms = ["驾驶舱", "反应堆", "医务室", "仓库", "通讯室", "引擎室"],
+      C = [
+        ["你", "🔵"],
+        ["赤红", "🔴"],
+        ["青柠", "🟢"],
+        ["金黄", "🟡"],
+        ["紫罗兰", "🟣"],
+        ["白霜", "⚪"],
+      ];
+    let q,
+      selected = 1;
+    const $ = (x) => document.getElementById(x);
+    function fresh() {
+      let imp = 1 + Math.floor(Math.random() * 5);
+      return {
+        round: 1,
+        tasks: 0,
+        alarm: 0,
+        youRoom: 0,
+        crew: C.map((c, i) => ({
+          i,
+          room: Math.floor(Math.random() * 6),
+          alive: true,
+          imp: i === imp,
+        })),
+        logs: ["星舰启航，但系统检测到一名冒名者。"],
+        notes: [],
+        meeting: false,
+        over: false,
+      };
+    }
+    function advance(action) {
+      if (q.over) return;
+      q.logs.unshift(action);
+      for (const c of q.crew)
+        if (c.alive && c.i > 0) c.room = Math.floor(Math.random() * 6);
+      let imp = q.crew.find((c) => c.imp && c.alive);
+      if (imp) {
+        if (Math.random() < 0.38) {
+          let victims = q.crew.filter((c) => c.alive && !c.imp && c.i > 0);
+          if (victims.length) {
+            let v = victims[Math.floor(Math.random() * victims.length)];
+            v.alive = false;
+            q.logs.unshift(
+              `${C[v.i][1]}${C[v.i][0]}在${rooms[v.room]}失去联系！`,
+            );
+          }
+        } else {
+          q.alarm++;
+          q.logs.unshift(`系统在${rooms[imp.room]}遭到破坏，警报上升。`);
+        }
+      }
+      q.round++;
+      if (q.tasks >= 8) {
+        q.over = true;
+        q.logs.unshift("全部任务完成，星舰安全抵达！");
+      }
+      if (q.round > 6 && !q.over) {
+        q.over = true;
+        q.logs.unshift(
+          "航程结束：" +
+            (imp ? "冒名者仍潜伏在船上。" : "船员成功排除了威胁！"),
+        );
+      }
+      if (
+        q.crew.filter((c) => c.alive && !c.imp && c.i > 0).length <= 1 &&
+        imp
+      ) {
+        q.over = true;
+        q.logs.unshift("冒名者控制了星舰。");
+      }
+      draw();
+    }
+    function task() {
+      q.tasks++;
+      q.alarm = Math.max(0, q.alarm - 1);
+      advance(`你在${rooms[q.youRoom]}完成一项维修任务。`);
+    }
+    function inspect() {
+      let seen = q.crew
+        .filter((c) => c.alive && c.i > 0 && Math.random() < 0.7)
+        .map((c) => `${C[c.i][0]}出现在${rooms[c.room]}`);
+      let imp = q.crew.find((c) => c.imp && c.alive);
+      if (imp && Math.random() < 0.35)
+        seen.push(`监控中有一段来自${rooms[imp.room]}的画面被删除`);
+      q.notes.push(...seen);
+      advance("你调取了本轮监控记录。");
+    }
+    function castVote() {
+      if (!q.meeting) return note("需要先召开会议。");
+      let c = q.crew[selected];
+      if (!c?.alive || c.i === 0) return;
+      c.alive = false;
+      q.logs.unshift(
+        `${C[c.i][1]}${C[c.i][0]}被放逐。${c.imp ? "身份确认：冒名者！" : "他是无辜船员。"}`,
+      );
+      q.meeting = false;
+      if (c.imp) {
+        q.over = true;
+        q.logs.unshift("威胁解除，船员阵营获胜！");
+      } else advance("错误放逐后，航程继续。");
+      draw();
+    }
+    function note(s) {
+      q.logs.unshift(s);
+      draw();
+    }
+    function draw() {
+      round.textContent = Math.min(6, q.round);
+      tasks.textContent = q.tasks;
+      alive.textContent = q.crew.filter((c) => c.alive).length;
+      alarm.textContent = q.alarm;
+      ship.innerHTML = rooms
+        .map(
+          (r, i) =>
+            `<div class="room"><b>${r}${q.youRoom === i ? " · 你在这里" : ""}</b><div>${q.crew
+              .filter((c) => c.alive && c.room === i)
+              .map((c) => `<span class="crew">${C[c.i][1]}</span>`)
+              .join("")}</div></div>`,
+        )
+        .join("");
+      players.innerHTML = q.crew
+        .slice(1)
+        .map(
+          (c) =>
+            `<button data-i="${c.i}" class="${selected === c.i ? "sel" : ""}" ${!c.alive ? "disabled" : ""}><span>${C[c.i][1]}${C[c.i][0]}</span><span>${c.alive ? rooms[c.room] : "失联"}</span></button>`,
+        )
+        .join("");
+      players.querySelectorAll("[data-i]").forEach(
+        (e) =>
+          (e.onclick = () => {
+            selected = +e.dataset.i;
+            draw();
+          }),
+      );
+      notes.innerHTML =
+        q.notes
+          .slice(-8)
+          .map((x) => `• ${x}`)
+          .join("<br>") || "尚未取得监控记录。";
+      log.innerHTML = q.logs
+        .slice(0, 10)
+        .map((x) => `<div>• ${x}</div>`)
+        .join("");
+      meeting.disabled = q.over;
+      vote.disabled = !q.meeting || q.over;
+      doTask.disabled = q.over;
+    }
+    doTask.onclick = task;
+    move.onclick = () => {
+      q.youRoom = (q.youRoom + 1) % 6;
+      q.crew[0].room = q.youRoom;
+      advance(`你移动到${rooms[q.youRoom]}。`);
+    };
+    investigate.onclick = inspect;
+    meeting.onclick = () => {
+      q.meeting = true;
+      note("紧急会议召开，请结合监控与位置选择嫌疑人。");
+    };
+    vote.onclick = castVote;
+    restart.onclick = () => {
+      q = fresh();
+      selected = 1;
+      draw();
+    };
+    q = fresh();
+    q.crew[0].room = 0;
+    draw();
+  </script>
+</html>

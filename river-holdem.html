@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>河牌之夜</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #071b16;
+      color: #fff8e4;
+      font-family: system-ui, "Microsoft YaHei";
+    }
+    .app {
+      min-height: 100vh;
+      padding: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .shell {
+      width: min(960px, 100%);
+      background: #10392d;
+      border: 1px solid #497e69;
+      border-radius: 50px;
+      padding: 20px;
+    }
+    .top,
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 9px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .table {
+      min-height: 470px;
+      border: 8px solid #5b3921;
+      border-radius: 45%;
+      background: radial-gradient(circle, #176045, #0e4937);
+      padding: 20px;
+      position: relative;
+    }
+    .opponents {
+      display: flex;
+      justify-content: space-around;
+    }
+    .seat {
+      text-align: center;
+      padding: 9px;
+      border-radius: 12px;
+      background: #082d23aa;
+      min-width: 135px;
+    }
+    .seat.fold {
+      opacity: 0.45;
+    }
+    .cards {
+      display: flex;
+      justify-content: center;
+      gap: 7px;
+      margin: 12px;
+    }
+    .card {
+      width: 64px;
+      height: 90px;
+      border-radius: 8px;
+      background: #fff;
+      color: #171717;
+      padding: 6px;
+      font-weight: 900;
+      font-size: 19px;
+      border: 1px solid #bbb;
+    }
+    .red {
+      color: #c52e3d;
+    }
+    .back {
+      background: repeating-linear-gradient(
+        45deg,
+        #293a84 0 7px,
+        #5269bd 7px 14px
+      );
+      border: 4px solid white;
+    }
+    .pot {
+      text-align: center;
+      font-size: 23px;
+      color: #ffe079;
+    }
+    .player {
+      text-align: center;
+      margin-top: 35px;
+    }
+    .actions {
+      justify-content: center;
+    }
+    .actions button {
+      min-width: 90px;
+    }
+    .log {
+      height: 65px;
+      overflow: auto;
+      text-align: center;
+      color: #c8dfd2;
+      font-size: 13px;
+    }
+    button {
+      padding: 10px 13px;
+      border: 1px solid #78a28f;
+      border-radius: 9px;
+      background: #245f4c;
+      color: white;
+      font-weight: bold;
+    }
+    .raise {
+      background: #a85c28;
+    }
+    .danger {
+      background: #8d393e;
+    }
+    .help {
+      font-size: 13px;
+      color: #bfd5cb;
+    }
+    @media (max-width: 650px) {
+      .table {
+        border-radius: 25px;
+        padding: 10px;
+      }
+      .seat {
+        min-width: 90px;
+        font-size: 12px;
+      }
+      .card {
+        width: 45px;
+        height: 66px;
+        font-size: 14px;
+      }
+      .app {
+        place-items: start center;
+      }
+    }
+  </style>
+  <main class="app">
+    <section class="shell">
+      <div class="top">
+        <div>
+          <h1 style="margin: 0">河牌之夜</h1>
+          <div class="help">
+            德州扑克淘汰赛：读牌、跟注、加注或弃牌，赢下筹码并击败三名对手。
+          </div>
+        </div>
+        <div>
+          第 <b id="handNo"></b> 手　盲注 <b id="blind"></b>　你的筹码
+          <b id="chips"></b>
+        </div>
+      </div>
+      <div class="table">
+        <div class="opponents" id="opponents"></div>
+        <div class="pot">底池 <b id="pot"></b> · <span id="street"></span></div>
+        <div class="cards" id="board"></div>
+        <div class="player">
+          <div class="cards" id="hole"></div>
+          <div id="handName"></div>
+        </div>
+        <div class="row actions">
+          <button id="check">跟注 / 过牌</button
+          ><button class="raise" id="raise">加注</button
+          ><button class="danger" id="fold">弃牌</button
+          ><button id="nextHand" style="display: none">下一手</button>
+        </div>
+        <div class="log" id="log"></div>
+      </div>
+      <div class="row">
+        <span>锦标赛目标：成为唯一仍有筹码的玩家</span
+        ><button id="restart">新锦标赛</button>
+      </div>
+    </section>
+  </main>
+  <script>
+    const suits = ["♠", "♥", "♦", "♣"],
+      ranks = [
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "J",
+        "Q",
+        "K",
+        "A",
+      ];
+    let q;
+    const $ = (x) => document.getElementById(x);
+    function deck() {
+      let d = [];
+      for (let s = 0; s < 4; s++) for (let r = 0; r < 13; r++) d.push({ s, r });
+      for (let i = d.length - 1; i; i--) {
+        let j = Math.floor(Math.random() * (i + 1));
+        [d[i], d[j]] = [d[j], d[i]];
+      }
+      return d;
+    }
+    function fresh() {
+      return {
+        hand: 0,
+        players: [
+          { n: "你", chips: 500 },
+          { n: "红狐", chips: 500 },
+          { n: "蓝鲸", chips: 500 },
+          { n: "夜枭", chips: 500 },
+        ],
+        dealer: 0,
+        logs: [],
+        over: false,
+      };
+    }
+    function start() {
+      q.hand++;
+      q.dealer = (q.dealer + 1) % 4;
+      let d = deck();
+      q.players.forEach((p) => {
+        p.hole = [d.pop(), d.pop()];
+        p.fold = p.chips <= 0;
+        p.bet = 0;
+      });
+      q.community = [d.pop(), d.pop(), d.pop(), d.pop(), d.pop()];
+      q.shown = 0;
+      q.pot = 0;
+      q.ended = false;
+      q.blind = 10 + Math.floor(q.hand / 5) * 5;
+      for (let i = 0; i < q.players.length; i++)
+        if (!q.players[i].fold) {
+          let pay = Math.min(q.players[i].chips, q.blind);
+          q.players[i].chips -= pay;
+          q.players[i].bet = pay;
+          q.pot += pay;
+        }
+      q.logs = [`第 ${q.hand} 手牌开始，所有在场玩家投入盲注。`];
+      draw();
+    }
+    function card(c, hidden = false) {
+      if (hidden) return '<div class="card back"></div>';
+      return `<div class="card ${c.s === 1 || c.s === 2 ? "red" : ""}">${ranks[c.r]}${suits[c.s]}<br><center>${suits[c.s]}</center></div>`;
+    }
+    function combos(a) {
+      let out = [];
+      for (let i = 0; i < a.length - 4; i++)
+        for (let j = i + 1; j < a.length - 3; j++)
+          for (let k = j + 1; k < a.length - 2; k++)
+            for (let l = k + 1; l < a.length - 1; l++)
+              for (let m = l + 1; m < a.length; m++)
+                out.push([a[i], a[j], a[k], a[l], a[m]]);
+      return out;
+    }
+    function five(a) {
+      let rs = a.map((c) => c.r).sort((x, y) => y - x),
+        cnt = {};
+      rs.forEach((r) => (cnt[r] = (cnt[r] || 0) + 1));
+      let groups = Object.entries(cnt)
+          .map(([r, n]) => [+r, n])
+          .sort((a, b) => b[1] - a[1] || b[0] - a[0]),
+        flush = a.every((c) => c.s === a[0].s),
+        u = [...new Set(rs)],
+        straight = false,
+        hi = u[0];
+      if (u.join(",") === "12,3,2,1,0") {
+        straight = true;
+        hi = 3;
+      } else
+        for (let i = 0; i <= u.length - 5; i++)
+          if (u[i] - u[i + 4] === 4) {
+            straight = true;
+            hi = u[i];
+            break;
+          }
+      let cat =
+          straight && flush
+            ? 8
+            : groups[0][1] === 4
+              ? 7
+              : groups[0][1] === 3 && groups[1]?.[1] === 2
+                ? 6
+                : flush
+                  ? 5
+                  : straight
+                    ? 4
+                    : groups[0][1] === 3
+                      ? 3
+                      : groups[0][1] === 2 && groups[1]?.[1] === 2
+                        ? 2
+                        : groups[0][1] === 2
+                          ? 1
+                          : 0,
+        order =
+          cat === 8
+            ? [hi]
+            : cat === 7
+              ? [groups[0][0], ...groups.slice(1).map((x) => x[0])]
+              : cat === 6
+                ? [groups[0][0], groups[1][0]]
+                : cat === 5
+                  ? rs
+                  : cat === 4
+                    ? [hi]
+                    : cat === 3
+                      ? [groups[0][0], ...groups.slice(1).map((x) => x[0])]
+                      : cat === 2
+                        ? [groups[0][0], groups[1][0], groups[2][0]]
+                        : cat === 1
+                          ? [groups[0][0], ...groups.slice(1).map((x) => x[0])]
+                          : rs;
+      return {
+        score:
+          cat * 1e8 + order.reduce((v, r, i) => v + r * Math.pow(14, 4 - i), 0),
+        cat,
+      };
+    }
+    function best(cards) {
+      return combos(cards)
+        .map(five)
+        .sort((a, b) => b.score - a.score)[0];
+    }
+    const names = [
+      "高牌",
+      "一对",
+      "两对",
+      "三条",
+      "顺子",
+      "同花",
+      "葫芦",
+      "四条",
+      "同花顺",
+    ];
+    function aiRound(cost, raised) {
+      for (let i = 1; i < 4; i++) {
+        let p = q.players[i];
+        if (p.fold) continue;
+        let strength =
+          p.hole[0].r +
+          p.hole[1].r +
+          (p.hole[0].r === p.hole[1].r ? 12 : 0) +
+          (p.hole[0].s === p.hole[1].s ? 3 : 0) +
+          q.shown * 2;
+        if (
+          cost > p.chips ||
+          strength + Math.random() * 12 < (cost / (q.blind || 1)) * 3
+        ) {
+          p.fold = true;
+          q.logs.unshift(`${p.n} 弃牌。`);
+        } else {
+          let pay = Math.min(p.chips, cost);
+          p.chips -= pay;
+          q.pot += pay;
+          q.logs.unshift(`${p.n} ${pay ? "跟注 " + pay : "过牌"}。`);
+        }
+      }
+      advance();
+    }
+    function act(kind) {
+      if (q.ended || q.players[0].fold) return;
+      let cost = kind === "raise" ? q.blind * 3 : kind === "call" ? q.blind : 0;
+      if (kind === "fold") {
+        q.players[0].fold = true;
+        q.logs.unshift("你选择弃牌。");
+        return aiRound(0, false);
+      }
+      if (cost > q.players[0].chips) return;
+      q.players[0].chips -= cost;
+      q.pot += cost;
+      q.logs.unshift(
+        kind === "raise" ? `你加注 ${cost}。` : `你跟注 ${cost}。`,
+      );
+      aiRound(cost, kind === "raise");
+    }
+    function advance() {
+      let live = q.players.filter((p) => !p.fold);
+      if (live.length === 1) return finish(live[0]);
+      q.shown = q.shown === 0 ? 3 : q.shown + 1;
+      if (q.shown > 5) return showdown();
+      q.players.forEach((p) => (p.bet = 0));
+      draw();
+    }
+    function showdown() {
+      let live = q.players.filter((p) => !p.fold),
+        ranked = live
+          .map((p) => ({ p, e: best([...p.hole, ...q.community]) }))
+          .sort((a, b) => b.e.score - a.e.score),
+        win = ranked[0];
+      finish(win.p, `${win.p.n} 以${names[win.e.cat]}获胜。`);
+    }
+    function finish(winner, text) {
+      winner.chips += q.pot;
+      q.logs.unshift(text || `${winner.n} 赢得无人跟注的底池。`);
+      q.ended = true;
+      if (q.players[0].chips <= 0) {
+        q.over = true;
+        q.logs.unshift("你的筹码归零，锦标赛结束。");
+      }
+      let ai = q.players.slice(1).filter((p) => p.chips > 0);
+      if (!ai.length) {
+        q.over = true;
+        q.logs.unshift("恭喜！你成为锦标赛冠军！");
+      }
+      draw();
+    }
+    function draw() {
+      handNo.textContent = q.hand;
+      blind.textContent = q.blind;
+      chips.textContent = q.players[0].chips;
+      pot.textContent = q.pot;
+      street.textContent = ["翻牌前", "翻牌圈", "转牌圈", "河牌圈"][
+        q.shown === 0 ? 0 : q.shown === 3 ? 1 : q.shown === 4 ? 2 : 3
+      ];
+      opponents.innerHTML = q.players
+        .slice(1)
+        .map(
+          (p) =>
+            `<div class="seat ${p.fold ? "fold" : ""}"><b>${p.n}</b><div class="cards">${card(p.hole[0], !q.ended)}${card(p.hole[1], !q.ended)}</div><span>${p.chips} 筹码 ${p.fold ? "· 已弃牌" : ""}</span></div>`,
+        )
+        .join("");
+      board.innerHTML = q.community
+        .map((c, i) =>
+          i < q.shown ? card(c) : '<div class="card back"></div>',
+        )
+        .join("");
+      hole.innerHTML = q.players[0].hole.map((c) => card(c)).join("");
+      handName.textContent =
+        q.shown >= 3
+          ? `当前牌力：${names[best([...q.players[0].hole, ...q.community.slice(0, q.shown)]).cat]}`
+          : "";
+      log.innerHTML = q.logs.map((s) => `<div>• ${s}</div>`).join("");
+      nextHand.style.display = q.ended && !q.over ? "inline-block" : "none";
+      check.disabled = raise.disabled = fold.disabled = q.ended || q.over;
+    }
+    check.onclick = () => act("call");
+    raise.onclick = () => act("raise");
+    fold.onclick = () => act("fold");
+    nextHand.onclick = start;
+    restart.onclick = () => {
+      q = fresh();
+      start();
+    };
+    q = fresh();
+    start();
+  </script>
+</html>

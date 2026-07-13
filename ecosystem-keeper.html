@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>生态方舟</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #10271f;
+      color: #f1f9e9;
+      font-family: system-ui, "Microsoft YaHei";
+    }
+    .app {
+      min-height: 100vh;
+      padding: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .shell {
+      width: min(980px, 100%);
+      background: #214536;
+      border: 1px solid #668c70;
+      border-radius: 20px;
+      padding: 16px;
+    }
+    .top,
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .world {
+      height: 360px;
+      margin: 12px 0;
+      border-radius: 14px;
+      background: linear-gradient(#85c9df 0 38%, #83a95f 38%);
+      position: relative;
+      overflow: hidden;
+    }
+    .creature {
+      position: absolute;
+      font-size: 28px;
+      transition: all 0.8s;
+    }
+    .sun {
+      position: absolute;
+      right: 7%;
+      top: 8%;
+      font-size: 50px;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 12px;
+    }
+    .panel {
+      background: #17362a;
+      border: 1px solid #52765d;
+      border-radius: 11px;
+      padding: 10px;
+      margin-bottom: 9px;
+    }
+    .species {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
+    }
+    .stat {
+      display: flex;
+      justify-content: space-between;
+      padding: 5px;
+      border-bottom: 1px solid #ffffff18;
+    }
+    .log {
+      height: 110px;
+      overflow: auto;
+      color: #bdd2bd;
+      font-size: 13px;
+    }
+    button {
+      padding: 9px 11px;
+      border: 1px solid #78967c;
+      border-radius: 9px;
+      background: #3b6848;
+      color: white;
+      font-weight: bold;
+    }
+    button:disabled {
+      opacity: 0.45;
+    }
+    .next {
+      background: #8e7132;
+    }
+    .help {
+      font-size: 13px;
+      color: #bed2bd;
+    }
+    @media (max-width: 700px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      .world {
+        height: 300px;
+      }
+      .app {
+        place-items: start center;
+      }
+    }
+  </style>
+  <main class="app">
+    <section class="shell">
+      <div class="top">
+        <div>
+          <h1 style="margin: 0">生态方舟</h1>
+          <div class="help">
+            建立稳定食物网：植物供养草食动物，捕食者控制种群，水源和气候影响承载力。
+          </div>
+        </div>
+        <div>
+          年份 <b id="year"></b>/20　生态点 <b id="points"></b>　多样性
+          <b id="diversity"></b>　稳定度 <b id="stability"></b>
+        </div>
+      </div>
+      <div class="world" id="world"><div class="sun" id="sun"></div></div>
+      <div class="layout">
+        <div>
+          <div class="panel">
+            <b>引入物种与环境工程</b>
+            <div class="species" id="actions"></div>
+          </div>
+          <div class="row">
+            <button class="next" id="nextYear">推进一年</button
+            ><button id="rain">人工降雨（8）</button
+            ><button id="reserve">建立保护区（20）</button
+            ><button id="restart">重建方舟</button>
+          </div>
+        </div>
+        <aside>
+          <div class="panel">
+            <b>种群监测</b>
+            <div id="stats"></div>
+          </div>
+          <div class="panel">
+            <b>二十年目标</b>
+            <div id="goal"></div>
+          </div>
+          <div class="panel log" id="log"></div>
+        </aside>
+      </div>
+    </section>
+  </main>
+  <script>
+    const S = [
+        ["草木", "🌿", "plant", 2],
+        ["花丛", "🌼", "plant", 3],
+        ["兔群", "🐇", "herb", 5],
+        ["鹿群", "🦌", "herb", 7],
+        ["狼群", "🐺", "pred", 10],
+        ["鹰群", "🦅", "pred", 9],
+      ],
+      weather = [
+        ["温和", "☀️", 1],
+        ["雨季", "🌧️", 1.25],
+        ["干旱", "🔥", 0.65],
+        ["寒潮", "❄️", 0.78],
+      ];
+    let q;
+    const $ = (x) => document.getElementById(x);
+    function fresh() {
+      return {
+        year: 1,
+        points: 25,
+        pop: [30, 15, 6, 3, 1, 1],
+        water: 70,
+        reserve: 0,
+        w: 0,
+        logs: ["生态方舟启动，初始食物网十分脆弱。"],
+        over: false,
+      };
+    }
+    function introduce(i) {
+      let cost = S[i][3];
+      if (q.points < cost) return;
+      q.points -= cost;
+      q.pop[i] += i < 2 ? 15 : i < 4 ? 4 : 2;
+      q.logs.unshift(`引入${S[i][0]}。`);
+      draw();
+    }
+    function next() {
+      if (q.over) return;
+      let w = weather[q.w],
+        plants = q.pop[0] + q.pop[1],
+        herbs = q.pop[2] + q.pop[3],
+        pred = q.pop[4] + q.pop[5],
+        cap = q.water * w[2] + q.reserve * 10;
+      q.pop[0] = Math.max(
+        0,
+        Math.round(q.pop[0] * (1.18 * w[2]) - herbs * 0.35),
+      );
+      q.pop[1] = Math.max(
+        0,
+        Math.round(q.pop[1] * (1.14 * w[2]) - herbs * 0.22),
+      );
+      q.pop[2] = Math.max(
+        0,
+        Math.round(
+          q.pop[2] +
+            Math.min(8, plants / 12) -
+            pred * 0.6 -
+            (q.pop[2] * q.pop[2]) / Math.max(30, cap),
+        ),
+      );
+      q.pop[3] = Math.max(
+        0,
+        Math.round(
+          q.pop[3] +
+            Math.min(5, plants / 20) -
+            pred * 0.7 -
+            (q.pop[3] * q.pop[3]) / Math.max(30, cap),
+        ),
+      );
+      q.pop[4] = Math.max(
+        0,
+        Math.round(q.pop[4] + herbs / 18 - q.pop[4] * 0.35),
+      );
+      q.pop[5] = Math.max(
+        0,
+        Math.round(q.pop[5] + herbs / 25 - q.pop[5] * 0.3),
+      );
+      q.water = Math.max(
+        15,
+        Math.min(100, q.water + (q.w === 1 ? 20 : q.w === 2 ? -18 : -3)),
+      );
+      q.points += 5 + q.reserve * 2;
+      q.year++;
+      q.w = Math.floor(Math.random() * weather.length);
+      q.logs.unshift(`${weather[q.w][0]}到来，种群完成年度演替。`);
+      if (q.year > 20) {
+        q.over = true;
+        q.logs.unshift(
+          calc().stable >= 70 && calc().div >= 5
+            ? "二十年生态稳定，方舟计划成功！"
+            : "生态周期结束，仍需改善食物网。",
+        );
+      }
+      draw();
+    }
+    function calc() {
+      let alive = q.pop.filter((x) => x > 0).length,
+        ratio = (q.pop[2] + q.pop[3] + 1) / (q.pop[4] + q.pop[5] + 1),
+        balance = Math.max(0, 100 - Math.abs(ratio - 5) * 12),
+        stable = Math.round(
+          Math.min(100, balance * 0.65 + q.water * 0.25 + q.reserve * 5),
+        );
+      return { div: alive, stable };
+    }
+    function draw() {
+      let c = calc();
+      year.textContent = Math.min(20, q.year);
+      points.textContent = q.points;
+      diversity.textContent = c.div;
+      stability.textContent = c.stable;
+      sun.textContent = weather[q.w][1];
+      world.querySelectorAll(".creature").forEach((e) => e.remove());
+      q.pop.forEach((n, i) => {
+        let count = Math.min(8, Math.ceil(n / 8));
+        for (let k = 0; k < count; k++) {
+          let e = document.createElement("span");
+          e.className = "creature";
+          e.textContent = S[i][1];
+          e.style.left = 5 + ((i * 17 + k * 11) % 88) + "%";
+          e.style.top = 44 + ((i * 23 + k * 19) % 45) + "%";
+          world.append(e);
+        }
+      });
+      actions.innerHTML = S.map(
+        (s, i) => `<button data-i="${i}">${s[1]}${s[0]} ${s[3]}</button>`,
+      ).join("");
+      actions
+        .querySelectorAll("[data-i]")
+        .forEach((e) => (e.onclick = () => introduce(+e.dataset.i)));
+      stats.innerHTML =
+        S.map(
+          (s, i) =>
+            `<div class="stat"><span>${s[1]}${s[0]}</span><b>${q.pop[i]}</b></div>`,
+        ).join("") +
+        `<div class="stat"><span>水源</span><b>${q.water}</b></div>`;
+      goal.innerHTML = `在第 20 年保持：<br>多样性 ≥ 5（${c.div}）<br>稳定度 ≥ 70（${c.stable}）<br><span class="help">草食动物约为捕食者的五倍时最稳定。</span>`;
+      log.innerHTML = q.logs
+        .slice(0, 9)
+        .map((x) => `<div>• ${x}</div>`)
+        .join("");
+      nextYear.disabled = q.over;
+    }
+    nextYear.onclick = next;
+    rain.onclick = () => {
+      if (q.points >= 8) {
+        q.points -= 8;
+        q.water = Math.min(100, q.water + 25);
+        draw();
+      }
+    };
+    reserve.onclick = () => {
+      if (q.points >= 20) {
+        q.points -= 20;
+        q.reserve++;
+        draw();
+      }
+    };
+    restart.onclick = () => {
+      q = fresh();
+      draw();
+    };
+    q = fresh();
+    draw();
+  </script>
+</html>

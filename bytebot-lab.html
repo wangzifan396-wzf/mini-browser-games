@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>字节机器人</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #0b1720;
+      color: #ecfbff;
+      font-family: ui-monospace, Consolas, "Microsoft YaHei", monospace;
+    }
+    .app {
+      min-height: 100vh;
+      padding: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .shell {
+      width: min(940px, 100%);
+      background: #132a36;
+      border: 1px solid #3f7285;
+      border-radius: 20px;
+      padding: 16px;
+    }
+    .top,
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .board {
+      display: grid;
+      gap: 3px;
+      background: #08171e;
+      padding: 7px;
+      border-radius: 11px;
+    }
+    .cell {
+      aspect-ratio: 1;
+      border: 1px solid #315667;
+      border-radius: 5px;
+      background: #1b3a48;
+      display: grid;
+      place-items: center;
+      font-size: 25px;
+    }
+    .wall {
+      background: #33434a;
+    }
+    .goal {
+      box-shadow: inset 0 0 0 4px #62df9b;
+    }
+    .panel {
+      background: #0d2029;
+      border: 1px solid #315767;
+      border-radius: 11px;
+      padding: 10px;
+      margin-bottom: 9px;
+    }
+    .program {
+      min-height: 75px;
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+    .cmd {
+      padding: 7px;
+      background: #274c5b;
+      border-radius: 7px;
+    }
+    .cmd.active {
+      outline: 3px solid #ffe069;
+    }
+    .log {
+      height: 100px;
+      overflow: auto;
+      color: #acd0dc;
+      font-size: 13px;
+    }
+    button {
+      padding: 9px 11px;
+      border: 1px solid #4f7a8b;
+      border-radius: 8px;
+      background: #235064;
+      color: #fff;
+      font-weight: bold;
+    }
+    .run {
+      background: #337b59;
+    }
+    .help {
+      font-size: 13px;
+      color: #afd0da;
+    }
+    @media (max-width: 680px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      .app {
+        place-items: start center;
+      }
+    }
+  </style>
+  <main class="app">
+    <section class="shell">
+      <div class="top">
+        <div>
+          <h1 style="margin: 0">字节机器人</h1>
+          <div class="help">
+            编排前进、转向和循环指令，让机器人收集全部芯片后抵达绿色终点。
+          </div>
+        </div>
+        <div>
+          关卡 <b id="level"></b>/8　预算 <b id="budget"></b>　步数
+          <b id="steps"></b>
+        </div>
+      </div>
+      <div class="layout">
+        <div>
+          <div class="board" id="board"></div>
+          <div class="row" style="margin-top: 9px">
+            <button data-c="F">↑ 前进</button><button data-c="L">↶ 左转</button
+            ><button data-c="R">↷ 右转</button
+            ><button data-c="2">×2 循环</button><button id="undo">撤销</button
+            ><button class="run" id="run">运行程序</button
+            ><button id="reset">复位</button>
+          </div>
+        </div>
+        <aside>
+          <div class="panel">
+            <b>程序队列</b>
+            <div class="program" id="program"></div>
+          </div>
+          <div class="panel">
+            <b>任务</b>
+            <div id="mission"></div>
+          </div>
+          <div class="panel log" id="log"></div>
+        </aside>
+      </div>
+    </section>
+  </main>
+  <script>
+    const LEVELS = [
+      ["#######", "#>..cG#", "#######"],
+      ["#######", "#>....#", "#.###c#", "#....G#", "#######"],
+      ["########", "#..c...#", "#.####.#", "#>....c#", "####.#G#", "########"],
+      ["########", "#>..#cG#", "#.#.#..#", "#.#....#", "#...c..#", "########"],
+      [
+        "#########",
+        "#>..c...#",
+        "###.###.#",
+        "#c......#",
+        "#.#####.#",
+        "#.....cG#",
+        "#########",
+      ],
+      [
+        "#########",
+        "#c..#..G#",
+        "#.#.#.#.#",
+        "#.#...#.#",
+        "#.#####.#",
+        "#>c.....#",
+        "#########",
+      ],
+      [
+        "##########",
+        "#>...#...#",
+        "#.##.#.cG#",
+        "#....#...#",
+        "####.###.#",
+        "#c.......#",
+        "##########",
+      ],
+      [
+        "##########",
+        "#>c......#",
+        "###.####.#",
+        "#...c....#",
+        "#.#####.##",
+        "#c.....cG#",
+        "##########",
+      ],
+    ];
+    let q,
+      timer = null;
+    const $ = (x) => document.getElementById(x);
+    function load(l = 0) {
+      let map = LEVELS[l],
+        walls = new Set(),
+        coins = new Set(),
+        p;
+      map.forEach((r, y) =>
+        [...r].forEach((v, x) => {
+          let k = x + "," + y;
+          if (v === "#") walls.add(k);
+          if (v === "c") coins.add(k);
+          if (v === ">") p = { x, y, d: 0 };
+          if (v === "G") qgoal = { x, y };
+        }),
+      );
+      q = {
+        lv: l,
+        map,
+        w: map[0].length,
+        h: map.length,
+        walls,
+        coins,
+        start: { ...p },
+        p,
+        goal: { ...qgoal },
+        prog: [],
+        steps: 0,
+        logs: ["添加指令并运行。"],
+        running: false,
+      };
+      draw();
+    }
+    let qgoal;
+    function expand(prog) {
+      let out = [];
+      for (let i = 0; i < prog.length; i++) {
+        if (prog[i] === "2" && out.length) {
+          let last = out.at(-1);
+          out.push(last);
+        } else out.push(prog[i]);
+      }
+      return out.filter((x) => x !== "2");
+    }
+    function execute() {
+      if (q.running || !q.prog.length) return;
+      let cmds = expand(q.prog);
+      q.p = { ...q.start };
+      q.coins = new Set();
+      LEVELS[q.lv].forEach((r, y) =>
+        [...r].forEach((v, x) => v === "c" && q.coins.add(x + "," + y)),
+      );
+      q.steps = 0;
+      q.running = true;
+      let i = 0;
+      timer = setInterval(() => {
+        if (i >= cmds.length) {
+          clearInterval(timer);
+          q.running = false;
+          return finish();
+        }
+        let c = cmds[i++];
+        program.children[
+          Math.min(i - 1, program.children.length - 1)
+        ]?.classList.add("active");
+        if (c === "L") q.p.d = (q.p.d + 3) % 4;
+        if (c === "R") q.p.d = (q.p.d + 1) % 4;
+        if (c === "F") {
+          let d = [
+              [1, 0],
+              [0, 1],
+              [-1, 0],
+              [0, -1],
+            ][q.p.d],
+            x = q.p.x + d[0],
+            y = q.p.y + d[1];
+          if (q.walls.has(x + "," + y)) {
+            q.logs.unshift("机器人撞到墙，程序中止。");
+            clearInterval(timer);
+            q.running = false;
+            draw();
+            return;
+          }
+          q.p.x = x;
+          q.p.y = y;
+          q.coins.delete(x + "," + y);
+        }
+        q.steps++;
+        draw();
+      }, 330);
+    }
+    function finish() {
+      let ok = q.p.x === q.goal.x && q.p.y === q.goal.y && !q.coins.size;
+      if (ok) {
+        q.logs.unshift("程序成功！芯片已收集，终点已到达。");
+        draw();
+        if (q.lv < LEVELS.length - 1) setTimeout(() => load(q.lv + 1), 700);
+        else setTimeout(() => alert("八项编程实验全部完成！"), 50);
+      } else {
+        q.logs.unshift(`程序结束：剩余 ${q.coins.size} 枚芯片，检查指令。`);
+        draw();
+      }
+    }
+    function draw() {
+      level.textContent = q.lv + 1;
+      budget.textContent = `${q.prog.length}/${8 + q.lv}`;
+      steps.textContent = q.steps;
+      board.style.gridTemplateColumns = `repeat(${q.w},1fr)`;
+      board.innerHTML = "";
+      for (let y = 0; y < q.h; y++)
+        for (let x = 0; x < q.w; x++) {
+          let k = x + "," + y,
+            e = document.createElement("div");
+          e.className =
+            "cell " +
+            (q.walls.has(k) ? "wall " : "") +
+            (x === q.goal.x && y === q.goal.y ? "goal" : "");
+          e.textContent = q.walls.has(k)
+            ? ""
+            : q.p.x === x && q.p.y === y
+              ? ["🤖→", "🤖↓", "←🤖", "↑🤖"][q.p.d]
+              : q.coins.has(k)
+                ? "💾"
+                : "";
+          board.append(e);
+        }
+      program.innerHTML = q.prog
+        .map(
+          (c, i) =>
+            `<span class="cmd">${{ F: "前进", L: "左转", R: "右转", 2: "重复" }[c]}</span>`,
+        )
+        .join("");
+      mission.innerHTML = `收集 ${[...LEVELS[q.lv].join("")].filter((x) => x === "c").length} 枚芯片并抵达终点。<br><span class="help">×2 会复制它前一条指令，不额外增加运行步骤。</span>`;
+      log.innerHTML = q.logs
+        .slice(0, 8)
+        .map((x) => `<div>• ${x}</div>`)
+        .join("");
+      run.disabled = q.running;
+    }
+    document.querySelectorAll("[data-c]").forEach(
+      (e) =>
+        (e.onclick = () => {
+          if (q.prog.length < 8 + q.lv) {
+            q.prog.push(e.dataset.c);
+            draw();
+          }
+        }),
+    );
+    undo.onclick = () => {
+      q.prog.pop();
+      draw();
+    };
+    run.onclick = execute;
+    reset.onclick = () => load(q.lv);
+    load();
+  </script>
+</html>
