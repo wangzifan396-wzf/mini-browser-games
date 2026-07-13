@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#101824">
+    <meta name="description" content="WebGL2 硬件加速、前后端分离的星炉工坊挂机游戏">
+    <title>星炉工坊</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23101824'/%3E%3Ccircle cx='32' cy='32' r='14' fill='%23f0d16f'/%3E%3Cpath d='M32 8v12M32 44v12M8 32h12M44 32h12M17 17l8 8M39 39l8 8M47 17l-8 8M25 39l-8 8' stroke='%238bd0bb' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
+    <link rel="stylesheet" href="./css/game.css">
+  </head>
+  <body>
+    <main class="app">
+      <header class="topbar">
+        <div><p class="eyebrow">STARFORGE NEXUS · IDLE WORKSHOP V8</p><h1>星炉工坊</h1><span class="gpu-badge" id="gpuBadge" role="status">检测显卡…</span></div>
+        <div class="actions"><button class="btn" id="tapBtn">校准星炉</button><button class="btn boost" id="overclockBtn">星炉超频</button><button class="btn secondary" id="exportBtn">导出</button><button class="btn secondary" id="importBtn">导入</button><button class="btn warn" id="hardResetBtn">清档</button></div>
+      </header>
+      <section class="layout">
+        <div class="panel stage">
+          <canvas id="gpuCanvas" aria-hidden="true"></canvas>
+          <canvas id="gameCanvas" aria-label="星炉工坊挂机游戏画面"></canvas>
+        <div class="hud battle-hud">
+            <div class="chip"><b id="battleZoneHud">战区 1</b><small>推进目标</small></div>
+            <div class="chip"><b id="enemyHud">100%</b><small>敌方结构</small></div>
+            <div class="chip"><b id="playerHud">100%</b><small>舰体状态</small></div>
+            <div class="chip"><b id="dpsHud">0/s</b><small>舰队火力</small></div>
+            <div class="chip"><b id="lootHud">0</b><small>预计战利</small></div>
+            <div class="chip"><b id="stanceHud">突击</b><small>当前战术</small></div>
+            <div class="chip"><b id="fluxHud">0 / 0</b><small>时砂储备</small></div>
+            <div class="chip"><b id="momentumHud">0%</b><small>战意齐射</small></div>
+          </div>
+        </div>
+        <aside class="side">
+          <section class="panel section">
+            <div class="resources">
+              <div class="res"><b id="dustText">0</b><small>星尘 / <span id="dustRate">0/s</span></small></div>
+              <div class="res"><b id="crystalText">0</b><small>晶矿 / <span id="crystalRate">0/s</span></small></div>
+              <div class="res"><b id="alloyText">0</b><small>合金 / <span id="alloyRate">0/s</span></small></div>
+              <div class="res"><b id="scienceText">0</b><small>研究 / <span id="scienceRate">0/s</span></small></div>
+              <div class="res"><b id="fragmentsText">0</b><small>碎片 / <span id="fragmentsRate">0/s</span></small></div>
+              <div class="res"><b id="salvageText">0</b><small>战利 / <span id="salvageRate">0/s</span></small></div>
+              <div class="res"><b id="plasmaText">0</b><small>星辉 / <span id="plasmaRate">0/s</span></small></div>
+              <div class="res"><b id="dataText">0</b><small>数据 / <span id="dataRate">0/s</span></small></div>
+              <div class="res"><b id="influenceText">0</b><small>声望 / <span id="influenceRate">0/s</span></small></div>
+              <div class="res"><b id="darkText">0</b><small>暗质 / <span id="darkRate">0/s</span></small></div>
+              <div class="res"><b id="energyText">0</b><small>星能 / <span id="energyRate">0/s</span></small></div>
+            </div>
+            <p class="log" id="logText">星炉已待命。手动校准、买装置、派远航，离线回来会结算收益。</p>
+          </section>
+          <section class="panel section">
+            <div class="tabs"><button class="tab active" data-view="overview">总览</button><button class="tab" data-view="build">建筑</button><button class="tab" data-view="research">研究</button><button class="tab" data-view="orders">委托</button><button class="tab" data-view="crew">专员</button><button class="tab" data-view="voyage">远航</button><button class="tab" data-view="battle">战斗</button><button class="tab" data-view="projects">星环</button><button class="tab" data-view="celestial">天象</button><button class="tab" data-view="achieve">成就</button><button class="tab" data-view="legacy">星核</button><button class="tab" data-view="save">存档</button></div>
+          </section>
+          <section class="panel section view active" id="overviewView"><h2>工坊总览</h2><div class="summary" id="overviewSummary"></div><div class="list" id="overviewList"></div></section>
+          <section class="panel section view" id="buildView"><h2>生产建筑</h2><div class="summary" id="buildSummary"></div><div class="list" id="buildingList"></div></section>
+          <section class="panel section view" id="researchView"><h2>研究升级</h2><div class="list" id="researchList"></div><h2 style="margin-top:14px">研究矩阵</h2><div class="summary" id="matrixSummary"></div><div class="list" id="matrixList"></div></section>
+          <section class="panel section view" id="ordersView"><h2>行星委托</h2><div class="summary" id="orderSummary"></div><div class="list" id="orderList"></div></section>
+          <section class="panel section view" id="crewView"><h2>专员养成</h2><div class="summary" id="crewSummary"></div><div class="list" id="crewList"></div><h2 style="margin-top:14px">专员进阶</h2><div class="list" id="crewRankList"></div></section>
+          <section class="panel section view" id="voyageView"><h2>远航与遗物</h2><div id="voyageStatus"></div><div class="list" id="voyageList"></div><h2 style="margin-top:14px">遗物工坊</h2><div class="list" id="artifactList"></div></section>
+          <section class="panel section view" id="battleView"><h2>星域战斗</h2><div class="summary" id="battleSummary"></div><div id="battleStatus"></div><h2 style="margin-top:14px">舰队属性</h2><div class="list" id="battleAttrList"></div><h2 style="margin-top:14px">装备锻造</h2><div class="list" id="gearList"></div><h2 style="margin-top:14px">战斗核心</h2><div class="list" id="combatUpList"></div></section>
+          <section class="panel section view" id="projectsView"><h2>星环工程</h2><div class="summary" id="projectSummary"></div><div class="list" id="projectList"></div></section>
+          <section class="panel section view" id="celestialView"><h2>天象校准</h2><div class="summary" id="celestialSummary"></div><div class="list" id="constellationList"></div><h2 style="margin-top:14px">星域演算</h2><div class="list" id="trialList"></div></section>
+          <section class="panel section view" id="achieveView"><h2>星炉成就</h2><div class="summary" id="achievementSummary"></div><h2 style="margin-top:14px">局外星图</h2><div class="list" id="metaList"></div><h2 style="margin-top:14px">成就清单</h2><div class="list" id="achievementList"></div></section>
+          <section class="panel section view" id="legacyView"><h2>星核重启</h2><div class="list"><div class="item"><div><h3>点燃下一轮宇宙</h3><p id="prestigeInfo">累计星尘达到 250K 后可获得星核。星核、专员、遗物和成就会保留。</p></div><button class="buy" id="prestigeBtn">重启</button></div></div><h2 style="margin-top:14px">星核天赋</h2><div class="list" id="coreUpgradeList"></div></section>
+          <section class="panel section view" id="saveView"><h2>存档同步</h2><p class="log">本机自动保存。导出存档码后可以发到手机导入；以后接云存档也会用同一份 JSON 数据。</p><textarea class="savebox" id="saveBox" spellcheck="false" placeholder="导出的存档码会出现在这里，也可以粘贴存档码后点导入文本框。"></textarea><div class="savegrid"><button class="btn secondary" id="copyBtn">复制存档码</button><button class="btn" id="loadBoxBtn">导入文本框</button></div><h2 style="margin-top:14px">兑换码</h2><p class="log">输入活动码可领取一次性资源包，领取记录会写入存档。</p><textarea class="savebox" id="redeemBox" spellcheck="false" style="min-height:46px" placeholder="例如 STARFORGE"></textarea><div class="savegrid"><button class="btn secondary" id="redeemHintBtn">查看可用码</button><button class="btn" id="redeemBtn">兑换</button></div></section>
+        </aside>
+      </section>
+    </main>
+    <div class="toast hidden" id="toast"></div>
+    <script src="./js/gpu-renderer.js" defer></script>
+    <script src="./js/game.js" defer></script>
+  </body>
+</html>

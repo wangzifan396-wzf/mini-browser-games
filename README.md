@@ -153,6 +153,7 @@
 | 项目 | 技术与内容 | 启动方式 |
 | --- | --- | --- |
 | [Star Cluster Arena（星团大作战）](star-cluster-arena/README.md) | 从单文件版扩展出的高性能版本；Node.js 后端、WebGL2 GPU 批处理、60Hz 固定模拟与高刷新率插值、4K 稳帧模式、100 人 AI 竞技 | 进入 `star-cluster-arena/` 后运行 `node backend/server.mjs`；Windows 可直接双击 `start.cmd` |
+| [Starforge Nexus（星炉工坊）](starforge-nexus/README.md) | `starforge-idle.html` 的前后端高性能版本；WebGL2 程序化星炉、30Hz 固定模拟、GPU 缓存、DOM 降频与高刷新率动画 | 进入 `starforge-nexus/` 后运行 `node backend/server.mjs`；Windows 可直接双击 `start.cmd` |
 
 ## 如何运行
 

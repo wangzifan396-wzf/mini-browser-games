@@ -1,0 +1,22 @@
+{
+  "name": "starforge-nexus",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "前后端分离、WebGL2 硬件加速的星炉工坊挂机游戏",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wangzifan396-wzf/mini-browser-games.git",
+    "directory": "starforge-nexus"
+  },
+  "keywords": ["browser-game", "idle-game", "webgl2", "nodejs", "starforge"],
+  "scripts": {
+    "start": "node backend/server.mjs",
+    "dev": "node --watch backend/server.mjs",
+    "check": "node --check backend/server.mjs && node --check frontend/js/gpu-renderer.js && node --check frontend/js/game.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
