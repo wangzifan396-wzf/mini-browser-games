@@ -110,6 +110,12 @@
 | B+ | [道岔快线](switchyard-rush.html) | 三色列车、道岔方向和站台调度 | 点击道岔或按 `1/2/3` 切换方向，`P` 暂停，`R` 重开 |
 | B | [菜摊敲敲乐](mole-market.html) | 好菜/坏菜辨认、小偷、连击、慢速专注和限时结算 | 点击坏菜与小偷，避开笑脸好菜；连击达标后点击专注减速目标 |
 
+## 前后端扩展项目
+
+| 项目 | 技术与内容 | 启动方式 |
+| --- | --- | --- |
+| [Star Cluster Arena（星团大作战）](star-cluster-arena/README.md) | 从单文件版扩展出的高性能版本；Node.js 后端、WebGL2 GPU 批处理、60Hz 固定模拟与高刷新率插值、4K 稳帧模式、100 人 AI 竞技 | 进入 `star-cluster-arena/` 后运行 `node backend/server.mjs`；Windows 可直接双击 `start.cmd` |
+
 ## 如何运行
 
 直接双击任意 `.html` 文件即可。若浏览器在本地文件模式下限制存档，建议在项目目录启动本地服务：

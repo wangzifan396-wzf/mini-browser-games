@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#061015">
+<meta name="description" content="使用 WebGL 硬件加速的星团大作战网页版游戏">
+<link rel="icon" href="./favicon.svg" type="image/svg+xml">
+<title>星团大作战</title>
+<link rel="stylesheet" href="./css/game.css">
+</head>
+<body>
+  <canvas id="gpuCanvas" aria-hidden="true"></canvas>
+  <canvas id="gameCanvas" aria-label="星团大作战游戏画面"></canvas>
+  <div class="event-banner" id="eventBanner"></div>
+  <div class="lobby-toast" id="lobbyToast"></div>
+
+  <div class="hud">
+    <section class="brand panel" aria-label="玩家状态">
+      <div class="brand-head">
+        <h1>星团大作战</h1>
+        <span class="render-badge" id="renderBadge" role="status">检测显卡…</span>
+      </div>
+      <div class="stats">
+        <div class="stat">
+          <div class="label">质量</div>
+          <div class="value" id="massValue">0</div>
+        </div>
+        <div class="stat">
+          <div class="label">排名</div>
+          <div class="value" id="rankValue">1</div>
+        </div>
+        <div class="stat">
+          <div class="label">分身</div>
+          <div class="value" id="cellValue">1</div>
+        </div>
+        <div class="stat">
+          <div class="label">淘汰</div>
+          <div class="value" id="killValue">0</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="leaderboard panel" aria-label="排行榜">
+      <h2>排行榜</h2>
+      <div class="rank-list" id="rankList"></div>
+    </section>
+
+    <section class="status panel" aria-label="状态">
+      <h2>战况</h2>
+      <div class="tag-list" id="tagList"></div>
+    </section>
+
+    <section class="minimap panel" aria-label="小地图">
+      <canvas id="miniCanvas" width="134" height="134"></canvas>
+    </section>
+
+    <div class="joystick" id="joystick" aria-label="移动摇杆">
+      <div class="joystick-base"></div>
+      <div class="joystick-stick" id="joystickStick"></div>
+    </div>
+
+    <nav class="controls" aria-label="游戏控制">
+      <button class="icon-btn primary" id="splitBtn" title="分裂 空格" aria-label="分裂">分</button>
+      <button class="icon-btn warn" id="ejectBtn" title="按住吐球 W" aria-label="按住吐球">吐</button>
+      <button class="icon-btn" id="pauseBtn" title="暂停或继续 P" aria-label="暂停或继续">停</button>
+      <button class="icon-btn" id="musicBtn" title="BGM 开关" aria-label="BGM 开关">音</button>
+      <button class="icon-btn" id="menuBtn" title="返回主界面" aria-label="返回主界面">厅</button>
+      <button class="icon-btn" id="restartBtn" title="重新开始 R" aria-label="重新开始">新</button>
+    </nav>
+  </div>
+
+  <div class="overlay" id="overlay">
+    <div class="dialog">
+      <h2 id="resultTitle">本轮结束</h2>
+      <div class="final-mass" id="finalMass">0</div>
+      <p id="resultText">再来一局。</p>
+      <div class="meta-strip" id="metaStrip"></div>
+      <div class="lobby-tabs" id="lobbyTabs" aria-label="大厅入口">
+        <button class="lobby-tab active" type="button" data-lobby="play">开始</button>
+        <button class="lobby-tab" type="button" data-lobby="outfit">外观</button>
+        <button class="lobby-tab" type="button" data-lobby="shop">商店</button>
+        <button class="lobby-tab" type="button" data-lobby="forge">铁匠铺</button>
+        <button class="lobby-tab" type="button" data-lobby="growth">成长</button>
+      </div>
+      <div class="lobby-tools">
+        <button type="button" id="musicLobbyBtn">BGM 关</button>
+        <button type="button" id="randomLookBtn">随机已拥有外观</button>
+      </div>
+      <section class="lobby-panel active" data-lobby-panel="play">
+        <div class="mode-grid" id="modeGrid" aria-label="选择模式">
+          <button class="mode-card" type="button" data-mode="solo">
+            <strong>自由模式</strong>
+            <span>12 分钟限时，反复复活，按个人质量结算排名。</span>
+          </button>
+          <button class="mode-card" type="button" data-mode="team">
+            <strong>团队战</strong>
+            <span>10 队 4 人，队友可接分身，按队伍总质量结算。</span>
+          </button>
+          <button class="mode-card" type="button" data-mode="survival">
+            <strong>生存模式</strong>
+            <span>64 人生命制，吞噬加命，生命耗尽出局。</span>
+          </button>
+          <button class="mode-card active" type="button" data-mode="battle">
+            <strong>大逃杀</strong>
+            <span>100 人开局，安全区收缩，圈外掉质量，活到最后。</span>
+          </button>
+          <button class="mode-card" type="button" data-mode="blitz">
+            <strong>闪电乱斗</strong>
+            <span>高密度食点和密集事件，节奏更快，3 分钟左右结算。</span>
+          </button>
+          <button class="mode-card" type="button" data-mode="spore">
+            <strong>孢子风暴</strong>
+            <span>48 人孢子刺战场，所有刺都会炸出一圈可争夺孢子。</span>
+          </button>
+          <button class="mode-card" type="button" data-mode="screen">
+            <strong>霸屏模式</strong>
+            <span>22 人方形战场，A 快合、D 冲刺种刺，88% 区域占领获胜。</span>
+          </button>
+          <button class="mode-card" type="button" data-mode="control">
+            <strong>据点战</strong>
+            <span>4 队 7 人争夺 3 个星核据点，先到目标分获胜。</span>
+          </button>
+          <button class="mode-card" type="button" data-mode="giant">
+            <strong>巨行星霸屏</strong>
+            <span>36 人巨球开局，88% 固定区域占领并维持 6 秒决定胜负。</span>
+          </button>
+          <button class="mode-card" type="button" data-mode="demon">
+            <strong>魔王模式</strong>
+            <span>勇者阵营围攻魔王和魔兵，限时吞掉魔王获胜。</span>
+          </button>
+        </div>
+      </section>
+      <section class="lobby-panel" data-lobby-panel="outfit">
+        <div class="lobby-loadout" id="lobbyLoadout">
+          <div class="loadout-group">
+            <strong>球体皮肤</strong>
+            <div class="cosmetic-grid" id="skinGrid"></div>
+          </div>
+          <div class="loadout-group">
+            <strong>孢子样式</strong>
+            <div class="cosmetic-grid" id="sporeGrid"></div>
+          </div>
+          <div class="loadout-group">
+            <strong>球体光环</strong>
+            <div class="cosmetic-grid" id="haloGrid"></div>
+          </div>
+          <div class="loadout-group">
+            <strong>移动拖尾</strong>
+            <div class="cosmetic-grid" id="trailGrid"></div>
+          </div>
+        </div>
+      </section>
+      <section class="lobby-panel" data-lobby-panel="shop">
+        <div class="shop-panel" id="shopPanel"></div>
+      </section>
+      <section class="lobby-panel" data-lobby-panel="forge">
+        <div class="forge-panel" id="forgePanel"></div>
+      </section>
+      <section class="lobby-panel" data-lobby-panel="growth">
+        <div class="progress-panel" id="progressPanel"></div>
+      </section>
+      <button id="playAgainBtn">再来一局</button>
+    </div>
+  </div>
+
+<script src="./js/gpu-renderer.js" defer></script>
+<script src="./js/game.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+{
+  "name": "star-cluster-arena",
+  "version": "2.2.0",
+  "private": true,
+  "type": "module",
+  "description": "前后端分离、WebGL 硬件加速的高性能多人吞噬竞技游戏",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wangzifan396-wzf/mini-browser-games.git",
+    "directory": "star-cluster-arena"
+  },
+  "keywords": [
+    "browser-game",
+    "webgl2",
+    "canvas",
+    "nodejs",
+    "arena"
+  ],
+  "scripts": {
+    "start": "node backend/server.mjs",
+    "dev": "node --watch backend/server.mjs",
+    "check": "node --check backend/server.mjs && node --check frontend/js/gpu-renderer.js && node --check frontend/js/game.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
