@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>深海舰队</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #071b2c;
+      color: #eaf8ff;
+      font-family: system-ui, "Microsoft YaHei";
+    }
+    .app {
+      min-height: 100vh;
+      padding: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .shell {
+      width: min(1000px, 100%);
+      background: #0d2d45;
+      border: 1px solid #3e718d;
+      border-radius: 20px;
+      padding: 16px;
+    }
+    .top,
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 9px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .boards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin: 12px 0;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      background: #06243a;
+      padding: 5px;
+      gap: 2px;
+      border-radius: 10px;
+    }
+    .cell {
+      aspect-ratio: 1;
+      border: 1px solid #2a617e;
+      background: #0c3c59;
+      border-radius: 3px;
+      display: grid;
+      place-items: center;
+      color: white;
+      padding: 0;
+      font-size: 18px;
+    }
+    .enemy .cell:not(:disabled):hover {
+      background: #1a668b;
+    }
+    .ship {
+      background: #627d8c;
+    }
+    .hit {
+      background: #b5404a;
+    }
+    .miss {
+      background: #2c5063;
+    }
+    .sunk {
+      background: #7c2532;
+    }
+    .panel {
+      background: #08243a;
+      border: 1px solid #315d76;
+      border-radius: 11px;
+      padding: 9px;
+    }
+    .fleet {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+    }
+    .tag {
+      padding: 5px 8px;
+      border-radius: 15px;
+      background: #154764;
+    }
+    .log {
+      height: 80px;
+      overflow: auto;
+      color: #b7d6e4;
+      font-size: 13px;
+    }
+    button {
+      padding: 9px 12px;
+      border: 1px solid #56859c;
+      border-radius: 9px;
+      background: #1d5673;
+      color: white;
+      font-weight: bold;
+    }
+    button:disabled {
+      opacity: 0.55;
+    }
+    .special {
+      background: #8b5c26;
+    }
+    .help {
+      font-size: 13px;
+      color: #a9cedd;
+    }
+    @media (max-width: 700px) {
+      .boards {
+        grid-template-columns: 1fr;
+      }
+      .app {
+        place-items: start center;
+      }
+      .cell {
+        font-size: 13px;
+      }
+    }
+  </style>
+  <main class="app">
+    <section class="shell">
+      <div class="top">
+        <div>
+          <h1 style="margin: 0">深海舰队</h1>
+          <div class="help">
+            点击敌方海域开火；击沉舰船获得声呐充能，先击沉全部五艘舰船获胜。
+          </div>
+        </div>
+        <div>
+          战役 <b id="round"></b>　胜利 <b id="wins"></b>　声呐
+          <b id="sonar"></b>/2
+        </div>
+      </div>
+      <div class="boards">
+        <section>
+          <h3>己方海域</h3>
+          <div class="grid" id="own"></div>
+        </section>
+        <section>
+          <h3>敌方海域</h3>
+          <div class="grid enemy" id="enemy"></div>
+        </section>
+      </div>
+      <div class="row">
+        <div class="fleet" id="fleet"></div>
+        <div>
+          <button class="special" id="scan">声呐扫描</button
+          ><button id="newGame">重新部署</button>
+        </div>
+      </div>
+      <div class="panel log" id="log"></div>
+    </section>
+  </main>
+  <script>
+    const S = [
+      ["航母", 5],
+      ["战列舰", 4],
+      ["巡洋舰", 3],
+      ["潜艇", 3],
+      ["驱逐舰", 2],
+    ];
+    let q,
+      busy = false;
+    const $ = (x) => document.getElementById(x);
+    function empty() {
+      return Array(100).fill(null);
+    }
+    function deploy() {
+      let b = empty(),
+        ships = [];
+      for (let id = 0; id < S.length; id++) {
+        let len = S[id][1],
+          ok = false;
+        while (!ok) {
+          let vert = Math.random() < 0.5,
+            r = Math.floor(Math.random() * (vert ? 11 - len : 10)),
+            c = Math.floor(Math.random() * (vert ? 10 : 11 - len)),
+            cells = Array.from(
+              { length: len },
+              (_, i) => (r + (vert ? i : 0)) * 10 + c + (vert ? 0 : i),
+            );
+          if (cells.every((x) => b[x] === null)) {
+            cells.forEach((x) => (b[x] = id));
+            ships.push({ id, cells, hits: [] });
+            ok = true;
+          }
+        }
+      }
+      return { b, ships, shots: new Set() };
+    }
+    function fresh() {
+      return {
+        own: deploy(),
+        enemy: deploy(),
+        turn: 0,
+        round: 1,
+        wins: +localStorage.getItem("fleet_wins") || 0,
+        sonar: 1,
+        logs: ["舰队部署完毕，请选择敌方坐标开火。"],
+        over: false,
+        scan: [],
+      };
+    }
+    function say(s) {
+      q.logs.unshift(s);
+      q.logs = q.logs.slice(0, 8);
+    }
+    function shoot(side, i, player = true) {
+      if (side.shots.has(i)) return false;
+      side.shots.add(i);
+      let id = side.b[i];
+      if (id !== null) {
+        let ship = side.ships[id];
+        ship.hits.push(i);
+        say(
+          `${player ? "我方" : "敌军"}命中${player ? "敌方" : "我方"}${S[id][0]}！`,
+        );
+        if (ship.hits.length === ship.cells.length) {
+          say(`${S[id][0]}被击沉！`);
+          if (player) q.sonar = Math.min(2, q.sonar + 1);
+        }
+      } else say(`${player ? "我方" : "敌军"}炮弹落空。`);
+      return true;
+    }
+    function fire(i) {
+      if (busy || q.over || !shoot(q.enemy, i, true)) return;
+      draw();
+      if (check()) return;
+      busy = true;
+      setTimeout(ai, 420);
+    }
+    function ai() {
+      let choices = [];
+      for (const ship of q.own.ships) {
+        if (ship.hits.length && ship.hits.length < ship.cells.length)
+          for (const h of ship.hits) {
+            let r = Math.floor(h / 10),
+              c = h % 10;
+            for (const j of [h - 10, h + 10, h - 1, h + 1])
+              if (
+                j >= 0 &&
+                j < 100 &&
+                !q.own.shots.has(j) &&
+                Math.abs((j % 10) - c) + Math.abs(Math.floor(j / 10) - r) === 1
+              )
+                choices.push(j);
+          }
+      }
+      if (!choices.length)
+        choices = Array.from({ length: 100 }, (_, i) => i).filter(
+          (i) => !q.own.shots.has(i),
+        );
+      shoot(q.own, choices[Math.floor(Math.random() * choices.length)], false);
+      busy = false;
+      check();
+      draw();
+    }
+    function check() {
+      let enemyDead = q.enemy.ships.every(
+          (s) => s.hits.length === s.cells.length,
+        ),
+        ownDead = q.own.ships.every((s) => s.hits.length === s.cells.length);
+      if (enemyDead || ownDead) {
+        q.over = true;
+        if (enemyDead) {
+          q.wins++;
+          localStorage.setItem("fleet_wins", q.wins);
+          say("海战胜利！全部敌舰已沉没。");
+        } else say("舰队覆没，本轮失败。");
+        draw();
+        return true;
+      }
+      return false;
+    }
+    function state(side, i, reveal) {
+      let shot = side.shots.has(i),
+        id = side.b[i];
+      if (shot && id !== null) {
+        let s = side.ships[id];
+        return s.hits.length === s.cells.length ? "sunk" : "hit";
+      }
+      if (shot) return "miss";
+      if (reveal && id !== null) return "ship";
+      return "";
+    }
+    function draw() {
+      round.textContent = q.round;
+      wins.textContent = q.wins;
+      sonar.textContent = q.sonar;
+      own.innerHTML = Array.from(
+        { length: 100 },
+        (_, i) =>
+          `<div class="cell ${state(q.own, i, true)}">${state(q.own, i, true) === "hit" || state(q.own, i, true) === "sunk" ? "✹" : state(q.own, i, true) === "miss" ? "·" : ""}</div>`,
+      ).join("");
+      enemy.innerHTML = Array.from(
+        { length: 100 },
+        (_, i) =>
+          `<button data-i="${i}" class="cell ${state(q.enemy, i, false)} ${q.scan.includes(i) && !q.enemy.shots.has(i) ? "ship" : ""}" ${q.enemy.shots.has(i) || q.over ? "disabled" : ""}>${state(q.enemy, i, false) === "hit" || state(q.enemy, i, false) === "sunk" ? "✹" : state(q.enemy, i, false) === "miss" ? "·" : ""}</button>`,
+      ).join("");
+      enemy
+        .querySelectorAll("[data-i]")
+        .forEach((e) => (e.onclick = () => fire(+e.dataset.i)));
+      fleet.innerHTML = q.enemy.ships
+        .map(
+          (s, i) =>
+            `<span class="tag">${S[i][0]} ${s.hits.length === s.cells.length ? "沉没" : "▰".repeat(S[i][1] - s.hits.length)}</span>`,
+        )
+        .join("");
+      log.innerHTML = q.logs.map((s) => `<div>• ${s}</div>`).join("");
+      scan.disabled = q.sonar <= 0 || q.over;
+    }
+    scan.onclick = () => {
+      if (q.sonar <= 0 || q.over) return;
+      q.sonar--;
+      let candidates = Array.from({ length: 100 }, (_, i) => i).filter(
+        (i) => !q.enemy.shots.has(i),
+      );
+      let hit = candidates.filter((i) => q.enemy.b[i] !== null),
+        center = (hit.length ? hit : candidates)[
+          Math.floor(Math.random() * (hit.length || candidates.length))
+        ],
+        r = Math.floor(center / 10),
+        c = center % 10;
+      q.scan = [];
+      for (let y = Math.max(0, r - 1); y <= Math.min(9, r + 1); y++)
+        for (let x = Math.max(0, c - 1); x <= Math.min(9, c + 1); x++)
+          q.scan.push(y * 10 + x);
+      say("声呐回波已标记一片 3×3 海域。");
+      draw();
+    };
+    newGame.onclick = () => {
+      let nextRound = q.round + 1;
+      q = fresh();
+      q.round = nextRound;
+      busy = false;
+      draw();
+    };
+    q = fresh();
+    draw();
+  </script>
+</html>

@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>脉冲音乐室</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #0e0c1b;
+      color: #f3efff;
+      font-family: system-ui, "Microsoft YaHei";
+    }
+    .app {
+      min-height: 100vh;
+      padding: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .shell {
+      width: min(1000px, 100%);
+      background: #1c1733;
+      border: 1px solid #5d527f;
+      border-radius: 20px;
+      padding: 16px;
+    }
+    .top,
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 9px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .seq {
+      overflow-x: auto;
+      margin: 14px 0;
+    }
+    .track {
+      display: grid;
+      grid-template-columns: 95px repeat(16, 1fr);
+      gap: 4px;
+      margin-bottom: 6px;
+      min-width: 780px;
+    }
+    .label {
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      background: #2b2450;
+    }
+    .step {
+      aspect-ratio: 1;
+      border: 1px solid #4e4770;
+      border-radius: 6px;
+      background: #25203e;
+      padding: 0;
+    }
+    .step.on {
+      background: #b257d5;
+      box-shadow: 0 0 12px #b257d5;
+    }
+    .track:nth-child(2) .step.on {
+      background: #4dc5e8;
+      box-shadow: 0 0 12px #4dc5e8;
+    }
+    .track:nth-child(3) .step.on {
+      background: #e5ad45;
+      box-shadow: 0 0 12px #e5ad45;
+    }
+    .track:nth-child(4) .step.on {
+      background: #61d47f;
+      box-shadow: 0 0 12px #61d47f;
+    }
+    .step.now {
+      outline: 3px solid white;
+    }
+    .panel {
+      background: #141126;
+      border: 1px solid #4a4267;
+      border-radius: 11px;
+      padding: 10px;
+    }
+    .challenge {
+      color: #ffdf78;
+    }
+    button,
+    input {
+      padding: 9px 11px;
+      border: 1px solid #6d6291;
+      border-radius: 9px;
+      background: #393064;
+      color: white;
+      font-weight: bold;
+    }
+    .play {
+      background: #8c3daa;
+    }
+    .help {
+      font-size: 13px;
+      color: #bcb4d3;
+    }
+    @media (max-width: 650px) {
+      .app {
+        place-items: start center;
+      }
+    }
+  </style>
+  <main class="app">
+    <section class="shell">
+      <div class="top">
+        <div>
+          <h1 style="margin: 0">脉冲音乐室</h1>
+          <div class="help">
+            四轨 16
+            步音序器：点亮节拍，调整速度并完成制作委托。首次播放需要点击按钮授权声音。
+          </div>
+        </div>
+        <div>作品 <b id="songs"></b>　评分 <b id="score"></b></div>
+      </div>
+      <div class="seq" id="seq"></div>
+      <div class="row">
+        <button class="play" id="play">▶ 播放</button
+        ><label
+          >BPM <input id="bpm" type="range" min="70" max="180" value="110" /><b
+            id="bpmVal"
+            >110</b
+          ></label
+        ><button id="random">灵感随机</button><button id="clearBtn">清空</button
+        ><button id="save">保存作品</button>
+      </div>
+      <div class="panel" style="margin-top: 12px">
+        <b>制作委托</b>
+        <div class="challenge" id="challenge"></div>
+        <div id="feedback" class="help"></div>
+      </div>
+    </section>
+  </main>
+  <script>
+    const names = ["底鼓", "军鼓", "低音", "旋律"],
+      icons = ["🥁", "👏", "🎸", "🎹"],
+      quests = [
+        [
+          "四拍舞曲",
+          "每个四拍至少一个底鼓，加入 4 个军鼓",
+          (p) =>
+            [0, 4, 8, 12].every((i) => p[0][i]) &&
+            p[1].filter(Boolean).length >= 4,
+        ],
+        [
+          "切分律动",
+          "低音至少 6 拍，且包含三个相邻空拍后的重音",
+          (p) =>
+            p[2].filter(Boolean).length >= 6 &&
+            p[0].some((v, i) => i > 2 && v && !p[0][i - 1] && !p[0][i - 2]),
+        ],
+        [
+          "霓虹旋律",
+          "旋律达到 8 拍，四条轨道都参与",
+          (p) =>
+            p[3].filter(Boolean).length >= 8 && p.every((t) => t.some(Boolean)),
+        ],
+        [
+          "极简主义",
+          "总音符不超过 16，但每轨至少 2 拍",
+          (p) =>
+            p.flat().filter(Boolean).length <= 16 &&
+            p.every((t) => t.filter(Boolean).length >= 2),
+        ],
+      ];
+    let pattern = Array.from({ length: 4 }, () => Array(16).fill(false)),
+      playing = false,
+      pos = 0,
+      timer = null,
+      audio = null,
+      q = { songs: 0, score: 0, quest: 0 };
+    const $ = (x) => document.getElementById(x);
+    function render() {
+      seq.innerHTML = pattern
+        .map(
+          (t, r) =>
+            `<div class="track"><div class="label">${icons[r]} ${names[r]}</div>${t.map((v, i) => `<button class="step ${v ? "on" : ""} ${playing && i === pos ? "now" : ""}" data-r="${r}" data-i="${i}"></button>`).join("")}</div>`,
+        )
+        .join("");
+      seq.querySelectorAll("[data-r]").forEach(
+        (e) =>
+          (e.onclick = () => {
+            pattern[+e.dataset.r][+e.dataset.i] =
+              !pattern[+e.dataset.r][+e.dataset.i];
+            render();
+          }),
+      );
+      songs.textContent = q.songs;
+      score.textContent = q.score;
+      challenge.textContent = `${quests[q.quest][0]}：${quests[q.quest][1]}`;
+    }
+    function sound(track) {
+      audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+      let t = audio.currentTime;
+      if (track < 2) {
+        let o = audio.createOscillator(),
+          g = audio.createGain();
+        o.frequency.setValueAtTime(track ? 180 : 70, t);
+        o.frequency.exponentialRampToValueAtTime(track ? 90 : 35, t + 0.12);
+        g.gain.setValueAtTime(0.25, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
+        o.connect(g).connect(audio.destination);
+        o.start();
+        o.stop(t + 0.15);
+      } else {
+        let o = audio.createOscillator(),
+          g = audio.createGain();
+        o.type = track === 2 ? "sawtooth" : "sine";
+        o.frequency.value =
+          (track === 2 ? 110 : 330) * [1, 1.122, 1.26, 1.498][pos % 4];
+        g.gain.setValueAtTime(0.12, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+        o.connect(g).connect(audio.destination);
+        o.start();
+        o.stop(t + 0.2);
+      }
+    }
+    function tick() {
+      for (let r = 0; r < 4; r++) if (pattern[r][pos]) sound(r);
+      render();
+      pos = (pos + 1) % 16;
+      timer = setTimeout(tick, 60000 / (+bpm.value * 4));
+    }
+    function toggle() {
+      playing = !playing;
+      play.textContent = playing ? "■ 停止" : "▶ 播放";
+      if (playing) {
+        pos = 0;
+        tick();
+      } else {
+        clearTimeout(timer);
+        render();
+      }
+    }
+    play.onclick = toggle;
+    bpm.oninput = () => (bpmVal.textContent = bpm.value);
+    random.onclick = () => {
+      pattern = pattern.map((t, r) =>
+        t.map(
+          (_, i) => Math.random() < (r === 0 ? 0.3 : r === 3 ? 0.22 : 0.18),
+        ),
+      );
+      render();
+    };
+    clearBtn.onclick = () => {
+      pattern = pattern.map((t) => t.map(() => false));
+      render();
+    };
+    save.onclick = () => {
+      let active = pattern.flat().filter(Boolean).length;
+      if (active < 8)
+        return (feedback.textContent = "作品太空，需要至少 8 个音符。");
+      q.songs++;
+      if (quests[q.quest][2](pattern)) {
+        q.score += 100;
+        feedback.textContent = "委托完成！获得 100 评分，已接到下一份委托。";
+        q.quest = (q.quest + 1) % quests.length;
+      } else {
+        q.score += 20;
+        feedback.textContent = "作品已保存，未满足当前委托条件，获得 20 评分。";
+      }
+      render();
+    };
+    render();
+  </script>
+</html>

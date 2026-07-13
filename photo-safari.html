@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>荒野摄影师</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #15261e;
+      color: #f1fae9;
+      font-family: system-ui, "Microsoft YaHei";
+    }
+    .app {
+      min-height: 100vh;
+      padding: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .shell {
+      width: min(980px, 100%);
+      background: #264234;
+      border: 1px solid #668a70;
+      border-radius: 20px;
+      padding: 16px;
+    }
+    .top,
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 9px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .stage {
+      position: relative;
+      margin: 12px 0;
+    }
+    canvas {
+      width: 100%;
+      aspect-ratio: 16/9;
+      border: 1px solid #73866c;
+      border-radius: 13px;
+      display: block;
+      cursor: crosshair;
+      touch-action: none;
+    }
+    .finder {
+      position: absolute;
+      width: 90px;
+      height: 90px;
+      border: 3px solid white;
+      border-radius: 50%;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      display: none;
+    }
+    .panel {
+      background: #1b3327;
+      border: 1px solid #557462;
+      border-radius: 11px;
+      padding: 10px;
+    }
+    .book {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+    }
+    .shot {
+      padding: 6px 9px;
+      border-radius: 16px;
+      background: #315841;
+    }
+    .target {
+      color: #ffe37e;
+    }
+    button,
+    input {
+      padding: 9px 11px;
+      border: 1px solid #78957d;
+      border-radius: 9px;
+      background: #3c6649;
+      color: white;
+      font-weight: bold;
+    }
+    .snap {
+      background: #9b692b;
+    }
+    .help {
+      font-size: 13px;
+      color: #bdd2bd;
+    }
+    @media (max-width: 650px) {
+      .app {
+        place-items: start center;
+      }
+    }
+  </style>
+  <main class="app">
+    <section class="shell">
+      <div class="top">
+        <div>
+          <h1 style="margin: 0">荒野摄影师</h1>
+          <div class="target" id="contract"></div>
+        </div>
+        <div>
+          远征 <b id="expedition"></b>/5　时间 <b id="time"></b>　声望
+          <b id="score"></b>　图鉴 <b id="dex"></b>/10
+        </div>
+      </div>
+      <div class="stage">
+        <canvas id="c" width="960" height="540"></canvas>
+        <div class="finder" id="finder"></div>
+      </div>
+      <div class="row">
+        <label
+          >变焦
+          <input
+            id="zoom"
+            type="range"
+            min="1"
+            max="3"
+            step=".1"
+            value="1" /></label
+        ><button class="snap" id="snap">📷 拍摄</button
+        ><button id="next">下一远征</button
+        ><button id="restart">重开旅程</button
+        ><span id="msg" class="help"></span>
+      </div>
+      <div class="panel" style="margin-top: 10px">
+        <b>摄影图鉴</b>
+        <div class="book" id="book"></div>
+      </div>
+    </section>
+  </main>
+  <script>
+    const cv = document.getElementById("c"),
+      g = cv.getContext("2d"),
+      A = [
+        ["赤狐", "🦊"],
+        ["鹿", "🦌"],
+        ["熊", "🐻"],
+        ["狼", "🐺"],
+        ["鹰", "🦅"],
+        ["兔", "🐇"],
+        ["猫头鹰", "🦉"],
+        ["野猪", "🐗"],
+        ["熊猫", "🐼"],
+        ["孔雀", "🦚"],
+      ],
+      B = [
+        ["晨雾森林", "#77966d", "#436a4b"],
+        ["金色草原", "#d9bb65", "#8d9a4b"],
+        ["雪岭松林", "#d9ebef", "#66868a"],
+        ["月光湿地", "#657783", "#314d58"],
+        ["竹海秘境", "#82a968", "#456d4b"],
+      ];
+    let q,
+      mouse = { x: 480, y: 270 };
+    const $ = (x) => document.getElementById(x);
+    function fresh() {
+      return {
+        exp: 1,
+        time: 45,
+        score: 0,
+        seen: {},
+        animals: [],
+        target: 0,
+        over: false,
+        last: performance.now(),
+      };
+    }
+    function setup() {
+      let biome = q.exp - 1;
+      q.animals = [];
+      for (let i = 0; i < 7; i++) {
+        let id = (biome * 2 + i) % A.length;
+        q.animals.push({
+          id,
+          x: 80 + Math.random() * 800,
+          y: 120 + Math.random() * 330,
+          size: 28 + Math.random() * 18,
+          photo: false,
+          phase: Math.random() * 6.2,
+        });
+      }
+      q.target = (biome * 2 + Math.floor(Math.random() * 3)) % A.length;
+      q.time = 45;
+      q.over = false;
+      contract.textContent = `委托：拍到 ${A[q.target][1]}${A[q.target][0]}，并尽量收集新物种`;
+      drawUI();
+    }
+    function render(t) {
+      let [name, sky, ground] = B[q.exp - 1];
+      g.fillStyle = sky;
+      g.fillRect(0, 0, 960, 230);
+      g.fillStyle = ground;
+      g.fillRect(0, 230, 960, 310);
+      for (let i = 0; i < 18; i++) {
+        g.fillStyle = i % 2 ? "#304f37" : "#53734b";
+        g.fillRect((i * 77) % 960, 150 + (i % 4) * 55, 18, 150);
+      }
+      for (const a of q.animals) {
+        if (a.photo) continue;
+        a.x += Math.sin(t / 1000 + a.phase) * 0.08;
+        g.globalAlpha = 0.42 + Math.sin(t / 900 + a.phase) * 0.12;
+        g.font = `${a.size}px serif`;
+        g.textAlign = "center";
+        g.fillText(A[a.id][1], a.x, a.y);
+        g.globalAlpha = 1;
+      }
+      let dt = (t - q.last) / 1000;
+      q.last = t;
+      if (!q.over) {
+        q.time -= dt;
+        if (q.time <= 0) {
+          q.time = 0;
+          q.over = true;
+          msg.textContent = "光线消失，本次远征结束。";
+        }
+      }
+      drawUI();
+      requestAnimationFrame(render);
+    }
+    function capture() {
+      if (q.over) return;
+      let z = +zoom.value,
+        r = 52 / z,
+        candidates = q.animals.filter(
+          (a) => !a.photo && Math.hypot(a.x - mouse.x, a.y - mouse.y) < r,
+        );
+      if (!candidates.length) return note("镜头里没有清晰的动物。");
+      let a = candidates.sort(
+          (a, b) =>
+            Math.hypot(a.x - mouse.x, a.y - mouse.y) -
+            Math.hypot(b.x - mouse.x, b.y - mouse.y),
+        )[0],
+        dist = Math.hypot(a.x - mouse.x, a.y - mouse.y),
+        quality = Math.max(1, Math.round(100 - dist * z));
+      a.photo = true;
+      let first = !q.seen[a.id];
+      q.seen[a.id] = Math.max(q.seen[a.id] || 0, quality);
+      let gain = quality + (first ? 50 : 0) + (a.id === q.target ? 80 : 0);
+      q.score += gain;
+      note(`拍到 ${A[a.id][0]}，质量 ${quality}，获得 ${gain} 声望！`);
+      drawUI();
+    }
+    function drawUI() {
+      expedition.textContent = q.exp;
+      time.textContent = Math.ceil(q.time);
+      score.textContent = q.score;
+      dex.textContent = Object.keys(q.seen).length;
+      book.innerHTML = A.map(
+        (a, i) =>
+          `<span class="shot">${q.seen[i] ? a[1] : "❔"} ${q.seen[i] ? `${a[0]} · ${q.seen[i]}分` : "未发现"}</span>`,
+      ).join("");
+      next.disabled = q.exp >= 5 && !q.over;
+    }
+    function note(s) {
+      msg.textContent = s;
+    }
+    cv.onpointermove = (e) => {
+      let r = cv.getBoundingClientRect();
+      mouse.x = ((e.clientX - r.left) * 960) / r.width;
+      mouse.y = ((e.clientY - r.top) * 540) / r.height;
+      finder.style.display = "block";
+      finder.style.left = e.clientX - r.left + "px";
+      finder.style.top = e.clientY - r.top + "px";
+      finder.style.width = finder.style.height = 90 / +zoom.value + "px";
+    };
+    cv.onclick = capture;
+    snap.onclick = capture;
+    next.onclick = () => {
+      if (q.exp < 5) {
+        q.exp++;
+        setup();
+      } else note("五次远征已经完成。");
+    };
+    restart.onclick = () => {
+      q = fresh();
+      setup();
+    };
+    q = fresh();
+    setup();
+    requestAnimationFrame(render);
+  </script>
+</html>

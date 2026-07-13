@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>孤岛十日</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #08333c;
+      color: #f3fff1;
+      font-family: system-ui, "Microsoft YaHei";
+    }
+    .app {
+      min-height: 100vh;
+      padding: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .shell {
+      width: min(940px, 100%);
+      background: #0c4b52;
+      border: 1px solid #59a6a1;
+      border-radius: 20px;
+      padding: 16px;
+    }
+    .top,
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 9px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .bars {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .bar {
+      width: 115px;
+      height: 9px;
+      background: #153d40;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .bar i {
+      display: block;
+      height: 100%;
+      background: #7de39d;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 290px;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .island {
+      min-height: 470px;
+      border-radius: 14px;
+      background: linear-gradient(#69c9e1 0 25%, #e3d183 25% 43%, #46965d 43%);
+      position: relative;
+      overflow: hidden;
+      border: 1px solid #86cfbd;
+    }
+    .camp {
+      position: absolute;
+      left: 40%;
+      top: 48%;
+      font-size: 80px;
+    }
+    .weather {
+      position: absolute;
+      right: 8%;
+      top: 8%;
+      font-size: 55px;
+    }
+    .actions {
+      position: absolute;
+      left: 5%;
+      right: 5%;
+      bottom: 25px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .actions button {
+      min-height: 58px;
+    }
+    .panel {
+      background: #083b40;
+      border: 1px solid #458d8b;
+      border-radius: 12px;
+      padding: 11px;
+      margin-bottom: 9px;
+    }
+    .item {
+      display: flex;
+      justify-content: space-between;
+      padding: 5px;
+      border-bottom: 1px solid #ffffff18;
+    }
+    .log {
+      height: 135px;
+      overflow: auto;
+      color: #bce0dc;
+      font-size: 13px;
+    }
+    button {
+      padding: 9px 11px;
+      border: 1px solid #75b8ad;
+      border-radius: 9px;
+      background: #17666a;
+      color: #fff;
+      font-weight: bold;
+    }
+    button:disabled {
+      opacity: 0.45;
+    }
+    .craft {
+      background: #7d6330;
+    }
+    .goal {
+      color: #ffe27d;
+    }
+    .bad i {
+      background: #e46b6b;
+    }
+    @media (max-width: 700px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      .island {
+        min-height: 420px;
+      }
+      .app {
+        place-items: start center;
+      }
+    }
+  </style>
+  <main class="app">
+    <section class="shell">
+      <div class="top">
+        <div>
+          <h1 style="margin: 0">孤岛十日</h1>
+          <div class="goal" id="goal"></div>
+        </div>
+        <div>
+          第 <b id="day"></b>/10 天　行动 <b id="ap"></b>/4　天气
+          <b id="weatherName"></b>
+        </div>
+      </div>
+      <div class="bars">
+        <span
+          >生命
+          <div class="bar"><i id="hp"></i></div></span
+        ><span
+          >饥饿
+          <div class="bar bad"><i id="hunger"></i></div></span
+        ><span
+          >口渴
+          <div class="bar bad"><i id="thirst"></i></div></span
+        ><span
+          >信号
+          <div class="bar"><i id="signal"></i></div
+        ></span>
+      </div>
+      <div class="layout">
+        <div class="island">
+          <div class="weather" id="weatherIcon"></div>
+          <div class="camp" id="camp">🏕️</div>
+          <div class="actions">
+            <button data-a="wood">🪵 收集木材</button
+            ><button data-a="food">🥥 寻找食物</button
+            ><button data-a="water">💧 寻找淡水</button
+            ><button data-a="explore">🧭 探索海岸</button
+            ><button data-a="eat">🍲 进食饮水</button
+            ><button id="sleep">🌙 结束一天</button>
+          </div>
+        </div>
+        <aside>
+          <div class="panel">
+            <b>背包</b>
+            <div id="bag"></div>
+          </div>
+          <div class="panel">
+            <b>制作</b>
+            <div class="row">
+              <button class="craft" data-c="shelter">升级庇护所</button
+              ><button class="craft" data-c="filter">制作滤水器</button
+              ><button class="craft" data-c="fire">点燃信号火</button
+              ><button class="craft" data-c="radio">修好无线电</button>
+            </div>
+          </div>
+          <div class="panel log" id="log"></div>
+          <button id="restart">重新流落荒岛</button>
+        </aside>
+      </div>
+    </section>
+  </main>
+  <script>
+    let q;
+    const $ = (x) => document.getElementById(x);
+    function fresh() {
+      return {
+        day: 1,
+        ap: 4,
+        hp: 100,
+        hunger: 15,
+        thirst: 15,
+        signal: 0,
+        wood: 1,
+        food: 2,
+        water: 2,
+        scrap: 0,
+        shelter: 0,
+        filter: 0,
+        radio: 0,
+        weather: 0,
+        log: ["海浪把你送上孤岛。十天后救援船会经过。"],
+        over: false,
+      };
+    }
+    function say(s) {
+      q.log.unshift(s);
+      q.log = q.log.slice(0, 12);
+    }
+    function act(a) {
+      if (q.over || q.ap <= 0) return (say("今天已经没有行动力了。"), draw());
+      q.ap--;
+      let bonus = q.weather === 1 && a === "water" ? 1 : 0;
+      if (a === "wood") {
+        let n = 1 + Math.floor(Math.random() * 3);
+        q.wood += n;
+        say(`收集到 ${n} 份木材。`);
+      }
+      if (a === "food") {
+        let n = 1 + +(Math.random() < 0.35);
+        q.food += n;
+        say(`找到 ${n} 份椰果和贝类。`);
+      }
+      if (a === "water") {
+        let n = 1 + q.filter + bonus;
+        q.water += n;
+        say(`获得 ${n} 份淡水。`);
+      }
+      if (a === "explore") {
+        if (Math.random() < 0.55) {
+          q.scrap++;
+          say("在海岸残骸中找到 1 份零件。");
+        } else {
+          q.food++;
+          say("探索途中捡到可食用的海藻。");
+        }
+      }
+      if (a === "eat") {
+        if (q.food > 0) {
+          q.food--;
+          q.hunger = Math.max(0, q.hunger - 32);
+        }
+        if (q.water > 0) {
+          q.water--;
+          q.thirst = Math.max(0, q.thirst - 38);
+        }
+        say("补充了食物和淡水。");
+      }
+      draw();
+    }
+    function craft(k) {
+      if (q.over) return;
+      if (k === "shelter") {
+        let cost = 3 + q.shelter * 2;
+        if (q.wood < cost || q.shelter >= 2)
+          return (say("木材不足或庇护所已满级。"), draw());
+        q.wood -= cost;
+        q.shelter++;
+        say("庇护所升级，夜间伤害降低。");
+      }
+      if (k === "filter") {
+        if (q.wood < 3 || q.scrap < 1 || q.filter)
+          return (say("需要 3 木材和 1 零件。"), draw());
+        q.wood -= 3;
+        q.scrap--;
+        q.filter = 1;
+        say("滤水器完成，取水量增加。");
+      }
+      if (k === "fire") {
+        if (q.wood < 5) return (say("信号火需要 5 木材。"), draw());
+        q.wood -= 5;
+        q.signal += 25;
+        say("信号火照亮夜空，救援概率提升。");
+      }
+      if (k === "radio") {
+        if (q.scrap < 3 || q.radio)
+          return (say("无线电需要 3 份零件。"), draw());
+        q.scrap -= 3;
+        q.radio = 1;
+        q.signal += 35;
+        say("无线电发出求救信号！");
+      }
+      draw();
+    }
+    function next() {
+      if (q.over) return;
+      q.day++;
+      q.ap = 4;
+      q.hunger += 18;
+      q.thirst += 24;
+      q.weather = Math.floor(Math.random() * 4);
+      if (q.weather === 2 && q.shelter < 2) {
+        let d = 12 - q.shelter * 5;
+        q.hp -= d;
+        say(`暴风雨侵袭，损失 ${d} 生命。`);
+      }
+      if (q.hunger >= 100) q.hp -= 15;
+      if (q.thirst >= 100) q.hp -= 24;
+      if (q.radio) q.signal += 6;
+      if (q.day > 10) {
+        q.over = true;
+        if (q.signal >= 70 || q.radio) {
+          say("救援船看到了信号，你成功离开孤岛！");
+          setTimeout(() => alert("生存成功！救援船接你回家。"), 50);
+        } else say("救援船从远处驶过，没有发现微弱的信号……");
+      }
+      if (q.hp <= 0) {
+        q.over = true;
+        say("你没能撑过恶劣环境。");
+      }
+      draw();
+    }
+    function draw() {
+      day.textContent = Math.min(q.day, 10);
+      ap.textContent = q.ap;
+      let W = [
+        ["晴朗", "☀️"],
+        ["阵雨", "🌦️"],
+        ["风暴", "⛈️"],
+        ["炎热", "🔥"],
+      ][q.weather];
+      weatherName.textContent = W[0];
+      weatherIcon.textContent = W[1];
+      hp.style.width = Math.max(0, q.hp) + "%";
+      hunger.style.width = Math.min(100, q.hunger) + "%";
+      thirst.style.width = Math.min(100, q.thirst) + "%";
+      signal.style.width = Math.min(100, q.signal) + "%";
+      goal.textContent = `目标：十天内将求救信号提升至 70（当前 ${q.signal}）`;
+      camp.textContent = ["🏕️", "🛖", "🏠"][q.shelter];
+      bag.innerHTML = [
+        ["木材", q.wood],
+        ["食物", q.food],
+        ["淡水", q.water],
+        ["零件", q.scrap],
+        ["滤水器", q.filter ? "完成" : "未制作"],
+        ["无线电", q.radio ? "已修好" : "损坏"],
+      ]
+        .map(
+          (x) => `<div class="item"><span>${x[0]}</span><b>${x[1]}</b></div>`,
+        )
+        .join("");
+      log.innerHTML = q.log.map((s) => `<div>• ${s}</div>`).join("");
+      document
+        .querySelectorAll(".actions button")
+        .forEach((b) => (b.disabled = q.over));
+    }
+    document
+      .querySelectorAll("[data-a]")
+      .forEach((e) => (e.onclick = () => act(e.dataset.a)));
+    document
+      .querySelectorAll("[data-c]")
+      .forEach((e) => (e.onclick = () => craft(e.dataset.c)));
+    sleep.onclick = next;
+    restart.onclick = () => {
+      if (confirm("重新开始十日生存？")) {
+        q = fresh();
+        draw();
+      }
+    };
+    q = fresh();
+    draw();
+  </script>
+</html>

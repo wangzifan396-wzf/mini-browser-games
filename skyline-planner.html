@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>掌心城市</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #152333;
+      color: #eef8ff;
+      font-family: system-ui, "Microsoft YaHei";
+    }
+    .app {
+      min-height: 100vh;
+      padding: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .shell {
+      width: min(1000px, 100%);
+      background: #20364b;
+      border: 1px solid #587792;
+      border-radius: 20px;
+      padding: 16px;
+    }
+    .top,
+    .row,
+    .tools {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .city {
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      gap: 3px;
+      background: #102333;
+      padding: 7px;
+      border-radius: 12px;
+    }
+    .cell {
+      height: 52px;
+      border: 1px solid #42617b;
+      border-radius: 5px;
+      background: #31526b;
+      font-size: 23px;
+      padding: 0;
+    }
+    .cell.empty:hover {
+      background: #47738e;
+    }
+    .panel {
+      background: #172c3d;
+      border: 1px solid #48657c;
+      border-radius: 11px;
+      padding: 10px;
+      margin-bottom: 9px;
+    }
+    .tools {
+      justify-content: flex-start;
+    }
+    .tools button.active {
+      outline: 3px solid #ffe06c;
+    }
+    .stat {
+      display: flex;
+      justify-content: space-between;
+      padding: 5px;
+      border-bottom: 1px solid #ffffff18;
+    }
+    .log {
+      height: 120px;
+      overflow: auto;
+      color: #b7d1df;
+      font-size: 13px;
+    }
+    button {
+      padding: 9px 11px;
+      border: 1px solid #66849b;
+      border-radius: 9px;
+      background: #2d5875;
+      color: white;
+      font-weight: bold;
+    }
+    .next {
+      background: #8b6a26;
+    }
+    .help {
+      font-size: 13px;
+      color: #bdd1dc;
+    }
+    @media (max-width: 720px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      .cell {
+        height: auto;
+        aspect-ratio: 1;
+        font-size: 17px;
+      }
+      .app {
+        place-items: start center;
+      }
+    }
+  </style>
+  <main class="app">
+    <section class="shell">
+      <div class="top">
+        <div>
+          <h1 style="margin: 0">掌心城市</h1>
+          <div class="help">
+            规划住宅、商业、工业与服务设施；道路相连才会发展，兼顾就业、污染和幸福。
+          </div>
+        </div>
+        <div>
+          年份 <b id="year"></b>/15　资金 <b id="money"></b>　人口
+          <b id="pop"></b>
+        </div>
+      </div>
+      <div class="tools" id="tools"></div>
+      <div class="layout">
+        <div>
+          <div class="city" id="city"></div>
+          <div class="row" style="margin-top: 9px">
+            <button class="next" id="nextYear">推进一年</button
+            ><button id="bulldoze">拆除模式</button
+            ><button id="restart">新地图</button><span id="msg"></span>
+          </div>
+        </div>
+        <aside>
+          <div class="panel">
+            <b>城市指标</b>
+            <div id="stats"></div>
+          </div>
+          <div class="panel">
+            <b>发展目标</b>
+            <div id="goal"></div>
+          </div>
+          <div class="panel log" id="log"></div>
+        </aside>
+      </div>
+    </section>
+  </main>
+  <script>
+    const B = {
+      road: { n: "道路", ic: "═", cost: 5 },
+      home: { n: "住宅", ic: "🏠", cost: 18 },
+      shop: { n: "商业", ic: "🏪", cost: 24 },
+      factory: { n: "工业", ic: "🏭", cost: 28 },
+      park: { n: "公园", ic: "🌳", cost: 20 },
+      power: { n: "电站", ic: "⚡", cost: 45 },
+      school: { n: "学校", ic: "🏫", cost: 55 },
+    };
+    let q,
+      tool = "road";
+    const $ = (x) => document.getElementById(x);
+    function fresh() {
+      let cells = Array(100).fill(null);
+      for (let x = 0; x < 10; x++) cells[5 * 10 + x] = "road";
+      return {
+        year: 1,
+        money: 180,
+        cells,
+        pop: 0,
+        jobs: 0,
+        power: 0,
+        happy: 50,
+        log: ["第一条主干道已建成，开始规划城市吧。"],
+        over: false,
+      };
+    }
+    function say(s) {
+      q.log.unshift(s);
+      q.log = q.log.slice(0, 10);
+    }
+    function near(i, type) {
+      let r = Math.floor(i / 10),
+        c = i % 10;
+      return [i - 10, i + 10, i - 1, i + 1].some(
+        (j) =>
+          j >= 0 &&
+          j < 100 &&
+          Math.abs((j % 10) - c) + Math.abs(Math.floor(j / 10) - r) === 1 &&
+          q.cells[j] === type,
+      );
+    }
+    function connected(i) {
+      if (q.cells[i] === "road") return true;
+      return near(i, "road");
+    }
+    function build(i) {
+      if (q.over) return;
+      if (tool === "erase") {
+        if (!q.cells[i]) return;
+        q.money += Math.floor(B[q.cells[i]].cost * 0.3);
+        q.cells[i] = null;
+        return draw();
+      }
+      if (q.cells[i]) return (say("这块地已经被占用。"), draw());
+      let b = B[tool];
+      if (q.money < b.cost) return (say("资金不足。"), draw());
+      q.money -= b.cost;
+      q.cells[i] = tool;
+      draw();
+    }
+    function calc() {
+      let count = (t) => q.cells.filter((x) => x === t).length,
+        active = (t) =>
+          q.cells.reduce((n, x, i) => n + (x === t && connected(i) ? 1 : 0), 0),
+        homes = active("home"),
+        shops = active("shop"),
+        fac = active("factory"),
+        parks = count("park"),
+        schools = count("school"),
+        plants = count("power");
+      q.power =
+        plants * 70 - (homes * 8 + shops * 10 + fac * 14 + schools * 12);
+      q.jobs = shops * 18 + fac * 28;
+      q.pop = Math.max(
+        0,
+        Math.min(
+          homes * 24,
+          q.jobs + 20,
+          q.power > 0 ? 999 : Math.floor(homes * 10),
+        ),
+      );
+      let pollution = fac * 8 + plants * 10 - parks * 7,
+        happy =
+          55 +
+          parks * 6 +
+          schools * 8 -
+          Math.max(0, pollution) -
+          Math.max(0, q.pop - q.jobs) * 0.5;
+      q.happy = Math.max(0, Math.min(100, Math.round(happy)));
+      return { homes, shops, fac, parks, schools, plants, pollution };
+    }
+    function next() {
+      if (q.over) return;
+      let s = calc(),
+        tax = Math.round(q.pop * 1.2 + s.shops * 8 + s.fac * 10),
+        cost = s.parks * 5 + s.schools * 8 + s.plants * 6;
+      q.money += tax - cost;
+      q.year++;
+      if (q.power < 0) say("电力不足，部分住宅无法入住。");
+      if (q.happy < 30) say("市民幸福过低，人口增长停滞。");
+      else say(`年度结算：税收 ${tax}，维护 ${cost}。`);
+      if (q.year > 15) {
+        q.over = true;
+        say(
+          q.pop >= 180 && q.happy >= 55
+            ? "十五年规划成功，城市成为宜居新星！"
+            : "规划期结束，继续挑战更高人口与幸福。",
+        );
+      }
+      draw();
+    }
+    function draw() {
+      let s = calc();
+      year.textContent = Math.min(15, q.year);
+      money.textContent = q.money;
+      pop.textContent = q.pop;
+      tools.innerHTML = Object.entries(B)
+        .map(
+          ([k, b]) =>
+            `<button data-k="${k}" class="${tool === k ? "active" : ""}">${b.ic}${b.n} ${b.cost}</button>`,
+        )
+        .join("");
+      tools.querySelectorAll("[data-k]").forEach(
+        (e) =>
+          (e.onclick = () => {
+            tool = e.dataset.k;
+            draw();
+          }),
+      );
+      city.innerHTML = q.cells
+        .map(
+          (x, i) =>
+            `<button class="cell ${x ? "" : "empty"}" data-i="${i}">${x ? B[x].ic : ""}</button>`,
+        )
+        .join("");
+      city
+        .querySelectorAll("[data-i]")
+        .forEach((e) => (e.onclick = () => build(+e.dataset.i)));
+      stats.innerHTML = [
+        ["就业", `${q.jobs}/${q.pop}`],
+        ["电力余量", q.power],
+        ["幸福度", q.happy],
+        ["污染", s.pollution],
+        ["已通路住宅", s.homes],
+      ]
+        .map(
+          (x) => `<div class="stat"><span>${x[0]}</span><b>${x[1]}</b></div>`,
+        )
+        .join("");
+      goal.innerHTML = `在第 15 年前达到：<br>人口 180（${q.pop}）<br>幸福度 55（${q.happy}）<br><span class="help">住宅、商业、工业必须紧邻道路才会生效。</span>`;
+      log.innerHTML = q.log.map((x) => `<div>• ${x}</div>`).join("");
+      bulldoze.textContent = tool === "erase" ? "退出拆除" : "拆除模式";
+      nextYear.disabled = q.over;
+    }
+    nextYear.onclick = next;
+    bulldoze.onclick = () => {
+      tool = tool === "erase" ? "road" : "erase";
+      draw();
+    };
+    restart.onclick = () => {
+      if (confirm("生成一座新城市？")) {
+        q = fresh();
+        draw();
+      }
+    };
+    q = fresh();
+    draw();
+  </script>
+</html>

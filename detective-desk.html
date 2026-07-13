@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>雾城侦探</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #151719;
+      color: #eee9db;
+      font-family: system-ui, "Microsoft YaHei";
+    }
+    .app {
+      min-height: 100vh;
+      padding: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .shell {
+      width: min(980px, 100%);
+      background: #24272a;
+      border: 1px solid #62676a;
+      border-radius: 20px;
+      padding: 16px;
+    }
+    .top,
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 9px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .scene {
+      min-height: 440px;
+      background: linear-gradient(135deg, #3b3d3d, #202325);
+      border: 1px solid #5c6263;
+      border-radius: 13px;
+      padding: 16px;
+    }
+    .places {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 9px;
+    }
+    .place {
+      min-height: 100px;
+      font-size: 30px;
+    }
+    .place.found {
+      outline: 3px solid #d8b969;
+    }
+    .panel {
+      background: #191c1e;
+      border: 1px solid #4d5355;
+      border-radius: 11px;
+      padding: 10px;
+      margin-bottom: 9px;
+    }
+    .suspect {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      margin: 5px 0;
+    }
+    .evidence {
+      padding: 6px;
+      border-bottom: 1px solid #ffffff18;
+    }
+    .log {
+      height: 105px;
+      overflow: auto;
+      color: #bdc2bf;
+      font-size: 13px;
+    }
+    button {
+      padding: 9px 11px;
+      border: 1px solid #6d7474;
+      border-radius: 9px;
+      background: #3b4243;
+      color: #fff;
+      font-weight: bold;
+    }
+    .accuse {
+      background: #873d42;
+    }
+    .hint {
+      color: #d9bf7b;
+      font-size: 13px;
+    }
+    @media (max-width: 700px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      .places {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .app {
+        place-items: start center;
+      }
+    }
+  </style>
+  <main class="app">
+    <section class="shell">
+      <div class="top">
+        <div>
+          <h1 style="margin: 0">雾城侦探</h1>
+          <div id="caseTitle" class="hint"></div>
+        </div>
+        <div>
+          案件 <b id="caseNo"></b>/5　声望 <b id="score"></b>　失误
+          <b id="mistakes"></b>/3
+        </div>
+      </div>
+      <div class="layout">
+        <div class="scene">
+          <h3>案发现场</h3>
+          <div class="places" id="places"></div>
+          <div class="panel" style="margin-top: 12px">
+            <b>案情记录</b>
+            <div id="brief"></div>
+          </div>
+          <div class="panel log" id="log"></div>
+        </div>
+        <aside>
+          <div class="panel">
+            <b>证据板</b>
+            <div id="evidence"></div>
+          </div>
+          <div class="panel">
+            <b>嫌疑人</b>
+            <div id="suspects"></div>
+          </div>
+          <button id="hint">请求提示（扣 10 声望）</button
+          ><button id="restart">重开档案</button>
+        </aside>
+      </div>
+    </section>
+  </main>
+  <script>
+    const CASES = [
+      {
+        t: "午夜画廊失窃案",
+        brief: "名画在闭馆后的十分钟内消失，报警器却没有响。",
+        places: [
+          ["门禁记录", "💳", "馆长的卡在 22:08 开启侧门。"],
+          ["报警器", "🚨", "线路被绝缘手套精准剪断。"],
+          ["画框", "🖼️", "框沿沾有新鲜的紫色颜料。"],
+          ["储物柜", "🗄️", "找到一副沾紫漆的绝缘手套。"],
+          ["雨巷", "🌧️", "脚印尺码很小，通向员工停车区。"],
+        ],
+        sus: [
+          ["馆长", "我整晚都在办公室，卡可能被复制了。"],
+          ["修复师", "我只用蓝色颜料，闭馆前就离开了。"],
+          ["保安", "我巡逻时报警器一切正常。"],
+        ],
+        culprit: 1,
+        hint: "修复师今天真只使用蓝色颜料吗？门禁卡可能是栽赃。",
+      },
+      {
+        t: "蓝港密信案",
+        brief: "外交密信从上锁的船舱里被替换成白纸。",
+        places: [
+          ["舷窗", "🪟", "窗锁内侧有盐晶，但没有撬痕。"],
+          ["茶杯", "☕", "杯底检出强效安眠成分。"],
+          ["航海日志", "📘", "大副把换岗时间提前了二十分钟。"],
+          ["绳结", "🪢", "舷窗下方是水手学校特有的双套结。"],
+          ["医药箱", "🧰", "安眠药少了两片。"],
+        ],
+        sus: [
+          ["船医", "药箱钥匙一直在我身上。"],
+          ["大副", "提前换岗是船长的命令。"],
+          ["见习水手", "我不会靠近外交船舱。"],
+        ],
+        culprit: 2,
+        hint: "绳结比口供更诚实，谁最近刚从水手学校毕业？",
+      },
+      {
+        t: "雪夜钟表店案",
+        brief: "店主晕倒，唯一一枚金表从反锁店内消失。",
+        places: [
+          ["壁炉", "🔥", "灰烬里有烧焦的快递标签。"],
+          ["后门", "🚪", "门下方能穿过一个扁平包裹。"],
+          ["工作台", "🔧", "金表盒尺寸正好装进快递纸箱。"],
+          ["电话", "☎️", "20:10 有一通假冒客服的来电。"],
+          ["雪地", "❄️", "只有快递车轮印，没有脚印。"],
+        ],
+        sus: [
+          ["学徒", "我在仓库清点零件。"],
+          ["快递员", "我只在门口等了两分钟。"],
+          ["收藏家", "我下午看过金表，但没买。"],
+        ],
+        culprit: 1,
+        hint: "反锁房间不需要人离开，只需要让包裹离开。",
+      },
+      {
+        t: "剧院幽灵案",
+        brief: "首演前主角的王冠被调包，后台监控出现“幽灵”。",
+        places: [
+          ["监控室", "📹", "幽灵影像每 47 秒完全重复。"],
+          ["服装间", "👑", "假王冠使用舞美泡沫制作。"],
+          ["升降台", "🎭", "台下发现复制视频的存储卡。"],
+          ["化妆镜", "🪞", "镜边粘着舞美部门的银粉。"],
+          ["票务处", "🎫", "导演在事发时一直在前厅致辞。"],
+        ],
+        sus: [
+          ["导演", "这是竞争剧团的破坏。"],
+          ["舞美师", "我从没进过服装间。"],
+          ["替补演员", "我只想公平获得机会。"],
+        ],
+        culprit: 1,
+        hint: "循环影像与假道具都需要后台技术。",
+      },
+      {
+        t: "终局：无声电台",
+        brief: "午夜节目播出一段预告犯罪的录音，主持人却称直播间无人进入。",
+        places: [
+          ["调音台", "🎚️", "自动播放被设定在 00:00。"],
+          ["麦克风", "🎙️", "录音含有只有副控室才听得到的风扇声。"],
+          ["门锁", "🔐", "门禁没有外来记录。"],
+          ["节目单", "📄", "制作人临时删除了最后一段广告。"],
+          ["服务器", "🖥️", "文件上传账号属于节目制作人。"],
+        ],
+        sus: [
+          ["主持人", "我对录音毫不知情。"],
+          ["制作人", "服务器账号可能被盗。"],
+          ["保洁员", "我只清扫走廊。"],
+        ],
+        culprit: 1,
+        hint: "没有人需要进入直播间，自动播放也能制造“直播”。",
+      },
+    ];
+    let q = { case: 0, score: 100, mistakes: 0, found: [], logs: [] };
+    const $ = (x) => document.getElementById(x);
+    function cur() {
+      return CASES[q.case];
+    }
+    function inspect(i) {
+      if (q.found.includes(i)) return;
+      q.found.push(i);
+      q.logs.unshift(`发现：${cur().places[i][2]}`);
+      q.score += 5;
+      draw();
+    }
+    function accuse(i) {
+      if (q.found.length < 3) return note("至少收集三条证据再指控。");
+      if (i === cur().culprit) {
+        q.score += 40;
+        q.logs.unshift(`推理正确：${cur().sus[i][0]}的口供与物证矛盾。`);
+        if (q.case === CASES.length - 1) {
+          draw();
+          setTimeout(() => alert(`五案告破！最终声望 ${q.score}`), 50);
+        } else {
+          q.case++;
+          q.found = [];
+          q.logs = ["新案件已开启。"];
+          draw();
+        }
+      } else {
+        q.mistakes++;
+        q.score = Math.max(0, q.score - 20);
+        q.logs.unshift(`${cur().sus[i][0]}有不在场证明，指控失败。`);
+        if (q.mistakes >= 3) q.logs.unshift("失误达到三次，但仍可继续调查。");
+        draw();
+      }
+    }
+    function note(s) {
+      q.logs.unshift(s);
+      draw();
+    }
+    function draw() {
+      let c = cur();
+      caseNo.textContent = q.case + 1;
+      score.textContent = q.score;
+      mistakes.textContent = q.mistakes;
+      caseTitle.textContent = c.t;
+      brief.textContent = c.brief;
+      places.innerHTML = c.places
+        .map(
+          (p, i) =>
+            `<button class="place ${q.found.includes(i) ? "found" : ""}" data-i="${i}">${p[1]}<br><small>${p[0]}</small></button>`,
+        )
+        .join("");
+      places
+        .querySelectorAll("[data-i]")
+        .forEach((e) => (e.onclick = () => inspect(+e.dataset.i)));
+      evidence.innerHTML =
+        q.found
+          .map((i) => `<div class="evidence">📌 ${c.places[i][2]}</div>`)
+          .join("") || "<div>尚未取得证据</div>";
+      suspects.innerHTML = c.sus
+        .map(
+          (s, i) =>
+            `<div><button class="suspect" data-i="${i}"><span>${s[0]}</span><span>指控</span></button><small>${s[1]}</small></div>`,
+        )
+        .join("");
+      suspects
+        .querySelectorAll("[data-i]")
+        .forEach((e) => (e.onclick = () => accuse(+e.dataset.i)));
+      log.innerHTML = q.logs.map((x) => `<div>• ${x}</div>`).join("");
+    }
+    hint.onclick = () => {
+      q.score = Math.max(0, q.score - 10);
+      note(`提示：${cur().hint}`);
+    };
+    restart.onclick = () => {
+      if (confirm("重新打开全部案件？")) {
+        q = { case: 0, score: 100, mistakes: 0, found: [], logs: [] };
+        draw();
+      }
+    };
+    draw();
+  </script>
+</html>

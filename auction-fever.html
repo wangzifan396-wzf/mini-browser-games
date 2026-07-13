@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>拍卖风云</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #201510;
+      color: #fff3dc;
+      font-family: system-ui, "Microsoft YaHei";
+    }
+    .app {
+      min-height: 100vh;
+      padding: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .shell {
+      width: min(940px, 100%);
+      background: #35241b;
+      border: 1px solid #8d6d4d;
+      border-radius: 20px;
+      padding: 16px;
+    }
+    .top,
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 9px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .stage {
+      min-height: 430px;
+      background: radial-gradient(circle, #6b472d, #2d1d16 70%);
+      border: 1px solid #896443;
+      border-radius: 14px;
+      padding: 20px;
+      text-align: center;
+    }
+    .itemIcon {
+      font-size: 95px;
+      margin: 25px;
+    }
+    .price {
+      font-size: 32px;
+      color: #ffd673;
+    }
+    .panel {
+      background: #281a14;
+      border: 1px solid #705138;
+      border-radius: 12px;
+      padding: 11px;
+      margin-bottom: 9px;
+    }
+    .collection {
+      max-height: 250px;
+      overflow: auto;
+    }
+    .lot {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px;
+      border-bottom: 1px solid #ffffff18;
+    }
+    .trait {
+      display: inline-block;
+      padding: 4px 8px;
+      background: #4c3325;
+      border-radius: 15px;
+      margin: 3px;
+    }
+    .good {
+      color: #7fe5a4;
+    }
+    .bad {
+      color: #ff8c8c;
+    }
+    button {
+      padding: 10px 13px;
+      border: 1px solid #9a744e;
+      border-radius: 9px;
+      background: #5b3d28;
+      color: #fff;
+      font-weight: bold;
+    }
+    .bid {
+      background: #a85f24;
+      font-size: 18px;
+    }
+    .help {
+      font-size: 13px;
+      color: #d2b99b;
+    }
+    @media (max-width: 680px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      .stage {
+        min-height: 350px;
+      }
+      .app {
+        place-items: start center;
+      }
+    }
+  </style>
+  <main class="app">
+    <section class="shell">
+      <div class="top">
+        <div>
+          <h1 style="margin: 0">拍卖风云</h1>
+          <div class="help">
+            评估藏品、与三名对手竞价，再在最佳行情中出售；撑过 12
+            场并尽量扩大资产。
+          </div>
+        </div>
+        <div>
+          场次 <b id="day"></b>/12　资金 <b id="money"></b>　声望
+          <b id="rep"></b>
+        </div>
+      </div>
+      <div class="layout">
+        <div class="stage">
+          <div id="category"></div>
+          <div class="itemIcon" id="icon"></div>
+          <h2 id="name"></h2>
+          <div id="traits"></div>
+          <div>当前价 <b class="price" id="price"></b></div>
+          <div id="leader"></div>
+          <div class="row" style="justify-content: center; margin-top: 16px">
+            <button class="bid" id="bid">举牌加价</button
+            ><button id="pass">放弃本件</button
+            ><button id="appraise">专家鉴定（20）</button>
+          </div>
+          <div id="msg" class="help"></div>
+        </div>
+        <aside>
+          <div class="panel">
+            <b>市场行情</b>
+            <div id="market"></div>
+          </div>
+          <div class="panel collection">
+            <b>我的藏品</b>
+            <div id="bag"></div>
+          </div>
+          <button id="sellBest">出售选中藏品</button
+          ><button id="restart">新赛季</button>
+        </aside>
+      </div>
+    </section>
+  </main>
+  <script>
+    const BASE = [
+        ["青花瓷", "🏺", "瓷器", 80],
+        ["机械表", "⌚", "钟表", 110],
+        ["风景油画", "🖼️", "绘画", 95],
+        ["古金币", "🪙", "古物", 65],
+        ["红宝石", "💎", "珠宝", 140],
+        ["首版书", "📕", "文献", 75],
+        ["爵士唱片", "💿", "文献", 55],
+        ["青铜剑", "🗡️", "古物", 125],
+      ],
+      TR = [
+        ["名家款", 1.55],
+        ["保存完好", 1.3],
+        ["稀有年代", 1.4],
+        ["修复痕迹", 0.72],
+        ["来源存疑", 0.58],
+        ["热门题材", 1.2],
+      ];
+    let q,
+      lot,
+      timer = null;
+    const $ = (x) => document.getElementById(x);
+    function fresh() {
+      return {
+        day: 1,
+        money: 500,
+        rep: 0,
+        bag: [],
+        market: { 瓷器: 1, 钟表: 1, 绘画: 1, 古物: 1, 珠宝: 1, 文献: 1 },
+        selected: 0,
+        over: false,
+      };
+    }
+    function makeLot() {
+      let b = BASE[Math.floor(Math.random() * BASE.length)],
+        traits = [
+          TR[Math.floor(Math.random() * TR.length)],
+          TR[Math.floor(Math.random() * TR.length)],
+        ],
+        real = Math.round(
+          b[3] *
+            traits.reduce((v, t) => v * t[1], 1) *
+            (0.85 + Math.random() * 0.3),
+        );
+      lot = {
+        b,
+        traits,
+        real,
+        price: Math.round(b[3] * 0.35),
+        leader: "无人",
+        revealed: false,
+        passed: false,
+      };
+      draw();
+    }
+    function bidUp() {
+      if (q.over || lot.passed) return;
+      let step = Math.max(10, Math.round(lot.price * 0.12));
+      if (lot.price + step > q.money) return note("资金不足，无法继续举牌。");
+      lot.price += step;
+      lot.leader = "你";
+      draw();
+      setTimeout(rivals, 280);
+    }
+    function rivals() {
+      let ceiling = lot.real * (0.75 + Math.random() * 0.45);
+      if (lot.price < ceiling && Math.random() < 0.72) {
+        lot.price += Math.max(8, Math.round(lot.price * 0.1));
+        lot.leader = ["红帽收藏家", "银镜商人", "旧城馆长"][
+          Math.floor(Math.random() * 3)
+        ];
+        note(`${lot.leader} 跟价了。`);
+      } else if (lot.leader === "你") return settle();
+      draw();
+    }
+    function settle() {
+      if (lot.leader === "你") {
+        q.money -= lot.price;
+        q.bag.push({
+          n: lot.b[0],
+          ic: lot.b[1],
+          cat: lot.b[2],
+          real: lot.real,
+          cost: lot.price,
+        });
+        q.rep += lot.price < lot.real ? 2 : 0;
+        note(
+          `成交！${lot.price < lot.real ? "可能捡漏了。" : "谨慎观察后续行情。"}`,
+        );
+      }
+      next();
+    }
+    function next() {
+      q.day++;
+      for (const k in q.market)
+        q.market[k] = Math.max(
+          0.65,
+          Math.min(1.5, q.market[k] + (Math.random() - 0.5) * 0.25),
+        );
+      if (q.day > 12) {
+        q.over = true;
+        let assets =
+          q.money + q.bag.reduce((s, a) => s + a.real * q.market[a.cat], 0);
+        note(`赛季结束，总资产估值 ${Math.round(assets)}。`);
+        draw();
+        return;
+      }
+      setTimeout(makeLot, 350);
+    }
+    function note(s) {
+      msg.textContent = s;
+    }
+    function draw() {
+      day.textContent = Math.min(12, q.day);
+      money.textContent = Math.round(q.money);
+      rep.textContent = q.rep;
+      category.textContent = lot ? `本场：${lot.b[2]}` : "";
+      icon.textContent = lot?.b[1] || "";
+      name.textContent = lot?.b[0] || "";
+      price.textContent = lot ? lot.price : "";
+      leader.textContent = lot ? `领先：${lot.leader}` : "";
+      traits.innerHTML = lot
+        ? lot.traits
+            .map(
+              (t) =>
+                `<span class="trait ${lot.revealed ? (t[1] >= 1 ? "good" : "bad") : ""}">${lot.revealed ? t[0] : "待鉴定特征"}</span>`,
+            )
+            .join("")
+        : "";
+      market.innerHTML = Object.entries(q.market)
+        .map(
+          ([k, v]) =>
+            `<div class="lot"><span>${k}</span><b class="${v >= 1 ? "good" : "bad"}">${v >= 1 ? "↑" : "↓"} ${v.toFixed(2)}</b></div>`,
+        )
+        .join("");
+      bag.innerHTML =
+        q.bag
+          .map(
+            (a, i) =>
+              `<button class="lot" data-i="${i}" style="width:100%;outline:${q.selected === i ? "2px solid #ffd673" : "none"}"><span>${a.ic}${a.n}</span><b>估值 ${Math.round(a.real * q.market[a.cat])}</b></button>`,
+          )
+          .join("") || '<div class="help">尚无藏品</div>';
+      bag.querySelectorAll("[data-i]").forEach(
+        (e) =>
+          (e.onclick = () => {
+            q.selected = +e.dataset.i;
+            draw();
+          }),
+      );
+      bid.disabled = q.over || lot?.passed;
+      pass.disabled = q.over;
+      appraise.disabled = q.money < 20 || lot?.revealed;
+    }
+    bid.onclick = bidUp;
+    pass.onclick = () => {
+      if (q.over) return;
+      lot.passed = true;
+      if (lot.leader === "你") settle();
+      else next();
+    };
+    appraise.onclick = () => {
+      if (q.money < 20 || lot.revealed) return;
+      q.money -= 20;
+      lot.revealed = true;
+      note(
+        `专家估价区间：${Math.round(lot.real * 0.85)}–${Math.round(lot.real * 1.15)}`,
+      );
+      draw();
+    };
+    sellBest.onclick = () => {
+      let a = q.bag[q.selected];
+      if (!a) return note("没有可出售的藏品。");
+      let v = Math.round(a.real * q.market[a.cat]);
+      q.money += v;
+      q.bag.splice(q.selected, 1);
+      q.selected = Math.max(0, q.selected - 1);
+      q.rep += v > a.cost ? 1 : 0;
+      note(`藏品售出，到账 ${v}。`);
+      draw();
+    };
+    restart.onclick = () => {
+      if (confirm("开始新的 12 场赛季？")) {
+        q = fresh();
+        makeLot();
+      }
+    };
+    q = fresh();
+    makeLot();
+  </script>
+</html>

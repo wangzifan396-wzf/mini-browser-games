@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>塔台指挥官</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #08131d;
+      color: #eaf5ff;
+      font-family: system-ui, "Microsoft YaHei";
+    }
+    .app {
+      min-height: 100vh;
+      padding: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .shell {
+      width: min(1000px, 100%);
+      background: #10283a;
+      border: 1px solid #41677e;
+      border-radius: 20px;
+      padding: 16px;
+    }
+    .top,
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .stage {
+      position: relative;
+      margin: 12px 0;
+    }
+    canvas {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: #091b28;
+      border: 1px solid #446579;
+      border-radius: 13px;
+      display: block;
+      touch-action: none;
+    }
+    .panel {
+      background: #0a1c29;
+      border: 1px solid #38596c;
+      border-radius: 11px;
+      padding: 10px;
+    }
+    .controls button {
+      min-width: 70px;
+    }
+    .selected {
+      color: #ffe07a;
+    }
+    button {
+      padding: 9px 11px;
+      border: 1px solid #527589;
+      border-radius: 9px;
+      background: #244b62;
+      color: white;
+      font-weight: bold;
+    }
+    .land {
+      background: #9a6230;
+    }
+    .danger {
+      color: #ff7474;
+    }
+    .help {
+      font-size: 13px;
+      color: #a8c6d6;
+    }
+    @media (max-width: 650px) {
+      .app {
+        place-items: start center;
+      }
+      .controls button {
+        min-width: 58px;
+        padding: 8px;
+      }
+    }
+  </style>
+  <main class="app">
+    <section class="shell">
+      <div class="top">
+        <div>
+          <h1 style="margin: 0">塔台指挥官</h1>
+          <div class="help">
+            点击航班选中；调整航向、高度并分配跑道。低空对准跑道方向后许可降落。
+          </div>
+        </div>
+        <div>
+          班次 <b id="score"></b>　安全 <b id="lives"></b>/3　等级
+          <b id="level"></b>　流量 <b id="traffic"></b>
+        </div>
+      </div>
+      <div class="stage"><canvas id="c" width="960" height="540"></canvas></div>
+      <div class="panel">
+        <div class="row">
+          <div id="selectedInfo" class="selected">请选择航班</div>
+          <div class="controls row">
+            <button data-turn="-20">↶ 左转</button
+            ><button data-turn="20">右转 ↷</button
+            ><button data-alt="1">爬升</button
+            ><button data-alt="-1">下降</button
+            ><button data-rw="A">跑道 A</button
+            ><button data-rw="B">跑道 B</button
+            ><button class="land" id="land">许可降落</button
+            ><button id="pause">暂停</button
+            ><button id="restart">新班次</button>
+          </div>
+        </div>
+        <div id="msg" class="help"></div>
+      </div>
+    </section>
+  </main>
+  <script>
+    const cv = document.getElementById("c"),
+      g = cv.getContext("2d"),
+      R = {
+        A: { x: 480, y: 215, heading: 0 },
+        B: { x: 480, y: 330, heading: 180 },
+      };
+    let q,
+      last = 0,
+      selected = null;
+    const $ = (x) => document.getElementById(x);
+    function fresh() {
+      return {
+        planes: [],
+        score: 0,
+        lives: 3,
+        level: 1,
+        spawn: 0,
+        clock: 0,
+        paused: false,
+        over: false,
+      };
+    }
+    function plane() {
+      let side = Math.floor(Math.random() * 4),
+        x = side === 1 ? 940 : side === 3 ? 20 : Math.random() * 900 + 30,
+        y = side === 0 ? 20 : side === 2 ? 520 : Math.random() * 480 + 30,
+        h = side === 0 ? 90 : side === 1 ? 180 : side === 2 ? 270 : 0;
+      return {
+        id: Math.random().toString(36).slice(2, 5).toUpperCase(),
+        x,
+        y,
+        h,
+        alt: 3,
+        runway: null,
+        cleared: false,
+        speed: 38 + q.level * 2,
+      };
+    }
+    function angleDiff(a, b) {
+      return ((a - b + 540) % 360) - 180;
+    }
+    function update(dt) {
+      if (q.paused || q.over) return;
+      q.clock += dt;
+      q.spawn -= dt;
+      if (q.spawn <= 0 && q.planes.length < 4 + q.level) {
+        q.planes.push(plane());
+        q.spawn = Math.max(2.8, 7 - q.level * 0.55);
+      }
+      for (const p of q.planes) {
+        let a = (p.h * Math.PI) / 180;
+        p.x += Math.cos(a) * p.speed * dt;
+        p.y += Math.sin(a) * p.speed * dt;
+        if (p.cleared && p.runway) {
+          let r = R[p.runway],
+            d = Math.hypot(p.x - r.x, p.y - r.y),
+            need = p.runway === "A" ? 0 : 180;
+          if (d < 58 && Math.abs(angleDiff(p.h, need)) < 24 && p.alt === 1) {
+            q.score++;
+            q.planes = q.planes.filter((x) => x !== p);
+            if (selected === p) selected = null;
+            note(`${p.id} 安全降落 ${p.runway} 跑道。`);
+            if (q.score % 5 === 0) q.level++;
+          }
+        }
+        if (p.x < -30 || p.x > 990 || p.y < -30 || p.y > 570) {
+          q.planes = q.planes.filter((x) => x !== p);
+          q.lives--;
+          note(`${p.id} 离开管制空域，安全度下降。`);
+        }
+      }
+      for (let i = 0; i < q.planes.length; i++)
+        for (let j = i + 1; j < q.planes.length; j++) {
+          let a = q.planes[i],
+            b = q.planes[j];
+          if (
+            Math.hypot(a.x - b.x, a.y - b.y) < 25 &&
+            Math.abs(a.alt - b.alt) < 1
+          ) {
+            q.planes = q.planes.filter((x) => x !== a && x !== b);
+            q.lives--;
+            note("航班间隔失守，发生危险接近！");
+          }
+        }
+      if (q.lives <= 0) {
+        q.over = true;
+        note("空域关闭，请重新开始。");
+      }
+      drawUI();
+    }
+    function render() {
+      g.clearRect(0, 0, 960, 540);
+      g.strokeStyle = "#23485e";
+      g.lineWidth = 1;
+      for (let x = 60; x < 960; x += 80) {
+        g.beginPath();
+        g.moveTo(x, 0);
+        g.lineTo(x, 540);
+        g.stroke();
+      }
+      for (let y = 60; y < 540; y += 80) {
+        g.beginPath();
+        g.moveTo(0, y);
+        g.lineTo(960, y);
+        g.stroke();
+      }
+      for (const [k, r] of Object.entries(R)) {
+        g.save();
+        g.translate(r.x, r.y);
+        g.rotate((r.heading * Math.PI) / 180);
+        g.fillStyle = "#8b9295";
+        g.fillRect(-100, -13, 200, 26);
+        g.fillStyle = "white";
+        g.font = "18px sans-serif";
+        g.textAlign = "center";
+        g.fillText(k, 0, 7);
+        g.restore();
+      }
+      for (const p of q.planes) {
+        g.save();
+        g.translate(p.x, p.y);
+        g.rotate((p.h * Math.PI) / 180);
+        g.fillStyle =
+          p === selected ? "#ffe36b" : p.cleared ? "#70e0a0" : "#fff";
+        g.font = "27px sans-serif";
+        g.textAlign = "center";
+        g.fillText("✈", 0, 8);
+        g.restore();
+        g.fillStyle = "#d8eafa";
+        g.font = "12px sans-serif";
+        g.fillText(`${p.id} FL${p.alt} ${p.runway || "-"}`, p.x + 15, p.y - 13);
+      }
+      if (q.over) {
+        g.fillStyle = "#07121dcc";
+        g.fillRect(0, 0, 960, 540);
+        g.fillStyle = "white";
+        g.font = "bold 38px sans-serif";
+        g.textAlign = "center";
+        g.fillText("空域关闭", 480, 270);
+      }
+    }
+    function drawUI() {
+      score.textContent = q.score;
+      lives.textContent = q.lives;
+      level.textContent = q.level;
+      traffic.textContent = q.planes.length;
+      selectedInfo.textContent = selected
+        ? `${selected.id} · 航向 ${Math.round(selected.h)}° · 高度 FL${selected.alt} · ${selected.runway ? "跑道 " + selected.runway : "未分配"}`
+        : "请选择航班";
+    }
+    function note(s) {
+      msg.textContent = s;
+    }
+    function loop(t) {
+      let dt = Math.min(0.04, (t - last) / 1000 || 0);
+      last = t;
+      update(dt);
+      render();
+      requestAnimationFrame(loop);
+    }
+    cv.onclick = (e) => {
+      let r = cv.getBoundingClientRect(),
+        x = ((e.clientX - r.left) * 960) / r.width,
+        y = ((e.clientY - r.top) * 540) / r.height;
+      selected =
+        q.planes.sort(
+          (a, b) => Math.hypot(a.x - x, a.y - y) - Math.hypot(b.x - x, b.y - y),
+        )[0] || null;
+      drawUI();
+    };
+    document.querySelectorAll("[data-turn]").forEach(
+      (e) =>
+        (e.onclick = () => {
+          if (selected) selected.h = (selected.h + +e.dataset.turn + 360) % 360;
+        }),
+    );
+    document.querySelectorAll("[data-alt]").forEach(
+      (e) =>
+        (e.onclick = () => {
+          if (selected)
+            selected.alt = Math.max(
+              1,
+              Math.min(5, selected.alt + +e.dataset.alt),
+            );
+        }),
+    );
+    document.querySelectorAll("[data-rw]").forEach(
+      (e) =>
+        (e.onclick = () => {
+          if (selected) selected.runway = e.dataset.rw;
+        }),
+    );
+    land.onclick = () => {
+      if (!selected || !selected.runway) return note("先选择航班并分配跑道。");
+      selected.cleared = true;
+      note(`${selected.id} 已获得降落许可。`);
+    };
+    pause.onclick = () => {
+      q.paused = !q.paused;
+      pause.textContent = q.paused ? "继续" : "暂停";
+    };
+    restart.onclick = () => {
+      q = fresh();
+      selected = null;
+      drawUI();
+    };
+    q = fresh();
+    loop(0);
+  </script>
+</html>
