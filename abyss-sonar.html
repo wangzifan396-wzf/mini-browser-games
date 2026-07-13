@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>深渊声呐</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #030d15;
+      color: #dff7ff;
+      font-family: ui-monospace, Consolas, "Microsoft YaHei", monospace;
+    }
+    .app {
+      min-height: 100vh;
+      padding: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .shell {
+      width: min(960px, 100%);
+      background: #092131;
+      border: 1px solid #31566b;
+      border-radius: 20px;
+      padding: 16px;
+    }
+    .top,
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    canvas {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: #03141f;
+      border: 2px solid #31576b;
+      border-radius: 50%;
+      display: block;
+      margin: 12px 0;
+      touch-action: none;
+    }
+    .contacts {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+    }
+    .tag {
+      padding: 6px 9px;
+      border-radius: 15px;
+      background: #14394d;
+    }
+    button {
+      padding: 9px 11px;
+      border: 1px solid #477086;
+      border-radius: 8px;
+      background: #22516a;
+      color: white;
+      font-weight: bold;
+    }
+    .ping {
+      background: #28795d;
+    }
+    .fire {
+      background: #8c4749;
+    }
+    .help {
+      font-size: 13px;
+      color: #a9c8d6;
+    }
+    @media (max-width: 650px) {
+      .app {
+        place-items: start center;
+      }
+    }
+  </style>
+  <main class="app">
+    <section class="shell">
+      <div class="top">
+        <div>
+          <h1 style="margin: 0">深渊声呐</h1>
+          <div class="help">
+            主动声呐会短暂暴露目标也会提高敌方警觉；判断方位与距离，调整航向后发射鱼雷。
+          </div>
+        </div>
+        <div>
+          任务 <b id="mission"></b>/5　艇体 <b id="hull"></b>　静默
+          <b id="stealth"></b>　鱼雷 <b id="torps"></b>
+        </div>
+      </div>
+      <canvas id="c" width="960" height="540"></canvas>
+      <div class="row">
+        <div>
+          <button data-turn="-15">左转 −15°</button
+          ><button data-turn="15">右转 +15°</button
+          ><button class="ping" id="ping">主动声呐</button
+          ><button class="fire" id="fire">发射鱼雷</button
+          ><button id="silent">静默航行</button>
+        </div>
+        <button id="restart">新巡航</button><span id="msg"></span>
+      </div>
+      <div class="contacts" id="contacts"></div>
+    </section>
+  </main>
+  <script>
+    const cv = document.getElementById("c"),
+      g = cv.getContext("2d");
+    let q,
+      last = 0;
+    const $ = (x) => document.getElementById(x);
+    function fresh() {
+      return {
+        mission: 1,
+        hull: 100,
+        stealth: 100,
+        torps: 8,
+        heading: 0,
+        ping: 0,
+        contacts: make(3),
+        over: false,
+        silent: false,
+      };
+    }
+    function make(n) {
+      return Array.from({ length: n }, (_, i) => ({
+        a: Math.random() * 360,
+        d: 130 + Math.random() * 280,
+        hp: i === n - 1 ? 2 : 1,
+        seen: 0,
+        hostile: Math.random() < 0.75,
+      }));
+    }
+    function tick(dt) {
+      if (q.over) return;
+      q.ping = Math.max(0, q.ping - dt);
+      q.stealth = Math.min(100, q.stealth + (q.silent ? 5 : 2) * dt);
+      for (const c of q.contacts) {
+        c.a = (c.a + (Math.random() - 0.5) * 8 * dt + 360) % 360;
+        c.d += Math.sin(performance.now() / 1400 + c.a) * 4 * dt;
+        c.seen = Math.max(0, c.seen - dt);
+        if (c.hostile && q.stealth < 45 && Math.random() < 0.006) {
+          q.hull -= 8;
+          q.stealth += 15;
+          msg.textContent = "敌方鱼雷命中，艇体受损！";
+        }
+      }
+      if (q.hull <= 0) {
+        q.over = true;
+        msg.textContent = "潜艇沉没，巡航失败。";
+      }
+      if (!q.contacts.some((c) => c.hostile)) {
+        if (q.mission >= 5) {
+          q.over = true;
+          msg.textContent = "五项深海任务全部完成！";
+        } else {
+          q.mission++;
+          q.contacts = make(2 + q.mission);
+          q.stealth = 100;
+          msg.textContent = "进入下一片深海区域。";
+        }
+      }
+      drawUI();
+    }
+    function render(t) {
+      let dt = Math.min(0.05, (t - last) / 1000 || 0);
+      last = t;
+      tick(dt);
+      g.clearRect(0, 0, 960, 540);
+      g.strokeStyle = "#174257";
+      g.lineWidth = 2;
+      for (const r of [90, 180, 260]) {
+        g.beginPath();
+        g.arc(480, 270, r, 0, 7);
+        g.stroke();
+      }
+      for (let a = 0; a < 360; a += 30) {
+        g.beginPath();
+        g.moveTo(480, 270);
+        g.lineTo(
+          480 + Math.cos((a * Math.PI) / 180) * 280,
+          270 + Math.sin((a * Math.PI) / 180) * 280,
+        );
+        g.stroke();
+      }
+      g.save();
+      g.translate(480, 270);
+      g.rotate((q.heading * Math.PI) / 180);
+      g.font = "32px serif";
+      g.textAlign = "center";
+      g.fillText("⬆️", 0, 10);
+      g.restore();
+      for (const c of q.contacts)
+        if (c.seen > 0 || q.ping > 0) {
+          let a = (c.a * Math.PI) / 180,
+            x = 480 + Math.cos(a) * c.d * 0.65,
+            y = 270 + Math.sin(a) * c.d * 0.65;
+          g.fillStyle = c.hostile ? "#ff6c6c" : "#64d8a0";
+          g.beginPath();
+          g.arc(x, y, 7 + (c.hp - 1) * 3, 0, 7);
+          g.fill();
+        }
+      requestAnimationFrame(render);
+    }
+    function doPing() {
+      if (q.over) return;
+      q.ping = 2.5;
+      q.stealth = Math.max(0, q.stealth - 35);
+      q.contacts.forEach((c) => (c.seen = 5));
+      msg.textContent = "PING——回波已标定。";
+    }
+    function shoot() {
+      if (q.torps <= 0 || q.over) return;
+      q.torps--;
+      let target = q.contacts
+        .filter((c) => c.hostile)
+        .sort(
+          (a, b) =>
+            Math.abs(diff(a.a, q.heading)) - Math.abs(diff(b.a, q.heading)),
+        )[0];
+      if (
+        target &&
+        Math.abs(diff(target.a, q.heading)) < 12 &&
+        target.d < 380
+      ) {
+        target.hp--;
+        msg.textContent = "鱼雷命中目标！";
+        if (target.hp <= 0) q.contacts = q.contacts.filter((x) => x !== target);
+      } else msg.textContent = "鱼雷失去目标。";
+    }
+    function diff(a, b) {
+      return ((a - b + 540) % 360) - 180;
+    }
+    function drawUI() {
+      mission.textContent = q.mission;
+      hull.textContent = q.hull;
+      stealth.textContent = Math.round(q.stealth);
+      torps.textContent = q.torps;
+      contacts.innerHTML =
+        q.contacts
+          .filter((c) => c.seen > 0)
+          .map(
+            (c) =>
+              `<span class="tag">${c.hostile ? "⚠️" : "🐋"} 方位${Math.round(c.a)}° · 距离${Math.round(c.d)}</span>`,
+          )
+          .join("") || '<span class="tag">暂无可见接触</span>';
+      silent.textContent = q.silent ? "恢复常速" : "静默航行";
+    }
+    document.querySelectorAll("[data-turn]").forEach(
+      (e) =>
+        (e.onclick = () => {
+          q.heading = (q.heading + +e.dataset.turn + 360) % 360;
+          drawUI();
+        }),
+    );
+    ping.onclick = doPing;
+    fire.onclick = shoot;
+    silent.onclick = () => {
+      q.silent = !q.silent;
+      drawUI();
+    };
+    restart.onclick = () => {
+      q = fresh();
+      drawUI();
+    };
+    q = fresh();
+    drawUI();
+    requestAnimationFrame(render);
+  </script>
+</html>

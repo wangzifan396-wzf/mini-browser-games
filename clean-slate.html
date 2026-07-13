@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>焕新清洁队</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #15333c;
+      color: #effcff;
+      font-family: system-ui, "Microsoft YaHei";
+    }
+    .app {
+      min-height: 100vh;
+      padding: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .shell {
+      width: min(980px, 100%);
+      background: #20505b;
+      border: 1px solid #65a0a9;
+      border-radius: 20px;
+      padding: 16px;
+    }
+    .top,
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .stage {
+      position: relative;
+      margin: 12px 0;
+    }
+    canvas {
+      width: 100%;
+      aspect-ratio: 16/9;
+      border: 2px solid #82acaf;
+      border-radius: 14px;
+      background: #bac4be;
+      display: block;
+      cursor: crosshair;
+      touch-action: none;
+    }
+    .meter {
+      height: 12px;
+      background: #173a42;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .meter i {
+      display: block;
+      height: 100%;
+      background: #77e5a3;
+    }
+    .panel {
+      background: #173e47;
+      border: 1px solid #50848c;
+      border-radius: 11px;
+      padding: 10px;
+    }
+    .jobs {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+    }
+    .jobs button.active {
+      outline: 3px solid #ffe16f;
+    }
+    button {
+      padding: 9px 11px;
+      border: 1px solid #72a2a9;
+      border-radius: 9px;
+      background: #33717c;
+      color: white;
+      font-weight: bold;
+    }
+    .upgrade {
+      background: #8d6b2f;
+    }
+    .help {
+      font-size: 13px;
+      color: #c2dcdf;
+    }
+    @media (max-width: 650px) {
+      .app {
+        place-items: start center;
+      }
+    }
+  </style>
+  <main class="app">
+    <section class="shell">
+      <div class="top">
+        <div>
+          <h1 style="margin: 0">焕新清洁队</h1>
+          <div class="help">
+            按住鼠标或手指冲洗污渍；完成五项清洁委托，升级喷头、压力与清洁剂。
+          </div>
+        </div>
+        <div>
+          委托 <b id="jobNo"></b>/5　进度 <b id="progress"></b>%　报酬
+          <b id="money"></b>
+        </div>
+      </div>
+      <div class="jobs" id="jobs"></div>
+      <div class="stage"><canvas id="c" width="960" height="540"></canvas></div>
+      <div class="meter"><i id="bar"></i></div>
+      <div class="row" style="margin-top: 10px">
+        <div>
+          <button class="upgrade" id="nozzle">
+            宽喷头（<span id="nCost"></span>）</button
+          ><button class="upgrade" id="pressure">
+            高压力（<span id="pCost"></span>）</button
+          ><button class="upgrade" id="soap">
+            清洁剂（<span id="sCost"></span>）
+          </button>
+        </div>
+        <button id="nextJob">下一委托</button
+        ><button id="restart">重开事业</button><span id="msg"></span>
+      </div>
+    </section>
+  </main>
+  <script>
+    const cv = document.getElementById("c"),
+      g = cv.getContext("2d"),
+      J = [
+        ["泥泞滑板", "🛹", "#df715c"],
+        ["旧庭院", "🏡", "#d9b46d"],
+        ["观光巴士", "🚌", "#e6c64f"],
+        ["石像喷泉", "⛲", "#aab8bc"],
+        ["太空展厅", "🚀", "#d8dde8"],
+      ];
+    let q,
+      dirty = [],
+      down = false,
+      mouse = { x: 0, y: 0 };
+    const $ = (x) => document.getElementById(x);
+    function fresh() {
+      return { job: 0, money: 0, nozzle: 1, pressure: 1, soap: 1, done: {} };
+    }
+    function setup(i = q.job) {
+      q.job = i;
+      let n = 800 + i * 260;
+      dirty = Array.from({ length: n }, () => ({
+        x: 100 + Math.random() * 760,
+        y: 75 + Math.random() * 390,
+        r: 5 + Math.random() * 14,
+        hp: 1 + i * 0.2,
+      }));
+      msg.textContent = "从边角开始冲洗，污渍会逐渐剥落。";
+      drawUI();
+    }
+    function wash() {
+      if (!down || !dirty.length) return;
+      let radius = 18 + q.nozzle * 7,
+        power = 0.08 * q.pressure * (1 + q.soap * 0.15);
+      for (const d of dirty)
+        if (Math.hypot(d.x - mouse.x, d.y - mouse.y) < radius + d.r)
+          d.hp -= power;
+      dirty = dirty.filter((d) => d.hp > 0);
+      if (!dirty.length && !q.done[q.job]) {
+        q.done[q.job] = true;
+        let reward = 70 + q.job * 45;
+        q.money += reward;
+        msg.textContent = `焕然一新！获得 ${reward} 报酬。`;
+      }
+      drawUI();
+    }
+    function render() {
+      g.fillStyle = J[q.job][2];
+      g.fillRect(0, 0, 960, 540);
+      g.fillStyle = "#ffffff22";
+      for (let x = 0; x < 960; x += 80) g.fillRect(x, 0, 3, 540);
+      g.font = "150px serif";
+      g.textAlign = "center";
+      g.fillText(J[q.job][1], 480, 330);
+      for (const d of dirty) {
+        g.fillStyle = `rgba(66,45,29,${Math.min(0.82, d.hp)})`;
+        g.beginPath();
+        g.arc(d.x, d.y, d.r, 0, 7);
+        g.fill();
+      }
+      if (down) {
+        g.strokeStyle = "#c9f7ff";
+        g.lineWidth = 5;
+        g.beginPath();
+        g.moveTo(mouse.x - 150, 540);
+        g.lineTo(mouse.x, mouse.y);
+        g.stroke();
+        g.strokeStyle = "#9feaffaa";
+        g.lineWidth = 2;
+        g.beginPath();
+        g.arc(mouse.x, mouse.y, 18 + q.nozzle * 7, 0, 7);
+        g.stroke();
+      }
+      wash();
+      requestAnimationFrame(render);
+    }
+    function drawUI() {
+      let total = 800 + q.job * 260,
+        p = Math.round((1 - dirty.length / total) * 100);
+      jobNo.textContent = q.job + 1;
+      progress.textContent = Math.min(100, p);
+      money.textContent = q.money;
+      bar.style.width = Math.min(100, p) + "%";
+      jobs.innerHTML = J.map(
+        (j, i) =>
+          `<button data-i="${i}" class="${q.job === i ? "active" : ""}" ${i > 0 && !q.done[i - 1] ? "disabled" : ""}>${j[1]}${j[0]} ${q.done[i] ? "✓" : ""}</button>`,
+      ).join("");
+      jobs
+        .querySelectorAll("[data-i]")
+        .forEach((e) => (e.onclick = () => setup(+e.dataset.i)));
+      nCost.textContent = q.nozzle * 45;
+      pCost.textContent = q.pressure * 55;
+      sCost.textContent = q.soap * 40;
+      nextJob.disabled = !q.done[q.job] || q.job >= 4;
+    }
+    function upgrade(k, base) {
+      let cost = q[k] * base;
+      if (q.money < cost) return;
+      q.money -= cost;
+      q[k]++;
+      drawUI();
+    }
+    function point(e) {
+      let r = cv.getBoundingClientRect(),
+        p = e.touches?.[0] || e;
+      mouse.x = ((p.clientX - r.left) * 960) / r.width;
+      mouse.y = ((p.clientY - r.top) * 540) / r.height;
+    }
+    cv.onpointerdown = (e) => {
+      down = true;
+      point(e);
+    };
+    cv.onpointermove = point;
+    addEventListener("pointerup", () => (down = false));
+    cv.ontouchstart = (e) => {
+      down = true;
+      point(e);
+      e.preventDefault();
+    };
+    cv.ontouchmove = (e) => {
+      point(e);
+      e.preventDefault();
+    };
+    cv.ontouchend = () => (down = false);
+    nozzle.onclick = () => upgrade("nozzle", 45);
+    pressure.onclick = () => upgrade("pressure", 55);
+    soap.onclick = () => upgrade("soap", 40);
+    nextJob.onclick = () => setup(Math.min(4, q.job + 1));
+    restart.onclick = () => {
+      q = fresh();
+      setup();
+    };
+    q = fresh();
+    setup();
+    render();
+  </script>
+</html>

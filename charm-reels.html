@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>幸运符文机</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #171126;
+      color: #fff0d8;
+      font-family: system-ui, "Microsoft YaHei";
+    }
+    .app {
+      min-height: 100vh;
+      padding: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .shell {
+      width: min(920px, 100%);
+      background: #2e1d49;
+      border: 1px solid #765d9a;
+      border-radius: 24px;
+      padding: 18px;
+    }
+    .top,
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .machine {
+      margin: 14px 0;
+      padding: 25px;
+      border: 8px solid #a87528;
+      border-radius: 25px;
+      background: #55306d;
+    }
+    .reels {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 9px;
+    }
+    .reel {
+      height: 130px;
+      border-radius: 12px;
+      background: #fff7df;
+      color: #22172c;
+      display: grid;
+      place-items: center;
+      font-size: 65px;
+      border: 4px solid #d6b56a;
+    }
+    .panel {
+      background: #201332;
+      border: 1px solid #5f487b;
+      border-radius: 11px;
+      padding: 10px;
+      margin-bottom: 9px;
+    }
+    .offers {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
+    }
+    .offer {
+      min-height: 80px;
+    }
+    .offer:disabled {
+      opacity: 0.45;
+    }
+    .charms {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+    }
+    .tag {
+      padding: 6px 9px;
+      border-radius: 16px;
+      background: #473160;
+    }
+    .log {
+      height: 85px;
+      overflow: auto;
+      color: #d0bfdc;
+      font-size: 13px;
+    }
+    button {
+      padding: 10px 12px;
+      border: 1px solid #856da4;
+      border-radius: 9px;
+      background: #533c70;
+      color: white;
+      font-weight: bold;
+    }
+    .spin {
+      background: #a65d29;
+      font-size: 18px;
+    }
+    .help {
+      font-size: 13px;
+      color: #cdbed8;
+    }
+    @media (max-width: 650px) {
+      .reel {
+        height: 85px;
+        font-size: 40px;
+      }
+      .app {
+        place-items: start center;
+      }
+    }
+  </style>
+  <main class="app">
+    <section class="shell">
+      <div class="top">
+        <div>
+          <h1 style="margin: 0">幸运符文机</h1>
+          <div class="help">
+            构筑自己的符号袋，利用相邻与组合加成，在每轮租金到期前赚够目标金币。
+          </div>
+        </div>
+        <div>
+          轮次 <b id="round"></b>/12　旋转 <b id="spins"></b>/5　金币
+          <b id="coins"></b>　租金 <b id="rent"></b>
+        </div>
+      </div>
+      <div class="machine">
+        <div class="reels" id="reels"></div>
+        <div class="row" style="justify-content: center; margin-top: 18px">
+          <button class="spin" id="spin">旋转符文</button
+          ><span id="gain"></span>
+        </div>
+      </div>
+      <div class="panel">
+        <b>本轮奖励：选择一个新符号加入袋中</b>
+        <div class="offers" id="offers"></div>
+      </div>
+      <div class="panel">
+        <b>护符与符号袋</b>
+        <div class="charms" id="charms"></div>
+      </div>
+      <div class="panel log" id="log"></div>
+      <button id="restart">新命运</button>
+    </section>
+  </main>
+  <script>
+    const S = [
+        ["樱桃", "🍒", 2],
+        ["金币", "🪙", 3],
+        ["宝石", "💎", 5],
+        ["猫咪", "🐱", 2],
+        ["牛奶", "🥛", 2],
+        ["蜂巢", "🍯", 3],
+        ["蜜蜂", "🐝", 2],
+        ["月亮", "🌙", 4],
+        ["太阳", "☀️", 4],
+        ["小丑", "🃏", 1],
+      ],
+      C = [
+        ["招财猫", "猫咪每个 +3"],
+        ["甜蜜产业", "蜜蜂紧邻蜂巢时翻倍"],
+        ["日月同辉", "太阳与月亮同时出现各 +4"],
+        ["连锁宝石", "每颗宝石使下一颗 +2"],
+      ];
+    let q,
+      rolled = [];
+    const $ = (x) => document.getElementById(x);
+    function fresh() {
+      return {
+        round: 1,
+        spins: 5,
+        coins: 0,
+        rent: 35,
+        bag: [0, 0, 0, 1, 1, 3, 4, 6, 7, 8],
+        charms: [],
+        logs: ["命运开始：五次旋转内支付第一笔租金。"],
+        choose: false,
+        over: false,
+      };
+    }
+    function roll() {
+      if (q.over || q.choose || q.spins <= 0) return;
+      rolled = Array.from(
+        { length: 5 },
+        () => q.bag[Math.floor(Math.random() * q.bag.length)],
+      );
+      let total = rolled.reduce((s, id) => s + S[id][2], 0);
+      if (q.charms.includes(0))
+        total += rolled.filter((x) => x === 3).length * 3;
+      if (q.charms.includes(1))
+        for (let i = 0; i < 4; i++)
+          if ([rolled[i], rolled[i + 1]].sort().join(",") === "5,6")
+            total += S[5][2] + S[6][2];
+      if (q.charms.includes(2) && rolled.includes(7) && rolled.includes(8))
+        total += rolled.filter((x) => x === 7 || x === 8).length * 4;
+      if (q.charms.includes(3)) {
+        let gems = rolled.filter((x) => x === 2).length;
+        total += gems * (gems - 1);
+      }
+      q.coins += total;
+      q.spins--;
+      gain.textContent = `本次获得 ${total} 金币`;
+      if (q.spins === 0) endRound();
+      draw();
+    }
+    function endRound() {
+      if (q.coins < q.rent) {
+        q.over = true;
+        q.logs.unshift(`租金 ${q.rent} 未能支付，命运终止。`);
+        return;
+      }
+      q.coins -= q.rent;
+      q.logs.unshift(`支付租金 ${q.rent}，进入下一轮。`);
+      q.round++;
+      if (q.round > 12) {
+        q.over = true;
+        q.logs.unshift("十二轮全部通过，符文大师诞生！");
+        return;
+      }
+      q.rent = Math.round(q.rent * 1.34 + 5);
+      q.spins = 5;
+      q.choose = true;
+      makeOffers();
+    }
+    function makeOffers() {
+      q.offers = Array.from({ length: 3 }, () =>
+        Math.floor(Math.random() * S.length),
+      );
+      if (q.round % 3 === 0 && q.charms.length < C.length)
+        q.charmOffer = q.charms.length;
+      else q.charmOffer = null;
+    }
+    function choose(i) {
+      q.bag.push(q.offers[i]);
+      q.choose = false;
+      if (q.charmOffer !== null) {
+        q.charms.push(q.charmOffer);
+        q.logs.unshift(`获得护符：${C[q.charmOffer][0]}。`);
+      }
+      draw();
+    }
+    function draw() {
+      round.textContent = Math.min(12, q.round);
+      spins.textContent = q.spins;
+      coins.textContent = q.coins;
+      rent.textContent = q.rent;
+      reels.innerHTML = (rolled.length ? rolled : [9, 9, 9, 9, 9])
+        .map((id) => `<div class="reel">${S[id][1]}</div>`)
+        .join("");
+      offers.innerHTML = q.choose
+        ? q.offers
+            .map(
+              (id, i) =>
+                `<button class="offer" data-i="${i}">${S[id][1]}<br><b>${S[id][0]}</b> · 基础 ${S[id][2]}</button>`,
+            )
+            .join("")
+        : '<div class="help">完成本轮后出现奖励</div>';
+      offers
+        .querySelectorAll("[data-i]")
+        .forEach((e) => (e.onclick = () => choose(+e.dataset.i)));
+      charms.innerHTML =
+        q.charms
+          .map((i) => `<span class="tag">${C[i][0]}：${C[i][1]}</span>`)
+          .join("") + `<span class="tag">符号 ${q.bag.length} 个</span>`;
+      log.innerHTML = q.logs
+        .slice(0, 8)
+        .map((x) => `<div>• ${x}</div>`)
+        .join("");
+      spin.disabled = q.over || q.choose;
+    }
+    spin.onclick = roll;
+    restart.onclick = () => {
+      q = fresh();
+      rolled = [];
+      draw();
+    };
+    q = fresh();
+    draw();
+  </script>
+</html>

@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>极速配送网</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #132433;
+      color: #eef8ff;
+      font-family: system-ui, "Microsoft YaHei";
+    }
+    .app {
+      min-height: 100vh;
+      padding: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .shell {
+      width: min(980px, 100%);
+      background: #213d52;
+      border: 1px solid #5c7f96;
+      border-radius: 20px;
+      padding: 16px;
+    }
+    .top,
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .stage {
+      position: relative;
+      margin: 12px 0;
+    }
+    canvas {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: #d8e1de;
+      border: 2px solid #70909a;
+      border-radius: 13px;
+      display: block;
+      touch-action: none;
+    }
+    .orders {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+    }
+    .tag {
+      padding: 6px 9px;
+      border-radius: 15px;
+      background: #315871;
+    }
+    .tag.late {
+      background: #8a3f43;
+    }
+    button {
+      padding: 9px 11px;
+      border: 1px solid #7592a2;
+      border-radius: 8px;
+      background: #3b637a;
+      color: white;
+      font-weight: bold;
+    }
+    .go {
+      background: #8f6b2b;
+    }
+    .help {
+      font-size: 13px;
+      color: #c0d2dc;
+    }
+    @media (max-width: 650px) {
+      .app {
+        place-items: start center;
+      }
+    }
+  </style>
+  <main class="app">
+    <section class="shell">
+      <div class="top">
+        <div>
+          <h1 style="margin: 0">极速配送网</h1>
+          <div class="help">
+            点击站点规划配送顺序，兼顾距离和倒计时；车辆出发后会按路线自动送达。
+          </div>
+        </div>
+        <div>
+          班次 <b id="shift"></b>/8　时间 <b id="time"></b>　收入
+          <b id="money"></b>　准时率 <b id="rate"></b>%
+        </div>
+      </div>
+      <div class="stage"><canvas id="c" width="960" height="540"></canvas></div>
+      <div class="orders" id="orders"></div>
+      <div class="row" style="margin-top: 9px">
+        <button class="go" id="dispatch">发车</button
+        ><button id="undo">撤销末站</button
+        ><button id="newShift">下一班次</button
+        ><button id="restart">新事业</button><span id="msg"></span>
+      </div>
+    </section>
+  </main>
+  <script>
+    const cv = document.getElementById("c"),
+      g = cv.getContext("2d"),
+      pts = [
+        [100, 270],
+        [230, 90],
+        [310, 390],
+        [480, 170],
+        [590, 410],
+        [730, 100],
+        [850, 300],
+      ];
+    let q,
+      last = 0;
+    const $ = (x) => document.getElementById(x);
+    function fresh() {
+      return {
+        shift: 1,
+        time: 90,
+        money: 0,
+        on: 0,
+        total: 0,
+        orders: [],
+        route: [0],
+        van: { at: 0, t: 0, moving: false },
+        done: false,
+      };
+    }
+    function setup() {
+      q.time = 75 + q.shift * 3;
+      q.orders = Array.from({ length: 3 + Math.min(3, q.shift) }, (_, i) => ({
+        to: 1 + Math.floor(Math.random() * 6),
+        deadline: 28 + Math.random() * 45,
+        done: false,
+      }));
+      q.route = [0];
+      q.van = { at: 0, t: 0, moving: false };
+      q.done = false;
+      drawUI();
+    }
+    function click(e) {
+      if (q.van.moving) return;
+      let r = cv.getBoundingClientRect(),
+        x = ((e.clientX - r.left) * 960) / r.width,
+        y = ((e.clientY - r.top) * 540) / r.height,
+        i = pts.findIndex((p) => Math.hypot(p[0] - x, p[1] - y) < 28);
+      if (i > 0) q.route.push(i);
+      drawUI();
+    }
+    function update(dt) {
+      if (!q.van.moving || q.done) return;
+      q.time -= dt;
+      for (const o of q.orders) if (!o.done) o.deadline -= dt;
+      let idx = q.van.at;
+      if (idx >= q.route.length - 1) {
+        q.van.moving = false;
+        q.done = true;
+        q.total += q.orders.filter((o) => !o.done).length;
+        msg.textContent = "班次完成，可进入下一班。";
+        drawUI();
+        return;
+      }
+      let a = pts[q.route[idx]],
+        b = pts[q.route[idx + 1]],
+        dist = Math.hypot(b[0] - a[0], b[1] - a[1]);
+      q.van.t += (dt * 105) / dist;
+      if (q.van.t >= 1) {
+        q.van.at++;
+        q.van.t = 0;
+        let stop = q.route[q.van.at];
+        for (const o of q.orders)
+          if (!o.done && o.to === stop) {
+            o.done = true;
+            q.total++;
+            if (o.deadline >= 0) {
+              q.on++;
+              q.money += 25 + Math.round(o.deadline);
+            } else q.money += 8;
+          }
+      }
+      if (q.time <= 0) {
+        q.van.moving = false;
+        q.done = true;
+        msg.textContent = "工作时间结束。";
+      }
+      drawUI();
+    }
+    function render(t) {
+      let dt = Math.min(0.05, (t - last) / 1000 || 0);
+      last = t;
+      update(dt);
+      g.fillStyle = "#d8e1de";
+      g.fillRect(0, 0, 960, 540);
+      g.strokeStyle = "#91a6a4";
+      g.lineWidth = 10;
+      for (let i = 0; i < pts.length; i++)
+        for (let j = i + 1; j < pts.length; j++)
+          if ((i + j) % 3 !== 0) {
+            g.beginPath();
+            g.moveTo(...pts[i]);
+            g.lineTo(...pts[j]);
+            g.stroke();
+          }
+      if (q.route.length > 1) {
+        g.strokeStyle = "#e08b36";
+        g.lineWidth = 6;
+        g.beginPath();
+        q.route.forEach((i, k) =>
+          k ? g.lineTo(...pts[i]) : g.moveTo(...pts[i]),
+        );
+        g.stroke();
+      }
+      pts.forEach((p, i) => {
+        g.fillStyle = i ? "#fff" : "#3478a0";
+        g.strokeStyle = "#263d48";
+        g.lineWidth = 3;
+        g.beginPath();
+        g.arc(p[0], p[1], 24, 0, 7);
+        g.fill();
+        g.stroke();
+        g.fillStyle = "#222";
+        g.font = "16px sans-serif";
+        g.textAlign = "center";
+        g.fillText(i ? "站" + i : "仓", p[0], p[1] + 5);
+      });
+      let a = pts[q.route[q.van.at]],
+        b = pts[q.route[Math.min(q.van.at + 1, q.route.length - 1)]],
+        x = a[0] + (b[0] - a[0]) * q.van.t,
+        y = a[1] + (b[1] - a[1]) * q.van.t;
+      g.font = "28px serif";
+      g.fillText("🚚", x, y);
+      requestAnimationFrame(render);
+    }
+    function drawUI() {
+      shift.textContent = q.shift;
+      time.textContent = Math.max(0, Math.ceil(q.time));
+      money.textContent = q.money;
+      rate.textContent = q.total ? Math.round((q.on / q.total) * 100) : 100;
+      orders.innerHTML = q.orders
+        .map(
+          (o) =>
+            `<span class="tag ${o.deadline < 0 && !o.done ? "late" : ""}">${o.done ? "✓" : "📦"} 站${o.to} · ${Math.ceil(o.deadline)}秒</span>`,
+        )
+        .join("");
+      dispatch.disabled = q.van.moving || q.route.length < 2 || q.done;
+      newShift.disabled = !q.done;
+    }
+    cv.onclick = click;
+    dispatch.onclick = () => (q.van.moving = true);
+    undo.onclick = () => {
+      if (!q.van.moving && q.route.length > 1) q.route.pop();
+    };
+    newShift.onclick = () => {
+      if (q.shift < 8) {
+        q.shift++;
+        setup();
+      } else msg.textContent = "八个班次全部完成！";
+    };
+    restart.onclick = () => {
+      q = fresh();
+      setup();
+    };
+    q = fresh();
+    setup();
+    requestAnimationFrame(render);
+  </script>
+</html>

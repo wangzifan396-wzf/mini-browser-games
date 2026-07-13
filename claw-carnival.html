@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>爪爪嘉年华</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #281631;
+      color: #fff2fb;
+      font-family: system-ui, "Microsoft YaHei";
+    }
+    .app {
+      min-height: 100vh;
+      padding: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .shell {
+      width: min(900px, 100%);
+      background: #4b2858;
+      border: 1px solid #9869a3;
+      border-radius: 25px;
+      padding: 18px;
+    }
+    .top,
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .machine {
+      height: 470px;
+      margin: 12px 0;
+      border: 10px solid #d77cb5;
+      border-radius: 22px;
+      background: linear-gradient(#6bc4d9 0 70%, #9a638d 70%);
+      position: relative;
+      overflow: hidden;
+    }
+    .rail {
+      position: absolute;
+      left: 5%;
+      right: 5%;
+      top: 25px;
+      height: 10px;
+      background: #eee;
+      border-radius: 8px;
+    }
+    .claw {
+      position: absolute;
+      top: 28px;
+      font-size: 45px;
+      transition:
+        left 0.06s,
+        top 0.45s;
+    }
+    .prize {
+      position: absolute;
+      font-size: 48px;
+      transition:
+        top 0.5s,
+        left 0.5s;
+    }
+    .chute {
+      position: absolute;
+      left: 20px;
+      bottom: 10px;
+      width: 120px;
+      height: 90px;
+      border: 5px dashed white;
+      display: grid;
+      place-items: center;
+    }
+    .collection {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+    }
+    .tag {
+      padding: 6px 9px;
+      background: #633a70;
+      border-radius: 16px;
+    }
+    button {
+      padding: 10px 12px;
+      border: 1px solid #b17fbb;
+      border-radius: 9px;
+      background: #70427d;
+      color: white;
+      font-weight: bold;
+    }
+    .drop {
+      background: #b15e31;
+      font-size: 18px;
+    }
+    .help {
+      font-size: 13px;
+      color: #e1cbe5;
+    }
+    @media (max-width: 650px) {
+      .machine {
+        height: 380px;
+      }
+      .app {
+        place-items: start center;
+      }
+    }
+  </style>
+  <main class="app">
+    <section class="shell">
+      <div class="top">
+        <div>
+          <h1 style="margin: 0">爪爪嘉年华</h1>
+          <div class="help">
+            左右移动机械爪，判断摆动位置后下爪；收集十二种奖品并升级爪力和稳定器。
+          </div>
+        </div>
+        <div>
+          代币 <b id="tokens"></b>　图鉴 <b id="dex"></b>/12　连抓
+          <b id="combo"></b>
+        </div>
+      </div>
+      <div class="machine" id="machine">
+        <div class="rail"></div>
+        <div class="claw" id="claw">🪝</div>
+        <div class="chute">出口</div>
+      </div>
+      <div class="row">
+        <div>
+          <button id="left">◀ 左移</button
+          ><button class="drop" id="drop">下爪</button
+          ><button id="right">右移 ▶</button>
+        </div>
+        <div>
+          <button id="power">爪力升级（8）</button
+          ><button id="steady">稳定器（10）</button
+          ><button id="refill">补充代币（重开）</button>
+        </div>
+        <span id="msg"></span>
+      </div>
+      <div class="collection" id="collection"></div>
+    </section>
+  </main>
+  <script>
+    const P = [
+      "🧸",
+      "🐰",
+      "🐼",
+      "🦊",
+      "🐸",
+      "🐙",
+      "🦄",
+      "🐳",
+      "🐥",
+      "🐨",
+      "🐯",
+      "🐲",
+    ];
+    let q,
+      busy = false;
+    const $ = (x) => document.getElementById(x);
+    function fresh() {
+      return {
+        tokens: 18,
+        x: 50,
+        power: 1,
+        steady: 0,
+        combo: 0,
+        seen: {},
+        prizes: [],
+      };
+    }
+    function fill() {
+      while (q.prizes.length < 14)
+        q.prizes.push({
+          id: Math.floor(Math.random() * P.length),
+          x: 12 + Math.random() * 80,
+          y: 65 + Math.random() * 22,
+          caught: false,
+        });
+      draw();
+    }
+    function move(d) {
+      if (busy) return;
+      q.x = Math.max(5, Math.min(90, q.x + d * (q.steady ? 4 : 7)));
+      draw();
+    }
+    function grab() {
+      if (busy || q.tokens <= 0) return;
+      q.tokens--;
+      busy = true;
+      claw.style.top = "300px";
+      let candidates = q.prizes
+        .filter((p) => !p.caught && Math.abs(p.x - q.x) < 7 + q.power * 2)
+        .sort((a, b) => Math.abs(a.x - q.x) - Math.abs(b.x - q.x));
+      setTimeout(() => {
+        let p = candidates[0],
+          chance = 0.38 + q.power * 0.13 + (q.steady ? 0.12 : 0);
+        if (p && Math.random() < chance) {
+          p.caught = true;
+          q.seen[p.id] = (q.seen[p.id] || 0) + 1;
+          q.combo++;
+          msg.textContent = `抓到 ${P[p.id]}！连抓 ${q.combo}`;
+          setTimeout(() => {
+            q.prizes = q.prizes.filter((x) => x !== p);
+            fill();
+          }, 450);
+        } else {
+          q.combo = 0;
+          msg.textContent = "奖品滑落了，再调整位置。";
+        }
+        claw.style.top = "28px";
+        busy = false;
+        draw();
+      }, 520);
+    }
+    function upgrade(k, cost) {
+      if (q.tokens < cost) return;
+      q.tokens -= cost;
+      q[k]++;
+      draw();
+    }
+    function draw() {
+      tokens.textContent = q.tokens;
+      dex.textContent = Object.keys(q.seen).length;
+      combo.textContent = q.combo;
+      claw.style.left = q.x + "%";
+      machine.querySelectorAll(".prize").forEach((e) => e.remove());
+      q.prizes.forEach((p) => {
+        let e = document.createElement("span");
+        e.className = "prize";
+        e.textContent = P[p.id];
+        e.style.left = p.x + "%";
+        e.style.top = p.y + "%";
+        if (p.caught) {
+          e.style.left = "5%";
+          e.style.top = "78%";
+        }
+        machine.append(e);
+      });
+      collection.innerHTML = P.map(
+        (p, i) =>
+          `<span class="tag">${q.seen[i] ? p : "❔"} ×${q.seen[i] || 0}</span>`,
+      ).join("");
+      power.textContent = `爪力 Lv.${q.power}（8）`;
+      steady.textContent = `稳定器 Lv.${q.steady}（10）`;
+    }
+    left.onclick = () => move(-1);
+    right.onclick = () => move(1);
+    drop.onclick = grab;
+    addEventListener("keydown", (e) => {
+      if (e.key === "ArrowLeft") move(-1);
+      if (e.key === "ArrowRight") move(1);
+      if (e.key === " ") grab();
+    });
+    power.onclick = () => upgrade("power", 8);
+    steady.onclick = () => upgrade("steady", 10);
+    refill.onclick = () => {
+      q = fresh();
+      fill();
+    };
+    q = fresh();
+    fill();
+  </script>
+</html>

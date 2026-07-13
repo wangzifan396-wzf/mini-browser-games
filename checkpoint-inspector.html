@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>边境值勤</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #24231f;
+      color: #f1ead8;
+      font-family: ui-monospace, Consolas, "Microsoft YaHei", monospace;
+    }
+    .app {
+      min-height: 100vh;
+      padding: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .shell {
+      width: min(1000px, 100%);
+      background: #38362f;
+      border: 1px solid #777163;
+      border-radius: 16px;
+      padding: 16px;
+    }
+    .top,
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .desk {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 12px 0;
+    }
+    .person {
+      background: #292823;
+      border: 1px solid #656055;
+      border-radius: 12px;
+      padding: 15px;
+      text-align: center;
+    }
+    .face {
+      font-size: 80px;
+    }
+    .docs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+    }
+    .doc {
+      background: #ddd2b6;
+      color: #27251f;
+      border: 1px solid #978d75;
+      border-radius: 8px;
+      padding: 11px;
+      min-height: 150px;
+    }
+    .rules {
+      background: #24231f;
+      border: 1px solid #625e55;
+      border-radius: 10px;
+      padding: 10px;
+    }
+    .rule {
+      padding: 5px;
+      border-bottom: 1px solid #ffffff18;
+    }
+    .actions button {
+      font-size: 18px;
+      min-width: 130px;
+    }
+    .approve {
+      background: #36704d;
+    }
+    .deny {
+      background: #8b4043;
+    }
+    .log {
+      height: 70px;
+      overflow: auto;
+      color: #c9c0ac;
+      font-size: 13px;
+    }
+    button {
+      padding: 10px 13px;
+      border: 1px solid #817b6d;
+      border-radius: 8px;
+      background: #514d43;
+      color: white;
+      font-weight: bold;
+    }
+    .help {
+      font-size: 13px;
+      color: #c9c1ae;
+    }
+    @media (max-width: 700px) {
+      .desk {
+        grid-template-columns: 1fr;
+      }
+      .docs {
+        grid-template-columns: 1fr;
+      }
+      .app {
+        place-items: start center;
+      }
+    }
+  </style>
+  <main class="app">
+    <section class="shell">
+      <div class="top">
+        <div>
+          <h1 style="margin: 0">边境值勤</h1>
+          <div class="help">
+            逐项核对护照、通行证与当日规则；错误放行或错误拒绝都会收到警告。
+          </div>
+        </div>
+        <div>
+          第 <b id="day"></b> 天　旅客 <b id="traveler"></b>/15　工资
+          <b id="money"></b>　警告 <b id="strikes"></b>/3
+        </div>
+      </div>
+      <div class="rules">
+        <b>今日入境规则</b>
+        <div id="rules"></div>
+      </div>
+      <div class="desk">
+        <div class="person">
+          <div class="face" id="face"></div>
+          <h2 id="spokenName"></h2>
+          <div id="speech"></div>
+          <div
+            class="row actions"
+            style="justify-content: center; margin-top: 15px"
+          >
+            <button class="approve" id="approve">批准入境</button
+            ><button class="deny" id="deny">拒绝入境</button>
+          </div>
+        </div>
+        <div class="docs">
+          <div class="doc">
+            <b>联邦护照</b>
+            <div id="passport"></div>
+          </div>
+          <div class="doc">
+            <b>临时通行证</b>
+            <div id="permit"></div>
+          </div>
+        </div>
+      </div>
+      <div class="log" id="log"></div>
+      <button id="restart">重新值勤</button>
+    </section>
+  </main>
+  <script>
+    const nations = ["北港", "赤岭", "云州", "西礁"],
+      names = ["林安", "周岚", "叶川", "莫宁", "苏禾", "秦星", "罗伊", "米娅"],
+      faces = ["👨", "👩", "🧔", "👵", "👲", "🧕"],
+      purposes = ["探亲", "工作", "旅游", "医疗"];
+    let q, p;
+    const $ = (x) => document.getElementById(x);
+    function fresh() {
+      return {
+        day: 1,
+        n: 0,
+        money: 0,
+        strikes: 0,
+        logs: ["值勤开始，规则会每五名旅客更新。"],
+        over: false,
+      };
+    }
+    function currentRules() {
+      return {
+        banned: q.day >= 2 ? nations[(q.day - 2) % nations.length] : null,
+        permit: q.day >= 2,
+        workSeal: q.day >= 3,
+        expiry: 2032 + q.day,
+      };
+    }
+    function make() {
+      let r = currentRules(),
+        name = names[Math.floor(Math.random() * names.length)],
+        nation = nations[Math.floor(Math.random() * 4)],
+        purpose = purposes[Math.floor(Math.random() * 4)],
+        valid = Math.random() < 0.58,
+        docName = name,
+        permitName = name,
+        expiry = r.expiry + Math.floor(Math.random() * 3),
+        seal = true,
+        hasPermit = true;
+      if (!valid) {
+        let flaws = ["name", "expiry", "ban", "permit", "seal"],
+          f = flaws[Math.floor(Math.random() * flaws.length)];
+        if (f === "name")
+          permitName = names[(names.indexOf(name) + 1) % names.length];
+        if (f === "expiry") expiry = r.expiry - 1;
+        if (f === "ban") nation = r.banned || nation;
+        if (f === "permit") hasPermit = false;
+        if (f === "seal") {
+          purpose = "工作";
+          seal = false;
+        }
+      }
+      let allowed =
+        nation !== r.banned &&
+        expiry >= r.expiry &&
+        (!r.permit || (hasPermit && permitName === docName)) &&
+        (!r.workSeal || purpose !== "工作" || seal);
+      p = {
+        name,
+        nation,
+        purpose,
+        docName,
+        permitName,
+        expiry,
+        seal,
+        hasPermit,
+        allowed,
+        face: faces[Math.floor(Math.random() * faces.length)],
+        id: Math.floor(100000 + Math.random() * 899999),
+      };
+      draw();
+    }
+    function decide(ok) {
+      if (q.over) return;
+      let correct = ok === p.allowed;
+      if (correct) {
+        q.money += 12;
+        q.logs.unshift(`裁定正确：${ok ? "批准" : "拒绝"} ${p.name}。`);
+      } else {
+        q.strikes++;
+        q.logs.unshift(
+          `警告：错误${ok ? "放行" : "拒绝"}，档案存在${reason()}。`,
+        );
+      }
+      q.n++;
+      if (q.strikes >= 3) {
+        q.over = true;
+        q.logs.unshift("警告达到三次，你被暂停值勤。");
+      } else if (q.n >= 15) {
+        q.over = true;
+        q.logs.unshift(`本轮结束，最终工资 ${q.money}。`);
+      } else {
+        if (q.n % 5 === 0) q.day++;
+        make();
+      }
+      draw();
+    }
+    function reason() {
+      let r = currentRules();
+      if (p.nation === r.banned) return "国籍限制";
+      if (p.expiry < r.expiry) return "证件过期";
+      if (!p.hasPermit) return "缺少通行证";
+      if (p.permitName !== p.docName) return "姓名不符";
+      if (p.purpose === "工作" && !p.seal) return "工作许可缺章";
+      return "无拒绝理由";
+    }
+    function draw() {
+      let r = currentRules();
+      day.textContent = q.day;
+      traveler.textContent = q.n + 1;
+      money.textContent = q.money;
+      strikes.textContent = q.strikes;
+      rules.innerHTML = [
+        `护照有效期不得早于 ${r.expiry}`,
+        r.banned ? `${r.banned}公民暂停入境` : "暂无国籍禁令",
+        r.permit ? "必须持有同名临时通行证" : "仅需护照",
+        r.workSeal ? "工作目的须有蓝色许可章" : "工作许可章暂不检查",
+      ]
+        .map((x) => `<div class="rule">• ${x}</div>`)
+        .join("");
+      face.textContent = p?.face || "";
+      spokenName.textContent = p?.name || "";
+      speech.textContent = p ? `“我来这里${p.purpose}，预计停留两周。”` : "";
+      passport.innerHTML = p
+        ? `姓名：${p.docName}<br>国籍：${p.nation}<br>编号：${p.id}<br>有效至：${p.expiry}`
+        : "";
+      permit.innerHTML = p
+        ? p.hasPermit
+          ? `姓名：${p.permitName}<br>目的：${p.purpose}<br>许可章：${p.seal ? "🔵 已盖章" : "— 无"}<br>停留：14 日`
+          : "❌ 未提交通行证"
+        : "";
+      log.innerHTML = q.logs
+        .slice(0, 8)
+        .map((x) => `<div>• ${x}</div>`)
+        .join("");
+      approve.disabled = deny.disabled = q.over;
+    }
+    approve.onclick = () => decide(true);
+    deny.onclick = () => decide(false);
+    restart.onclick = () => {
+      q = fresh();
+      make();
+    };
+    q = fresh();
+    make();
+  </script>
+</html>

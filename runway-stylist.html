@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>星光造型师</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #25152d;
+      color: #fff0fa;
+      font-family: system-ui, "Microsoft YaHei";
+    }
+    .app {
+      min-height: 100vh;
+      padding: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .shell {
+      width: min(930px, 100%);
+      background: #472653;
+      border: 1px solid #986ca0;
+      border-radius: 24px;
+      padding: 18px;
+    }
+    .top,
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .stage {
+      min-height: 500px;
+      border-radius: 18px;
+      background: radial-gradient(circle, #f4b6dd, #6e397b 70%);
+      display: grid;
+      place-items: center;
+      text-align: center;
+    }
+    .model {
+      font-size: 120px;
+    }
+    .look {
+      font-size: 50px;
+      min-height: 70px;
+    }
+    .panel {
+      background: #321b3b;
+      border: 1px solid #785783;
+      border-radius: 11px;
+      padding: 10px;
+      margin-bottom: 9px;
+    }
+    .wardrobe {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
+    }
+    .piece {
+      min-height: 68px;
+    }
+    .piece.sel {
+      outline: 3px solid #ffe06b;
+    }
+    .theme {
+      color: #ffe073;
+    }
+    .log {
+      height: 80px;
+      overflow: auto;
+      color: #dfc4e2;
+      font-size: 13px;
+    }
+    button {
+      padding: 9px 11px;
+      border: 1px solid #a077a8;
+      border-radius: 8px;
+      background: #684273;
+      color: white;
+      font-weight: bold;
+    }
+    .submit {
+      background: #a45c31;
+    }
+    .help {
+      font-size: 13px;
+      color: #dfc7e2;
+    }
+    @media (max-width: 700px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      .stage {
+        min-height: 350px;
+      }
+      .app {
+        place-items: start center;
+      }
+    }
+  </style>
+  <main class="app">
+    <section class="shell">
+      <div class="top">
+        <div>
+          <h1 style="margin: 0">星光造型师</h1>
+          <div class="theme" id="theme"></div>
+        </div>
+        <div>
+          客户 <b id="client"></b>/10　声望 <b id="score"></b>　预算
+          <b id="budget"></b>
+        </div>
+      </div>
+      <div class="layout">
+        <div class="stage">
+          <div>
+            <div class="model">🧍‍♀️</div>
+            <div class="look" id="look"></div>
+            <h2 id="result"></h2>
+            <button class="submit" id="submit">完成造型</button>
+          </div>
+        </div>
+        <aside>
+          <div class="panel">
+            <b>衣橱</b>
+            <div class="wardrobe" id="wardrobe"></div>
+          </div>
+          <div class="panel">
+            <b>搭配提示</b>
+            <div class="help">
+              每件单品有风格标签。符合主题、颜色和预算会加分；三个不同类别都选择后才能提交。
+            </div>
+          </div>
+          <div class="panel log" id="log"></div>
+          <button id="restart">新造型季</button>
+        </aside>
+      </div>
+    </section>
+  </main>
+  <script>
+    const I = [
+        ["礼服", "👗", "优雅", "红", 35, "dress"],
+        ["西装", "🤵", "正式", "黑", 40, "dress"],
+        ["夹克", "🧥", "街头", "蓝", 25, "dress"],
+        ["运动装", "🎽", "活力", "黄", 20, "dress"],
+        ["高跟鞋", "👠", "优雅", "红", 18, "shoe"],
+        ["皮鞋", "👞", "正式", "黑", 20, "shoe"],
+        ["球鞋", "👟", "街头", "白", 15, "shoe"],
+        ["短靴", "🥾", "冒险", "棕", 22, "shoe"],
+        ["皇冠", "👑", "华丽", "金", 30, "acc"],
+        ["墨镜", "🕶️", "街头", "黑", 12, "acc"],
+        ["领带", "👔", "正式", "蓝", 10, "acc"],
+        ["花束", "💐", "浪漫", "粉", 14, "acc"],
+      ],
+      themes = [
+        ["红毯首映", "优雅", "红", 80],
+        ["商业晚宴", "正式", "黑", 75],
+        ["街头音乐节", "街头", "蓝", 60],
+        ["运动广告", "活力", "黄", 55],
+        ["王室庆典", "华丽", "金", 95],
+        ["旅行大片", "冒险", "棕", 70],
+        ["浪漫约会", "浪漫", "粉", 60],
+        ["黑白封面", "正式", "黑", 80],
+        ["潮流发布", "街头", "白", 65],
+        ["年度盛典", "优雅", "金", 100],
+      ];
+    let q = { client: 0, score: 0, sel: {}, logs: [] };
+    const $ = (x) => document.getElementById(x);
+    function pick(i) {
+      let x = I[i];
+      q.sel[x[5]] = i;
+      draw();
+    }
+    function send() {
+      if (Object.keys(q.sel).length < 3) return;
+      let t = themes[q.client],
+        items = Object.values(q.sel).map((i) => I[i]),
+        cost = items.reduce((s, x) => s + x[4], 0),
+        points =
+          items.reduce(
+            (s, x) => s + (x[2] === t[1] ? 25 : 0) + (x[3] === t[2] ? 15 : 0),
+            0,
+          ) +
+          (cost <= t[3] ? 25 : -20) +
+          15;
+      q.score += points;
+      q.logs.unshift(`${t[0]}造型获得 ${points} 分，花费 ${cost}/${t[3]}。`);
+      result.textContent =
+        points >= 80
+          ? "惊艳全场！"
+          : points >= 55
+            ? "搭配成功"
+            : "主题契合不足";
+      q.client++;
+      q.sel = {};
+      if (q.client >= 10)
+        setTimeout(() => alert(`造型季结束！总声望 ${q.score}`), 50);
+      draw();
+    }
+    function draw() {
+      let t = themes[Math.min(9, q.client)];
+      client.textContent = Math.min(10, q.client + 1);
+      score.textContent = q.score;
+      budget.textContent = t[3];
+      theme.textContent = `本期主题：${t[0]} · 关键词 ${t[1]} / ${t[2]}`;
+      wardrobe.innerHTML = I.map(
+        (x, i) =>
+          `<button class="piece ${q.sel[x[5]] === i ? "sel" : ""}" data-i="${i}">${x[1]}<br><small>${x[2]}·${x[3]}·${x[4]}</small></button>`,
+      ).join("");
+      wardrobe
+        .querySelectorAll("[data-i]")
+        .forEach((e) => (e.onclick = () => pick(+e.dataset.i)));
+      look.textContent = Object.values(q.sel)
+        .map((i) => I[i][1])
+        .join(" ");
+      log.innerHTML = q.logs
+        .slice(0, 7)
+        .map((x) => `<div>• ${x}</div>`)
+        .join("");
+      submit.disabled = Object.keys(q.sel).length < 3 || q.client >= 10;
+    }
+    submit.onclick = send;
+    restart.onclick = () => {
+      q = { client: 0, score: 0, sel: {}, logs: [] };
+      result.textContent = "";
+      draw();
+    };
+    draw();
+  </script>
+</html>

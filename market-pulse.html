@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>交易风暴</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #0b1722;
+      color: #eef8ff;
+      font-family: system-ui, "Microsoft YaHei";
+    }
+    .app {
+      min-height: 100vh;
+      padding: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .shell {
+      width: min(980px, 100%);
+      background: #152b3d;
+      border: 1px solid #4f7188;
+      border-radius: 20px;
+      padding: 16px;
+    }
+    .top,
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .market {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    .stock {
+      border: 1px solid #456579;
+      border-radius: 10px;
+      background: #102334;
+      padding: 10px;
+    }
+    .stock.up {
+      box-shadow: inset 4px 0 #56d88b;
+    }
+    .stock.down {
+      box-shadow: inset 4px 0 #e05f66;
+    }
+    .price {
+      font-size: 23px;
+    }
+    .panel {
+      background: #0d202e;
+      border: 1px solid #3c5c70;
+      border-radius: 11px;
+      padding: 10px;
+      margin-bottom: 9px;
+    }
+    .holding {
+      display: flex;
+      justify-content: space-between;
+      padding: 5px;
+      border-bottom: 1px solid #ffffff18;
+    }
+    .news {
+      color: #ffe07b;
+    }
+    .log {
+      height: 90px;
+      overflow: auto;
+      color: #b7cad5;
+      font-size: 13px;
+    }
+    button {
+      padding: 8px 10px;
+      border: 1px solid #5d7d90;
+      border-radius: 8px;
+      background: #2b5168;
+      color: white;
+      font-weight: bold;
+    }
+    .sell {
+      background: #8d4248;
+    }
+    .help {
+      font-size: 13px;
+      color: #b9ccd6;
+    }
+    @media (max-width: 700px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      .market {
+        grid-template-columns: 1fr;
+      }
+      .app {
+        place-items: start center;
+      }
+    }
+  </style>
+  <main class="app">
+    <section class="shell">
+      <div class="top">
+        <div>
+          <h1 style="margin: 0">交易风暴</h1>
+          <div class="help">
+            阅读行业新闻、控制仓位并在三十个交易日内把初始十万资金尽量做大。
+          </div>
+        </div>
+        <div>
+          第 <b id="day"></b>/30 日　现金 <b id="cash"></b>　总资产
+          <b id="worth"></b>
+        </div>
+      </div>
+      <div class="news panel" id="news"></div>
+      <div class="layout">
+        <div>
+          <div class="market" id="market"></div>
+          <div class="row" style="margin-top: 9px">
+            <button id="nextDay">收盘 / 下一日</button
+            ><button id="restart">新账户</button>
+          </div>
+        </div>
+        <aside>
+          <div class="panel">
+            <b>持仓</b>
+            <div id="portfolio"></div>
+          </div>
+          <div class="panel">
+            <b>目标</b>
+            <div class="help">
+              三十日结束时总资产达到
+              150,000。新闻会显著影响对应行业一至三天，但仍包含随机波动。
+            </div>
+          </div>
+          <div class="panel log" id="log"></div>
+        </aside>
+      </div>
+    </section>
+  </main>
+  <script>
+    const S = [
+        ["云芯科技", "科技", 120],
+        ["绿潮能源", "能源", 75],
+        ["北岸银行", "金融", 90],
+        ["星药生物", "医疗", 105],
+        ["远洋物流", "物流", 60],
+        ["金穗食品", "消费", 48],
+      ],
+      NEWS = [
+        ["科技", "芯片需求超预期", 0.14],
+        ["能源", "新能源补贴落地", 0.16],
+        ["金融", "利率压力上升", -0.13],
+        ["医疗", "新药试验成功", 0.18],
+        ["物流", "港口出现拥堵", -0.15],
+        ["消费", "节庆销售火热", 0.12],
+      ];
+    let q;
+    const $ = (x) => document.getElementById(x);
+    function fresh() {
+      return {
+        day: 1,
+        cash: 100000,
+        stocks: S.map((s, i) => ({ p: s[2], last: s[2], n: 0, avg: 0 })),
+        event: null,
+        logs: ["账户开立，等待第一条市场新闻。"],
+        over: false,
+      };
+    }
+    function event() {
+      q.event = NEWS[Math.floor(Math.random() * NEWS.length)];
+      q.logs.unshift(`新闻：${q.event[1]}。`);
+    }
+    function trade(i, buy) {
+      let s = q.stocks[i],
+        amount = 10,
+        cost = s.p * amount;
+      if (buy) {
+        if (q.cash < cost) return;
+        s.avg = (s.avg * s.n + cost) / (s.n + amount);
+        s.n += amount;
+        q.cash -= cost;
+      } else {
+        amount = Math.min(amount, s.n);
+        s.n -= amount;
+        q.cash += s.p * amount;
+      }
+      draw();
+    }
+    function next() {
+      if (q.over) return;
+      if (!q.event) event();
+      q.stocks.forEach((s, i) => {
+        s.last = s.p;
+        let impact =
+          S[i][1] === q.event[0]
+            ? q.event[2] * (0.65 + Math.random() * 0.7)
+            : 0;
+        s.p = Math.max(
+          5,
+          Math.round(s.p * (1 + impact + (Math.random() - 0.5) * 0.09) * 100) /
+            100,
+        );
+      });
+      q.day++;
+      event();
+      if (q.day > 30) {
+        q.over = true;
+        q.logs.unshift(`交易结束，总资产 ${Math.round(total())}。`);
+      }
+      draw();
+    }
+    function total() {
+      return q.cash + q.stocks.reduce((v, s) => v + s.p * s.n, 0);
+    }
+    function draw() {
+      day.textContent = Math.min(30, q.day);
+      cash.textContent = Math.round(q.cash);
+      worth.textContent = Math.round(total());
+      news.textContent = q.event
+        ? `${q.event[2] > 0 ? "利好" : "利空"} · ${q.event[0]}：${q.event[1]}`
+        : "开盘后将出现首条行业新闻";
+      market.innerHTML = q.stocks
+        .map(
+          (s, i) =>
+            `<div class="stock ${s.p >= s.last ? "up" : "down"}"><b>${S[i][0]}</b><small> · ${S[i][1]}</small><div class="price">${s.p.toFixed(2)} ${s.p >= s.last ? "▲" : "▼"}</div><button data-b="${i}">买入10</button><button class="sell" data-s="${i}" ${!s.n ? "disabled" : ""}>卖出10</button></div>`,
+        )
+        .join("");
+      market
+        .querySelectorAll("[data-b]")
+        .forEach((e) => (e.onclick = () => trade(+e.dataset.b, true)));
+      market
+        .querySelectorAll("[data-s]")
+        .forEach((e) => (e.onclick = () => trade(+e.dataset.s, false)));
+      portfolio.innerHTML =
+        q.stocks
+          .filter((s) => s.n)
+          .map((s, i) => {
+            let real = q.stocks.indexOf(s);
+            return `<div class="holding"><span>${S[real][0]} ×${s.n}</span><b>${Math.round(s.p * s.n)}</b></div>`;
+          })
+          .join("") || '<div class="help">暂无持仓</div>';
+      log.innerHTML = q.logs
+        .slice(0, 7)
+        .map((x) => `<div>• ${x}</div>`)
+        .join("");
+      nextDay.disabled = q.over;
+    }
+    nextDay.onclick = next;
+    restart.onclick = () => {
+      q = fresh();
+      draw();
+    };
+    q = fresh();
+    draw();
+  </script>
+</html>

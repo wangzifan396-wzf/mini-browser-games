@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>微境协议</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #071716;
+      color: #ecfff7;
+      font-family: system-ui, "Microsoft YaHei";
+    }
+    .app {
+      min-height: 100vh;
+      padding: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .shell {
+      width: min(1000px, 100%);
+      background: #0e302c;
+      border: 1px solid #3e7569;
+      border-radius: 20px;
+      padding: 16px;
+    }
+    .top,
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .world {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin: 12px 0;
+    }
+    .region {
+      min-height: 125px;
+      border: 1px solid #397064;
+      border-radius: 12px;
+      background: #16483f;
+      padding: 10px;
+      position: relative;
+    }
+    .region.hot {
+      box-shadow: inset 0 0 30px #9f3c3c;
+    }
+    .region b {
+      font-size: 18px;
+    }
+    .bar {
+      height: 7px;
+      background: #09241f;
+      border-radius: 7px;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+    .bar i {
+      display: block;
+      height: 100%;
+      background: #e26161;
+    }
+    .cure i {
+      background: #5ba9df;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 310px;
+      gap: 12px;
+    }
+    .panel {
+      background: #09241f;
+      border: 1px solid #35665c;
+      border-radius: 11px;
+      padding: 10px;
+      margin-bottom: 9px;
+    }
+    .evolve {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 7px;
+    }
+    .upgrade {
+      min-height: 62px;
+    }
+    .log {
+      height: 105px;
+      overflow: auto;
+      color: #b5d4cb;
+      font-size: 13px;
+    }
+    button {
+      padding: 9px 11px;
+      border: 1px solid #4d7f73;
+      border-radius: 9px;
+      background: #286458;
+      color: white;
+      font-weight: bold;
+    }
+    .run {
+      background: #85552c;
+    }
+    .danger {
+      color: #ff7b7b;
+    }
+    .help {
+      font-size: 13px;
+      color: #b8d2ca;
+    }
+    @media (max-width: 700px) {
+      .world {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      .app {
+        place-items: start center;
+      }
+    }
+  </style>
+  <main class="app">
+    <section class="shell">
+      <div class="top">
+        <div>
+          <h1 style="margin: 0">微境协议</h1>
+          <div class="help">
+            演化传播、环境抗性与症状，在全球完成感染前控制致死率和解药研发。
+          </div>
+        </div>
+        <div>
+          DNA <b id="dna"></b>　感染 <b id="infected"></b>%　解药
+          <b id="cure"></b>%　年份 <b id="year"></b>
+        </div>
+      </div>
+      <div class="world" id="world"></div>
+      <div class="layout">
+        <div>
+          <div class="panel">
+            <b>基因演化</b>
+            <div class="evolve" id="evolve"></div>
+          </div>
+          <div class="row">
+            <button class="run" id="run">▶ 开始传播</button
+            ><button id="speed">速度 ×1</button
+            ><button id="restart">重新模拟</button><span id="msg"></span>
+          </div>
+        </div>
+        <aside>
+          <div class="panel">
+            <b>病原参数</b>
+            <div id="stats"></div>
+          </div>
+          <div class="panel">
+            <b>胜利条件</b>
+            <div class="help">
+              让八个地区全部感染且全球感染率达到
+              95%。症状越明显，解药研究越快；致死过高会让传播链断裂。
+            </div>
+          </div>
+          <div class="panel log" id="log"></div>
+        </aside>
+      </div>
+    </section>
+  </main>
+  <script>
+    const R = [
+        ["北境", 0.7, 0.8],
+        ["东陆", 1.2, 1.1],
+        ["群岛", 1, 0.7],
+        ["沙海", 1.5, 0.9],
+        ["雨林", 1.3, 1.3],
+        ["都市圈", 1.1, 1.5],
+        ["高原", 0.65, 0.75],
+        ["南港", 1.15, 1.2],
+      ],
+      U = [
+        ["飞沫传播", "trans", 1, 8],
+        ["水源传播", "trans", 1, 8],
+        ["耐寒基因", "cold", 1, 10],
+        ["耐热基因", "heat", 1, 10],
+        ["潜伏适应", "stealth", 1, 12],
+        ["轻度症状", "severity", 1, 9],
+        ["器官侵袭", "severity", 2, 16],
+        ["基因重组", "resist", 1, 14],
+      ];
+    let q,
+      timer = null,
+      speed = 1;
+    const $ = (x) => document.getElementById(x);
+    function fresh() {
+      return {
+        dna: 15,
+        year: 1,
+        cure: 0,
+        up: { trans: 1, cold: 0, heat: 0, stealth: 1, severity: 0, resist: 0 },
+        regions: R.map((r, i) => ({ inf: i === 1 ? 2 : 0, dead: 0 })),
+        logs: ["病原体在东陆出现首例。"],
+        over: false,
+      };
+    }
+    function buy(i) {
+      let u = U[i],
+        level = q.up[u[1]],
+        cost = u[3] + level * 4;
+      if (q.dna < cost) return;
+      q.dna -= cost;
+      q.up[u[1]] += u[2];
+      q.logs.unshift(`完成演化：${u[0]}。`);
+      draw();
+    }
+    function tick() {
+      if (q.over) return;
+      let global = q.regions.reduce((s, r) => s + r.inf, 0) / 8;
+      for (let i = 0; i < 8; i++) {
+        let reg = q.regions[i],
+          climate = R[i][1],
+          density = R[i][2],
+          resist = climate < 0.8 ? q.up.cold : climate > 1.35 ? q.up.heat : 1,
+          growth =
+            q.up.trans * density * (0.35 + resist * 0.15) * (1 - reg.inf / 100);
+        if (reg.inf > 0) reg.inf = Math.min(100, reg.inf + growth);
+        if (reg.inf > 8) {
+          for (const j of [(i + 1) % 8, (i + 7) % 8])
+            if (Math.random() < 0.05 * q.up.trans)
+              q.regions[j].inf = Math.max(q.regions[j].inf, 0.4);
+        }
+        if (q.up.severity > 2 && reg.inf > 30)
+          reg.dead = Math.min(reg.inf, reg.dead + q.up.severity * 0.015);
+      }
+      q.dna += global > 20 ? 0.35 : 0.15;
+      q.cure +=
+        Math.max(0, q.up.severity - q.up.stealth) *
+        0.018 *
+        (1 - q.up.resist * 0.1);
+      q.year += 0.015 * speed;
+      let all = q.regions.every((r) => r.inf > 1),
+        avg = q.regions.reduce((s, r) => s + r.inf, 0) / 8;
+      if (all && avg >= 95) {
+        q.over = true;
+        q.logs.unshift("全球感染完成，病原演化取得胜利。");
+      }
+      if (q.cure >= 100) {
+        q.over = true;
+        q.logs.unshift("解药研发完成，传播被终止。");
+      }
+      draw();
+    }
+    function draw() {
+      let avg = q.regions.reduce((s, r) => s + r.inf, 0) / 8;
+      dna.textContent = Math.floor(q.dna);
+      infected.textContent = Math.floor(avg);
+      cure.textContent = Math.floor(q.cure);
+      year.textContent = q.year.toFixed(1);
+      world.innerHTML = q.regions
+        .map(
+          (r, i) =>
+            `<div class="region ${r.inf > 40 ? "hot" : ""}"><b>${R[i][0]}</b><div>感染 ${r.inf.toFixed(1)}%</div><div class="bar"><i style="width:${r.inf}%"></i></div><small>气候 ${R[i][1] < 0.8 ? "寒冷" : R[i][1] > 1.35 ? "炎热" : "温和"} · 人口密度 ${R[i][2]}</small></div>`,
+        )
+        .join("");
+      evolve.innerHTML = U.map((u, i) => {
+        let lv = q.up[u[1]],
+          cost = u[3] + lv * 4;
+        return `<button class="upgrade" data-i="${i}" ${q.dna < cost ? "disabled" : ""}>${u[0]}<br><small>Lv.${lv} · ${cost} DNA</small></button>`;
+      }).join("");
+      evolve
+        .querySelectorAll("[data-i]")
+        .forEach((e) => (e.onclick = () => buy(+e.dataset.i)));
+      stats.innerHTML = `传播 ${q.up.trans}<br>耐寒 ${q.up.cold}<br>耐热 ${q.up.heat}<br>隐蔽 ${q.up.stealth}<br>症状 ${q.up.severity}<br>抗药 ${q.up.resist}`;
+      log.innerHTML = q.logs
+        .slice(0, 8)
+        .map((x) => `<div>• ${x}</div>`)
+        .join("");
+      run.textContent = timer ? "■ 暂停" : "▶ 开始传播";
+      run.disabled = q.over;
+    }
+    run.onclick = () => {
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      } else timer = setInterval(tick, 180 / speed);
+      draw();
+    };
+    speed.onclick = () => {
+      speed = speed === 1 ? 2 : speed === 2 ? 4 : 1;
+      if (timer) {
+        clearInterval(timer);
+        timer = setInterval(tick, 180 / speed);
+      }
+      speed.textContent = `速度 ×${speed}`;
+    };
+    restart.onclick = () => {
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
+      q = fresh();
+      draw();
+    };
+    q = fresh();
+    draw();
+  </script>
+</html>

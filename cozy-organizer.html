@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>小屋收纳师</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #3c302a;
+      color: #fff5e8;
+      font-family: system-ui, "Microsoft YaHei";
+    }
+    .app {
+      min-height: 100vh;
+      padding: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .shell {
+      width: min(940px, 100%);
+      background: #59463c;
+      border: 1px solid #a3836c;
+      border-radius: 20px;
+      padding: 16px;
+    }
+    .top,
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .shelf {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 4px;
+      background: #342822;
+      padding: 9px;
+      border: 8px solid #8b6345;
+      border-radius: 12px;
+    }
+    .cell {
+      height: 68px;
+      border: 1px solid #755944;
+      background: #684d3d;
+      border-radius: 4px;
+      display: grid;
+      place-items: center;
+      font-size: 28px;
+    }
+    .cell.bad {
+      outline: 3px solid #e96b6b;
+    }
+    .items {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
+    }
+    .item {
+      min-height: 72px;
+    }
+    .item.sel {
+      outline: 3px solid #ffdd72;
+    }
+    .panel {
+      background: #413229;
+      border: 1px solid #806450;
+      border-radius: 11px;
+      padding: 10px;
+      margin-bottom: 9px;
+    }
+    .rule {
+      padding: 5px;
+      border-bottom: 1px solid #ffffff18;
+    }
+    .log {
+      height: 90px;
+      overflow: auto;
+      color: #dac8b9;
+      font-size: 13px;
+    }
+    button {
+      padding: 9px 11px;
+      border: 1px solid #a07e64;
+      border-radius: 9px;
+      background: #745542;
+      color: white;
+      font-weight: bold;
+    }
+    .check {
+      background: #86702d;
+    }
+    .help {
+      font-size: 13px;
+      color: #ddcabc;
+    }
+    @media (max-width: 700px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      .cell {
+        height: auto;
+        aspect-ratio: 1;
+        font-size: 20px;
+      }
+      .app {
+        place-items: start center;
+      }
+    }
+  </style>
+  <main class="app">
+    <section class="shell">
+      <div class="top">
+        <div>
+          <h1 style="margin: 0">小屋收纳师</h1>
+          <div class="help">
+            把物品放入正确区域并满足相邻规则；六个房间会逐渐加入尺寸与分类限制。
+          </div>
+        </div>
+        <div>
+          房间 <b id="level"></b>/6　移动 <b id="moves"></b>　星星
+          <b id="stars"></b>
+        </div>
+      </div>
+      <div class="layout">
+        <div>
+          <div class="shelf" id="shelf"></div>
+          <div class="row" style="margin-top: 9px">
+            <button class="check" id="check">检查收纳</button
+            ><button id="undo">撤回</button><button id="reset">重置房间</button
+            ><span id="msg"></span>
+          </div>
+        </div>
+        <aside>
+          <div class="panel">
+            <b>待收纳物品</b>
+            <div class="items" id="items"></div>
+          </div>
+          <div class="panel">
+            <b>本房规则</b>
+            <div id="rules"></div>
+          </div>
+          <div class="panel log" id="log"></div>
+        </aside>
+      </div>
+    </section>
+  </main>
+  <script>
+    const TYPES = [
+        ["书籍", "📚", "study"],
+        ["杯子", "☕", "kitchen"],
+        ["衣物", "👕", "cloth"],
+        ["植物", "🪴", "green"],
+        ["玩具", "🧸", "toy"],
+        ["鞋子", "👟", "cloth"],
+        ["香料", "🧂", "kitchen"],
+        ["相册", "📔", "study"],
+        ["花瓶", "🏺", "green"],
+        ["积木", "🧱", "toy"],
+      ],
+      zones = [
+        "study",
+        "study",
+        "kitchen",
+        "kitchen",
+        "cloth",
+        "cloth",
+        "green",
+        "toy",
+      ];
+    let q,
+      selected = null;
+    const $ = (x) => document.getElementById(x);
+    function fresh(l = 0) {
+      let count = 5 + l,
+        items = Array.from({ length: count }, (_, i) => ({
+          id: i,
+          type: (i * 2 + l) % TYPES.length,
+          placed: null,
+        }));
+      return {
+        lv: l,
+        items,
+        cells: Array(32).fill(null),
+        moves: 0,
+        stars: +localStorage.getItem("organizer_stars") || 0,
+        hist: [],
+        logs: ["选择物品，再点击架子空格放置。"],
+      };
+    }
+    function place(i) {
+      if (selected === null) {
+        let uid = q.cells[i];
+        selected = uid === null ? null : uid;
+        return draw();
+      }
+      let old = q.items[selected].placed;
+      q.hist.push({
+        cells: [...q.cells],
+        placed: q.items.map((x) => x.placed),
+        moves: q.moves,
+      });
+      if (q.cells[i] !== null) {
+        let other = q.cells[i];
+        q.items[other].placed = old;
+        if (old !== null) q.cells[old] = other;
+      } else if (old !== null) q.cells[old] = null;
+      q.cells[i] = selected;
+      q.items[selected].placed = i;
+      q.moves++;
+      selected = null;
+      draw();
+    }
+    function verify() {
+      let errors = [];
+      for (const item of q.items) {
+        if (item.placed === null) {
+          errors.push("仍有物品未放置");
+          continue;
+        }
+        let col = item.placed % 8,
+          want = TYPES[item.type][2],
+          zone = zones[col];
+        if (want !== zone) errors.push(`${TYPES[item.type][0]}放错区域`);
+      }
+      if (q.lv >= 2) {
+        for (let i = 0; i < 31; i++)
+          if (
+            q.cells[i] !== null &&
+            q.cells[i + 1] !== null &&
+            Math.floor(i / 8) === Math.floor((i + 1) / 8)
+          ) {
+            let a = TYPES[q.items[q.cells[i]].type][2],
+              b = TYPES[q.items[q.cells[i + 1]].type][2];
+            if (
+              (a === "kitchen" && b === "green") ||
+              (a === "green" && b === "kitchen")
+            )
+              errors.push("植物不能紧邻餐具");
+          }
+      }
+      if (!errors.length) {
+        let gain = Math.max(1, 3 - Math.floor(q.moves / (q.items.length + 2)));
+        q.stars += gain;
+        localStorage.setItem("organizer_stars", q.stars);
+        q.logs.unshift(`收纳完成，获得 ${gain} 星！`);
+        draw();
+        if (q.lv < 5)
+          setTimeout(() => {
+            q = fresh(q.lv + 1);
+            draw();
+          }, 650);
+        else setTimeout(() => alert("六间小屋全部整理完毕！"), 50);
+      } else {
+        msg.textContent = errors[0];
+        draw();
+      }
+    }
+    function draw() {
+      level.textContent = q.lv + 1;
+      moves.textContent = q.moves;
+      stars.textContent = q.stars;
+      shelf.innerHTML = q.cells
+        .map(
+          (uid, i) =>
+            `<button class="cell" data-i="${i}">${uid === null ? "" : TYPES[q.items[uid].type][1]}</button>`,
+        )
+        .join("");
+      shelf
+        .querySelectorAll("[data-i]")
+        .forEach((e) => (e.onclick = () => place(+e.dataset.i)));
+      items.innerHTML =
+        q.items
+          .filter((x) => x.placed === null)
+          .map(
+            (x) =>
+              `<button class="item ${selected === x.id ? "sel" : ""}" data-i="${x.id}">${TYPES[x.type][1]}<br>${TYPES[x.type][0]}</button>`,
+          )
+          .join("") || "<div>全部已放入</div>";
+      items.querySelectorAll("[data-i]").forEach(
+        (e) =>
+          (e.onclick = () => {
+            selected = +e.dataset.i;
+            draw();
+          }),
+      );
+      rules.innerHTML = [
+        `架子列区域：📚书房、☕厨房、👕衣物、🪴植物、🧸玩具`,
+        q.lv >= 2 ? "植物不可紧邻厨房用品" : "基础分类练习",
+        q.lv >= 4 ? "用尽量少的移动获得三星" : "后续房间解锁效率评分",
+      ]
+        .map((x) => `<div class="rule">• ${x}</div>`)
+        .join("");
+      log.innerHTML = q.logs.map((x) => `<div>• ${x}</div>`).join("");
+    }
+    check.onclick = verify;
+    undo.onclick = () => {
+      let h = q.hist.pop();
+      if (h) {
+        q.cells = h.cells;
+        q.items.forEach((x, i) => (x.placed = h.placed[i]));
+        q.moves = h.moves;
+        draw();
+      }
+    };
+    reset.onclick = () => {
+      q = fresh(q.lv);
+      draw();
+    };
+    q = fresh();
+    draw();
+  </script>
+</html>

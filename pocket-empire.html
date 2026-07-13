@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>方格帝国</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #171d24;
+      color: #f4f0df;
+      font-family: system-ui, "Microsoft YaHei";
+    }
+    .app {
+      min-height: 100vh;
+      padding: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .shell {
+      width: min(1000px, 100%);
+      background: #293644;
+      border: 1px solid #667787;
+      border-radius: 20px;
+      padding: 16px;
+    }
+    .top,
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 290px;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .map {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 3px;
+      background: #121b23;
+      padding: 7px;
+      border-radius: 11px;
+    }
+    .tile {
+      aspect-ratio: 1;
+      border: 1px solid #495d69;
+      border-radius: 5px;
+      background: #4f7058;
+      font-size: 22px;
+      position: relative;
+      padding: 0;
+    }
+    .tile.water {
+      background: #315f75;
+    }
+    .tile.mountain {
+      background: #5d5d5a;
+    }
+    .tile.fog {
+      background: #222b31;
+      color: transparent;
+    }
+    .tile.sel {
+      outline: 3px solid #ffe06c;
+    }
+    .tile.move {
+      box-shadow: inset 0 0 0 3px #69dfa0;
+    }
+    .tile small {
+      position: absolute;
+      right: 2px;
+      bottom: 1px;
+      font-size: 9px;
+    }
+    .panel {
+      background: #1b2731;
+      border: 1px solid #506473;
+      border-radius: 11px;
+      padding: 10px;
+      margin-bottom: 9px;
+    }
+    .techs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+    .stat {
+      display: flex;
+      justify-content: space-between;
+      padding: 5px;
+      border-bottom: 1px solid #ffffff18;
+    }
+    .log {
+      height: 105px;
+      overflow: auto;
+      color: #bdc8cd;
+      font-size: 13px;
+    }
+    button {
+      padding: 9px 11px;
+      border: 1px solid #71818b;
+      border-radius: 9px;
+      background: #405767;
+      color: white;
+      font-weight: bold;
+    }
+    .next {
+      background: #88712d;
+    }
+    .help {
+      font-size: 13px;
+      color: #bec8cd;
+    }
+    @media (max-width: 700px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      .tile {
+        font-size: 17px;
+      }
+      .app {
+        place-items: start center;
+      }
+    }
+  </style>
+  <main class="app">
+    <section class="shell">
+      <div class="top">
+        <div>
+          <h1 style="margin: 0">方格帝国</h1>
+          <div class="help">
+            探索迷雾、建立城市、采集资源、研究科技并阻止赤焰帝国占领大陆。
+          </div>
+        </div>
+        <div>
+          时代 <b id="turn"></b>/20　行动 <b id="ap"></b>/3　粮食
+          <b id="food"></b>　生产 <b id="prod"></b>　科技 <b id="science"></b>
+        </div>
+      </div>
+      <div class="layout">
+        <div>
+          <div class="map" id="map"></div>
+          <div class="row" style="margin-top: 9px">
+            <button id="settle">建立城市（20生产）</button
+            ><button id="recruit">招募军团（15粮/15产）</button
+            ><button class="next" id="nextTurn">结束时代</button
+            ><button id="restart">新世界</button><span id="msg"></span>
+          </div>
+        </div>
+        <aside>
+          <div class="panel">
+            <b>帝国概览</b>
+            <div id="stats"></div>
+          </div>
+          <div class="panel">
+            <b>科技树</b>
+            <div class="techs" id="techs"></div>
+          </div>
+          <div class="panel">
+            <b>胜利目标</b>
+            <div class="help">
+              第 20 时代前拥有 4 座城市、3
+              项科技，并攻占赤焰首都；或通过高发展分数获胜。
+            </div>
+          </div>
+          <div class="panel log" id="log"></div>
+        </aside>
+      </div>
+    </section>
+  </main>
+  <script>
+    const N = 8,
+      techList = [
+        ["农业", "food", 25],
+        ["冶金", "power", 30],
+        ["航海", "water", 35],
+        ["学术", "science", 40],
+      ];
+    let q,
+      sel = null;
+    const $ = (x) => document.getElementById(x);
+    function fresh() {
+      let tiles = [];
+      for (let i = 0; i < 64; i++) {
+        let r = Math.random(),
+          type = r < 0.13 ? "water" : r < 0.24 ? "mountain" : "plain";
+        tiles.push({
+          type,
+          res:
+            Math.random() < 0.22
+              ? Math.random() < 0.5
+                ? "food"
+                : "prod"
+              : null,
+          seen: false,
+          owner: null,
+          city: false,
+          unit: 0,
+        });
+      }
+      for (const i of [56, 57, 48, 49]) tiles[i].seen = true;
+      tiles[56] = {
+        type: "plain",
+        seen: true,
+        owner: "p",
+        city: true,
+        unit: 1,
+      };
+      tiles[7] = {
+        type: "plain",
+        seen: false,
+        owner: "e",
+        city: true,
+        unit: 2,
+      };
+      return {
+        turn: 1,
+        ap: 3,
+        food: 35,
+        prod: 35,
+        science: 10,
+        tiles,
+        tech: {},
+        logs: ["探险军团在西南建立首都。"],
+        over: false,
+      };
+    }
+    function near(a, b) {
+      let ar = Math.floor(a / N),
+        ac = a % N,
+        br = Math.floor(b / N),
+        bc = b % N;
+      return Math.abs(ar - br) + Math.abs(ac - bc) === 1;
+    }
+    function reveal(i) {
+      let r = Math.floor(i / N),
+        c = i % N;
+      for (let y = Math.max(0, r - 1); y <= Math.min(N - 1, r + 1); y++)
+        for (let x = Math.max(0, c - 1); x <= Math.min(N - 1, c + 1); x++)
+          q.tiles[y * N + x].seen = true;
+    }
+    function click(i) {
+      let t = q.tiles[i];
+      if (q.over) return;
+      if (t.unit && t.owner === "p") {
+        sel = i;
+        return draw();
+      }
+      if (
+        sel !== null &&
+        near(sel, i) &&
+        q.ap > 0 &&
+        t.type !== "mountain" &&
+        (t.type !== "water" || q.tech.water)
+      ) {
+        let u = q.tiles[sel],
+          power = u.unit + (q.tech.power ? 1 : 0);
+        if (t.owner === "e" && t.unit >= power) {
+          u.unit = Math.max(0, u.unit - 1);
+          q.logs.unshift("进攻受阻，军团损失。");
+        } else {
+          if (t.owner === "e") {
+            q.logs.unshift(t.city ? "攻占赤焰城市！" : "击败敌军。");
+            t.owner = "p";
+          }
+          t.unit = power;
+          t.owner = "p";
+          u.unit = 0;
+          if (!u.city) u.owner = null;
+          sel = i;
+          reveal(i);
+        }
+        q.ap--;
+        draw();
+      }
+    }
+    function settle() {
+      if (sel === null || q.prod < 20)
+        return note("选择军团所在陆地并准备 20 生产。");
+      let t = q.tiles[sel];
+      if (t.city || t.type !== "plain") return note("此处不能建立城市。");
+      q.prod -= 20;
+      t.city = true;
+      t.owner = "p";
+      q.logs.unshift("新城市建立，疆域开始扩张。");
+      draw();
+    }
+    function recruit() {
+      let cities = q.tiles
+        .map((t, i) => ({ t, i }))
+        .filter((x) => x.t.city && x.t.owner === "p");
+      if (q.food < 15 || q.prod < 15 || !cities.length)
+        return note("资源不足。");
+      q.food -= 15;
+      q.prod -= 15;
+      let c = cities.find((x) => x.t.unit === 0) || cities[0];
+      c.t.unit++;
+      c.t.owner = "p";
+      q.logs.unshift("一支新军团完成训练。");
+      draw();
+    }
+    function end() {
+      if (q.over) return;
+      let cities = q.tiles.filter((t) => t.city && t.owner === "p").length,
+        res = q.tiles.filter((t) => t.owner === "p");
+      q.food +=
+        cities * 5 +
+        res.filter((t) => t.res === "food").length * 3 +
+        (q.tech.food ? 5 : 0);
+      q.prod += cities * 4 + res.filter((t) => t.res === "prod").length * 3;
+      q.science += cities * 4 + (q.tech.science ? 5 : 0);
+      enemy();
+      q.turn++;
+      q.ap = 3;
+      if (q.turn > 20) {
+        q.over = true;
+        let capital = q.tiles[7].owner === "p",
+          score =
+            cities * 25 + Object.keys(q.tech).length * 15 + (capital ? 50 : 0);
+        q.logs.unshift(
+          score >= 140
+            ? "文明胜利！你的帝国书写了新纪元。"
+            : `时代结束，发展得分 ${score}。`,
+        );
+      }
+      draw();
+    }
+    function enemy() {
+      let frontier = q.tiles
+        .map((t, i) => ({ t, i }))
+        .filter((x) => x.t.owner === "e");
+      if (!frontier.length) return;
+      let from = frontier[Math.floor(Math.random() * frontier.length)],
+        targets = q.tiles
+          .map((t, i) => ({ t, i }))
+          .filter(
+            (x) =>
+              near(from.i, x.i) &&
+              x.t.type !== "water" &&
+              x.t.type !== "mountain",
+          );
+      if (targets.length) {
+        let to = targets[Math.floor(Math.random() * targets.length)];
+        if (to.t.owner === "p" && to.t.unit > 0) to.t.unit--;
+        else {
+          to.t.owner = "e";
+          to.t.unit = Math.max(1, to.t.unit);
+        }
+      }
+      if (q.turn % 3 === 0) q.tiles[7].unit++;
+    }
+    function research(k, cost) {
+      if (q.science < cost || q.tech[k]) return;
+      q.science -= cost;
+      q.tech[k] = true;
+      q.logs.unshift("科技研究完成。");
+      draw();
+    }
+    function note(s) {
+      msg.textContent = s;
+    }
+    function draw() {
+      turn.textContent = q.turn;
+      ap.textContent = q.ap;
+      food.textContent = q.food;
+      prod.textContent = q.prod;
+      science.textContent = q.science;
+      map.innerHTML = q.tiles
+        .map(
+          (t, i) =>
+            `<button class="tile ${t.type} ${t.seen ? "" : "fog"} ${sel === i ? "sel" : ""}" data-i="${i}">${t.seen ? (t.city ? (t.owner === "p" ? "🏛️" : "🏰") : t.unit ? (t.owner === "p" ? "🛡️" : "👹") : t.res === "food" ? "🌾" : t.res === "prod" ? "⛏️" : t.type === "water" ? "≈" : t.type === "mountain" ? "⛰️" : "") : ""}${t.seen && t.unit ? `<small>${t.unit}</small>` : ""}</button>`,
+        )
+        .join("");
+      map
+        .querySelectorAll("[data-i]")
+        .forEach((e) => (e.onclick = () => click(+e.dataset.i)));
+      let cities = q.tiles.filter((t) => t.city && t.owner === "p").length,
+        units = q.tiles.reduce((s, t) => s + (t.owner === "p" ? t.unit : 0), 0);
+      stats.innerHTML = [
+        ["城市", cities],
+        ["军团", units],
+        ["科技", Object.keys(q.tech).length],
+        ["已探索", q.tiles.filter((t) => t.seen).length + "/64"],
+      ]
+        .map(
+          (x) => `<div class="stat"><span>${x[0]}</span><b>${x[1]}</b></div>`,
+        )
+        .join("");
+      techs.innerHTML = techList
+        .map(
+          (t) =>
+            `<button data-k="${t[1]}" data-c="${t[2]}" ${q.tech[t[1]] ? "disabled" : ""}>${t[0]}<br>${q.tech[t[1]] ? "已完成" : t[2] + "科技"}</button>`,
+        )
+        .join("");
+      techs
+        .querySelectorAll("[data-k]")
+        .forEach(
+          (e) => (e.onclick = () => research(e.dataset.k, +e.dataset.c)),
+        );
+      log.innerHTML = q.logs
+        .slice(0, 9)
+        .map((x) => `<div>• ${x}</div>`)
+        .join("");
+      nextTurn.disabled = q.over;
+    }
+    settle.onclick = settle;
+    recruit.onclick = recruit;
+    nextTurn.onclick = end;
+    restart.onclick = () => {
+      q = fresh();
+      sel = null;
+      draw();
+    };
+    q = fresh();
+    reveal(56);
+    draw();
+  </script>
+</html>

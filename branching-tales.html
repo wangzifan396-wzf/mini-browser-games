@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>群星来信</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #0d1020;
+      color: #f2f1ff;
+      font-family: system-ui, "Microsoft YaHei";
+    }
+    .app {
+      min-height: 100vh;
+      padding: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .shell {
+      width: min(860px, 100%);
+      background: #1b2140;
+      border: 1px solid #59658f;
+      border-radius: 22px;
+      padding: 18px;
+    }
+    .top,
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .scene {
+      min-height: 480px;
+      margin: 12px 0;
+      border-radius: 18px;
+      background: radial-gradient(circle at top, #5d5a9c, #1a2343 65%);
+      padding: 35px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+    .art {
+      font-size: 90px;
+      text-align: center;
+      flex: 1;
+    }
+    .text {
+      background: #11172dcc;
+      border: 1px solid #626b94;
+      border-radius: 12px;
+      padding: 18px;
+      font-size: 18px;
+      min-height: 100px;
+    }
+    .choices {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+      margin-top: 10px;
+    }
+    .choice {
+      min-height: 65px;
+    }
+    .traits {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+    }
+    .tag {
+      padding: 6px 9px;
+      border-radius: 15px;
+      background: #333b67;
+    }
+    button {
+      padding: 10px 12px;
+      border: 1px solid #7781ab;
+      border-radius: 9px;
+      background: #3d4778;
+      color: white;
+      font-weight: bold;
+    }
+    .help {
+      font-size: 13px;
+      color: #c4c8dd;
+    }
+    @media (max-width: 650px) {
+      .choices {
+        grid-template-columns: 1fr;
+      }
+      .scene {
+        min-height: 440px;
+        padding: 16px;
+      }
+      .app {
+        place-items: start center;
+      }
+    }
+  </style>
+  <main class="app">
+    <section class="shell">
+      <div class="top">
+        <div>
+          <h1 style="margin: 0">群星来信</h1>
+          <div class="help">
+            五章互动叙事：选择会改变勇气、信任与真相，并通向六种不同结局。
+          </div>
+        </div>
+        <div>
+          章节 <b id="chapter"></b>/5　已发现结局 <b id="endings"></b>/6
+        </div>
+      </div>
+      <div class="traits">
+        <span class="tag">勇气 <b id="courage"></b></span
+        ><span class="tag">信任 <b id="trust"></b></span
+        ><span class="tag">真相 <b id="truth"></b></span>
+      </div>
+      <div class="scene">
+        <div class="art" id="art"></div>
+        <div class="text" id="text"></div>
+        <div class="choices" id="choices"></div>
+      </div>
+      <div class="row">
+        <span id="ending"></span><button id="restart">重新阅读</button>
+      </div>
+    </section>
+  </main>
+  <script>
+    const chapters = [
+      {
+        art: "🚀🌌",
+        text: "你收到一封来自失踪十年的探索船“曙光号”的信。坐标指向禁航星云。",
+        choices: [
+          ["独自驾驶穿梭机前往", { c: 2, t: -1, v: 1 }],
+          ["把信交给舰队同伴", { c: 0, t: 2, v: 0 }],
+        ],
+      },
+      {
+        art: "🛰️⚡",
+        text: "星云入口被风暴封锁，一座废弃信标仍在发送求救码。",
+        choices: [
+          ["冒险修复信标", { c: 2, t: 0, v: 2 }],
+          ["绕开风暴保存燃料", { c: -1, t: 1, v: 0 }],
+        ],
+      },
+      {
+        art: "🤖📼",
+        text: "曙光号的机器人声称船员已撤离，但录像中有人删去了最后七分钟。",
+        choices: [
+          ["相信机器人并合作", { c: 0, t: 2, v: 0 }],
+          ["破解机器人记忆", { c: 1, t: -1, v: 2 }],
+        ],
+      },
+      {
+        art: "🪐👤",
+        text: "行星表面，你遇见自称船长的老人。他要求你立刻摧毁飞船核心。",
+        choices: [
+          ["先听完他的故事", { c: 0, t: 2, v: 1 }],
+          ["夺取核心并质问真相", { c: 2, t: -1, v: 2 }],
+        ],
+      },
+      {
+        art: "💫🔮",
+        text: "核心里保存的不是能源，而是一颗会回应记忆的幼年星体。舰队正在接近。",
+        choices: [
+          ["保护星体并公开全部记录", { c: 2, t: 1, v: 2 }],
+          ["交给舰队共同研究", { c: 0, t: 3, v: 1 }],
+          ["关闭核心，让秘密沉睡", { c: -1, t: -1, v: -1 }],
+        ],
+      },
+    ];
+    let q;
+    const $ = (x) => document.getElementById(x);
+    function fresh() {
+      return {
+        ch: 0,
+        c: 0,
+        t: 0,
+        v: 0,
+        done: false,
+        found: JSON.parse(localStorage.getItem("tale_endings") || "{}"),
+      };
+    }
+    function choose(i) {
+      let x = chapters[q.ch].choices[i][1];
+      q.c += x.c;
+      q.t += x.t;
+      q.v += x.v;
+      q.ch++;
+      if (q.ch >= chapters.length) return finish();
+      draw();
+    }
+    function finish() {
+      q.done = true;
+      let id, name;
+      if (q.v >= 6 && q.t >= 4) {
+        id = 0;
+        name = "真理之光：秘密被公开，星体成为文明的新伙伴";
+      } else if (q.c >= 6 && q.t < 2) {
+        id = 1;
+        name = "孤胆守望：你独自带着星体消失在边疆";
+      } else if (q.t >= 7) {
+        id = 2;
+        name = "群星同盟：所有人共同守护新生命";
+      } else if (q.v <= 2) {
+        id = 3;
+        name = "沉默航线：秘密再次埋入星云";
+      } else if (q.c < 2) {
+        id = 4;
+        name = "返航者：你选择安全回家，却永远记得那封信";
+      } else {
+        id = 5;
+        name = "曙光重启：探索船载着新的船员再次出发";
+      }
+      q.found[id] = true;
+      localStorage.setItem("tale_endings", JSON.stringify(q.found));
+      ending.textContent = "结局：" + name;
+      draw();
+    }
+    function draw() {
+      chapter.textContent = Math.min(5, q.ch + 1);
+      endings.textContent = Object.keys(q.found).length;
+      courage.textContent = q.c;
+      trust.textContent = q.t;
+      truth.textContent = q.v;
+      if (q.done) {
+        art.textContent = "🌠";
+        text.textContent = "故事已经结束。重新阅读可以尝试发现另一条命运。";
+        choices.innerHTML = "";
+        return;
+      }
+      let x = chapters[q.ch];
+      art.textContent = x.art;
+      text.textContent = x.text;
+      choices.innerHTML = x.choices
+        .map((c, i) => `<button class="choice" data-i="${i}">${c[0]}</button>`)
+        .join("");
+      choices
+        .querySelectorAll("[data-i]")
+        .forEach((e) => (e.onclick = () => choose(+e.dataset.i)));
+    }
+    restart.onclick = () => {
+      q = fresh();
+      ending.textContent = "";
+      draw();
+    };
+    q = fresh();
+    draw();
+  </script>
+</html>

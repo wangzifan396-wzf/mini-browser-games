@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>前线指挥部</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #111b20;
+      color: #eff8f3;
+      font-family: system-ui, "Microsoft YaHei";
+    }
+    .app {
+      min-height: 100vh;
+      padding: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .shell {
+      width: min(1000px, 100%);
+      background: #22343a;
+      border: 1px solid #5f787e;
+      border-radius: 20px;
+      padding: 16px;
+    }
+    .top,
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .field {
+      height: 440px;
+      margin: 12px 0;
+      border: 1px solid #60766f;
+      border-radius: 14px;
+      background: linear-gradient(90deg, #385945, #52633f 50%, #63433d);
+      position: relative;
+      overflow: hidden;
+    }
+    .base {
+      position: absolute;
+      top: 140px;
+      width: 90px;
+      text-align: center;
+      font-size: 55px;
+    }
+    .base.player {
+      left: 25px;
+    }
+    .base.enemy {
+      right: 25px;
+    }
+    .unit {
+      position: absolute;
+      font-size: 28px;
+      transition: transform 0.1s;
+    }
+    .resource {
+      position: absolute;
+      font-size: 30px;
+    }
+    .panel {
+      background: #182a2f;
+      border: 1px solid #4e686e;
+      border-radius: 11px;
+      padding: 10px;
+    }
+    .builds {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+    }
+    .bar {
+      height: 9px;
+      background: #192427;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .bar i {
+      display: block;
+      height: 100%;
+      background: #6dde96;
+    }
+    .log {
+      height: 75px;
+      overflow: auto;
+      color: #bdcccf;
+      font-size: 13px;
+    }
+    button {
+      padding: 9px 11px;
+      border: 1px solid #6e858a;
+      border-radius: 9px;
+      background: #405c63;
+      color: white;
+      font-weight: bold;
+    }
+    .wave {
+      background: #8b552e;
+    }
+    .help {
+      font-size: 13px;
+      color: #bdcbce;
+    }
+    @media (max-width: 650px) {
+      .field {
+        height: 340px;
+      }
+      .app {
+        place-items: start center;
+      }
+    }
+  </style>
+  <main class="app">
+    <section class="shell">
+      <div class="top">
+        <div>
+          <h1 style="margin: 0">前线指挥部</h1>
+          <div class="help">
+            采集晶矿、扩充人口、训练步兵与坦克；合理把握出兵时机，摧毁敌方要塞。
+          </div>
+        </div>
+        <div>
+          晶矿 <b id="ore"></b>　人口 <b id="pop"></b>/<b id="cap"></b>　波次
+          <b id="wave"></b>　敌军压力 <b id="pressure"></b>
+        </div>
+      </div>
+      <div class="field" id="field">
+        <div class="base player">
+          🏰
+          <div class="bar"><i id="php"></i></div>
+        </div>
+        <div class="base enemy">
+          🏯
+          <div class="bar"><i id="ehp"></i></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="builds">
+          <button data-b="worker">👷 工兵 30</button
+          ><button data-b="soldier">🪖 步兵 45</button
+          ><button data-b="tank">🚙 坦克 90</button
+          ><button data-b="turret">🗼 炮塔 75</button
+          ><button data-b="house">🏠 扩容 60</button
+          ><button class="wave" id="assault">全军突击</button
+          ><button id="pause">暂停</button><button id="restart">新战役</button>
+        </div>
+        <div class="log" id="log"></div>
+      </div>
+    </section>
+  </main>
+  <script>
+    let q,
+      last = 0;
+    const $ = (x) => document.getElementById(x);
+    function fresh() {
+      return {
+        ore: 120,
+        cap: 8,
+        wave: 1,
+        pbase: 300,
+        ebase: 360,
+        units: [],
+        enemies: [],
+        turrets: 0,
+        spawn: 5,
+        paused: false,
+        over: false,
+        logs: ["基地建立，工兵会持续采集前线晶矿。"],
+      };
+    }
+    function add(type) {
+      let cost = { worker: 30, soldier: 45, tank: 90, turret: 75, house: 60 }[
+          type
+        ],
+        used = q.units.reduce((s, u) => s + (u.type === "tank" ? 2 : 1), 0);
+      if (q.ore < cost) return;
+      if (
+        type !== "turret" &&
+        type !== "house" &&
+        used + (type === "tank" ? 2 : 1) > q.cap
+      )
+        return;
+      q.ore -= cost;
+      if (type === "turret") q.turrets++;
+      else if (type === "house") q.cap += 4;
+      else
+        q.units.push({
+          type,
+          x: 100,
+          hp: type === "tank" ? 90 : type === "soldier" ? 45 : 30,
+          atk: type === "tank" ? 18 : type === "soldier" ? 9 : 1,
+          go: false,
+        });
+    }
+    function enemyWave() {
+      let n = 2 + q.wave;
+      for (let i = 0; i < n; i++)
+        q.enemies.push({
+          x: 850 + i * 18,
+          hp: 35 + q.wave * 9,
+          atk: 6 + q.wave * 2,
+        });
+      q.logs.unshift(`敌军第 ${q.wave} 波抵达！`);
+      q.wave++;
+    }
+    function update(dt) {
+      if (q.paused || q.over) return;
+      q.spawn -= dt;
+      if (q.spawn <= 0) {
+        enemyWave();
+        q.spawn = Math.max(7, 14 - q.wave * 0.5);
+      }
+      for (const u of q.units) {
+        if (u.type === "worker") {
+          q.ore += dt * 2.1;
+          continue;
+        }
+        let target = q.enemies.sort((a, b) => a.x - b.x)[0];
+        if (u.go || (target && target.x - u.x < 150))
+          u.x += dt * (u.type === "tank" ? 35 : 48);
+        if (target && Math.abs(target.x - u.x) < 35) {
+          target.hp -= u.atk * dt * 2;
+          u.hp -= target.atk * dt;
+        }
+      }
+      for (const e of q.enemies) {
+        let target = q.units
+          .filter((u) => u.type !== "worker")
+          .sort((a, b) => b.x - a.x)[0];
+        if (target && e.x - target.x < 45) {
+          target.hp -= e.atk * dt;
+          e.hp -= target.atk * dt;
+        } else e.x -= dt * 38;
+        if (e.x < 85) {
+          q.pbase -= e.atk * dt;
+          e.hp -= q.turrets * 5 * dt;
+        }
+      }
+      for (const u of q.units)
+        if (u.x > 875) {
+          q.ebase -= u.atk * dt;
+          u.hp -= 12 * dt;
+        }
+      q.units = q.units.filter((u) => u.hp > 0);
+      q.enemies = q.enemies.filter((e) => e.hp > 0);
+      if (q.ebase <= 0) {
+        q.over = true;
+        q.logs.unshift("敌方要塞被摧毁，战役胜利！");
+      }
+      if (q.pbase <= 0) {
+        q.over = true;
+        q.logs.unshift("指挥部失守，战役失败。");
+      }
+      draw();
+    }
+    function draw() {
+      ore.textContent = Math.floor(q.ore);
+      let used = q.units.reduce((s, u) => s + (u.type === "tank" ? 2 : 1), 0);
+      pop.textContent = used;
+      cap.textContent = q.cap;
+      wave.textContent = q.wave;
+      pressure.textContent = q.enemies.length;
+      php.style.width = Math.max(0, q.pbase / 3) + "%";
+      ehp.style.width = Math.max(0, q.ebase / 3.6) + "%";
+      field.querySelectorAll(".unit,.resource").forEach((e) => e.remove());
+      q.units.forEach((u) => {
+        let e = document.createElement("span");
+        e.className = "unit";
+        e.textContent =
+          u.type === "worker" ? "👷" : u.type === "tank" ? "🚙" : "🪖";
+        e.style.left = u.x + "px";
+        e.style.top = 220 + (q.units.indexOf(u) % 4) * 35 + "px";
+        field.append(e);
+      });
+      q.enemies.forEach((u, i) => {
+        let e = document.createElement("span");
+        e.className = "unit";
+        e.textContent = "👾";
+        e.style.left = u.x + "px";
+        e.style.top = 120 + (i % 5) * 45 + "px";
+        field.append(e);
+      });
+      for (let i = 0; i < q.turrets; i++) {
+        let e = document.createElement("span");
+        e.className = "unit";
+        e.textContent = "🗼";
+        e.style.left = 135 + i * 35 + "px";
+        e.style.top = "85px";
+        field.append(e);
+      }
+      log.innerHTML = q.logs
+        .slice(0, 8)
+        .map((x) => `<div>• ${x}</div>`)
+        .join("");
+      assault.disabled = q.over;
+    }
+    function loop(t) {
+      let dt = Math.min(0.04, (t - last) / 1000 || 0);
+      last = t;
+      update(dt);
+      requestAnimationFrame(loop);
+    }
+    document
+      .querySelectorAll("[data-b]")
+      .forEach((e) => (e.onclick = () => add(e.dataset.b)));
+    assault.onclick = () => q.units.forEach((u) => (u.go = true));
+    pause.onclick = () => {
+      q.paused = !q.paused;
+      pause.textContent = q.paused ? "继续" : "暂停";
+    };
+    restart.onclick = () => {
+      q = fresh();
+      draw();
+    };
+    q = fresh();
+    draw();
+    loop(0);
+  </script>
+</html>

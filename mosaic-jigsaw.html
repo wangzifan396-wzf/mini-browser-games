@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>彩窗拼图</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #11182a;
+      color: #f0f4ff;
+      font-family: system-ui, "Microsoft YaHei";
+    }
+    .app {
+      min-height: 100vh;
+      padding: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .shell {
+      width: min(850px, 100%);
+      background: #1e2944;
+      border: 1px solid #5d6e94;
+      border-radius: 20px;
+      padding: 16px;
+    }
+    .top,
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .board {
+      display: grid;
+      gap: 3px;
+      margin: 14px auto;
+      width: min(620px, 100%);
+      aspect-ratio: 1;
+      background: #0d1427;
+      padding: 6px;
+    }
+    .piece {
+      border: 1px solid #ffffff44;
+      display: grid;
+      place-items: center;
+      font-size: 22px;
+      background-image:
+        radial-gradient(circle at 25% 25%, #ffd26a, transparent 30%),
+        radial-gradient(circle at 70% 35%, #e85e87, transparent 35%),
+        radial-gradient(circle at 40% 80%, #51b9e9, transparent 35%),
+        linear-gradient(135deg, #533a9d, #1a694e);
+      background-size: 400% 400%;
+      color: white;
+      text-shadow: 0 1px 3px #000;
+    }
+    .piece.sel {
+      outline: 4px solid white;
+      z-index: 2;
+    }
+    .sizes button.active {
+      outline: 3px solid #ffe06b;
+    }
+    button {
+      padding: 9px 11px;
+      border: 1px solid #7181a5;
+      border-radius: 8px;
+      background: #3a4c75;
+      color: white;
+      font-weight: bold;
+    }
+    .help {
+      font-size: 13px;
+      color: #c1c9dc;
+    }
+    @media (max-width: 650px) {
+      .app {
+        place-items: start center;
+      }
+    }
+  </style>
+  <main class="app">
+    <section class="shell">
+      <div class="top">
+        <div>
+          <h1 style="margin: 0">彩窗拼图</h1>
+          <div class="help">
+            依次点击两块碎片交换位置；从 3×3 到 6×6，恢复完整彩色玻璃图案。
+          </div>
+        </div>
+        <div>
+          难度 <b id="sizeText"></b>　移动 <b id="moves"></b>　最佳
+          <b id="best"></b>
+        </div>
+      </div>
+      <div class="board" id="board"></div>
+      <div class="row">
+        <div class="sizes">
+          <button data-s="3">3×3</button><button data-s="4">4×4</button
+          ><button data-s="5">5×5</button><button data-s="6">6×6</button>
+        </div>
+        <button id="shuffle">重新打乱</button><button id="peek">查看原图</button
+        ><span id="msg"></span>
+      </div>
+    </section>
+  </main>
+  <script>
+    let q,
+      selected = null,
+      peeking = false;
+    const $ = (x) => document.getElementById(x);
+    function start(n = 3) {
+      let a = Array.from({ length: n * n }, (_, i) => i);
+      do {
+        a.sort(() => Math.random() - 0.5);
+      } while (a.every((x, i) => x === i));
+      q = { n, a, moves: 0 };
+      selected = null;
+      draw();
+    }
+    function click(i) {
+      if (peeking) return;
+      if (selected === null) {
+        selected = i;
+        draw();
+        return;
+      }
+      [q.a[selected], q.a[i]] = [q.a[i], q.a[selected]];
+      q.moves++;
+      selected = null;
+      if (q.a.every((x, i) => x === i)) {
+        let key = "jigsaw_best_" + q.n,
+          b = +localStorage.getItem(key) || 999;
+        localStorage.setItem(key, Math.min(b, q.moves));
+        msg.textContent = `拼图完成！共 ${q.moves} 次交换。`;
+      }
+      draw();
+    }
+    function draw() {
+      let n = q.n;
+      sizeText.textContent = `${n}×${n}`;
+      moves.textContent = q.moves;
+      best.textContent = localStorage.getItem("jigsaw_best_" + n) || "—";
+      board.style.gridTemplateColumns = `repeat(${n},1fr)`;
+      let arr = peeking ? Array.from({ length: n * n }, (_, i) => i) : q.a;
+      board.innerHTML = arr
+        .map(
+          (v, i) =>
+            `<button class="piece ${selected === i && !peeking ? "sel" : ""}" data-i="${i}" style="background-position:${((v % n) / (n - 1)) * 100}% ${(Math.floor(v / n) / (n - 1)) * 100}%">${peeking ? "" : v + 1}</button>`,
+        )
+        .join("");
+      board
+        .querySelectorAll("[data-i]")
+        .forEach((e) => (e.onclick = () => click(+e.dataset.i)));
+      document
+        .querySelectorAll("[data-s]")
+        .forEach((e) => e.classList.toggle("active", +e.dataset.s === n));
+    }
+    document
+      .querySelectorAll("[data-s]")
+      .forEach((e) => (e.onclick = () => start(+e.dataset.s)));
+    shuffle.onclick = () => start(q.n);
+    peek.onpointerdown = () => {
+      peeking = true;
+      draw();
+    };
+    peek.onpointerup = peek.onpointerleave = () => {
+      peeking = false;
+      draw();
+    };
+    start();
+  </script>
+</html>

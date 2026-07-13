@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>奇想乐园</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #20352b;
+      color: #f7fff2;
+      font-family: system-ui, "Microsoft YaHei";
+    }
+    .app {
+      min-height: 100vh;
+      padding: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .shell {
+      width: min(1000px, 100%);
+      background: #315443;
+      border: 1px solid #78a585;
+      border-radius: 20px;
+      padding: 16px;
+    }
+    .top,
+    .row,
+    .tools {
+      display: flex;
+      justify-content: space-between;
+      gap: 7px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .park {
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      gap: 3px;
+      background: #183329;
+      padding: 7px;
+      border-radius: 11px;
+    }
+    .cell {
+      height: 52px;
+      border: 1px solid #527765;
+      border-radius: 5px;
+      background: #4f7757;
+      font-size: 23px;
+      padding: 0;
+    }
+    .panel {
+      background: #203d31;
+      border: 1px solid #5a7f68;
+      border-radius: 11px;
+      padding: 10px;
+      margin-bottom: 9px;
+    }
+    .tools {
+      justify-content: flex-start;
+    }
+    .tools button.active {
+      outline: 3px solid #ffe06b;
+    }
+    .stat {
+      display: flex;
+      justify-content: space-between;
+      padding: 5px;
+      border-bottom: 1px solid #ffffff18;
+    }
+    .log {
+      height: 110px;
+      overflow: auto;
+      color: #c2d6c7;
+      font-size: 13px;
+    }
+    button {
+      padding: 9px 10px;
+      border: 1px solid #82a48b;
+      border-radius: 8px;
+      background: #477357;
+      color: white;
+      font-weight: bold;
+    }
+    .day {
+      background: #8d6b2e;
+    }
+    .help {
+      font-size: 13px;
+      color: #c1d5c6;
+    }
+    @media (max-width: 700px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      .cell {
+        height: auto;
+        aspect-ratio: 1;
+        font-size: 17px;
+      }
+      .app {
+        place-items: start center;
+      }
+    }
+  </style>
+  <main class="app">
+    <section class="shell">
+      <div class="top">
+        <div>
+          <h1 style="margin: 0">奇想乐园</h1>
+          <div class="help">
+            铺路并建造游乐设施、餐饮和景观，平衡票价、排队、清洁与游客满意度。
+          </div>
+        </div>
+        <div>
+          第 <b id="dayNo"></b>/20 天　资金 <b id="money"></b>　游客
+          <b id="guests"></b>　口碑 <b id="rating"></b>
+        </div>
+      </div>
+      <div class="tools" id="tools"></div>
+      <div class="layout">
+        <div>
+          <div class="park" id="park"></div>
+          <div class="row" style="margin-top: 9px">
+            <button class="day" id="nextDay">开园一天</button
+            ><button id="clean">全园清洁（20）</button
+            ><button id="erase">拆除</button
+            ><button id="restart">新乐园</button>
+          </div>
+        </div>
+        <aside>
+          <div class="panel">
+            <b>经营指标</b>
+            <div id="stats"></div>
+          </div>
+          <div class="panel">
+            <b>董事会目标</b>
+            <div class="help">
+              第 20 天达到 120 名游客、80
+              口碑并拥有至少四种游乐设施。道路必须从入口连通设施。
+            </div>
+          </div>
+          <div class="panel log" id="log"></div>
+        </aside>
+      </div>
+    </section>
+  </main>
+  <script>
+    const B = {
+      path: ["道路", "·", 2],
+      wheel: ["摩天轮", "🎡", 65],
+      coaster: ["过山车", "🎢", 100],
+      carousel: ["旋转木马", "🎠", 55],
+      boat: ["漂流", "🛶", 75],
+      food: ["餐车", "🍔", 35],
+      tree: ["景观", "🌳", 18],
+      bin: ["垃圾桶", "🗑️", 12],
+    };
+    let q,
+      tool = "path";
+    const $ = (x) => document.getElementById(x);
+    function fresh() {
+      let cells = Array(80).fill(null);
+      cells[70] = "path";
+      return {
+        day: 1,
+        money: 220,
+        guests: 0,
+        rating: 55,
+        dirt: 0,
+        cells,
+        logs: ["入口位于左下角，先铺设道路。"],
+        over: false,
+      };
+    }
+    function build(i) {
+      if (tool === "erase") {
+        if (q.cells[i] && i !== 70) {
+          q.money += Math.floor(B[q.cells[i]][2] * 0.3);
+          q.cells[i] = null;
+        }
+        return draw();
+      }
+      if (q.cells[i]) return;
+      let b = B[tool];
+      if (q.money < b[2]) return;
+      q.money -= b[2];
+      q.cells[i] = tool;
+      draw();
+    }
+    function connected(i) {
+      let seen = new Set([70]),
+        stack = [70];
+      while (stack.length) {
+        let a = stack.pop(),
+          r = Math.floor(a / 10),
+          c = a % 10;
+        for (const j of [a - 10, a + 10, a - 1, a + 1])
+          if (
+            j >= 0 &&
+            j < 80 &&
+            Math.abs((j % 10) - c) + Math.abs(Math.floor(j / 10) - r) === 1 &&
+            !seen.has(j) &&
+            q.cells[j] === "path"
+          ) {
+            seen.add(j);
+            stack.push(j);
+          }
+      }
+      let r = Math.floor(i / 10),
+        c = i % 10;
+      return [i - 10, i + 10, i - 1, i + 1].some(
+        (j) =>
+          seen.has(j) &&
+          Math.abs((j % 10) - c) + Math.abs(Math.floor(j / 10) - r) === 1,
+      );
+    }
+    function next() {
+      if (q.over) return;
+      let rides = ["wheel", "coaster", "carousel", "boat"].filter((k) =>
+          q.cells.some((x, i) => x === k && connected(i)),
+        ).length,
+        food = q.cells.filter((x, i) => x === "food" && connected(i)).length,
+        trees = q.cells.filter((x) => x === "tree").length,
+        bins = q.cells.filter((x) => x === "bin").length,
+        capacity = rides * 35 + food * 8;
+      q.guests = Math.max(0, Math.round(capacity * (q.rating / 100)));
+      let income = q.guests * 2 + food * q.guests * 0.25,
+        cost = rides * 12 + food * 4;
+      q.money += Math.round(income - cost);
+      q.dirt += q.guests * 0.08 - bins * 3;
+      q.dirt = Math.max(0, q.dirt);
+      q.rating = Math.max(
+        0,
+        Math.min(
+          100,
+          Math.round(55 + trees * 2 + rides * 5 - Math.max(0, q.dirt) * 0.7),
+        ),
+      );
+      q.day++;
+      q.logs.unshift(
+        `营业收入 ${Math.round(income)}，维护 ${cost}，新增垃圾 ${Math.round(q.dirt)}。`,
+      );
+      if (q.day > 20) {
+        q.over = true;
+        q.logs.unshift(
+          q.guests >= 120 && q.rating >= 80 && rides >= 4
+            ? "乐园评级五星，经营挑战成功！"
+            : "经营期结束，仍可优化布局。",
+        );
+      }
+      draw();
+    }
+    function draw() {
+      dayNo.textContent = Math.min(20, q.day);
+      money.textContent = q.money;
+      guests.textContent = q.guests;
+      rating.textContent = q.rating;
+      tools.innerHTML = Object.entries(B)
+        .map(
+          ([k, b]) =>
+            `<button data-k="${k}" class="${tool === k ? "active" : ""}">${b[1]}${b[0]} ${b[2]}</button>`,
+        )
+        .join("");
+      tools.querySelectorAll("[data-k]").forEach(
+        (e) =>
+          (e.onclick = () => {
+            tool = e.dataset.k;
+            draw();
+          }),
+      );
+      park.innerHTML = q.cells
+        .map(
+          (x, i) =>
+            `<button class="cell" data-i="${i}">${i === 70 ? "🚪" : x ? B[x][1] : ""}</button>`,
+        )
+        .join("");
+      park
+        .querySelectorAll("[data-i]")
+        .forEach((e) => (e.onclick = () => build(+e.dataset.i)));
+      let rides = ["wheel", "coaster", "carousel", "boat"].filter((k) =>
+        q.cells.includes(k),
+      ).length;
+      stats.innerHTML = [
+        ["游乐种类", rides + "/4"],
+        ["垃圾压力", Math.round(q.dirt)],
+        ["已铺道路", q.cells.filter((x) => x === "path").length],
+        ["每日客流", q.guests],
+      ]
+        .map(
+          (x) => `<div class="stat"><span>${x[0]}</span><b>${x[1]}</b></div>`,
+        )
+        .join("");
+      log.innerHTML = q.logs
+        .slice(0, 8)
+        .map((x) => `<div>• ${x}</div>`)
+        .join("");
+      nextDay.disabled = q.over;
+    }
+    nextDay.onclick = next;
+    clean.onclick = () => {
+      if (q.money >= 20) {
+        q.money -= 20;
+        q.dirt = 0;
+        draw();
+      }
+    };
+    erase.onclick = () => {
+      tool = tool === "erase" ? "path" : "erase";
+      draw();
+    };
+    restart.onclick = () => {
+      q = fresh();
+      draw();
+    };
+    q = fresh();
+    draw();
+  </script>
+</html>

@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>蜂巢女王</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #2b2412;
+      color: #fff7d7;
+      font-family: system-ui, "Microsoft YaHei";
+    }
+    .app {
+      min-height: 100vh;
+      padding: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .shell {
+      width: min(920px, 100%);
+      background: #50401b;
+      border: 1px solid #9d843d;
+      border-radius: 20px;
+      padding: 16px;
+    }
+    .top,
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .hive {
+      min-height: 360px;
+      margin: 12px 0;
+      background: #78601f;
+      border-radius: 45%;
+      padding: 35px;
+      text-align: center;
+    }
+    .queen {
+      font-size: 80px;
+    }
+    .cells {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .hex {
+      width: 65px;
+      height: 58px;
+      background: #e2b93b;
+      color: #3d2e0c;
+      display: grid;
+      place-items: center;
+      clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
+    }
+    .panel {
+      background: #372c15;
+      border: 1px solid #806c32;
+      border-radius: 10px;
+      padding: 10px;
+    }
+    .assign {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 7px;
+    }
+    .stat {
+      padding: 6px;
+      background: #5d4b20;
+      border-radius: 8px;
+    }
+    button {
+      padding: 9px 11px;
+      border: 1px solid #a58b42;
+      border-radius: 8px;
+      background: #745d25;
+      color: white;
+      font-weight: bold;
+    }
+    .next {
+      background: #9b7024;
+    }
+    .help {
+      font-size: 13px;
+      color: #eadcae;
+    }
+    @media (max-width: 650px) {
+      .assign {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .app {
+        place-items: start center;
+      }
+    }
+  </style>
+  <main class="app">
+    <section class="shell">
+      <div class="top">
+        <div>
+          <h1 style="margin: 0">蜂巢女王</h1>
+          <div class="help">
+            分配工蜂采蜜、育幼、守卫和筑巢；撑过二十天花季并把蜂群发展到八十只。
+          </div>
+        </div>
+        <div>
+          第 <b id="day"></b>/20 天　蜂群 <b id="bees"></b>　蜂蜜
+          <b id="honey"></b>　蜂房 <b id="cap"></b>
+        </div>
+      </div>
+      <div class="hive">
+        <div class="queen">👑🐝</div>
+        <div class="cells" id="cells"></div>
+      </div>
+      <div class="panel">
+        <div class="assign">
+          <div class="stat">
+            🌼采集 <b id="forage"></b>
+            <div>
+              <button data-a="forage" data-d="-1">−</button
+              ><button data-a="forage" data-d="1">＋</button>
+            </div>
+          </div>
+          <div class="stat">
+            🥚育幼 <b id="nurse"></b>
+            <div>
+              <button data-a="nurse" data-d="-1">−</button
+              ><button data-a="nurse" data-d="1">＋</button>
+            </div>
+          </div>
+          <div class="stat">
+            🛡️守卫 <b id="guard"></b>
+            <div>
+              <button data-a="guard" data-d="-1">−</button
+              ><button data-a="guard" data-d="1">＋</button>
+            </div>
+          </div>
+          <div class="stat">
+            🏗️筑巢 <b id="build"></b>
+            <div>
+              <button data-a="build" data-d="-1">−</button
+              ><button data-a="build" data-d="1">＋</button>
+            </div>
+          </div>
+        </div>
+        <div class="row" style="margin-top: 9px">
+          <span>空闲工蜂 <b id="idle"></b>　<span id="weather"></span></span
+          ><button class="next" id="nextDay">结束一天</button
+          ><button id="restart">新蜂群</button><span id="msg"></span>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script>
+    let q;
+    const $ = (x) => document.getElementById(x);
+    function fresh() {
+      return {
+        day: 1,
+        bees: 20,
+        honey: 25,
+        cap: 30,
+        forage: 8,
+        nurse: 5,
+        guard: 3,
+        build: 2,
+        w: 0,
+        over: false,
+      };
+    }
+    function idleN() {
+      return q.bees - q.forage - q.nurse - q.guard - q.build;
+    }
+    function assign(k, d) {
+      if (d > 0 && idleN() <= 0) return;
+      q[k] = Math.max(0, q[k] + d);
+      draw();
+    }
+    function next() {
+      if (q.over) return;
+      let mult = [1, 1.35, 0.55, 0.75][q.w],
+        gain = Math.round(q.forage * 2.2 * mult),
+        eat = Math.ceil(q.bees * 0.35);
+      q.honey += gain - eat;
+      let born = Math.min(
+        q.nurse,
+        Math.floor(Math.max(0, q.honey) / 4),
+        q.cap - q.bees,
+      );
+      q.bees += born;
+      q.honey -= born * 2;
+      q.cap += Math.floor(q.build / 3);
+      if (Math.random() < 0.28) {
+        let loss = Math.max(0, 8 - q.guard * 2);
+        q.bees -= loss;
+        msg.textContent = loss
+          ? `胡蜂袭击，损失 ${loss} 只工蜂。`
+          : "守卫击退了胡蜂！";
+      }
+      if (q.honey < 0) {
+        q.bees = Math.max(1, q.bees - 5);
+        q.honey = 0;
+      }
+      while (idleN() < 0)
+        for (const k of ["build", "guard", "nurse", "forage"])
+          if (q[k] > 0 && idleN() < 0) q[k]--;
+      q.day++;
+      q.w = Math.floor(Math.random() * 4);
+      if (q.day > 20) {
+        q.over = true;
+        msg.textContent =
+          q.bees >= 80
+            ? "花季结束，蜂群繁荣胜利！"
+            : "花季结束，蜂群仍需壮大。";
+      }
+      draw();
+    }
+    function draw() {
+      day.textContent = Math.min(20, q.day);
+      bees.textContent = q.bees;
+      honey.textContent = q.honey;
+      cap.textContent = q.cap;
+      for (const k of ["forage", "nurse", "guard", "build"])
+        $(k).textContent = q[k];
+      idle.textContent = idleN();
+      weather.textContent = ["晴朗", "百花盛开", "暴雨", "大风"][q.w];
+      cells.innerHTML = Array.from(
+        { length: Math.min(18, Math.ceil(q.cap / 5)) },
+        (_, i) => `<span class="hex">${i < q.bees / 5 ? "🍯" : "·"}</span>`,
+      ).join("");
+      nextDay.disabled = q.over;
+    }
+    document
+      .querySelectorAll("[data-a]")
+      .forEach((e) => (e.onclick = () => assign(e.dataset.a, +e.dataset.d)));
+    nextDay.onclick = next;
+    restart.onclick = () => {
+      q = fresh();
+      draw();
+    };
+    q = fresh();
+    draw();
+  </script>
+</html>

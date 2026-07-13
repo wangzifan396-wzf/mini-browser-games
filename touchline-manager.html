@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>绿茵经理</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #10241b;
+      color: #f2faef;
+      font-family: system-ui, "Microsoft YaHei";
+    }
+    .app {
+      min-height: 100vh;
+      padding: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .shell {
+      width: min(980px, 100%);
+      background: #1c422f;
+      border: 1px solid #5c876c;
+      border-radius: 20px;
+      padding: 16px;
+    }
+    .top,
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 310px;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .pitch {
+      min-height: 420px;
+      background: repeating-linear-gradient(
+        90deg,
+        #397d4b 0 70px,
+        #347346 70px 140px
+      );
+      border: 3px solid white;
+      border-radius: 12px;
+      padding: 15px;
+    }
+    .squad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .player {
+      background: #184f2d;
+      border: 1px solid #77a584;
+      border-radius: 9px;
+      padding: 8px;
+      text-align: center;
+    }
+    .player.tired {
+      opacity: 0.55;
+    }
+    .panel {
+      background: #123523;
+      border: 1px solid #4c7459;
+      border-radius: 11px;
+      padding: 10px;
+      margin-bottom: 9px;
+    }
+    .table {
+      max-height: 210px;
+      overflow: auto;
+    }
+    .club {
+      display: flex;
+      justify-content: space-between;
+      padding: 5px;
+      border-bottom: 1px solid #ffffff18;
+    }
+    .log {
+      height: 105px;
+      overflow: auto;
+      color: #bbd1c1;
+      font-size: 13px;
+    }
+    button,
+    select {
+      padding: 9px 11px;
+      border: 1px solid #6c9678;
+      border-radius: 9px;
+      background: #2e6841;
+      color: white;
+      font-weight: bold;
+    }
+    .match {
+      background: #92712f;
+    }
+    .help {
+      font-size: 13px;
+      color: #bad0bf;
+    }
+    @media (max-width: 700px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      .squad {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .app {
+        place-items: start center;
+      }
+    }
+  </style>
+  <main class="app">
+    <section class="shell">
+      <div class="top">
+        <div>
+          <h1 style="margin: 0">绿茵经理</h1>
+          <div class="help">
+            安排阵型、攻守倾向、训练和转会，在十轮联赛中争夺冠军。
+          </div>
+        </div>
+        <div>
+          第 <b id="week"></b>/10 轮　积分 <b id="points"></b>　资金
+          <b id="money"></b>　排名 <b id="rank"></b>
+        </div>
+      </div>
+      <div class="layout">
+        <div>
+          <div class="pitch">
+            <div class="row">
+              <label
+                >阵型
+                <select id="formation">
+                  <option>4-3-3</option>
+                  <option>4-4-2</option>
+                  <option>3-5-2</option>
+                </select></label
+              ><label
+                >战术
+                <select id="tactic">
+                  <option value="balanced">均衡</option>
+                  <option value="attack">高位进攻</option>
+                  <option value="defend">防守反击</option>
+                </select></label
+              ><button id="train">本周训练</button
+              ><button class="match" id="match">进行比赛</button>
+            </div>
+            <h3>首发阵容</h3>
+            <div class="squad" id="squad"></div>
+          </div>
+          <div class="panel log" id="log"></div>
+        </div>
+        <aside>
+          <div class="panel">
+            <b>联赛积分榜</b>
+            <div class="table" id="table"></div>
+          </div>
+          <div class="panel">
+            <b>转会市场</b>
+            <div id="market"></div>
+            <button id="scout">刷新球探名单（5）</button>
+          </div>
+          <button id="restart">新赛季</button>
+        </aside>
+      </div>
+    </section>
+  </main>
+  <script>
+    const names = [
+        "云翼",
+        "铁壁",
+        "流星",
+        "青锋",
+        "山猫",
+        "飞火",
+        "林塔",
+        "雷鸣",
+        "白帆",
+        "赤鹿",
+        "星尘",
+      ],
+      clubs = [
+        "你的球队",
+        "北城联",
+        "海湾竞技",
+        "赤峰队",
+        "学院十一人",
+        "港口城",
+      ];
+    let q;
+    const $ = (x) => document.getElementById(x);
+    function makePlayer(i) {
+      return {
+        n: names[i % names.length],
+        pos: i < 1 ? "门将" : i < 5 ? "后卫" : i < 8 ? "中场" : "前锋",
+        atk: 45 + Math.floor(Math.random() * 30) + (i > 7 ? 12 : 0),
+        def: 45 + Math.floor(Math.random() * 30) + (i < 5 ? 12 : 0),
+        fit: 100,
+      };
+    }
+    function fresh() {
+      return {
+        week: 1,
+        money: 80,
+        trained: false,
+        players: Array.from({ length: 11 }, (_, i) => makePlayer(i)),
+        clubs: clubs.map((n, i) => ({
+          n,
+          p: 0,
+          gd: 0,
+          pow: 62 + Math.floor(Math.random() * 15) + (i === 0 ? 2 : 0),
+        })),
+        logs: ["新赛季开始，董事会目标是联赛前三。"],
+        market: [],
+        over: false,
+      };
+    }
+    function strength() {
+      let atk = q.players.reduce((s, p) => s + (p.atk * p.fit) / 100, 0) / 11,
+        def = q.players.reduce((s, p) => s + (p.def * p.fit) / 100, 0) / 11,
+        t = tactic.value;
+      if (t === "attack") {
+        atk += 9;
+        def -= 6;
+      }
+      if (t === "defend") {
+        def += 9;
+        atk -= 6;
+      }
+      if (formation.value === "4-3-3") atk += 4;
+      if (formation.value === "4-4-2") {
+        atk += 2;
+        def += 2;
+      }
+      if (formation.value === "3-5-2") {
+        atk += 5;
+        def -= 2;
+      }
+      return { atk, def };
+    }
+    function play() {
+      if (q.over) return;
+      let s = strength(),
+        opp = q.clubs[1 + ((q.week - 1) % 5)],
+        ourGoals = Math.max(
+          0,
+          Math.round((s.atk - opp.pow + Math.random() * 28) / 12),
+        ),
+        theirGoals = Math.max(
+          0,
+          Math.round((opp.pow - s.def + Math.random() * 28) / 12),
+        );
+      let us = q.clubs[0];
+      if (ourGoals > theirGoals) {
+        us.p += 3;
+        q.logs.unshift(`${ourGoals}:${theirGoals} 获胜！战术执行出色。`);
+      } else if (ourGoals === theirGoals) {
+        us.p++;
+        q.logs.unshift(`${ourGoals}:${theirGoals} 战平。`);
+      } else q.logs.unshift(`${ourGoals}:${theirGoals} 失利，需要调整阵容。`);
+      us.gd += ourGoals - theirGoals;
+      opp.p += ourGoals < theirGoals ? 3 : ourGoals === theirGoals ? 1 : 0;
+      opp.gd += theirGoals - ourGoals;
+      for (let i = 1; i < 6; i++)
+        if (q.clubs[i] !== opp) {
+          let win = Math.random();
+          q.clubs[i].p += win < 0.35 ? 3 : win < 0.6 ? 1 : 0;
+          q.clubs[i].gd += win < 0.35 ? 1 : win > 0.8 ? -1 : 0;
+        }
+      q.players.forEach(
+        (p) =>
+          (p.fit = Math.max(45, p.fit - (tactic.value === "attack" ? 16 : 11))),
+      );
+      q.money += 10 + (ourGoals > theirGoals ? 5 : 0);
+      q.week++;
+      q.trained = false;
+      if (q.week > 10) {
+        q.over = true;
+        let r = ranking().findIndex((c) => c === us) + 1;
+        q.logs.unshift(`赛季结束：最终排名第 ${r}。`);
+      }
+      draw();
+    }
+    function ranking() {
+      return [...q.clubs].sort((a, b) => b.p - a.p || b.gd - a.gd);
+    }
+    function training() {
+      if (q.trained || q.over) return;
+      q.trained = true;
+      q.players.forEach((p) => {
+        p.atk += Math.random() < 0.55 ? 1 : 0;
+        p.def += Math.random() < 0.55 ? 1 : 0;
+        p.fit = Math.min(100, p.fit + 18);
+      });
+      q.logs.unshift("完成本周训练，能力与体能恢复。");
+      draw();
+    }
+    function scout() {
+      if (q.money < 5) return;
+      q.money -= 5;
+      q.market = Array.from({ length: 3 }, (_, i) => {
+        let p = makePlayer(Math.floor(Math.random() * 11));
+        p.cost = Math.round((p.atk + p.def) / 4);
+        return p;
+      });
+      draw();
+    }
+    function buy(i) {
+      let p = q.market[i];
+      if (!p || q.money < p.cost) return;
+      q.money -= p.cost;
+      let worst = q.players
+        .map((x, i) => ({ x, i, v: x.atk + x.def }))
+        .sort((a, b) => a.v - b.v)[0];
+      q.players[worst.i] = p;
+      q.market.splice(i, 1);
+      q.logs.unshift(`签下 ${p.n}，替换阵容中能力最低的球员。`);
+      draw();
+    }
+    function draw() {
+      week.textContent = Math.min(10, q.week);
+      points.textContent = q.clubs[0].p;
+      money.textContent = q.money;
+      rank.textContent = ranking().findIndex((c) => c === q.clubs[0]) + 1;
+      squad.innerHTML = q.players
+        .map(
+          (p) =>
+            `<div class="player ${p.fit < 60 ? "tired" : ""}"><b>${p.n}</b><br><small>${p.pos} · 攻${p.atk} 防${p.def} · 体能${Math.round(p.fit)}</small></div>`,
+        )
+        .join("");
+      table.innerHTML = ranking()
+        .map(
+          (c, i) =>
+            `<div class="club"><span>${i + 1}. ${c.n}</span><b>${c.p}分 ${c.gd >= 0 ? "+" : ""}${c.gd}</b></div>`,
+        )
+        .join("");
+      market.innerHTML =
+        q.market
+          .map(
+            (p, i) =>
+              `<button data-i="${i}" style="width:100%;margin:4px 0">${p.n} · 攻${p.atk}/防${p.def} · ${p.cost}资金</button>`,
+          )
+          .join("") || '<div class="help">点击刷新寻找新援</div>';
+      market
+        .querySelectorAll("[data-i]")
+        .forEach((e) => (e.onclick = () => buy(+e.dataset.i)));
+      log.innerHTML = q.logs
+        .slice(0, 9)
+        .map((x) => `<div>• ${x}</div>`)
+        .join("");
+      train.disabled = q.trained || q.over;
+      match.disabled = q.over;
+    }
+    train.onclick = training;
+    match.onclick = play;
+    scout.onclick = scout;
+    restart.onclick = () => {
+      q = fresh();
+      scout();
+      draw();
+    };
+    q = fresh();
+    scout();
+    draw();
+  </script>
+</html>

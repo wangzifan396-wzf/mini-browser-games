@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>十字词咖啡馆</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #3a2b25;
+      color: #fff5e9;
+      font-family: system-ui, "Microsoft YaHei";
+    }
+    .app {
+      min-height: 100vh;
+      padding: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .shell {
+      width: min(900px, 100%);
+      background: #5b4236;
+      border: 1px solid #a8846f;
+      border-radius: 20px;
+      padding: 16px;
+    }
+    .top,
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 14px;
+      margin-top: 12px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(9, 1fr);
+      gap: 2px;
+      background: #2c211d;
+      padding: 5px;
+    }
+    .cell {
+      aspect-ratio: 1;
+      min-width: 0;
+      text-transform: uppercase;
+      text-align: center;
+      font-size: 22px;
+      font-weight: bold;
+      border: 0;
+    }
+    .block {
+      background: #2c211d;
+    }
+    .panel {
+      background: #3f2e27;
+      border: 1px solid #806354;
+      border-radius: 10px;
+      padding: 10px;
+    }
+    .clue {
+      padding: 6px;
+      border-bottom: 1px solid #ffffff18;
+    }
+    .done {
+      color: #78e19c;
+    }
+    button {
+      padding: 9px 11px;
+      border: 1px solid #a17f69;
+      border-radius: 8px;
+      background: #765444;
+      color: white;
+      font-weight: bold;
+    }
+    .help {
+      font-size: 13px;
+      color: #ddc9bb;
+    }
+    @media (max-width: 680px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      .app {
+        place-items: start center;
+      }
+    }
+  </style>
+  <main class="app">
+    <section class="shell">
+      <div class="top">
+        <div>
+          <h1 style="margin: 0">十字词咖啡馆</h1>
+          <div class="help">
+            根据横向与纵向提示填写英文单词；交叉字母会互相验证，共五张主题词盘。
+          </div>
+        </div>
+        <div>
+          词盘 <b id="level"></b>/5　正确 <b id="correct"></b>/<b id="total"></b
+          >　提示 <b id="hints"></b>
+        </div>
+      </div>
+      <div class="layout">
+        <div>
+          <div class="grid" id="grid"></div>
+          <div class="row" style="margin-top: 9px">
+            <button id="check">检查答案</button
+            ><button id="hint">填一个字母</button
+            ><button id="reset">清空</button>
+          </div>
+        </div>
+        <aside>
+          <div class="panel">
+            <b>提示</b>
+            <div id="clues"></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+  <script>
+    const P = [
+      [
+        ["GAME", 1, 1, "H", "游戏"],
+        ["GLOW", 1, 1, "V", "发光"],
+        ["CODE", 4, 2, "H", "代码"],
+        ["CAFE", 4, 2, "V", "咖啡馆"],
+      ],
+      [
+        ["STAR", 1, 1, "H", "星星"],
+        ["SPACE", 1, 1, "V", "太空"],
+        ["PLANET", 4, 2, "H", "行星"],
+        ["PLUTO", 4, 2, "V", "冥王星"],
+      ],
+      [
+        ["WAVE", 1, 1, "H", "波浪"],
+        ["WATER", 1, 1, "V", "水"],
+        ["RIVER", 4, 2, "H", "河流"],
+        ["REEF", 4, 2, "V", "珊瑚礁"],
+      ],
+      [
+        ["TREE", 1, 1, "H", "树"],
+        ["TRAIL", 1, 1, "V", "小径"],
+        ["LEAF", 4, 2, "H", "叶子"],
+        ["LAKE", 4, 2, "V", "湖泊"],
+      ],
+      [
+        ["BYTE", 1, 1, "H", "字节"],
+        ["BOARD", 1, 1, "V", "棋盘"],
+        ["ROBOT", 4, 2, "H", "机器人"],
+        ["RIVER", 4, 2, "V", "河流"],
+      ],
+    ];
+    let q = { lv: 0, hints: 3 };
+    const $ = (x) => document.getElementById(x);
+    function solution() {
+      let cells = {};
+      for (const [w, r, c, d] of P[q.lv])
+        for (let i = 0; i < w.length; i++)
+          cells[(r + (d === "V" ? i : 0)) * 9 + c + (d === "H" ? i : 0)] = w[i];
+      return cells;
+    }
+    function draw() {
+      let sol = solution();
+      level.textContent = q.lv + 1;
+      hints.textContent = q.hints;
+      grid.innerHTML = "";
+      for (let i = 0; i < 81; i++) {
+        let e;
+        if (sol[i]) {
+          e = document.createElement("input");
+          e.maxLength = 1;
+          e.className = "cell";
+          e.dataset.i = i;
+          e.value = q.values?.[i] || "";
+          e.oninput = () => {
+            q.values = q.values || {};
+            q.values[i] = e.value.toUpperCase();
+          };
+        } else {
+          e = document.createElement("div");
+          e.className = "cell block";
+        }
+        grid.append(e);
+      }
+      clues.innerHTML = P[q.lv]
+        .map(
+          (x, i) =>
+            `<div class="clue">${i + 1}. ${x[3] === "H" ? "横" : "纵"}：${x[4]}（${x[0].length}）</div>`,
+        )
+        .join("");
+      updateCount();
+    }
+    function updateCount() {
+      let sol = solution(),
+        ok = Object.keys(sol).filter(
+          (i) => (q.values?.[i] || "") === sol[i],
+        ).length;
+      correct.textContent = ok;
+      total.textContent = Object.keys(sol).length;
+      if (ok === Object.keys(sol).length) {
+        if (q.lv < 4)
+          setTimeout(() => {
+            q.lv++;
+            q.values = {};
+            q.hints = 3;
+            draw();
+          }, 650);
+        else setTimeout(() => alert("五张十字词盘全部完成！"), 50);
+      }
+    }
+    check.onclick = () => {
+      for (const e of grid.querySelectorAll("input"))
+        e.style.background =
+          e.value.toUpperCase() === solution()[e.dataset.i]
+            ? "#c9f0d4"
+            : "#f3baba";
+      updateCount();
+    };
+    hint.onclick = () => {
+      if (q.hints <= 0) return;
+      let sol = solution(),
+        empty = Object.keys(sol).find((i) => (q.values?.[i] || "") !== sol[i]);
+      if (empty !== undefined) {
+        q.hints--;
+        q.values = q.values || {};
+        q.values[empty] = sol[empty];
+        draw();
+      }
+    };
+    reset.onclick = () => {
+      q.values = {};
+      draw();
+    };
+    draw();
+  </script>
+</html>

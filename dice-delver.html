@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>骰域远征</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #20162b;
+      color: #fff2e4;
+      font-family: system-ui, "Microsoft YaHei";
+    }
+    .app {
+      min-height: 100vh;
+      padding: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .shell {
+      width: min(900px, 100%);
+      background: #372344;
+      border: 1px solid #806194;
+      border-radius: 20px;
+      padding: 16px;
+    }
+    .top,
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .battle {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 12px 0;
+    }
+    .fighter {
+      background: #281a34;
+      border: 1px solid #684d79;
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      font-size: 55px;
+    }
+    .bar {
+      height: 9px;
+      background: #1b1222;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .bar i {
+      display: block;
+      height: 100%;
+      background: #70df9a;
+    }
+    .dice {
+      display: flex;
+      gap: 9px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 15px;
+    }
+    .die {
+      width: 75px;
+      height: 75px;
+      font-size: 34px;
+    }
+    .die.keep {
+      outline: 4px solid #ffe06b;
+    }
+    .combos {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
+    }
+    .log {
+      height: 85px;
+      overflow: auto;
+      color: #cfbdd6;
+      font-size: 13px;
+    }
+    button {
+      padding: 9px 11px;
+      border: 1px solid #8c6b9c;
+      border-radius: 9px;
+      background: #573b68;
+      color: white;
+      font-weight: bold;
+    }
+    .roll {
+      background: #9b5d2c;
+    }
+    .help {
+      font-size: 13px;
+      color: #d0bfd7;
+    }
+    @media (max-width: 650px) {
+      .combos {
+        grid-template-columns: 1fr 1fr;
+      }
+      .die {
+        width: 58px;
+        height: 58px;
+      }
+      .app {
+        place-items: start center;
+      }
+    }
+  </style>
+  <main class="app">
+    <section class="shell">
+      <div class="top">
+        <div>
+          <h1 style="margin: 0">骰域远征</h1>
+          <div class="help">
+            每回合最多掷三次并锁定骰子，用对子、顺子、葫芦等组合攻击十二层怪物。
+          </div>
+        </div>
+        <div>
+          层数 <b id="floor"></b>/12　生命 <b id="life"></b>　金币
+          <b id="gold"></b>　遗物 <b id="relics"></b>
+        </div>
+      </div>
+      <div class="battle">
+        <div class="fighter">
+          🧙
+          <div class="bar"><i id="php"></i></div>
+          <small id="ptext"></small>
+        </div>
+        <div class="fighter">
+          <span id="enemyIcon"></span>
+          <div class="bar"><i id="ehp"></i></div>
+          <small id="etext"></small>
+        </div>
+      </div>
+      <div class="dice" id="dice"></div>
+      <div class="row">
+        <button class="roll" id="roll">掷骰</button
+        ><span>剩余重掷 <b id="rolls"></b></span
+        ><button id="heal">营火治疗（15金）</button
+        ><button id="restart">新远征</button>
+      </div>
+      <div class="combos" id="combos"></div>
+      <div class="log" id="log"></div>
+    </section>
+  </main>
+  <script>
+    const C = [
+        ["一对", (a) => maxCount(a) >= 2, 8],
+        [
+          "两对",
+          (a) => Object.values(counts(a)).filter((x) => x >= 2).length >= 2,
+          14,
+        ],
+        ["三条", (a) => maxCount(a) >= 3, 18],
+        [
+          "小顺子",
+          (a) =>
+            [...new Set(a)].sort().join("").includes("1234") ||
+            [...new Set(a)].sort().join("").includes("2345") ||
+            [...new Set(a)].sort().join("").includes("3456"),
+          22,
+        ],
+        ["葫芦", (a) => Object.values(counts(a)).sort().join("") === "23", 30],
+        ["四条", (a) => maxCount(a) >= 4, 38],
+        [
+          "大顺子",
+          (a) =>
+            [...new Set(a)].sort().join("") === "12345" ||
+            [...new Set(a)].sort().join("") === "23456",
+          42,
+        ],
+        ["五骰同点", (a) => maxCount(a) === 5, 60],
+      ],
+      icons = ["👺", "💀", "🐲"];
+    let q;
+    const $ = (x) => document.getElementById(x),
+      counts = (a) => a.reduce((o, x) => ((o[x] = (o[x] || 0) + 1), o), {}),
+      maxCount = (a) => Math.max(...Object.values(counts(a)));
+    function fresh() {
+      return {
+        floor: 1,
+        hp: 100,
+        max: 100,
+        gold: 0,
+        dice: [1, 2, 3, 4, 5],
+        keep: [false, false, false, false, false],
+        rolls: 3,
+        enemy: { hp: 45, max: 45, atk: 8 },
+        logs: ["选择掷骰开始战斗。"],
+        relics: 0,
+        over: false,
+      };
+    }
+    function rollDice() {
+      if (q.rolls <= 0 || q.over) return;
+      q.dice = q.dice.map((x, i) =>
+        q.keep[i] ? x : 1 + Math.floor(Math.random() * 6),
+      );
+      q.rolls--;
+      draw();
+    }
+    function use(i) {
+      let c = C[i];
+      if (!c[1](q.dice) || q.over) return;
+      let dmg = c[2] + q.relics * 3;
+      q.enemy.hp -= dmg;
+      q.logs.unshift(`${c[0]}造成 ${dmg} 伤害！`);
+      if (q.enemy.hp <= 0) {
+        q.gold += 8 + q.floor * 2;
+        q.floor++;
+        if (q.floor > 12) {
+          q.over = true;
+          q.logs.unshift("十二层首领倒下，骰域征服完成！");
+        } else {
+          if (q.floor % 3 === 0) {
+            q.relics++;
+            q.logs.unshift("获得遗物：所有组合伤害 +3。");
+          }
+          q.enemy = {
+            max: 40 + q.floor * 12,
+            hp: 40 + q.floor * 12,
+            atk: 7 + q.floor * 2,
+          };
+        }
+      } else {
+        q.hp -= q.enemy.atk;
+        q.logs.unshift(`敌人反击 ${q.enemy.atk} 伤害。`);
+        if (q.hp <= 0) {
+          q.over = true;
+          q.logs.unshift("远征失败。");
+        }
+      }
+      q.rolls = 3;
+      q.keep = [false, false, false, false, false];
+      draw();
+    }
+    function draw() {
+      floor.textContent = Math.min(12, q.floor);
+      life.textContent = q.hp;
+      gold.textContent = q.gold;
+      relics.textContent = q.relics;
+      php.style.width = Math.max(0, (q.hp / q.max) * 100) + "%";
+      ehp.style.width = Math.max(0, (q.enemy.hp / q.enemy.max) * 100) + "%";
+      ptext.textContent = `${q.hp}/${q.max}`;
+      etext.textContent = `${Math.max(0, q.enemy.hp)}/${q.enemy.max} · 攻${q.enemy.atk}`;
+      enemyIcon.textContent = icons[Math.min(2, Math.floor(q.floor / 5))];
+      dice.innerHTML = q.dice
+        .map(
+          (d, i) =>
+            `<button class="die ${q.keep[i] ? "keep" : ""}" data-i="${i}">${["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"][d - 1]}</button>`,
+        )
+        .join("");
+      dice.querySelectorAll("[data-i]").forEach(
+        (e) =>
+          (e.onclick = () => {
+            q.keep[+e.dataset.i] = !q.keep[+e.dataset.i];
+            draw();
+          }),
+      );
+      rolls.textContent = q.rolls;
+      combos.innerHTML = C.map(
+        (c, i) =>
+          `<button data-i="${i}" ${!c[1](q.dice) ? "disabled" : ""}>${c[0]} · ${c[2] + q.relics * 3}伤</button>`,
+      ).join("");
+      combos
+        .querySelectorAll("[data-i]")
+        .forEach((e) => (e.onclick = () => use(+e.dataset.i)));
+      log.innerHTML = q.logs
+        .slice(0, 8)
+        .map((x) => `<div>• ${x}</div>`)
+        .join("");
+      roll.disabled = q.rolls <= 0 || q.over;
+    }
+    roll.onclick = rollDice;
+    heal.onclick = () => {
+      if (q.gold >= 15) {
+        q.gold -= 15;
+        q.hp = Math.min(q.max, q.hp + 35);
+        draw();
+      }
+    };
+    restart.onclick = () => {
+      q = fresh();
+      draw();
+    };
+    q = fresh();
+    draw();
+  </script>
+</html>

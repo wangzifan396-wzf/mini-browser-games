@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>午夜监控室</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #08090b;
+      color: #e9ece9;
+      font-family: ui-monospace, Consolas, "Microsoft YaHei", monospace;
+    }
+    .app {
+      min-height: 100vh;
+      padding: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .shell {
+      width: min(940px, 100%);
+      background: #15181a;
+      border: 1px solid #484e50;
+      border-radius: 16px;
+      padding: 16px;
+    }
+    .top,
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .screen {
+      height: 430px;
+      margin: 12px 0;
+      border: 10px solid #2c3132;
+      border-radius: 12px;
+      background: repeating-linear-gradient(#1b2423 0 3px, #14201e 3px 6px);
+      position: relative;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      overflow: hidden;
+    }
+    .feed {
+      font-size: 90px;
+    }
+    .static {
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        90deg,
+        transparent 0 30px,
+        #ffffff08 30px 31px
+      );
+      pointer-events: none;
+    }
+    .cams {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .cams button.active {
+      outline: 3px solid #ddd;
+    }
+    .danger {
+      color: #ff6969;
+    }
+    .bar {
+      height: 9px;
+      background: #272b2c;
+      border-radius: 7px;
+      overflow: hidden;
+    }
+    .bar i {
+      display: block;
+      height: 100%;
+      background: #d7d269;
+    }
+    .log {
+      height: 70px;
+      overflow: auto;
+      color: #aeb5b2;
+      font-size: 13px;
+    }
+    button {
+      padding: 9px 11px;
+      border: 1px solid #5c6363;
+      border-radius: 7px;
+      background: #303637;
+      color: white;
+      font-weight: bold;
+    }
+    .door {
+      background: #713b3e;
+    }
+    .help {
+      font-size: 13px;
+      color: #abb3b0;
+    }
+    @media (max-width: 650px) {
+      .screen {
+        height: 330px;
+      }
+      .app {
+        place-items: start center;
+      }
+    }
+  </style>
+  <main class="app">
+    <section class="shell">
+      <div class="top">
+        <div>
+          <h1 style="margin: 0">午夜监控室</h1>
+          <div class="help">
+            在六个监控区追踪异常玩偶，关门能挡住袭击但持续消耗电力；坚持到清晨六点。
+          </div>
+        </div>
+        <div>
+          时间 <b id="hour"></b>:00　电力 <b id="power"></b>%　夜晚
+          <b id="night"></b>/5
+        </div>
+      </div>
+      <div class="bar"><i id="powerBar"></i></div>
+      <div class="screen">
+        <div>
+          <div id="camName"></div>
+          <div class="feed" id="feed"></div>
+          <div id="status"></div>
+        </div>
+        <div class="static"></div>
+      </div>
+      <div class="row">
+        <div class="cams" id="cams"></div>
+        <div>
+          <button class="door" id="leftDoor">左门</button
+          ><button class="door" id="rightDoor">右门</button
+          ><button id="light">走廊灯</button><button id="pause">暂停</button
+          ><button id="restart">新夜晚</button>
+        </div>
+      </div>
+      <div class="log" id="log"></div>
+    </section>
+  </main>
+  <script>
+    const rooms = ["舞台", "餐厅", "仓库", "西走廊", "东走廊", "办公室"],
+      icons = ["🎭", "🍕", "📦", "🚪", "🚪", "🪑"];
+    let q,
+      timer = null;
+    const $ = (x) => document.getElementById(x);
+    function fresh(n = 1) {
+      return {
+        night: n,
+        t: 0,
+        power: 100,
+        cam: 0,
+        left: false,
+        right: false,
+        light: false,
+        creatures: [
+          { ic: "🐰", room: 0 },
+          { ic: "🦊", room: 2 },
+        ],
+        logs: ["午夜值班开始，监控画面出现微弱雪花。"],
+        over: false,
+        paused: false,
+      };
+    }
+    function tick() {
+      if (q.paused || q.over) return;
+      q.t++;
+      q.power -=
+        0.45 + (q.left ? 1.1 : 0) + (q.right ? 1.1 : 0) + (q.light ? 0.7 : 0);
+      for (const c of q.creatures)
+        if (Math.random() < 0.06 + q.night * 0.012) {
+          if (c.room < 3) c.room = 2 + Math.floor(Math.random() * 3);
+          else if (c.room === 3 || c.room === 4) {
+            let blocked = c.room === 3 ? q.left : q.right;
+            if (blocked) {
+              c.room = Math.floor(Math.random() * 3);
+              q.logs.unshift(`${c.ic}被门挡回黑暗中。`);
+            } else {
+              c.room = 5;
+              q.over = true;
+              q.logs.unshift(`${c.ic}进入办公室，夜班失败。`);
+            }
+          }
+        }
+      if (q.power <= 0) {
+        q.power = 0;
+        q.left = q.right = false;
+        if (Math.random() < 0.18) {
+          q.over = true;
+          q.logs.unshift("电力耗尽，监控室陷入黑暗。");
+        }
+      }
+      if (q.t >= 72 && !q.over) {
+        q.over = true;
+        q.logs.unshift("清晨六点！你安全完成了夜班。");
+        if (q.night < 5)
+          setTimeout(() => {
+            q = fresh(q.night + 1);
+            draw();
+          }, 900);
+      }
+      draw();
+    }
+    function draw() {
+      hour.textContent = Math.min(6, Math.floor(q.t / 12));
+      power.textContent = Math.floor(q.power);
+      night.textContent = q.night;
+      powerBar.style.width = q.power + "%";
+      camName.textContent = `CAM ${q.cam + 1} · ${rooms[q.cam]}`;
+      let seen = q.creatures.filter((c) => c.room === q.cam);
+      feed.textContent = seen.map((c) => c.ic).join(" ") || icons[q.cam];
+      status.textContent =
+        q.cam === 5 && seen.length
+          ? "异常进入办公室！"
+          : seen.length
+            ? "画面检测到移动"
+            : "画面稳定";
+      cams.innerHTML = rooms
+        .map(
+          (r, i) =>
+            `<button data-i="${i}" class="${q.cam === i ? "active" : ""}">${i + 1}.${r}</button>`,
+        )
+        .join("");
+      cams.querySelectorAll("[data-i]").forEach(
+        (e) =>
+          (e.onclick = () => {
+            q.cam = +e.dataset.i;
+            draw();
+          }),
+      );
+      leftDoor.textContent = `左门 ${q.left ? "关闭" : "开启"}`;
+      rightDoor.textContent = `右门 ${q.right ? "关闭" : "开启"}`;
+      light.textContent = `走廊灯 ${q.light ? "亮" : "灭"}`;
+      log.innerHTML = q.logs
+        .slice(0, 7)
+        .map((x) => `<div>• ${x}</div>`)
+        .join("");
+    }
+    leftDoor.onclick = () => {
+      q.left = !q.left;
+      draw();
+    };
+    rightDoor.onclick = () => {
+      q.right = !q.right;
+      draw();
+    };
+    light.onclick = () => {
+      q.light = !q.light;
+      draw();
+    };
+    pause.onclick = () => (q.paused = !q.paused);
+    restart.onclick = () => {
+      q = fresh(q.night);
+      draw();
+    };
+    q = fresh();
+    draw();
+    timer = setInterval(tick, 500);
+  </script>
+</html>
