@@ -1,0 +1,20 @@
+{
+  "name": "mini-browser-games-promo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Reproducible gameplay capture and promotional-video pipeline for Mini Browser Games.",
+  "scripts": {
+    "capture": "node scripts/capture.mjs",
+    "music": "node scripts/generate-music.mjs",
+    "render": "node scripts/render.mjs",
+    "render:v2": "node scripts/render-v2.mjs",
+    "render:vertical": "node scripts/render-vertical.mjs",
+    "cover": "python scripts/create-cover.py",
+    "verify": "node scripts/verify.mjs"
+  },
+  "dependencies": {
+    "ffprobe-static": "3.1.0",
+    "playwright": "1.61.1"
+  }
+}

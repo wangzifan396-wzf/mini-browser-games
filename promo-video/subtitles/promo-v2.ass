@@ -1,0 +1,55 @@
+[Script Info]
+Title: Mini Browser Games Open Source Promo V2
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+WrapStyle: 2
+ScaledBorderAndShadow: yes
+YCbCr Matrix: TV.709
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Caption,Microsoft YaHei,43,&H00FFFFFF,&H000000FF,&H98020810,&H98020810,0,0,0,0,100,100,1,0,3,10,0,2,145,145,55,134
+Style: GameTitle,Microsoft YaHei,66,&H00FFFFFF,&H000000FF,&HCC07111C,&H65030A12,-1,0,0,0,100,100,1,0,1,4,2,7,82,80,72,134
+Style: GameTag,Microsoft YaHei,30,&H004BEBFF,&H000000FF,&HCC07111C,&H65030A12,-1,0,0,0,100,100,2,0,1,3,1,7,86,80,150,134
+Style: Hero,Microsoft YaHei,94,&H00FFFFFF,&H000000FF,&HFF050B16,&H00000000,-1,0,0,0,100,100,4,0,1,5,4,5,80,80,80,134
+Style: HeroSub,Microsoft YaHei,39,&H004BEBFF,&H000000FF,&HFF050B16,&H00000000,-1,0,0,0,100,100,5,0,1,3,2,5,80,80,80,134
+Style: Feature,Microsoft YaHei,54,&H00FFFFFF,&H000000FF,&HFF050B16,&H76020810,-1,0,0,0,100,100,5,0,1,4,2,8,80,80,100,134
+Style: CTA,Microsoft YaHei,74,&H00FFFFFF,&H000000FF,&HFF050B16,&H00000000,-1,0,0,0,100,100,3,0,1,4,3,5,80,80,80,134
+Style: URL,Microsoft YaHei,31,&H004BEBFF,&H000000FF,&HFF050B16,&H00000000,0,0,0,0,100,100,1,0,1,2,1,5,80,80,80,134
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 2,0:00:00.20,0:00:04.85,Hero,,0,0,0,,{\fad(350,450)\pos(960,420)}迷你游戏合集
+Dialogue: 2,0:00:00.50,0:00:04.85,HeroSub,,0,0,0,,{\fad(500,450)\pos(960,565)}100 款游戏  ·  一个开源仓库
+
+Dialogue: 2,0:00:43.00,0:00:46.50,GameTitle,,0,0,0,,{\fad(150,180)}霓虹装甲
+Dialogue: 2,0:00:43.00,0:00:46.50,GameTag,,0,0,0,,{\fad(180,180)}方位装甲 · 反弹弹道
+Dialogue: 2,0:00:46.50,0:00:50.00,GameTitle,,0,0,0,,{\fad(150,180)}薯仔突围
+Dialogue: 2,0:00:46.50,0:00:50.00,GameTag,,0,0,0,,{\fad(180,180)}武器进化 · 肉鸽构筑
+Dialogue: 2,0:00:50.00,0:00:53.00,GameTitle,,0,0,0,,{\fad(130,150)}芽阵前线
+Dialogue: 2,0:00:53.00,0:00:56.00,GameTitle,,0,0,0,,{\fad(130,150)}晶塔前线
+Dialogue: 2,0:00:56.00,0:00:59.00,GameTitle,,0,0,0,,{\fad(130,150)}山海伏魔录
+Dialogue: 2,0:00:59.00,0:01:03.00,GameTitle,,0,0,0,,{\fad(130,150)}霓虹贪吃蛇
+Dialogue: 2,0:01:03.00,0:01:07.00,GameTitle,,0,0,0,,{\fad(130,150)}霓虹 2048
+
+Dialogue: 2,0:01:07.00,0:01:18.00,Feature,,0,0,0,,{\fad(220,300)}动作 · 策略 · 经营 · 益智 · 单 HTML 即点即玩
+Dialogue: 2,0:01:18.00,0:01:25.00,Feature,,0,0,0,,{\fad(220,300)}完全开源 · 可游玩 · 可研究 · 可修改
+Dialogue: 2,0:01:25.00,0:01:33.00,CTA,,0,0,0,,{\fad(350,700)\pos(960,420)}现在，打开你的下一局
+Dialogue: 2,0:01:25.35,0:01:33.00,URL,,0,0,0,,{\fad(450,700)\pos(960,555)}github.com/wangzifan396-wzf/mini-browser-games
+
+Dialogue: 3,0:00:00.30,0:00:06.35,Caption,,0,0,0,,一百款游戏。一个开源仓库。\N这里，是迷你游戏合集。
+Dialogue: 3,0:00:06.60,0:00:16.34,Caption,,0,0,0,,从一颗微小星团开始，吞噬、分裂、围猎。\N百名对手同场竞争，每一个瞬间，都可能改写最终排名。
+Dialogue: 3,0:00:16.60,0:00:24.98,Caption,,0,0,0,,十种竞技规则、智能对手、随机事件与持续成长，\N让每一场星团战斗，都拥有新的答案。
+Dialogue: 3,0:00:25.20,0:00:33.94,Caption,,0,0,0,,如果你更喜欢创造——点燃星炉，建立生产链，\N让资源、研究与专员，推动文明不断向外延伸。
+Dialogue: 3,0:00:34.20,0:00:42.70,Caption,,0,0,0,,派出远航舰队，跨越星域；迎战未知敌人；\N再用星核重启，开启更强大的下一轮宇宙。
+Dialogue: 3,0:00:43.00,0:00:46.50,Caption,,0,0,0,,驾驶霓虹装甲，击穿弱点。
+Dialogue: 3,0:00:46.50,0:00:49.77,Caption,,0,0,0,,也可以在薯仔突围里，把武器进化成自己的流派。
+Dialogue: 3,0:00:50.00,0:00:53.00,Caption,,0,0,0,,布下芽阵，守住防线。
+Dialogue: 3,0:00:53.00,0:00:56.00,Caption,,0,0,0,,操控英雄，争夺晶兽。
+Dialogue: 3,0:00:56.00,0:00:58.30,Caption,,0,0,0,,踏入山海万象，用卡牌挑战远古妖王。
+Dialogue: 3,0:00:58.60,0:01:02.70,Caption,,0,0,0,,贪吃蛇、二零四八……熟悉的规则，
+Dialogue: 3,0:01:02.70,0:01:06.74,Caption,,0,0,0,,也被加入框架、协议、首领和远征，重新赋予深度。
+Dialogue: 3,0:01:07.00,0:01:17.61,Caption,,0,0,0,,动作、策略、经营、益智。每一种玩法，都只需要一个 HTML 文件。\N无需安装，无需构建，打开即玩。
+Dialogue: 3,0:01:18.00,0:01:24.85,Caption,,0,0,0,,代码完全开源。你可以游玩、研究、修改，\N再创造属于自己的版本。
+Dialogue: 3,0:01:24.85,0:01:31.75,Caption,,0,0,0,,这是一个仍在成长的游戏宇宙——迷你游戏合集。\N现在，打开你的下一局。

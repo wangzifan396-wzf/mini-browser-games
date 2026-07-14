@@ -155,6 +155,13 @@
 | [Star Cluster Arena（星团大作战）](star-cluster-arena/README.md) | 从单文件版扩展出的高性能版本；Node.js 后端、WebGL2 GPU 批处理、60Hz 固定模拟与高刷新率插值、4K 稳帧模式、100 人 AI 竞技 | 进入 `star-cluster-arena/` 后运行 `node backend/server.mjs`；Windows 可直接双击 `start.cmd` |
 | [Starforge Nexus（星炉工坊）](starforge-nexus/README.md) | `starforge-idle.html` 的前后端高性能版本；WebGL2 程序化星炉、30Hz 固定模拟、GPU 缓存、DOM 降频与高刷新率动画 | 进入 `starforge-nexus/` 后运行 `node backend/server.mjs`；Windows 可直接双击 `start.cmd` |
 
+## 项目宣传片
+
+- [横版 V2 高清宣传片](promo-video/deliverables/mini-browser-games-promo-v2-hq-captioned.mp4)：93 秒，重点展示《星团大作战》和《星炉工坊》，并快速覆盖动作、肉鸽、塔防、MOBA、卡牌与益智代表作。
+- [宣传片工程](promo-video/README.md)：包含实机逐帧采集、AI 中文配音、原创 BGM、字幕、混音、横竖版渲染与自动验收脚本。
+
+宣传片使用 1920×1080 高质量实机画面、深沉中文男声和 H.264/AAC 编码；完整无字幕版和分轨素材可由工程脚本在本地重新生成。
+
 ## 如何运行
 
 直接双击任意 `.html` 文件即可。若浏览器在本地文件模式下限制存档，建议在项目目录启动本地服务：

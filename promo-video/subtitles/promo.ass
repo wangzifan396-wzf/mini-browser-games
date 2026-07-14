@@ -1,0 +1,59 @@
+[Script Info]
+Title: Mini Browser Games Flagship Promo
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+WrapStyle: 2
+ScaledBorderAndShadow: yes
+YCbCr Matrix: TV.709
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Caption,Microsoft YaHei,43,&H00FFFFFF,&H000000FF,&H95020810,&H95020810,0,0,0,0,100,100,1,0,3,10,0,2,145,145,55,134
+Style: GameTitle,Microsoft YaHei,68,&H00FFFFFF,&H000000FF,&HCC07111C,&H65030A12,-1,0,0,0,100,100,1,0,1,4,2,7,82,80,72,134
+Style: GameTag,Microsoft YaHei,31,&H004BEBFF,&H000000FF,&HCC07111C,&H65030A12,-1,0,0,0,100,100,2,0,1,3,1,7,86,80,153,134
+Style: Hero,Microsoft YaHei,94,&H00FFFFFF,&H000000FF,&HFF050B16,&H00000000,-1,0,0,0,100,100,4,0,1,5,4,5,80,80,80,134
+Style: HeroSub,Microsoft YaHei,39,&H004BEBFF,&H000000FF,&HFF050B16,&H00000000,-1,0,0,0,100,100,5,0,1,3,2,5,80,80,80,134
+Style: Genre,Microsoft YaHei,52,&H00FFFFFF,&H000000FF,&HFF050B16,&H70020810,-1,0,0,0,100,100,5,0,1,4,2,8,80,80,105,134
+Style: Feature,Microsoft YaHei,57,&H00FFFFFF,&H000000FF,&HFF050B16,&H72020810,-1,0,0,0,100,100,4,0,1,4,2,8,80,80,105,134
+Style: CTA,Microsoft YaHei,76,&H00FFFFFF,&H000000FF,&HFF050B16,&H00000000,-1,0,0,0,100,100,3,0,1,4,3,5,80,80,80,134
+Style: URL,Microsoft YaHei,31,&H004BEBFF,&H000000FF,&HFF050B16,&H00000000,0,0,0,0,100,100,1,0,1,2,1,5,80,80,80,134
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 2,0:00:00.20,0:00:04.85,Hero,,0,0,0,,{\fad(350,450)\pos(960,420)}迷你游戏合集
+Dialogue: 2,0:00:00.50,0:00:04.85,HeroSub,,0,0,0,,{\fad(500,450)\pos(960,565)}100 款游戏  ·  一个开源仓库
+
+Dialogue: 2,0:00:05.00,0:00:20.00,GameTitle,,0,0,0,,{\fad(220,260)}星团大作战
+Dialogue: 2,0:00:05.00,0:00:20.00,GameTag,,0,0,0,,{\fad(260,260)}百人同场 · 十种规则 · 长期成长
+Dialogue: 2,0:00:20.00,0:00:40.00,GameTag,,0,0,0,,{\fad(260,260)}生产 · 研究 · 远航 · 战斗 · 星核重启
+Dialogue: 2,0:00:40.00,0:00:45.00,GameTitle,,0,0,0,,{\fad(180,220)}霓虹装甲
+Dialogue: 2,0:00:40.00,0:00:45.00,GameTag,,0,0,0,,{\fad(200,220)}八种规则 · 六底盘 · 六主炮
+Dialogue: 2,0:00:45.00,0:00:50.00,GameTitle,,0,0,0,,{\fad(180,220)}薯仔突围
+Dialogue: 2,0:00:45.00,0:00:50.00,GameTag,,0,0,0,,{\fad(200,220)}武器进化 · 遗物构筑
+Dialogue: 2,0:00:50.00,0:00:55.00,GameTitle,,0,0,0,,{\fad(180,220)}芽阵前线
+Dialogue: 2,0:00:50.00,0:00:55.00,GameTag,,0,0,0,,{\fad(200,220)}18 关远征 · 24 株芽阵
+Dialogue: 2,0:00:55.00,0:01:00.00,GameTitle,,0,0,0,,{\fad(180,220)}晶塔前线
+Dialogue: 2,0:00:55.00,0:01:00.00,GameTag,,0,0,0,,{\fad(200,220)}四英雄 · 四种 3V3 规则
+Dialogue: 2,0:01:00.00,0:01:05.00,GameTitle,,0,0,0,,{\fad(180,220)}山海伏魔录
+Dialogue: 2,0:01:00.00,0:01:05.00,GameTag,,0,0,0,,{\fad(200,220)}33 张卡牌 · 双章首领
+Dialogue: 2,0:01:05.00,0:01:08.00,GameTitle,,0,0,0,,{\fad(140,160)}霓虹贪吃蛇
+Dialogue: 2,0:01:08.00,0:01:11.00,GameTitle,,0,0,0,,{\fad(140,160)}霓虹 2048
+
+Dialogue: 2,0:01:11.00,0:01:20.00,Genre,,0,0,0,,{\fad(220,300)}动作 · 策略 · 肉鸽 · 塔防 · 经营 · 益智
+Dialogue: 2,0:01:20.00,0:01:28.00,Feature,,0,0,0,,{\fad(240,320)}零依赖 · 单 HTML · 即点即玩 · 跨设备存档码
+Dialogue: 2,0:01:28.00,0:01:36.50,CTA,,0,0,0,,{\fad(350,700)\pos(960,420)}现在，打开你的下一局
+Dialogue: 2,0:01:28.35,0:01:36.50,URL,,0,0,0,,{\fad(450,700)\pos(960,555)}github.com/wangzifan396-wzf/mini-browser-games
+
+Dialogue: 3,0:00:00.30,0:00:07.38,Caption,,0,0,0,,一个浏览器，一百种玩法。\N这是迷你游戏合集，一个持续进化的开源游戏宇宙。
+Dialogue: 3,0:00:07.55,0:00:16.69,Caption,,0,0,0,,在星团大作战中，百名对手同场混战。\N吞噬、分裂、围猎，每一次判断，都可能改写最终排名。
+Dialogue: 3,0:00:16.90,0:00:24.56,Caption,,0,0,0,,多种竞技规则、智能对手、随机事件和长期成长，\N让每一场星团征途都不再重复。
+Dialogue: 3,0:00:24.80,0:00:31.18,Caption,,0,0,0,,而在星炉工坊，你将从一次手动校准开始，\N建立横跨星域的自动化文明。
+Dialogue: 3,0:00:31.40,0:00:40.66,Caption,,0,0,0,,生产链、研究矩阵、专员、远航、舰队战斗与星核重启，\N彼此咬合，构成可以长期经营的成长循环。
+Dialogue: 3,0:00:41.10,0:00:49.00,Caption,,0,0,0,,想要更直接的战斗？驾驶霓虹装甲击穿弱点，\N或在薯仔突围中打造自己的武器流派。
+Dialogue: 3,0:00:49.30,0:00:56.86,Caption,,0,0,0,,布置芽阵守住防线，操控英雄争夺晶兽，\N再踏入山海万象，用卡牌挑战远古妖王。
+Dialogue: 3,0:00:57.10,0:01:04.95,Caption,,0,0,0,,熟悉的贪吃蛇和二零四八，也拥有框架、协议、远征与首领，\N经典规则同样可以焕然一新。
+Dialogue: 3,0:01:05.20,0:01:13.31,Caption,,0,0,0,,动作、策略、肉鸽、塔防、经营、益智。\N一百款游戏，带来一百种随时开始的可能。
+Dialogue: 3,0:01:13.55,0:01:20.75,Caption,,0,0,0,,无需安装，无需构建。每款游戏都是独立的单 HTML 文件，\N打开浏览器就能游玩。
+Dialogue: 3,0:01:21.00,0:01:28.34,Caption,,0,0,0,,项目完全开源，并持续更新。\N你也可以研究代码、修改玩法，或创造自己的版本。
+Dialogue: 3,0:01:30.50,0:01:34.84,Caption,,0,0,0,,迷你游戏合集。\N现在，打开你的下一局。

@@ -1,0 +1,65 @@
+[
+  {
+    "id": "ball",
+    "file": "ball-arena.html",
+    "title": "星团大作战",
+    "tagline": "大规模吞噬竞技",
+    "duration": 20
+  },
+  {
+    "id": "starforge",
+    "file": "starforge-nexus/frontend/index.html",
+    "title": "星炉工坊",
+    "tagline": "生产 · 研究 · 远航 · 战斗 · 星核重启",
+    "duration": 24
+  },
+  {
+    "id": "tank",
+    "file": "tank-arena.html",
+    "title": "霓虹装甲",
+    "tagline": "方位装甲 · 弹道反弹 · 车库构筑",
+    "duration": 10
+  },
+  {
+    "id": "spud",
+    "file": "spud-arena.html",
+    "title": "薯仔突围",
+    "tagline": "武器进化 · 遗物构筑 · 首领战",
+    "duration": 16
+  },
+  {
+    "id": "garden",
+    "file": "garden-front.html",
+    "title": "芽阵前线",
+    "tagline": "18 关远征 · 24 株芽阵",
+    "duration": 16
+  },
+  {
+    "id": "moba",
+    "file": "moba-frontier.html",
+    "title": "晶塔前线",
+    "tagline": "四英雄 · 四种 3V3 规则",
+    "duration": 10
+  },
+  {
+    "id": "shanhai",
+    "file": "shan-hai.html",
+    "title": "山海伏魔录",
+    "tagline": "33 张卡牌 · 双章首领",
+    "duration": 10
+  },
+  {
+    "id": "snake",
+    "file": "snake-game.html",
+    "title": "霓虹贪吃蛇",
+    "tagline": "六种模式 · 18 段远征",
+    "duration": 14
+  },
+  {
+    "id": "matrix",
+    "file": "neon-2048.html",
+    "title": "霓虹 2048",
+    "tagline": "七种模式 · 18 节点远征",
+    "duration": 9
+  }
+]
