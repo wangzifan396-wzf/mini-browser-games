@@ -1,164 +1,3543 @@
 <!doctype html>
 <html lang="zh-CN">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#111a16">
-<title>薯仔突围：丰收行动</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23111915'/%3E%3Cellipse cx='32' cy='34' rx='21' ry='24' fill='%23d7aa5d'/%3E%3Ccircle cx='25' cy='29' r='3'/%3E%3Ccircle cx='40' cy='29' r='3'/%3E%3Cpath d='M23 43c6 5 13 5 19 0' stroke='%23111915' stroke-width='4' stroke-linecap='round' fill='none'/%3E%3C/svg%3E">
-<style>
-:root{color-scheme:dark;--ink:#f7f1df;--muted:#9eaea3;--leaf:#70c77d;--gold:#e5b654;--red:#ee6d62;--cyan:#63cce4;--violet:#b593ee;--panel:rgba(13,23,17,.93);--line:rgba(232,240,219,.16)}
-*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#09110d;color:var(--ink);font-family:"Segoe UI","Microsoft YaHei",system-ui,sans-serif}body{overflow:hidden}button{font:inherit}.app{height:100vh;height:100dvh;padding:10px;display:grid;grid-template-rows:auto minmax(0,1fr);gap:10px;background:radial-gradient(circle at 8% 10%,rgba(91,190,109,.13),transparent 30%),radial-gradient(circle at 92% 85%,rgba(225,173,72,.1),transparent 30%)}
-.topbar,.arena,.side,.card,.overlay-card,.modal-card{border:1px solid var(--line);background:var(--panel);box-shadow:0 18px 48px rgba(0,0,0,.28)}.topbar{min-height:66px;border-radius:16px;padding:9px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{display:flex;align-items:center;gap:11px}.logo{width:43px;height:43px;border-radius:13px;display:grid;place-items:center;color:#1b2118;font-size:24px;font-weight:1000;background:linear-gradient(145deg,#f1c96d,#bd8244);box-shadow:inset 0 0 0 2px rgba(255,255,255,.2)}h1{font-size:clamp(21px,2.5vw,31px);line-height:1;margin:0}.brand p{margin:5px 0 0;color:var(--muted);font-size:11px;font-weight:800}.brand b{color:var(--gold)}
-.actions{display:flex;gap:7px}.btn,.icon-btn,.choice,.upgrade-card,.camp-btn{border:1px solid var(--line);border-radius:11px;background:rgba(32,50,38,.92);color:var(--ink);font-weight:900;cursor:pointer;transition:.15s}.btn:hover,.icon-btn:hover,.choice:hover,.upgrade-card:hover,.camp-btn:hover{transform:translateY(-1px);border-color:rgba(229,182,84,.76)}.btn:disabled,.icon-btn:disabled,.camp-btn:disabled{opacity:.38;cursor:not-allowed;transform:none}.btn{padding:9px 14px}.btn.primary{background:linear-gradient(135deg,#70c77d,#a6d369);color:#132017;border:0}.icon-btn{width:42px;height:42px}.icon-btn.active{border-color:var(--gold);color:var(--gold)}
-.layout{min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 338px;gap:10px}.arena,.side{border-radius:16px;min-width:0;min-height:0}.arena{padding:9px;display:grid;grid-template-rows:auto minmax(0,1fr);gap:8px}.hud{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}.hud div{border:1px solid var(--line);border-radius:11px;padding:7px 9px;background:rgba(255,255,255,.025)}.hud span{display:block;font-size:9px;color:var(--muted);font-weight:900}.hud strong{display:block;font-size:17px;margin-top:2px}.hud .hp strong{color:#83da84}.hud .timer strong{color:var(--gold)}
-.canvas-wrap{position:relative;min-height:0;border:1px solid var(--line);border-radius:13px;overflow:hidden;background:#19271d}canvas{display:block;width:100%;height:100%;touch-action:none}.progress{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);width:min(58%,570px);height:25px;padding:7px 10px;border:1px solid var(--line);border-radius:999px;background:rgba(7,13,9,.8);pointer-events:none}.progress div{height:9px;border-radius:8px;background:rgba(255,255,255,.1);overflow:hidden}.progress i{display:block;width:0;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--leaf),var(--gold),var(--red));transition:width .2s}.progress span{position:absolute;inset:3px;text-align:center;font-size:10px;font-weight:900;text-shadow:0 2px 4px #000}
-.skill-btn,.dash-btn{position:absolute;right:16px;bottom:18px;width:72px;height:72px;border-radius:50%;border:2px solid rgba(238,208,117,.7);background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.2),rgba(104,78,34,.88));color:#fff1b5;font-weight:1000;cursor:pointer;z-index:4}.skill-btn small,.dash-btn small{display:block;font-size:9px;color:#dccb9d}.skill-btn:disabled{filter:grayscale(1);opacity:.5}.dash-btn{display:none;right:97px;width:56px;height:56px;bottom:25px;border-color:rgba(112,199,125,.65);background:rgba(31,73,48,.83);color:#c8f5cc}.joystick{display:none;position:absolute;left:18px;bottom:18px;width:112px;height:112px;border-radius:50%;border:1px solid rgba(255,255,255,.26);background:rgba(5,12,8,.38);backdrop-filter:blur(6px);z-index:4;touch-action:none}.joystick i{position:absolute;left:50%;top:50%;width:46px;height:46px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle at 35% 30%,#dbf1d4,#527d58 62%,#294332);box-shadow:0 8px 18px rgba(0,0,0,.3)}
-.side{padding:9px;display:flex;flex-direction:column;gap:8px;overflow:auto}.card{border-radius:13px;padding:10px}.card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}.card-head strong{font-size:12px}.eyebrow{color:var(--gold);font-size:9px;font-weight:1000;letter-spacing:.08em}.objective{display:flex;gap:9px;align-items:center}.objective-icon{width:39px;height:39px;border-radius:12px;display:grid;place-items:center;font-size:20px;background:rgba(229,182,84,.13)}.objective b{display:block;font-size:13px}.objective small{color:var(--muted);font-size:10px;line-height:1.3}.bar{height:7px;margin-top:7px;border-radius:6px;overflow:hidden;background:rgba(255,255,255,.09)}.bar i{display:block;width:0;height:100%;background:linear-gradient(90deg,var(--cyan),var(--leaf),var(--gold))}
-.chips{display:flex;flex-wrap:wrap;gap:5px}.chip{padding:5px 7px;border:1px solid var(--line);border-radius:8px;background:rgba(255,255,255,.035);font-size:10px}.chip.evolved{border-color:var(--gold);color:#ffe19a}.stats{display:grid;grid-template-columns:1fr 1fr;gap:5px}.stats div{display:flex;justify-content:space-between;padding:6px 7px;border-radius:8px;background:rgba(255,255,255,.03);font-size:10px}.stats span{color:var(--muted)}.log{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:5px;max-height:150px;overflow:auto}.log li{font-size:10px;color:var(--muted);border-left:2px solid rgba(255,255,255,.16);padding-left:7px}.log li.good{color:#90e49b;border-color:var(--leaf)}.log li.warn{color:#ff9b8d;border-color:var(--red)}.log li.gold{color:#f5ca6a;border-color:var(--gold)}
-.overlay,.modal{position:absolute;inset:0;z-index:10;display:grid;place-items:center;padding:16px;background:rgba(5,10,7,.74);backdrop-filter:blur(7px)}.overlay.hidden,.modal.hidden{display:none}.overlay-card,.modal-card{width:min(940px,96%);max-height:94%;overflow:auto;border-radius:20px;padding:18px}.overlay-title{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}.overlay-title h2{font-size:27px;margin:0}.overlay-title h2 b{color:var(--gold)}.overlay-title p{margin:6px 0 0;color:var(--muted);font-size:11px}.save-pill{padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.05);font-size:10px;color:var(--muted)}.setup-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:12px}.setup-section{border:1px solid var(--line);border-radius:14px;padding:11px;background:rgba(255,255,255,.02)}.setup-section h3{font-size:12px;margin:0 0 8px}.hero-grid,.op-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.choice{min-height:67px;padding:8px;text-align:left}.choice b{display:block;font-size:13px}.choice small{display:block;color:var(--muted);font-size:9px;margin-top:4px;line-height:1.3}.choice.selected{border-color:var(--gold);background:rgba(229,182,84,.11)}.danger-row{display:flex;gap:6px;flex-wrap:wrap}.danger-row .choice{min-height:auto;padding:7px 11px;border-radius:999px}.camp{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.camp-btn{padding:8px;text-align:left}.camp-btn b{font-size:11px}.camp-btn span{display:block;color:var(--muted);font-size:9px;margin-top:3px}.camp-btn em{display:block;color:var(--gold);font-style:normal;font-size:9px;margin-top:5px}.start-row{display:flex;justify-content:flex-end;gap:7px;margin-top:11px}
-.result{display:none;text-align:center}.result.show{display:block}.result h2{font-size:29px;margin:0}.result p{color:var(--muted);font-size:11px}.result-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:13px 0}.result-grid div{padding:10px;border-radius:11px;background:rgba(255,255,255,.04)}.result-grid b{display:block;color:var(--gold);font-size:19px}.result-grid span{font-size:9px;color:var(--muted)}
-.modal-card{width:min(780px,95%)}.modal-card h2{margin:2px 0 12px}.upgrade-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.upgrade-card{position:relative;min-height:145px;padding:13px;text-align:left}.upgrade-card .rarity{position:absolute;right:9px;top:8px;font-size:9px;color:var(--muted)}.upgrade-card .up-icon{display:grid;place-items:center;width:36px;height:36px;border-radius:11px;background:rgba(255,255,255,.06);font-size:18px;margin-bottom:9px}.upgrade-card strong{display:block}.upgrade-card p{font-size:10px;color:var(--muted);line-height:1.45}.upgrade-card.rare{border-color:#64cce5}.upgrade-card.epic{border-color:#b593ee}.upgrade-card.legend{border-color:#e5b654}.modal-actions{display:flex;justify-content:space-between;gap:7px;margin-top:10px}.banner{position:absolute;left:50%;top:78px;transform:translate(-50%,-12px);padding:9px 15px;border:1px solid var(--line);border-radius:999px;background:rgba(8,14,10,.88);font-weight:900;font-size:12px;opacity:0;transition:.2s;pointer-events:none;z-index:6}.banner.show{opacity:1;transform:translate(-50%,0)}
-@media(max-width:940px){.app{grid-template-rows:auto minmax(0,1fr)}.layout{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) 235px}.side{display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:min-content}.side .log-card{display:none}.hud{grid-template-columns:repeat(6,1fr)}.setup-grid{grid-template-columns:1fr}.joystick,.dash-btn{display:block}}
-@media(max-width:560px){.app{padding:6px;gap:6px}.topbar{min-height:54px;padding:6px 9px}.logo{width:36px;height:36px}.brand p{display:none}.actions .btn{display:none}.icon-btn{width:36px;height:36px}.layout{grid-template-rows:minmax(0,1fr) 214px;gap:6px}.arena{padding:5px}.hud{gap:3px;grid-template-columns:repeat(3,1fr)}.hud div{padding:4px 6px}.hud span{font-size:8px}.hud strong{font-size:13px}.side{padding:6px;grid-template-columns:1fr 1fr;gap:5px}.card{padding:7px}.stats{display:none}.skill-btn{width:62px;height:62px}.progress{width:52%;bottom:6px}.overlay{padding:7px}.overlay-card{padding:12px}.overlay-title{display:block}.setup-grid{gap:7px}.setup-section{padding:8px}.hero-grid,.op-grid{gap:5px}.choice{min-height:58px;padding:6px}.camp{grid-template-columns:1fr}.camp-btn{display:flex;justify-content:space-between;align-items:center}.camp-btn span{display:none}.upgrade-grid{grid-template-columns:1fr}.upgrade-card{min-height:105px}.result-grid{grid-template-columns:repeat(2,1fr)}}
-</style>
-</head>
-<body>
-<main class="app">
- <header class="topbar"><div class="brand"><div class="logo">薯</div><div><h1>薯仔突围 <b>V2</b></h1><p>丰收行动 · 自动射击构筑肉鸽</p></div></div><div class="actions"><button class="icon-btn" id="speedBtn" title="倍速">1×</button><button class="icon-btn" id="pauseBtn" title="暂停">Ⅱ</button><button class="btn" id="homeBtn">行动营地</button><button class="icon-btn" id="restartBtn" title="重开">↻</button></div></header>
- <div class="layout">
-  <section class="arena">
-   <div class="hud"><div class="timer"><span>行动时间</span><strong id="timeStat">00:00</strong></div><div class="hp"><span>气血 / 护盾</span><strong id="hpStat">60/60</strong></div><div><span>等级</span><strong id="levelStat">1</strong></div><div><span>击倒</span><strong id="killStat">0</strong></div><div><span>晶薯</span><strong id="crystalStat">0</strong></div><div><span>阶段</span><strong id="stageStat">1</strong></div></div>
-   <div class="canvas-wrap"><canvas id="gameCanvas" aria-label="薯仔突围战场"></canvas><div class="banner" id="banner">阶段开始</div><div class="progress"><div><i id="runBar"></i></div><span id="runText">选择行动</span></div><button class="dash-btn" id="dashBtn">冲刺<small>Shift</small></button><button class="skill-btn" id="skillBtn" disabled>战技<small id="skillText">0%</small></button><div class="joystick" id="joystick"><i id="joystickThumb"></i></div>
-    <div class="overlay" id="homeOverlay"><div class="overlay-card"><div id="setupView"><div class="overlay-title"><div><h2>丰收行动：<b>整装出发</b></h2><p>选择战薯与行动区域；击败敌人，把晶薯带回营地强化下一轮。</p></div><div class="save-pill" id="savePill">营地晶薯 0</div></div><div class="setup-grid"><section class="setup-section"><h3>选择战薯</h3><div class="hero-grid" id="heroGrid"></div></section><section class="setup-section"><h3>选择行动</h3><div class="op-grid" id="opGrid"></div></section><section class="setup-section"><h3>危险度</h3><div class="danger-row" id="dangerGrid"></div></section><section class="setup-section"><h3>营地永久强化</h3><div class="camp" id="campGrid"></div></section></div><div class="start-row"><button class="btn primary" id="startBtn">开始突围</button></div></div>
-      <div class="result" id="resultView"><h2 id="resultTitle">行动结束</h2><p id="resultText"></p><div class="result-grid"><div><b id="resultTime">00:00</b><span>存活</span></div><div><b id="resultKills">0</b><span>击倒</span></div><div><b id="resultCores">0</b><span>带回晶薯</span></div><div><b id="resultBoss">0</b><span>首领</span></div></div><div class="start-row" style="justify-content:center"><button class="btn" id="againBtn">同配置再战</button><button class="btn primary" id="resultHomeBtn">返回营地</button></div></div></div></div>
-   </div>
-  </section>
-  <aside class="side"><section class="card"><div class="objective"><div class="objective-icon" id="opIcon">🌱</div><div><b id="opTitle">行动待命</b><small id="opText">在营地选择一次行动</small></div></div><div class="bar"><i id="skillBar"></i></div></section><section class="card"><div class="card-head"><strong>武器构筑</strong><span class="eyebrow" id="weaponSlots">0/6</span></div><div class="chips" id="weaponList"></div></section><section class="card"><div class="card-head"><strong>战斗属性</strong><span class="eyebrow" id="relicCount">0 遗物</span></div><div class="stats" id="statList"></div></section><section class="card log-card"><div class="card-head"><strong>战况记录</strong><span class="eyebrow">LIVE</span></div><ol class="log" id="logList"></ol></section></aside>
- </div>
-</main>
-<div class="modal hidden" id="upgradeModal"><div class="modal-card"><span class="eyebrow" id="modalKicker">等级提升</span><h2 id="modalTitle">选择一项强化</h2><div class="upgrade-grid" id="upgradeChoices"></div><div class="modal-actions"><button class="btn" id="rerollBtn">重抽（3）</button><button class="btn" id="healSkipBtn">转化为 15% 治疗</button></div></div></div>
-<script>
-"use strict";
-const $=s=>document.querySelector(s),canvas=$("#gameCanvas"),ctx=canvas.getContext("2d"),SAVE_KEY="spudHarvestV2";
-const ui={time:$("#timeStat"),hp:$("#hpStat"),level:$("#levelStat"),kills:$("#killStat"),crystal:$("#crystalStat"),stage:$("#stageStat"),runBar:$("#runBar"),runText:$("#runText"),skill:$("#skillBtn"),skillText:$("#skillText"),skillBar:$("#skillBar"),weapons:$("#weaponList"),slots:$("#weaponSlots"),stats:$("#statList"),relicCount:$("#relicCount"),logs:$("#logList"),overlay:$("#homeOverlay"),setup:$("#setupView"),result:$("#resultView"),upgrade:$("#upgradeModal"),choices:$("#upgradeChoices"),banner:$("#banner")};
-const WORLD={w:2800,h:1900},MAX_WEAPONS=6;
-const HEROES={captain:{name:"原皮队长",icon:"🥔",desc:"均衡可靠 · 战技震荡全场",hp:68,speed:250,weapons:["twig","pan"],skill:"薯能震荡"},scout:{name:"脆皮斥候",icon:"⚡",desc:"移速与暴击更高 · 战技极速穿行",hp:48,speed:285,weapons:["seed","boomer"],crit:.1,skill:"金皮疾走"},warden:{name:"铁皮卫士",icon:"🛡",desc:"高气血护甲 · 战技展开锅盖壁垒",hp:88,speed:225,weapons:["pan","orbit"],armor:3,skill:"锅盖壁垒"},sage:{name:"芽眼园丁",icon:"🌱",desc:"自愈与拾取增强 · 战技回春聚宝",hp:58,speed:245,weapons:["spark","spore"],regen:.25,pickup:1.35,skill:"萌芽回春"}};
-const OPERATIONS={meadow:{name:"青苗防线",icon:"🌱",duration:240,diff:.86,desc:"四分钟标准行动，资源充足。",ground:"#294934",accent:"#6ebd6d",pool:["grunt","runner","brute","spitter"]},night:{name:"菌雾夜袭",icon:"🌙",duration:300,diff:1.02,desc:"浓雾压缩视野，远程敌人增多。",ground:"#222f3b",accent:"#8172ba",pool:["grunt","runner","spitter","burrow","healer"]},foundry:{name:"铁锅工坊",icon:"🔥",duration:360,diff:1.16,desc:"灼热区域周期出现，重装敌群压境。",ground:"#44352d",accent:"#c66f4d",pool:["grunt","brute","spitter","charger","healer","splitter"]},endless:{name:"无尽丰收",icon:"∞",duration:99999,diff:1.08,desc:"每五分钟出现首领，强度持续增长。",ground:"#343345",accent:"#b28bd8",pool:["grunt","runner","brute","spitter","charger","burrow","healer","splitter"]}};
-const DANGERS=[{name:"训练",mult:.78,reward:.7},{name:"普通",mult:1,reward:1},{name:"硬核",mult:1.25,reward:1.45},{name:"噩梦",mult:1.55,reward:2}];
-const WEAPONS={
- twig:{name:"树枝枪",icon:"枝",type:"bullet",cooldown:.48,damage:9,speed:780,range:580,count:1,spread:.1,pierce:0,color:"#e2b65b",evo:"千枝齐发"},
- pan:{name:"平底锅",icon:"锅",type:"melee",cooldown:1.05,damage:19,range:78,count:1,color:"#ad8245",evo:"回旋铁宴"},
- spark:{name:"电芽",icon:"电",type:"chain",cooldown:1.6,damage:13,range:290,count:3,color:"#59c9ea",evo:"雷根网络"},
- seed:{name:"豆籽铳",icon:"籽",type:"bullet",cooldown:.92,damage:8,speed:690,range:470,count:4,spread:.17,pierce:0,color:"#78cd70",evo:"丰收风暴"},
- boomer:{name:"回旋薯片",icon:"旋",type:"boomer",cooldown:1.25,damage:16,speed:510,range:510,count:1,spread:.25,pierce:5,color:"#f0c879",evo:"黄金涡轮"},
- orbit:{name:"锅盖卫星",icon:"环",type:"orbit",cooldown:1.28,damage:17,range:105,count:3,color:"#94a4a4",evo:"六锅星阵"},
- spore:{name:"孢泥罐",icon:"菌",type:"field",cooldown:2.4,damage:8,range:350,count:1,color:"#ad83dc",evo:"万菌温床"},
- rocket:{name:"芽尖火箭",icon:"箭",type:"rocket",cooldown:1.9,damage:35,speed:390,range:650,count:1,pierce:0,color:"#ee795c",evo:"薯星坠落"}
-};
-const ENEMIES={
- grunt:{name:"田鼠芽",r:18,hp:27,speed:88,damage:8,xp:9,color:"#89b96d"},runner:{name:"快苗",r:14,hp:17,speed:142,damage:6,xp:6,color:"#76d274"},brute:{name:"厚皮萝卜",r:27,hp:68,speed:61,damage:14,xp:17,color:"#b77a4f"},spitter:{name:"孢子射手",r:17,hp:28,speed:70,damage:7,xp:13,color:"#9670c5",ranged:true},charger:{name:"角盔冲锋手",r:22,hp:55,speed:75,damage:17,xp:18,color:"#d37855",charger:true},burrow:{name:"地钻虫",r:16,hp:35,speed:102,damage:10,xp:15,color:"#8d705c",burrow:true},healer:{name:"蜜露医师",r:19,hp:44,speed:66,damage:7,xp:20,color:"#68c59a",healer:true},splitter:{name:"团团菇",r:24,hp:54,speed:74,damage:11,xp:16,color:"#c2b75e",splitter:true},elite:{name:"锅盖甲虫",r:35,hp:260,speed:74,damage:22,xp:65,color:"#b44f5d",elite:true},boss:{name:"铁锅王",r:58,hp:1900,speed:57,damage:31,xp:0,color:"#813f45",boss:true,ranged:true}
-};
-const RELICS=[
- {id:"garlic",icon:"蒜",title:"蒜香护符",desc:"获得 25 护盾，每阶段再补充 8。",apply:p=>{p.shield+=25;p.maxShield+=25}},
- {id:"thorn",icon:"刺",title:"反口薯皮",desc:"受到接触伤害时反弹 45% 伤害。",apply:p=>p.thorns+=.45},
- {id:"leech",icon:"饮",title:"红汁吸管",desc:"击倒敌人有 8% 概率回复 2 气血。",apply:p=>p.leech+=.08},
- {id:"clock",icon:"钟",title:"急收怀表",desc:"所有武器冷却额外缩短 14%。",apply:p=>p.cooldownMult*=.86},
- {id:"crown",icon:"冠",title:"丰收王冠",desc:"精英与首领受到伤害 +25%。",apply:p=>p.eliteDamage+=.25},
- {id:"boots",icon:"跃",title:"弹簧芽靴",desc:"冲刺冷却 -35%，冲刺留下伤害轨迹。",apply:p=>{p.dashMult*=.65;p.dashTrail=true}},
- {id:"lens",icon:"镜",title:"芽眼镜片",desc:"暴击率 +12%，暴击伤害 +35%。",apply:p=>{p.crit+=.12;p.critDamage+=.35}},
- {id:"second",icon:"复",title:"备用芽眼",desc:"本局倒下时复活一次并回复 50%。",apply:p=>p.revives++}
-];
-const PASSIVES=[
- {id:"damage",icon:"伤",title:"尖刺芽",desc:"所有武器伤害 +16%。",apply:p=>p.damageMult+=.16},
- {id:"speed",icon:"速",title:"滑皮靴",desc:"移动速度 +11%。",apply:p=>p.speedMult+=.11},
- {id:"rate",icon:"频",title:"急性子",desc:"攻击冷却 -10%。",apply:p=>p.cooldownMult*=.9},
- {id:"hp",icon:"血",title:"厚薯皮",desc:"最大气血 +12 并回复 12。",apply:p=>{p.maxHp+=12;p.hp=Math.min(p.maxHp,p.hp+12)}},
- {id:"regen",icon:"愈",title:"发芽自愈",desc:"每秒回复 +0.3。",apply:p=>p.regen+=.3},
- {id:"magnet",icon:"吸",title:"磁铁根须",desc:"拾取范围 +35%。",apply:p=>p.pickupMult+=.35},
- {id:"armor",icon:"甲",title:"锅盖甲",desc:"护甲 +2。",apply:p=>p.armor+=2},
- {id:"area",icon:"域",title:"膨大薯块",desc:"范围效果尺寸 +15%。",apply:p=>p.areaMult+=.15},
- {id:"crit",icon:"暴",title:"芽眼瞄具",desc:"暴击率 +8%。",apply:p=>p.crit+=.08},
- {id:"skill",icon:"技",title:"丰收电池",desc:"战技能量获取 +25%。",apply:p=>p.skillGain+=.25}
-];
-const CAMP={power:{name:"磨尖树枝",desc:"每级伤害 +4%",max:8,cost:n=>12+n*11},vitality:{name:"加厚薯皮",desc:"每级气血 +3",max:8,cost:n=>10+n*10},fortune:{name:"丰收背包",desc:"每级结算晶薯 +5%",max:8,cost:n=>15+n*13}};
-let save=loadSave(),selectedHero="captain",selectedOp="meadow",selectedDanger=1,state,last=0,raf=0,timeScale=1,upgradeOptions=[],bannerTimer=0;
-const keys=new Set(),pointer={active:false,x:0,y:0},joy={active:false,id:null,x:0,y:0};
-function loadSave(){try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||"null");return s&&s.v===2?s:{v:2,cores:0,camp:{power:0,vitality:0,fortune:0},best:{},totalKills:0,bosses:0}}catch{return{v:2,cores:0,camp:{power:0,vitality:0,fortune:0},best:{},totalKills:0,bosses:0}}}
-function storeSave(){localStorage.setItem(SAVE_KEY,JSON.stringify(save))}
-function createState(){const h=HEROES[selectedHero],op=OPERATIONS[selectedOp],danger=DANGERS[selectedDanger],maxHp=h.hp+(save.camp.vitality||0)*3;return{mode:"ready",paused:false,hero:selectedHero,op:selectedOp,danger:selectedDanger,elapsed:0,duration:op.duration,stage:1,nextStage:60,spawnCd:.3,nextElite:48-selectedDanger*5,eventAt:42,bossSpawned:false,nextBossAt:op.duration,camera:{x:0,y:0},player:{x:WORLD.w/2,y:WORLD.h/2,r:22,hp:maxHp,maxHp,shield:0,maxShield:0,level:1,xp:0,xpNext:25,crystals:0,speed:h.speed,speedMult:1,damageMult:1+(save.camp.power||0)*.04,cooldownMult:1,pickupMult:h.pickup||1,regen:h.regen||0,armor:h.armor||0,crit:h.crit||.03,critDamage:1.7,areaMult:1,skill:0,skillGain:1,invuln:0,dashCd:0,dashTime:0,dashX:1,dashY:0,dashMult:1,dashTrail:false,thorns:0,leech:0,eliteDamage:0,revives:0,weapons:h.weapons.map(k=>({key:k,level:1,cd:Math.random()*.3,evolved:false})),passives:{},relics:[]},enemies:[],bullets:[],shots:[],hits:[],fields:[],drops:[],hazards:[],particles:[],floaters:[],logs:[],pending:0,upgradeType:"level",rerolls:3,killCount:0,bossKills:0,nextId:1}}
-function id(){return ++state.nextId}const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),rand=(a,b)=>a+Math.random()*(b-a),rint=(a,b)=>Math.floor(rand(a,b+1)),d2=(a,b,c,d)=>(a-c)**2+(b-d)**2;
-function renderHome(){ui.setup.style.display="block";ui.result.classList.remove("show");$("#savePill").textContent=`营地晶薯 ${save.cores} · 总击倒 ${save.totalKills||0}`;$("#heroGrid").innerHTML=Object.entries(HEROES).map(([k,h])=>`<button class="choice ${selectedHero===k?"selected":""}" data-hero="${k}"><b>${h.icon} ${h.name}</b><small>${h.desc}<br>初始：${h.weapons.map(w=>WEAPONS[w].name).join(" + ")}</small></button>`).join("");$("#opGrid").innerHTML=Object.entries(OPERATIONS).map(([k,o])=>`<button class="choice ${selectedOp===k?"selected":""}" data-op="${k}"><b>${o.icon} ${o.name}</b><small>${o.desc}<br>${k==="endless"?`纪录 ${format(save.best[k]||0)}`:format(o.duration)}</small></button>`).join("");$("#dangerGrid").innerHTML=DANGERS.map((d,i)=>`<button class="choice ${selectedDanger===i?"selected":""}" data-danger="${i}">${d.name} ×${d.reward}</button>`).join("");$("#campGrid").innerHTML=Object.entries(CAMP).map(([k,c])=>{const lv=save.camp[k]||0,cost=c.cost(lv),max=lv>=c.max;return `<button class="camp-btn" data-camp="${k}" ${max||save.cores<cost?"disabled":""}><b>${c.name} Lv.${lv}</b><span>${c.desc}</span><em>${max?"已满级":`晶薯 ${cost}`}</em></button>`}).join("");document.querySelectorAll("[data-hero]").forEach(b=>b.onclick=()=>{selectedHero=b.dataset.hero;renderHome()});document.querySelectorAll("[data-op]").forEach(b=>b.onclick=()=>{selectedOp=b.dataset.op;renderHome()});document.querySelectorAll("[data-danger]").forEach(b=>b.onclick=()=>{selectedDanger=+b.dataset.danger;renderHome()});document.querySelectorAll("[data-camp]").forEach(b=>b.onclick=()=>buyCamp(b.dataset.camp))}
-function buyCamp(k){const c=CAMP[k],lv=save.camp[k]||0,cost=c.cost(lv);if(lv>=c.max||save.cores<cost)return;save.cores-=cost;save.camp[k]=lv+1;storeSave();renderHome()}
-function resetRun(){state=createState();timeScale=1;$("#speedBtn").textContent="1×";$("#speedBtn").classList.remove("active");ui.upgrade.classList.add("hidden");sync();draw()}
-function startRun(){resetRun();state.mode="running";state.paused=false;ui.overlay.classList.add("hidden");last=performance.now();addLog(`${HEROES[state.hero].name}进入${OPERATIONS[state.op].name}。`,"good");showBanner(`${OPERATIONS[state.op].icon} ${OPERATIONS[state.op].name}`);if(!raf)raf=requestAnimationFrame(loop)}
-function loop(t){raf=requestAnimationFrame(loop);const dt=Math.min(.033,(t-last)/1000||0);last=t;if(state.mode==="running"&&!state.paused)update(dt*timeScale);draw()}
-function update(dt){state.elapsed+=dt;updatePlayer(dt);updateWeapons(dt);updateFields(dt);updateEnemies(dt);updateBullets(dt);updateShots(dt);updateHits(dt);updateDrops(dt);updateHazards(dt);updateFx(dt);director(dt);cleanup();if(state.elapsed>=state.nextStage){state.stage++;state.nextStage+=60;state.player.shield=Math.min(state.player.maxShield,state.player.shield+8);showBanner(`阶段 ${state.stage} · 敌群强化`)}if(state.elapsed>=state.nextBossAt&&!state.bossSpawned)spawnBoss();sync()}
-function inputVector(){let x=0,y=0;if(keys.has("KeyW")||keys.has("ArrowUp"))y--;if(keys.has("KeyS")||keys.has("ArrowDown"))y++;if(keys.has("KeyA")||keys.has("ArrowLeft"))x--;if(keys.has("KeyD")||keys.has("ArrowRight"))x++;if(joy.active){x+=joy.x;y+=joy.y}else if(pointer.active){const r=canvas.getBoundingClientRect(),px=pointer.x-r.left-r.width/2,py=pointer.y-r.top-r.height/2,l=Math.hypot(px,py);if(l>15){x+=px/l;y+=py/l}}return{x,y,l:Math.hypot(x,y)}}
-function updatePlayer(dt){const p=state.player,v=inputVector();p.dashCd=Math.max(0,p.dashCd-dt);p.invuln=Math.max(0,p.invuln-dt);p.speedBuff=Math.max(0,(p.speedBuff||0)-dt);if((keys.has("ShiftLeft")||keys.has("ShiftRight"))&&p.dashCd<=0&&v.l)dash();const moveBoost=p.speedBuff>0?1.65:1;if(p.dashTime>0){p.dashTime-=dt;p.x+=p.dashX*p.speed*p.speedMult*3.2*dt;p.y+=p.dashY*p.speed*p.speedMult*3.2*dt;if(p.dashTrail&&Math.random()<.45)state.fields.push({x:p.x,y:p.y,r:42,damage:12,duration:.7,tick:0,color:"#efc95f"})}else if(v.l){p.x+=v.x/v.l*p.speed*p.speedMult*moveBoost*dt;p.y+=v.y/v.l*p.speed*p.speedMult*moveBoost*dt}p.x=clamp(p.x,p.r,WORLD.w-p.r);p.y=clamp(p.y,p.r,WORLD.h-p.r);if(p.regen&&p.hp<p.maxHp)p.hp=Math.min(p.maxHp,p.hp+p.regen*dt);state.camera.x=clamp(p.x-canvas.width/2,0,Math.max(0,WORLD.w-canvas.width));state.camera.y=clamp(p.y-canvas.height/2,0,Math.max(0,WORLD.h-canvas.height))}
-function dash(){const p=state.player,v=inputVector();if(!v.l||p.dashCd>0)return;p.dashX=v.x/v.l;p.dashY=v.y/v.l;p.dashTime=.2;p.dashCd=5*p.dashMult;p.invuln=.42;burstFx(p.x,p.y,"#f2ce69",18)}
-function useSkill(){const p=state.player;if(state.mode!=="running"||state.paused||p.skill<100)return;p.skill=0;if(state.hero==="captain"){p.invuln=1;state.enemies.forEach(e=>{const d=Math.hypot(e.x-p.x,e.y-p.y);if(d<520)deal(e,Math.round(95*(1-d/900)),true)});state.hits.push({x:p.x,y:p.y,r:520,damage:0,life:.65,max:.65,color:"#f0cd6b",hit:new Set()})}else if(state.hero==="scout"){p.invuln=3.5;p.speedBuff=3.5;p.dashCd=0;state.fields.push({x:p.x,y:p.y,r:80,damage:24,duration:3.5,tick:0,color:"#f2d978",follow:true})}else if(state.hero==="warden"){p.maxShield=Math.max(p.maxShield,60);p.shield=Math.min(p.maxShield,p.shield+60);state.fields.push({x:p.x,y:p.y,r:150,damage:22,duration:5,tick:0,color:"#92b4ad",follow:true})}else{p.hp=Math.min(p.maxHp,p.hp+p.maxHp*.38);magnetize();state.enemies.filter(e=>Math.hypot(e.x-p.x,e.y-p.y)<400).forEach(e=>e.slow=5)}showBanner(`${HEROES[state.hero].skill}！`);sync()}
-function updateWeapons(dt){for(const w of state.player.weapons){w.cd-=dt;if(w.cd>0)continue;const d=WEAPONS[w.key],target=nearest(d.range*(1+(w.level-1)*.03));if(!target)continue;fireWeapon(w,d,target);w.cd=d.cooldown*state.player.cooldownMult*Math.max(.52,1-(w.level-1)*.055)*(w.evolved?.7:1)}}
-function nearest(range){let best=null,bd=range*range;for(const e of state.enemies){const q=d2(e.x,e.y,state.player.x,state.player.y);if(!e.dead&&q<bd){best=e;bd=q}}return best}
-function nearestMany(range,n){return state.enemies.filter(e=>!e.dead&&d2(e.x,e.y,state.player.x,state.player.y)<range*range).sort((a,b)=>d2(a.x,a.y,state.player.x,state.player.y)-d2(b.x,b.y,state.player.x,state.player.y)).slice(0,n)}
-function fireWeapon(w,d,t){const p=state.player,lv=w.level,evo=w.evolved,area=p.areaMult;if(d.type==="melee"){const a=Math.atan2(t.y-p.y,t.x-p.x),count=evo?3:1;for(let i=0;i<count;i++){const q=a+(i-(count-1)/2)*1.35;state.hits.push({x:p.x+Math.cos(q)*45,y:p.y+Math.sin(q)*45,r:(d.range+lv*6)*area,damage:scaled(d.damage+lv*4),life:.18,max:.18,color:d.color,hit:new Set()})}}else if(d.type==="chain"){let last={x:p.x,y:p.y};nearestMany(d.range,evo?7:Math.min(6,d.count+Math.floor(lv/2))).forEach((e,i)=>{deal(e,scaled(d.damage+lv*2)*Math.pow(.9,i));beam(last.x,last.y,e.x,e.y,d.color);last=e})}else if(d.type==="orbit"){const n=(evo?6:3)+Math.floor(lv/2);for(let i=0;i<n;i++){const a=performance.now()*.002+i*Math.PI*2/n,x=p.x+Math.cos(a)*(d.range+lv*4),y=p.y+Math.sin(a)*(d.range+lv*4);state.hits.push({x,y,r:27*area,damage:scaled(d.damage+lv*3),life:.28,max:.28,color:d.color,hit:new Set()})}}else if(d.type==="field"){state.fields.push({x:t.x,y:t.y,r:(70+lv*8)*(evo?1.35:1)*area,damage:scaled(d.damage+lv*2),duration:evo?6:4,tick:0,color:d.color,slow:evo?.45:.2})}else{const count=(d.count||1)+Math.floor((lv-1)/2)+(evo?2:0),base=Math.atan2(t.y-p.y,t.x-p.x);for(let i=0;i<count;i++){const a=base+(i-(count-1)/2)*(d.spread||.1),boomer=d.type==="boomer";state.bullets.push({id:id(),type:d.type,x:p.x,y:p.y,vx:Math.cos(a)*d.speed,vy:Math.sin(a)*d.speed,speed:d.speed,r:d.type==="rocket"?8:6,damage:scaled(d.damage+lv*(d.type==="rocket"?6:2)),pierce:(d.pierce||0)+Math.floor(lv/3),life:d.range/d.speed*(boomer?2:1.2),maxLife:d.range/d.speed*(boomer?2:1.2),color:d.color,homing:d.type==="rocket",splash:d.type==="rocket"?(80+lv*8)*area:0,boomer,evolved:evo})}}}
-function scaled(n){return Math.round(n*state.player.damageMult)}
-function updateFields(dt){for(const f of state.fields){f.duration-=dt;f.tick-=dt;if(f.follow){f.x=state.player.x;f.y=state.player.y}if(f.tick<=0){f.tick=.48;for(const e of state.enemies){if(!e.dead&&d2(e.x,e.y,f.x,f.y)<(e.r+f.r)**2){deal(e,f.damage);if(f.slow)e.slow=Math.max(e.slow||0,1.1)}}}}}
-function updateEnemies(dt){const p=state.player;for(const e of state.enemies){e.flash=Math.max(0,e.flash-dt);e.attack=Math.max(0,e.attack-dt);e.slow=Math.max(0,(e.slow||0)-dt);e.special=(e.special||0)-dt;const dist=Math.hypot(p.x-e.x,p.y-e.y),a=Math.atan2(p.y-e.y,p.x-e.x);let move=e.speed*(e.slow>0?.58:1),intent=1;if(e.burrow&&dist>190){e.hidden=true;move*=1.5}else e.hidden=false;if(e.charger&&e.special<=0&&dist<430){e.charge=1.1;e.special=4.5}if(e.charge>0){e.charge-=dt;move*=2.5}if(e.healer&&e.special<=0){e.special=4.2;state.enemies.filter(q=>q!==e&&d2(q.x,q.y,e.x,e.y)<180**2).forEach(q=>q.hp=Math.min(q.maxHp,q.hp+28*(1+state.stage*.1)));ring(e.x,e.y,80,"#76d9a8")}if(e.ranged){if(dist<e.prefer*.7)intent=-.45;else if(dist<e.prefer)intent=.12;e.shot=(e.shot||rand(.2,1))-dt;if(e.shot<=0&&dist<e.range){fireEnemyShot(e,a);e.shot=e.boss?1.45:Math.max(.78,1.8-state.danger*.16)}}e.x+=Math.cos(a)*move*intent*dt;e.y+=Math.sin(a)*move*intent*dt;if(e.boss&&e.special<=0){e.special=3;for(let i=0;i<10;i++)fireEnemyShot(e,i*Math.PI/5);if(Math.random()<.5)for(let i=0;i<3;i++)spawnEnemyAt("runner",e.x+rand(-70,70),e.y+rand(-70,70))}if(dist<e.r+p.r&&e.attack<=0){hurtPlayer(e.damage,e);e.attack=.58}}state.enemies=state.enemies.filter(e=>!e.dead)}
-function fireEnemyShot(e,a){state.shots.push({x:e.x,y:e.y,vx:Math.cos(a)*(e.boss?270:235),vy:Math.sin(a)*(e.boss?270:235),r:e.boss?8:6,damage:e.boss?16+state.danger*3:7+state.stage*1.2,life:4,color:e.color})}
-function updateBullets(dt){for(const b of state.bullets){b.life-=dt;if(b.homing){const t=nearest(500);if(t){const desired=Math.atan2(t.y-b.y,t.x-b.x),cur=Math.atan2(b.vy,b.vx),a=cur+angleDiff(cur,desired)*dt*4;b.vx=Math.cos(a)*b.speed;b.vy=Math.sin(a)*b.speed}}if(b.boomer&&b.life<b.maxLife/2){const a=Math.atan2(state.player.y-b.y,state.player.x-b.x);b.vx+=Math.cos(a)*b.speed*dt*3;b.vy+=Math.sin(a)*b.speed*dt*3;const l=Math.hypot(b.vx,b.vy);b.vx=b.vx/l*b.speed;b.vy=b.vy/l*b.speed}b.x+=b.vx*dt;b.y+=b.vy*dt;for(const e of state.enemies){if(e.dead||b.hit?.has(e.id)||d2(b.x,b.y,e.x,e.y)>(b.r+e.r)**2)continue;if(!b.hit)b.hit=new Set();b.hit.add(e.id);deal(e,b.damage);if(b.splash){state.enemies.filter(q=>!q.dead&&q!==e&&d2(q.x,q.y,e.x,e.y)<b.splash**2).forEach(q=>deal(q,b.damage*.55));ring(e.x,e.y,b.splash,b.color);b.life=0}else if(b.pierce--<=0)b.life=0;break}}}
-function angleDiff(a,b){return Math.atan2(Math.sin(b-a),Math.cos(b-a))}
-function updateShots(dt){const p=state.player;for(const s of state.shots){s.life-=dt;s.x+=s.vx*dt;s.y+=s.vy*dt;if(d2(s.x,s.y,p.x,p.y)<(s.r+p.r)**2){hurtPlayer(s.damage,null);s.life=0}}}
-function updateHits(dt){for(const h of state.hits){h.life-=dt;if(h.damage<=0)continue;for(const e of state.enemies){if(e.dead||h.hit.has(e.id)||d2(h.x,h.y,e.x,e.y)>(h.r+e.r)**2)continue;h.hit.add(e.id);deal(e,h.damage)}}}
-function deal(e,n,forceCrit=false){if(e.hidden)return;const p=state.player,crit=forceCrit||Math.random()<p.crit,mult=(e.elite||e.boss)?1+p.eliteDamage:1,amount=Math.max(1,Math.round(n*mult*(crit?p.critDamage:1)));e.hp-=amount;e.flash=.09;state.floaters.push({x:e.x,y:e.y-e.r,text:crit?`✦${amount}`:amount,life:.45,color:crit?"#ffe477":"#fff3d1"});if(e.hp<=0&&!e.dead)killEnemy(e)}
-function hurtPlayer(n,source){const p=state.player;if(p.invuln>0||Math.random()<Math.min(.25,p.dodge||0))return;let amount=Math.max(1,Math.round(n-p.armor*.65));if(p.shield>0){const used=Math.min(p.shield,amount);p.shield-=used;amount-=used}if(amount>0)p.hp-=amount;p.invuln=.35;state.floaters.push({x:p.x,y:p.y-32,text:`-${amount}`,life:.5,color:"#ff8175"});if(source&&p.thorns)deal(source,amount*p.thorns);if(p.hp<=0){if(p.revives>0){p.revives--;p.hp=p.maxHp*.5;p.invuln=2;showBanner("备用芽眼让你重新站起！")}else endRun(false)}}
-function killEnemy(e){e.dead=true;state.killCount++;state.player.skill=Math.min(100,state.player.skill+(e.boss?100:e.elite?30:2.2)*state.player.skillGain);burstFx(e.x,e.y,e.color,e.boss?28:10);state.drops.push({type:"xp",x:e.x,y:e.y,value:e.xp||0,r:6,color:"#74d68a"});if(Math.random()<(e.elite?1:.1))state.drops.push({type:"crystal",x:e.x+rand(-12,12),y:e.y+rand(-12,12),value:e.elite?8:rint(1,2),r:8,color:"#e3bb57"});if(Math.random()<.025)state.drops.push({type:"heal",x:e.x,y:e.y,value:10,r:9,color:"#ef7771"});if(e.splitter)for(let i=0;i<2;i++)spawnEnemyAt("runner",e.x+rand(-20,20),e.y+rand(-20,20));if(e.elite){state.drops.push({type:"crate",x:e.x,y:e.y-15,value:1,r:13,color:"#b58be5"});addLog("精英倒下，遗物箱落地。","gold")}if(e.boss){state.bossKills++;save.bosses=(save.bosses||0)+1;if(state.op==="endless"){state.bossSpawned=false;state.nextBossAt+=300;state.drops.push({type:"crate",x:e.x,y:e.y,value:1,r:14,color:"#f2c65e"});showBanner("首领击倒，无尽行动继续") }else endRun(true)}if(state.player.leech&&Math.random()<state.player.leech)state.player.hp=Math.min(state.player.maxHp,state.player.hp+2)}
-function updateDrops(dt){const p=state.player,range=78*p.pickupMult;for(const d of state.drops){const dist=Math.hypot(p.x-d.x,p.y-d.y);if(dist<range*3){const pull=clamp(1-dist/(range*3),.08,1)*700;d.x+=(p.x-d.x)/Math.max(1,dist)*pull*dt;d.y+=(p.y-d.y)/Math.max(1,dist)*pull*dt}if(dist<p.r+d.r+8){d.dead=true;if(d.type==="xp")gainXp(d.value);else if(d.type==="crystal")p.crystals+=d.value;else if(d.type==="heal")p.hp=Math.min(p.maxHp,p.hp+d.value);else if(d.type==="crate")openRelic()}}}
-function gainXp(n){const p=state.player;p.xp+=n;while(p.xp>=p.xpNext){p.xp-=p.xpNext;p.level++;p.xpNext=Math.round(p.xpNext*1.2+7);state.pending++}if(state.pending>0&&ui.upgrade.classList.contains("hidden"))openUpgrade("level")}
-function director(dt){state.spawnCd-=dt;if(state.elapsed>=state.nextElite&&!state.bossSpawned){spawnEnemy("elite");state.nextElite+=Math.max(38,68-state.danger*7-state.stage*3);addLog("精英锅盖甲虫闯入战场。","warn")}if(state.elapsed>=state.eventAt&&!state.bossSpawned){triggerEvent();state.eventAt+=50+rand(-5,8)}if(state.spawnCd<=0&&!state.bossSpawned){const op=OPERATIONS[state.op],count=Math.min(9,1+Math.floor(state.stage/2)+Math.floor(state.danger/2));for(let i=0;i<count;i++){let pool=op.pool.filter(k=>availableEnemy(k));spawnEnemy(pool[rint(0,pool.length-1)])}state.spawnCd=Math.max(.18,.9-state.stage*.055-state.danger*.08)}}
-function availableEnemy(k){if(k==="charger")return state.elapsed>75;if(k==="healer")return state.elapsed>105;if(k==="splitter")return state.elapsed>150;if(k==="burrow")return state.elapsed>55;return true}
-function triggerEvent(){const roll=rint(0,3);if(roll===0){showBanner("⚠ 快苗迁徙");for(let i=0;i<12+state.stage;i++)spawnEnemy("runner")}else if(roll===1){showBanner("✦ 丰收磁暴");for(let i=0;i<10;i++)state.drops.push({type:"xp",x:state.player.x+rand(-320,320),y:state.player.y+rand(-260,260),value:8,r:7,color:"#78df8a"})}else if(roll===2){showBanner("⚠ 灼热孢坑");for(let i=0;i<5;i++)addHazard()}else{showBanner("⚠ 重装小队");for(let i=0;i<4+state.stage/2;i++)spawnEnemy("brute")}}
-function spawnEnemy(kind){const a=rand(0,Math.PI*2),dist=Math.max(canvas.width,canvas.height)*.68,x=clamp(state.player.x+Math.cos(a)*dist,35,WORLD.w-35),y=clamp(state.player.y+Math.sin(a)*dist,35,WORLD.h-35);spawnEnemyAt(kind,x,y)}
-function spawnEnemyAt(kind,x,y){const b=ENEMIES[kind],scale=(1+(state.stage-1)*.2)*OPERATIONS[state.op].diff*DANGERS[state.danger].mult,e={id:id(),kind,name:b.name,r:b.r,x,y,maxHp:Math.round(b.hp*scale*(b.boss?1+state.bossKills*.35:1)),speed:b.speed*(1+state.danger*.035),damage:Math.round(b.damage*scale),xp:Math.round(b.xp*(1+state.stage*.05)),color:b.color,attack:0,flash:0,dead:false,slow:0,special:rand(.5,2),ranged:b.ranged,charger:b.charger,burrow:b.burrow,healer:b.healer,splitter:b.splitter,elite:b.elite,boss:b.boss};if(e.ranged){e.range=e.boss?650:440;e.prefer=e.boss?420:290}e.hp=e.maxHp;state.enemies.push(e)}
-function spawnBoss(){state.bossSpawned=true;spawnEnemy("boss");showBanner("☠ 铁锅王进入战场");addLog("最终首领铁锅王翻过菜畦。","warn")}
-function addHazard(){state.hazards.push({x:clamp(state.player.x+rand(-420,420),80,WORLD.w-80),y:clamp(state.player.y+rand(-320,320),80,WORLD.h-80),r:rand(65,105),warning:1.8,life:8,tick:0})}
-function updateHazards(dt){if(state.op==="foundry"&&Math.random()<dt*.16)addHazard();for(const h of state.hazards){h.warning-=dt;h.life-=dt;h.tick-=dt;if(h.warning<=0&&h.tick<=0&&d2(h.x,h.y,state.player.x,state.player.y)<(h.r+state.player.r)**2){h.tick=.7;hurtPlayer(7+state.stage,null)}}}
-function openUpgrade(type){state.paused=true;state.upgradeType=type;$("#modalKicker").textContent=type==="relic"?"精英遗物":"等级提升";$("#modalTitle").textContent=type==="relic"?"选择一件遗物":"选择一项强化";$("#rerollBtn").style.visibility=type==="level"?"visible":"hidden";$("#healSkipBtn").textContent=type==="relic"?"拆解为 12 晶薯":"转化为 15% 治疗";rollOptions();ui.upgrade.classList.remove("hidden")}
-function openRelic(){if(state.mode!=="running")return;openUpgrade("relic")}
-function rollOptions(){if(state.upgradeType==="relic"){upgradeOptions=sample(RELICS.filter(r=>!state.player.relics.includes(r.id)),3).map(x=>({...x,rarity:"遗物",cls:"legend",times:1}))}else{let pool=[...PASSIVES,...Object.keys(WEAPONS).map(k=>({id:`weapon_${k}`,icon:WEAPONS[k].icon,title:WEAPONS[k].name,desc:weaponUpgradeDesc(k),weapon:k,apply:()=>addWeapon(k)}))].filter(validUpgrade);upgradeOptions=sample(pool,3).map(x=>{const roll=Math.random()+state.player.crit*.35;let times=1,rarity="普通",cls="";if(roll>.94){times=3;rarity="史诗";cls="epic"}else if(roll>.72){times=2;rarity="精良";cls="rare"}return{...x,times,rarity,cls}})}ui.choices.innerHTML=upgradeOptions.map((u,i)=>`<button class="upgrade-card ${u.cls}" data-choice="${i}"><span class="rarity">${u.rarity}${u.times>1?` ×${u.times}`:""}</span><span class="up-icon">${u.icon}</span><strong>${u.title}</strong><p>${u.desc}</p></button>`).join("");ui.choices.querySelectorAll("[data-choice]").forEach(b=>b.onclick=()=>chooseUpgrade(+b.dataset.choice))}
-function validUpgrade(u){if(!u.weapon)return true;const w=state.player.weapons.find(x=>x.key===u.weapon);return w?w.level<6:state.player.weapons.length<MAX_WEAPONS}
-function weaponUpgradeDesc(k){const w=state.player.weapons.find(x=>x.key===k);return w?`提升至 Lv.${Math.min(6,w.level+1)}；六级进化为「${WEAPONS[k].evo}」。`:`获得新武器；六级可进化为「${WEAPONS[k].evo}」。`}
-function chooseUpgrade(i){const u=upgradeOptions[i];if(!u)return;if(state.upgradeType==="relic"){u.apply(state.player);state.player.relics.push(u.id);addLog(`获得遗物：${u.title}。`,"gold")}else for(let n=0;n<u.times;n++)u.apply(state.player);finishUpgrade()}
-function finishUpgrade(){if(state.upgradeType==="level")state.pending=Math.max(0,state.pending-1);if(state.pending>0){openUpgrade("level")}else{ui.upgrade.classList.add("hidden");state.paused=false;last=performance.now()}sync()}
-function addWeapon(k){let w=state.player.weapons.find(x=>x.key===k);if(w){if(w.level<6)w.level++;if(w.level===6&&!w.evolved){w.evolved=true;showBanner(`${WEAPONS[k].evo} · 武器进化！`)}}else if(state.player.weapons.length<MAX_WEAPONS)state.player.weapons.push({key:k,level:1,cd:.2,evolved:false})}
-function sample(a,n){const b=[...a],out=[];while(b.length&&out.length<n)out.push(b.splice(rint(0,b.length-1),1)[0]);return out}
-function magnetize(){state.drops.forEach(d=>{d.x=state.player.x+rand(-60,60);d.y=state.player.y+rand(-60,60)})}
-function cleanup(){state.bullets=state.bullets.filter(b=>b.life>0&&b.x>-100&&b.y>-100&&b.x<WORLD.w+100&&b.y<WORLD.h+100);state.shots=state.shots.filter(s=>s.life>0);state.hits=state.hits.filter(h=>h.life>0);state.fields=state.fields.filter(f=>f.duration>0);state.drops=state.drops.filter(d=>!d.dead);state.hazards=state.hazards.filter(h=>h.life>0);state.particles=state.particles.filter(p=>p.life>0);state.floaters=state.floaters.filter(f=>f.life>0)}
-function endRun(win){if(state.mode!=="running")return;state.mode=win?"win":"dead";state.paused=true;const reward=Math.floor((state.player.crystals+state.killCount/55+state.bossKills*12)*DANGERS[state.danger].reward*(1+(save.camp.fortune||0)*.05));save.cores+=reward;save.totalKills=(save.totalKills||0)+state.killCount;save.best[state.op]=Math.max(save.best[state.op]||0,Math.floor(state.elapsed));storeSave();ui.overlay.classList.remove("hidden");ui.setup.style.display="none";ui.result.classList.add("show");$("#resultTitle").textContent=win?"铁锅王被打翻了":"薯仔暂时倒下";$("#resultText").textContent=win?"行动完成，所有收获已运回营地。":"这次构筑已经结算，强化营地后再来一轮。";$("#resultTime").textContent=format(state.elapsed);$("#resultKills").textContent=state.killCount;$("#resultCores").textContent=reward;$("#resultBoss").textContent=state.bossKills}
-function addLog(text,type=""){state.logs.unshift({text,type});state.logs=state.logs.slice(0,15)}
-function showBanner(text){ui.banner.textContent=text;ui.banner.classList.add("show");bannerTimer=2.2}
-function updateFx(dt){if(bannerTimer>0){bannerTimer-=dt;if(bannerTimer<=0)ui.banner.classList.remove("show")}for(const p of state.particles){p.life-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt}for(const f of state.floaters){f.life-=dt;f.y-=32*dt}}
-function burstFx(x,y,color,n=9){for(let i=0;i<n;i++){const a=rand(0,Math.PI*2),s=rand(40,180);state.particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,r:rand(2,5),life:rand(.25,.65),max:.65,color})}}
-function ring(x,y,r,color){state.particles.push({x,y,vx:0,vy:0,r,life:.45,max:.45,color,ring:true})}function beam(x,y,x2,y2,color){state.particles.push({x,y,x2,y2,vx:0,vy:0,r:0,life:.18,max:.18,color,beam:true})}
-function sync(){const p=state.player,op=OPERATIONS[state.op];ui.time.textContent=format(state.elapsed);ui.hp.textContent=`${Math.ceil(p.hp)}/${p.maxHp}${p.shield?` +${Math.ceil(p.shield)}`:""}`;ui.level.textContent=p.level;ui.kills.textContent=state.killCount;ui.crystal.textContent=p.crystals;ui.stage.textContent=state.stage;ui.skill.disabled=p.skill<100||state.mode!=="running";ui.skillText.textContent=`${Math.floor(p.skill)}%`;ui.skillBar.style.width=`${p.skill}%`;const progress=state.op==="endless"?(state.elapsed%300)/3:state.elapsed/state.duration*100;ui.runBar.style.width=`${clamp(progress,0,100)}%`;ui.runText.textContent=state.op==="endless"?`距下个首领 ${format(Math.max(0,state.nextBossAt-state.elapsed))}`:`距首领 ${format(Math.max(0,state.duration-state.elapsed))}`;$("#opIcon").textContent=op.icon;$("#opTitle").textContent=`${op.name} · ${DANGERS[state.danger].name}`;$("#opText").textContent=op.desc;ui.slots.textContent=`${p.weapons.length}/${MAX_WEAPONS}`;ui.weapons.innerHTML=p.weapons.map(w=>`<span class="chip ${w.evolved?"evolved":""}">${WEAPONS[w.key].icon} ${w.evolved?WEAPONS[w.key].evo:WEAPONS[w.key].name} Lv.${w.level}</span>`).join("");ui.relicCount.textContent=`${p.relics.length} 遗物`;ui.stats.innerHTML=[["伤害",`${Math.round(p.damageMult*100)}%`],["攻速",`${Math.round(100/p.cooldownMult)}%`],["移速",`${Math.round(p.speedMult*100)}%`],["护甲",p.armor],["暴击",`${Math.round(p.crit*100)}%`],["拾取",`${Math.round(p.pickupMult*100)}%`]].map(x=>`<div><span>${x[0]}</span><b>${x[1]}</b></div>`).join("");ui.logs.innerHTML=state.logs.map(x=>`<li class="${x.type}">${x.text}</li>`).join("");$("#pauseBtn").textContent=state.paused?"▶":"Ⅱ";$("#rerollBtn").textContent=`重抽（${state.rerolls}）`;$("#rerollBtn").disabled=state.rerolls<=0}
-function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);if(!state)return;drawWorld();drawHazards();drawFields();drawDrops();drawBullets();drawEnemies();drawPlayer();drawFx();drawMinimap();if(state.op==="night"){const g=ctx.createRadialGradient(canvas.width/2,canvas.height/2,150,canvas.width/2,canvas.height/2,Math.max(canvas.width,canvas.height)*.7);g.addColorStop(0,"rgba(5,8,14,0)");g.addColorStop(1,"rgba(6,8,16,.58)");ctx.fillStyle=g;ctx.fillRect(0,0,canvas.width,canvas.height)}}
-function screen(x,y){return{x:x-state.camera.x,y:y-state.camera.y}}
-function drawWorld(){const op=OPERATIONS[state.op],cam=state.camera;ctx.fillStyle=op.ground;ctx.fillRect(0,0,canvas.width,canvas.height);const grid=90;ctx.strokeStyle="rgba(230,242,218,.055)";ctx.lineWidth=1;for(let x=Math.floor(cam.x/grid)*grid;x<cam.x+canvas.width+grid;x+=grid){ctx.beginPath();ctx.moveTo(x-cam.x,0);ctx.lineTo(x-cam.x,canvas.height);ctx.stroke()}for(let y=Math.floor(cam.y/grid)*grid;y<cam.y+canvas.height+grid;y+=grid){ctx.beginPath();ctx.moveTo(0,y-cam.y);ctx.lineTo(canvas.width,y-cam.y);ctx.stroke()}for(let i=0;i<42;i++){const x=(i*337+91)%WORLD.w,y=(i*191+63)%WORLD.h,s=screen(x,y);if(s.x<-40||s.y<-40||s.x>canvas.width+40||s.y>canvas.height+40)continue;ctx.fillStyle=i%3?`${op.accent}26`:"rgba(255,255,255,.035)";ctx.beginPath();ctx.ellipse(s.x,s.y,18+i%4*6,10+i%3*4,i,0,Math.PI*2);ctx.fill()}}
-function drawPlayer(){const p=state.player,s=screen(p.x,p.y);ctx.save();ctx.translate(s.x,s.y);ctx.fillStyle="rgba(0,0,0,.25)";ctx.beginPath();ctx.ellipse(0,20,25,9,0,0,Math.PI*2);ctx.fill();ctx.fillStyle=p.invuln>0?"#fff0ae":"#d8ad63";ctx.strokeStyle="#242219";ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(0,0,21,25,-.15,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle="#1f241d";ctx.beginPath();ctx.arc(-7,-5,3,0,Math.PI*2);ctx.arc(7,-5,3,0,Math.PI*2);ctx.fill();ctx.strokeStyle="#4e7d49";ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(1,-22);ctx.quadraticCurveTo(7,-36,17,-33);ctx.stroke();if(p.shield){ctx.strokeStyle="#75d5e5";ctx.lineWidth=4;ctx.beginPath();ctx.arc(0,0,31,0,Math.PI*2);ctx.stroke()}ctx.restore()}
-function drawEnemies(){for(const e of state.enemies){const s=screen(e.x,e.y);if(s.x<-90||s.y<-90||s.x>canvas.width+90||s.y>canvas.height+90)continue;ctx.save();ctx.translate(s.x,s.y);ctx.globalAlpha=e.hidden?.42:1;ctx.fillStyle="rgba(0,0,0,.22)";ctx.beginPath();ctx.ellipse(0,e.r*.65,e.r,e.r*.35,0,0,Math.PI*2);ctx.fill();ctx.fillStyle=e.flash>0?"#fff3c8":e.color;ctx.strokeStyle="#20241e";ctx.lineWidth=e.boss?5:3;ctx.beginPath();ctx.ellipse(0,0,e.r,e.r*.88,0,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle="#20241e";ctx.beginPath();ctx.arc(-e.r*.3,-3,e.boss?5:3,0,Math.PI*2);ctx.arc(e.r*.3,-3,e.boss?5:3,0,Math.PI*2);ctx.fill();if(e.elite||e.boss){ctx.strokeStyle=e.boss?"#e8bd5d":"#f0a0ad";ctx.lineWidth=3;ctx.beginPath();ctx.arc(0,0,e.r+7,0,Math.PI*2);ctx.stroke()}const pct=clamp(e.hp/e.maxHp,0,1);ctx.fillStyle="rgba(0,0,0,.55)";round(-e.r,e.r+9,e.r*2,6,3);ctx.fill();ctx.fillStyle=e.boss?"#d696e7":"#78dc7b";round(-e.r,e.r+9,e.r*2*pct,6,3);ctx.fill();ctx.restore()}}
-function drawBullets(){for(const b of state.bullets){const s=screen(b.x,b.y);ctx.fillStyle=b.color;ctx.beginPath();ctx.arc(s.x,s.y,b.r,0,Math.PI*2);ctx.fill()}for(const b of state.shots){const s=screen(b.x,b.y);ctx.fillStyle=b.color;ctx.beginPath();ctx.arc(s.x,s.y,b.r,0,Math.PI*2);ctx.fill()}for(const h of state.hits){const s=screen(h.x,h.y);ctx.globalAlpha=clamp(h.life/h.max,.12,.55);ctx.strokeStyle=h.color;ctx.lineWidth=7;ctx.beginPath();ctx.arc(s.x,s.y,h.r*(1.1-h.life/h.max*.1),0,Math.PI*2);ctx.stroke();ctx.globalAlpha=1}}
-function drawFields(){for(const f of state.fields){const s=screen(f.x,f.y),a=clamp(f.duration/1.2,0,.42);ctx.fillStyle=rgba(f.color,a);ctx.beginPath();ctx.arc(s.x,s.y,f.r,0,Math.PI*2);ctx.fill();ctx.strokeStyle=f.color;ctx.globalAlpha=.6;ctx.stroke();ctx.globalAlpha=1}}
-function drawDrops(){for(const d of state.drops){const s=screen(d.x,d.y);ctx.fillStyle=d.color;ctx.save();ctx.translate(s.x,s.y);ctx.rotate(performance.now()*.002);ctx.beginPath();if(d.type==="crystal"||d.type==="crate"){ctx.moveTo(0,-d.r);ctx.lineTo(d.r,0);ctx.lineTo(0,d.r);ctx.lineTo(-d.r,0);ctx.closePath()}else ctx.arc(0,0,d.r,0,Math.PI*2);ctx.fill();ctx.restore()}}
-function drawHazards(){for(const h of state.hazards){const s=screen(h.x,h.y);ctx.fillStyle=h.warning>0?"rgba(255,190,84,.12)":"rgba(234,83,60,.22)";ctx.strokeStyle=h.warning>0?"#efbf62":"#e95e4f";ctx.setLineDash(h.warning>0?[8,7]:[]);ctx.lineWidth=3;ctx.beginPath();ctx.arc(s.x,s.y,h.r,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.setLineDash([])}}
-function drawFx(){for(const p of state.particles){ctx.save();ctx.globalAlpha=clamp(p.life/p.max,0,1);const s=screen(p.x,p.y);if(p.beam){const t=screen(p.x2,p.y2);ctx.strokeStyle=p.color;ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(s.x,s.y);ctx.lineTo(t.x,t.y);ctx.stroke()}else if(p.ring){ctx.strokeStyle=p.color;ctx.lineWidth=4;ctx.beginPath();ctx.arc(s.x,s.y,p.r*(1.35-p.life/p.max*.35),0,Math.PI*2);ctx.stroke()}else{ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(s.x,s.y,p.r,0,Math.PI*2);ctx.fill()}ctx.restore()}ctx.textAlign="center";ctx.font="900 13px sans-serif";for(const f of state.floaters){const s=screen(f.x,f.y);ctx.globalAlpha=clamp(f.life/.45,0,1);ctx.fillStyle=f.color;ctx.fillText(f.text,s.x,s.y)}ctx.globalAlpha=1}
-function drawMinimap(){const w=126,h=82,x=canvas.width-w-12,y=12;ctx.fillStyle="rgba(5,10,7,.65)";round(x,y,w,h,10);ctx.fill();ctx.strokeStyle="rgba(238,244,225,.2)";ctx.stroke();ctx.fillStyle="#f3ce72";ctx.beginPath();ctx.arc(x+state.player.x/WORLD.w*w,y+state.player.y/WORLD.h*h,3,0,Math.PI*2);ctx.fill();ctx.fillStyle="#e77468";state.enemies.filter(e=>e.elite||e.boss).forEach(e=>ctx.fillRect(x+e.x/WORLD.w*w-2,y+e.y/WORLD.h*h-2,4,4))}
-function round(x,y,w,h,r){r=Math.min(r,w/2,h/2);ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath()}
-function rgba(hex,a){const n=parseInt(hex.slice(1),16);return`rgba(${n>>16},${n>>8&255},${n&255},${a})`}function format(s){s=Math.max(0,Math.floor(s));return`${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`}
-function resize(){const r=canvas.parentElement.getBoundingClientRect();canvas.width=Math.max(320,Math.floor(r.width));canvas.height=Math.max(280,Math.floor(r.height));if(state){state.camera.x=clamp(state.player.x-canvas.width/2,0,Math.max(0,WORLD.w-canvas.width));state.camera.y=clamp(state.player.y-canvas.height/2,0,Math.max(0,WORLD.h-canvas.height));draw()}}
-$("#startBtn").onclick=startRun;$("#againBtn").onclick=startRun;$("#resultHomeBtn").onclick=()=>{ui.result.classList.remove("show");renderHome()};$("#homeBtn").onclick=()=>{if(state.mode==="running"&&!confirm("当前行动尚未结算，返回营地将放弃本局收获。"))return;state.mode="ready";ui.overlay.classList.remove("hidden");renderHome()};$("#restartBtn").onclick=()=>{if(state.mode==="running"&&confirm("重新开始当前行动？"))startRun()};$("#pauseBtn").onclick=()=>{if(state.mode!=="running"||!ui.upgrade.classList.contains("hidden"))return;state.paused=!state.paused;last=performance.now();sync()};$("#speedBtn").onclick=()=>{timeScale=timeScale===1?2:1;$("#speedBtn").textContent=`${timeScale}×`;$("#speedBtn").classList.toggle("active",timeScale===2)};ui.skill.onclick=useSkill;$("#dashBtn").onclick=dash;$("#rerollBtn").onclick=()=>{if(state.rerolls>0){state.rerolls--;rollOptions();sync()}};$("#healSkipBtn").onclick=()=>{if(state.upgradeType==="relic")state.player.crystals+=12;else state.player.hp=Math.min(state.player.maxHp,state.player.hp+state.player.maxHp*.15);finishUpgrade()};
-window.addEventListener("keydown",e=>{keys.add(e.code);if(e.code==="Space"||e.code==="KeyP"){e.preventDefault();$("#pauseBtn").click()}if(e.code==="KeyQ")useSkill()});window.addEventListener("keyup",e=>keys.delete(e.code));canvas.addEventListener("pointerdown",e=>{if(e.pointerType!=="touch"){pointer.active=true;pointer.x=e.clientX;pointer.y=e.clientY}});canvas.addEventListener("pointermove",e=>{if(pointer.active){pointer.x=e.clientX;pointer.y=e.clientY}});window.addEventListener("pointerup",()=>pointer.active=false);
-const joystick=$("#joystick"),thumb=$("#joystickThumb");function joyUpdate(e){const r=joystick.getBoundingClientRect(),cx=r.width/2,cy=r.height/2,dx=e.clientX-r.left-cx,dy=e.clientY-r.top-cy,max=r.width*.34,l=Math.hypot(dx,dy),s=l>max?max/l:1;joy.x=dx*s/max;joy.y=dy*s/max;thumb.style.transform=`translate(calc(-50% + ${dx*s}px),calc(-50% + ${dy*s}px))`}function joyEnd(e){if(e&&joy.id!==e.pointerId)return;joy.active=false;joy.id=null;joy.x=joy.y=0;thumb.style.transform="translate(-50%,-50%)"}joystick.addEventListener("pointerdown",e=>{joy.active=true;joy.id=e.pointerId;joystick.setPointerCapture(e.pointerId);joyUpdate(e)});joystick.addEventListener("pointermove",e=>{if(joy.active&&e.pointerId===joy.id)joyUpdate(e)});joystick.addEventListener("pointerup",joyEnd);joystick.addEventListener("pointercancel",joyEnd);window.addEventListener("resize",resize);
-resetRun();renderHome();resize();
-</script>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#111a16" />
+    <title>薯仔突围：丰收行动</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23111915'/%3E%3Cellipse cx='32' cy='34' rx='21' ry='24' fill='%23d7aa5d'/%3E%3Ccircle cx='25' cy='29' r='3'/%3E%3Ccircle cx='40' cy='29' r='3'/%3E%3Cpath d='M23 43c6 5 13 5 19 0' stroke='%23111915' stroke-width='4' stroke-linecap='round' fill='none'/%3E%3C/svg%3E"
+    />
+    <style>
+      :root {
+        color-scheme: dark;
+        --ink: #f7f1df;
+        --muted: #9eaea3;
+        --leaf: #70c77d;
+        --gold: #e5b654;
+        --red: #ee6d62;
+        --cyan: #63cce4;
+        --violet: #b593ee;
+        --panel: rgba(13, 23, 17, 0.93);
+        --line: rgba(232, 240, 219, 0.16);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+        background: #09110d;
+        color: var(--ink);
+        font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+      }
+      body {
+        overflow: hidden;
+      }
+      button {
+        font: inherit;
+      }
+      .app {
+        height: 100vh;
+        height: 100dvh;
+        padding: 10px;
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr);
+        gap: 10px;
+        background:
+          radial-gradient(
+            circle at 8% 10%,
+            rgba(91, 190, 109, 0.13),
+            transparent 30%
+          ),
+          radial-gradient(
+            circle at 92% 85%,
+            rgba(225, 173, 72, 0.1),
+            transparent 30%
+          );
+      }
+      .topbar,
+      .arena,
+      .side,
+      .card,
+      .overlay-card,
+      .modal-card {
+        border: 1px solid var(--line);
+        background: var(--panel);
+        box-shadow: 0 18px 48px rgba(0, 0, 0, 0.28);
+      }
+      .topbar {
+        min-height: 66px;
+        border-radius: 16px;
+        padding: 9px 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+      }
+      .logo {
+        width: 43px;
+        height: 43px;
+        border-radius: 13px;
+        display: grid;
+        place-items: center;
+        color: #1b2118;
+        font-size: 24px;
+        font-weight: 1000;
+        background: linear-gradient(145deg, #f1c96d, #bd8244);
+        box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.2);
+      }
+      h1 {
+        font-size: clamp(21px, 2.5vw, 31px);
+        line-height: 1;
+        margin: 0;
+      }
+      .brand p {
+        margin: 5px 0 0;
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 800;
+      }
+      .brand b {
+        color: var(--gold);
+      }
+      .actions {
+        display: flex;
+        gap: 7px;
+      }
+      .btn,
+      .icon-btn,
+      .choice,
+      .upgrade-card,
+      .camp-btn {
+        border: 1px solid var(--line);
+        border-radius: 11px;
+        background: rgba(32, 50, 38, 0.92);
+        color: var(--ink);
+        font-weight: 900;
+        cursor: pointer;
+        transition: 0.15s;
+      }
+      .btn:hover,
+      .icon-btn:hover,
+      .choice:hover,
+      .upgrade-card:hover,
+      .camp-btn:hover {
+        transform: translateY(-1px);
+        border-color: rgba(229, 182, 84, 0.76);
+      }
+      .btn:disabled,
+      .icon-btn:disabled,
+      .camp-btn:disabled {
+        opacity: 0.38;
+        cursor: not-allowed;
+        transform: none;
+      }
+      .btn {
+        padding: 9px 14px;
+      }
+      .btn.primary {
+        background: linear-gradient(135deg, #70c77d, #a6d369);
+        color: #132017;
+        border: 0;
+      }
+      .icon-btn {
+        width: 42px;
+        height: 42px;
+      }
+      .icon-btn.active {
+        border-color: var(--gold);
+        color: var(--gold);
+      }
+      .layout {
+        min-height: 0;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 338px;
+        gap: 10px;
+      }
+      .arena,
+      .side {
+        border-radius: 16px;
+        min-width: 0;
+        min-height: 0;
+      }
+      .arena {
+        padding: 9px;
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr);
+        gap: 8px;
+      }
+      .hud {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 6px;
+      }
+      .hud div {
+        border: 1px solid var(--line);
+        border-radius: 11px;
+        padding: 7px 9px;
+        background: rgba(255, 255, 255, 0.025);
+      }
+      .hud span {
+        display: block;
+        font-size: 9px;
+        color: var(--muted);
+        font-weight: 900;
+      }
+      .hud strong {
+        display: block;
+        font-size: 17px;
+        margin-top: 2px;
+      }
+      .hud .hp strong {
+        color: #83da84;
+      }
+      .hud .timer strong {
+        color: var(--gold);
+      }
+      .canvas-wrap {
+        position: relative;
+        min-height: 0;
+        border: 1px solid var(--line);
+        border-radius: 13px;
+        overflow: hidden;
+        background: #19271d;
+      }
+      canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+        touch-action: none;
+      }
+      .progress {
+        position: absolute;
+        left: 50%;
+        bottom: 10px;
+        transform: translateX(-50%);
+        width: min(58%, 570px);
+        height: 25px;
+        padding: 7px 10px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: rgba(7, 13, 9, 0.8);
+        pointer-events: none;
+      }
+      .progress div {
+        height: 9px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        overflow: hidden;
+      }
+      .progress i {
+        display: block;
+        width: 0;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(
+          90deg,
+          var(--leaf),
+          var(--gold),
+          var(--red)
+        );
+        transition: width 0.2s;
+      }
+      .progress span {
+        position: absolute;
+        inset: 3px;
+        text-align: center;
+        font-size: 10px;
+        font-weight: 900;
+        text-shadow: 0 2px 4px #000;
+      }
+      .skill-btn,
+      .dash-btn {
+        position: absolute;
+        right: 16px;
+        bottom: 18px;
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        border: 2px solid rgba(238, 208, 117, 0.7);
+        background: radial-gradient(
+          circle at 35% 30%,
+          rgba(255, 255, 255, 0.2),
+          rgba(104, 78, 34, 0.88)
+        );
+        color: #fff1b5;
+        font-weight: 1000;
+        cursor: pointer;
+        z-index: 4;
+      }
+      .skill-btn small,
+      .dash-btn small {
+        display: block;
+        font-size: 9px;
+        color: #dccb9d;
+      }
+      .skill-btn:disabled {
+        filter: grayscale(1);
+        opacity: 0.5;
+      }
+      .dash-btn {
+        display: none;
+        right: 97px;
+        width: 56px;
+        height: 56px;
+        bottom: 25px;
+        border-color: rgba(112, 199, 125, 0.65);
+        background: rgba(31, 73, 48, 0.83);
+        color: #c8f5cc;
+      }
+      .joystick {
+        display: none;
+        position: absolute;
+        left: 18px;
+        bottom: 18px;
+        width: 112px;
+        height: 112px;
+        border-radius: 50%;
+        border: 1px solid rgba(255, 255, 255, 0.26);
+        background: rgba(5, 12, 8, 0.38);
+        backdrop-filter: blur(6px);
+        z-index: 4;
+        touch-action: none;
+      }
+      .joystick i {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        background: radial-gradient(
+          circle at 35% 30%,
+          #dbf1d4,
+          #527d58 62%,
+          #294332
+        );
+        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.3);
+      }
+      .side {
+        padding: 9px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        overflow: auto;
+      }
+      .card {
+        border-radius: 13px;
+        padding: 10px;
+      }
+      .card-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 7px;
+      }
+      .card-head strong {
+        font-size: 12px;
+      }
+      .eyebrow {
+        color: var(--gold);
+        font-size: 9px;
+        font-weight: 1000;
+        letter-spacing: 0.08em;
+      }
+      .objective {
+        display: flex;
+        gap: 9px;
+        align-items: center;
+      }
+      .objective-icon {
+        width: 39px;
+        height: 39px;
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+        font-size: 20px;
+        background: rgba(229, 182, 84, 0.13);
+      }
+      .objective b {
+        display: block;
+        font-size: 13px;
+      }
+      .objective small {
+        color: var(--muted);
+        font-size: 10px;
+        line-height: 1.3;
+      }
+      .bar {
+        height: 7px;
+        margin-top: 7px;
+        border-radius: 6px;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.09);
+      }
+      .bar i {
+        display: block;
+        width: 0;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          var(--cyan),
+          var(--leaf),
+          var(--gold)
+        );
+      }
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+      }
+      .chip {
+        padding: 5px 7px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.035);
+        font-size: 10px;
+      }
+      .chip.evolved {
+        border-color: var(--gold);
+        color: #ffe19a;
+      }
+      .stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 5px;
+      }
+      .stats div {
+        display: flex;
+        justify-content: space-between;
+        padding: 6px 7px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.03);
+        font-size: 10px;
+      }
+      .stats span {
+        color: var(--muted);
+      }
+      .log {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        max-height: 150px;
+        overflow: auto;
+      }
+      .log li {
+        font-size: 10px;
+        color: var(--muted);
+        border-left: 2px solid rgba(255, 255, 255, 0.16);
+        padding-left: 7px;
+      }
+      .log li.good {
+        color: #90e49b;
+        border-color: var(--leaf);
+      }
+      .log li.warn {
+        color: #ff9b8d;
+        border-color: var(--red);
+      }
+      .log li.gold {
+        color: #f5ca6a;
+        border-color: var(--gold);
+      }
+      .overlay,
+      .modal {
+        position: absolute;
+        inset: 0;
+        z-index: 10;
+        display: grid;
+        place-items: center;
+        padding: 16px;
+        background: rgba(5, 10, 7, 0.74);
+        backdrop-filter: blur(7px);
+      }
+      .overlay.hidden,
+      .modal.hidden {
+        display: none;
+      }
+      .overlay-card,
+      .modal-card {
+        width: min(940px, 96%);
+        max-height: 94%;
+        overflow: auto;
+        border-radius: 20px;
+        padding: 18px;
+      }
+      .overlay-title {
+        display: flex;
+        justify-content: space-between;
+        gap: 14px;
+        align-items: flex-start;
+      }
+      .overlay-title h2 {
+        font-size: 27px;
+        margin: 0;
+      }
+      .overlay-title h2 b {
+        color: var(--gold);
+      }
+      .overlay-title p {
+        margin: 6px 0 0;
+        color: var(--muted);
+        font-size: 11px;
+      }
+      .save-pill {
+        padding: 7px 10px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.05);
+        font-size: 10px;
+        color: var(--muted);
+      }
+      .setup-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 11px;
+        margin-top: 12px;
+      }
+      .setup-section {
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 11px;
+        background: rgba(255, 255, 255, 0.02);
+      }
+      .setup-section h3 {
+        font-size: 12px;
+        margin: 0 0 8px;
+      }
+      .hero-grid,
+      .op-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 7px;
+      }
+      .choice {
+        min-height: 67px;
+        padding: 8px;
+        text-align: left;
+      }
+      .choice b {
+        display: block;
+        font-size: 13px;
+      }
+      .choice small {
+        display: block;
+        color: var(--muted);
+        font-size: 9px;
+        margin-top: 4px;
+        line-height: 1.3;
+      }
+      .choice.selected {
+        border-color: var(--gold);
+        background: rgba(229, 182, 84, 0.11);
+      }
+      .danger-row {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+      .danger-row .choice {
+        min-height: auto;
+        padding: 7px 11px;
+        border-radius: 999px;
+      }
+      .camp {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 7px;
+      }
+      .camp-btn {
+        padding: 8px;
+        text-align: left;
+      }
+      .camp-btn b {
+        font-size: 11px;
+      }
+      .camp-btn span {
+        display: block;
+        color: var(--muted);
+        font-size: 9px;
+        margin-top: 3px;
+      }
+      .camp-btn em {
+        display: block;
+        color: var(--gold);
+        font-style: normal;
+        font-size: 9px;
+        margin-top: 5px;
+      }
+      .start-row {
+        display: flex;
+        justify-content: flex-end;
+        gap: 7px;
+        margin-top: 11px;
+      }
+      .result {
+        display: none;
+        text-align: center;
+      }
+      .result.show {
+        display: block;
+      }
+      .result h2 {
+        font-size: 29px;
+        margin: 0;
+      }
+      .result p {
+        color: var(--muted);
+        font-size: 11px;
+      }
+      .result-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 7px;
+        margin: 13px 0;
+      }
+      .result-grid div {
+        padding: 10px;
+        border-radius: 11px;
+        background: rgba(255, 255, 255, 0.04);
+      }
+      .result-grid b {
+        display: block;
+        color: var(--gold);
+        font-size: 19px;
+      }
+      .result-grid span {
+        font-size: 9px;
+        color: var(--muted);
+      }
+      .modal-card {
+        width: min(780px, 95%);
+      }
+      .modal-card h2 {
+        margin: 2px 0 12px;
+      }
+      .upgrade-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+      }
+      .upgrade-card {
+        position: relative;
+        min-height: 145px;
+        padding: 13px;
+        text-align: left;
+      }
+      .upgrade-card .rarity {
+        position: absolute;
+        right: 9px;
+        top: 8px;
+        font-size: 9px;
+        color: var(--muted);
+      }
+      .upgrade-card .up-icon {
+        display: grid;
+        place-items: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 11px;
+        background: rgba(255, 255, 255, 0.06);
+        font-size: 18px;
+        margin-bottom: 9px;
+      }
+      .upgrade-card strong {
+        display: block;
+      }
+      .upgrade-card p {
+        font-size: 10px;
+        color: var(--muted);
+        line-height: 1.45;
+      }
+      .upgrade-card.rare {
+        border-color: #64cce5;
+      }
+      .upgrade-card.epic {
+        border-color: #b593ee;
+      }
+      .upgrade-card.legend {
+        border-color: #e5b654;
+      }
+      .modal-actions {
+        display: flex;
+        justify-content: space-between;
+        gap: 7px;
+        margin-top: 10px;
+      }
+      .banner {
+        position: absolute;
+        left: 50%;
+        top: 78px;
+        transform: translate(-50%, -12px);
+        padding: 9px 15px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: rgba(8, 14, 10, 0.88);
+        font-weight: 900;
+        font-size: 12px;
+        opacity: 0;
+        transition: 0.2s;
+        pointer-events: none;
+        z-index: 6;
+      }
+      .banner.show {
+        opacity: 1;
+        transform: translate(-50%, 0);
+      }
+      @media (max-width: 940px) {
+        .app {
+          grid-template-rows: auto minmax(0, 1fr);
+        }
+        .layout {
+          grid-template-columns: 1fr;
+          grid-template-rows: minmax(0, 1fr) 235px;
+        }
+        .side {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          grid-auto-rows: min-content;
+        }
+        .side .log-card {
+          display: none;
+        }
+        .hud {
+          grid-template-columns: repeat(6, 1fr);
+        }
+        .setup-grid {
+          grid-template-columns: 1fr;
+        }
+        .joystick,
+        .dash-btn {
+          display: block;
+        }
+      }
+      @media (max-width: 560px) {
+        .app {
+          padding: 6px;
+          gap: 6px;
+        }
+        .topbar {
+          min-height: 54px;
+          padding: 6px 9px;
+        }
+        .logo {
+          width: 36px;
+          height: 36px;
+        }
+        .brand p {
+          display: none;
+        }
+        .actions .btn {
+          display: none;
+        }
+        .icon-btn {
+          width: 36px;
+          height: 36px;
+        }
+        .layout {
+          grid-template-rows: minmax(0, 1fr) 214px;
+          gap: 6px;
+        }
+        .arena {
+          padding: 5px;
+        }
+        .hud {
+          gap: 3px;
+          grid-template-columns: repeat(3, 1fr);
+        }
+        .hud div {
+          padding: 4px 6px;
+        }
+        .hud span {
+          font-size: 8px;
+        }
+        .hud strong {
+          font-size: 13px;
+        }
+        .side {
+          padding: 6px;
+          grid-template-columns: 1fr 1fr;
+          gap: 5px;
+        }
+        .card {
+          padding: 7px;
+        }
+        .stats {
+          display: none;
+        }
+        .skill-btn {
+          width: 62px;
+          height: 62px;
+        }
+        .progress {
+          width: 52%;
+          bottom: 6px;
+        }
+        .overlay {
+          padding: 7px;
+        }
+        .overlay-card {
+          padding: 12px;
+        }
+        .overlay-title {
+          display: block;
+        }
+        .setup-grid {
+          gap: 7px;
+        }
+        .setup-section {
+          padding: 8px;
+        }
+        .hero-grid,
+        .op-grid {
+          gap: 5px;
+        }
+        .choice {
+          min-height: 58px;
+          padding: 6px;
+        }
+        .camp {
+          grid-template-columns: 1fr;
+        }
+        .camp-btn {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        .camp-btn span {
+          display: none;
+        }
+        .upgrade-grid {
+          grid-template-columns: 1fr;
+        }
+        .upgrade-card {
+          min-height: 105px;
+        }
+        .result-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <header class="topbar">
+        <div class="brand">
+          <div class="logo">薯</div>
+          <div>
+            <h1>薯仔突围 <b>丰收季 V3</b></h1>
+            <p>六战薯 · 六行动区 · 十二武器 · 营地任务</p>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="icon-btn" id="speedBtn" title="倍速">1×</button
+          ><button class="icon-btn" id="pauseBtn" title="暂停">Ⅱ</button
+          ><button class="btn" id="homeBtn">行动营地</button
+          ><button class="icon-btn" id="restartBtn" title="重开">↻</button>
+        </div>
+      </header>
+      <div class="layout">
+        <section class="arena">
+          <div class="hud">
+            <div class="timer">
+              <span>行动时间</span><strong id="timeStat">00:00</strong>
+            </div>
+            <div class="hp">
+              <span>气血 / 护盾</span><strong id="hpStat">60/60</strong>
+            </div>
+            <div><span>等级</span><strong id="levelStat">1</strong></div>
+            <div><span>击倒</span><strong id="killStat">0</strong></div>
+            <div><span>晶薯</span><strong id="crystalStat">0</strong></div>
+            <div><span>阶段</span><strong id="stageStat">1</strong></div>
+          </div>
+          <div class="canvas-wrap">
+            <canvas id="gameCanvas" aria-label="薯仔突围战场"></canvas>
+            <div class="banner" id="banner">阶段开始</div>
+            <div class="progress">
+              <div><i id="runBar"></i></div>
+              <span id="runText">选择行动</span>
+            </div>
+            <button class="dash-btn" id="dashBtn">
+              冲刺<small>Shift</small></button
+            ><button class="skill-btn" id="skillBtn" disabled>
+              战技<small id="skillText">0%</small>
+            </button>
+            <div class="joystick" id="joystick"><i id="joystickThumb"></i></div>
+            <div class="overlay" id="homeOverlay">
+              <div class="overlay-card">
+                <div id="setupView">
+                  <div class="overlay-title">
+                    <div>
+                      <h2>丰收行动：<b>整装出发</b></h2>
+                      <p>
+                        选择战薯与行动区域；击败敌人，把晶薯带回营地强化下一轮。
+                      </p>
+                    </div>
+                    <div class="save-pill" id="savePill">营地晶薯 0</div>
+                  </div>
+                  <div class="setup-grid">
+                    <section class="setup-section">
+                      <h3>选择战薯</h3>
+                      <div class="hero-grid" id="heroGrid"></div>
+                    </section>
+                    <section class="setup-section">
+                      <h3>选择行动</h3>
+                      <div class="op-grid" id="opGrid"></div>
+                    </section>
+                    <section class="setup-section">
+                      <h3>危险度</h3>
+                      <div class="danger-row" id="dangerGrid"></div>
+                    </section>
+                    <section class="setup-section">
+                      <h3>营地永久强化</h3>
+                      <div class="camp" id="campGrid"></div>
+                    </section>
+                    <section class="setup-section" style="grid-column: 1 / -1">
+                      <h3>丰收档案</h3>
+                      <div class="danger-row" id="archiveGrid"></div>
+                    </section>
+                  </div>
+                  <div class="start-row">
+                    <button class="btn primary" id="startBtn">开始突围</button>
+                  </div>
+                </div>
+                <div class="result" id="resultView">
+                  <h2 id="resultTitle">行动结束</h2>
+                  <p id="resultText"></p>
+                  <div class="result-grid">
+                    <div><b id="resultTime">00:00</b><span>存活</span></div>
+                    <div><b id="resultKills">0</b><span>击倒</span></div>
+                    <div><b id="resultCores">0</b><span>带回晶薯</span></div>
+                    <div><b id="resultBoss">0</b><span>首领</span></div>
+                  </div>
+                  <div class="start-row" style="justify-content: center">
+                    <button class="btn" id="againBtn">同配置再战</button
+                    ><button class="btn primary" id="resultHomeBtn">
+                      返回营地
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <aside class="side">
+          <section class="card">
+            <div class="objective">
+              <div class="objective-icon" id="opIcon">🌱</div>
+              <div>
+                <b id="opTitle">行动待命</b
+                ><small id="opText">在营地选择一次行动</small>
+              </div>
+            </div>
+            <div class="bar"><i id="skillBar"></i></div>
+          </section>
+          <section class="card">
+            <div class="card-head">
+              <strong>武器构筑</strong
+              ><span class="eyebrow" id="weaponSlots">0/6</span>
+            </div>
+            <div class="chips" id="weaponList"></div>
+          </section>
+          <section class="card">
+            <div class="card-head">
+              <strong>战斗属性</strong
+              ><span class="eyebrow" id="relicCount">0 遗物</span>
+            </div>
+            <div class="stats" id="statList"></div>
+          </section>
+          <section class="card log-card">
+            <div class="card-head">
+              <strong>战况记录</strong><span class="eyebrow">LIVE</span>
+            </div>
+            <ol class="log" id="logList"></ol>
+          </section>
+        </aside>
+      </div>
+    </main>
+    <div class="modal hidden" id="upgradeModal">
+      <div class="modal-card">
+        <span class="eyebrow" id="modalKicker">等级提升</span>
+        <h2 id="modalTitle">选择一项强化</h2>
+        <div class="upgrade-grid" id="upgradeChoices"></div>
+        <div class="modal-actions">
+          <button class="btn" id="rerollBtn">重抽（3）</button
+          ><button class="btn" id="healSkipBtn">转化为 15% 治疗</button>
+        </div>
+      </div>
+    </div>
+    <script>
+      "use strict";
+      const $ = (s) => document.querySelector(s),
+        canvas = $("#gameCanvas"),
+        ctx = canvas.getContext("2d"),
+        SAVE_KEY = "spudHarvestV2";
+      const ui = {
+        time: $("#timeStat"),
+        hp: $("#hpStat"),
+        level: $("#levelStat"),
+        kills: $("#killStat"),
+        crystal: $("#crystalStat"),
+        stage: $("#stageStat"),
+        runBar: $("#runBar"),
+        runText: $("#runText"),
+        skill: $("#skillBtn"),
+        skillText: $("#skillText"),
+        skillBar: $("#skillBar"),
+        weapons: $("#weaponList"),
+        slots: $("#weaponSlots"),
+        stats: $("#statList"),
+        relicCount: $("#relicCount"),
+        logs: $("#logList"),
+        overlay: $("#homeOverlay"),
+        setup: $("#setupView"),
+        result: $("#resultView"),
+        upgrade: $("#upgradeModal"),
+        choices: $("#upgradeChoices"),
+        banner: $("#banner"),
+      };
+      const WORLD = { w: 2800, h: 1900 },
+        MAX_WEAPONS = 6;
+      const HEROES = {
+        captain: {
+          name: "原皮队长",
+          icon: "🥔",
+          desc: "均衡可靠 · 战技震荡全场",
+          hp: 68,
+          speed: 250,
+          weapons: ["twig", "pan"],
+          skill: "薯能震荡",
+        },
+        scout: {
+          name: "脆皮斥候",
+          icon: "⚡",
+          desc: "移速与暴击更高 · 战技极速穿行",
+          hp: 48,
+          speed: 285,
+          weapons: ["seed", "boomer"],
+          crit: 0.1,
+          skill: "金皮疾走",
+        },
+        warden: {
+          name: "铁皮卫士",
+          icon: "🛡",
+          desc: "高气血护甲 · 战技展开锅盖壁垒",
+          hp: 88,
+          speed: 225,
+          weapons: ["pan", "orbit"],
+          armor: 3,
+          skill: "锅盖壁垒",
+        },
+        sage: {
+          name: "芽眼园丁",
+          icon: "🌱",
+          desc: "自愈与拾取增强 · 战技回春聚宝",
+          hp: 58,
+          speed: 245,
+          weapons: ["spark", "spore"],
+          regen: 0.25,
+          pickup: 1.35,
+          skill: "萌芽回春",
+        },
+        bomber: {
+          name: "火花爆破手",
+          icon: "💥",
+          desc: "范围与爆炸强化 · 战技投放连锁薯雷",
+          hp: 55,
+          speed: 240,
+          weapons: ["rocket", "mine"],
+          area: 1.18,
+          skill: "连锁薯雷",
+        },
+        monk: {
+          name: "紫心武僧",
+          icon: "☯",
+          desc: "近战吸血与闪避 · 战技进入金刚连击",
+          hp: 74,
+          speed: 255,
+          weapons: ["pan", "saw"],
+          leech: 0.04,
+          dodge: 0.08,
+          skill: "金刚薯身",
+        },
+      };
+      const OPERATIONS = {
+        meadow: {
+          name: "青苗防线",
+          icon: "🌱",
+          duration: 240,
+          diff: 0.86,
+          desc: "四分钟标准行动，资源充足。",
+          ground: "#294934",
+          accent: "#6ebd6d",
+          pool: ["grunt", "runner", "brute", "spitter"],
+        },
+        night: {
+          name: "菌雾夜袭",
+          icon: "🌙",
+          duration: 300,
+          diff: 1.02,
+          desc: "浓雾压缩视野，远程敌人增多。",
+          ground: "#222f3b",
+          accent: "#8172ba",
+          pool: ["grunt", "runner", "spitter", "burrow", "healer"],
+        },
+        foundry: {
+          name: "铁锅工坊",
+          icon: "🔥",
+          duration: 360,
+          diff: 1.16,
+          desc: "灼热区域周期出现，重装敌群压境。",
+          ground: "#44352d",
+          accent: "#c66f4d",
+          pool: ["grunt", "brute", "spitter", "charger", "healer", "splitter"],
+        },
+        glacier: {
+          name: "霜糖高原",
+          icon: "❄",
+          duration: 330,
+          diff: 1.12,
+          desc: "寒潮周期减速，冰甲敌人与狙击手出没。",
+          ground: "#263f4d",
+          accent: "#8bd8eb",
+          pool: ["grunt", "runner", "frostling", "sniper", "brute", "healer"],
+        },
+        ruins: {
+          name: "遗迹深田",
+          icon: "🏛",
+          duration: 390,
+          diff: 1.24,
+          desc: "古代装置唤醒护盾军团与重型首领。",
+          ground: "#3a3b35",
+          accent: "#d6ad62",
+          pool: ["grunt", "shieldling", "sniper", "charger", "healer", "splitter"],
+        },
+        endless: {
+          name: "无尽丰收",
+          icon: "∞",
+          duration: 99999,
+          diff: 1.08,
+          desc: "每五分钟出现首领，强度持续增长。",
+          ground: "#343345",
+          accent: "#b28bd8",
+          pool: [
+            "grunt",
+            "runner",
+            "brute",
+            "spitter",
+            "charger",
+            "burrow",
+            "healer",
+            "splitter",
+          ],
+        },
+      };
+      const DANGERS = [
+        { name: "训练", mult: 0.78, reward: 0.7 },
+        { name: "普通", mult: 1, reward: 1 },
+        { name: "硬核", mult: 1.25, reward: 1.45 },
+        { name: "噩梦", mult: 1.55, reward: 2 },
+      ];
+      const WEAPONS = {
+        twig: {
+          name: "树枝枪",
+          icon: "枝",
+          type: "bullet",
+          cooldown: 0.48,
+          damage: 9,
+          speed: 780,
+          range: 580,
+          count: 1,
+          spread: 0.1,
+          pierce: 0,
+          color: "#e2b65b",
+          evo: "千枝齐发",
+        },
+        pan: {
+          name: "平底锅",
+          icon: "锅",
+          type: "melee",
+          cooldown: 1.05,
+          damage: 19,
+          range: 78,
+          count: 1,
+          color: "#ad8245",
+          evo: "回旋铁宴",
+        },
+        spark: {
+          name: "电芽",
+          icon: "电",
+          type: "chain",
+          cooldown: 1.6,
+          damage: 13,
+          range: 290,
+          count: 3,
+          color: "#59c9ea",
+          evo: "雷根网络",
+        },
+        seed: {
+          name: "豆籽铳",
+          icon: "籽",
+          type: "bullet",
+          cooldown: 0.92,
+          damage: 8,
+          speed: 690,
+          range: 470,
+          count: 4,
+          spread: 0.17,
+          pierce: 0,
+          color: "#78cd70",
+          evo: "丰收风暴",
+        },
+        boomer: {
+          name: "回旋薯片",
+          icon: "旋",
+          type: "boomer",
+          cooldown: 1.25,
+          damage: 16,
+          speed: 510,
+          range: 510,
+          count: 1,
+          spread: 0.25,
+          pierce: 5,
+          color: "#f0c879",
+          evo: "黄金涡轮",
+        },
+        orbit: {
+          name: "锅盖卫星",
+          icon: "环",
+          type: "orbit",
+          cooldown: 1.28,
+          damage: 17,
+          range: 105,
+          count: 3,
+          color: "#94a4a4",
+          evo: "六锅星阵",
+        },
+        spore: {
+          name: "孢泥罐",
+          icon: "菌",
+          type: "field",
+          cooldown: 2.4,
+          damage: 8,
+          range: 350,
+          count: 1,
+          color: "#ad83dc",
+          evo: "万菌温床",
+        },
+        rocket: {
+          name: "芽尖火箭",
+          icon: "箭",
+          type: "rocket",
+          cooldown: 1.9,
+          damage: 35,
+          speed: 390,
+          range: 650,
+          count: 1,
+          pierce: 0,
+          color: "#ee795c",
+          evo: "薯星坠落",
+        },
+        mine: {
+          name: "连锁薯雷",
+          icon: "雷",
+          type: "field",
+          cooldown: 2.15,
+          damage: 15,
+          range: 300,
+          count: 1,
+          color: "#e28d55",
+          evo: "丰收雷区",
+        },
+        saw: {
+          name: "齿轮薯片",
+          icon: "锯",
+          type: "orbit",
+          cooldown: 1.05,
+          damage: 21,
+          range: 128,
+          count: 4,
+          color: "#d6d2b2",
+          evo: "日轮切割阵",
+        },
+        frost: {
+          name: "霜糖喷壶",
+          icon: "霜",
+          type: "field",
+          cooldown: 2.05,
+          damage: 10,
+          range: 380,
+          count: 1,
+          color: "#86d9ef",
+          evo: "极寒甜点",
+        },
+        prism: {
+          name: "棱芽射线",
+          icon: "光",
+          type: "chain",
+          cooldown: 1.42,
+          damage: 16,
+          range: 340,
+          count: 4,
+          color: "#f2a9df",
+          evo: "万色折光",
+        },
+      };
+      const ENEMIES = {
+        grunt: {
+          name: "田鼠芽",
+          r: 18,
+          hp: 27,
+          speed: 88,
+          damage: 8,
+          xp: 9,
+          color: "#89b96d",
+        },
+        runner: {
+          name: "快苗",
+          r: 14,
+          hp: 17,
+          speed: 142,
+          damage: 6,
+          xp: 6,
+          color: "#76d274",
+        },
+        brute: {
+          name: "厚皮萝卜",
+          r: 27,
+          hp: 68,
+          speed: 61,
+          damage: 14,
+          xp: 17,
+          color: "#b77a4f",
+        },
+        spitter: {
+          name: "孢子射手",
+          r: 17,
+          hp: 28,
+          speed: 70,
+          damage: 7,
+          xp: 13,
+          color: "#9670c5",
+          ranged: true,
+        },
+        charger: {
+          name: "角盔冲锋手",
+          r: 22,
+          hp: 55,
+          speed: 75,
+          damage: 17,
+          xp: 18,
+          color: "#d37855",
+          charger: true,
+        },
+        burrow: {
+          name: "地钻虫",
+          r: 16,
+          hp: 35,
+          speed: 102,
+          damage: 10,
+          xp: 15,
+          color: "#8d705c",
+          burrow: true,
+        },
+        healer: {
+          name: "蜜露医师",
+          r: 19,
+          hp: 44,
+          speed: 66,
+          damage: 7,
+          xp: 20,
+          color: "#68c59a",
+          healer: true,
+        },
+        splitter: {
+          name: "团团菇",
+          r: 24,
+          hp: 54,
+          speed: 74,
+          damage: 11,
+          xp: 16,
+          color: "#c2b75e",
+          splitter: true,
+        },
+        frostling: {
+          name: "霜壳糖虫",
+          r: 20,
+          hp: 52,
+          speed: 76,
+          damage: 12,
+          xp: 18,
+          color: "#82cfe5",
+          armor: 45,
+        },
+        sniper: {
+          name: "茎叶狙击手",
+          r: 16,
+          hp: 34,
+          speed: 62,
+          damage: 12,
+          xp: 19,
+          color: "#e19b65",
+          ranged: true,
+          prefer: 420,
+          range: 620,
+        },
+        shieldling: {
+          name: "遗迹盾芽",
+          r: 25,
+          hp: 82,
+          speed: 56,
+          damage: 15,
+          xp: 24,
+          color: "#b6a577",
+          shield: 70,
+        },
+        mimic: {
+          name: "宝箱拟态薯",
+          r: 23,
+          hp: 66,
+          speed: 95,
+          damage: 18,
+          xp: 30,
+          color: "#d3a64d",
+          charger: true,
+        },
+        elite: {
+          name: "锅盖甲虫",
+          r: 35,
+          hp: 260,
+          speed: 74,
+          damage: 22,
+          xp: 65,
+          color: "#b44f5d",
+          elite: true,
+        },
+        boss: {
+          name: "铁锅王",
+          r: 58,
+          hp: 1900,
+          speed: 57,
+          damage: 31,
+          xp: 0,
+          color: "#813f45",
+          boss: true,
+          ranged: true,
+        },
+        frostBoss: {
+          name: "冰糖巨像",
+          r: 62,
+          hp: 2250,
+          speed: 49,
+          damage: 34,
+          xp: 0,
+          color: "#579fc0",
+          boss: true,
+          ranged: true,
+        },
+        ruinBoss: {
+          name: "丰收机神",
+          r: 66,
+          hp: 2700,
+          speed: 52,
+          damage: 38,
+          xp: 0,
+          color: "#9a7745",
+          boss: true,
+          ranged: true,
+          charger: true,
+        },
+      };
+      const RELICS = [
+        {
+          id: "garlic",
+          icon: "蒜",
+          title: "蒜香护符",
+          desc: "获得 25 护盾，每阶段再补充 8。",
+          apply: (p) => {
+            p.shield += 25;
+            p.maxShield += 25;
+          },
+        },
+        {
+          id: "thorn",
+          icon: "刺",
+          title: "反口薯皮",
+          desc: "受到接触伤害时反弹 45% 伤害。",
+          apply: (p) => (p.thorns += 0.45),
+        },
+        {
+          id: "leech",
+          icon: "饮",
+          title: "红汁吸管",
+          desc: "击倒敌人有 8% 概率回复 2 气血。",
+          apply: (p) => (p.leech += 0.08),
+        },
+        {
+          id: "clock",
+          icon: "钟",
+          title: "急收怀表",
+          desc: "所有武器冷却额外缩短 14%。",
+          apply: (p) => (p.cooldownMult *= 0.86),
+        },
+        {
+          id: "crown",
+          icon: "冠",
+          title: "丰收王冠",
+          desc: "精英与首领受到伤害 +25%。",
+          apply: (p) => (p.eliteDamage += 0.25),
+        },
+        {
+          id: "boots",
+          icon: "跃",
+          title: "弹簧芽靴",
+          desc: "冲刺冷却 -35%，冲刺留下伤害轨迹。",
+          apply: (p) => {
+            p.dashMult *= 0.65;
+            p.dashTrail = true;
+          },
+        },
+        {
+          id: "lens",
+          icon: "镜",
+          title: "芽眼镜片",
+          desc: "暴击率 +12%，暴击伤害 +35%。",
+          apply: (p) => {
+            p.crit += 0.12;
+            p.critDamage += 0.35;
+          },
+        },
+        {
+          id: "second",
+          icon: "复",
+          title: "备用芽眼",
+          desc: "本局倒下时复活一次并回复 50%。",
+          apply: (p) => p.revives++,
+        },
+        {
+          id: "frostCore",
+          icon: "霜",
+          title: "霜糖核心",
+          desc: "范围伤害 +20%，所有领域持续时间提高。",
+          apply: (p) => {
+            p.areaMult += 0.2;
+            p.fieldDuration = (p.fieldDuration || 1) * 1.3;
+          },
+        },
+        {
+          id: "warBanner",
+          icon: "旗",
+          title: "丰收战旗",
+          desc: "每个阶段永久获得 4% 伤害。",
+          apply: (p) => (p.stagePower = (p.stagePower || 0) + 0.04),
+        },
+        {
+          id: "coinEngine",
+          icon: "核",
+          title: "遗迹硬币引擎",
+          desc: "拾取晶薯时有 20% 概率额外获得 1 枚。",
+          apply: (p) => (p.bonusCrystal = 0.2),
+        },
+        {
+          id: "stormJar",
+          icon: "云",
+          title: "装瓶雷云",
+          desc: "战技释放后引发三次全屏雷击。",
+          apply: (p) => (p.skillStorm = true),
+        },
+      ];
+      const PASSIVES = [
+        {
+          id: "damage",
+          icon: "伤",
+          title: "尖刺芽",
+          desc: "所有武器伤害 +16%。",
+          apply: (p) => (p.damageMult += 0.16),
+        },
+        {
+          id: "speed",
+          icon: "速",
+          title: "滑皮靴",
+          desc: "移动速度 +11%。",
+          apply: (p) => (p.speedMult += 0.11),
+        },
+        {
+          id: "rate",
+          icon: "频",
+          title: "急性子",
+          desc: "攻击冷却 -10%。",
+          apply: (p) => (p.cooldownMult *= 0.9),
+        },
+        {
+          id: "hp",
+          icon: "血",
+          title: "厚薯皮",
+          desc: "最大气血 +12 并回复 12。",
+          apply: (p) => {
+            p.maxHp += 12;
+            p.hp = Math.min(p.maxHp, p.hp + 12);
+          },
+        },
+        {
+          id: "regen",
+          icon: "愈",
+          title: "发芽自愈",
+          desc: "每秒回复 +0.3。",
+          apply: (p) => (p.regen += 0.3),
+        },
+        {
+          id: "magnet",
+          icon: "吸",
+          title: "磁铁根须",
+          desc: "拾取范围 +35%。",
+          apply: (p) => (p.pickupMult += 0.35),
+        },
+        {
+          id: "armor",
+          icon: "甲",
+          title: "锅盖甲",
+          desc: "护甲 +2。",
+          apply: (p) => (p.armor += 2),
+        },
+        {
+          id: "area",
+          icon: "域",
+          title: "膨大薯块",
+          desc: "范围效果尺寸 +15%。",
+          apply: (p) => (p.areaMult += 0.15),
+        },
+        {
+          id: "crit",
+          icon: "暴",
+          title: "芽眼瞄具",
+          desc: "暴击率 +8%。",
+          apply: (p) => (p.crit += 0.08),
+        },
+        {
+          id: "skill",
+          icon: "技",
+          title: "丰收电池",
+          desc: "战技能量获取 +25%。",
+          apply: (p) => (p.skillGain += 0.25),
+        },
+        {
+          id: "dodge",
+          icon: "闪",
+          title: "滑溜薯皮",
+          desc: "闪避率 +6%。",
+          apply: (p) => (p.dodge = (p.dodge || 0) + 0.06),
+        },
+        {
+          id: "crystal",
+          icon: "晶",
+          title: "晶薯嗅觉",
+          desc: "结算晶薯额外 +10%。",
+          apply: (p) => (p.crystalMult = (p.crystalMult || 1) + 0.1),
+        },
+        {
+          id: "boss",
+          icon: "王",
+          title: "首领猎手",
+          desc: "对精英与首领伤害 +12%。",
+          apply: (p) => (p.eliteDamage += 0.12),
+        },
+        {
+          id: "shield",
+          icon: "盾",
+          title: "阶段护盾",
+          desc: "每次进入新阶段获得 14 护盾。",
+          apply: (p) => {
+            p.maxShield += 14;
+            p.shield += 14;
+          },
+        },
+      ];
+      const CAMP = {
+        power: {
+          name: "磨尖树枝",
+          desc: "每级伤害 +4%",
+          max: 8,
+          cost: (n) => 12 + n * 11,
+        },
+        vitality: {
+          name: "加厚薯皮",
+          desc: "每级气血 +3",
+          max: 8,
+          cost: (n) => 10 + n * 10,
+        },
+        fortune: {
+          name: "丰收背包",
+          desc: "每级结算晶薯 +5%",
+          max: 8,
+          cost: (n) => 15 + n * 13,
+        },
+      };
+      let save = loadSave(),
+        selectedHero = "captain",
+        selectedOp = "meadow",
+        selectedDanger = 1,
+        state,
+        last = 0,
+        raf = 0,
+        timeScale = 1,
+        upgradeOptions = [],
+        bannerTimer = 0;
+      const keys = new Set(),
+        pointer = { active: false, x: 0, y: 0 },
+        joy = { active: false, id: null, x: 0, y: 0 };
+      function loadSave() {
+        try {
+          const s = JSON.parse(localStorage.getItem(SAVE_KEY) || "null");
+          return s && s.v === 2
+            ? { missions: {}, discoveries: {}, wins: 0, ...s }
+            : {
+                v: 2,
+                cores: 0,
+                camp: { power: 0, vitality: 0, fortune: 0 },
+                best: {},
+                totalKills: 0,
+                bosses: 0,
+                missions: {},
+                discoveries: {},
+                wins: 0,
+              };
+        } catch {
+          return {
+            v: 2,
+            cores: 0,
+            camp: { power: 0, vitality: 0, fortune: 0 },
+            best: {},
+            totalKills: 0,
+            bosses: 0,
+            missions: {},
+            discoveries: {},
+            wins: 0,
+          };
+        }
+      }
+      function storeSave() {
+        localStorage.setItem(SAVE_KEY, JSON.stringify(save));
+      }
+      function createState() {
+        const h = HEROES[selectedHero],
+          op = OPERATIONS[selectedOp],
+          danger = DANGERS[selectedDanger],
+          maxHp = h.hp + (save.camp.vitality || 0) * 3;
+        return {
+          mode: "ready",
+          paused: false,
+          hero: selectedHero,
+          op: selectedOp,
+          danger: selectedDanger,
+          elapsed: 0,
+          duration: op.duration,
+          stage: 1,
+          nextStage: 60,
+          spawnCd: 0.3,
+          nextElite: 48 - selectedDanger * 5,
+          eventAt: 42,
+          bossSpawned: false,
+          nextBossAt: op.duration,
+          camera: { x: 0, y: 0 },
+          player: {
+            x: WORLD.w / 2,
+            y: WORLD.h / 2,
+            r: 22,
+            hp: maxHp,
+            maxHp,
+            shield: 0,
+            maxShield: 0,
+            level: 1,
+            xp: 0,
+            xpNext: 25,
+            crystals: 0,
+            speed: h.speed,
+            speedMult: 1,
+            damageMult: 1 + (save.camp.power || 0) * 0.04,
+            cooldownMult: 1,
+            pickupMult: h.pickup || 1,
+            regen: h.regen || 0,
+            armor: h.armor || 0,
+            crit: h.crit || 0.03,
+            critDamage: 1.7,
+            areaMult: h.area || 1,
+            skill: 0,
+            skillGain: 1,
+            invuln: 0,
+            dashCd: 0,
+            dashTime: 0,
+            dashX: 1,
+            dashY: 0,
+            dashMult: 1,
+            dashTrail: false,
+            thorns: 0,
+            leech: h.leech || 0,
+            dodge: h.dodge || 0,
+            crystalMult: 1,
+            eliteDamage: 0,
+            revives: 0,
+            weapons: h.weapons.map((k) => ({
+              key: k,
+              level: 1,
+              cd: Math.random() * 0.3,
+              evolved: false,
+            })),
+            passives: {},
+            relics: [],
+          },
+          enemies: [],
+          bullets: [],
+          shots: [],
+          hits: [],
+          fields: [],
+          drops: [],
+          hazards: [],
+          particles: [],
+          floaters: [],
+          logs: [],
+          pending: 0,
+          upgradeType: "level",
+          rerolls: 3,
+          killCount: 0,
+          bossKills: 0,
+          nextId: 1,
+        };
+      }
+      function id() {
+        return ++state.nextId;
+      }
+      const clamp = (v, a, b) => Math.max(a, Math.min(b, v)),
+        rand = (a, b) => a + Math.random() * (b - a),
+        rint = (a, b) => Math.floor(rand(a, b + 1)),
+        d2 = (a, b, c, d) => (a - c) ** 2 + (b - d) ** 2;
+      function renderHome() {
+        ui.setup.style.display = "block";
+        ui.result.classList.remove("show");
+        $("#savePill").textContent =
+          `营地晶薯 ${save.cores} · 总击倒 ${save.totalKills || 0}`;
+        $("#heroGrid").innerHTML = Object.entries(HEROES)
+          .map(
+            ([k, h]) =>
+              `<button class="choice ${selectedHero === k ? "selected" : ""}" data-hero="${k}"><b>${h.icon} ${h.name}</b><small>${h.desc}<br>初始：${h.weapons.map((w) => WEAPONS[w].name).join(" + ")}</small></button>`,
+          )
+          .join("");
+        $("#opGrid").innerHTML = Object.entries(OPERATIONS)
+          .map(
+            ([k, o]) =>
+              `<button class="choice ${selectedOp === k ? "selected" : ""}" data-op="${k}"><b>${o.icon} ${o.name}</b><small>${o.desc}<br>${k === "endless" ? `纪录 ${format(save.best[k] || 0)}` : format(o.duration)}</small></button>`,
+          )
+          .join("");
+        $("#dangerGrid").innerHTML = DANGERS.map(
+          (d, i) =>
+            `<button class="choice ${selectedDanger === i ? "selected" : ""}" data-danger="${i}">${d.name} ×${d.reward}</button>`,
+        ).join("");
+        $("#campGrid").innerHTML = Object.entries(CAMP)
+          .map(([k, c]) => {
+            const lv = save.camp[k] || 0,
+              cost = c.cost(lv),
+              max = lv >= c.max;
+            return `<button class="camp-btn" data-camp="${k}" ${max || save.cores < cost ? "disabled" : ""}><b>${c.name} Lv.${lv}</b><span>${c.desc}</span><em>${max ? "已满级" : `晶薯 ${cost}`}</em></button>`;
+          })
+          .join("");
+        $("#archiveGrid").innerHTML = [
+          `🏆 胜利 ${save.wins || 0}`,
+          `☠ 首领 ${save.bosses || 0}`,
+          `⚔ 总击倒 ${save.totalKills || 0}`,
+          `📜 任务 ${Object.values(save.missions || {}).reduce((a, b) => a + b, 0)}`,
+          `🧭 发现 ${Object.keys(save.discoveries || {}).length}/${Object.keys(HEROES).length + Object.keys(OPERATIONS).length}`,
+        ].map((text) => `<span class="save-pill">${text}</span>`).join("");
+        document.querySelectorAll("[data-hero]").forEach(
+          (b) =>
+            (b.onclick = () => {
+              selectedHero = b.dataset.hero;
+              renderHome();
+            }),
+        );
+        document.querySelectorAll("[data-op]").forEach(
+          (b) =>
+            (b.onclick = () => {
+              selectedOp = b.dataset.op;
+              renderHome();
+            }),
+        );
+        document.querySelectorAll("[data-danger]").forEach(
+          (b) =>
+            (b.onclick = () => {
+              selectedDanger = +b.dataset.danger;
+              renderHome();
+            }),
+        );
+        document
+          .querySelectorAll("[data-camp]")
+          .forEach((b) => (b.onclick = () => buyCamp(b.dataset.camp)));
+      }
+      function buyCamp(k) {
+        const c = CAMP[k],
+          lv = save.camp[k] || 0,
+          cost = c.cost(lv);
+        if (lv >= c.max || save.cores < cost) return;
+        save.cores -= cost;
+        save.camp[k] = lv + 1;
+        storeSave();
+        renderHome();
+      }
+      function resetRun() {
+        state = createState();
+        timeScale = 1;
+        $("#speedBtn").textContent = "1×";
+        $("#speedBtn").classList.remove("active");
+        ui.upgrade.classList.add("hidden");
+        sync();
+        draw();
+      }
+      function startRun() {
+        resetRun();
+        state.mode = "running";
+        state.paused = false;
+        ui.overlay.classList.add("hidden");
+        last = performance.now();
+        addLog(
+          `${HEROES[state.hero].name}进入${OPERATIONS[state.op].name}。`,
+          "good",
+        );
+        const missionPool = [
+          { id: "kills", text: "击倒 180 名敌人", done: () => state.killCount >= 180 },
+          { id: "level", text: "达到 12 级", done: () => state.player.level >= 12 },
+          { id: "relic", text: "获得 2 件遗物", done: () => state.player.relics.length >= 2 },
+          { id: "boss", text: "击败行动首领", done: () => state.bossKills >= 1 },
+        ];
+        state.mission = missionPool[(Object.keys(HEROES).indexOf(state.hero) + Object.keys(OPERATIONS).indexOf(state.op)) % missionPool.length];
+        addLog(`营地任务：${state.mission.text}。`, "gold");
+        showBanner(`${OPERATIONS[state.op].icon} ${OPERATIONS[state.op].name}`);
+        if (!raf) raf = requestAnimationFrame(loop);
+      }
+      function loop(t) {
+        raf = requestAnimationFrame(loop);
+        const dt = Math.min(0.033, (t - last) / 1000 || 0);
+        last = t;
+        if (state.mode === "running" && !state.paused) update(dt * timeScale);
+        draw();
+      }
+      function update(dt) {
+        state.elapsed += dt;
+        updatePlayer(dt);
+        updateWeapons(dt);
+        updateFields(dt);
+        updateEnemies(dt);
+        updateBullets(dt);
+        updateShots(dt);
+        updateHits(dt);
+        updateDrops(dt);
+        updateHazards(dt);
+        updateFx(dt);
+        director(dt);
+        cleanup();
+        if (state.elapsed >= state.nextStage) {
+          state.stage++;
+          state.nextStage += 60;
+          if (state.player.stagePower)
+            state.player.damageMult += state.player.stagePower;
+          state.player.shield = Math.min(
+            state.player.maxShield,
+            state.player.shield + 8,
+          );
+          showBanner(`阶段 ${state.stage} · 敌群强化`);
+        }
+        if (state.elapsed >= state.nextBossAt && !state.bossSpawned)
+          spawnBoss();
+        sync();
+      }
+      function inputVector() {
+        let x = 0,
+          y = 0;
+        if (keys.has("KeyW") || keys.has("ArrowUp")) y--;
+        if (keys.has("KeyS") || keys.has("ArrowDown")) y++;
+        if (keys.has("KeyA") || keys.has("ArrowLeft")) x--;
+        if (keys.has("KeyD") || keys.has("ArrowRight")) x++;
+        if (joy.active) {
+          x += joy.x;
+          y += joy.y;
+        } else if (pointer.active) {
+          const r = canvas.getBoundingClientRect(),
+            px = pointer.x - r.left - r.width / 2,
+            py = pointer.y - r.top - r.height / 2,
+            l = Math.hypot(px, py);
+          if (l > 15) {
+            x += px / l;
+            y += py / l;
+          }
+        }
+        return { x, y, l: Math.hypot(x, y) };
+      }
+      function updatePlayer(dt) {
+        const p = state.player,
+          v = inputVector();
+        p.dashCd = Math.max(0, p.dashCd - dt);
+        p.invuln = Math.max(0, p.invuln - dt);
+        p.speedBuff = Math.max(0, (p.speedBuff || 0) - dt);
+        p.chilled = Math.max(0, (p.chilled || 0) - dt);
+        if (
+          (keys.has("ShiftLeft") || keys.has("ShiftRight")) &&
+          p.dashCd <= 0 &&
+          v.l
+        )
+          dash();
+        const moveBoost = (p.speedBuff > 0 ? 1.65 : 1) * (p.chilled > 0 ? 0.62 : 1);
+        if (p.dashTime > 0) {
+          p.dashTime -= dt;
+          p.x += p.dashX * p.speed * p.speedMult * 3.2 * dt;
+          p.y += p.dashY * p.speed * p.speedMult * 3.2 * dt;
+          if (p.dashTrail && Math.random() < 0.45)
+            state.fields.push({
+              x: p.x,
+              y: p.y,
+              r: 42,
+              damage: 12,
+              duration: 0.7,
+              tick: 0,
+              color: "#efc95f",
+            });
+        } else if (v.l) {
+          p.x += (v.x / v.l) * p.speed * p.speedMult * moveBoost * dt;
+          p.y += (v.y / v.l) * p.speed * p.speedMult * moveBoost * dt;
+        }
+        p.x = clamp(p.x, p.r, WORLD.w - p.r);
+        p.y = clamp(p.y, p.r, WORLD.h - p.r);
+        if (p.regen && p.hp < p.maxHp)
+          p.hp = Math.min(p.maxHp, p.hp + p.regen * dt);
+        state.camera.x = clamp(
+          p.x - canvas.width / 2,
+          0,
+          Math.max(0, WORLD.w - canvas.width),
+        );
+        state.camera.y = clamp(
+          p.y - canvas.height / 2,
+          0,
+          Math.max(0, WORLD.h - canvas.height),
+        );
+      }
+      function dash() {
+        const p = state.player,
+          v = inputVector();
+        if (!v.l || p.dashCd > 0) return;
+        p.dashX = v.x / v.l;
+        p.dashY = v.y / v.l;
+        p.dashTime = 0.2;
+        p.dashCd = 5 * p.dashMult;
+        p.invuln = 0.42;
+        burstFx(p.x, p.y, "#f2ce69", 18);
+      }
+      function useSkill() {
+        const p = state.player;
+        if (state.mode !== "running" || state.paused || p.skill < 100) return;
+        p.skill = 0;
+        if (state.hero === "captain") {
+          p.invuln = 1;
+          state.enemies.forEach((e) => {
+            const d = Math.hypot(e.x - p.x, e.y - p.y);
+            if (d < 520) deal(e, Math.round(95 * (1 - d / 900)), true);
+          });
+          state.hits.push({
+            x: p.x,
+            y: p.y,
+            r: 520,
+            damage: 0,
+            life: 0.65,
+            max: 0.65,
+            color: "#f0cd6b",
+            hit: new Set(),
+          });
+        } else if (state.hero === "scout") {
+          p.invuln = 3.5;
+          p.speedBuff = 3.5;
+          p.dashCd = 0;
+          state.fields.push({
+            x: p.x,
+            y: p.y,
+            r: 80,
+            damage: 24,
+            duration: 3.5,
+            tick: 0,
+            color: "#f2d978",
+            follow: true,
+          });
+        } else if (state.hero === "warden") {
+          p.maxShield = Math.max(p.maxShield, 60);
+          p.shield = Math.min(p.maxShield, p.shield + 60);
+          state.fields.push({
+            x: p.x,
+            y: p.y,
+            r: 150,
+            damage: 22,
+            duration: 5,
+            tick: 0,
+            color: "#92b4ad",
+            follow: true,
+          });
+        } else if (state.hero === "sage") {
+          p.hp = Math.min(p.maxHp, p.hp + p.maxHp * 0.38);
+          magnetize();
+          state.enemies
+            .filter((e) => Math.hypot(e.x - p.x, e.y - p.y) < 400)
+            .forEach((e) => (e.slow = 5));
+        } else if (state.hero === "bomber") {
+          p.invuln = 1.2;
+          for (let i = 0; i < 9; i++)
+            state.fields.push({
+              x: p.x + rand(-330, 330),
+              y: p.y + rand(-260, 260),
+              r: 95 * p.areaMult,
+              damage: scaled(62),
+              duration: 2.4,
+              tick: 0,
+              color: "#f09a58",
+            });
+        } else {
+          p.invuln = 4;
+          p.speedBuff = 4;
+          p.leech = Math.max(p.leech, 0.18);
+          state.fields.push({
+            x: p.x,
+            y: p.y,
+            r: 120,
+            damage: scaled(38),
+            duration: 4,
+            tick: 0,
+            color: "#d8a3ef",
+            follow: true,
+          });
+        }
+        if (p.skillStorm)
+          [0, 220, 440].forEach((delay) =>
+            setTimeout(() => {
+              if (state.mode === "running")
+                state.enemies.forEach((e) => deal(e, scaled(24)));
+            }, delay),
+          );
+        showBanner(`${HEROES[state.hero].skill}！`);
+        sync();
+      }
+      function updateWeapons(dt) {
+        for (const w of state.player.weapons) {
+          w.cd -= dt;
+          if (w.cd > 0) continue;
+          const d = WEAPONS[w.key],
+            target = nearest(d.range * (1 + (w.level - 1) * 0.03));
+          if (!target) continue;
+          fireWeapon(w, d, target);
+          w.cd =
+            d.cooldown *
+            state.player.cooldownMult *
+            Math.max(0.52, 1 - (w.level - 1) * 0.055) *
+            (w.evolved ? 0.7 : 1);
+        }
+      }
+      function nearest(range) {
+        let best = null,
+          bd = range * range;
+        for (const e of state.enemies) {
+          const q = d2(e.x, e.y, state.player.x, state.player.y);
+          if (!e.dead && q < bd) {
+            best = e;
+            bd = q;
+          }
+        }
+        return best;
+      }
+      function nearestMany(range, n) {
+        return state.enemies
+          .filter(
+            (e) =>
+              !e.dead &&
+              d2(e.x, e.y, state.player.x, state.player.y) < range * range,
+          )
+          .sort(
+            (a, b) =>
+              d2(a.x, a.y, state.player.x, state.player.y) -
+              d2(b.x, b.y, state.player.x, state.player.y),
+          )
+          .slice(0, n);
+      }
+      function fireWeapon(w, d, t) {
+        const p = state.player,
+          lv = w.level,
+          evo = w.evolved,
+          area = p.areaMult;
+        if (d.type === "melee") {
+          const a = Math.atan2(t.y - p.y, t.x - p.x),
+            count = evo ? 3 : 1;
+          for (let i = 0; i < count; i++) {
+            const q = a + (i - (count - 1) / 2) * 1.35;
+            state.hits.push({
+              x: p.x + Math.cos(q) * 45,
+              y: p.y + Math.sin(q) * 45,
+              r: (d.range + lv * 6) * area,
+              damage: scaled(d.damage + lv * 4),
+              life: 0.18,
+              max: 0.18,
+              color: d.color,
+              hit: new Set(),
+            });
+          }
+        } else if (d.type === "chain") {
+          let last = { x: p.x, y: p.y };
+          nearestMany(
+            d.range,
+            evo ? 7 : Math.min(6, d.count + Math.floor(lv / 2)),
+          ).forEach((e, i) => {
+            deal(e, scaled(d.damage + lv * 2) * Math.pow(0.9, i));
+            beam(last.x, last.y, e.x, e.y, d.color);
+            last = e;
+          });
+        } else if (d.type === "orbit") {
+          const n = (evo ? 6 : 3) + Math.floor(lv / 2);
+          for (let i = 0; i < n; i++) {
+            const a = performance.now() * 0.002 + (i * Math.PI * 2) / n,
+              x = p.x + Math.cos(a) * (d.range + lv * 4),
+              y = p.y + Math.sin(a) * (d.range + lv * 4);
+            state.hits.push({
+              x,
+              y,
+              r: 27 * area,
+              damage: scaled(d.damage + lv * 3),
+              life: 0.28,
+              max: 0.28,
+              color: d.color,
+              hit: new Set(),
+            });
+          }
+        } else if (d.type === "field") {
+          state.fields.push({
+            x: t.x,
+            y: t.y,
+            r: (70 + lv * 8) * (evo ? 1.35 : 1) * area,
+            damage: scaled(d.damage + lv * 2),
+            duration: (evo ? 6 : 4) * (p.fieldDuration || 1),
+            tick: 0,
+            color: d.color,
+            slow: evo ? 0.45 : 0.2,
+          });
+        } else {
+          const count =
+              (d.count || 1) + Math.floor((lv - 1) / 2) + (evo ? 2 : 0),
+            base = Math.atan2(t.y - p.y, t.x - p.x);
+          for (let i = 0; i < count; i++) {
+            const a = base + (i - (count - 1) / 2) * (d.spread || 0.1),
+              boomer = d.type === "boomer";
+            state.bullets.push({
+              id: id(),
+              type: d.type,
+              x: p.x,
+              y: p.y,
+              vx: Math.cos(a) * d.speed,
+              vy: Math.sin(a) * d.speed,
+              speed: d.speed,
+              r: d.type === "rocket" ? 8 : 6,
+              damage: scaled(d.damage + lv * (d.type === "rocket" ? 6 : 2)),
+              pierce: (d.pierce || 0) + Math.floor(lv / 3),
+              life: (d.range / d.speed) * (boomer ? 2 : 1.2),
+              maxLife: (d.range / d.speed) * (boomer ? 2 : 1.2),
+              color: d.color,
+              homing: d.type === "rocket",
+              splash: d.type === "rocket" ? (80 + lv * 8) * area : 0,
+              boomer,
+              evolved: evo,
+            });
+          }
+        }
+      }
+      function scaled(n) {
+        return Math.round(n * state.player.damageMult);
+      }
+      function updateFields(dt) {
+        for (const f of state.fields) {
+          f.duration -= dt;
+          f.tick -= dt;
+          if (f.follow) {
+            f.x = state.player.x;
+            f.y = state.player.y;
+          }
+          if (f.tick <= 0) {
+            f.tick = 0.48;
+            for (const e of state.enemies) {
+              if (!e.dead && d2(e.x, e.y, f.x, f.y) < (e.r + f.r) ** 2) {
+                deal(e, f.damage);
+                if (f.slow) e.slow = Math.max(e.slow || 0, 1.1);
+              }
+            }
+          }
+        }
+      }
+      function updateEnemies(dt) {
+        const p = state.player;
+        for (const e of state.enemies) {
+          e.flash = Math.max(0, e.flash - dt);
+          e.attack = Math.max(0, e.attack - dt);
+          e.slow = Math.max(0, (e.slow || 0) - dt);
+          e.special = (e.special || 0) - dt;
+          const dist = Math.hypot(p.x - e.x, p.y - e.y),
+            a = Math.atan2(p.y - e.y, p.x - e.x);
+          let move = e.speed * (e.slow > 0 ? 0.58 : 1),
+            intent = 1;
+          if (e.burrow && dist > 190) {
+            e.hidden = true;
+            move *= 1.5;
+          } else e.hidden = false;
+          if (e.charger && e.special <= 0 && dist < 430) {
+            e.charge = 1.1;
+            e.special = 4.5;
+          }
+          if (e.charge > 0) {
+            e.charge -= dt;
+            move *= 2.5;
+          }
+          if (e.healer && e.special <= 0) {
+            e.special = 4.2;
+            state.enemies
+              .filter((q) => q !== e && d2(q.x, q.y, e.x, e.y) < 180 ** 2)
+              .forEach(
+                (q) =>
+                  (q.hp = Math.min(
+                    q.maxHp,
+                    q.hp + 28 * (1 + state.stage * 0.1),
+                  )),
+              );
+            ring(e.x, e.y, 80, "#76d9a8");
+          }
+          if (e.ranged) {
+            if (dist < e.prefer * 0.7) intent = -0.45;
+            else if (dist < e.prefer) intent = 0.12;
+            e.shot = (e.shot || rand(0.2, 1)) - dt;
+            if (e.shot <= 0 && dist < e.range) {
+              fireEnemyShot(e, a);
+              e.shot = e.boss
+                ? 1.45
+                : Math.max(0.78, 1.8 - state.danger * 0.16);
+            }
+          }
+          e.x += Math.cos(a) * move * intent * dt;
+          e.y += Math.sin(a) * move * intent * dt;
+          if (e.boss && e.special <= 0) {
+            e.special = 3;
+            for (let i = 0; i < 10; i++) fireEnemyShot(e, (i * Math.PI) / 5);
+            if (Math.random() < 0.5)
+              for (let i = 0; i < 3; i++)
+                spawnEnemyAt(
+                  "runner",
+                  e.x + rand(-70, 70),
+                  e.y + rand(-70, 70),
+                );
+          }
+          if (dist < e.r + p.r && e.attack <= 0) {
+            hurtPlayer(e.damage, e);
+            e.attack = 0.58;
+          }
+        }
+        state.enemies = state.enemies.filter((e) => !e.dead);
+      }
+      function fireEnemyShot(e, a) {
+        state.shots.push({
+          x: e.x,
+          y: e.y,
+          vx: Math.cos(a) * (e.boss ? 270 : 235),
+          vy: Math.sin(a) * (e.boss ? 270 : 235),
+          r: e.boss ? 8 : 6,
+          damage: e.boss ? 16 + state.danger * 3 : 7 + state.stage * 1.2,
+          life: 4,
+          color: e.color,
+        });
+      }
+      function updateBullets(dt) {
+        for (const b of state.bullets) {
+          b.life -= dt;
+          if (b.homing) {
+            const t = nearest(500);
+            if (t) {
+              const desired = Math.atan2(t.y - b.y, t.x - b.x),
+                cur = Math.atan2(b.vy, b.vx),
+                a = cur + angleDiff(cur, desired) * dt * 4;
+              b.vx = Math.cos(a) * b.speed;
+              b.vy = Math.sin(a) * b.speed;
+            }
+          }
+          if (b.boomer && b.life < b.maxLife / 2) {
+            const a = Math.atan2(state.player.y - b.y, state.player.x - b.x);
+            b.vx += Math.cos(a) * b.speed * dt * 3;
+            b.vy += Math.sin(a) * b.speed * dt * 3;
+            const l = Math.hypot(b.vx, b.vy);
+            b.vx = (b.vx / l) * b.speed;
+            b.vy = (b.vy / l) * b.speed;
+          }
+          b.x += b.vx * dt;
+          b.y += b.vy * dt;
+          for (const e of state.enemies) {
+            if (
+              e.dead ||
+              b.hit?.has(e.id) ||
+              d2(b.x, b.y, e.x, e.y) > (b.r + e.r) ** 2
+            )
+              continue;
+            if (!b.hit) b.hit = new Set();
+            b.hit.add(e.id);
+            deal(e, b.damage);
+            if (b.splash) {
+              state.enemies
+                .filter(
+                  (q) =>
+                    !q.dead &&
+                    q !== e &&
+                    d2(q.x, q.y, e.x, e.y) < b.splash ** 2,
+                )
+                .forEach((q) => deal(q, b.damage * 0.55));
+              ring(e.x, e.y, b.splash, b.color);
+              b.life = 0;
+            } else if (b.pierce-- <= 0) b.life = 0;
+            break;
+          }
+        }
+      }
+      function angleDiff(a, b) {
+        return Math.atan2(Math.sin(b - a), Math.cos(b - a));
+      }
+      function updateShots(dt) {
+        const p = state.player;
+        for (const s of state.shots) {
+          s.life -= dt;
+          s.x += s.vx * dt;
+          s.y += s.vy * dt;
+          if (d2(s.x, s.y, p.x, p.y) < (s.r + p.r) ** 2) {
+            hurtPlayer(s.damage, null);
+            s.life = 0;
+          }
+        }
+      }
+      function updateHits(dt) {
+        for (const h of state.hits) {
+          h.life -= dt;
+          if (h.damage <= 0) continue;
+          for (const e of state.enemies) {
+            if (
+              e.dead ||
+              h.hit.has(e.id) ||
+              d2(h.x, h.y, e.x, e.y) > (h.r + e.r) ** 2
+            )
+              continue;
+            h.hit.add(e.id);
+            deal(e, h.damage);
+          }
+        }
+      }
+      function deal(e, n, forceCrit = false) {
+        if (e.hidden) return;
+        const p = state.player,
+          crit = forceCrit || Math.random() < p.crit,
+          mult = e.elite || e.boss ? 1 + p.eliteDamage : 1,
+          rawAmount = Math.max(
+            1,
+            Math.round(n * mult * (crit ? p.critDamage : 1)),
+          );
+        let amount = rawAmount;
+        if (e.shield > 0) {
+          const used = Math.min(e.shield, amount);
+          e.shield -= used;
+          amount -= used;
+        }
+        if (amount > 0 && e.armor > 0) {
+          const used = Math.min(e.armor, amount * 0.55);
+          e.armor -= used;
+          amount -= used;
+        }
+        amount = Math.max(0, Math.round(amount));
+        e.hp -= amount;
+        e.flash = 0.09;
+        state.floaters.push({
+          x: e.x,
+          y: e.y - e.r,
+          text: crit ? `✦${amount}` : amount,
+          life: 0.45,
+          color: crit ? "#ffe477" : "#fff3d1",
+        });
+        if (e.hp <= 0 && !e.dead) killEnemy(e);
+      }
+      function hurtPlayer(n, source) {
+        const p = state.player;
+        if (p.invuln > 0 || Math.random() < Math.min(0.25, p.dodge || 0))
+          return;
+        let amount = Math.max(1, Math.round(n - p.armor * 0.65));
+        if (p.shield > 0) {
+          const used = Math.min(p.shield, amount);
+          p.shield -= used;
+          amount -= used;
+        }
+        if (amount > 0) p.hp -= amount;
+        p.invuln = 0.35;
+        state.floaters.push({
+          x: p.x,
+          y: p.y - 32,
+          text: `-${amount}`,
+          life: 0.5,
+          color: "#ff8175",
+        });
+        if (source && p.thorns) deal(source, amount * p.thorns);
+        if (p.hp <= 0) {
+          if (p.revives > 0) {
+            p.revives--;
+            p.hp = p.maxHp * 0.5;
+            p.invuln = 2;
+            showBanner("备用芽眼让你重新站起！");
+          } else endRun(false);
+        }
+      }
+      function killEnemy(e) {
+        e.dead = true;
+        state.killCount++;
+        state.player.skill = Math.min(
+          100,
+          state.player.skill +
+            (e.boss ? 100 : e.elite ? 30 : 2.2) * state.player.skillGain,
+        );
+        burstFx(e.x, e.y, e.color, e.boss ? 28 : 10);
+        state.drops.push({
+          type: "xp",
+          x: e.x,
+          y: e.y,
+          value: e.xp || 0,
+          r: 6,
+          color: "#74d68a",
+        });
+        if (Math.random() < (e.elite ? 1 : 0.1))
+          state.drops.push({
+            type: "crystal",
+            x: e.x + rand(-12, 12),
+            y: e.y + rand(-12, 12),
+            value: e.elite ? 8 : rint(1, 2),
+            r: 8,
+            color: "#e3bb57",
+          });
+        if (Math.random() < 0.025)
+          state.drops.push({
+            type: "heal",
+            x: e.x,
+            y: e.y,
+            value: 10,
+            r: 9,
+            color: "#ef7771",
+          });
+        if (e.splitter)
+          for (let i = 0; i < 2; i++)
+            spawnEnemyAt("runner", e.x + rand(-20, 20), e.y + rand(-20, 20));
+        if (e.elite) {
+          state.drops.push({
+            type: "crate",
+            x: e.x,
+            y: e.y - 15,
+            value: 1,
+            r: 13,
+            color: "#b58be5",
+          });
+          addLog("精英倒下，遗物箱落地。", "gold");
+        }
+        if (e.boss) {
+          state.bossKills++;
+          save.bosses = (save.bosses || 0) + 1;
+          if (state.op === "endless") {
+            state.bossSpawned = false;
+            state.nextBossAt += 300;
+            state.drops.push({
+              type: "crate",
+              x: e.x,
+              y: e.y,
+              value: 1,
+              r: 14,
+              color: "#f2c65e",
+            });
+            showBanner("首领击倒，无尽行动继续");
+          } else endRun(true);
+        }
+        if (state.player.leech && Math.random() < state.player.leech)
+          state.player.hp = Math.min(state.player.maxHp, state.player.hp + 2);
+      }
+      function updateDrops(dt) {
+        const p = state.player,
+          range = 78 * p.pickupMult;
+        for (const d of state.drops) {
+          const dist = Math.hypot(p.x - d.x, p.y - d.y);
+          if (dist < range * 3) {
+            const pull = clamp(1 - dist / (range * 3), 0.08, 1) * 700;
+            d.x += ((p.x - d.x) / Math.max(1, dist)) * pull * dt;
+            d.y += ((p.y - d.y) / Math.max(1, dist)) * pull * dt;
+          }
+          if (dist < p.r + d.r + 8) {
+            d.dead = true;
+            if (d.type === "xp") gainXp(d.value);
+            else if (d.type === "crystal") {
+              p.crystals += d.value;
+              if (p.bonusCrystal && Math.random() < p.bonusCrystal) p.crystals += 1;
+            }
+            else if (d.type === "heal")
+              p.hp = Math.min(p.maxHp, p.hp + d.value);
+            else if (d.type === "crate") openRelic();
+          }
+        }
+      }
+      function gainXp(n) {
+        const p = state.player;
+        p.xp += n;
+        while (p.xp >= p.xpNext) {
+          p.xp -= p.xpNext;
+          p.level++;
+          p.xpNext = Math.round(p.xpNext * 1.2 + 7);
+          state.pending++;
+        }
+        if (state.pending > 0 && ui.upgrade.classList.contains("hidden"))
+          openUpgrade("level");
+      }
+      function director(dt) {
+        state.spawnCd -= dt;
+        if (state.elapsed >= state.nextElite && !state.bossSpawned) {
+          spawnEnemy("elite");
+          state.nextElite += Math.max(
+            38,
+            68 - state.danger * 7 - state.stage * 3,
+          );
+          addLog("精英锅盖甲虫闯入战场。", "warn");
+        }
+        if (state.elapsed >= state.eventAt && !state.bossSpawned) {
+          triggerEvent();
+          state.eventAt += 50 + rand(-5, 8);
+        }
+        if (state.spawnCd <= 0 && !state.bossSpawned) {
+          const op = OPERATIONS[state.op],
+            count = Math.min(
+              9,
+              1 + Math.floor(state.stage / 2) + Math.floor(state.danger / 2),
+            );
+          for (let i = 0; i < count; i++) {
+            let pool = op.pool.filter((k) => availableEnemy(k));
+            spawnEnemy(pool[rint(0, pool.length - 1)]);
+          }
+          state.spawnCd = Math.max(
+            0.18,
+            0.9 - state.stage * 0.055 - state.danger * 0.08,
+          );
+        }
+      }
+      function availableEnemy(k) {
+        if (k === "charger") return state.elapsed > 75;
+        if (k === "healer") return state.elapsed > 105;
+        if (k === "splitter") return state.elapsed > 150;
+        if (k === "burrow") return state.elapsed > 55;
+        if (k === "sniper") return state.elapsed > 65;
+        if (k === "shieldling") return state.elapsed > 90;
+        if (k === "mimic") return state.elapsed > 120;
+        return true;
+      }
+      function triggerEvent() {
+        const roll = rint(0, 5);
+        if (roll === 0) {
+          showBanner("⚠ 快苗迁徙");
+          for (let i = 0; i < 12 + state.stage; i++) spawnEnemy("runner");
+        } else if (roll === 1) {
+          showBanner("✦ 丰收磁暴");
+          for (let i = 0; i < 10; i++)
+            state.drops.push({
+              type: "xp",
+              x: state.player.x + rand(-320, 320),
+              y: state.player.y + rand(-260, 260),
+              value: 8,
+              r: 7,
+              color: "#78df8a",
+            });
+        } else if (roll === 2) {
+          showBanner("⚠ 灼热孢坑");
+          for (let i = 0; i < 5; i++) addHazard();
+        } else if (roll === 3) {
+          showBanner("⚠ 重装小队");
+          for (let i = 0; i < 4 + state.stage / 2; i++) spawnEnemy("brute");
+        } else if (roll === 4) {
+          showBanner("❄ 霜糖寒潮");
+          state.player.chilled = 5;
+          for (let i = 0; i < 6; i++) spawnEnemy("frostling");
+        } else {
+          showBanner("✦ 遗迹宝箱苏醒");
+          for (let i = 0; i < 3 + Math.floor(state.stage / 2); i++) spawnEnemy("mimic");
+        }
+      }
+      function spawnEnemy(kind) {
+        const a = rand(0, Math.PI * 2),
+          dist = Math.max(canvas.width, canvas.height) * 0.68,
+          x = clamp(state.player.x + Math.cos(a) * dist, 35, WORLD.w - 35),
+          y = clamp(state.player.y + Math.sin(a) * dist, 35, WORLD.h - 35);
+        spawnEnemyAt(kind, x, y);
+      }
+      function spawnEnemyAt(kind, x, y) {
+        const b = ENEMIES[kind],
+          scale =
+            (1 + (state.stage - 1) * 0.2) *
+            OPERATIONS[state.op].diff *
+            DANGERS[state.danger].mult,
+          e = {
+            id: id(),
+            kind,
+            name: b.name,
+            r: b.r,
+            x,
+            y,
+            maxHp: Math.round(
+              b.hp * scale * (b.boss ? 1 + state.bossKills * 0.35 : 1),
+            ),
+            speed: b.speed * (1 + state.danger * 0.035),
+            damage: Math.round(b.damage * scale),
+            xp: Math.round(b.xp * (1 + state.stage * 0.05)),
+            color: b.color,
+            attack: 0,
+            flash: 0,
+            dead: false,
+            slow: 0,
+            special: rand(0.5, 2),
+            ranged: b.ranged,
+            charger: b.charger,
+            burrow: b.burrow,
+            healer: b.healer,
+            splitter: b.splitter,
+            armor: b.armor || 0,
+            shield: b.shield || 0,
+            elite: b.elite,
+            boss: b.boss,
+          };
+        if (e.ranged) {
+          e.range = b.range || (e.boss ? 650 : 440);
+          e.prefer = b.prefer || (e.boss ? 420 : 290);
+        }
+        e.hp = e.maxHp;
+        state.enemies.push(e);
+      }
+      function spawnBoss() {
+        state.bossSpawned = true;
+        const key = state.op === "glacier" ? "frostBoss" : state.op === "ruins" ? "ruinBoss" : "boss";
+        spawnEnemy(key);
+        showBanner(`☠ ${ENEMIES[key].name}进入战场`);
+        addLog(`最终首领${ENEMIES[key].name}压入行动区域。`, "warn");
+      }
+      function addHazard() {
+        state.hazards.push({
+          x: clamp(state.player.x + rand(-420, 420), 80, WORLD.w - 80),
+          y: clamp(state.player.y + rand(-320, 320), 80, WORLD.h - 80),
+          r: rand(65, 105),
+          warning: 1.8,
+          life: 8,
+          tick: 0,
+          kind: state.op === "glacier" ? "frost" : "fire",
+        });
+      }
+      function updateHazards(dt) {
+        if (state.op === "foundry" && Math.random() < dt * 0.16) addHazard();
+        if (state.op === "glacier" && Math.random() < dt * 0.11) addHazard();
+        for (const h of state.hazards) {
+          h.warning -= dt;
+          h.life -= dt;
+          h.tick -= dt;
+          if (
+            h.warning <= 0 &&
+            h.tick <= 0 &&
+            d2(h.x, h.y, state.player.x, state.player.y) <
+              (h.r + state.player.r) ** 2
+          ) {
+            h.tick = 0.7;
+            if (h.kind === "frost") state.player.chilled = 2.2;
+            else hurtPlayer(7 + state.stage, null);
+          }
+        }
+      }
+      function openUpgrade(type) {
+        state.paused = true;
+        state.upgradeType = type;
+        $("#modalKicker").textContent =
+          type === "relic" ? "精英遗物" : "等级提升";
+        $("#modalTitle").textContent =
+          type === "relic" ? "选择一件遗物" : "选择一项强化";
+        $("#rerollBtn").style.visibility =
+          type === "level" ? "visible" : "hidden";
+        $("#healSkipBtn").textContent =
+          type === "relic" ? "拆解为 12 晶薯" : "转化为 15% 治疗";
+        rollOptions();
+        ui.upgrade.classList.remove("hidden");
+      }
+      function openRelic() {
+        if (state.mode !== "running") return;
+        openUpgrade("relic");
+      }
+      function rollOptions() {
+        if (state.upgradeType === "relic") {
+          upgradeOptions = sample(
+            RELICS.filter((r) => !state.player.relics.includes(r.id)),
+            3,
+          ).map((x) => ({ ...x, rarity: "遗物", cls: "legend", times: 1 }));
+        } else {
+          let pool = [
+            ...PASSIVES,
+            ...Object.keys(WEAPONS).map((k) => ({
+              id: `weapon_${k}`,
+              icon: WEAPONS[k].icon,
+              title: WEAPONS[k].name,
+              desc: weaponUpgradeDesc(k),
+              weapon: k,
+              apply: () => addWeapon(k),
+            })),
+          ].filter(validUpgrade);
+          upgradeOptions = sample(pool, 3).map((x) => {
+            const roll = Math.random() + state.player.crit * 0.35;
+            let times = 1,
+              rarity = "普通",
+              cls = "";
+            if (roll > 0.94) {
+              times = 3;
+              rarity = "史诗";
+              cls = "epic";
+            } else if (roll > 0.72) {
+              times = 2;
+              rarity = "精良";
+              cls = "rare";
+            }
+            return { ...x, times, rarity, cls };
+          });
+        }
+        ui.choices.innerHTML = upgradeOptions
+          .map(
+            (u, i) =>
+              `<button class="upgrade-card ${u.cls}" data-choice="${i}"><span class="rarity">${u.rarity}${u.times > 1 ? ` ×${u.times}` : ""}</span><span class="up-icon">${u.icon}</span><strong>${u.title}</strong><p>${u.desc}</p></button>`,
+          )
+          .join("");
+        ui.choices
+          .querySelectorAll("[data-choice]")
+          .forEach((b) => (b.onclick = () => chooseUpgrade(+b.dataset.choice)));
+      }
+      function validUpgrade(u) {
+        if (!u.weapon) return true;
+        const w = state.player.weapons.find((x) => x.key === u.weapon);
+        return w ? w.level < 6 : state.player.weapons.length < MAX_WEAPONS;
+      }
+      function weaponUpgradeDesc(k) {
+        const w = state.player.weapons.find((x) => x.key === k);
+        return w
+          ? `提升至 Lv.${Math.min(6, w.level + 1)}；六级进化为「${WEAPONS[k].evo}」。`
+          : `获得新武器；六级可进化为「${WEAPONS[k].evo}」。`;
+      }
+      function chooseUpgrade(i) {
+        const u = upgradeOptions[i];
+        if (!u) return;
+        if (state.upgradeType === "relic") {
+          u.apply(state.player);
+          state.player.relics.push(u.id);
+          addLog(`获得遗物：${u.title}。`, "gold");
+        } else for (let n = 0; n < u.times; n++) u.apply(state.player);
+        finishUpgrade();
+      }
+      function finishUpgrade() {
+        if (state.upgradeType === "level")
+          state.pending = Math.max(0, state.pending - 1);
+        if (state.pending > 0) {
+          openUpgrade("level");
+        } else {
+          ui.upgrade.classList.add("hidden");
+          state.paused = false;
+          last = performance.now();
+        }
+        sync();
+      }
+      function addWeapon(k) {
+        let w = state.player.weapons.find((x) => x.key === k);
+        if (w) {
+          if (w.level < 6) w.level++;
+          if (w.level === 6 && !w.evolved) {
+            w.evolved = true;
+            showBanner(`${WEAPONS[k].evo} · 武器进化！`);
+          }
+        } else if (state.player.weapons.length < MAX_WEAPONS)
+          state.player.weapons.push({
+            key: k,
+            level: 1,
+            cd: 0.2,
+            evolved: false,
+          });
+      }
+      function sample(a, n) {
+        const b = [...a],
+          out = [];
+        while (b.length && out.length < n)
+          out.push(b.splice(rint(0, b.length - 1), 1)[0]);
+        return out;
+      }
+      function magnetize() {
+        state.drops.forEach((d) => {
+          d.x = state.player.x + rand(-60, 60);
+          d.y = state.player.y + rand(-60, 60);
+        });
+      }
+      function cleanup() {
+        state.bullets = state.bullets.filter(
+          (b) =>
+            b.life > 0 &&
+            b.x > -100 &&
+            b.y > -100 &&
+            b.x < WORLD.w + 100 &&
+            b.y < WORLD.h + 100,
+        );
+        state.shots = state.shots.filter((s) => s.life > 0);
+        state.hits = state.hits.filter((h) => h.life > 0);
+        state.fields = state.fields.filter((f) => f.duration > 0);
+        state.drops = state.drops.filter((d) => !d.dead);
+        state.hazards = state.hazards.filter((h) => h.life > 0);
+        state.particles = state.particles.filter((p) => p.life > 0);
+        state.floaters = state.floaters.filter((f) => f.life > 0);
+      }
+      function endRun(win) {
+        if (state.mode !== "running") return;
+        state.mode = win ? "win" : "dead";
+        state.paused = true;
+        let reward = Math.floor(
+          (state.player.crystals +
+            state.killCount / 55 +
+            state.bossKills * 12) *
+            DANGERS[state.danger].reward *
+            (1 + (save.camp.fortune || 0) * 0.05) *
+            (state.player.crystalMult || 1),
+        );
+        if (state.mission && state.mission.done()) {
+          reward += 12;
+          save.missions[state.mission.id] = (save.missions[state.mission.id] || 0) + 1;
+          addLog(`营地任务完成，额外带回 12 晶薯。`, "gold");
+        }
+        save.cores += reward;
+        save.totalKills = (save.totalKills || 0) + state.killCount;
+        save.best[state.op] = Math.max(
+          save.best[state.op] || 0,
+          Math.floor(state.elapsed),
+        );
+        if (win) save.wins = (save.wins || 0) + 1;
+        save.discoveries[state.hero] = true;
+        save.discoveries[state.op] = true;
+        storeSave();
+        ui.overlay.classList.remove("hidden");
+        ui.setup.style.display = "none";
+        ui.result.classList.add("show");
+        $("#resultTitle").textContent = win
+          ? `${state.op === "glacier" ? "冰糖巨像" : state.op === "ruins" ? "丰收机神" : "铁锅王"}被击倒了`
+          : "薯仔暂时倒下";
+        $("#resultText").textContent = win
+          ? "行动完成，所有收获已运回营地。"
+          : "这次构筑已经结算，强化营地后再来一轮。";
+        $("#resultTime").textContent = format(state.elapsed);
+        $("#resultKills").textContent = state.killCount;
+        $("#resultCores").textContent = reward;
+        $("#resultBoss").textContent = state.bossKills;
+      }
+      function addLog(text, type = "") {
+        state.logs.unshift({ text, type });
+        state.logs = state.logs.slice(0, 15);
+      }
+      function showBanner(text) {
+        ui.banner.textContent = text;
+        ui.banner.classList.add("show");
+        bannerTimer = 2.2;
+      }
+      function updateFx(dt) {
+        if (bannerTimer > 0) {
+          bannerTimer -= dt;
+          if (bannerTimer <= 0) ui.banner.classList.remove("show");
+        }
+        for (const p of state.particles) {
+          p.life -= dt;
+          p.x += p.vx * dt;
+          p.y += p.vy * dt;
+        }
+        for (const f of state.floaters) {
+          f.life -= dt;
+          f.y -= 32 * dt;
+        }
+      }
+      function burstFx(x, y, color, n = 9) {
+        for (let i = 0; i < n; i++) {
+          const a = rand(0, Math.PI * 2),
+            s = rand(40, 180);
+          state.particles.push({
+            x,
+            y,
+            vx: Math.cos(a) * s,
+            vy: Math.sin(a) * s,
+            r: rand(2, 5),
+            life: rand(0.25, 0.65),
+            max: 0.65,
+            color,
+          });
+        }
+      }
+      function ring(x, y, r, color) {
+        state.particles.push({
+          x,
+          y,
+          vx: 0,
+          vy: 0,
+          r,
+          life: 0.45,
+          max: 0.45,
+          color,
+          ring: true,
+        });
+      }
+      function beam(x, y, x2, y2, color) {
+        state.particles.push({
+          x,
+          y,
+          x2,
+          y2,
+          vx: 0,
+          vy: 0,
+          r: 0,
+          life: 0.18,
+          max: 0.18,
+          color,
+          beam: true,
+        });
+      }
+      function sync() {
+        const p = state.player,
+          op = OPERATIONS[state.op];
+        ui.time.textContent = format(state.elapsed);
+        ui.hp.textContent = `${Math.ceil(p.hp)}/${p.maxHp}${p.shield ? ` +${Math.ceil(p.shield)}` : ""}`;
+        ui.level.textContent = p.level;
+        ui.kills.textContent = state.killCount;
+        ui.crystal.textContent = p.crystals;
+        ui.stage.textContent = state.stage;
+        ui.skill.disabled = p.skill < 100 || state.mode !== "running";
+        ui.skillText.textContent = `${Math.floor(p.skill)}%`;
+        ui.skillBar.style.width = `${p.skill}%`;
+        const progress =
+          state.op === "endless"
+            ? (state.elapsed % 300) / 3
+            : (state.elapsed / state.duration) * 100;
+        ui.runBar.style.width = `${clamp(progress, 0, 100)}%`;
+        ui.runText.textContent =
+          state.op === "endless"
+            ? `距下个首领 ${format(Math.max(0, state.nextBossAt - state.elapsed))}`
+            : `距首领 ${format(Math.max(0, state.duration - state.elapsed))}`;
+        $("#opIcon").textContent = op.icon;
+        $("#opTitle").textContent =
+          `${op.name} · ${DANGERS[state.danger].name}`;
+        $("#opText").textContent = op.desc;
+        ui.slots.textContent = `${p.weapons.length}/${MAX_WEAPONS}`;
+        ui.weapons.innerHTML = p.weapons
+          .map(
+            (w) =>
+              `<span class="chip ${w.evolved ? "evolved" : ""}">${WEAPONS[w.key].icon} ${w.evolved ? WEAPONS[w.key].evo : WEAPONS[w.key].name} Lv.${w.level}</span>`,
+          )
+          .join("");
+        ui.relicCount.textContent = `${p.relics.length} 遗物`;
+        ui.stats.innerHTML = [
+          ["伤害", `${Math.round(p.damageMult * 100)}%`],
+          ["攻速", `${Math.round(100 / p.cooldownMult)}%`],
+          ["移速", `${Math.round(p.speedMult * 100)}%`],
+          ["护甲", p.armor],
+          ["暴击", `${Math.round(p.crit * 100)}%`],
+          ["拾取", `${Math.round(p.pickupMult * 100)}%`],
+        ]
+          .map((x) => `<div><span>${x[0]}</span><b>${x[1]}</b></div>`)
+          .join("");
+        ui.logs.innerHTML = state.logs
+          .map((x) => `<li class="${x.type}">${x.text}</li>`)
+          .join("");
+        $("#pauseBtn").textContent = state.paused ? "▶" : "Ⅱ";
+        $("#rerollBtn").textContent = `重抽（${state.rerolls}）`;
+        $("#rerollBtn").disabled = state.rerolls <= 0;
+      }
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if (!state) return;
+        drawWorld();
+        drawHazards();
+        drawFields();
+        drawDrops();
+        drawBullets();
+        drawEnemies();
+        drawPlayer();
+        drawFx();
+        drawMinimap();
+        if (state.op === "night") {
+          const g = ctx.createRadialGradient(
+            canvas.width / 2,
+            canvas.height / 2,
+            150,
+            canvas.width / 2,
+            canvas.height / 2,
+            Math.max(canvas.width, canvas.height) * 0.7,
+          );
+          g.addColorStop(0, "rgba(5,8,14,0)");
+          g.addColorStop(1, "rgba(6,8,16,.58)");
+          ctx.fillStyle = g;
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+      }
+      function screen(x, y) {
+        return { x: x - state.camera.x, y: y - state.camera.y };
+      }
+      function drawWorld() {
+        const op = OPERATIONS[state.op],
+          cam = state.camera;
+        ctx.fillStyle = op.ground;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        const grid = 90;
+        ctx.strokeStyle = "rgba(230,242,218,.055)";
+        ctx.lineWidth = 1;
+        for (
+          let x = Math.floor(cam.x / grid) * grid;
+          x < cam.x + canvas.width + grid;
+          x += grid
+        ) {
+          ctx.beginPath();
+          ctx.moveTo(x - cam.x, 0);
+          ctx.lineTo(x - cam.x, canvas.height);
+          ctx.stroke();
+        }
+        for (
+          let y = Math.floor(cam.y / grid) * grid;
+          y < cam.y + canvas.height + grid;
+          y += grid
+        ) {
+          ctx.beginPath();
+          ctx.moveTo(0, y - cam.y);
+          ctx.lineTo(canvas.width, y - cam.y);
+          ctx.stroke();
+        }
+        for (let i = 0; i < 42; i++) {
+          const x = (i * 337 + 91) % WORLD.w,
+            y = (i * 191 + 63) % WORLD.h,
+            s = screen(x, y);
+          if (
+            s.x < -40 ||
+            s.y < -40 ||
+            s.x > canvas.width + 40 ||
+            s.y > canvas.height + 40
+          )
+            continue;
+          ctx.fillStyle = i % 3 ? `${op.accent}26` : "rgba(255,255,255,.035)";
+          ctx.beginPath();
+          ctx.ellipse(
+            s.x,
+            s.y,
+            18 + (i % 4) * 6,
+            10 + (i % 3) * 4,
+            i,
+            0,
+            Math.PI * 2,
+          );
+          ctx.fill();
+        }
+      }
+      function drawPlayer() {
+        const p = state.player,
+          s = screen(p.x, p.y);
+        ctx.save();
+        ctx.translate(s.x, s.y);
+        ctx.fillStyle = "rgba(0,0,0,.25)";
+        ctx.beginPath();
+        ctx.ellipse(0, 20, 25, 9, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = p.invuln > 0 ? "#fff0ae" : "#d8ad63";
+        ctx.strokeStyle = "#242219";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 21, 25, -0.15, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = "#1f241d";
+        ctx.beginPath();
+        ctx.arc(-7, -5, 3, 0, Math.PI * 2);
+        ctx.arc(7, -5, 3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "#4e7d49";
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(1, -22);
+        ctx.quadraticCurveTo(7, -36, 17, -33);
+        ctx.stroke();
+        if (p.shield) {
+          ctx.strokeStyle = "#75d5e5";
+          ctx.lineWidth = 4;
+          ctx.beginPath();
+          ctx.arc(0, 0, 31, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+      function drawEnemies() {
+        for (const e of state.enemies) {
+          const s = screen(e.x, e.y);
+          if (
+            s.x < -90 ||
+            s.y < -90 ||
+            s.x > canvas.width + 90 ||
+            s.y > canvas.height + 90
+          )
+            continue;
+          ctx.save();
+          ctx.translate(s.x, s.y);
+          ctx.globalAlpha = e.hidden ? 0.42 : 1;
+          ctx.fillStyle = "rgba(0,0,0,.22)";
+          ctx.beginPath();
+          ctx.ellipse(0, e.r * 0.65, e.r, e.r * 0.35, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = e.flash > 0 ? "#fff3c8" : e.color;
+          ctx.strokeStyle = "#20241e";
+          ctx.lineWidth = e.boss ? 5 : 3;
+          ctx.beginPath();
+          ctx.ellipse(0, 0, e.r, e.r * 0.88, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+          ctx.fillStyle = "#20241e";
+          ctx.beginPath();
+          ctx.arc(-e.r * 0.3, -3, e.boss ? 5 : 3, 0, Math.PI * 2);
+          ctx.arc(e.r * 0.3, -3, e.boss ? 5 : 3, 0, Math.PI * 2);
+          ctx.fill();
+          if (e.elite || e.boss) {
+            ctx.strokeStyle = e.boss ? "#e8bd5d" : "#f0a0ad";
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(0, 0, e.r + 7, 0, Math.PI * 2);
+            ctx.stroke();
+          }
+          const pct = clamp(e.hp / e.maxHp, 0, 1);
+          ctx.fillStyle = "rgba(0,0,0,.55)";
+          round(-e.r, e.r + 9, e.r * 2, 6, 3);
+          ctx.fill();
+          ctx.fillStyle = e.boss ? "#d696e7" : "#78dc7b";
+          round(-e.r, e.r + 9, e.r * 2 * pct, 6, 3);
+          ctx.fill();
+          ctx.restore();
+        }
+      }
+      function drawBullets() {
+        for (const b of state.bullets) {
+          const s = screen(b.x, b.y);
+          ctx.fillStyle = b.color;
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, b.r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        for (const b of state.shots) {
+          const s = screen(b.x, b.y);
+          ctx.fillStyle = b.color;
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, b.r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        for (const h of state.hits) {
+          const s = screen(h.x, h.y);
+          ctx.globalAlpha = clamp(h.life / h.max, 0.12, 0.55);
+          ctx.strokeStyle = h.color;
+          ctx.lineWidth = 7;
+          ctx.beginPath();
+          ctx.arc(
+            s.x,
+            s.y,
+            h.r * (1.1 - (h.life / h.max) * 0.1),
+            0,
+            Math.PI * 2,
+          );
+          ctx.stroke();
+          ctx.globalAlpha = 1;
+        }
+      }
+      function drawFields() {
+        for (const f of state.fields) {
+          const s = screen(f.x, f.y),
+            a = clamp(f.duration / 1.2, 0, 0.42);
+          ctx.fillStyle = rgba(f.color, a);
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, f.r, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = f.color;
+          ctx.globalAlpha = 0.6;
+          ctx.stroke();
+          ctx.globalAlpha = 1;
+        }
+      }
+      function drawDrops() {
+        for (const d of state.drops) {
+          const s = screen(d.x, d.y);
+          ctx.fillStyle = d.color;
+          ctx.save();
+          ctx.translate(s.x, s.y);
+          ctx.rotate(performance.now() * 0.002);
+          ctx.beginPath();
+          if (d.type === "crystal" || d.type === "crate") {
+            ctx.moveTo(0, -d.r);
+            ctx.lineTo(d.r, 0);
+            ctx.lineTo(0, d.r);
+            ctx.lineTo(-d.r, 0);
+            ctx.closePath();
+          } else ctx.arc(0, 0, d.r, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+      }
+      function drawHazards() {
+        for (const h of state.hazards) {
+          const s = screen(h.x, h.y);
+          ctx.fillStyle = h.kind === "frost"
+            ? h.warning > 0 ? "rgba(130,220,244,.12)" : "rgba(86,179,220,.25)"
+            : h.warning > 0 ? "rgba(255,190,84,.12)" : "rgba(234,83,60,.22)";
+          ctx.strokeStyle = h.kind === "frost" ? "#8bdcf0" : h.warning > 0 ? "#efbf62" : "#e95e4f";
+          ctx.setLineDash(h.warning > 0 ? [8, 7] : []);
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, h.r, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+          ctx.setLineDash([]);
+        }
+      }
+      function drawFx() {
+        for (const p of state.particles) {
+          ctx.save();
+          ctx.globalAlpha = clamp(p.life / p.max, 0, 1);
+          const s = screen(p.x, p.y);
+          if (p.beam) {
+            const t = screen(p.x2, p.y2);
+            ctx.strokeStyle = p.color;
+            ctx.lineWidth = 5;
+            ctx.beginPath();
+            ctx.moveTo(s.x, s.y);
+            ctx.lineTo(t.x, t.y);
+            ctx.stroke();
+          } else if (p.ring) {
+            ctx.strokeStyle = p.color;
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.arc(
+              s.x,
+              s.y,
+              p.r * (1.35 - (p.life / p.max) * 0.35),
+              0,
+              Math.PI * 2,
+            );
+            ctx.stroke();
+          } else {
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, p.r, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.restore();
+        }
+        ctx.textAlign = "center";
+        ctx.font = "900 13px sans-serif";
+        for (const f of state.floaters) {
+          const s = screen(f.x, f.y);
+          ctx.globalAlpha = clamp(f.life / 0.45, 0, 1);
+          ctx.fillStyle = f.color;
+          ctx.fillText(f.text, s.x, s.y);
+        }
+        ctx.globalAlpha = 1;
+      }
+      function drawMinimap() {
+        const w = 126,
+          h = 82,
+          x = canvas.width - w - 12,
+          y = 12;
+        ctx.fillStyle = "rgba(5,10,7,.65)";
+        round(x, y, w, h, 10);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(238,244,225,.2)";
+        ctx.stroke();
+        ctx.fillStyle = "#f3ce72";
+        ctx.beginPath();
+        ctx.arc(
+          x + (state.player.x / WORLD.w) * w,
+          y + (state.player.y / WORLD.h) * h,
+          3,
+          0,
+          Math.PI * 2,
+        );
+        ctx.fill();
+        ctx.fillStyle = "#e77468";
+        state.enemies
+          .filter((e) => e.elite || e.boss)
+          .forEach((e) =>
+            ctx.fillRect(
+              x + (e.x / WORLD.w) * w - 2,
+              y + (e.y / WORLD.h) * h - 2,
+              4,
+              4,
+            ),
+          );
+      }
+      function round(x, y, w, h, r) {
+        r = Math.min(r, w / 2, h / 2);
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.lineTo(x + w - r, y);
+        ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+        ctx.lineTo(x + w, y + h - r);
+        ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+        ctx.lineTo(x + r, y + h);
+        ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+        ctx.lineTo(x, y + r);
+        ctx.quadraticCurveTo(x, y, x + r, y);
+        ctx.closePath();
+      }
+      function rgba(hex, a) {
+        const n = parseInt(hex.slice(1), 16);
+        return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`;
+      }
+      function format(s) {
+        s = Math.max(0, Math.floor(s));
+        return `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+      }
+      function resize() {
+        const r = canvas.parentElement.getBoundingClientRect();
+        canvas.width = Math.max(320, Math.floor(r.width));
+        canvas.height = Math.max(280, Math.floor(r.height));
+        if (state) {
+          state.camera.x = clamp(
+            state.player.x - canvas.width / 2,
+            0,
+            Math.max(0, WORLD.w - canvas.width),
+          );
+          state.camera.y = clamp(
+            state.player.y - canvas.height / 2,
+            0,
+            Math.max(0, WORLD.h - canvas.height),
+          );
+          draw();
+        }
+      }
+      $("#startBtn").onclick = startRun;
+      $("#againBtn").onclick = startRun;
+      $("#resultHomeBtn").onclick = () => {
+        ui.result.classList.remove("show");
+        renderHome();
+      };
+      $("#homeBtn").onclick = () => {
+        if (
+          state.mode === "running" &&
+          !confirm("当前行动尚未结算，返回营地将放弃本局收获。")
+        )
+          return;
+        state.mode = "ready";
+        ui.overlay.classList.remove("hidden");
+        renderHome();
+      };
+      $("#restartBtn").onclick = () => {
+        if (state.mode === "running" && confirm("重新开始当前行动？"))
+          startRun();
+      };
+      $("#pauseBtn").onclick = () => {
+        if (
+          state.mode !== "running" ||
+          !ui.upgrade.classList.contains("hidden")
+        )
+          return;
+        state.paused = !state.paused;
+        last = performance.now();
+        sync();
+      };
+      $("#speedBtn").onclick = () => {
+        timeScale = timeScale === 1 ? 2 : 1;
+        $("#speedBtn").textContent = `${timeScale}×`;
+        $("#speedBtn").classList.toggle("active", timeScale === 2);
+      };
+      ui.skill.onclick = useSkill;
+      $("#dashBtn").onclick = dash;
+      $("#rerollBtn").onclick = () => {
+        if (state.rerolls > 0) {
+          state.rerolls--;
+          rollOptions();
+          sync();
+        }
+      };
+      $("#healSkipBtn").onclick = () => {
+        if (state.upgradeType === "relic") state.player.crystals += 12;
+        else
+          state.player.hp = Math.min(
+            state.player.maxHp,
+            state.player.hp + state.player.maxHp * 0.15,
+          );
+        finishUpgrade();
+      };
+      window.addEventListener("keydown", (e) => {
+        keys.add(e.code);
+        if (e.code === "Space" || e.code === "KeyP") {
+          e.preventDefault();
+          $("#pauseBtn").click();
+        }
+        if (e.code === "KeyQ") useSkill();
+      });
+      window.addEventListener("keyup", (e) => keys.delete(e.code));
+      canvas.addEventListener("pointerdown", (e) => {
+        if (e.pointerType !== "touch") {
+          pointer.active = true;
+          pointer.x = e.clientX;
+          pointer.y = e.clientY;
+        }
+      });
+      canvas.addEventListener("pointermove", (e) => {
+        if (pointer.active) {
+          pointer.x = e.clientX;
+          pointer.y = e.clientY;
+        }
+      });
+      window.addEventListener("pointerup", () => (pointer.active = false));
+      const joystick = $("#joystick"),
+        thumb = $("#joystickThumb");
+      function joyUpdate(e) {
+        const r = joystick.getBoundingClientRect(),
+          cx = r.width / 2,
+          cy = r.height / 2,
+          dx = e.clientX - r.left - cx,
+          dy = e.clientY - r.top - cy,
+          max = r.width * 0.34,
+          l = Math.hypot(dx, dy),
+          s = l > max ? max / l : 1;
+        joy.x = (dx * s) / max;
+        joy.y = (dy * s) / max;
+        thumb.style.transform = `translate(calc(-50% + ${dx * s}px),calc(-50% + ${dy * s}px))`;
+      }
+      function joyEnd(e) {
+        if (e && joy.id !== e.pointerId) return;
+        joy.active = false;
+        joy.id = null;
+        joy.x = joy.y = 0;
+        thumb.style.transform = "translate(-50%,-50%)";
+      }
+      joystick.addEventListener("pointerdown", (e) => {
+        joy.active = true;
+        joy.id = e.pointerId;
+        joystick.setPointerCapture(e.pointerId);
+        joyUpdate(e);
+      });
+      joystick.addEventListener("pointermove", (e) => {
+        if (joy.active && e.pointerId === joy.id) joyUpdate(e);
+      });
+      joystick.addEventListener("pointerup", joyEnd);
+      joystick.addEventListener("pointercancel", joyEnd);
+      window.addEventListener("resize", resize);
+      resetRun();
+      renderHome();
+      resize();
+    </script>
+  </body>
 </html>

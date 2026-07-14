@@ -1,224 +1,3840 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#10251a">
-<title>芽阵前线：四境远征</title>
-<style>
-  :root{color-scheme:dark;--ink:#f4f8ea;--muted:#aebca7;--leaf:#83dd72;--sun:#ffd45e;--danger:#ff6d61;--cyan:#6dd9ec;--violet:#b99aff;--panel:rgba(10,20,15,.92);--line:rgba(226,243,214,.16)}
-  *{box-sizing:border-box}button{font:inherit}body{margin:0;min-height:100vh;overflow:hidden;background:#07100c;color:var(--ink);font-family:"Segoe UI","Microsoft YaHei",system-ui,sans-serif;user-select:none}
-  body:before{content:"";position:fixed;inset:0;background:radial-gradient(circle at 12% 10%,rgba(92,197,102,.18),transparent 30%),radial-gradient(circle at 85% 80%,rgba(255,196,71,.12),transparent 28%);pointer-events:none}
-  .app{height:100vh;height:100dvh;padding:12px;display:grid;grid-template-columns:minmax(0,1fr) 348px;gap:12px}
-  .stage,.rail{border:1px solid var(--line);border-radius:18px;background:rgba(8,15,11,.78);box-shadow:0 24px 70px rgba(0,0,0,.38);overflow:hidden}
-  .stage{position:relative;min-height:0}canvas{display:block;width:100%;height:100%;background:#183b28;touch-action:none}
-  .hud{position:absolute;inset:12px 12px auto 12px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;pointer-events:none}
-  .brand,.top-stats,.wave-track,.toast,.panel,.modal-card{border:1px solid var(--line);background:rgba(7,15,10,.84);backdrop-filter:blur(12px);box-shadow:0 10px 30px rgba(0,0,0,.18)}
-  .brand{border-radius:14px;padding:10px 14px;min-width:225px}.brand h1{margin:0;font-size:clamp(23px,2.5vw,34px);line-height:1;letter-spacing:-1px}.brand h1 b{color:var(--sun)}.subline{margin-top:7px;color:var(--muted);font-size:12px;font-weight:800}
-  .top-stats{border-radius:14px;padding:8px 10px;display:grid;grid-template-columns:repeat(4,minmax(62px,1fr));gap:7px}.stat span{display:block;color:var(--muted);font-size:10px;font-weight:900}.stat strong{font-size:19px}.stat.sun strong{color:var(--sun)}
-  .hud-actions{display:flex;gap:7px;pointer-events:auto}.icon-btn,.primary-btn,.mode-btn,.seed-card,.tab-btn,.level-btn,.mini-btn{border:1px solid rgba(230,244,220,.18);background:rgba(23,38,28,.94);color:var(--ink);font-weight:900;cursor:pointer;transition:.15s ease}.icon-btn:hover,.primary-btn:hover,.mode-btn:hover,.seed-card:hover,.tab-btn:hover,.level-btn:hover,.mini-btn:hover{transform:translateY(-1px);border-color:rgba(255,212,94,.7)}.icon-btn{width:42px;height:42px;border-radius:12px}.icon-btn.active{color:var(--sun);border-color:var(--sun)}button:disabled{cursor:not-allowed;opacity:.38;transform:none!important}
-  .wave-track{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);width:min(62%,620px);height:28px;border-radius:14px;padding:8px 12px}.wave-track .fill{height:10px;border-radius:6px;background:rgba(255,255,255,.11);overflow:hidden}.wave-track i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--leaf),var(--sun),var(--danger));border-radius:inherit;transition:width .3s}.wave-track span{position:absolute;inset:4px;text-align:center;font-size:11px;font-weight:900;text-shadow:0 2px 4px #000}
-  .rail{padding:12px;display:flex;flex-direction:column;gap:10px;min-height:0}.panel{border-radius:14px;padding:10px}.mission{display:flex;gap:9px;align-items:center}.mission-icon{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:22px;background:linear-gradient(145deg,rgba(118,216,117,.24),rgba(255,210,84,.16))}.mission strong,.panel-title{display:block;font-size:13px}.mission small{color:var(--muted);line-height:1.25}
-  .resource-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}.meter span{font-size:10px;color:var(--muted);font-weight:900}.meter strong{float:right;font-size:12px}.bar{height:7px;margin-top:7px;background:rgba(255,255,255,.1);border-radius:8px;overflow:hidden}.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--leaf),var(--sun));transition:width .2s}.guards i{background:linear-gradient(90deg,var(--danger),var(--sun))}
-  .toolbox{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.toolbox button{width:auto;font-size:13px}.leaf-btn{position:relative}.leaf-btn em{font-style:normal;color:var(--sun)}
-  .seed-bank{display:grid;grid-template-columns:1fr 1fr;gap:7px;overflow:auto;padding-right:3px;align-content:start;min-height:0}.seed-card{position:relative;min-height:78px;border-radius:13px;padding:8px 8px 7px 43px;text-align:left;overflow:hidden}.seed-card.selected{border-color:var(--sun);background:rgba(59,53,25,.96);box-shadow:0 0 0 1px rgba(255,212,94,.2) inset}.seed-card .seed-icon{position:absolute;left:8px;top:10px;width:29px;height:29px;border-radius:9px;display:grid;place-items:center;font-size:18px;background:var(--seed-bg,rgba(110,220,110,.18))}.seed-card strong{display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.seed-card small{display:block;color:var(--muted);font-size:10px;margin-top:3px}.seed-card .cost{position:absolute;right:7px;bottom:6px;color:var(--sun);font-size:11px}.seed-card .key{position:absolute;left:8px;bottom:6px;font-size:9px;color:rgba(255,255,255,.35)}.cooldown-mask{position:absolute;inset:auto 0 0;height:0;background:rgba(3,7,5,.7);pointer-events:none}.conveyor-badge{position:absolute;right:6px;top:5px;color:var(--cyan);font-size:10px}
-  .brief{font-size:11px;color:var(--muted);line-height:1.45}.brief b{color:var(--ink)}
-  .toast{position:absolute;left:50%;top:105px;transform:translate(-50%,-12px);opacity:0;border-radius:999px;padding:9px 16px;font-size:13px;font-weight:900;pointer-events:none;transition:.18s}.toast.show{opacity:1;transform:translate(-50%,0)}
-  .modal{position:absolute;inset:0;display:none;place-items:center;padding:20px;background:rgba(3,8,5,.72);backdrop-filter:blur(5px);z-index:20}.modal.show{display:grid}.modal-card{width:min(940px,96%);max-height:92%;overflow:auto;border-radius:22px;padding:20px}.modal-card.compact{width:min(480px,94%);text-align:center}.title-row{display:flex;justify-content:space-between;gap:18px;align-items:flex-start}.title-row h2,.compact h2{margin:0;font-size:29px}.title-row h2 b{color:var(--sun)}.title-row p,.compact p{margin:7px 0;color:var(--muted)}.save-pill{padding:7px 11px;background:rgba(255,255,255,.06);border-radius:999px;font-size:11px;color:var(--muted)}
-  .tabs{display:flex;gap:7px;margin:16px 0 12px}.tab-btn{border-radius:999px;padding:8px 14px}.tab-btn.selected{background:var(--leaf);color:#102116}.menu-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:14px}.menu-section{border:1px solid var(--line);background:rgba(255,255,255,.025);border-radius:16px;padding:13px}.menu-section h3{margin:0 0 10px;font-size:14px}.level-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.level-btn{border-radius:12px;padding:9px 5px;min-height:62px;text-align:center}.level-btn span{display:block;font-size:18px}.level-btn small{display:block;color:var(--muted);font-size:9px;margin-top:3px}.level-btn.selected{border-color:var(--sun);background:rgba(255,212,94,.12)}.level-btn.locked{filter:grayscale(1)}
-  .level-info{min-height:82px;padding:11px;border-radius:12px;background:rgba(0,0,0,.18);margin-top:10px}.level-info strong{font-size:16px}.level-info p{margin:5px 0 0;color:var(--muted);font-size:11px;line-height:1.45}.loadout-head{display:flex;justify-content:space-between;align-items:center}.loadout-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;max-height:245px;overflow:auto;padding-right:3px}.loadout-card{min-height:57px;padding:6px;border:1px solid var(--line);border-radius:11px;background:rgba(22,36,26,.8);cursor:pointer;text-align:center;position:relative}.loadout-card b{display:block;font-size:18px}.loadout-card span{display:block;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.loadout-card.selected{border-color:var(--sun);background:rgba(255,212,94,.12)}.loadout-card.locked{opacity:.3;cursor:not-allowed}.loadout-card i{position:absolute;right:4px;top:3px;font-size:8px;font-style:normal;color:var(--sun)}
-  .start-row{display:flex;justify-content:flex-end;gap:8px;margin-top:13px}.primary-btn{border-radius:13px;padding:11px 22px;background:linear-gradient(135deg,#6cca68,#9bd75e);color:#102116;border:0}.mini-btn{border-radius:10px;padding:8px 11px}.mode-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.mode-btn{border-radius:14px;padding:14px;text-align:left;min-height:110px}.mode-btn b{display:block;font-size:20px;margin-bottom:5px}.mode-btn small{color:var(--muted);line-height:1.4}.mode-btn.selected{border-color:var(--sun);background:rgba(255,212,94,.1)}
-  .almanac-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.codex-card{border:1px solid var(--line);border-radius:13px;padding:10px;background:rgba(255,255,255,.025)}.codex-card b{font-size:20px}.codex-card strong{display:block;margin:5px 0 3px;font-size:12px}.codex-card small{color:var(--muted);font-size:10px;line-height:1.4}.result-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:15px 0}.result-stats div{padding:11px;border-radius:12px;background:rgba(255,255,255,.05)}.result-stats strong{display:block;font-size:20px;color:var(--sun)}.result-stats span{font-size:10px;color:var(--muted)}
-  @media(max-width:900px){.app{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) 258px;padding:7px;gap:7px}.rail{display:grid;grid-template-columns:185px 1fr;grid-template-rows:auto auto 1fr;padding:8px;gap:7px}.mission{grid-column:1}.resource-row{grid-column:1}.toolbox{grid-column:1}.seed-bank{grid-column:2;grid-row:1/4}.brief{display:none}.brand{min-width:175px}.top-stats{display:none}.wave-track{width:68%}.modal-card{padding:14px}.menu-grid{grid-template-columns:1fr}.loadout-grid{max-height:160px}.almanac-grid{grid-template-columns:repeat(3,1fr)}}
-  @media(max-width:560px){.app{grid-template-rows:minmax(0,1fr) 230px}.brand{padding:8px 10px;min-width:145px}.brand h1{font-size:21px}.hud{inset:7px}.hud-actions .icon-btn{width:36px;height:36px}.rail{grid-template-columns:137px 1fr}.mission{padding:7px}.mission-icon{display:none}.resource-row{grid-template-columns:1fr}.seed-bank{grid-template-columns:repeat(2,minmax(105px,1fr))}.seed-card{min-height:70px;padding-left:37px}.seed-card .seed-icon{left:6px;width:26px;height:26px}.wave-track{bottom:7px}.title-row{display:block}.level-grid{grid-template-columns:repeat(3,1fr)}.mode-cards{grid-template-columns:1fr}.almanac-grid{grid-template-columns:repeat(2,1fr)}}
-</style>
-</head>
-<body>
-<main class="app">
-  <section class="stage">
-    <canvas id="gameCanvas" aria-label="芽阵前线五路战场"></canvas>
-    <div class="hud">
-      <div class="brand"><h1>芽阵前线 <b>V2</b></h1><div class="subline"><span id="statusText">远征待命</span> · <span id="regionText">晨露庭院</span></div></div>
-      <div class="top-stats">
-        <div class="stat sun"><span>日光</span><strong id="sunText">150</strong></div><div class="stat"><span>波次</span><strong id="waveStat">0/0</strong></div><div class="stat"><span>威胁</span><strong id="threatText">0</strong></div><div class="stat"><span>击退</span><strong id="killText">0</strong></div>
-      </div>
-      <div class="hud-actions"><button class="icon-btn" id="speedBtn" title="倍速">1×</button><button class="icon-btn" id="pauseBtn" title="暂停">Ⅱ</button><button class="icon-btn" id="menuBtn" title="返回远征地图">☰</button></div>
-    </div>
-    <div class="wave-track"><div class="fill"><i id="waveBar"></i></div><span id="waveText">选择行动</span></div>
-    <div class="toast" id="toast">准备就绪</div>
-    <div class="modal show" id="startModal">
-      <div class="modal-card">
-        <div class="title-row"><div><h2>芽阵前线：<b>四境远征</b></h2><p>组建你的八株芽阵，守住四片生态前线。</p></div><div class="save-pill" id="savePill">远征进度 1/12</div></div>
-        <div class="tabs"><button class="tab-btn selected" data-tab="adventure">冒险地图</button><button class="tab-btn" data-tab="special">特别行动</button><button class="tab-btn" data-tab="almanac">芽阵图鉴</button></div>
-        <div id="adventureTab">
-          <div class="menu-grid"><section class="menu-section"><h3>四境路线</h3><div class="level-grid" id="levelGrid"></div><div class="level-info" id="levelInfo"></div></section><section class="menu-section"><div class="loadout-head"><h3>出战芽阵 <span id="loadoutCount">0/8</span></h3><button class="mini-btn" id="autoLoadoutBtn">推荐</button></div><div class="loadout-grid" id="loadoutGrid"></div></section></div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#10251a" />
+    <title>芽阵前线：六境繁花</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --ink: #f4f8ea;
+        --muted: #aebca7;
+        --leaf: #83dd72;
+        --sun: #ffd45e;
+        --danger: #ff6d61;
+        --cyan: #6dd9ec;
+        --violet: #b99aff;
+        --panel: rgba(10, 20, 15, 0.92);
+        --line: rgba(226, 243, 214, 0.16);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      button {
+        font: inherit;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        overflow: hidden;
+        background: #07100c;
+        color: var(--ink);
+        font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+        user-select: none;
+      }
+      body:before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background:
+          radial-gradient(
+            circle at 12% 10%,
+            rgba(92, 197, 102, 0.18),
+            transparent 30%
+          ),
+          radial-gradient(
+            circle at 85% 80%,
+            rgba(255, 196, 71, 0.12),
+            transparent 28%
+          );
+        pointer-events: none;
+      }
+      .app {
+        height: 100vh;
+        height: 100dvh;
+        padding: 12px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 348px;
+        gap: 12px;
+      }
+      .stage,
+      .rail {
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: rgba(8, 15, 11, 0.78);
+        box-shadow: 0 24px 70px rgba(0, 0, 0, 0.38);
+        overflow: hidden;
+      }
+      .stage {
+        position: relative;
+        min-height: 0;
+      }
+      canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+        background: #183b28;
+        touch-action: none;
+      }
+      .hud {
+        position: absolute;
+        inset: 12px 12px auto 12px;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+        pointer-events: none;
+      }
+      .brand,
+      .top-stats,
+      .wave-track,
+      .toast,
+      .panel,
+      .modal-card {
+        border: 1px solid var(--line);
+        background: rgba(7, 15, 10, 0.84);
+        backdrop-filter: blur(12px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+      }
+      .brand {
+        border-radius: 14px;
+        padding: 10px 14px;
+        min-width: 225px;
+      }
+      .brand h1 {
+        margin: 0;
+        font-size: clamp(23px, 2.5vw, 34px);
+        line-height: 1;
+        letter-spacing: -1px;
+      }
+      .brand h1 b {
+        color: var(--sun);
+      }
+      .subline {
+        margin-top: 7px;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 800;
+      }
+      .top-stats {
+        border-radius: 14px;
+        padding: 8px 10px;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(62px, 1fr));
+        gap: 7px;
+      }
+      .stat span {
+        display: block;
+        color: var(--muted);
+        font-size: 10px;
+        font-weight: 900;
+      }
+      .stat strong {
+        font-size: 19px;
+      }
+      .stat.sun strong {
+        color: var(--sun);
+      }
+      .hud-actions {
+        display: flex;
+        gap: 7px;
+        pointer-events: auto;
+      }
+      .icon-btn,
+      .primary-btn,
+      .mode-btn,
+      .seed-card,
+      .tab-btn,
+      .level-btn,
+      .mini-btn {
+        border: 1px solid rgba(230, 244, 220, 0.18);
+        background: rgba(23, 38, 28, 0.94);
+        color: var(--ink);
+        font-weight: 900;
+        cursor: pointer;
+        transition: 0.15s ease;
+      }
+      .icon-btn:hover,
+      .primary-btn:hover,
+      .mode-btn:hover,
+      .seed-card:hover,
+      .tab-btn:hover,
+      .level-btn:hover,
+      .mini-btn:hover {
+        transform: translateY(-1px);
+        border-color: rgba(255, 212, 94, 0.7);
+      }
+      .icon-btn {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+      }
+      .icon-btn.active {
+        color: var(--sun);
+        border-color: var(--sun);
+      }
+      button:disabled {
+        cursor: not-allowed;
+        opacity: 0.38;
+        transform: none !important;
+      }
+      .wave-track {
+        position: absolute;
+        left: 50%;
+        bottom: 12px;
+        transform: translateX(-50%);
+        width: min(62%, 620px);
+        height: 28px;
+        border-radius: 14px;
+        padding: 8px 12px;
+      }
+      .wave-track .fill {
+        height: 10px;
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.11);
+        overflow: hidden;
+      }
+      .wave-track i {
+        display: block;
+        height: 100%;
+        width: 0;
+        background: linear-gradient(
+          90deg,
+          var(--leaf),
+          var(--sun),
+          var(--danger)
+        );
+        border-radius: inherit;
+        transition: width 0.3s;
+      }
+      .wave-track span {
+        position: absolute;
+        inset: 4px;
+        text-align: center;
+        font-size: 11px;
+        font-weight: 900;
+        text-shadow: 0 2px 4px #000;
+      }
+      .rail {
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        min-height: 0;
+      }
+      .panel {
+        border-radius: 14px;
+        padding: 10px;
+      }
+      .mission {
+        display: flex;
+        gap: 9px;
+        align-items: center;
+      }
+      .mission-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+        font-size: 22px;
+        background: linear-gradient(
+          145deg,
+          rgba(118, 216, 117, 0.24),
+          rgba(255, 210, 84, 0.16)
+        );
+      }
+      .mission strong,
+      .panel-title {
+        display: block;
+        font-size: 13px;
+      }
+      .mission small {
+        color: var(--muted);
+        line-height: 1.25;
+      }
+      .resource-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      .meter span {
+        font-size: 10px;
+        color: var(--muted);
+        font-weight: 900;
+      }
+      .meter strong {
+        float: right;
+        font-size: 12px;
+      }
+      .bar {
+        height: 7px;
+        margin-top: 7px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      .bar i {
+        display: block;
+        height: 100%;
+        width: 0;
+        background: linear-gradient(
+          90deg,
+          var(--cyan),
+          var(--leaf),
+          var(--sun)
+        );
+        transition: width 0.2s;
+      }
+      .guards i {
+        background: linear-gradient(90deg, var(--danger), var(--sun));
+      }
+      .toolbox {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 7px;
+      }
+      .toolbox button {
+        width: auto;
+        font-size: 13px;
+      }
+      .leaf-btn {
+        position: relative;
+      }
+      .leaf-btn em {
+        font-style: normal;
+        color: var(--sun);
+      }
+      .seed-bank {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 7px;
+        overflow: auto;
+        padding-right: 3px;
+        align-content: start;
+        min-height: 0;
+      }
+      .seed-card {
+        position: relative;
+        min-height: 78px;
+        border-radius: 13px;
+        padding: 8px 8px 7px 43px;
+        text-align: left;
+        overflow: hidden;
+      }
+      .seed-card.selected {
+        border-color: var(--sun);
+        background: rgba(59, 53, 25, 0.96);
+        box-shadow: 0 0 0 1px rgba(255, 212, 94, 0.2) inset;
+      }
+      .seed-card .seed-icon {
+        position: absolute;
+        left: 8px;
+        top: 10px;
+        width: 29px;
+        height: 29px;
+        border-radius: 9px;
+        display: grid;
+        place-items: center;
+        font-size: 18px;
+        background: var(--seed-bg, rgba(110, 220, 110, 0.18));
+      }
+      .seed-card strong {
+        display: block;
+        font-size: 12px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .seed-card small {
+        display: block;
+        color: var(--muted);
+        font-size: 10px;
+        margin-top: 3px;
+      }
+      .seed-card .cost {
+        position: absolute;
+        right: 7px;
+        bottom: 6px;
+        color: var(--sun);
+        font-size: 11px;
+      }
+      .seed-card .key {
+        position: absolute;
+        left: 8px;
+        bottom: 6px;
+        font-size: 9px;
+        color: rgba(255, 255, 255, 0.35);
+      }
+      .cooldown-mask {
+        position: absolute;
+        inset: auto 0 0;
+        height: 0;
+        background: rgba(3, 7, 5, 0.7);
+        pointer-events: none;
+      }
+      .conveyor-badge {
+        position: absolute;
+        right: 6px;
+        top: 5px;
+        color: var(--cyan);
+        font-size: 10px;
+      }
+      .brief {
+        font-size: 11px;
+        color: var(--muted);
+        line-height: 1.45;
+      }
+      .brief b {
+        color: var(--ink);
+      }
+      .toast {
+        position: absolute;
+        left: 50%;
+        top: 105px;
+        transform: translate(-50%, -12px);
+        opacity: 0;
+        border-radius: 999px;
+        padding: 9px 16px;
+        font-size: 13px;
+        font-weight: 900;
+        pointer-events: none;
+        transition: 0.18s;
+      }
+      .toast.show {
+        opacity: 1;
+        transform: translate(-50%, 0);
+      }
+      .modal {
+        position: absolute;
+        inset: 0;
+        display: none;
+        place-items: center;
+        padding: 20px;
+        background: rgba(3, 8, 5, 0.72);
+        backdrop-filter: blur(5px);
+        z-index: 20;
+      }
+      .modal.show {
+        display: grid;
+      }
+      .modal-card {
+        width: min(940px, 96%);
+        max-height: 92%;
+        overflow: auto;
+        border-radius: 22px;
+        padding: 20px;
+      }
+      .modal-card.compact {
+        width: min(480px, 94%);
+        text-align: center;
+      }
+      .title-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 18px;
+        align-items: flex-start;
+      }
+      .title-row h2,
+      .compact h2 {
+        margin: 0;
+        font-size: 29px;
+      }
+      .title-row h2 b {
+        color: var(--sun);
+      }
+      .title-row p,
+      .compact p {
+        margin: 7px 0;
+        color: var(--muted);
+      }
+      .save-pill {
+        padding: 7px 11px;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 999px;
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .tabs {
+        display: flex;
+        gap: 7px;
+        margin: 16px 0 12px;
+      }
+      .tab-btn {
+        border-radius: 999px;
+        padding: 8px 14px;
+      }
+      .tab-btn.selected {
+        background: var(--leaf);
+        color: #102116;
+      }
+      .menu-grid {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 14px;
+      }
+      .menu-section {
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.025);
+        border-radius: 16px;
+        padding: 13px;
+      }
+      .menu-section h3 {
+        margin: 0 0 10px;
+        font-size: 14px;
+      }
+      .level-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+      }
+      .level-btn {
+        border-radius: 12px;
+        padding: 9px 5px;
+        min-height: 62px;
+        text-align: center;
+      }
+      .level-btn span {
+        display: block;
+        font-size: 18px;
+      }
+      .level-btn small {
+        display: block;
+        color: var(--muted);
+        font-size: 9px;
+        margin-top: 3px;
+      }
+      .level-btn.selected {
+        border-color: var(--sun);
+        background: rgba(255, 212, 94, 0.12);
+      }
+      .level-btn.locked {
+        filter: grayscale(1);
+      }
+      .level-info {
+        min-height: 82px;
+        padding: 11px;
+        border-radius: 12px;
+        background: rgba(0, 0, 0, 0.18);
+        margin-top: 10px;
+      }
+      .level-info strong {
+        font-size: 16px;
+      }
+      .level-info p {
+        margin: 5px 0 0;
+        color: var(--muted);
+        font-size: 11px;
+        line-height: 1.45;
+      }
+      .loadout-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .loadout-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 7px;
+        max-height: 245px;
+        overflow: auto;
+        padding-right: 3px;
+      }
+      .loadout-card {
+        min-height: 57px;
+        padding: 6px;
+        border: 1px solid var(--line);
+        border-radius: 11px;
+        background: rgba(22, 36, 26, 0.8);
+        cursor: pointer;
+        text-align: center;
+        position: relative;
+      }
+      .loadout-card b {
+        display: block;
+        font-size: 18px;
+      }
+      .loadout-card span {
+        display: block;
+        font-size: 10px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .loadout-card.selected {
+        border-color: var(--sun);
+        background: rgba(255, 212, 94, 0.12);
+      }
+      .loadout-card.locked {
+        opacity: 0.3;
+        cursor: not-allowed;
+      }
+      .loadout-card i {
+        position: absolute;
+        right: 4px;
+        top: 3px;
+        font-size: 8px;
+        font-style: normal;
+        color: var(--sun);
+      }
+      .start-row {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 13px;
+      }
+      .primary-btn {
+        border-radius: 13px;
+        padding: 11px 22px;
+        background: linear-gradient(135deg, #6cca68, #9bd75e);
+        color: #102116;
+        border: 0;
+      }
+      .mini-btn {
+        border-radius: 10px;
+        padding: 8px 11px;
+      }
+      .mini-btn.selected {
+        border-color: var(--sun);
+        color: var(--sun);
+        background: rgba(255, 212, 94, 0.1);
+      }
+      .mode-cards {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 9px;
+      }
+      .mode-btn {
+        border-radius: 14px;
+        padding: 14px;
+        text-align: left;
+        min-height: 110px;
+      }
+      .mode-btn b {
+        display: block;
+        font-size: 20px;
+        margin-bottom: 5px;
+      }
+      .mode-btn small {
+        color: var(--muted);
+        line-height: 1.4;
+      }
+      .mode-btn.selected {
+        border-color: var(--sun);
+        background: rgba(255, 212, 94, 0.1);
+      }
+      .almanac-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 9px;
+      }
+      .codex-card {
+        border: 1px solid var(--line);
+        border-radius: 13px;
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.025);
+      }
+      .codex-card b {
+        font-size: 20px;
+      }
+      .codex-card strong {
+        display: block;
+        margin: 5px 0 3px;
+        font-size: 12px;
+      }
+      .codex-card small {
+        color: var(--muted);
+        font-size: 10px;
+        line-height: 1.4;
+      }
+      .result-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin: 15px 0;
+      }
+      .result-stats div {
+        padding: 11px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.05);
+      }
+      .result-stats strong {
+        display: block;
+        font-size: 20px;
+        color: var(--sun);
+      }
+      .result-stats span {
+        font-size: 10px;
+        color: var(--muted);
+      }
+      @media (max-width: 900px) {
+        .app {
+          grid-template-columns: 1fr;
+          grid-template-rows: minmax(0, 1fr) 258px;
+          padding: 7px;
+          gap: 7px;
+        }
+        .rail {
+          display: grid;
+          grid-template-columns: 185px 1fr;
+          grid-template-rows: auto auto 1fr;
+          padding: 8px;
+          gap: 7px;
+        }
+        .mission {
+          grid-column: 1;
+        }
+        .resource-row {
+          grid-column: 1;
+        }
+        .toolbox {
+          grid-column: 1;
+        }
+        .seed-bank {
+          grid-column: 2;
+          grid-row: 1/4;
+        }
+        .brief {
+          display: none;
+        }
+        .brand {
+          min-width: 175px;
+        }
+        .top-stats {
+          display: none;
+        }
+        .wave-track {
+          width: 68%;
+        }
+        .modal-card {
+          padding: 14px;
+        }
+        .menu-grid {
+          grid-template-columns: 1fr;
+        }
+        .loadout-grid {
+          max-height: 160px;
+        }
+        .almanac-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+      @media (max-width: 560px) {
+        .app {
+          grid-template-rows: minmax(0, 1fr) 230px;
+        }
+        .brand {
+          padding: 8px 10px;
+          min-width: 145px;
+        }
+        .brand h1 {
+          font-size: 21px;
+        }
+        .hud {
+          inset: 7px;
+        }
+        .hud-actions .icon-btn {
+          width: 36px;
+          height: 36px;
+        }
+        .rail {
+          grid-template-columns: 137px 1fr;
+        }
+        .mission {
+          padding: 7px;
+        }
+        .mission-icon {
+          display: none;
+        }
+        .resource-row {
+          grid-template-columns: 1fr;
+        }
+        .seed-bank {
+          grid-template-columns: repeat(2, minmax(105px, 1fr));
+        }
+        .seed-card {
+          min-height: 70px;
+          padding-left: 37px;
+        }
+        .seed-card .seed-icon {
+          left: 6px;
+          width: 26px;
+          height: 26px;
+        }
+        .wave-track {
+          bottom: 7px;
+        }
+        .title-row {
+          display: block;
+        }
+        .level-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+        .mode-cards {
+          grid-template-columns: 1fr;
+        }
+        .almanac-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <section class="stage">
+        <canvas id="gameCanvas" aria-label="芽阵前线五路战场"></canvas>
+        <div class="hud">
+          <div class="brand">
+            <h1>芽阵前线 <b>六境 V3</b></h1>
+            <div class="subline">
+              <span id="statusText">远征待命</span> ·
+              <span id="regionText">晨露庭院</span>
+            </div>
+          </div>
+          <div class="top-stats">
+            <div class="stat sun">
+              <span>日光</span><strong id="sunText">150</strong>
+            </div>
+            <div class="stat">
+              <span>波次</span><strong id="waveStat">0/0</strong>
+            </div>
+            <div class="stat">
+              <span>威胁</span><strong id="threatText">0</strong>
+            </div>
+            <div class="stat">
+              <span>击退</span><strong id="killText">0</strong>
+            </div>
+          </div>
+          <div class="hud-actions">
+            <button class="icon-btn" id="speedBtn" title="倍速">1×</button
+            ><button class="icon-btn" id="pauseBtn" title="暂停">Ⅱ</button
+            ><button class="icon-btn" id="menuBtn" title="返回远征地图">
+              ☰
+            </button>
+          </div>
         </div>
-        <div id="specialTab" hidden><div class="mode-cards" id="modeCards"></div><div class="level-info" id="specialInfo"></div></div>
-        <div id="almanacTab" hidden><div class="almanac-grid" id="almanacGrid"></div></div>
-        <div class="start-row"><button class="mini-btn" id="resetSaveBtn">重置进度</button><button class="primary-btn" id="startBtn">开始行动</button></div>
-      </div>
-    </div>
-    <div class="modal" id="resultModal"><div class="modal-card compact"><h2 id="resultTitle">防线稳固</h2><p id="resultCopy"></p><div class="result-stats"><div><strong id="resultKills">0</strong><span>击退</span></div><div><strong id="resultSun">0</strong><span>日光</span></div><div><strong id="resultGuards">5</strong><span>防线</span></div></div><div class="start-row" style="justify-content:center"><button class="mini-btn" id="againBtn">再战一次</button><button class="primary-btn" id="nextBtn">继续远征</button></div></div></div>
-  </section>
-  <aside class="rail">
-    <section class="panel mission"><div class="mission-icon" id="missionIcon">🌤</div><div><strong id="missionTitle">选择行动</strong><small id="missionText">从远征地图进入战场</small></div></section>
-    <div class="resource-row"><section class="panel meter"><span>叶能</span><strong id="chargeText">0/3</strong><div class="bar"><i id="chargeBar"></i></div></section><section class="panel meter guards"><span>最后防线</span><strong id="guardText">5/5</strong><div class="bar"><i id="guardBar"></i></div></section></div>
-    <div class="toolbox"><button class="icon-btn" id="shovelBtn" title="铲除">铲</button><button class="icon-btn leaf-btn" id="overloadBtn" title="叶能绽放">叶<em id="leafCount">0</em></button><button class="icon-btn" id="hintBtn" title="查看提示">?</button><button class="icon-btn" id="restartBtn" title="重新开始">↻</button></div>
-    <div class="seed-bank" id="seedBank"></div>
-    <section class="panel brief" id="briefText"><b>操作：</b>选择卡片再点草坪；点击日光收集。叶能充满一格后点“叶”，再点植物释放专属绽放。</section>
-  </aside>
-</main>
-<script>
-(() => {
-"use strict";
-const $=id=>document.getElementById(id), canvas=$("gameCanvas"),ctx=canvas.getContext("2d");
-const UI={status:$("statusText"),region:$("regionText"),sun:$("sunText"),wave:$("waveStat"),threat:$("threatText"),kills:$("killText"),waveBar:$("waveBar"),waveText:$("waveText"),charge:$("chargeText"),chargeBar:$("chargeBar"),guard:$("guardText"),guardBar:$("guardBar"),seedBank:$("seedBank"),toast:$("toast"),missionIcon:$("missionIcon"),missionTitle:$("missionTitle"),missionText:$("missionText")};
-const WORLD_W=1280,WORLD_H=760,ROWS=5,COLS=9,CW=94,CH=100,BX=215,BY=137,SAVE_KEY="gardenFrontExpeditionV2";
-const view={dpr:1,scale:1,ox:0,oy:0},pointer={x:0,y:0,inside:false};
-const regions={meadow:{name:"晨露庭院",icon:"🌤",sky:"#38784d",ground:"#4d8a49",sunRate:7.2,note:"标准生态，日光会从天空落下。"},night:{name:"萤雾湿地",icon:"🌙",sky:"#172c3a",ground:"#315246",sunRate:15,note:"浓雾遮蔽远端，天空日光稀少。"},frost:{name:"霜风高地",icon:"❄",sky:"#31566b",ground:"#577d72",sunRate:9,note:"霜风会周期冻结最右侧的植物。"},ruins:{name:"星辉遗迹",icon:"✦",sky:"#4c394f",ground:"#66704f",sunRate:8.5,note:"辉能地砖会联动释放叶能。"}};
-const plantsDef=[
- {key:"sunleaf",name:"向光芽",icon:"☀",cost:50,cd:6,hp:100,tag:"生产",desc:"周期生产日光；绽放时连续生产。",unlock:1,color:"#f4c957"},
- {key:"sprout",name:"豆荚芽",icon:"●",cost:100,cd:4.5,hp:120,tag:"直射",desc:"稳定发射豆籽；绽放时高速连射。",unlock:1,color:"#72d66b"},
- {key:"shell",name:"坚壳墩",icon:"▰",cost:50,cd:8,hp:650,tag:"防御",desc:"高耐久阻挡；绽放时回满并获得护甲。",unlock:1,color:"#b99159"},
- {key:"burst",name:"爆裂莓",icon:"✹",cost:150,cd:20,hp:1,tag:"爆破",desc:"短暂延迟后大范围爆炸。",unlock:2,color:"#f2645a"},
- {key:"frost",name:"霜瓣草",icon:"❄",cost:125,cd:6.5,hp:110,tag:"减速",desc:"寒籽降低敌人速度。",unlock:2,color:"#6fd4ea"},
- {key:"twin",name:"双籽花",icon:"∞",cost:175,cd:7,hp:120,tag:"双发",desc:"一次连续发射两颗豆籽。",unlock:3,color:"#6bd48c"},
- {key:"spike",name:"地刺藤",icon:"▲",cost:100,cd:6,hp:140,tag:"地面",desc:"持续伤害踩在身上的地面敌人。",unlock:4,color:"#426f42"},
- {key:"mortar",name:"玉粒炮",icon:"⌒",cost:175,cd:9,hp:115,tag:"抛射",desc:"抛射玉粒，对落点造成溅射。",unlock:5,color:"#edbd51"},
- {key:"gourd",name:"护壳瓜",icon:"⬡",cost:75,cd:9,hp:360,tag:"护甲",desc:"给同格植物套上护壳，可叠种。",unlock:5,color:"#e3a04e",overlay:true},
- {key:"mint",name:"蚀露薄荷",icon:"≈",cost:125,cd:7,hp:105,tag:"持续",desc:"毒露会持续腐蚀目标。",unlock:6,color:"#42c9a7"},
- {key:"melon",name:"震波瓜",icon:"◉",cost:225,cd:10,hp:120,tag:"溅射",desc:"沉重果实攻击一整片区域。",unlock:7,color:"#81c657"},
- {key:"lantern",name:"引路灯苔",icon:"◇",cost:75,cd:8,hp:140,tag:"辅助",desc:"驱散周围浓雾并加速邻近植物。",unlock:7,color:"#ffe28a"},
- {key:"root",name:"绊足根",icon:"⌁",cost:75,cd:8,hp:80,tag:"控制",desc:"束缚首个踩中的敌人并造成伤害。",unlock:8,color:"#b47a58"},
- {key:"beam",name:"棱光草",icon:"➤",cost:200,cd:11,hp:100,tag:"贯穿",desc:"光束贯穿整行所有敌人。",unlock:9,color:"#b487ec"},
- {key:"magnet",name:"磁绒花",icon:"∪",cost:125,cd:10,hp:110,tag:"拆甲",desc:"周期吸走附近敌人的金属护甲。",unlock:9,color:"#d184da"},
- {key:"bloom",name:"拳叶兰",icon:"✿",cost:150,cd:7,hp:250,tag:"近战",desc:"快速拍击前方近距离敌人。",unlock:10,color:"#f08bb0"},
- {key:"storm",name:"雷铃草",icon:"ϟ",cost:225,cd:12,hp:105,tag:"连锁",desc:"电弧在多个敌人间跳跃。",unlock:11,color:"#79bff2"},
- {key:"comet",name:"彗星果",icon:"★",cost:250,cd:24,hp:1,tag:"终结",desc:"呼叫彗光横扫一整行。",unlock:12,color:"#ff9c62"}
-];
-const plantMap=Object.fromEntries(plantsDef.map(x=>[x.key,x]));
-const enemiesDef={
- walker:{name:"灰步客",hp:130,speed:17,damage:15,color:"#9caf98"}, cone:{name:"路标客",hp:260,speed:15,damage:17,color:"#d2a052",armor:80}, bucket:{name:"铁桶客",hp:420,speed:12,damage:20,color:"#adb7b8",armor:160,metal:true}, runner:{name:"疾行客",hp:100,speed:34,damage:13,color:"#e8785e"}, pole:{name:"跃杆客",hp:170,speed:25,damage:15,color:"#d989bd",jump:true}, shield:{name:"门盾客",hp:290,speed:12,damage:18,color:"#6d9ecf",shield:220,metal:true}, horn:{name:"号角客",hp:210,speed:15,damage:14,color:"#e3c45b",aura:true}, brute:{name:"重锤客",hp:820,speed:9,damage:38,color:"#ba625b",heavy:true}, medic:{name:"缝补师",hp:220,speed:13,damage:12,color:"#84cfad",heal:true}, miner:{name:"掘地客",hp:190,speed:18,damage:17,color:"#98735e",miner:true,metal:true}, wisp:{name:"浮灯怪",hp:145,speed:21,damage:16,color:"#8d8be1",flying:true}, ram:{name:"冲撞客",hp:330,speed:27,damage:24,color:"#d07845",ram:true}, swarm:{name:"团团客",hp:75,speed:25,damage:10,color:"#c6ca74",small:true}, titan:{name:"遗迹泰坦",hp:2400,speed:7,damage:52,color:"#765a88",boss:true,heavy:true}
-};
-const levels=[
- {id:1,region:"meadow",name:"初芽试炼",waves:5,diff:.78,plant:"sunleaf",mission:"认识日光与基础防线。",pool:["walker","cone"]},
- {id:2,region:"meadow",name:"路标来袭",waves:6,diff:.86,plant:"burst",mission:"爆裂芽阵首次加入行动。",pool:["walker","cone","runner"]},
- {id:3,region:"meadow",name:"疾行队列",waves:7,diff:.94,plant:"twin",mission:"快速单位会冲击薄弱行。",pool:["walker","cone","runner","pole"]},
- {id:4,region:"meadow",name:"庭院旗阵",waves:8,diff:1.02,plant:"spike",mission:"守住全部五条最后防线。",pool:["walker","cone","bucket","runner","pole"]},
- {id:5,region:"night",name:"萤雾初临",waves:6,diff:1.02,plant:"mortar",mission:"浓雾中远端威胁难以辨认。",pool:["walker","cone","shield","wisp"]},
- {id:6,region:"night",name:"地底回声",waves:7,diff:1.08,plant:"mint",mission:"掘地客会从阵地中段钻出。",pool:["walker","bucket","miner","wisp","horn"]},
- {id:7,region:"night",name:"雾灯守望",waves:8,diff:1.14,plant:"lantern",mission:"引路灯苔可照亮并鼓舞邻格。",pool:["shield","runner","miner","medic","wisp"]},
- {id:8,region:"frost",name:"霜线骤起",waves:7,diff:1.16,plant:"root",mission:"霜风会冻结最靠右的芽阵。",pool:["walker","cone","bucket","ram"]},
- {id:9,region:"frost",name:"铁甲长队",waves:8,diff:1.22,plant:"beam",mission:"磁绒花能快速拆除金属护甲。",pool:["bucket","shield","horn","medic","ram"]},
- {id:10,region:"frost",name:"重锤压境",waves:9,diff:1.28,plant:"bloom",mission:"重型单位需要控制与集中火力。",pool:["bucket","brute","medic","ram","swarm"]},
- {id:11,region:"ruins",name:"辉能回路",waves:9,diff:1.32,plant:"storm",mission:"紫色辉能格会联动叶能绽放。",pool:["shield","horn","miner","wisp","brute"]},
- {id:12,region:"ruins",name:"泰坦终局",waves:10,diff:1.42,plant:"comet",mission:"击退遗迹泰坦，完成四境远征。",pool:["bucket","brute","medic","ram","wisp","titan"]}
-];
-const specialModes={survival:{name:"无尽花圃",icon:"∞",desc:"波次不断增强，每三波补充一格叶能。",region:"meadow"},conveyor:{name:"传送育苗",icon:"⇢",desc:"无需日光，传送带会持续送来随机芽阵。",region:"ruins"},daily:{name:"今日异象",icon:"◈",desc:"每日固定种子生成敌群、区域与初始卡组。",region:"frost"}};
-let save=loadSave(),selectedTab="adventure",selectedLevel=Math.min(save.unlocked,12),selectedSpecial="survival",loadout=["sunleaf","sprout","shell","burst","frost","twin","spike","mortar"];
-let plants=[],enemies=[],bullets=[],drops=[],particles=[],spawnPlan=[],cooldowns={},conveyor=[],lastTime=0,toastTimer=0,selectedSeed="sprout",selectedConveyorId=null,shovel=false,leafMode=false,speed=1,nextEntityId=1;
-const state={started:false,paused:false,over:false,won:false,kind:"level",levelId:1,region:"meadow",time:0,sun:150,wave:0,totalWaves:0,kills:0,charge:0,laneGuards:Array(ROWS).fill(true),difficulty:1,skyTimer:5,hazardTimer:18,conveyorTimer:1,plannedTotal:1,mission:"",bossSeen:false};
-function loadSave(){try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||"null");return s&&s.version===2?s:{version:2,unlocked:1,stars:{},bestSurvival:0,totalKills:0};}catch{return{version:2,unlocked:1,stars:{},bestSurvival:0,totalKills:0}}}
-function saveProgress(){localStorage.setItem(SAVE_KEY,JSON.stringify(save));}
-function resize(){const r=canvas.getBoundingClientRect();view.dpr=Math.max(1,Math.min(2,devicePixelRatio||1));canvas.width=Math.max(1,Math.floor(r.width*view.dpr));canvas.height=Math.max(1,Math.floor(r.height*view.dpr));view.scale=Math.min(canvas.width/WORLD_W,canvas.height/WORLD_H);view.ox=(canvas.width-WORLD_W*view.scale)/2;view.oy=(canvas.height-WORLD_H*view.scale)/2}
-function screenPoint(e){const r=canvas.getBoundingClientRect();return{x:((e.clientX-r.left)*view.dpr-view.ox)/view.scale,y:((e.clientY-r.top)*view.dpr-view.oy)/view.scale}}
-const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)); const center=(row,col)=>({x:BX+col*CW+CW/2,y:BY+row*CH+CH/2});
-function pointCell(p){const col=Math.floor((p.x-BX)/CW),row=Math.floor((p.y-BY)/CH);return row>=0&&row<ROWS&&col>=0&&col<COLS?{row,col}:null}
-function unlockedPlant(def){return def.unlock<=save.unlocked}
-function currentLevel(){return levels[selectedLevel-1]||levels[0]}
-function levelReward(id){if(id>=12)return "四境徽记";const names=plantsDef.filter(p=>p.unlock===id+1).map(p=>p.name);return names.join("、")||"远征补给"}
-function renderMenu(){
- $("savePill").textContent=`远征进度 ${Math.min(save.unlocked,12)}/12 · 总击退 ${save.totalKills||0}`;
- $("levelGrid").innerHTML=levels.map(l=>{const locked=l.id>save.unlocked,stars=save.stars[l.id]||0;return `<button class="level-btn ${selectedLevel===l.id?"selected":""} ${locked?"locked":""}" data-level="${l.id}" ${locked?"disabled":""}><span>${regions[l.region].icon} ${l.id}</span><small>${locked?"尚未解锁":l.name}${stars?` · ${"★".repeat(stars)}`:""}</small></button>`}).join("");
- const l=currentLevel();$("levelInfo").innerHTML=`<strong>${regions[l.region].icon} ${l.id}. ${l.name}</strong><p>${l.mission}<br>${regions[l.region].note} · ${l.waves} 波 · 通关奖励「${levelReward(l.id)}」</p>`;
- renderLoadout();
- $("modeCards").innerHTML=Object.entries(specialModes).map(([k,m])=>`<button class="mode-btn ${selectedSpecial===k?"selected":""}" data-special="${k}"><b>${m.icon} ${m.name}</b><small>${m.desc}${k==="survival"?`<br>纪录：${save.bestSurvival||0} 波`:""}</small></button>`).join("");
- const sm=specialModes[selectedSpecial];$("specialInfo").innerHTML=`<strong>${sm.icon} ${sm.name}</strong><p>${sm.desc}</p>`;
- $("almanacGrid").innerHTML=plantsDef.map(p=>`<div class="codex-card" style="opacity:${unlockedPlant(p)?1:.32}"><b style="color:${p.color}">${unlockedPlant(p)?p.icon:"?"}</b><strong>${unlockedPlant(p)?p.name:"未发现芽阵"}</strong><small>${unlockedPlant(p)?`${p.tag} · ${p.cost} 日光<br>${p.desc}`:`通过第 ${p.unlock} 关发现`}</small></div>`).join("");
- $("startBtn").hidden=selectedTab==="almanac";bindMenuDynamic();
-}
-function renderLoadout(){const unlocked=plantsDef.filter(unlockedPlant);loadout=loadout.filter(k=>unlocked.some(p=>p.key===k));for(const p of unlocked){if(loadout.length>=8)break;if(!loadout.includes(p.key))loadout.push(p.key)}
- $("loadoutCount").textContent=`${loadout.length}/8`;$("loadoutGrid").innerHTML=plantsDef.map(p=>`<button class="loadout-card ${loadout.includes(p.key)?"selected":""} ${!unlockedPlant(p)?"locked":""}" data-loadout="${p.key}" ${!unlockedPlant(p)?"disabled":""}><b style="color:${p.color}">${unlockedPlant(p)?p.icon:"?"}</b><span>${unlockedPlant(p)?p.name:"未发现"}</span>${loadout.includes(p.key)?`<i>${loadout.indexOf(p.key)+1}</i>`:""}</button>`).join("")}
-function bindMenuDynamic(){document.querySelectorAll("[data-level]").forEach(b=>b.onclick=()=>{selectedLevel=+b.dataset.level;renderMenu()});document.querySelectorAll("[data-special]").forEach(b=>b.onclick=()=>{selectedSpecial=b.dataset.special;renderMenu()});document.querySelectorAll("[data-loadout]").forEach(b=>b.onclick=()=>{const k=b.dataset.loadout;if(loadout.includes(k))loadout=loadout.filter(x=>x!==k);else if(loadout.length<8)loadout.push(k);else return showToast("最多选择 8 株");renderLoadout()})}
-function selectTab(tab){selectedTab=tab;document.querySelectorAll(".tab-btn").forEach(b=>b.classList.toggle("selected",b.dataset.tab===tab));$("adventureTab").hidden=tab!=="adventure";$("specialTab").hidden=tab!=="special";$("almanacTab").hidden=tab!=="almanac";renderMenu()}
-function startGame(replay=false){if(replay&&state.kind==="level"&&state.levelId)selectedLevel=state.levelId;if(selectedTab==="almanac")return;if(selectedTab==="adventure"&&loadout.length<3)return showToast("至少选择 3 株芽阵");
- plants=[];enemies=[];bullets=[];drops=[];particles=[];spawnPlan=[];conveyor=[];cooldowns={};nextEntityId=1;shovel=false;leafMode=false;selectedConveyorId=null;speed=1;$("speedBtn").textContent="1×";
- const isLevel=selectedTab==="adventure", level=isLevel?currentLevel():null, special=isLevel?null:selectedSpecial, seed=dailySeed();let region=isLevel?level.region:specialModes[special].region;
- if(special==="daily")region=Object.keys(regions)[seed%4];
- Object.assign(state,{started:true,paused:false,over:false,won:false,kind:isLevel?"level":special,levelId:level?.id||0,region,time:0,sun:special==="conveyor"?0:(region==="night"?125:150),wave:0,totalWaves:isLevel?level.waves:(special==="survival"?999:8),kills:0,charge:0,laneGuards:Array(ROWS).fill(true),difficulty:isLevel?level.diff:(special==="daily"?1.18:1.05),skyTimer:4.5,hazardTimer:16,conveyorTimer:.4,mission:isLevel?level.mission:specialModes[special].desc,bossSeen:false});
- const active=special==="daily"?dailyLoadout(seed):loadout.slice();for(const k of active)cooldowns[k]=0;selectedSeed=active[1]||active[0];
- if(special==="survival")buildSurvivalWave(1,4);else spawnPlan=buildPlan(isLevel?level:{waves:8,pool:dailyPool(seed)},state.difficulty);
- state.plannedTotal=Math.max(1,spawnPlan.filter(x=>x.type!=="flag").length);$("startModal").classList.remove("show");$("resultModal").classList.remove("show");showToast(isLevel?`第 ${level.id} 关 · ${level.name}`:specialModes[special].name);renderSeeds(true);updateUI()}
-function dailySeed(){const d=new Date();return d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate()}
-function rngFrom(n){return()=>((n=Math.imul(48271,n)%2147483647)&2147483647)/2147483647}
-function dailyLoadout(seed){const rng=rngFrom(seed),a=plantsDef.filter(unlockedPlant).map(p=>p.key),out=[];while(a.length&&out.length<8)out.push(a.splice(Math.floor(rng()*a.length),1)[0]);return out}
-function dailyPool(seed){const a=Object.keys(enemiesDef).filter(k=>k!=="titan"),rng=rngFrom(seed+73),out=[];while(a.length&&out.length<6)out.push(a.splice(Math.floor(rng()*a.length),1)[0]);return out}
-function buildPlan(config,diff){const plan=[];let t=13;for(let w=1;w<=config.waves;w++){plan.push({t:t-2.5,type:"flag",wave:w});let count=3+w+Math.floor(w/3);for(let i=0;i<count;i++){let type=config.pool[Math.min(config.pool.length-1,Math.floor((i+w*1.7+Math.random()*2)/Math.max(1,9/config.pool.length)))%config.pool.length];if(config.id===12&&w===config.waves&&i===count-1)type="titan";plan.push({t:t+i*Math.max(1.25,2.8-w*.12),type,row:(i*2+w+Math.floor(Math.random()*2))%ROWS,charged:Math.random()<.11})}t+=17+w*2.1}return plan.sort((a,b)=>a.t-b.t)}
-function buildSurvivalWave(w,startAt){state.wave=w;state.difficulty=1+Math.min(2.2,w*.075);const pool=Object.keys(enemiesDef).filter(k=>k!=="titan"&&(!["brute","ram","medic"].includes(k)||w>4));spawnPlan.push({t:startAt,type:"flag",wave:w});const count=5+Math.floor(w*1.35);for(let i=0;i<count;i++){let type=pool[Math.floor(Math.random()*Math.min(pool.length,3+Math.floor(w/2)))];if(w%10===0&&i===count-1)type="titan";spawnPlan.push({t:startAt+2+i*Math.max(.8,2.1-w*.035),type,row:(i*3+w)%ROWS,charged:Math.random()<.1})}state.plannedTotal+=count}
-function showToast(msg){UI.toast.textContent=msg;UI.toast.classList.add("show");toastTimer=1.7}
-function plantAt(row,col){return plants.find(p=>p.row===row&&p.col===col&&!p.overlay)} function overlayAt(row,col){return plants.find(p=>p.row===row&&p.col===col&&p.overlay)}
-function placePlant(row,col){const def=plantMap[selectedSeed];if(!def||state.paused||state.over)return;let existing=plantAt(row,col),overlay=overlayAt(row,col);if(def.overlay){if(!existing||overlay)return showToast(existing?"已有护壳":"护壳需要覆盖在植物上")}else if(existing)return showToast("这里已经有芽阵");
- const conveyorMode=state.kind==="conveyor";if(conveyorMode){const item=conveyor.find(x=>x.id===selectedConveyorId);if(!item||item.key!==def.key)return showToast("从传送带选择一株");conveyor=conveyor.filter(x=>x.id!==item.id);selectedConveyorId=null}else{if(state.sun<def.cost)return showToast("日光不足");if((cooldowns[def.key]||0)>0)return showToast("还在育苗");state.sun-=def.cost;cooldowns[def.key]=def.cd}
- const c=center(row,col),p={id:nextEntityId++,key:def.key,row,col,x:c.x,y:c.y,hp:def.hp,maxHp:def.hp,armor:0,cool:Math.random()*.3,produce:5.5,arm:def.key==="burst"?.65:def.key==="comet"?.9:0,boost:0,frozen:0,birth:.25,overlay:!!def.overlay,spent:false};plants.push(p);if(def.key==="gourd")p.armor=420;if(def.key==="root")p.hidden=true;particles.push({kind:"ring",x:c.x,y:c.y,r:28,life:.4,max:.4,color:def.color});renderSeeds(true);updateUI()}
-function update(dt){if(toastTimer>0){toastTimer-=dt;if(toastTimer<=0)UI.toast.classList.remove("show")}if(!state.started||state.paused||state.over)return;dt*=speed;state.time+=dt;Object.keys(cooldowns).forEach(k=>cooldowns[k]=Math.max(0,cooldowns[k]-dt));spawnScheduled();updateEnvironment(dt);updatePlants(dt);updateEnemies(dt);updateBullets(dt);updateDrops(dt);updateParticles(dt);checkEnd();updateUI()}
-function spawnScheduled(){while(spawnPlan.length&&spawnPlan[0].t<=state.time){const s=spawnPlan.shift();if(s.type==="flag"){state.wave=s.wave;showToast(s.wave%5===0?`⚑ 大型波次 ${s.wave}`:`第 ${s.wave} 波`)}else spawnEnemy(s.type,s.row,s.charged)}if(state.kind==="survival"&&!spawnPlan.length&&!enemies.length&&!state.over){const n=state.wave+1;if(n%3===1)state.charge=Math.min(300,state.charge+100);buildSurvivalWave(n,state.time+5)}}
-function spawnEnemy(type,row,charged=false){const d=enemiesDef[type]||enemiesDef.walker;let x=BX+COLS*CW+80;if(d.miner)x=BX+CW*5;enemies.push({id:nextEntityId++,type,row,x,y:BY+row*CH+CH/2+6,hp:Math.round(d.hp*state.difficulty),maxHp:Math.round(d.hp*state.difficulty),armor:Math.round((d.armor||0)*state.difficulty),shield:Math.round((d.shield||0)*state.difficulty),speed:d.speed*(.96+state.difficulty*.04),damage:Math.round(d.damage*(.9+state.difficulty*.12)),attack:0,slow:0,rooted:0,poison:0,poisonTick:0,flash:0,jump:!!d.jump,aura:!!d.aura,flying:!!d.flying,heal:!!d.heal,healTimer:4,ram:!!d.ram,ramReady:!!d.ram,metal:!!d.metal,miner:!!d.miner,tunnel:d.miner?2.2:0,charged,boss:!!d.boss,color:d.color,dead:false});if(d.boss&&!state.bossSeen){state.bossSeen=true;showToast("⚠ 遗迹泰坦进入战场")}}
-function updateEnvironment(dt){const r=regions[state.region];state.skyTimer-=dt;if(state.skyTimer<=0){state.skyTimer=r.sunRate+Math.random()*2;spawnDrop("sun",BX+CW*(1+Math.floor(Math.random()*8)),-20,35,80+Math.random()*360,true)}
- if(state.region==="frost"){state.hazardTimer-=dt;if(state.hazardTimer<=0){state.hazardTimer=17;const candidates=plants.filter(p=>!p.overlay&&!p.dead).sort((a,b)=>b.col-a.col).slice(0,3);candidates.forEach(p=>p.frozen=3.5);showToast("❄ 霜风冻结前排芽阵");particles.push({kind:"gust",life:1.1,max:1.1,color:"#c8f4ff"})}}
- if(state.kind==="conveyor"){state.conveyorTimer-=dt;if(state.conveyorTimer<=0&&conveyor.length<8){state.conveyorTimer=3.1+Math.random()*1.2;const pool=plantsDef.filter(unlockedPlant);const p=pool[Math.floor(Math.random()*pool.length)];conveyor.push({id:nextEntityId++,key:p.key});renderSeeds(true)}}}
-function updatePlants(dt){for(const p of plants){p.birth=Math.max(0,p.birth-dt);p.boost=Math.max(0,p.boost-dt);p.frozen=Math.max(0,p.frozen-dt);if(p.dead||p.frozen>0)continue;const aura=plants.some(q=>q.key==="lantern"&&Math.abs(q.row-p.row)<=1&&Math.abs(q.col-p.col)<=1);const rate=(p.boost>0?2.35:1)*(aura&&p.key!=="lantern"?1.18:1);p.cool-=dt*rate;
- if(p.key==="sunleaf"){p.produce-=dt*rate;if(p.produce<=0){p.produce=p.boost>0?3:9;spawnDrop("sun",p.x,p.y-22,p.boost>0?50:25,p.y+15,false)}}
- else if(p.key==="burst"){p.arm-=dt;if(p.arm<=0){explode(p.x,p.y,p.row,132,p.boost>0?600:420);p.dead=true}}
- else if(p.key==="comet"){p.arm-=dt;if(p.arm<=0){laneBlast(p.row,p.boost>0?1000:650);p.dead=true}}
- else if(p.key==="spike"){if(p.cool<=0){p.cool=.52;enemies.filter(e=>!e.flying&&e.row===p.row&&Math.abs(e.x-p.x)<48).forEach(e=>damageEnemy(e,p.boost>0?30:16,p))}}
- else if(p.key==="root"){const e=enemies.find(e=>!e.flying&&e.row===p.row&&Math.abs(e.x-p.x)<45);if(e&&!p.spent){p.spent=true;e.rooted=Math.max(e.rooted,p.boost>0?7:4);damageEnemy(e,p.boost>0?240:120,p);p.dead=true}}
- else if(p.key==="magnet"){if(p.cool<=0){const e=enemies.filter(e=>e.metal&&(e.armor>0||e.shield>0)&&Math.abs(e.row-p.row)<=1&&Math.abs(e.x-p.x)<330).sort((a,b)=>Math.abs(a.x-p.x)-Math.abs(b.x-p.x))[0];if(e){p.cool=p.boost>0?2.5:6.5;e.armor=0;e.shield=0;e.metal=false;particles.push({kind:"beam",x:p.x,y:p.y-5,x2:e.x,y2:e.y-10,life:.35,max:.35,color:"#e49aef"})}}}
- else if(!["shell","gourd","lantern"].includes(p.key)){const target=firstEnemy(p.row,p.x-15,p.key==="bloom"?125:9999);if(target&&p.cool<=0)firePlant(p,target)}}
- plants=plants.filter(p=>!p.dead&&p.hp>0)}
-function firstEnemy(row,minX,range=9999){return enemies.filter(e=>e.row===row&&e.x>minX&&e.x-minX<range&&!e.dead).sort((a,b)=>a.x-b.x)[0]}
-function firePlant(p,t){const boost=p.boost>0,base={row:p.row,x:p.x+25,y:p.y-10,vx:380,color:plantMap[p.key].color};if(p.key==="sprout"){p.cool=boost?.42:1.05;bullets.push({...base,type:"pea",dmg:boost?36:24})}else if(p.key==="twin"){p.cool=boost?.52:1.08;bullets.push({...base,type:"pea",dmg:boost?30:20}, {...base,x:p.x+12,y:p.y+3,type:"pea",dmg:boost?30:20,delay:.13})}else if(p.key==="frost"){p.cool=boost?.65:1.35;bullets.push({...base,vx:320,type:"frost",dmg:boost?27:17,slow:boost?4:2.5})}else if(p.key==="mint"){p.cool=boost?.72:1.42;bullets.push({...base,vx:335,type:"mint",dmg:boost?22:13,poison:boost?8:5})}else if(p.key==="mortar"||p.key==="melon"){p.cool=p.key==="melon"?(boost?1.15:2.35):(boost?1.25:2.65);const life=.72;bullets.push({type:p.key,row:p.row,x:p.x,y:p.y-25,sx:p.x,sy:p.y-25,tx:t.x,ty:t.y,life,maxLife:life,dmg:p.key==="melon"?(boost?115:76):(boost?90:58),color:plantMap[p.key].color})}else if(p.key==="beam"){p.cool=boost?.9:1.9;enemies.filter(e=>e.row===p.row&&e.x>p.x-10).forEach(e=>damageEnemy(e,boost?48:30,p));particles.push({kind:"beam",x:p.x,y:p.y-10,x2:BX+COLS*CW+80,y2:p.y-10,life:.2,max:.2,color:plantMap[p.key].color})}else if(p.key==="bloom"){p.cool=boost?.28:.62;damageEnemy(t,boost?58:34,p);particles.push({kind:"hit",x:t.x-10,y:t.y,life:.22,max:.22,color:plantMap[p.key].color})}else if(p.key==="storm"){p.cool=boost?.9:1.8;let candidates=enemies.filter(e=>Math.abs(e.row-p.row)<=1&&e.x>p.x-20).sort((a,b)=>Math.hypot(a.x-t.x,(a.row-t.row)*100)-Math.hypot(b.x-t.x,(b.row-t.row)*100)).slice(0,boost?5:3),last={x:p.x,y:p.y};candidates.forEach((e,i)=>{damageEnemy(e,(boost?52:34)*Math.pow(.82,i),p);particles.push({kind:"beam",x:last.x,y:last.y,x2:e.x,y2:e.y,life:.25,max:.25,color:"#a8e8ff"});last=e})}}
-function updateEnemies(dt){for(const e of enemies){e.flash=Math.max(0,e.flash-dt);e.slow=Math.max(0,e.slow-dt);e.rooted=Math.max(0,e.rooted-dt);e.attack-=dt;if(e.tunnel>0){e.tunnel-=dt;if(e.tunnel<=0){e.miner=false;e.speed=20;particles.push({kind:"ring",x:e.x,y:e.y,r:35,life:.5,max:.5,color:e.color})}continue}if(e.poison>0){e.poison-=dt;e.poisonTick-=dt;if(e.poisonTick<=0){e.poisonTick=.6;damageEnemy(e,9,{x:e.x,y:e.y},true)}}if(e.heal){e.healTimer-=dt;if(e.healTimer<=0){e.healTimer=4.5;enemies.filter(x=>x!==e&&x.row===e.row&&Math.abs(x.x-e.x)<170).forEach(x=>x.hp=Math.min(x.maxHp,x.hp+45*state.difficulty));particles.push({kind:"ring",x:e.x,y:e.y,r:42,life:.6,max:.6,color:"#8ff2bd"})}}
- const aura=enemies.some(o=>o!==e&&o.aura&&o.row===e.row&&Math.abs(o.x-e.x)<180);let move=e.speed*(e.slow>0?.48:1)*(aura?1.18:1);if(e.rooted>0)move=0;const blocker=blockingPlant(e);if(blocker){if(e.jump){e.jump=false;e.x=blocker.x-74;particles.push({kind:"ring",x:blocker.x,y:blocker.y,r:32,life:.4,max:.4,color:e.color})}else if(e.ramReady){e.ramReady=false;hurtPlant(blocker,190*state.difficulty);e.x-=25;particles.push({kind:"burst",x:blocker.x,y:blocker.y,r:38,life:.4,max:.4,color:"#ff9d64"})}else if(e.attack<=0){e.attack=e.boss?.45:.72;hurtPlant(blocker,e.damage)}}else e.x-=move*dt;if(e.x<BX-72)breach(e)}enemies=enemies.filter(e=>!e.dead&&e.hp>0)}
-function blockingPlant(e){if(e.flying)return null;return plants.filter(p=>p.row===e.row&&!p.overlay&&p.key!=="spike"&&p.key!=="root"&&Math.abs(e.x-p.x)<44).sort((a,b)=>b.x-a.x)[0]}
-function hurtPlant(p,dmg){const cover=overlayAt(p.row,p.col);if(cover){cover.hp-=dmg;if(cover.hp<=0)cover.dead=true}else{p.hp-=dmg;if(p.hp<=0)p.dead=true}particles.push({kind:"hit",x:p.x,y:p.y,life:.2,max:.2,color:"#ff7468"})}
-function breach(e){if(state.laneGuards[e.row]){state.laneGuards[e.row]=false;showToast("最后防线启动");enemies.forEach(x=>{if(x.row===e.row)x.dead=true});particles.push({kind:"sweep",row:e.row,life:.7,max:.7,color:"#ffd45e"})}else endGame(false)}
-function updateBullets(dt){for(const b of bullets){if(b.delay>0){b.delay-=dt;continue}if(["mortar","melon"].includes(b.type)){b.life-=dt;const t=1-b.life/b.maxLife;b.x=b.sx+(b.tx-b.sx)*t;b.y=b.sy+(b.ty-b.sy)*t-Math.sin(t*Math.PI)*85;if(b.life<=0){explode(b.tx,b.ty,b.row,b.type==="melon"?105:82,b.dmg);b.dead=true}continue}b.x+=b.vx*dt;const hit=enemies.find(e=>e.row===b.row&&Math.abs(e.x-b.x)<25&&!e.dead);if(hit){damageEnemy(hit,b.dmg,b);if(b.slow)hit.slow=Math.max(hit.slow,b.slow);if(b.poison)hit.poison=Math.max(hit.poison,b.poison);b.dead=true}if(b.x>WORLD_W+50)b.dead=true}bullets=bullets.filter(b=>!b.dead)}
-function damageEnemy(e,amount,source,silent=false){let dmg=amount;if(e.shield>0){const used=Math.min(e.shield,dmg);e.shield-=used;dmg-=used}if(dmg&&e.armor>0){const used=Math.min(e.armor,dmg*.7);e.armor-=used;dmg-=used}e.hp-=dmg;e.flash=.08;if(!silent)particles.push({kind:"hit",x:e.x,y:e.y-5,life:.18,max:.18,color:"#fff1ae"});if(e.hp<=0&&!e.dead){e.dead=true;state.kills++;state.charge=Math.min(300,state.charge+(e.boss?100:e.charged?55:8));if(e.charged)spawnDrop("leaf",e.x,e.y-25,50,e.y-10,false);else if(state.region==="night"&&Math.random()<.16)spawnDrop("sun",e.x,e.y-20,15,e.y,false)}}
-function explode(x,y,row,r,dmg){enemies.forEach(e=>{if(Math.abs(e.row-row)<=1&&Math.hypot(e.x-x,(e.row-row)*CH)<r)damageEnemy(e,dmg,{x,y})});particles.push({kind:"burst",x,y,r,life:.55,max:.55,color:"#ff9a61"})}
-function laneBlast(row,dmg){enemies.filter(e=>e.row===row).forEach(e=>damageEnemy(e,dmg,{x:BX,y:center(row,0).y}));particles.push({kind:"sweep",row,life:.8,max:.8,color:"#ffad68"})}
-function spawnDrop(kind,x,y,value,targetY,falling){drops.push({kind,x,y,value,targetY,falling,life:11,vy:0})}
-function updateDrops(dt){for(const d of drops){d.life-=dt;if(d.falling){d.vy+=100*dt;d.y=Math.min(d.targetY,d.y+d.vy*dt)}}drops=drops.filter(d=>d.life>0)}
-function collectDrop(d){if(d.kind==="sun")state.sun+=d.value;else state.charge=Math.min(300,state.charge+d.value);d.life=0;particles.push({kind:"ring",x:d.x,y:d.y,r:25,life:.35,max:.35,color:d.kind==="sun"?"#ffd45e":"#8ee77e"})}
-function useLeaf(p){if(state.charge<100)return;state.charge-=100;leafMode=false;p.boost=8;p.frozen=0;const def=plantMap[p.key];if(["shell","gourd"].includes(p.key)){p.hp=p.maxHp;p.armor=(p.armor||0)+260}else if(p.key==="burst"){p.arm=.12}else if(p.key==="comet"){p.arm=.12}else if(p.key==="root"){p.spent=false;p.hidden=true}else if(p.key==="magnet"){enemies.forEach(e=>{if(e.metal){e.armor=0;e.shield=0;e.metal=false}})}else if(p.key==="lantern"){plants.filter(q=>Math.abs(q.row-p.row)<=1&&Math.abs(q.col-p.col)<=2).forEach(q=>q.boost=8)}else if(p.key==="sunleaf"){for(let i=0;i<3;i++)setTimeout(()=>{if(state.started&&!state.over)spawnDrop("sun",p.x+(i-1)*18,p.y-25,50,p.y+8,false)},i*220)}else if(p.key==="spike"){explode(p.x,p.y,p.row,145,220)}else{p.cool=0}
- if(state.region==="ruins"&&isPowerCell(p.row,p.col)){plants.filter(q=>q!==p&&isPowerCell(q.row,q.col)).forEach(q=>{q.boost=Math.max(q.boost,5);q.cool=0});showToast("辉能回路联动！")}particles.push({kind:"ring",x:p.x,y:p.y,r:55,life:.75,max:.75,color:def.color});renderSeeds();updateUI()}
-function isPowerCell(row,col){return state.region==="ruins"&&[[0,2],[2,4],[4,6]].some(c=>c[0]===row&&c[1]===col)}
-function updateParticles(dt){particles.forEach(p=>p.life-=dt);particles=particles.filter(p=>p.life>0)}
-function checkEnd(){if(state.kind!=="survival"&&!spawnPlan.length&&!enemies.length&&state.started&&!state.over)endGame(true)}
-function endGame(won){if(state.over)return;state.over=true;state.won=won;save.totalKills=(save.totalKills||0)+state.kills;if(state.kind==="level"&&won){const guards=state.laneGuards.filter(Boolean).length,stars=guards===5?3:guards>=3?2:1;save.stars[state.levelId]=Math.max(save.stars[state.levelId]||0,stars);save.unlocked=Math.max(save.unlocked,Math.min(12,state.levelId+1));selectedLevel=Math.min(12,Math.max(selectedLevel,state.levelId+1))}if(state.kind==="survival")save.bestSurvival=Math.max(save.bestSurvival||0,state.wave);saveProgress();$("resultTitle").textContent=won?"防线稳固":"防线失守";$("resultCopy").textContent=won?(state.kind==="level"?`行动完成，获得「${levelReward(state.levelId)}」。`:"特别行动完成。"):`推进队伍突破了庭院入口。`;$("resultKills").textContent=state.kills;$("resultSun").textContent=Math.floor(state.sun);$("resultGuards").textContent=state.laneGuards.filter(Boolean).length;$("nextBtn").textContent=state.kind==="level"&&state.levelId<12&&won?"下一关":"返回地图";$("resultModal").classList.add("show")}
-function updateUI(){const reg=regions[state.region];UI.status.textContent=state.over?(state.won?"行动完成":"防线失守"):state.paused?"暂停":leafMode?"选择绽放目标":shovel?"铲除模式":"交战中";UI.region.textContent=reg.name;UI.sun.textContent=Math.floor(state.sun);UI.wave.textContent=state.kind==="survival"?`${state.wave}/∞`:`${state.wave}/${state.totalWaves}`;UI.threat.textContent=enemies.length;UI.kills.textContent=state.kills;UI.waveText.textContent=state.started?(state.kind==="survival"?`无尽第 ${state.wave} 波 · 威胁 ${enemies.length}`:`第 ${state.wave}/${state.totalWaves} 波 · ${state.mission}`):"选择行动";let progress=state.kind==="survival"?(state.wave%10)*10:100*(1-(spawnPlan.filter(x=>x.type!=="flag").length+enemies.length)/state.plannedTotal);UI.waveBar.style.width=`${clamp(progress,0,100)}%`;UI.charge.textContent=`${Math.floor(state.charge/100)}/3`;UI.chargeBar.style.width=`${state.charge/3}%`;$("leafCount").textContent=Math.floor(state.charge/100);const guards=state.laneGuards.filter(Boolean).length;UI.guard.textContent=`${guards}/5`;UI.guardBar.style.width=`${guards/5*100}%`;UI.missionIcon.textContent=reg.icon;UI.missionTitle.textContent=state.kind==="level"?`${state.levelId}. ${levels[state.levelId-1]?.name||"行动"}`:specialModes[state.kind]?.name||"选择行动";UI.missionText.textContent=state.mission||reg.note;$("shovelBtn").classList.toggle("active",shovel);$("overloadBtn").classList.toggle("active",leafMode);$("overloadBtn").disabled=state.charge<100||state.over;renderSeeds()}
-function activeSeeds(){if(state.kind==="conveyor")return conveyor.map(x=>({...plantMap[x.key],conveyorId:x.id}));if(state.kind==="daily")return dailyLoadout(dailySeed()).map(k=>plantMap[k]);return loadout.map(k=>plantMap[k]).filter(Boolean)}
-function renderSeeds(force=false){const list=activeSeeds();const signature=list.map(x=>`${x.key}:${x.conveyorId||0}`).join("|");if(force||UI.seedBank.dataset.sig!==signature){UI.seedBank.dataset.sig=signature;UI.seedBank.innerHTML=list.map((p,i)=>`<button class="seed-card" data-seed="${p.key}" ${p.conveyorId?`data-conveyor="${p.conveyorId}"`:""} style="--seed-bg:${p.color}2d"><span class="seed-icon" style="color:${p.color}">${p.icon}</span><strong>${p.name}</strong><small>${p.tag}</small>${state.kind==="conveyor"?'<span class="conveyor-badge">⇢</span>':`<span class="cost">☀ ${p.cost}</span>`}<span class="key">${i<9?i+1:""}</span><i class="cooldown-mask"></i></button>`).join("");UI.seedBank.querySelectorAll(".seed-card").forEach(b=>b.onclick=()=>{selectedSeed=b.dataset.seed;selectedConveyorId=b.dataset.conveyor?+b.dataset.conveyor:null;shovel=false;leafMode=false;updateUI()})}
- UI.seedBank.querySelectorAll(".seed-card").forEach(b=>{const p=plantMap[b.dataset.seed],cd=cooldowns[p.key]||0,isSel=selectedSeed===p.key&&(state.kind!=="conveyor"||selectedConveyorId===+b.dataset.conveyor);b.classList.toggle("selected",isSel&&!shovel&&!leafMode);b.disabled=state.over||(state.kind!=="conveyor"&&(state.sun<p.cost||cd>0));b.querySelector(".cooldown-mask").style.height=`${clamp(cd/p.cd*100,0,100)}%`})}
-function canvasClick(e){if(!state.started||state.paused||state.over)return;const p=screenPoint(e),drop=drops.find(d=>Math.hypot(d.x-p.x,d.y-p.y)<34);if(drop){collectDrop(drop);updateUI();return}const cell=pointCell(p);if(!cell)return;const existing=plantAt(cell.row,cell.col);if(leafMode&&existing){useLeaf(existing);return}if(shovel){const targets=plants.filter(x=>x.row===cell.row&&x.col===cell.col);if(targets.length){targets.forEach(x=>x.dead=true);showToast("已铲除")}shovel=false;updateUI();return}placePlant(cell.row,cell.col)}
-function draw(){ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,canvas.width,canvas.height);ctx.save();ctx.translate(view.ox,view.oy);ctx.scale(view.scale,view.scale);drawWorld();ctx.restore()}
-function drawWorld(){drawBackground();drawBoard();drawGuards();drops.forEach(drawDrop);plants.filter(p=>!p.overlay).forEach(drawPlant);plants.filter(p=>p.overlay).forEach(drawPlant);bullets.forEach(drawBullet);enemies.forEach(drawEnemy);drawParticles();drawPreview()}
-function drawBackground(){const r=regions[state.region],g=ctx.createLinearGradient(0,0,WORLD_W,WORLD_H);g.addColorStop(0,r.sky);g.addColorStop(1,"#17251d");ctx.fillStyle=g;ctx.fillRect(0,0,WORLD_W,WORLD_H);ctx.globalAlpha=.16;ctx.fillStyle="#dff0d5";for(let i=0;i<34;i++){ctx.beginPath();ctx.arc((i*181+47)%WORLD_W,(i*97+70)%WORLD_H,3+(i%5),0,Math.PI*2);ctx.fill()}ctx.globalAlpha=1;ctx.fillStyle="rgba(7,13,9,.28)";ctx.fillRect(0,BY-18,WORLD_W,ROWS*CH+36)}
-function drawBoard(){for(let row=0;row<ROWS;row++)for(let col=0;col<COLS;col++){const x=BX+col*CW,y=BY+row*CH;ctx.fillStyle=(row+col)%2?"rgba(109,165,82,.56)":"rgba(83,143,73,.56)";roundRect(x+3,y+3,CW-6,CH-6,13);ctx.fill();ctx.strokeStyle="rgba(232,247,220,.15)";ctx.lineWidth=2;ctx.stroke();if(isPowerCell(row,col)){ctx.fillStyle="rgba(181,134,255,.25)";roundRect(x+13,y+13,CW-26,CH-26,18);ctx.fill();ctx.strokeStyle="#b88cff";ctx.stroke();ctx.fillStyle="#e7d7ff";ctx.font="25px serif";ctx.textAlign="center";ctx.fillText("✦",x+CW/2,y+CH/2+8)}}ctx.fillStyle="rgba(23,27,23,.72)";ctx.fillRect(BX+COLS*CW+9,BY,52,ROWS*CH);if(state.region==="night"){const fog=ctx.createLinearGradient(BX+CW*4,0,BX+COLS*CW,0);fog.addColorStop(0,"rgba(170,205,196,0)");fog.addColorStop(1,"rgba(171,205,198,.28)");ctx.fillStyle=fog;ctx.fillRect(BX+CW*4,BY,CW*5,CH*ROWS)}}
-function drawGuards(){for(let r=0;r<ROWS;r++){const y=BY+r*CH+CH/2;ctx.save();ctx.translate(BX-54,y);ctx.fillStyle=state.laneGuards[r]?"#f2c856":"#505851";ctx.strokeStyle="#162016";ctx.lineWidth=3;roundRect(-30,-19,58,38,10);ctx.fill();ctx.stroke();ctx.fillStyle="#394332";ctx.fillRect(-19,-4,34,8);ctx.restore()}}
-function drawDrop(d){ctx.save();ctx.translate(d.x,d.y);const pulse=1+Math.sin(performance.now()*.006+d.x)*.08;ctx.scale(pulse,pulse);ctx.fillStyle=d.kind==="sun"?"#ffd45e":"#7ee979";ctx.strokeStyle="#fff4bc";ctx.lineWidth=3;ctx.beginPath();if(d.kind==="sun")ctx.arc(0,0,18,0,Math.PI*2);else{ctx.moveTo(0,-22);ctx.bezierCurveTo(25,-4,15,18,0,23);ctx.bezierCurveTo(-15,18,-25,-4,0,-22)}ctx.fill();ctx.stroke();ctx.fillStyle="#26301d";ctx.font="900 11px sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(d.kind==="sun"?d.value:"叶",0,1);ctx.restore()}
-function drawPlant(p){const d=plantMap[p.key];ctx.save();ctx.translate(p.x,p.y);const appear=1-clamp((p.birth||0)/.25,0,1);ctx.scale(.65+.35*Math.sin(appear*Math.PI/2),.65+.35*Math.sin(appear*Math.PI/2));ctx.globalAlpha=p.frozen>0?.62:1;ctx.fillStyle="rgba(0,0,0,.23)";ctx.beginPath();ctx.ellipse(0,29,31,11,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle=p.boost>0?"#ffe072":"rgba(235,249,225,.7)";ctx.lineWidth=p.boost>0?4:2;if(p.overlay){ctx.strokeStyle="#f1c16c";ctx.lineWidth=7;ctx.beginPath();ctx.arc(0,0,31,-2.75,-.38);ctx.stroke()}else if(["shell"].includes(p.key)){ctx.fillStyle=d.color;roundRect(-27,-31,54,62,16);ctx.fill();ctx.stroke()}else if(["burst","comet"].includes(p.key)){ctx.fillStyle=d.color;ctx.beginPath();ctx.arc(0,0,25,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle="#fff1b1";ctx.font="20px serif";ctx.textAlign="center";ctx.fillText(d.icon,0,7)}else if(p.key==="spike"||p.key==="root"){ctx.fillStyle=d.color;for(let i=-2;i<=2;i++){ctx.beginPath();ctx.moveTo(i*12,21);ctx.lineTo(i*12+8,-17);ctx.lineTo(i*12+16,21);ctx.closePath();ctx.fill();ctx.stroke()}}else{ctx.fillStyle=d.color;leafShape(0,3,29);ctx.fill();ctx.stroke();ctx.fillStyle="rgba(17,30,21,.72)";ctx.beginPath();ctx.arc(8,-8,12,0,Math.PI*2);ctx.fill();ctx.fillStyle="#f6f5d9";ctx.font="900 17px serif";ctx.textAlign="center";ctx.fillText(d.icon,7,-2)}if(p.frozen>0){ctx.strokeStyle="#bff2ff";ctx.lineWidth=5;ctx.beginPath();ctx.arc(0,0,34,0,Math.PI*2);ctx.stroke()}drawHp(p.hp,p.maxHp,-31,-44,d.color);ctx.restore()}
-function leafShape(x,y,r){ctx.beginPath();ctx.moveTo(x,y-r);ctx.bezierCurveTo(x+r,y-r*.8,x+r*1.06,y+r*.55,x,y+r);ctx.bezierCurveTo(x-r*1.06,y+r*.55,x-r,y-r*.8,x,y-r);ctx.closePath()}
-function drawEnemy(e){const d=enemiesDef[e.type];ctx.save();ctx.translate(e.x,e.y);if(e.tunnel>0){ctx.fillStyle="#4a392f";ctx.beginPath();ctx.ellipse(0,26,30,9,0,0,Math.PI*2);ctx.fill();ctx.restore();return}ctx.fillStyle="rgba(0,0,0,.25)";ctx.beginPath();ctx.ellipse(0,29,e.boss?42:29,11,0,0,Math.PI*2);ctx.fill();ctx.fillStyle=e.flash>0?"#fff5cf":e.color;ctx.strokeStyle="#171d18";ctx.lineWidth=3;roundRect(e.boss?-34:-22,e.boss?-45:-34,e.boss?68:44,e.boss?82:68,e.boss?18:13);ctx.fill();ctx.stroke();ctx.fillStyle="#242b25";ctx.beginPath();ctx.arc(e.boss?-12:-7,-12,e.boss?6:4,0,Math.PI*2);ctx.arc(e.boss?13:8,-12,e.boss?6:4,0,Math.PI*2);ctx.fill();if(e.armor>0){ctx.fillStyle="#b8c0bd";ctx.fillRect(-23,-42,46,12)}if(e.shield>0){ctx.strokeStyle="#78b5e5";ctx.lineWidth=6;ctx.beginPath();ctx.arc(1,0,33,-1.15,1.15);ctx.stroke()}if(e.charged){ctx.strokeStyle="#87ee77";ctx.lineWidth=3;ctx.beginPath();ctx.arc(0,0,e.boss?43:31,0,Math.PI*2);ctx.stroke()}if(e.flying){ctx.strokeStyle="#c9c2ff";ctx.beginPath();ctx.moveTo(-20,-20);ctx.lineTo(-34,-32);ctx.moveTo(20,-20);ctx.lineTo(34,-32);ctx.stroke()}if(e.slow>0){ctx.strokeStyle="#8de8f7";ctx.lineWidth=3;ctx.beginPath();ctx.arc(0,0,31,0,Math.PI*2);ctx.stroke()}drawHp(e.hp,e.maxHp,e.boss?-42:-29,e.boss?-56:-49,e.boss?"#d49aff":"#78dc73",e.boss?84:58);ctx.restore()}
-function drawHp(hp,max,x,y,color,w=58){ctx.fillStyle="rgba(0,0,0,.52)";roundRect(x,y,w,6,3);ctx.fill();ctx.fillStyle=hp/max>.25?color:"#ff6d61";roundRect(x,y,w*clamp(hp/max,0,1),6,3);ctx.fill()}
-function drawBullet(b){if(b.delay>0)return;ctx.save();ctx.fillStyle=b.color;ctx.beginPath();ctx.arc(b.x,b.y,["mortar","melon"].includes(b.type)?10:7,0,Math.PI*2);ctx.fill();ctx.restore()}
-function drawParticles(){for(const p of particles){ctx.save();ctx.globalAlpha=clamp(p.life/(p.max||.7),0,1);if(p.kind==="beam"){ctx.strokeStyle=p.color;ctx.lineWidth=7;ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(p.x2,p.y2);ctx.stroke()}else if(p.kind==="sweep"){const y=center(p.row,0).y;ctx.strokeStyle=p.color;ctx.lineWidth=19;ctx.beginPath();ctx.moveTo(BX-70,y);ctx.lineTo(BX+COLS*CW+80,y);ctx.stroke()}else if(p.kind==="gust"){ctx.strokeStyle=p.color;ctx.lineWidth=8;for(let i=0;i<5;i++){ctx.beginPath();ctx.moveTo(WORLD_W,170+i*100);ctx.bezierCurveTo(900,120+i*110,650,220+i*80,200,160+i*100);ctx.stroke()}}else if(p.kind==="ring"){ctx.strokeStyle=p.color;ctx.lineWidth=5;ctx.beginPath();ctx.arc(p.x,p.y,p.r*(1.5-p.life/(p.max||.4)*.5),0,Math.PI*2);ctx.stroke()}else{ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(p.x,p.y,p.r||9,0,Math.PI*2);ctx.fill()}ctx.restore()}}
-function drawPreview(){if(!state.started||state.paused||state.over||!pointer.inside)return;const cell=pointCell(pointer);if(!cell)return;const c=center(cell.row,cell.col),existing=plantAt(cell.row,cell.col);ctx.save();ctx.strokeStyle=shovel?"#ff6d61":leafMode?"#ffd45e":"rgba(255,238,145,.85)";ctx.lineWidth=4;ctx.setLineDash([9,7]);roundRect(c.x-CW/2+7,c.y-CH/2+7,CW-14,CH-14,12);ctx.stroke();ctx.restore();if(!shovel&&!leafMode&&!existing&&plantMap[selectedSeed]){ctx.save();ctx.globalAlpha=.48;drawPlant({key:selectedSeed,x:c.x,y:c.y,hp:1,maxHp:1,birth:0,boost:0,frozen:0,overlay:false});ctx.restore()}}
-function roundRect(x,y,w,h,r){r=Math.min(r,w/2,h/2);ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath()}
-function loop(t){const dt=Math.min(.04,Math.max(.001,lastTime?(t-lastTime)/1000:1/60));lastTime=t;update(dt);draw();requestAnimationFrame(loop)}
-document.querySelectorAll(".tab-btn").forEach(b=>b.onclick=()=>selectTab(b.dataset.tab));$("autoLoadoutBtn").onclick=()=>{loadout=plantsDef.filter(unlockedPlant).slice(0,8).map(p=>p.key);renderLoadout()};$("startBtn").onclick=()=>startGame();$("againBtn").onclick=()=>startGame(true);$("nextBtn").onclick=()=>{$("resultModal").classList.remove("show");$("startModal").classList.add("show");selectedTab="adventure";selectTab("adventure")};$("menuBtn").onclick=()=>{if(state.started&&!state.over&&!confirm("当前行动尚未结束，返回地图？"))return;state.started=false;$("resultModal").classList.remove("show");$("startModal").classList.add("show");renderMenu()};$("restartBtn").onclick=()=>{if(state.started&&confirm("重新开始当前行动？"))startGame(true)};$("pauseBtn").onclick=()=>{if(!state.started||state.over)return;state.paused=!state.paused;$("pauseBtn").textContent=state.paused?"▶":"Ⅱ";updateUI()};$("speedBtn").onclick=()=>{speed=speed===1?2:1;$("speedBtn").textContent=`${speed}×`;$("speedBtn").classList.toggle("active",speed===2)};$("shovelBtn").onclick=()=>{shovel=!shovel;leafMode=false;updateUI()};$("overloadBtn").onclick=()=>{if(state.charge>=100){leafMode=!leafMode;shovel=false;updateUI()}};$("hintBtn").onclick=()=>showToast(regions[state.region].note);$("resetSaveBtn").onclick=()=>{if(confirm("确定重置远征关卡、星级和纪录？")){localStorage.removeItem(SAVE_KEY);save=loadSave();selectedLevel=1;renderMenu()}};
-canvas.addEventListener("click",canvasClick);canvas.addEventListener("pointermove",e=>Object.assign(pointer,screenPoint(e),{inside:true}));canvas.addEventListener("pointerdown",e=>Object.assign(pointer,screenPoint(e),{inside:true}));canvas.addEventListener("pointerleave",()=>pointer.inside=false);window.addEventListener("keydown",e=>{if(e.code==="Space"||e.code==="KeyP"){e.preventDefault();$("pauseBtn").click()}if(/^Digit[1-8]$/.test(e.code)){const b=UI.seedBank.children[+e.code.slice(-1)-1];if(b&&!b.disabled)b.click()}if(e.code==="Escape"){shovel=false;leafMode=false;updateUI()}});window.addEventListener("resize",resize);
-resize();renderMenu();updateUI();requestAnimationFrame(loop);
-})();
-</script>
-</body>
+        <div class="wave-track">
+          <div class="fill"><i id="waveBar"></i></div>
+          <span id="waveText">选择行动</span>
+        </div>
+        <div class="toast" id="toast">准备就绪</div>
+        <div class="modal show" id="startModal">
+          <div class="modal-card">
+            <div class="title-row">
+              <div>
+                <h2>芽阵前线：<b>六境繁花</b></h2>
+                <p>24 株芽阵、18 关远征、Boss 机制与挑战词条。</p>
+              </div>
+              <div class="save-pill" id="savePill">远征进度 1/18</div>
+            </div>
+            <div class="tabs">
+              <button class="tab-btn selected" data-tab="adventure">
+                冒险地图</button
+              ><button class="tab-btn" data-tab="special">特别行动</button
+              ><button class="tab-btn" data-tab="almanac">芽阵图鉴</button>
+            </div>
+            <div id="adventureTab">
+              <div class="menu-grid">
+                <section class="menu-section">
+                  <h3>四境路线</h3>
+                  <div class="level-grid" id="levelGrid"></div>
+                  <div class="level-info" id="levelInfo"></div>
+                  <h3>挑战词条</h3>
+                  <div class="tabs" id="challengeGrid"></div>
+                </section>
+                <section class="menu-section">
+                  <div class="loadout-head">
+                    <h3>出战芽阵 <span id="loadoutCount">0/8</span></h3>
+                    <button class="mini-btn" id="autoLoadoutBtn">推荐</button>
+                  </div>
+                  <div class="loadout-grid" id="loadoutGrid"></div>
+                </section>
+              </div>
+            </div>
+            <div id="specialTab" hidden>
+              <div class="mode-cards" id="modeCards"></div>
+              <div class="level-info" id="specialInfo"></div>
+            </div>
+            <div id="almanacTab" hidden>
+              <div class="almanac-grid" id="almanacGrid"></div>
+            </div>
+            <div class="start-row">
+              <button class="mini-btn" id="resetSaveBtn">重置进度</button
+              ><button class="primary-btn" id="startBtn">开始行动</button>
+            </div>
+          </div>
+        </div>
+        <div class="modal" id="resultModal">
+          <div class="modal-card compact">
+            <h2 id="resultTitle">防线稳固</h2>
+            <p id="resultCopy"></p>
+            <div class="result-stats">
+              <div><strong id="resultKills">0</strong><span>击退</span></div>
+              <div><strong id="resultSun">0</strong><span>日光</span></div>
+              <div><strong id="resultGuards">5</strong><span>防线</span></div>
+            </div>
+            <div class="start-row" style="justify-content: center">
+              <button class="mini-btn" id="againBtn">再战一次</button
+              ><button class="primary-btn" id="nextBtn">继续远征</button>
+            </div>
+          </div>
+        </div>
+      </section>
+      <aside class="rail">
+        <section class="panel mission">
+          <div class="mission-icon" id="missionIcon">🌤</div>
+          <div>
+            <strong id="missionTitle">选择行动</strong
+            ><small id="missionText">从远征地图进入战场</small>
+          </div>
+        </section>
+        <div class="resource-row">
+          <section class="panel meter">
+            <span>叶能</span><strong id="chargeText">0/3</strong>
+            <div class="bar"><i id="chargeBar"></i></div>
+          </section>
+          <section class="panel meter guards">
+            <span>最后防线</span><strong id="guardText">5/5</strong>
+            <div class="bar"><i id="guardBar"></i></div>
+          </section>
+        </div>
+        <div class="toolbox">
+          <button class="icon-btn" id="shovelBtn" title="铲除">铲</button
+          ><button class="icon-btn leaf-btn" id="overloadBtn" title="叶能绽放">
+            叶<em id="leafCount">0</em></button
+          ><button class="icon-btn" id="hintBtn" title="查看提示">?</button
+          ><button class="icon-btn" id="restartBtn" title="重新开始">↻</button>
+        </div>
+        <div class="seed-bank" id="seedBank"></div>
+        <section class="panel brief" id="briefText">
+          <b>操作：</b
+          >选择卡片再点草坪；点击日光收集。叶能充满一格后点“叶”，再点植物释放专属绽放。
+        </section>
+      </aside>
+    </main>
+    <script>
+      (() => {
+        "use strict";
+        const $ = (id) => document.getElementById(id),
+          canvas = $("gameCanvas"),
+          ctx = canvas.getContext("2d");
+        const UI = {
+          status: $("statusText"),
+          region: $("regionText"),
+          sun: $("sunText"),
+          wave: $("waveStat"),
+          threat: $("threatText"),
+          kills: $("killText"),
+          waveBar: $("waveBar"),
+          waveText: $("waveText"),
+          charge: $("chargeText"),
+          chargeBar: $("chargeBar"),
+          guard: $("guardText"),
+          guardBar: $("guardBar"),
+          seedBank: $("seedBank"),
+          toast: $("toast"),
+          missionIcon: $("missionIcon"),
+          missionTitle: $("missionTitle"),
+          missionText: $("missionText"),
+        };
+        const WORLD_W = 1280,
+          WORLD_H = 760,
+          ROWS = 5,
+          COLS = 9,
+          CW = 94,
+          CH = 100,
+          BX = 215,
+          BY = 137,
+          SAVE_KEY = "gardenFrontExpeditionV2";
+        const view = { dpr: 1, scale: 1, ox: 0, oy: 0 },
+          pointer = { x: 0, y: 0, inside: false };
+        const regions = {
+          meadow: {
+            name: "晨露庭院",
+            icon: "🌤",
+            sky: "#38784d",
+            ground: "#4d8a49",
+            sunRate: 7.2,
+            note: "标准生态，日光会从天空落下。",
+          },
+          night: {
+            name: "萤雾湿地",
+            icon: "🌙",
+            sky: "#172c3a",
+            ground: "#315246",
+            sunRate: 15,
+            note: "浓雾遮蔽远端，天空日光稀少。",
+          },
+          frost: {
+            name: "霜风高地",
+            icon: "❄",
+            sky: "#31566b",
+            ground: "#577d72",
+            sunRate: 9,
+            note: "霜风会周期冻结最右侧的植物。",
+          },
+          ruins: {
+            name: "星辉遗迹",
+            icon: "✦",
+            sky: "#4c394f",
+            ground: "#66704f",
+            sunRate: 8.5,
+            note: "辉能地砖会联动释放叶能。",
+          },
+          volcano: {
+            name: "熔岩花谷",
+            icon: "🌋",
+            sky: "#6b342d",
+            ground: "#714936",
+            sunRate: 7.8,
+            note: "熔岩裂隙会灼伤随机格，爆破与治疗同样重要。",
+          },
+          sky: {
+            name: "云顶天园",
+            icon: "☁",
+            sky: "#4d82a3",
+            ground: "#6d9a78",
+            sunRate: 6.8,
+            note: "强风推动敌群，飞行单位会越过地面芽阵。",
+          },
+        };
+        const plantsDef = [
+          {
+            key: "sunleaf",
+            name: "向光芽",
+            icon: "☀",
+            cost: 50,
+            cd: 6,
+            hp: 100,
+            tag: "生产",
+            desc: "周期生产日光；绽放时连续生产。",
+            unlock: 1,
+            color: "#f4c957",
+          },
+          {
+            key: "sprout",
+            name: "豆荚芽",
+            icon: "●",
+            cost: 100,
+            cd: 4.5,
+            hp: 120,
+            tag: "直射",
+            desc: "稳定发射豆籽；绽放时高速连射。",
+            unlock: 1,
+            color: "#72d66b",
+          },
+          {
+            key: "shell",
+            name: "坚壳墩",
+            icon: "▰",
+            cost: 50,
+            cd: 8,
+            hp: 650,
+            tag: "防御",
+            desc: "高耐久阻挡；绽放时回满并获得护甲。",
+            unlock: 1,
+            color: "#b99159",
+          },
+          {
+            key: "burst",
+            name: "爆裂莓",
+            icon: "✹",
+            cost: 150,
+            cd: 20,
+            hp: 1,
+            tag: "爆破",
+            desc: "短暂延迟后大范围爆炸。",
+            unlock: 2,
+            color: "#f2645a",
+          },
+          {
+            key: "frost",
+            name: "霜瓣草",
+            icon: "❄",
+            cost: 125,
+            cd: 6.5,
+            hp: 110,
+            tag: "减速",
+            desc: "寒籽降低敌人速度。",
+            unlock: 2,
+            color: "#6fd4ea",
+          },
+          {
+            key: "twin",
+            name: "双籽花",
+            icon: "∞",
+            cost: 175,
+            cd: 7,
+            hp: 120,
+            tag: "双发",
+            desc: "一次连续发射两颗豆籽。",
+            unlock: 3,
+            color: "#6bd48c",
+          },
+          {
+            key: "spike",
+            name: "地刺藤",
+            icon: "▲",
+            cost: 100,
+            cd: 6,
+            hp: 140,
+            tag: "地面",
+            desc: "持续伤害踩在身上的地面敌人。",
+            unlock: 4,
+            color: "#426f42",
+          },
+          {
+            key: "mortar",
+            name: "玉粒炮",
+            icon: "⌒",
+            cost: 175,
+            cd: 9,
+            hp: 115,
+            tag: "抛射",
+            desc: "抛射玉粒，对落点造成溅射。",
+            unlock: 5,
+            color: "#edbd51",
+          },
+          {
+            key: "gourd",
+            name: "护壳瓜",
+            icon: "⬡",
+            cost: 75,
+            cd: 9,
+            hp: 360,
+            tag: "护甲",
+            desc: "给同格植物套上护壳，可叠种。",
+            unlock: 5,
+            color: "#e3a04e",
+            overlay: true,
+          },
+          {
+            key: "mint",
+            name: "蚀露薄荷",
+            icon: "≈",
+            cost: 125,
+            cd: 7,
+            hp: 105,
+            tag: "持续",
+            desc: "毒露会持续腐蚀目标。",
+            unlock: 6,
+            color: "#42c9a7",
+          },
+          {
+            key: "melon",
+            name: "震波瓜",
+            icon: "◉",
+            cost: 225,
+            cd: 10,
+            hp: 120,
+            tag: "溅射",
+            desc: "沉重果实攻击一整片区域。",
+            unlock: 7,
+            color: "#81c657",
+          },
+          {
+            key: "lantern",
+            name: "引路灯苔",
+            icon: "◇",
+            cost: 75,
+            cd: 8,
+            hp: 140,
+            tag: "辅助",
+            desc: "驱散周围浓雾并加速邻近植物。",
+            unlock: 7,
+            color: "#ffe28a",
+          },
+          {
+            key: "root",
+            name: "绊足根",
+            icon: "⌁",
+            cost: 75,
+            cd: 8,
+            hp: 80,
+            tag: "控制",
+            desc: "束缚首个踩中的敌人并造成伤害。",
+            unlock: 8,
+            color: "#b47a58",
+          },
+          {
+            key: "beam",
+            name: "棱光草",
+            icon: "➤",
+            cost: 200,
+            cd: 11,
+            hp: 100,
+            tag: "贯穿",
+            desc: "光束贯穿整行所有敌人。",
+            unlock: 9,
+            color: "#b487ec",
+          },
+          {
+            key: "magnet",
+            name: "磁绒花",
+            icon: "∪",
+            cost: 125,
+            cd: 10,
+            hp: 110,
+            tag: "拆甲",
+            desc: "周期吸走附近敌人的金属护甲。",
+            unlock: 9,
+            color: "#d184da",
+          },
+          {
+            key: "bloom",
+            name: "拳叶兰",
+            icon: "✿",
+            cost: 150,
+            cd: 7,
+            hp: 250,
+            tag: "近战",
+            desc: "快速拍击前方近距离敌人。",
+            unlock: 10,
+            color: "#f08bb0",
+          },
+          {
+            key: "storm",
+            name: "雷铃草",
+            icon: "ϟ",
+            cost: 225,
+            cd: 12,
+            hp: 105,
+            tag: "连锁",
+            desc: "电弧在多个敌人间跳跃。",
+            unlock: 11,
+            color: "#79bff2",
+          },
+          {
+            key: "comet",
+            name: "彗星果",
+            icon: "★",
+            cost: 250,
+            cd: 24,
+            hp: 1,
+            tag: "终结",
+            desc: "呼叫彗光横扫一整行。",
+            unlock: 12,
+            color: "#ff9c62",
+          },
+          {
+            key: "nectar",
+            name: "蜜疗花",
+            icon: "✚",
+            cost: 125,
+            cd: 8,
+            hp: 120,
+            tag: "治疗",
+            desc: "周期治疗全场最虚弱的芽阵。",
+            unlock: 13,
+            color: "#f3a6bd",
+          },
+          {
+            key: "vortex",
+            name: "旋风蕨",
+            icon: "↶",
+            cost: 175,
+            cd: 9,
+            hp: 110,
+            tag: "击退",
+            desc: "卷起前方敌人并将其推回。",
+            unlock: 14,
+            color: "#82d6bd",
+          },
+          {
+            key: "nova",
+            name: "熔芯莲",
+            icon: "☄",
+            cost: 225,
+            cd: 12,
+            hp: 125,
+            tag: "燃烧",
+            desc: "投射熔芯，对邻行造成灼热爆发。",
+            unlock: 15,
+            color: "#f07a4e",
+          },
+          {
+            key: "chrono",
+            name: "时芽钟",
+            icon: "◷",
+            cost: 150,
+            cd: 10,
+            hp: 135,
+            tag: "加速",
+            desc: "加速两格范围内所有芽阵。",
+            unlock: 16,
+            color: "#d0b4f2",
+          },
+          {
+            key: "prism",
+            name: "虹镜花",
+            icon: "◆",
+            cost: 250,
+            cd: 12,
+            hp: 105,
+            tag: "多路",
+            desc: "同时向本行与相邻两行发射折光束。",
+            unlock: 17,
+            color: "#f1a8df",
+          },
+          {
+            key: "dragon",
+            name: "龙息果",
+            icon: "龙",
+            cost: 300,
+            cd: 15,
+            hp: 160,
+            tag: "终极",
+            desc: "蓄力喷吐贯穿火焰，对首领伤害更高。",
+            unlock: 18,
+            color: "#ffb45f",
+          },
+        ];
+        const plantMap = Object.fromEntries(plantsDef.map((x) => [x.key, x]));
+        const enemiesDef = {
+          walker: {
+            name: "灰步客",
+            hp: 130,
+            speed: 17,
+            damage: 15,
+            color: "#9caf98",
+          },
+          cone: {
+            name: "路标客",
+            hp: 260,
+            speed: 15,
+            damage: 17,
+            color: "#d2a052",
+            armor: 80,
+          },
+          bucket: {
+            name: "铁桶客",
+            hp: 420,
+            speed: 12,
+            damage: 20,
+            color: "#adb7b8",
+            armor: 160,
+            metal: true,
+          },
+          runner: {
+            name: "疾行客",
+            hp: 100,
+            speed: 34,
+            damage: 13,
+            color: "#e8785e",
+          },
+          pole: {
+            name: "跃杆客",
+            hp: 170,
+            speed: 25,
+            damage: 15,
+            color: "#d989bd",
+            jump: true,
+          },
+          shield: {
+            name: "门盾客",
+            hp: 290,
+            speed: 12,
+            damage: 18,
+            color: "#6d9ecf",
+            shield: 220,
+            metal: true,
+          },
+          horn: {
+            name: "号角客",
+            hp: 210,
+            speed: 15,
+            damage: 14,
+            color: "#e3c45b",
+            aura: true,
+          },
+          brute: {
+            name: "重锤客",
+            hp: 820,
+            speed: 9,
+            damage: 38,
+            color: "#ba625b",
+            heavy: true,
+          },
+          medic: {
+            name: "缝补师",
+            hp: 220,
+            speed: 13,
+            damage: 12,
+            color: "#84cfad",
+            heal: true,
+          },
+          miner: {
+            name: "掘地客",
+            hp: 190,
+            speed: 18,
+            damage: 17,
+            color: "#98735e",
+            miner: true,
+            metal: true,
+          },
+          wisp: {
+            name: "浮灯怪",
+            hp: 145,
+            speed: 21,
+            damage: 16,
+            color: "#8d8be1",
+            flying: true,
+          },
+          ram: {
+            name: "冲撞客",
+            hp: 330,
+            speed: 27,
+            damage: 24,
+            color: "#d07845",
+            ram: true,
+          },
+          swarm: {
+            name: "团团客",
+            hp: 75,
+            speed: 25,
+            damage: 10,
+            color: "#c6ca74",
+            small: true,
+          },
+          titan: {
+            name: "遗迹泰坦",
+            hp: 2400,
+            speed: 7,
+            damage: 52,
+            color: "#765a88",
+            boss: true,
+            heavy: true,
+          },
+          thief: {
+            name: "窃光客",
+            hp: 155,
+            speed: 29,
+            damage: 15,
+            color: "#e0ad55",
+            thief: true,
+          },
+          freezer: {
+            name: "寒灯术士",
+            hp: 240,
+            speed: 14,
+            damage: 17,
+            color: "#76c9e5",
+            freezer: true,
+          },
+          glider: {
+            name: "云帆客",
+            hp: 190,
+            speed: 27,
+            damage: 19,
+            color: "#d5e6ec",
+            flying: true,
+          },
+          lavaLord: {
+            name: "熔岩花王",
+            hp: 3200,
+            speed: 6,
+            damage: 58,
+            color: "#a94b37",
+            boss: true,
+            heavy: true,
+            aura: true,
+          },
+          cloudEmperor: {
+            name: "云冠帝君",
+            hp: 3900,
+            speed: 8,
+            damage: 62,
+            color: "#718eae",
+            boss: true,
+            flying: true,
+            aura: true,
+          },
+        };
+        const levels = [
+          {
+            id: 1,
+            region: "meadow",
+            name: "初芽试炼",
+            waves: 5,
+            diff: 0.78,
+            plant: "sunleaf",
+            mission: "认识日光与基础防线。",
+            pool: ["walker", "cone"],
+          },
+          {
+            id: 2,
+            region: "meadow",
+            name: "路标来袭",
+            waves: 6,
+            diff: 0.86,
+            plant: "burst",
+            mission: "爆裂芽阵首次加入行动。",
+            pool: ["walker", "cone", "runner"],
+          },
+          {
+            id: 3,
+            region: "meadow",
+            name: "疾行队列",
+            waves: 7,
+            diff: 0.94,
+            plant: "twin",
+            mission: "快速单位会冲击薄弱行。",
+            pool: ["walker", "cone", "runner", "pole"],
+          },
+          {
+            id: 4,
+            region: "meadow",
+            name: "庭院旗阵",
+            waves: 8,
+            diff: 1.02,
+            plant: "spike",
+            mission: "守住全部五条最后防线。",
+            pool: ["walker", "cone", "bucket", "runner", "pole"],
+          },
+          {
+            id: 5,
+            region: "night",
+            name: "萤雾初临",
+            waves: 6,
+            diff: 1.02,
+            plant: "mortar",
+            mission: "浓雾中远端威胁难以辨认。",
+            pool: ["walker", "cone", "shield", "wisp"],
+          },
+          {
+            id: 6,
+            region: "night",
+            name: "地底回声",
+            waves: 7,
+            diff: 1.08,
+            plant: "mint",
+            mission: "掘地客会从阵地中段钻出。",
+            pool: ["walker", "bucket", "miner", "wisp", "horn"],
+          },
+          {
+            id: 7,
+            region: "night",
+            name: "雾灯守望",
+            waves: 8,
+            diff: 1.14,
+            plant: "lantern",
+            mission: "引路灯苔可照亮并鼓舞邻格。",
+            pool: ["shield", "runner", "miner", "medic", "wisp"],
+          },
+          {
+            id: 8,
+            region: "frost",
+            name: "霜线骤起",
+            waves: 7,
+            diff: 1.16,
+            plant: "root",
+            mission: "霜风会冻结最靠右的芽阵。",
+            pool: ["walker", "cone", "bucket", "ram"],
+          },
+          {
+            id: 9,
+            region: "frost",
+            name: "铁甲长队",
+            waves: 8,
+            diff: 1.22,
+            plant: "beam",
+            mission: "磁绒花能快速拆除金属护甲。",
+            pool: ["bucket", "shield", "horn", "medic", "ram"],
+          },
+          {
+            id: 10,
+            region: "frost",
+            name: "重锤压境",
+            waves: 9,
+            diff: 1.28,
+            plant: "bloom",
+            mission: "重型单位需要控制与集中火力。",
+            pool: ["bucket", "brute", "medic", "ram", "swarm"],
+          },
+          {
+            id: 11,
+            region: "ruins",
+            name: "辉能回路",
+            waves: 9,
+            diff: 1.32,
+            plant: "storm",
+            mission: "紫色辉能格会联动叶能绽放。",
+            pool: ["shield", "horn", "miner", "wisp", "brute"],
+          },
+          {
+            id: 12,
+            region: "ruins",
+            name: "泰坦终局",
+            waves: 10,
+            diff: 1.42,
+            plant: "comet",
+            mission: "击退遗迹泰坦，完成四境远征。",
+            pool: ["bucket", "brute", "medic", "ram", "wisp", "titan"],
+            boss: "titan",
+          },
+          {
+            id: 13,
+            region: "volcano",
+            name: "热土初开",
+            waves: 8,
+            diff: 1.34,
+            plant: "nectar",
+            mission: "熔岩裂隙会持续考验芽阵续航。",
+            pool: ["walker", "runner", "thief", "ram", "medic"],
+          },
+          {
+            id: 14,
+            region: "volcano",
+            name: "窃光风暴",
+            waves: 9,
+            diff: 1.4,
+            plant: "vortex",
+            mission: "窃光客会夺走日光，利用击退争取时间。",
+            pool: ["thief", "runner", "bucket", "freezer", "brute"],
+          },
+          {
+            id: 15,
+            region: "volcano",
+            name: "熔王苏醒",
+            waves: 10,
+            diff: 1.5,
+            plant: "nova",
+            mission: "击败熔岩花王，避免整片阵地被灼穿。",
+            pool: ["thief", "bucket", "ram", "medic", "brute", "lavaLord"],
+            boss: "lavaLord",
+          },
+          {
+            id: 16,
+            region: "sky",
+            name: "云路迁徙",
+            waves: 9,
+            diff: 1.44,
+            plant: "chrono",
+            mission: "飞行敌群越过地面陷阱，利用加速重整火力。",
+            pool: ["glider", "wisp", "runner", "shield", "freezer"],
+          },
+          {
+            id: 17,
+            region: "sky",
+            name: "三路折光",
+            waves: 10,
+            diff: 1.52,
+            plant: "prism",
+            mission: "敌群跨行压境，虹镜花可同时支援三路。",
+            pool: ["glider", "wisp", "horn", "medic", "ram", "brute"],
+          },
+          {
+            id: 18,
+            region: "sky",
+            name: "云冠终章",
+            waves: 12,
+            diff: 1.62,
+            plant: "dragon",
+            mission: "守住六境最终防线，击退云冠帝君。",
+            pool: [
+              "glider",
+              "shield",
+              "freezer",
+              "medic",
+              "brute",
+              "cloudEmperor",
+            ],
+            boss: "cloudEmperor",
+          },
+        ];
+        const specialModes = {
+          survival: {
+            name: "无尽花圃",
+            icon: "∞",
+            desc: "波次不断增强，每三波补充一格叶能。",
+            region: "meadow",
+          },
+          conveyor: {
+            name: "传送育苗",
+            icon: "⇢",
+            desc: "无需日光，传送带会持续送来随机芽阵。",
+            region: "ruins",
+          },
+          daily: {
+            name: "今日异象",
+            icon: "◈",
+            desc: "每日固定种子生成敌群、区域与初始卡组。",
+            region: "frost",
+          },
+        };
+        const CHALLENGES = {
+          standard: { name: "标准", desc: "完整基础规则", diff: 1, sun: 1 },
+          drought: {
+            name: "旱季",
+            desc: "初始与掉落日光 -25%",
+            diff: 1.08,
+            sun: 0.75,
+          },
+          armored: {
+            name: "铁潮",
+            desc: "敌人气血与护甲强化",
+            diff: 1.22,
+            sun: 1,
+          },
+          swarm: {
+            name: "虫群",
+            desc: "敌群数量增加，结算星级更高",
+            diff: 1.12,
+            sun: 1,
+          },
+        };
+        let save = loadSave(),
+          selectedTab = "adventure",
+          selectedLevel = Math.min(save.unlocked, 18),
+          selectedSpecial = "survival",
+          selectedChallenge = "standard",
+          loadout = [
+            "sunleaf",
+            "sprout",
+            "shell",
+            "burst",
+            "frost",
+            "twin",
+            "spike",
+            "mortar",
+          ];
+        let plants = [],
+          enemies = [],
+          bullets = [],
+          drops = [],
+          particles = [],
+          spawnPlan = [],
+          cooldowns = {},
+          conveyor = [],
+          lastTime = 0,
+          toastTimer = 0,
+          selectedSeed = "sprout",
+          selectedConveyorId = null,
+          shovel = false,
+          leafMode = false,
+          speed = 1,
+          nextEntityId = 1;
+        const state = {
+          started: false,
+          paused: false,
+          over: false,
+          won: false,
+          kind: "level",
+          levelId: 1,
+          region: "meadow",
+          time: 0,
+          sun: 150,
+          wave: 0,
+          totalWaves: 0,
+          kills: 0,
+          charge: 0,
+          laneGuards: Array(ROWS).fill(true),
+          difficulty: 1,
+          skyTimer: 5,
+          hazardTimer: 18,
+          conveyorTimer: 1,
+          plannedTotal: 1,
+          mission: "",
+          bossSeen: false,
+        };
+        function loadSave() {
+          try {
+            const s = JSON.parse(localStorage.getItem(SAVE_KEY) || "null");
+            return s && s.version === 2
+              ? { mastery: {}, challengeWins: {}, crowns: 0, ...s }
+              : {
+                  version: 2,
+                  unlocked: 1,
+                  stars: {},
+                  bestSurvival: 0,
+                  totalKills: 0,
+                  mastery: {},
+                  challengeWins: {},
+                  crowns: 0,
+                };
+          } catch {
+            return {
+              version: 2,
+              unlocked: 1,
+              stars: {},
+              bestSurvival: 0,
+              totalKills: 0,
+              mastery: {},
+              challengeWins: {},
+              crowns: 0,
+            };
+          }
+        }
+        function saveProgress() {
+          localStorage.setItem(SAVE_KEY, JSON.stringify(save));
+        }
+        function resize() {
+          const r = canvas.getBoundingClientRect();
+          view.dpr = Math.max(1, Math.min(2, devicePixelRatio || 1));
+          canvas.width = Math.max(1, Math.floor(r.width * view.dpr));
+          canvas.height = Math.max(1, Math.floor(r.height * view.dpr));
+          view.scale = Math.min(
+            canvas.width / WORLD_W,
+            canvas.height / WORLD_H,
+          );
+          view.ox = (canvas.width - WORLD_W * view.scale) / 2;
+          view.oy = (canvas.height - WORLD_H * view.scale) / 2;
+        }
+        function screenPoint(e) {
+          const r = canvas.getBoundingClientRect();
+          return {
+            x: ((e.clientX - r.left) * view.dpr - view.ox) / view.scale,
+            y: ((e.clientY - r.top) * view.dpr - view.oy) / view.scale,
+          };
+        }
+        const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+        const center = (row, col) => ({
+          x: BX + col * CW + CW / 2,
+          y: BY + row * CH + CH / 2,
+        });
+        function pointCell(p) {
+          const col = Math.floor((p.x - BX) / CW),
+            row = Math.floor((p.y - BY) / CH);
+          return row >= 0 && row < ROWS && col >= 0 && col < COLS
+            ? { row, col }
+            : null;
+        }
+        function unlockedPlant(def) {
+          return def.unlock <= save.unlocked;
+        }
+        function currentLevel() {
+          return levels[selectedLevel - 1] || levels[0];
+        }
+        function levelReward(id) {
+          if (id >= 18) return "六境王冠";
+          if (id === 12) return "四境徽记";
+          const names = plantsDef
+            .filter((p) => p.unlock === id + 1)
+            .map((p) => p.name);
+          return names.join("、") || "远征补给";
+        }
+        function renderMenu() {
+          $("savePill").textContent =
+            `远征进度 ${Math.min(save.unlocked, 18)}/18 · 王冠 ${save.crowns || 0} · 总击退 ${save.totalKills || 0}`;
+          $("levelGrid").innerHTML = levels
+            .map((l) => {
+              const locked = l.id > save.unlocked,
+                stars = save.stars[l.id] || 0;
+              return `<button class="level-btn ${selectedLevel === l.id ? "selected" : ""} ${locked ? "locked" : ""}" data-level="${l.id}" ${locked ? "disabled" : ""}><span>${regions[l.region].icon} ${l.id}</span><small>${locked ? "尚未解锁" : l.name}${stars ? ` · ${"★".repeat(stars)}` : ""}</small></button>`;
+            })
+            .join("");
+          const l = currentLevel();
+          $("levelInfo").innerHTML =
+            `<strong>${regions[l.region].icon} ${l.id}. ${l.name}</strong><p>${l.mission}<br>${regions[l.region].note} · ${l.waves} 波 · 通关奖励「${levelReward(l.id)}」</p>`;
+          $("challengeGrid").innerHTML = Object.entries(CHALLENGES)
+            .map(
+              ([key, c]) =>
+                `<button class="mini-btn ${selectedChallenge === key ? "selected" : ""}" data-challenge="${key}" title="${c.desc}">${c.name}${save.challengeWins[key] ? ` · ${save.challengeWins[key]}胜` : ""}</button>`,
+            )
+            .join("");
+          renderLoadout();
+          $("modeCards").innerHTML = Object.entries(specialModes)
+            .map(
+              ([k, m]) =>
+                `<button class="mode-btn ${selectedSpecial === k ? "selected" : ""}" data-special="${k}"><b>${m.icon} ${m.name}</b><small>${m.desc}${k === "survival" ? `<br>纪录：${save.bestSurvival || 0} 波` : ""}</small></button>`,
+            )
+            .join("");
+          const sm = specialModes[selectedSpecial];
+          $("specialInfo").innerHTML =
+            `<strong>${sm.icon} ${sm.name}</strong><p>${sm.desc}</p>`;
+          if (!state.started) {
+            const previewLevel = selectedTab === "adventure" ? l : null;
+            const previewRegion =
+              regions[
+                previewLevel?.region || specialModes[selectedSpecial].region
+              ];
+            UI.status.textContent = "远征待命";
+            UI.region.textContent = previewRegion.name;
+            UI.missionIcon.textContent = previewRegion.icon;
+            UI.missionTitle.textContent = previewLevel
+              ? `${previewLevel.id}. ${previewLevel.name}`
+              : selectedTab === "special"
+                ? sm.name
+                : "芽阵图鉴";
+            UI.missionText.textContent = previewLevel
+              ? previewLevel.mission
+              : selectedTab === "special"
+                ? sm.desc
+                : "查看 24 株芽阵的能力与永久熟练记录。";
+          }
+          $("almanacGrid").innerHTML = plantsDef
+            .map(
+              (p) =>
+                `<div class="codex-card" style="opacity:${unlockedPlant(p) ? 1 : 0.32}"><b style="color:${p.color}">${unlockedPlant(p) ? p.icon : "?"}</b><strong>${unlockedPlant(p) ? p.name : "未发现芽阵"}</strong><small>${unlockedPlant(p) ? `${p.tag} · ${p.cost} 日光<br>${p.desc}<br>熟练击退 ${save.mastery[p.key] || 0}` : `通过第 ${p.unlock} 关发现`}</small></div>`,
+            )
+            .join("");
+          $("startBtn").hidden = selectedTab === "almanac";
+          bindMenuDynamic();
+        }
+        function renderLoadout() {
+          const unlocked = plantsDef.filter(unlockedPlant);
+          loadout = loadout.filter((k) => unlocked.some((p) => p.key === k));
+          for (const p of unlocked) {
+            if (loadout.length >= 8) break;
+            if (!loadout.includes(p.key)) loadout.push(p.key);
+          }
+          $("loadoutCount").textContent = `${loadout.length}/8`;
+          $("loadoutGrid").innerHTML = plantsDef
+            .map(
+              (p) =>
+                `<button class="loadout-card ${loadout.includes(p.key) ? "selected" : ""} ${!unlockedPlant(p) ? "locked" : ""}" data-loadout="${p.key}" ${!unlockedPlant(p) ? "disabled" : ""}><b style="color:${p.color}">${unlockedPlant(p) ? p.icon : "?"}</b><span>${unlockedPlant(p) ? p.name : "未发现"}</span>${loadout.includes(p.key) ? `<i>${loadout.indexOf(p.key) + 1}</i>` : ""}</button>`,
+            )
+            .join("");
+        }
+        function bindMenuDynamic() {
+          document.querySelectorAll("[data-level]").forEach(
+            (b) =>
+              (b.onclick = () => {
+                selectedLevel = +b.dataset.level;
+                renderMenu();
+              }),
+          );
+          document.querySelectorAll("[data-special]").forEach(
+            (b) =>
+              (b.onclick = () => {
+                selectedSpecial = b.dataset.special;
+                renderMenu();
+              }),
+          );
+          document.querySelectorAll("[data-loadout]").forEach(
+            (b) =>
+              (b.onclick = () => {
+                const k = b.dataset.loadout;
+                if (loadout.includes(k))
+                  loadout = loadout.filter((x) => x !== k);
+                else if (loadout.length < 8) loadout.push(k);
+                else return showToast("最多选择 8 株");
+                renderLoadout();
+              }),
+          );
+          document.querySelectorAll("[data-challenge]").forEach(
+            (b) =>
+              (b.onclick = () => {
+                selectedChallenge = b.dataset.challenge;
+                renderMenu();
+              }),
+          );
+        }
+        function selectTab(tab) {
+          selectedTab = tab;
+          document
+            .querySelectorAll(".tab-btn")
+            .forEach((b) =>
+              b.classList.toggle("selected", b.dataset.tab === tab),
+            );
+          $("adventureTab").hidden = tab !== "adventure";
+          $("specialTab").hidden = tab !== "special";
+          $("almanacTab").hidden = tab !== "almanac";
+          renderMenu();
+        }
+        function startGame(replay = false) {
+          if (replay && state.kind === "level" && state.levelId)
+            selectedLevel = state.levelId;
+          if (selectedTab === "almanac") return;
+          if (selectedTab === "adventure" && loadout.length < 3)
+            return showToast("至少选择 3 株芽阵");
+          plants = [];
+          enemies = [];
+          bullets = [];
+          drops = [];
+          particles = [];
+          spawnPlan = [];
+          conveyor = [];
+          cooldowns = {};
+          nextEntityId = 1;
+          shovel = false;
+          leafMode = false;
+          selectedConveyorId = null;
+          speed = 1;
+          $("speedBtn").textContent = "1×";
+          const isLevel = selectedTab === "adventure",
+            level = isLevel ? currentLevel() : null,
+            special = isLevel ? null : selectedSpecial,
+            seed = dailySeed();
+          let region = isLevel ? level.region : specialModes[special].region;
+          if (special === "daily") region = Object.keys(regions)[seed % 4];
+          Object.assign(state, {
+            started: true,
+            paused: false,
+            over: false,
+            won: false,
+            kind: isLevel ? "level" : special,
+            levelId: level?.id || 0,
+            region,
+            time: 0,
+            sun:
+              special === "conveyor"
+                ? 0
+                : Math.round(
+                    (region === "night" ? 125 : 150) *
+                      (isLevel ? CHALLENGES[selectedChallenge].sun : 1),
+                  ),
+            wave: 0,
+            totalWaves: isLevel
+              ? level.waves
+              : special === "survival"
+                ? 999
+                : 8,
+            kills: 0,
+            charge: 0,
+            laneGuards: Array(ROWS).fill(true),
+            difficulty: isLevel
+              ? level.diff * CHALLENGES[selectedChallenge].diff
+              : special === "daily"
+                ? 1.18
+                : 1.05,
+            skyTimer: 4.5,
+            hazardTimer: 16,
+            conveyorTimer: 0.4,
+            mission: isLevel ? level.mission : specialModes[special].desc,
+            bossSeen: false,
+            challenge: isLevel ? selectedChallenge : "standard",
+            masteryGain: {},
+          });
+          const active =
+            special === "daily" ? dailyLoadout(seed) : loadout.slice();
+          for (const k of active) cooldowns[k] = 0;
+          selectedSeed = active[1] || active[0];
+          if (special === "survival") buildSurvivalWave(1, 4);
+          else
+            spawnPlan = buildPlan(
+              isLevel ? level : { waves: 8, pool: dailyPool(seed) },
+              state.difficulty,
+            );
+          state.plannedTotal = Math.max(
+            1,
+            spawnPlan.filter((x) => x.type !== "flag").length,
+          );
+          $("startModal").classList.remove("show");
+          $("resultModal").classList.remove("show");
+          showToast(
+            isLevel
+              ? `第 ${level.id} 关 · ${level.name}`
+              : specialModes[special].name,
+          );
+          renderSeeds(true);
+          updateUI();
+        }
+        function dailySeed() {
+          const d = new Date();
+          return (
+            d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate()
+          );
+        }
+        function rngFrom(n) {
+          return () =>
+            ((n = Math.imul(48271, n) % 2147483647) & 2147483647) / 2147483647;
+        }
+        function dailyLoadout(seed) {
+          const rng = rngFrom(seed),
+            a = plantsDef.filter(unlockedPlant).map((p) => p.key),
+            out = [];
+          while (a.length && out.length < 8)
+            out.push(a.splice(Math.floor(rng() * a.length), 1)[0]);
+          return out;
+        }
+        function dailyPool(seed) {
+          const a = Object.keys(enemiesDef).filter((k) => !enemiesDef[k].boss),
+            rng = rngFrom(seed + 73),
+            out = [];
+          while (a.length && out.length < 6)
+            out.push(a.splice(Math.floor(rng() * a.length), 1)[0]);
+          return out;
+        }
+        function buildPlan(config, diff) {
+          const plan = [];
+          let t = 13;
+          for (let w = 1; w <= config.waves; w++) {
+            plan.push({ t: t - 2.5, type: "flag", wave: w });
+            let count = 3 + w + Math.floor(w / 3);
+            if (state.challenge === "swarm") count = Math.ceil(count * 1.35);
+            for (let i = 0; i < count; i++) {
+              let type =
+                config.pool[
+                  Math.min(
+                    config.pool.length - 1,
+                    Math.floor(
+                      (i + w * 1.7 + Math.random() * 2) /
+                        Math.max(1, 9 / config.pool.length),
+                    ),
+                  ) % config.pool.length
+                ];
+              if (config.boss && w === config.waves && i === count - 1)
+                type = config.boss;
+              plan.push({
+                t: t + i * Math.max(1.25, 2.8 - w * 0.12),
+                type,
+                row: (i * 2 + w + Math.floor(Math.random() * 2)) % ROWS,
+                charged:
+                  Math.random() < (state.challenge === "armored" ? 0.28 : 0.11),
+              });
+            }
+            t += 17 + w * 2.1;
+          }
+          return plan.sort((a, b) => a.t - b.t);
+        }
+        function buildSurvivalWave(w, startAt) {
+          state.wave = w;
+          state.difficulty = 1 + Math.min(2.2, w * 0.075);
+          const pool = Object.keys(enemiesDef).filter(
+            (k) =>
+              !enemiesDef[k].boss &&
+              (!["brute", "ram", "medic"].includes(k) || w > 4),
+          );
+          spawnPlan.push({ t: startAt, type: "flag", wave: w });
+          const count = 5 + Math.floor(w * 1.35);
+          for (let i = 0; i < count; i++) {
+            let type =
+              pool[
+                Math.floor(
+                  Math.random() * Math.min(pool.length, 3 + Math.floor(w / 2)),
+                )
+              ];
+            if (w % 10 === 0 && i === count - 1) type = "titan";
+            spawnPlan.push({
+              t: startAt + 2 + i * Math.max(0.8, 2.1 - w * 0.035),
+              type,
+              row: (i * 3 + w) % ROWS,
+              charged: Math.random() < 0.1,
+            });
+          }
+          state.plannedTotal += count;
+        }
+        function showToast(msg) {
+          UI.toast.textContent = msg;
+          UI.toast.classList.add("show");
+          toastTimer = 1.7;
+        }
+        function plantAt(row, col) {
+          return plants.find(
+            (p) => p.row === row && p.col === col && !p.overlay,
+          );
+        }
+        function overlayAt(row, col) {
+          return plants.find(
+            (p) => p.row === row && p.col === col && p.overlay,
+          );
+        }
+        function placePlant(row, col) {
+          const def = plantMap[selectedSeed];
+          if (!def || state.paused || state.over) return;
+          let existing = plantAt(row, col),
+            overlay = overlayAt(row, col);
+          if (def.overlay) {
+            if (!existing || overlay)
+              return showToast(existing ? "已有护壳" : "护壳需要覆盖在植物上");
+          } else if (existing) return showToast("这里已经有芽阵");
+          const conveyorMode = state.kind === "conveyor";
+          if (conveyorMode) {
+            const item = conveyor.find((x) => x.id === selectedConveyorId);
+            if (!item || item.key !== def.key)
+              return showToast("从传送带选择一株");
+            conveyor = conveyor.filter((x) => x.id !== item.id);
+            selectedConveyorId = null;
+          } else {
+            if (state.sun < def.cost) return showToast("日光不足");
+            if ((cooldowns[def.key] || 0) > 0) return showToast("还在育苗");
+            state.sun -= def.cost;
+            cooldowns[def.key] = def.cd;
+          }
+          const c = center(row, col),
+            p = {
+              id: nextEntityId++,
+              key: def.key,
+              row,
+              col,
+              x: c.x,
+              y: c.y,
+              hp: def.hp,
+              maxHp: def.hp,
+              armor: 0,
+              cool: Math.random() * 0.3,
+              produce: 5.5,
+              arm: def.key === "burst" ? 0.65 : def.key === "comet" ? 0.9 : 0,
+              boost: 0,
+              frozen: 0,
+              birth: 0.25,
+              overlay: !!def.overlay,
+              spent: false,
+              leafUses: 0,
+              evolved: false,
+            };
+          plants.push(p);
+          if (def.key === "gourd") p.armor = 420;
+          if (def.key === "root") p.hidden = true;
+          particles.push({
+            kind: "ring",
+            x: c.x,
+            y: c.y,
+            r: 28,
+            life: 0.4,
+            max: 0.4,
+            color: def.color,
+          });
+          renderSeeds(true);
+          updateUI();
+        }
+        function update(dt) {
+          if (toastTimer > 0) {
+            toastTimer -= dt;
+            if (toastTimer <= 0) UI.toast.classList.remove("show");
+          }
+          if (!state.started || state.paused || state.over) return;
+          dt *= speed;
+          state.time += dt;
+          Object.keys(cooldowns).forEach(
+            (k) => (cooldowns[k] = Math.max(0, cooldowns[k] - dt)),
+          );
+          spawnScheduled();
+          updateEnvironment(dt);
+          updatePlants(dt);
+          updateEnemies(dt);
+          updateBullets(dt);
+          updateDrops(dt);
+          updateParticles(dt);
+          checkEnd();
+          updateUI();
+        }
+        function spawnScheduled() {
+          while (spawnPlan.length && spawnPlan[0].t <= state.time) {
+            const s = spawnPlan.shift();
+            if (s.type === "flag") {
+              state.wave = s.wave;
+              showToast(
+                s.wave % 5 === 0 ? `⚑ 大型波次 ${s.wave}` : `第 ${s.wave} 波`,
+              );
+            } else spawnEnemy(s.type, s.row, s.charged);
+          }
+          if (
+            state.kind === "survival" &&
+            !spawnPlan.length &&
+            !enemies.length &&
+            !state.over
+          ) {
+            const n = state.wave + 1;
+            if (n % 3 === 1) state.charge = Math.min(300, state.charge + 100);
+            buildSurvivalWave(n, state.time + 5);
+          }
+        }
+        function spawnEnemy(type, row, charged = false) {
+          const d = enemiesDef[type] || enemiesDef.walker;
+          let x = BX + COLS * CW + 80;
+          if (d.miner) x = BX + CW * 5;
+          enemies.push({
+            id: nextEntityId++,
+            type,
+            row,
+            x,
+            y: BY + row * CH + CH / 2 + 6,
+            hp: Math.round(d.hp * state.difficulty),
+            maxHp: Math.round(d.hp * state.difficulty),
+            armor: Math.round((d.armor || 0) * state.difficulty),
+            shield: Math.round((d.shield || 0) * state.difficulty),
+            speed: d.speed * (0.96 + state.difficulty * 0.04),
+            damage: Math.round(d.damage * (0.9 + state.difficulty * 0.12)),
+            attack: 0,
+            slow: 0,
+            rooted: 0,
+            poison: 0,
+            poisonTick: 0,
+            poisonKey: null,
+            flash: 0,
+            jump: !!d.jump,
+            aura: !!d.aura,
+            flying: !!d.flying,
+            heal: !!d.heal,
+            healTimer: 4,
+            stealTimer: 3.5,
+            freezeTimer: 4.5,
+            ram: !!d.ram,
+            ramReady: !!d.ram,
+            metal: !!d.metal,
+            miner: !!d.miner,
+            thief: !!d.thief,
+            freezer: !!d.freezer,
+            bossPhase: 0,
+            abilityTimer: d.boss ? 5.5 : 0,
+            tunnel: d.miner ? 2.2 : 0,
+            charged,
+            boss: !!d.boss,
+            color: d.color,
+            dead: false,
+          });
+          if (d.boss && !state.bossSeen) {
+            state.bossSeen = true;
+            showToast(`⚠ ${d.name}进入战场`);
+          }
+        }
+        function updateEnvironment(dt) {
+          const r = regions[state.region];
+          state.skyTimer -= dt;
+          if (state.skyTimer <= 0) {
+            state.skyTimer = r.sunRate + Math.random() * 2;
+            spawnDrop(
+              "sun",
+              BX + CW * (1 + Math.floor(Math.random() * 8)),
+              -20,
+              Math.round(35 * (CHALLENGES[state.challenge]?.sun || 1)),
+              80 + Math.random() * 360,
+              true,
+            );
+          }
+          if (state.region === "frost") {
+            state.hazardTimer -= dt;
+            if (state.hazardTimer <= 0) {
+              state.hazardTimer = 17;
+              const candidates = plants
+                .filter((p) => !p.overlay && !p.dead)
+                .sort((a, b) => b.col - a.col)
+                .slice(0, 3);
+              candidates.forEach((p) => (p.frozen = 3.5));
+              showToast("❄ 霜风冻结前排芽阵");
+              particles.push({
+                kind: "gust",
+                life: 1.1,
+                max: 1.1,
+                color: "#c8f4ff",
+              });
+            }
+          }
+          if (state.region === "volcano") {
+            state.hazardTimer -= dt;
+            if (state.hazardTimer <= 0) {
+              state.hazardTimer = 14;
+              const targets = plants.filter((p) => !p.overlay && !p.dead);
+              const target =
+                targets[Math.floor(Math.random() * targets.length)];
+              if (target) {
+                hurtPlant(target, 45);
+                particles.push({
+                  kind: "burst",
+                  x: target.x,
+                  y: target.y,
+                  r: 48,
+                  life: 0.7,
+                  max: 0.7,
+                  color: "#ff714f",
+                });
+                showToast("🌋 熔岩裂隙灼伤芽阵");
+              }
+            }
+          }
+          if (state.region === "sky") {
+            state.hazardTimer -= dt;
+            if (state.hazardTimer <= 0) {
+              state.hazardTimer = 18;
+              enemies.forEach((e) => (e.x -= 55));
+              particles.push({
+                kind: "gust",
+                life: 1.1,
+                max: 1.1,
+                color: "#d8f4ff",
+              });
+              showToast("☁ 强风推动敌群靠近防线");
+            }
+          }
+          if (state.kind === "conveyor") {
+            state.conveyorTimer -= dt;
+            if (state.conveyorTimer <= 0 && conveyor.length < 8) {
+              state.conveyorTimer = 3.1 + Math.random() * 1.2;
+              const pool = plantsDef.filter(unlockedPlant);
+              const p = pool[Math.floor(Math.random() * pool.length)];
+              conveyor.push({ id: nextEntityId++, key: p.key });
+              renderSeeds(true);
+            }
+          }
+        }
+        function updatePlants(dt) {
+          for (const p of plants) {
+            p.birth = Math.max(0, p.birth - dt);
+            p.boost = Math.max(0, p.boost - dt);
+            p.frozen = Math.max(0, p.frozen - dt);
+            if (p.dead || p.frozen > 0) continue;
+            const aura = plants.some(
+              (q) =>
+                q.key === "lantern" &&
+                Math.abs(q.row - p.row) <= 1 &&
+                Math.abs(q.col - p.col) <= 1,
+            );
+            const chronoAura = plants.some(
+              (q) =>
+                q.key === "chrono" &&
+                Math.abs(q.row - p.row) <= 2 &&
+                Math.abs(q.col - p.col) <= 2,
+            );
+            const rate =
+              (p.boost > 0 ? 2.35 : 1) *
+              (aura && p.key !== "lantern" ? 1.18 : 1) *
+              (chronoAura && p.key !== "chrono" ? 1.28 : 1);
+            p.cool -= dt * rate;
+            if (p.key === "sunleaf") {
+              p.produce -= dt * rate;
+              if (p.produce <= 0) {
+                p.produce = p.boost > 0 ? 3 : 9;
+                spawnDrop(
+                  "sun",
+                  p.x,
+                  p.y - 22,
+                  p.boost > 0 ? 50 : 25,
+                  p.y + 15,
+                  false,
+                );
+              }
+            } else if (p.key === "burst") {
+              p.arm -= dt;
+              if (p.arm <= 0) {
+                explode(p.x, p.y, p.row, 132, p.boost > 0 ? 600 : 420, p);
+                p.dead = true;
+              }
+            } else if (p.key === "comet") {
+              p.arm -= dt;
+              if (p.arm <= 0) {
+                laneBlast(p.row, p.boost > 0 ? 1000 : 650, p);
+                p.dead = true;
+              }
+            } else if (p.key === "spike") {
+              if (p.cool <= 0) {
+                p.cool = 0.52;
+                enemies
+                  .filter(
+                    (e) =>
+                      !e.flying && e.row === p.row && Math.abs(e.x - p.x) < 48,
+                  )
+                  .forEach((e) => damageEnemy(e, p.boost > 0 ? 30 : 16, p));
+              }
+            } else if (p.key === "root") {
+              const e = enemies.find(
+                (e) => !e.flying && e.row === p.row && Math.abs(e.x - p.x) < 45,
+              );
+              if (e && !p.spent) {
+                p.spent = true;
+                e.rooted = Math.max(e.rooted, p.boost > 0 ? 7 : 4);
+                damageEnemy(e, p.boost > 0 ? 240 : 120, p);
+                p.dead = true;
+              }
+            } else if (p.key === "magnet") {
+              if (p.cool <= 0) {
+                const e = enemies
+                  .filter(
+                    (e) =>
+                      e.metal &&
+                      (e.armor > 0 || e.shield > 0) &&
+                      Math.abs(e.row - p.row) <= 1 &&
+                      Math.abs(e.x - p.x) < 330,
+                  )
+                  .sort((a, b) => Math.abs(a.x - p.x) - Math.abs(b.x - p.x))[0];
+                if (e) {
+                  p.cool = p.boost > 0 ? 2.5 : 6.5;
+                  e.armor = 0;
+                  e.shield = 0;
+                  e.metal = false;
+                  particles.push({
+                    kind: "beam",
+                    x: p.x,
+                    y: p.y - 5,
+                    x2: e.x,
+                    y2: e.y - 10,
+                    life: 0.35,
+                    max: 0.35,
+                    color: "#e49aef",
+                  });
+                }
+              }
+            } else if (p.key === "nectar") {
+              if (p.cool <= 0) {
+                p.cool = p.evolved ? 2.8 : 4.5;
+                const target = plants
+                  .filter((x) => !x.overlay && x.hp < x.maxHp)
+                  .sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp)[0];
+                if (target) {
+                  target.hp = Math.min(
+                    target.maxHp,
+                    target.hp + (p.evolved ? 55 : 32),
+                  );
+                  particles.push({
+                    kind: "ring",
+                    x: target.x,
+                    y: target.y,
+                    r: 32,
+                    life: 0.5,
+                    max: 0.5,
+                    color: "#f4a8c2",
+                  });
+                }
+              }
+            } else if (p.key === "vortex") {
+              if (p.cool <= 0) {
+                p.cool = p.evolved ? 3.5 : 5.8;
+                enemies
+                  .filter(
+                    (e) => e.row === p.row && e.x > p.x && e.x - p.x < 390,
+                  )
+                  .forEach((e) => {
+                    e.x += p.evolved ? 115 : 75;
+                    damageEnemy(e, p.evolved ? 30 : 18, p);
+                  });
+                particles.push({
+                  kind: "gust",
+                  life: 0.7,
+                  max: 0.7,
+                  color: "#8be1c6",
+                });
+              }
+            } else if (
+              !["shell", "gourd", "lantern", "chrono"].includes(p.key)
+            ) {
+              const target = firstEnemy(
+                p.row,
+                p.x - 15,
+                p.key === "bloom" ? 125 : 9999,
+              );
+              if (target && p.cool <= 0) firePlant(p, target);
+            }
+          }
+          plants = plants.filter((p) => !p.dead && p.hp > 0);
+        }
+        function firstEnemy(row, minX, range = 9999) {
+          return enemies
+            .filter(
+              (e) =>
+                e.row === row && e.x > minX && e.x - minX < range && !e.dead,
+            )
+            .sort((a, b) => a.x - b.x)[0];
+        }
+        function firePlant(p, t) {
+          const boost = p.boost > 0 || p.evolved,
+            base = {
+              row: p.row,
+              x: p.x + 25,
+              y: p.y - 10,
+              vx: 380,
+              color: plantMap[p.key].color,
+              key: p.key,
+            };
+          if (p.key === "sprout") {
+            p.cool = boost ? 0.42 : 1.05;
+            bullets.push({ ...base, type: "pea", dmg: boost ? 36 : 24 });
+          } else if (p.key === "twin") {
+            p.cool = boost ? 0.52 : 1.08;
+            bullets.push(
+              { ...base, type: "pea", dmg: boost ? 30 : 20 },
+              {
+                ...base,
+                x: p.x + 12,
+                y: p.y + 3,
+                type: "pea",
+                dmg: boost ? 30 : 20,
+                delay: 0.13,
+              },
+            );
+          } else if (p.key === "frost") {
+            p.cool = boost ? 0.65 : 1.35;
+            bullets.push({
+              ...base,
+              vx: 320,
+              type: "frost",
+              dmg: boost ? 27 : 17,
+              slow: boost ? 4 : 2.5,
+            });
+          } else if (p.key === "mint") {
+            p.cool = boost ? 0.72 : 1.42;
+            bullets.push({
+              ...base,
+              vx: 335,
+              type: "mint",
+              dmg: boost ? 22 : 13,
+              poison: boost ? 8 : 5,
+            });
+          } else if (p.key === "mortar" || p.key === "melon") {
+            p.cool =
+              p.key === "melon" ? (boost ? 1.15 : 2.35) : boost ? 1.25 : 2.65;
+            const life = 0.72;
+            bullets.push({
+              type: p.key,
+              key: p.key,
+              row: p.row,
+              x: p.x,
+              y: p.y - 25,
+              sx: p.x,
+              sy: p.y - 25,
+              tx: t.x,
+              ty: t.y,
+              life,
+              maxLife: life,
+              dmg: p.key === "melon" ? (boost ? 115 : 76) : boost ? 90 : 58,
+              color: plantMap[p.key].color,
+            });
+          } else if (p.key === "beam") {
+            p.cool = boost ? 0.9 : 1.9;
+            enemies
+              .filter((e) => e.row === p.row && e.x > p.x - 10)
+              .forEach((e) => damageEnemy(e, boost ? 48 : 30, p));
+            particles.push({
+              kind: "beam",
+              x: p.x,
+              y: p.y - 10,
+              x2: BX + COLS * CW + 80,
+              y2: p.y - 10,
+              life: 0.2,
+              max: 0.2,
+              color: plantMap[p.key].color,
+            });
+          } else if (p.key === "bloom") {
+            p.cool = boost ? 0.28 : 0.62;
+            damageEnemy(t, boost ? 58 : 34, p);
+            particles.push({
+              kind: "hit",
+              x: t.x - 10,
+              y: t.y,
+              life: 0.22,
+              max: 0.22,
+              color: plantMap[p.key].color,
+            });
+          } else if (p.key === "storm") {
+            p.cool = boost ? 0.9 : 1.8;
+            let candidates = enemies
+                .filter((e) => Math.abs(e.row - p.row) <= 1 && e.x > p.x - 20)
+                .sort(
+                  (a, b) =>
+                    Math.hypot(a.x - t.x, (a.row - t.row) * 100) -
+                    Math.hypot(b.x - t.x, (b.row - t.row) * 100),
+                )
+                .slice(0, boost ? 5 : 3),
+              last = { x: p.x, y: p.y };
+            candidates.forEach((e, i) => {
+              damageEnemy(e, (boost ? 52 : 34) * Math.pow(0.82, i), p);
+              particles.push({
+                kind: "beam",
+                x: last.x,
+                y: last.y,
+                x2: e.x,
+                y2: e.y,
+                life: 0.25,
+                max: 0.25,
+                color: "#a8e8ff",
+              });
+              last = e;
+            });
+          } else if (p.key === "nova") {
+            p.cool = boost ? 1.4 : 2.8;
+            explode(t.x, t.y, t.row, boost ? 150 : 110, boost ? 155 : 95, p);
+          } else if (p.key === "prism") {
+            p.cool = boost ? 0.95 : 1.75;
+            enemies
+              .filter((e) => Math.abs(e.row - p.row) <= 1 && e.x > p.x)
+              .forEach((e) => damageEnemy(e, boost ? 44 : 28, p));
+            [-1, 0, 1].forEach((dr) => {
+              if (p.row + dr >= 0 && p.row + dr < ROWS)
+                particles.push({
+                  kind: "beam",
+                  x: p.x,
+                  y: p.y,
+                  x2: BX + COLS * CW + 70,
+                  y2: center(p.row + dr, 0).y,
+                  life: 0.28,
+                  max: 0.28,
+                  color: "#f2a6e0",
+                });
+            });
+          } else if (p.key === "dragon") {
+            p.cool = boost ? 1.1 : 2.15;
+            enemies
+              .filter((e) => e.row === p.row && e.x > p.x)
+              .forEach((e) =>
+                damageEnemy(e, (e.boss ? 1.5 : 1) * (boost ? 82 : 54), p),
+              );
+            particles.push({
+              kind: "beam",
+              x: p.x,
+              y: p.y,
+              x2: BX + COLS * CW + 90,
+              y2: p.y,
+              life: 0.38,
+              max: 0.38,
+              color: "#ffb05e",
+            });
+          }
+        }
+        function updateEnemies(dt) {
+          for (const e of enemies) {
+            e.flash = Math.max(0, e.flash - dt);
+            e.slow = Math.max(0, e.slow - dt);
+            e.rooted = Math.max(0, e.rooted - dt);
+            e.attack -= dt;
+            if (e.tunnel > 0) {
+              e.tunnel -= dt;
+              if (e.tunnel <= 0) {
+                e.miner = false;
+                e.speed = 20;
+                particles.push({
+                  kind: "ring",
+                  x: e.x,
+                  y: e.y,
+                  r: 35,
+                  life: 0.5,
+                  max: 0.5,
+                  color: e.color,
+                });
+              }
+              continue;
+            }
+            if (e.poison > 0) {
+              e.poison -= dt;
+              e.poisonTick -= dt;
+              if (e.poisonTick <= 0) {
+                e.poisonTick = 0.6;
+                damageEnemy(e, 9, { x: e.x, y: e.y, key: e.poisonKey }, true);
+              }
+            }
+            if (e.type === "lavaLord") {
+              const ratio = e.hp / e.maxHp;
+              if (ratio <= 0.55 && e.bossPhase === 0) {
+                e.bossPhase = 1;
+                e.speed *= 1.35;
+                e.damage = Math.round(e.damage * 1.15);
+                e.armor += Math.round(420 * state.difficulty);
+                showToast("🌋 熔岩花王进入炽怒阶段");
+              }
+              e.abilityTimer -= dt;
+              if (e.abilityTimer <= 0) {
+                e.abilityTimer = e.bossPhase ? 5.8 : 7.2;
+                plants
+                  .filter((p) => !p.overlay && !p.dead)
+                  .sort((a, b) => b.col - a.col)
+                  .slice(0, e.bossPhase ? 2 : 1)
+                  .forEach((p) => {
+                    hurtPlant(p, 32 * state.difficulty);
+                    particles.push({
+                      kind: "burst",
+                      x: p.x,
+                      y: p.y,
+                      r: 45,
+                      life: 0.65,
+                      max: 0.65,
+                      color: "#ff714f",
+                    });
+                  });
+                showToast("🔥 熔王降下灼热花雨");
+              }
+            } else if (e.type === "cloudEmperor") {
+              const ratio = e.hp / e.maxHp;
+              const nextPhase = ratio <= 0.33 ? 2 : ratio <= 0.67 ? 1 : 0;
+              if (nextPhase > e.bossPhase) {
+                e.bossPhase = nextPhase;
+                e.shield += Math.round(260 * state.difficulty);
+                spawnEnemy("glider", (e.row + 1) % ROWS, false);
+                spawnEnemy("glider", (e.row + ROWS - 1) % ROWS, false);
+                showToast(`☁ 云冠帝君展开第 ${nextPhase + 1} 重天幕`);
+              }
+              e.abilityTimer -= dt;
+              if (e.abilityTimer <= 0) {
+                e.abilityTimer = Math.max(4.5, 7 - e.bossPhase);
+                e.row = (e.row + 2 + Math.floor(Math.random() * 2)) % ROWS;
+                e.y = BY + e.row * CH + CH / 2 + 6;
+                enemies
+                  .filter((other) => other !== e && !other.dead)
+                  .forEach((other) => (other.x -= 32 + e.bossPhase * 10));
+                particles.push({
+                  kind: "gust",
+                  life: 1.1,
+                  max: 1.1,
+                  color: "#d8f4ff",
+                });
+                showToast("🌪 云冠帝君换道并召来天风");
+              }
+            }
+            if (e.heal) {
+              e.healTimer -= dt;
+              if (e.healTimer <= 0) {
+                e.healTimer = 4.5;
+                enemies
+                  .filter(
+                    (x) =>
+                      x !== e && x.row === e.row && Math.abs(x.x - e.x) < 170,
+                  )
+                  .forEach(
+                    (x) =>
+                      (x.hp = Math.min(x.maxHp, x.hp + 45 * state.difficulty)),
+                  );
+                particles.push({
+                  kind: "ring",
+                  x: e.x,
+                  y: e.y,
+                  r: 42,
+                  life: 0.6,
+                  max: 0.6,
+                  color: "#8ff2bd",
+                });
+              }
+            }
+            if (e.thief) {
+              e.stealTimer -= dt;
+              if (e.stealTimer <= 0) {
+                e.stealTimer = 4.5;
+                const stolen = Math.min(18, state.sun);
+                state.sun -= stolen;
+                showToast(`窃光客夺走 ${Math.round(stolen)} 日光`);
+              }
+            }
+            const aura = enemies.some(
+              (o) =>
+                o !== e &&
+                o.aura &&
+                o.row === e.row &&
+                Math.abs(o.x - e.x) < 180,
+            );
+            let move = e.speed * (e.slow > 0 ? 0.48 : 1) * (aura ? 1.18 : 1);
+            if (e.rooted > 0) move = 0;
+            const blocker = blockingPlant(e);
+            if (blocker) {
+              if (e.jump) {
+                e.jump = false;
+                e.x = blocker.x - 74;
+                particles.push({
+                  kind: "ring",
+                  x: blocker.x,
+                  y: blocker.y,
+                  r: 32,
+                  life: 0.4,
+                  max: 0.4,
+                  color: e.color,
+                });
+              } else if (e.ramReady) {
+                e.ramReady = false;
+                hurtPlant(blocker, 190 * state.difficulty);
+                e.x -= 25;
+                particles.push({
+                  kind: "burst",
+                  x: blocker.x,
+                  y: blocker.y,
+                  r: 38,
+                  life: 0.4,
+                  max: 0.4,
+                  color: "#ff9d64",
+                });
+              } else if (e.attack <= 0) {
+                e.attack = e.boss ? 0.45 : 0.72;
+                hurtPlant(blocker, e.damage);
+                if (e.freezer) blocker.frozen = Math.max(blocker.frozen, 2.4);
+              }
+            } else e.x -= move * dt;
+            if (e.x < BX - 72) breach(e);
+          }
+          enemies = enemies.filter((e) => !e.dead && e.hp > 0);
+        }
+        function blockingPlant(e) {
+          if (e.flying) return null;
+          return plants
+            .filter(
+              (p) =>
+                p.row === e.row &&
+                !p.overlay &&
+                p.key !== "spike" &&
+                p.key !== "root" &&
+                Math.abs(e.x - p.x) < 44,
+            )
+            .sort((a, b) => b.x - a.x)[0];
+        }
+        function hurtPlant(p, dmg) {
+          const cover = overlayAt(p.row, p.col);
+          if (cover) {
+            cover.hp -= dmg;
+            if (cover.hp <= 0) cover.dead = true;
+          } else {
+            p.hp -= dmg;
+            if (p.hp <= 0) p.dead = true;
+          }
+          particles.push({
+            kind: "hit",
+            x: p.x,
+            y: p.y,
+            life: 0.2,
+            max: 0.2,
+            color: "#ff7468",
+          });
+        }
+        function breach(e) {
+          if (state.laneGuards[e.row]) {
+            state.laneGuards[e.row] = false;
+            showToast("最后防线启动");
+            enemies.forEach((x) => {
+              if (x.row === e.row) x.dead = true;
+            });
+            particles.push({
+              kind: "sweep",
+              row: e.row,
+              life: 0.7,
+              max: 0.7,
+              color: "#ffd45e",
+            });
+          } else endGame(false);
+        }
+        function updateBullets(dt) {
+          for (const b of bullets) {
+            if (b.delay > 0) {
+              b.delay -= dt;
+              continue;
+            }
+            if (["mortar", "melon"].includes(b.type)) {
+              b.life -= dt;
+              const t = 1 - b.life / b.maxLife;
+              b.x = b.sx + (b.tx - b.sx) * t;
+              b.y = b.sy + (b.ty - b.sy) * t - Math.sin(t * Math.PI) * 85;
+              if (b.life <= 0) {
+                explode(
+                  b.tx,
+                  b.ty,
+                  b.row,
+                  b.type === "melon" ? 105 : 82,
+                  b.dmg,
+                );
+                b.dead = true;
+              }
+              continue;
+            }
+            b.x += b.vx * dt;
+            const hit = enemies.find(
+              (e) => e.row === b.row && Math.abs(e.x - b.x) < 25 && !e.dead,
+            );
+            if (hit) {
+              damageEnemy(hit, b.dmg, b);
+              if (b.slow) hit.slow = Math.max(hit.slow, b.slow);
+              if (b.poison) {
+                hit.poison = Math.max(hit.poison, b.poison);
+                hit.poisonKey = b.key || hit.poisonKey;
+              }
+              b.dead = true;
+            }
+            if (b.x > WORLD_W + 50) b.dead = true;
+          }
+          bullets = bullets.filter((b) => !b.dead);
+        }
+        function damageEnemy(e, amount, source, silent = false) {
+          let dmg = amount;
+          if (e.shield > 0) {
+            const used = Math.min(e.shield, dmg);
+            e.shield -= used;
+            dmg -= used;
+          }
+          if (dmg && e.armor > 0) {
+            const used = Math.min(e.armor, dmg * 0.7);
+            e.armor -= used;
+            dmg -= used;
+          }
+          e.hp -= dmg;
+          e.flash = 0.08;
+          if (!silent)
+            particles.push({
+              kind: "hit",
+              x: e.x,
+              y: e.y - 5,
+              life: 0.18,
+              max: 0.18,
+              color: "#fff1ae",
+            });
+          if (e.hp <= 0 && !e.dead) {
+            e.dead = true;
+            state.kills++;
+            if (source?.key) {
+              state.masteryGain[source.key] =
+                (state.masteryGain[source.key] || 0) + 1;
+            }
+            state.charge = Math.min(
+              300,
+              state.charge + (e.boss ? 100 : e.charged ? 55 : 8),
+            );
+            if (e.charged)
+              spawnDrop("leaf", e.x, e.y - 25, 50, e.y - 10, false);
+            else if (state.region === "night" && Math.random() < 0.16)
+              spawnDrop("sun", e.x, e.y - 20, 15, e.y, false);
+          }
+        }
+        function explode(x, y, row, r, dmg, source = null) {
+          enemies.forEach((e) => {
+            if (
+              Math.abs(e.row - row) <= 1 &&
+              Math.hypot(e.x - x, (e.row - row) * CH) < r
+            )
+              damageEnemy(e, dmg, source || { x, y });
+          });
+          particles.push({
+            kind: "burst",
+            x,
+            y,
+            r,
+            life: 0.55,
+            max: 0.55,
+            color: "#ff9a61",
+          });
+        }
+        function laneBlast(row, dmg, source = null) {
+          enemies
+            .filter((e) => e.row === row)
+            .forEach((e) =>
+              damageEnemy(e, dmg, source || { x: BX, y: center(row, 0).y }),
+            );
+          particles.push({
+            kind: "sweep",
+            row,
+            life: 0.8,
+            max: 0.8,
+            color: "#ffad68",
+          });
+        }
+        function spawnDrop(kind, x, y, value, targetY, falling) {
+          drops.push({ kind, x, y, value, targetY, falling, life: 11, vy: 0 });
+        }
+        function updateDrops(dt) {
+          for (const d of drops) {
+            d.life -= dt;
+            if (d.falling) {
+              d.vy += 100 * dt;
+              d.y = Math.min(d.targetY, d.y + d.vy * dt);
+            }
+          }
+          drops = drops.filter((d) => d.life > 0);
+        }
+        function collectDrop(d) {
+          if (d.kind === "sun") state.sun += d.value;
+          else state.charge = Math.min(300, state.charge + d.value);
+          d.life = 0;
+          particles.push({
+            kind: "ring",
+            x: d.x,
+            y: d.y,
+            r: 25,
+            life: 0.35,
+            max: 0.35,
+            color: d.kind === "sun" ? "#ffd45e" : "#8ee77e",
+          });
+        }
+        function useLeaf(p) {
+          if (state.charge < 100) return;
+          state.charge -= 100;
+          leafMode = false;
+          p.boost = 8;
+          p.leafUses = (p.leafUses || 0) + 1;
+          if (p.leafUses >= 2 && !p.evolved) {
+            p.evolved = true;
+            p.maxHp = Math.round(p.maxHp * 1.25);
+            p.hp = p.maxHp;
+            showToast(`${plantMap[p.key].name}完成本局进化！`);
+          }
+          p.frozen = 0;
+          const def = plantMap[p.key];
+          if (["shell", "gourd"].includes(p.key)) {
+            p.hp = p.maxHp;
+            p.armor = (p.armor || 0) + 260;
+          } else if (p.key === "burst") {
+            p.arm = 0.12;
+          } else if (p.key === "comet") {
+            p.arm = 0.12;
+          } else if (p.key === "root") {
+            p.spent = false;
+            p.hidden = true;
+          } else if (p.key === "magnet") {
+            enemies.forEach((e) => {
+              if (e.metal) {
+                e.armor = 0;
+                e.shield = 0;
+                e.metal = false;
+              }
+            });
+          } else if (p.key === "lantern") {
+            plants
+              .filter(
+                (q) =>
+                  Math.abs(q.row - p.row) <= 1 && Math.abs(q.col - p.col) <= 2,
+              )
+              .forEach((q) => (q.boost = 8));
+          } else if (p.key === "sunleaf") {
+            for (let i = 0; i < 3; i++)
+              setTimeout(() => {
+                if (state.started && !state.over)
+                  spawnDrop(
+                    "sun",
+                    p.x + (i - 1) * 18,
+                    p.y - 25,
+                    50,
+                    p.y + 8,
+                    false,
+                  );
+              }, i * 220);
+          } else if (p.key === "spike") {
+            explode(p.x, p.y, p.row, 145, 220, p);
+          } else {
+            p.cool = 0;
+          }
+          if (state.region === "ruins" && isPowerCell(p.row, p.col)) {
+            plants
+              .filter((q) => q !== p && isPowerCell(q.row, q.col))
+              .forEach((q) => {
+                q.boost = Math.max(q.boost, 5);
+                q.cool = 0;
+              });
+            showToast("辉能回路联动！");
+          }
+          particles.push({
+            kind: "ring",
+            x: p.x,
+            y: p.y,
+            r: 55,
+            life: 0.75,
+            max: 0.75,
+            color: def.color,
+          });
+          renderSeeds();
+          updateUI();
+        }
+        function isPowerCell(row, col) {
+          return (
+            state.region === "ruins" &&
+            [
+              [0, 2],
+              [2, 4],
+              [4, 6],
+            ].some((c) => c[0] === row && c[1] === col)
+          );
+        }
+        function updateParticles(dt) {
+          particles.forEach((p) => (p.life -= dt));
+          particles = particles.filter((p) => p.life > 0);
+        }
+        function checkEnd() {
+          if (
+            state.kind !== "survival" &&
+            !spawnPlan.length &&
+            !enemies.length &&
+            state.started &&
+            !state.over
+          )
+            endGame(true);
+        }
+        function endGame(won) {
+          if (state.over) return;
+          state.over = true;
+          state.won = won;
+          save.totalKills = (save.totalKills || 0) + state.kills;
+          if (state.kind === "level" && won) {
+            const guards = state.laneGuards.filter(Boolean).length,
+              stars = Math.min(
+                4,
+                (guards === 5 ? 3 : guards >= 3 ? 2 : 1) +
+                  (state.challenge !== "standard" ? 1 : 0),
+              );
+            save.stars[state.levelId] = Math.max(
+              save.stars[state.levelId] || 0,
+              stars,
+            );
+            save.unlocked = Math.max(
+              save.unlocked,
+              Math.min(18, state.levelId + 1),
+            );
+            selectedLevel = Math.min(
+              18,
+              Math.max(selectedLevel, state.levelId + 1),
+            );
+            save.challengeWins[state.challenge] =
+              (save.challengeWins[state.challenge] || 0) + 1;
+            if (state.levelId === 18) save.crowns = (save.crowns || 0) + 1;
+            Object.entries(state.masteryGain || {}).forEach(([key, value]) => {
+              save.mastery[key] = (save.mastery[key] || 0) + value;
+            });
+          }
+          if (state.kind === "survival")
+            save.bestSurvival = Math.max(save.bestSurvival || 0, state.wave);
+          saveProgress();
+          $("resultTitle").textContent = won ? "防线稳固" : "防线失守";
+          $("resultCopy").textContent = won
+            ? state.kind === "level"
+              ? `行动完成，获得「${levelReward(state.levelId)}」。`
+              : "特别行动完成。"
+            : `推进队伍突破了庭院入口。`;
+          $("resultKills").textContent = state.kills;
+          $("resultSun").textContent = Math.floor(state.sun);
+          $("resultGuards").textContent =
+            state.laneGuards.filter(Boolean).length;
+          $("nextBtn").textContent =
+            state.kind === "level" && state.levelId < 18 && won
+              ? "下一关"
+              : "返回地图";
+          $("resultModal").classList.add("show");
+        }
+        function updateUI() {
+          const reg = regions[state.region];
+          UI.status.textContent = state.over
+            ? state.won
+              ? "行动完成"
+              : "防线失守"
+            : state.paused
+              ? "暂停"
+              : leafMode
+                ? "选择绽放目标"
+                : shovel
+                  ? "铲除模式"
+                  : "交战中";
+          UI.region.textContent = reg.name;
+          UI.sun.textContent = Math.floor(state.sun);
+          UI.wave.textContent =
+            state.kind === "survival"
+              ? `${state.wave}/∞`
+              : `${state.wave}/${state.totalWaves}`;
+          UI.threat.textContent = enemies.length;
+          UI.kills.textContent = state.kills;
+          UI.waveText.textContent = state.started
+            ? state.kind === "survival"
+              ? `无尽第 ${state.wave} 波 · 威胁 ${enemies.length}`
+              : `第 ${state.wave}/${state.totalWaves} 波 · ${state.mission}`
+            : "选择行动";
+          let progress =
+            state.kind === "survival"
+              ? (state.wave % 10) * 10
+              : 100 *
+                (1 -
+                  (spawnPlan.filter((x) => x.type !== "flag").length +
+                    enemies.length) /
+                    state.plannedTotal);
+          UI.waveBar.style.width = `${clamp(progress, 0, 100)}%`;
+          UI.charge.textContent = `${Math.floor(state.charge / 100)}/3`;
+          UI.chargeBar.style.width = `${state.charge / 3}%`;
+          $("leafCount").textContent = Math.floor(state.charge / 100);
+          const guards = state.laneGuards.filter(Boolean).length;
+          UI.guard.textContent = `${guards}/5`;
+          UI.guardBar.style.width = `${(guards / 5) * 100}%`;
+          UI.missionIcon.textContent = reg.icon;
+          UI.missionTitle.textContent =
+            state.kind === "level"
+              ? `${state.levelId}. ${levels[state.levelId - 1]?.name || "行动"}`
+              : specialModes[state.kind]?.name || "选择行动";
+          UI.missionText.textContent = state.mission || reg.note;
+          $("shovelBtn").classList.toggle("active", shovel);
+          $("overloadBtn").classList.toggle("active", leafMode);
+          $("overloadBtn").disabled = state.charge < 100 || state.over;
+          renderSeeds();
+        }
+        function activeSeeds() {
+          if (state.kind === "conveyor")
+            return conveyor.map((x) => ({
+              ...plantMap[x.key],
+              conveyorId: x.id,
+            }));
+          if (state.kind === "daily")
+            return dailyLoadout(dailySeed()).map((k) => plantMap[k]);
+          return loadout.map((k) => plantMap[k]).filter(Boolean);
+        }
+        function renderSeeds(force = false) {
+          const list = activeSeeds();
+          const signature = list
+            .map((x) => `${x.key}:${x.conveyorId || 0}`)
+            .join("|");
+          if (force || UI.seedBank.dataset.sig !== signature) {
+            UI.seedBank.dataset.sig = signature;
+            UI.seedBank.innerHTML = list
+              .map(
+                (p, i) =>
+                  `<button class="seed-card" data-seed="${p.key}" ${p.conveyorId ? `data-conveyor="${p.conveyorId}"` : ""} style="--seed-bg:${p.color}2d"><span class="seed-icon" style="color:${p.color}">${p.icon}</span><strong>${p.name}</strong><small>${p.tag}</small>${state.kind === "conveyor" ? '<span class="conveyor-badge">⇢</span>' : `<span class="cost">☀ ${p.cost}</span>`}<span class="key">${i < 9 ? i + 1 : ""}</span><i class="cooldown-mask"></i></button>`,
+              )
+              .join("");
+            UI.seedBank.querySelectorAll(".seed-card").forEach(
+              (b) =>
+                (b.onclick = () => {
+                  selectedSeed = b.dataset.seed;
+                  selectedConveyorId = b.dataset.conveyor
+                    ? +b.dataset.conveyor
+                    : null;
+                  shovel = false;
+                  leafMode = false;
+                  updateUI();
+                }),
+            );
+          }
+          UI.seedBank.querySelectorAll(".seed-card").forEach((b) => {
+            const p = plantMap[b.dataset.seed],
+              cd = cooldowns[p.key] || 0,
+              isSel =
+                selectedSeed === p.key &&
+                (state.kind !== "conveyor" ||
+                  selectedConveyorId === +b.dataset.conveyor);
+            b.classList.toggle("selected", isSel && !shovel && !leafMode);
+            b.disabled =
+              state.over ||
+              (state.kind !== "conveyor" && (state.sun < p.cost || cd > 0));
+            b.querySelector(".cooldown-mask").style.height =
+              `${clamp((cd / p.cd) * 100, 0, 100)}%`;
+          });
+        }
+        function canvasClick(e) {
+          if (!state.started || state.paused || state.over) return;
+          const p = screenPoint(e),
+            drop = drops.find((d) => Math.hypot(d.x - p.x, d.y - p.y) < 34);
+          if (drop) {
+            collectDrop(drop);
+            updateUI();
+            return;
+          }
+          const cell = pointCell(p);
+          if (!cell) return;
+          const existing = plantAt(cell.row, cell.col);
+          if (leafMode && existing) {
+            useLeaf(existing);
+            return;
+          }
+          if (shovel) {
+            const targets = plants.filter(
+              (x) => x.row === cell.row && x.col === cell.col,
+            );
+            if (targets.length) {
+              targets.forEach((x) => (x.dead = true));
+              showToast("已铲除");
+            }
+            shovel = false;
+            updateUI();
+            return;
+          }
+          placePlant(cell.row, cell.col);
+        }
+        function draw() {
+          ctx.setTransform(1, 0, 0, 1, 0, 0);
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.save();
+          ctx.translate(view.ox, view.oy);
+          ctx.scale(view.scale, view.scale);
+          drawWorld();
+          ctx.restore();
+        }
+        function drawWorld() {
+          drawBackground();
+          drawBoard();
+          drawGuards();
+          drops.forEach(drawDrop);
+          plants.filter((p) => !p.overlay).forEach(drawPlant);
+          plants.filter((p) => p.overlay).forEach(drawPlant);
+          bullets.forEach(drawBullet);
+          enemies.forEach(drawEnemy);
+          drawParticles();
+          drawPreview();
+        }
+        function drawBackground() {
+          const r = regions[state.region],
+            g = ctx.createLinearGradient(0, 0, WORLD_W, WORLD_H);
+          g.addColorStop(0, r.sky);
+          g.addColorStop(1, "#17251d");
+          ctx.fillStyle = g;
+          ctx.fillRect(0, 0, WORLD_W, WORLD_H);
+          ctx.globalAlpha = 0.16;
+          ctx.fillStyle = "#dff0d5";
+          for (let i = 0; i < 34; i++) {
+            ctx.beginPath();
+            ctx.arc(
+              (i * 181 + 47) % WORLD_W,
+              (i * 97 + 70) % WORLD_H,
+              3 + (i % 5),
+              0,
+              Math.PI * 2,
+            );
+            ctx.fill();
+          }
+          ctx.globalAlpha = 1;
+          ctx.fillStyle = "rgba(7,13,9,.28)";
+          ctx.fillRect(0, BY - 18, WORLD_W, ROWS * CH + 36);
+        }
+        function drawBoard() {
+          for (let row = 0; row < ROWS; row++)
+            for (let col = 0; col < COLS; col++) {
+              const x = BX + col * CW,
+                y = BY + row * CH;
+              ctx.fillStyle =
+                (row + col) % 2
+                  ? "rgba(109,165,82,.56)"
+                  : "rgba(83,143,73,.56)";
+              roundRect(x + 3, y + 3, CW - 6, CH - 6, 13);
+              ctx.fill();
+              ctx.strokeStyle = "rgba(232,247,220,.15)";
+              ctx.lineWidth = 2;
+              ctx.stroke();
+              if (isPowerCell(row, col)) {
+                ctx.fillStyle = "rgba(181,134,255,.25)";
+                roundRect(x + 13, y + 13, CW - 26, CH - 26, 18);
+                ctx.fill();
+                ctx.strokeStyle = "#b88cff";
+                ctx.stroke();
+                ctx.fillStyle = "#e7d7ff";
+                ctx.font = "25px serif";
+                ctx.textAlign = "center";
+                ctx.fillText("✦", x + CW / 2, y + CH / 2 + 8);
+              }
+            }
+          ctx.fillStyle = "rgba(23,27,23,.72)";
+          ctx.fillRect(BX + COLS * CW + 9, BY, 52, ROWS * CH);
+          if (state.region === "night") {
+            const fog = ctx.createLinearGradient(
+              BX + CW * 4,
+              0,
+              BX + COLS * CW,
+              0,
+            );
+            fog.addColorStop(0, "rgba(170,205,196,0)");
+            fog.addColorStop(1, "rgba(171,205,198,.28)");
+            ctx.fillStyle = fog;
+            ctx.fillRect(BX + CW * 4, BY, CW * 5, CH * ROWS);
+          }
+        }
+        function drawGuards() {
+          for (let r = 0; r < ROWS; r++) {
+            const y = BY + r * CH + CH / 2;
+            ctx.save();
+            ctx.translate(BX - 54, y);
+            ctx.fillStyle = state.laneGuards[r] ? "#f2c856" : "#505851";
+            ctx.strokeStyle = "#162016";
+            ctx.lineWidth = 3;
+            roundRect(-30, -19, 58, 38, 10);
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillStyle = "#394332";
+            ctx.fillRect(-19, -4, 34, 8);
+            ctx.restore();
+          }
+        }
+        function drawDrop(d) {
+          ctx.save();
+          ctx.translate(d.x, d.y);
+          const pulse = 1 + Math.sin(performance.now() * 0.006 + d.x) * 0.08;
+          ctx.scale(pulse, pulse);
+          ctx.fillStyle = d.kind === "sun" ? "#ffd45e" : "#7ee979";
+          ctx.strokeStyle = "#fff4bc";
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          if (d.kind === "sun") ctx.arc(0, 0, 18, 0, Math.PI * 2);
+          else {
+            ctx.moveTo(0, -22);
+            ctx.bezierCurveTo(25, -4, 15, 18, 0, 23);
+            ctx.bezierCurveTo(-15, 18, -25, -4, 0, -22);
+          }
+          ctx.fill();
+          ctx.stroke();
+          ctx.fillStyle = "#26301d";
+          ctx.font = "900 11px sans-serif";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(d.kind === "sun" ? d.value : "叶", 0, 1);
+          ctx.restore();
+        }
+        function drawPlant(p) {
+          const d = plantMap[p.key];
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          const appear = 1 - clamp((p.birth || 0) / 0.25, 0, 1);
+          ctx.scale(
+            0.65 + 0.35 * Math.sin((appear * Math.PI) / 2),
+            0.65 + 0.35 * Math.sin((appear * Math.PI) / 2),
+          );
+          ctx.globalAlpha = p.frozen > 0 ? 0.62 : 1;
+          ctx.fillStyle = "rgba(0,0,0,.23)";
+          ctx.beginPath();
+          ctx.ellipse(0, 29, 31, 11, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = p.evolved
+            ? "#fff0a1"
+            : p.boost > 0
+              ? "#ffe072"
+              : "rgba(235,249,225,.7)";
+          ctx.lineWidth = p.evolved ? 6 : p.boost > 0 ? 4 : 2;
+          if (p.overlay) {
+            ctx.strokeStyle = "#f1c16c";
+            ctx.lineWidth = 7;
+            ctx.beginPath();
+            ctx.arc(0, 0, 31, -2.75, -0.38);
+            ctx.stroke();
+          } else if (["shell"].includes(p.key)) {
+            ctx.fillStyle = d.color;
+            roundRect(-27, -31, 54, 62, 16);
+            ctx.fill();
+            ctx.stroke();
+          } else if (["burst", "comet"].includes(p.key)) {
+            ctx.fillStyle = d.color;
+            ctx.beginPath();
+            ctx.arc(0, 0, 25, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillStyle = "#fff1b1";
+            ctx.font = "20px serif";
+            ctx.textAlign = "center";
+            ctx.fillText(d.icon, 0, 7);
+          } else if (p.key === "spike" || p.key === "root") {
+            ctx.fillStyle = d.color;
+            for (let i = -2; i <= 2; i++) {
+              ctx.beginPath();
+              ctx.moveTo(i * 12, 21);
+              ctx.lineTo(i * 12 + 8, -17);
+              ctx.lineTo(i * 12 + 16, 21);
+              ctx.closePath();
+              ctx.fill();
+              ctx.stroke();
+            }
+          } else {
+            ctx.fillStyle = d.color;
+            leafShape(0, 3, 29);
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillStyle = "rgba(17,30,21,.72)";
+            ctx.beginPath();
+            ctx.arc(8, -8, 12, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = "#f6f5d9";
+            ctx.font = "900 17px serif";
+            ctx.textAlign = "center";
+            ctx.fillText(d.icon, 7, -2);
+          }
+          if (p.frozen > 0) {
+            ctx.strokeStyle = "#bff2ff";
+            ctx.lineWidth = 5;
+            ctx.beginPath();
+            ctx.arc(0, 0, 34, 0, Math.PI * 2);
+            ctx.stroke();
+          }
+          drawHp(p.hp, p.maxHp, -31, -44, d.color);
+          ctx.restore();
+        }
+        function leafShape(x, y, r) {
+          ctx.beginPath();
+          ctx.moveTo(x, y - r);
+          ctx.bezierCurveTo(
+            x + r,
+            y - r * 0.8,
+            x + r * 1.06,
+            y + r * 0.55,
+            x,
+            y + r,
+          );
+          ctx.bezierCurveTo(
+            x - r * 1.06,
+            y + r * 0.55,
+            x - r,
+            y - r * 0.8,
+            x,
+            y - r,
+          );
+          ctx.closePath();
+        }
+        function drawEnemy(e) {
+          const d = enemiesDef[e.type];
+          ctx.save();
+          ctx.translate(e.x, e.y);
+          if (e.tunnel > 0) {
+            ctx.fillStyle = "#4a392f";
+            ctx.beginPath();
+            ctx.ellipse(0, 26, 30, 9, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+            return;
+          }
+          ctx.fillStyle = "rgba(0,0,0,.25)";
+          ctx.beginPath();
+          ctx.ellipse(0, 29, e.boss ? 42 : 29, 11, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = e.flash > 0 ? "#fff5cf" : e.color;
+          ctx.strokeStyle = "#171d18";
+          ctx.lineWidth = 3;
+          roundRect(
+            e.boss ? -34 : -22,
+            e.boss ? -45 : -34,
+            e.boss ? 68 : 44,
+            e.boss ? 82 : 68,
+            e.boss ? 18 : 13,
+          );
+          ctx.fill();
+          ctx.stroke();
+          ctx.fillStyle = "#242b25";
+          ctx.beginPath();
+          ctx.arc(e.boss ? -12 : -7, -12, e.boss ? 6 : 4, 0, Math.PI * 2);
+          ctx.arc(e.boss ? 13 : 8, -12, e.boss ? 6 : 4, 0, Math.PI * 2);
+          ctx.fill();
+          if (e.armor > 0) {
+            ctx.fillStyle = "#b8c0bd";
+            ctx.fillRect(-23, -42, 46, 12);
+          }
+          if (e.shield > 0) {
+            ctx.strokeStyle = "#78b5e5";
+            ctx.lineWidth = 6;
+            ctx.beginPath();
+            ctx.arc(1, 0, 33, -1.15, 1.15);
+            ctx.stroke();
+          }
+          if (e.charged) {
+            ctx.strokeStyle = "#87ee77";
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(0, 0, e.boss ? 43 : 31, 0, Math.PI * 2);
+            ctx.stroke();
+          }
+          if (e.flying) {
+            ctx.strokeStyle = "#c9c2ff";
+            ctx.beginPath();
+            ctx.moveTo(-20, -20);
+            ctx.lineTo(-34, -32);
+            ctx.moveTo(20, -20);
+            ctx.lineTo(34, -32);
+            ctx.stroke();
+          }
+          if (e.slow > 0) {
+            ctx.strokeStyle = "#8de8f7";
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(0, 0, 31, 0, Math.PI * 2);
+            ctx.stroke();
+          }
+          drawHp(
+            e.hp,
+            e.maxHp,
+            e.boss ? -42 : -29,
+            e.boss ? -56 : -49,
+            e.boss ? "#d49aff" : "#78dc73",
+            e.boss ? 84 : 58,
+          );
+          ctx.restore();
+        }
+        function drawHp(hp, max, x, y, color, w = 58) {
+          ctx.fillStyle = "rgba(0,0,0,.52)";
+          roundRect(x, y, w, 6, 3);
+          ctx.fill();
+          ctx.fillStyle = hp / max > 0.25 ? color : "#ff6d61";
+          roundRect(x, y, w * clamp(hp / max, 0, 1), 6, 3);
+          ctx.fill();
+        }
+        function drawBullet(b) {
+          if (b.delay > 0) return;
+          ctx.save();
+          ctx.fillStyle = b.color;
+          ctx.beginPath();
+          ctx.arc(
+            b.x,
+            b.y,
+            ["mortar", "melon"].includes(b.type) ? 10 : 7,
+            0,
+            Math.PI * 2,
+          );
+          ctx.fill();
+          ctx.restore();
+        }
+        function drawParticles() {
+          for (const p of particles) {
+            ctx.save();
+            ctx.globalAlpha = clamp(p.life / (p.max || 0.7), 0, 1);
+            if (p.kind === "beam") {
+              ctx.strokeStyle = p.color;
+              ctx.lineWidth = 7;
+              ctx.beginPath();
+              ctx.moveTo(p.x, p.y);
+              ctx.lineTo(p.x2, p.y2);
+              ctx.stroke();
+            } else if (p.kind === "sweep") {
+              const y = center(p.row, 0).y;
+              ctx.strokeStyle = p.color;
+              ctx.lineWidth = 19;
+              ctx.beginPath();
+              ctx.moveTo(BX - 70, y);
+              ctx.lineTo(BX + COLS * CW + 80, y);
+              ctx.stroke();
+            } else if (p.kind === "gust") {
+              ctx.strokeStyle = p.color;
+              ctx.lineWidth = 8;
+              for (let i = 0; i < 5; i++) {
+                ctx.beginPath();
+                ctx.moveTo(WORLD_W, 170 + i * 100);
+                ctx.bezierCurveTo(
+                  900,
+                  120 + i * 110,
+                  650,
+                  220 + i * 80,
+                  200,
+                  160 + i * 100,
+                );
+                ctx.stroke();
+              }
+            } else if (p.kind === "ring") {
+              ctx.strokeStyle = p.color;
+              ctx.lineWidth = 5;
+              ctx.beginPath();
+              ctx.arc(
+                p.x,
+                p.y,
+                p.r * (1.5 - (p.life / (p.max || 0.4)) * 0.5),
+                0,
+                Math.PI * 2,
+              );
+              ctx.stroke();
+            } else {
+              ctx.fillStyle = p.color;
+              ctx.beginPath();
+              ctx.arc(p.x, p.y, p.r || 9, 0, Math.PI * 2);
+              ctx.fill();
+            }
+            ctx.restore();
+          }
+        }
+        function drawPreview() {
+          if (!state.started || state.paused || state.over || !pointer.inside)
+            return;
+          const cell = pointCell(pointer);
+          if (!cell) return;
+          const c = center(cell.row, cell.col),
+            existing = plantAt(cell.row, cell.col);
+          ctx.save();
+          ctx.strokeStyle = shovel
+            ? "#ff6d61"
+            : leafMode
+              ? "#ffd45e"
+              : "rgba(255,238,145,.85)";
+          ctx.lineWidth = 4;
+          ctx.setLineDash([9, 7]);
+          roundRect(c.x - CW / 2 + 7, c.y - CH / 2 + 7, CW - 14, CH - 14, 12);
+          ctx.stroke();
+          ctx.restore();
+          if (!shovel && !leafMode && !existing && plantMap[selectedSeed]) {
+            ctx.save();
+            ctx.globalAlpha = 0.48;
+            drawPlant({
+              key: selectedSeed,
+              x: c.x,
+              y: c.y,
+              hp: 1,
+              maxHp: 1,
+              birth: 0,
+              boost: 0,
+              frozen: 0,
+              overlay: false,
+            });
+            ctx.restore();
+          }
+        }
+        function roundRect(x, y, w, h, r) {
+          r = Math.min(r, w / 2, h / 2);
+          ctx.beginPath();
+          ctx.moveTo(x + r, y);
+          ctx.lineTo(x + w - r, y);
+          ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+          ctx.lineTo(x + w, y + h - r);
+          ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+          ctx.lineTo(x + r, y + h);
+          ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+          ctx.lineTo(x, y + r);
+          ctx.quadraticCurveTo(x, y, x + r, y);
+          ctx.closePath();
+        }
+        function loop(t) {
+          const dt = Math.min(
+            0.04,
+            Math.max(0.001, lastTime ? (t - lastTime) / 1000 : 1 / 60),
+          );
+          lastTime = t;
+          update(dt);
+          draw();
+          requestAnimationFrame(loop);
+        }
+        document
+          .querySelectorAll(".tab-btn")
+          .forEach((b) => (b.onclick = () => selectTab(b.dataset.tab)));
+        $("autoLoadoutBtn").onclick = () => {
+          loadout = plantsDef
+            .filter(unlockedPlant)
+            .slice(0, 8)
+            .map((p) => p.key);
+          renderLoadout();
+        };
+        $("startBtn").onclick = () => startGame();
+        $("againBtn").onclick = () => startGame(true);
+        $("nextBtn").onclick = () => {
+          state.started = false;
+          $("resultModal").classList.remove("show");
+          $("startModal").classList.add("show");
+          selectedTab = "adventure";
+          selectTab("adventure");
+        };
+        $("menuBtn").onclick = () => {
+          if (
+            state.started &&
+            !state.over &&
+            !confirm("当前行动尚未结束，返回地图？")
+          )
+            return;
+          state.started = false;
+          $("resultModal").classList.remove("show");
+          $("startModal").classList.add("show");
+          renderMenu();
+        };
+        $("restartBtn").onclick = () => {
+          if (state.started && confirm("重新开始当前行动？")) startGame(true);
+        };
+        $("pauseBtn").onclick = () => {
+          if (!state.started || state.over) return;
+          state.paused = !state.paused;
+          $("pauseBtn").textContent = state.paused ? "▶" : "Ⅱ";
+          updateUI();
+        };
+        $("speedBtn").onclick = () => {
+          speed = speed === 1 ? 2 : 1;
+          $("speedBtn").textContent = `${speed}×`;
+          $("speedBtn").classList.toggle("active", speed === 2);
+        };
+        $("shovelBtn").onclick = () => {
+          shovel = !shovel;
+          leafMode = false;
+          updateUI();
+        };
+        $("overloadBtn").onclick = () => {
+          if (state.charge >= 100) {
+            leafMode = !leafMode;
+            shovel = false;
+            updateUI();
+          }
+        };
+        $("hintBtn").onclick = () => showToast(regions[state.region].note);
+        $("resetSaveBtn").onclick = () => {
+          if (confirm("确定重置远征关卡、星级和纪录？")) {
+            localStorage.removeItem(SAVE_KEY);
+            save = loadSave();
+            selectedLevel = 1;
+            renderMenu();
+          }
+        };
+        canvas.addEventListener("click", canvasClick);
+        canvas.addEventListener("pointermove", (e) =>
+          Object.assign(pointer, screenPoint(e), { inside: true }),
+        );
+        canvas.addEventListener("pointerdown", (e) =>
+          Object.assign(pointer, screenPoint(e), { inside: true }),
+        );
+        canvas.addEventListener("pointerleave", () => (pointer.inside = false));
+        window.addEventListener("keydown", (e) => {
+          if (e.code === "Space" || e.code === "KeyP") {
+            e.preventDefault();
+            $("pauseBtn").click();
+          }
+          if (/^Digit[1-8]$/.test(e.code)) {
+            const b = UI.seedBank.children[+e.code.slice(-1) - 1];
+            if (b && !b.disabled) b.click();
+          }
+          if (e.code === "Escape") {
+            shovel = false;
+            leafMode = false;
+            updateUI();
+          }
+        });
+        window.addEventListener("resize", resize);
+        resize();
+        updateUI();
+        renderMenu();
+        requestAnimationFrame(loop);
+      })();
+    </script>
+  </body>
 </html>

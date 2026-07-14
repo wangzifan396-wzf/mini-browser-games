@@ -880,16 +880,37 @@
           min-height: 70px;
         }
       }
+      .hero-select {
+        min-height: 38px;
+        padding: 0 10px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        color: var(--ink);
+        background: var(--paper);
+        font: inherit;
+        font-weight: 800;
+      }
     </style>
   </head>
   <body>
     <div class="app-shell">
       <header class="topbar">
         <div class="brand">
-          <p class="eyebrow">卡牌肉鸽原型</p>
-          <h1>山海伏魔录</h1>
+          <p class="eyebrow">大型卡牌肉鸽 · 万象远征 2.0</p>
+          <h1>山海伏魔录：万象篇</h1>
         </div>
         <div class="top-actions">
+          <select id="heroSelect" class="hero-select" aria-label="选择行者">
+            <option value="sword">玄锋剑修</option>
+            <option value="talisman">朱砂符师</option>
+            <option value="shaman">青木巫祝</option>
+          </select>
+          <select id="ascensionSelect" class="hero-select" aria-label="选择劫数">
+            <option value="0">凡途</option>
+            <option value="1">一劫</option>
+            <option value="2">二劫</option>
+            <option value="3">三劫</option>
+          </select>
           <button id="helpButton" class="quiet-button" type="button">规则</button>
           <button id="newRunButton" class="quiet-button" type="button">新局</button>
         </div>
@@ -916,6 +937,10 @@
           <span>遗物</span>
           <strong id="relicStat">0</strong>
         </div>
+        <div class="stat-tile">
+          <span>道行</span>
+          <strong id="daoStat">0</strong>
+        </div>
       </section>
 
       <main id="gameArea" class="game-area" aria-live="polite"></main>
@@ -935,8 +960,35 @@
     <script>
       "use strict";
       
-      const FINAL_FLOOR = 8;
+      const FINAL_FLOOR = 12;
       const HAND_LIMIT = 10;
+
+      const HEROES = {
+        sword: {
+          name: "玄锋剑修",
+          mark: "剑",
+          desc: "攻击牌伤害稳定，战斗开始力量 +1。",
+          maxHp: 76,
+          gold: 16,
+          starters: ["strike", "strike", "strike", "strike", "strike", "defend", "defend", "defend", "gatherQi", "swordHeart"]
+        },
+        talisman: {
+          name: "朱砂符师",
+          mark: "符",
+          desc: "首回合灵气充沛，擅长灼烧、易伤和雷印。",
+          maxHp: 68,
+          gold: 22,
+          starters: ["strike", "strike", "strike", "strike", "defend", "defend", "defend", "defend", "gatherQi", "fireCharm"]
+        },
+        shaman: {
+          name: "青木巫祝",
+          mark: "巫",
+          desc: "战后回复更强，擅长生息、格挡和持续作战。",
+          maxHp: 82,
+          gold: 18,
+          starters: ["strike", "strike", "strike", "strike", "defend", "defend", "defend", "defend", "gatherQi", "moonlight"]
+        }
+      };
       
       const CARD_LIBRARY = {
         strike: {
@@ -1141,6 +1193,71 @@
           rarity: "rare",
           art: "观",
           text: ["抽 2 张牌。", "抽 3 张牌。"]
+        },
+        cloudPiercer: {
+          name: "破云式",
+          type: "attack",
+          cost: 1,
+          rarity: "common",
+          art: "云",
+          text: ["造成 8 点伤害。若本回合打过技能牌，追加 4 点。", "造成 11 点伤害。若本回合打过技能牌，追加 6 点。"]
+        },
+        spiritWard: {
+          name: "万灵护",
+          type: "skill",
+          cost: 1,
+          rarity: "common",
+          art: "灵",
+          text: ["获得 6 点格挡。每件遗物额外 +1。", "获得 9 点格挡。每件遗物额外 +1。"]
+        },
+        emberCycle: {
+          name: "离火轮",
+          type: "attack",
+          cost: 2,
+          rarity: "uncommon",
+          art: "轮",
+          text: ["造成 9 点伤害并施加 6 层灼烧。", "造成 12 点伤害并施加 9 层灼烧。"]
+        },
+        jadeBreath: {
+          name: "玉息诀",
+          type: "skill",
+          cost: 1,
+          rarity: "uncommon",
+          art: "息",
+          text: ["回复 3 点气血，抽 1 张牌。", "回复 5 点气血，抽 2 张牌。"]
+        },
+        mirrorCounter: {
+          name: "镜返",
+          type: "skill",
+          cost: 1,
+          rarity: "uncommon",
+          art: "镜",
+          text: ["获得 8 点格挡与 3 层反震。", "获得 11 点格挡与 5 层反震。"]
+        },
+        voidScripture: {
+          name: "太虚经",
+          type: "power",
+          cost: 2,
+          rarity: "rare",
+          art: "虚",
+          text: ["最大灵气 +1。", "最大灵气 +1，并抽 1 张牌。"]
+        },
+        mountainBreaker: {
+          name: "撼山印",
+          type: "attack",
+          cost: 3,
+          rarity: "rare",
+          art: "山",
+          text: ["造成 30 点伤害并移除敌方格挡。", "造成 40 点伤害并移除敌方格挡。"]
+        },
+        rebirthLotus: {
+          name: "返生莲",
+          type: "skill",
+          cost: 2,
+          rarity: "rare",
+          art: "莲",
+          exhaust: true,
+          text: ["回复 12 点气血，获得 12 点格挡。消耗。", "回复 16 点气血，获得 16 点格挡。消耗。"]
         }
       };
       
@@ -1176,6 +1293,36 @@
           name: "玄铁护符",
           art: "铁",
           desc: "每场战斗第一回合获得 6 点格挡。"
+        },
+        foxMask: {
+          name: "九尾面具",
+          art: "狐",
+          desc: "每场战斗首次打出 0 费牌时抽 1 张牌。"
+        },
+        thunderDrum: {
+          name: "夔牛雷鼓",
+          art: "鼓",
+          desc: "每回合打出的第 3 张攻击牌额外造成 8 点伤害。"
+        },
+        jadeGourd: {
+          name: "青玉葫芦",
+          art: "葫",
+          desc: "歇脚回复量提高至最大气血的 45%。"
+        },
+        mountainScript: {
+          name: "镇岳残卷",
+          art: "岳",
+          desc: "每场战斗开始时最大灵气 +1，但首回合少抽 1 张牌。"
+        },
+        phoenixFeather: {
+          name: "凤羽",
+          art: "羽",
+          desc: "每局首次濒死时以 35% 气血复苏。"
+        },
+        merchantsToken: {
+          name: "妖市牙钱",
+          art: "钱",
+          desc: "战斗获得银钱提高 30%。"
         }
       };
       
@@ -1223,6 +1370,50 @@
             { vulnerable: 2, label: "湿骨", text: "施加易伤" },
             { attack: 13, hits: 1, label: "卷流", text: "强力攻击" }
           ]
+        },
+        {
+          name: "纸鸢精",
+          mark: "鸢",
+          hp: [34, 43],
+          note: "断线之后，它学会了追逐活人的影子。",
+          pattern: [
+            { attack: 5, hits: 3, label: "纸刃", text: "攻击 3 次" },
+            { weak: 1, block: 6, label: "遮天", text: "施加虚弱并格挡" },
+            { attack: 15, hits: 1, label: "俯冲", text: "强力攻击" }
+          ]
+        },
+        {
+          name: "石胎鬼",
+          mark: "石",
+          hp: [56, 68],
+          note: "它在山腹沉睡了三百年，醒来只记得饥饿。",
+          pattern: [
+            { block: 13, label: "石肤", text: "大量格挡" },
+            { attack: 16, hits: 1, label: "坠岩", text: "猛烈攻击" },
+            { strength: 2, label: "吞砂", text: "力量上升" }
+          ]
+        },
+        {
+          name: "蜃气书生",
+          mark: "蜃",
+          hp: [42, 52],
+          note: "每一句温文尔雅的话，都藏着一层海市蜃楼。",
+          pattern: [
+            { vulnerable: 2, label: "幻言", text: "施加易伤" },
+            { attack: 10, hits: 2, label: "墨浪", text: "攻击 2 次" },
+            { block: 8, weak: 1, label: "虚卷", text: "格挡并施加虚弱" }
+          ]
+        },
+        {
+          name: "鸣蛇",
+          mark: "蛇",
+          hp: [48, 60],
+          note: "双翼掠过时，旱风会把符纸卷上天空。",
+          pattern: [
+            { attack: 8, hits: 2, label: "翼斩", text: "攻击 2 次" },
+            { weak: 2, label: "旱鸣", text: "施加虚弱" },
+            { attack: 19, hits: 1, label: "蛇坠", text: "猛烈攻击" }
+          ]
         }
       ];
       
@@ -1250,6 +1441,30 @@
             { weak: 2, vulnerable: 1, label: "魅惑", text: "施加虚弱和易伤" },
             { block: 10, attack: 12, hits: 1, label: "返身", text: "格挡并攻击" }
           ]
+        },
+        {
+          name: "夔牛战魂",
+          mark: "夔",
+          hp: [86, 98],
+          note: "独足踏地，每一步都像雷雨落山。",
+          rank: "elite",
+          pattern: [
+            { strength: 3, label: "聚雷", text: "力量大幅上升" },
+            { attack: 8, hits: 3, label: "雷踏", text: "攻击 3 次" },
+            { block: 16, attack: 10, hits: 1, label: "震岳", text: "格挡并攻击" }
+          ]
+        },
+        {
+          name: "无面判官",
+          mark: "判",
+          hp: [78, 90],
+          note: "朱笔落下之前，它先删去了自己的脸。",
+          rank: "elite",
+          pattern: [
+            { weak: 2, vulnerable: 2, label: "定罪", text: "施加虚弱和易伤" },
+            { attack: 22, hits: 1, label: "朱批", text: "猛烈攻击" },
+            { block: 18, label: "铁卷", text: "大量格挡" }
+          ]
         }
       ];
       
@@ -1266,6 +1481,36 @@
           { attack: 28, hits: 1, label: "裂山", text: "猛烈攻击" }
         ]
       };
+
+      const BOSS_ENEMIES = [
+        BOSS_ENEMY,
+        {
+          name: "相柳",
+          mark: "柳",
+          hp: [152, 166],
+          note: "九首俯下时，毒水漫过整片山谷。",
+          rank: "boss",
+          pattern: [
+            { attack: 5, hits: 4, label: "九首噬", text: "攻击 4 次" },
+            { weak: 2, vulnerable: 2, label: "毒泽", text: "施加虚弱和易伤" },
+            { block: 18, strength: 3, label: "盘山", text: "力量上升并格挡" },
+            { attack: 34, hits: 1, label: "洪毒", text: "毁灭攻击" }
+          ]
+        },
+        {
+          name: "烛九阴",
+          mark: "烛",
+          hp: [188, 204],
+          note: "它睁眼为昼，闭眼为夜，整条山路都在呼吸。",
+          rank: "boss",
+          pattern: [
+            { block: 24, label: "闭目", text: "大量格挡" },
+            { attack: 12, hits: 3, label: "昼夜轮转", text: "攻击 3 次" },
+            { strength: 4, vulnerable: 2, label: "岁蚀", text: "力量上升并施加易伤" },
+            { attack: 42, hits: 1, label: "龙烛灭世", text: "终极攻击" }
+          ]
+        }
+      ];
       
       const EVENTS = [
         {
@@ -1365,6 +1610,57 @@
               }
             }
           ]
+        },
+        {
+          title: "昆仑镜湖",
+          text: "湖面映出另一个已经通关的你，他把一张牌留在水面上。",
+          choices: [
+            {
+              title: "接受倒影",
+              detail: "升级两张随机牌，但最大气血 -5。",
+              run() {
+                state.player.maxHp = Math.max(35, state.player.maxHp - 5);
+                state.player.hp = Math.min(state.player.hp, state.player.maxHp);
+                shuffle(state.player.deck.filter((card) => !card.upgraded)).slice(0, 2).forEach((card) => card.upgraded = true);
+                logRun("倒影沉入湖底，两张牌留下银光。", "good");
+              }
+            },
+            {
+              title: "击碎镜湖",
+              detail: "获得 24 银钱并回复 6 点气血。",
+              run() {
+                state.player.gold += 24;
+                healPlayer(6);
+                logRun("镜湖碎成雨，落下几枚古钱。", "gold");
+              }
+            }
+          ]
+        },
+        {
+          title: "百鬼夜宴",
+          text: "群妖邀请你共饮一杯，席间没有谁肯先摘下面具。",
+          choices: [
+            {
+              title: "饮下妖酒",
+              detail: "获得随机遗物，下一场战斗以 2 层易伤开始。",
+              run() {
+                const relic = gainRandomRelic();
+                state.nextBattleVulnerable = 2;
+                logRun(`妖酒辛辣，你带走了${relic ? relic.name : "一段旧梦"}。`, "gold");
+              }
+            },
+            {
+              title: "献上一张牌",
+              detail: "移除一张牌，最大气血 +6。",
+              disabled: () => state.player.deck.length <= 7,
+              run() {
+                const removed = state.player.deck.splice(randomInt(0, state.player.deck.length - 1), 1)[0];
+                state.player.maxHp += 6;
+                state.player.hp += 6;
+                logRun(`百鬼收下${cardName(removed)}，你换回一口生气。`, "good");
+              }
+            }
+          ]
         }
       ];
       
@@ -1377,6 +1673,9 @@
         floor: $("#floorStat"),
         deck: $("#deckStat"),
         relic: $("#relicStat"),
+        dao: $("#daoStat"),
+        heroSelect: $("#heroSelect"),
+        ascensionSelect: $("#ascensionSelect"),
         help: $("#helpButton"),
         newRun: $("#newRunButton"),
         modal: $("#modal"),
@@ -1388,6 +1687,20 @@
       
       let uid = 1;
       let state;
+      const META_KEY = "shan_hai_v2_meta";
+      let meta = loadMeta();
+
+      function loadMeta() {
+        try {
+          return { dao: 0, wins: 0, bestAscension: 0, ...JSON.parse(localStorage.getItem(META_KEY) || "{}") };
+        } catch {
+          return { dao: 0, wins: 0, bestAscension: 0 };
+        }
+      }
+
+      function saveMeta() {
+        localStorage.setItem(META_KEY, JSON.stringify(meta));
+      }
       
       function nextId() {
         uid += 1;
@@ -1474,26 +1787,22 @@
       
       function newRun() {
         uid = 1;
+        const heroKey = elements.heroSelect.value;
+        const hero = HEROES[heroKey];
+        const ascension = Number(elements.ascensionSelect.value) || 0;
         state = {
           screen: "map",
           floorIndex: 0,
           currentNode: null,
+          heroKey,
+          ascension,
+          nextBattleVulnerable: 0,
+          revivalUsed: false,
           player: {
-            maxHp: 72,
-            hp: 72,
-            gold: 20,
-            deck: [
-              createDeckCard("strike"),
-              createDeckCard("strike"),
-              createDeckCard("strike"),
-              createDeckCard("strike"),
-              createDeckCard("strike"),
-              createDeckCard("defend"),
-              createDeckCard("defend"),
-              createDeckCard("defend"),
-              createDeckCard("defend"),
-              createDeckCard("gatherQi")
-            ],
+            maxHp: hero.maxHp - ascension * 2,
+            hp: hero.maxHp - ascension * 2,
+            gold: hero.gold,
+            deck: hero.starters.map((key) => createDeckCard(key)),
             relics: []
           },
           map: createMap(),
@@ -1503,7 +1812,7 @@
           runLog: []
         };
       
-        logRun("你背着一匣旧符入山。第一条山路已经亮起。", "info");
+        logRun(`${hero.name}踏入万象山，${ascension ? `第 ${ascension} 重劫数已经降临。` : "第一条山路已经亮起。"}`, "info");
         render();
       }
       
@@ -1514,8 +1823,12 @@
           ["elite", "fight", "rest"],
           ["event", "fight", "rest"],
           ["fight", "elite", "event"],
-          ["rest", "fight", "elite"],
+          ["boss"],
           ["rest", "fight", "event"],
+          ["fight", "elite", "event"],
+          ["event", "fight", "rest"],
+          ["elite", "fight", "event"],
+          ["rest", "elite", "fight"],
           ["boss"]
         ];
       
@@ -1531,12 +1844,13 @@
       }
       
       function nodeMeta(type) {
+        const bossName = state && state.floorIndex < 6 ? "穷奇" : state && state.ascension >= 2 ? "烛九阴" : "相柳";
         return {
           fight: { icon: "妖", title: "妖物", desc: "普通战斗" },
           elite: { icon: "煞", title: "精英", desc: "更危险，必掉遗物" },
           event: { icon: "?", title: "奇遇", desc: "未知选择" },
           rest: { icon: "炉", title: "歇脚", desc: "休息或升级" },
-          boss: { icon: "凶", title: "穷奇", desc: "首领战" }
+          boss: { icon: "凶", title: bossName, desc: state && state.floorIndex < 6 ? "章节首领" : "最终首领" }
         }[type];
       }
       
@@ -1558,6 +1872,7 @@
         elements.floor.textContent = `${Math.min(state.floorIndex, FINAL_FLOOR)}/${FINAL_FLOOR}`;
         elements.deck.textContent = state.player.deck.length;
         elements.relic.textContent = state.player.relics.length;
+        elements.dao.textContent = meta.dao;
       }
       
       function renderMap() {
@@ -1569,7 +1884,7 @@
                   <p class="eyebrow">山路</p>
                   <h2>选择下一处</h2>
                 </div>
-                <span class="tag">第 ${state.floorIndex + 1} 层</span>
+                <span class="tag">${HEROES[state.heroKey].name} · ${state.ascension ? `${state.ascension} 劫` : "凡途"}</span>
               </div>
               <p class="screen-copy">每个节点会推进一层。战斗胜利后可以选牌；精英更难但会掉落遗物；歇脚处可以回血或升级一张牌。</p>
               <div class="map-board">
@@ -1617,6 +1932,11 @@
         return `
           <aside class="side-panel">
             <div class="side-stack">
+              <div class="side-block">
+                <p class="eyebrow">本局行者</p>
+                <p><strong>${HEROES[state.heroKey].mark} ${HEROES[state.heroKey].name}</strong></p>
+                <p class="small-copy">${HEROES[state.heroKey].desc}</p>
+              </div>
               <div class="side-block">
                 <p class="eyebrow">遗物</p>
                 ${relicsHtml()}
@@ -1715,6 +2035,16 @@
           state.combat.strength += 1;
           logCombat(`${relicName("brokenTassel")}让你的剑势先起。`, "gold");
         }
+
+        if (state.heroKey === "sword") {
+          state.combat.strength += 1;
+          logCombat("玄锋剑意先行，力量 +1。", "good");
+        }
+        if (hasRelic("mountainScript")) state.combat.maxEnergy += 1;
+        if (state.nextBattleVulnerable > 0) {
+          state.combat.vulnerable += state.nextBattleVulnerable;
+          state.nextBattleVulnerable = 0;
+        }
       
         state.screen = "combat";
         enemy.intent = nextEnemyIntent(enemy);
@@ -1724,11 +2054,12 @@
       function createEnemy(type) {
         const template =
           type === "boss"
-            ? BOSS_ENEMY
+            ? BOSS_ENEMIES[state.floorIndex < 6 ? 0 : state.ascension >= 2 ? 2 : 1]
             : type === "elite"
               ? pick(ELITE_ENEMIES)
               : pick(REGULAR_ENEMIES);
-        const hp = randomInt(template.hp[0], template.hp[1]);
+        const hpScale = 1 + state.ascension * 0.12 + Math.max(0, state.floorIndex - 5) * 0.025;
+        const hp = Math.round(randomInt(template.hp[0], template.hp[1]) * hpScale);
       
         return {
           ...template,
@@ -1754,10 +2085,17 @@
         combat.turn += 1;
         combat.block = 0;
         combat.energy = combat.maxEnergy;
+        combat.cardsPlayed = 0;
+        combat.attacksPlayed = 0;
+        combat.skillPlayed = false;
       
         if (combat.turn === 1 && hasRelic("bronzeBell")) {
           combat.energy += 1;
           logCombat(`${relicName("bronzeBell")}响了一声，灵气 +1。`, "gold");
+        }
+        if (combat.turn === 1 && state.heroKey === "talisman") {
+          combat.energy += 1;
+          logCombat("朱砂符师引燃命符，灵气 +1。", "gold");
         }
       
         if (combat.turn === 1 && hasRelic("ironCharm")) {
@@ -1769,7 +2107,7 @@
           gainBlock(combat.formation, false);
         }
       
-        const drawCount = 5 + (combat.turn === 1 && hasRelic("craneFlute") ? 1 : 0);
+        const drawCount = 5 + (combat.turn === 1 && hasRelic("craneFlute") ? 1 : 0) - (combat.turn === 1 && hasRelic("mountainScript") ? 1 : 0);
         drawCards(drawCount);
         logCombat(`第 ${combat.turn} 回合开始。`, "info");
         render();
@@ -1848,10 +2186,10 @@
           <article class="fighter player">
             <div class="fighter-top">
               <div class="fighter-name">
-                <span class="portrait">符</span>
+                <span class="portrait">${HEROES[state.heroKey].mark}</span>
                 <div>
-                  <h3>云游伏魔师</h3>
-                  <p class="small-copy">以符入剑，以气护身。</p>
+                  <h3>${HEROES[state.heroKey].name}</h3>
+                  <p class="small-copy">${HEROES[state.heroKey].desc}</p>
                 </div>
               </div>
               <span class="tag">灵气 ${combat.energy}</span>
@@ -2016,6 +2354,9 @@
         if (combat.energy < cost) return;
       
         combat.energy -= cost;
+        combat.cardsPlayed = (combat.cardsPlayed || 0) + 1;
+        if (def.type === "skill") combat.skillPlayed = true;
+        if (def.type === "attack") combat.attacksPlayed = (combat.attacksPlayed || 0) + 1;
         applyCardEffect(card);
         combat.hand.splice(index, 1);
       
@@ -2027,6 +2368,13 @@
       
         if (def.type === "attack" && combat.lightning > 0 && combat.enemy.hp > 0) {
           directEnemyDamage(combat.lightning, "雷印");
+        }
+        if (def.type === "attack" && hasRelic("thunderDrum") && combat.attacksPlayed % 3 === 0 && combat.enemy.hp > 0) {
+          directEnemyDamage(8, "夔牛雷鼓");
+        }
+        if (cost === 0 && hasRelic("foxMask") && !combat.foxMaskUsed) {
+          combat.foxMaskUsed = true;
+          drawCards(1);
         }
       
         if (combat.enemy.hp <= 0) {
@@ -2142,6 +2490,38 @@
           case "stargaze":
             drawCards(up ? 3 : 2);
             logCombat(`${cardName(card)}照见下一手。`, "good");
+            break;
+          case "cloudPiercer":
+            dealEnemyDamage((up ? 11 : 8) + (state.combat.skillPlayed ? (up ? 6 : 4) : 0), 1, cardName(card));
+            break;
+          case "spiritWard":
+            gainBlock((up ? 9 : 6) + state.player.relics.length);
+            break;
+          case "emberCycle":
+            dealEnemyDamage(up ? 12 : 9, 1, cardName(card));
+            applyBurnToEnemy(up ? 9 : 6);
+            break;
+          case "jadeBreath":
+            healPlayer(up ? 5 : 3);
+            drawCards(up ? 2 : 1);
+            break;
+          case "mirrorCounter":
+            gainBlock(up ? 11 : 8);
+            state.combat.thorns += up ? 5 : 3;
+            break;
+          case "voidScripture":
+            state.combat.maxEnergy += 1;
+            state.combat.energy += 1;
+            if (up) drawCards(1);
+            logCombat("太虚经展开，最大灵气 +1。", "good");
+            break;
+          case "mountainBreaker":
+            state.combat.enemy.block = 0;
+            dealEnemyDamage(up ? 40 : 30, 1, cardName(card));
+            break;
+          case "rebirthLotus":
+            healPlayer(up ? 16 : 12);
+            gainBlock(up ? 16 : 12);
             break;
           default:
             break;
@@ -2285,7 +2665,7 @@
       function enemyAttack(base) {
         const combat = state.combat;
         const enemy = combat.enemy;
-        let damage = base + enemy.strength;
+        let damage = Math.ceil(base * (1 + state.ascension * 0.1)) + enemy.strength;
         if (enemy.weak > 0) damage = Math.floor(damage * 0.75);
         if (combat.vulnerable > 0) damage = Math.ceil(damage * 1.5);
         damage = Math.max(0, damage);
@@ -2303,7 +2683,8 @@
       
       function winCombat() {
         const nodeType = state.currentNode.type;
-        const gold = nodeType === "elite" ? randomInt(24, 34) : nodeType === "boss" ? randomInt(38, 48) : randomInt(12, 20);
+        let gold = nodeType === "elite" ? randomInt(24, 34) : nodeType === "boss" ? randomInt(38, 48) : randomInt(12, 20);
+        if (hasRelic("merchantsToken")) gold = Math.round(gold * 1.3);
         state.player.gold += gold;
         logRun(`击败${state.combat.enemy.name}，获得 ${gold} 银钱。`, "good");
       
@@ -2312,13 +2693,17 @@
           const healed = healPlayer(4);
           if (healed > 0) logRun(`${relicName("nightPearl")}在袖中发光，回复 ${healed} 点气血。`, "gold");
         }
+        if (state.heroKey === "shaman") {
+          const healed = healPlayer(5);
+          if (healed) logRun(`青木生息回复 ${healed} 点气血。`, "good");
+        }
       
         if (nodeType === "elite" || nodeType === "boss" || Math.random() < 0.18) {
           relic = gainRandomRelic();
           if (relic) logRun(`你获得遗物：${relic.name}。`, "gold");
         }
       
-        if (nodeType === "boss") {
+        if (nodeType === "boss" && state.floorIndex >= FINAL_FLOOR - 1) {
           state.screen = "victory";
           state.combat = null;
           render();
@@ -2336,6 +2721,14 @@
       }
       
       function defeatRun() {
+        if (hasRelic("phoenixFeather") && !state.revivalUsed) {
+          state.revivalUsed = true;
+          state.player.hp = Math.ceil(state.player.maxHp * 0.35);
+          state.player.relics = state.player.relics.filter((key) => key !== "phoenixFeather");
+          logCombat("凤羽燃尽，你从灰烬中重新站起。", "gold");
+          beginPlayerTurn();
+          return;
+        }
         logRun("山风吹灭了最后一张符。", "hit");
         state.screen = "defeat";
         state.combat = null;
@@ -2454,7 +2847,7 @@
       }
       
       function renderRest() {
-        const healAmount = Math.ceil(state.player.maxHp * 0.3);
+        const healAmount = Math.ceil(state.player.maxHp * (hasRelic("jadeGourd") ? 0.45 : 0.3));
         const upgradeable = state.player.deck.filter((card) => !card.upgraded).slice(0, 10);
       
         elements.game.innerHTML = `
@@ -2491,7 +2884,7 @@
       }
       
       function restHeal() {
-        const amount = Math.ceil(state.player.maxHp * 0.3);
+        const amount = Math.ceil(state.player.maxHp * (hasRelic("jadeGourd") ? 0.45 : 0.3));
         const healed = healPlayer(amount);
         logRun(`你在炉边休息，回复 ${healed} 点气血。`, "good");
         completeNode();
@@ -2524,9 +2917,20 @@
       
       function renderEnding(victory) {
         const score = state.player.gold + state.player.hp * 2 + state.player.relics.length * 18 + state.player.deck.filter((card) => card.upgraded).length * 5;
-        const title = victory ? "穷奇伏诛" : "符火已灭";
+        if (!state.metaAwarded) {
+          const daoGain = Math.max(2, Math.floor(score / 45) + state.floorIndex + state.ascension * 3);
+          meta.dao += daoGain;
+          if (victory) {
+            meta.wins += 1;
+            meta.bestAscension = Math.max(meta.bestAscension, state.ascension);
+          }
+          saveMeta();
+          state.metaAwarded = true;
+          logRun(`本次远征沉淀 ${daoGain} 点道行。`, "gold");
+        }
+        const title = victory ? "万象山清" : "符火已灭";
         const copy = victory
-          ? `你走出山口时，匣中还剩 ${state.player.deck.length} 张牌、${state.player.relics.length} 件遗物。评分 ${score}。`
+          ? `${HEROES[state.heroKey].name}走出山口时，匣中还剩 ${state.player.deck.length} 张牌、${state.player.relics.length} 件遗物。评分 ${score}。累计胜利 ${meta.wins} 次。`
           : `你的伏魔路停在第 ${state.floorIndex + 1} 层。评分 ${score}。再开一局，换一条山路。`;
       
         elements.game.innerHTML = `
@@ -2559,7 +2963,9 @@
               <li>敌人的下一步意图会显示在右侧，先看意图再决定攻击或防守。</li>
               <li>战胜敌人后获得银钱并三选一加牌；精英和首领会掉落遗物。</li>
               <li>歇脚处可以回复 30% 最大气血，或升级一张牌。</li>
-              <li>击败第 8 层首领穷奇即为通关。</li>
+              <li>第 6 层与第 12 层会遭遇章节首领，击败最终首领即为通关。</li>
+              <li>三名行者拥有不同初始牌组和被动；劫数会提高敌方气血与伤害。</li>
+              <li>每局结束会沉淀道行，并记录胜场与最高劫数。</li>
             </ul>
           `
         );
