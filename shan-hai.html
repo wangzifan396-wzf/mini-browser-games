@@ -1,10 +1,13 @@
 <!doctype html>
 <html lang="zh-CN">
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>山海伏魔录</title>
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23141816'/%3E%3Cpath d='M32 8 50 54H14L32 8Z' fill='%23d7aa47'/%3E%3Cpath d='M25 34h14M22 43h20M32 20v27' stroke='%23141816' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23141816'/%3E%3Cpath d='M32 8 50 54H14L32 8Z' fill='%23d7aa47'/%3E%3Cpath d='M25 34h14M22 43h20M32 20v27' stroke='%23141816' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E"
+    />
     <style>
       :root {
         --ink: #121714;
@@ -22,34 +25,43 @@
         --shadow: rgba(11, 17, 14, 0.22);
         --radius: 8px;
       }
-      
+
       * {
         box-sizing: border-box;
       }
-      
+
       html {
         min-height: 100%;
         background:
-          linear-gradient(90deg, rgba(246, 241, 228, 0.06) 1px, transparent 1px),
+          linear-gradient(
+            90deg,
+            rgba(246, 241, 228, 0.06) 1px,
+            transparent 1px
+          ),
           linear-gradient(0deg, rgba(246, 241, 228, 0.06) 1px, transparent 1px),
-          radial-gradient(circle at 18% 12%, rgba(215, 170, 71, 0.18), transparent 24rem),
+          radial-gradient(
+            circle at 18% 12%,
+            rgba(215, 170, 71, 0.18),
+            transparent 24rem
+          ),
           #121a17;
-        background-size: 26px 26px, 26px 26px, auto, auto;
+        background-size:
+          26px 26px,
+          26px 26px,
+          auto,
+          auto;
       }
-      
+
       body {
         margin: 0;
         min-height: 100%;
         color: var(--ink);
         font-family:
-          "Microsoft YaHei",
-          "PingFang SC",
-          "Noto Sans CJK SC",
-          system-ui,
+          "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", system-ui,
           sans-serif;
         letter-spacing: 0;
       }
-      
+
       button {
         min-height: 38px;
         border: 1px solid var(--gold-deep);
@@ -64,47 +76,47 @@
           box-shadow 140ms ease,
           background 140ms ease;
       }
-      
+
       button:hover:not(:disabled) {
         transform: translateY(-1px);
         box-shadow: 0 8px 18px var(--shadow);
       }
-      
+
       button:disabled {
         cursor: not-allowed;
         opacity: 0.45;
       }
-      
+
       h1,
       h2,
       h3,
       p {
         margin-top: 0;
       }
-      
+
       h1 {
         margin-bottom: 0;
         font-size: clamp(2rem, 5vw, 4rem);
         line-height: 0.95;
       }
-      
+
       h2 {
         margin-bottom: 0;
         font-size: 1.2rem;
       }
-      
+
       h3 {
         margin-bottom: 6px;
         font-size: 1rem;
         line-height: 1.2;
       }
-      
+
       .app-shell {
         width: min(1480px, 100%);
         margin: 0 auto;
         padding: 18px;
       }
-      
+
       .topbar,
       .run-strip,
       .game-card,
@@ -114,7 +126,7 @@
         border: 1px solid var(--line);
         box-shadow: 0 14px 36px var(--shadow);
       }
-      
+
       .topbar {
         display: flex;
         align-items: center;
@@ -128,7 +140,7 @@
           linear-gradient(270deg, rgba(215, 170, 71, 0.2), transparent 38%),
           var(--paper);
       }
-      
+
       .eyebrow {
         margin: 0 0 5px;
         color: var(--gold-deep);
@@ -137,7 +149,7 @@
         letter-spacing: 0.08em;
         text-transform: uppercase;
       }
-      
+
       .top-actions,
       .modal-actions,
       .reward-actions,
@@ -147,23 +159,23 @@
         gap: 8px;
         flex-wrap: wrap;
       }
-      
+
       .quiet-button,
       .primary-button,
       .danger-button {
         padding: 0 15px;
       }
-      
+
       .primary-button {
         background: var(--ink);
         color: var(--paper);
       }
-      
+
       .danger-button {
         background: var(--red);
         color: #fff8eb;
       }
-      
+
       .run-strip {
         display: grid;
         grid-template-columns: repeat(5, minmax(120px, 1fr));
@@ -171,63 +183,63 @@
         margin-top: -1px;
         background: var(--line);
       }
-      
+
       .stat-tile {
         min-height: 76px;
         padding: 12px 14px;
         background: #fffdf7;
       }
-      
+
       .stat-tile:nth-child(2) {
         background: #eff7f3;
       }
-      
+
       .stat-tile:nth-child(3) {
         background: #eef4fa;
       }
-      
+
       .stat-tile:nth-child(4) {
         background: #f8f2e6;
       }
-      
+
       .stat-tile:nth-child(5) {
         background: #f5eef8;
       }
-      
+
       .stat-tile span {
         display: block;
         color: var(--muted);
         font-size: 0.82rem;
       }
-      
+
       .stat-tile strong {
         display: block;
         margin-top: 4px;
         font-size: 1.55rem;
       }
-      
+
       .game-area {
         margin-top: 14px;
       }
-      
+
       .screen-layout {
         display: grid;
         grid-template-columns: minmax(0, 1fr) 340px;
         gap: 14px;
       }
-      
+
       .game-card,
       .combat-panel,
       .side-panel {
         border-radius: var(--radius);
         background: rgba(246, 241, 228, 0.97);
       }
-      
+
       .game-card {
         min-width: 0;
         padding: 16px;
       }
-      
+
       .screen-head {
         display: flex;
         align-items: flex-start;
@@ -235,13 +247,13 @@
         gap: 16px;
         margin-bottom: 14px;
       }
-      
+
       .screen-copy {
         max-width: 760px;
         color: var(--muted);
         line-height: 1.55;
       }
-      
+
       .map-board {
         display: grid;
         grid-template-columns: repeat(8, minmax(96px, 1fr));
@@ -249,20 +261,20 @@
         overflow-x: auto;
         padding: 8px 2px 6px;
       }
-      
+
       .map-column {
         display: grid;
         gap: 8px;
         align-content: start;
       }
-      
+
       .map-floor {
         color: var(--muted);
         font-size: 0.78rem;
         font-weight: 900;
         text-align: center;
       }
-      
+
       .map-node {
         width: 100%;
         min-height: 82px;
@@ -272,21 +284,21 @@
         background: #fffdf7;
         text-align: left;
       }
-      
+
       .map-node.available {
         border-color: var(--jade);
         outline: 3px solid rgba(47, 124, 104, 0.16);
       }
-      
+
       .map-node.done {
         background: #e9f2eb;
         color: var(--jade-dark);
       }
-      
+
       .map-node.locked {
         opacity: 0.52;
       }
-      
+
       .node-icon {
         display: inline-grid;
         place-items: center;
@@ -296,17 +308,22 @@
         border: 1px solid var(--line);
         border-radius: 50%;
         background:
-          radial-gradient(circle at 35% 30%, #fff9e9, rgba(215, 170, 71, 0.5) 60%, rgba(47, 124, 104, 0.35)),
+          radial-gradient(
+            circle at 35% 30%,
+            #fff9e9,
+            rgba(215, 170, 71, 0.5) 60%,
+            rgba(47, 124, 104, 0.35)
+          ),
           #edd89d;
         font-size: 1rem;
         font-weight: 900;
       }
-      
+
       .node-title {
         display: block;
         font-weight: 900;
       }
-      
+
       .node-desc {
         display: block;
         margin-top: 3px;
@@ -314,25 +331,25 @@
         font-size: 0.76rem;
         line-height: 1.35;
       }
-      
+
       .combat-screen {
         display: grid;
         grid-template-columns: minmax(0, 1fr) 300px;
         gap: 14px;
       }
-      
+
       .combat-panel {
         min-height: 680px;
         padding: 14px;
       }
-      
+
       .arena {
         display: grid;
         grid-template-columns: minmax(260px, 1fr) minmax(280px, 1fr);
         gap: 14px;
         min-height: 300px;
       }
-      
+
       .fighter {
         position: relative;
         display: grid;
@@ -342,17 +359,25 @@
         border: 1px solid rgba(96, 112, 100, 0.54);
         border-radius: var(--radius);
         background:
-          linear-gradient(180deg, rgba(255, 253, 247, 0.95), rgba(239, 247, 243, 0.86)),
+          linear-gradient(
+            180deg,
+            rgba(255, 253, 247, 0.95),
+            rgba(239, 247, 243, 0.86)
+          ),
           #fffdf7;
         overflow: hidden;
       }
-      
+
       .fighter.enemy {
         background:
-          linear-gradient(180deg, rgba(255, 253, 247, 0.96), rgba(250, 238, 232, 0.88)),
+          linear-gradient(
+            180deg,
+            rgba(255, 253, 247, 0.96),
+            rgba(250, 238, 232, 0.88)
+          ),
           #fffdf7;
       }
-      
+
       .fighter-top {
         display: flex;
         align-items: flex-start;
@@ -361,13 +386,13 @@
         position: relative;
         z-index: 2;
       }
-      
+
       .fighter-name {
         display: flex;
         gap: 10px;
         min-width: 0;
       }
-      
+
       .portrait {
         display: inline-grid;
         place-items: center;
@@ -377,19 +402,29 @@
         border: 1px solid var(--line);
         border-radius: 50%;
         background:
-          radial-gradient(circle at 35% 25%, #fff7dc, rgba(215, 170, 71, 0.7) 55%, rgba(47, 99, 138, 0.4)),
+          radial-gradient(
+            circle at 35% 25%,
+            #fff7dc,
+            rgba(215, 170, 71, 0.7) 55%,
+            rgba(47, 99, 138, 0.4)
+          ),
           #e9c96f;
         color: var(--ink);
         font-size: 1.35rem;
         font-weight: 900;
       }
-      
+
       .enemy .portrait {
         background:
-          radial-gradient(circle at 35% 25%, #fff0df, rgba(173, 65, 56, 0.65) 55%, rgba(105, 92, 142, 0.45)),
+          radial-gradient(
+            circle at 35% 25%,
+            #fff0df,
+            rgba(173, 65, 56, 0.65) 55%,
+            rgba(105, 92, 142, 0.45)
+          ),
           #dd9477;
       }
-      
+
       .fighter-art {
         position: absolute;
         inset: auto 14px 42px auto;
@@ -399,13 +434,13 @@
         z-index: 1;
         pointer-events: none;
       }
-      
+
       .fighter-art svg {
         width: 100%;
         height: 100%;
         filter: drop-shadow(0 14px 18px rgba(18, 23, 20, 0.18));
       }
-      
+
       .meters {
         display: grid;
         gap: 8px;
@@ -413,7 +448,7 @@
         position: relative;
         z-index: 2;
       }
-      
+
       .meter-label {
         display: flex;
         justify-content: space-between;
@@ -421,7 +456,7 @@
         font-size: 0.78rem;
         font-weight: 800;
       }
-      
+
       .meter {
         height: 12px;
         overflow: hidden;
@@ -429,18 +464,18 @@
         border-radius: 999px;
         background: #e8ddc6;
       }
-      
+
       .meter span {
         display: block;
         height: 100%;
         border-radius: inherit;
         background: var(--red);
       }
-      
+
       .meter.block span {
         background: var(--blue);
       }
-      
+
       .intent-box,
       .resource-box {
         align-self: end;
@@ -452,19 +487,19 @@
         position: relative;
         z-index: 2;
       }
-      
+
       .intent-box strong,
       .resource-box strong {
         display: block;
         margin-bottom: 4px;
       }
-      
+
       .small-copy {
         color: var(--muted);
         font-size: 0.86rem;
         line-height: 1.45;
       }
-      
+
       .status-row,
       .pile-row,
       .relic-row,
@@ -473,11 +508,11 @@
         flex-wrap: wrap;
         gap: 6px;
       }
-      
+
       .status-row {
         margin-top: 10px;
       }
-      
+
       .tag,
       .status-pill,
       .pile-pill,
@@ -493,17 +528,17 @@
         font-size: 0.76rem;
         font-weight: 900;
       }
-      
+
       .status-pill.bad {
         background: rgba(173, 65, 56, 0.12);
         color: var(--red);
       }
-      
+
       .status-pill.power {
         background: rgba(215, 170, 71, 0.2);
         color: var(--gold-deep);
       }
-      
+
       .hand-zone {
         margin-top: 14px;
         padding: 12px;
@@ -511,7 +546,7 @@
         border-radius: var(--radius);
         background: rgba(255, 253, 247, 0.55);
       }
-      
+
       .hand-head {
         display: flex;
         align-items: center;
@@ -519,13 +554,13 @@
         gap: 10px;
         margin-bottom: 10px;
       }
-      
+
       .hand {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
         gap: 10px;
       }
-      
+
       .card-button,
       .reward-card {
         display: grid;
@@ -538,26 +573,26 @@
         background: var(--panel);
         text-align: left;
       }
-      
+
       .card-button.attack,
       .reward-card.attack {
         background: linear-gradient(180deg, #fff9ed, #fdece7);
       }
-      
+
       .card-button.skill,
       .reward-card.skill {
         background: linear-gradient(180deg, #fffdf8, #eaf5ee);
       }
-      
+
       .card-button.power,
       .reward-card.power {
         background: linear-gradient(180deg, #fff9ec, #f2edf9);
       }
-      
+
       .card-button.unplayable {
         filter: grayscale(0.55);
       }
-      
+
       .card-topline {
         display: flex;
         align-items: center;
@@ -567,7 +602,7 @@
         padding: 8px 10px;
         border-bottom: 1px solid rgba(96, 112, 100, 0.28);
       }
-      
+
       .cost {
         display: inline-grid;
         place-items: center;
@@ -578,12 +613,12 @@
         background: #ffe7a7;
         font-weight: 900;
       }
-      
+
       .card-name {
         font-weight: 900;
         overflow-wrap: anywhere;
       }
-      
+
       .card-art {
         display: grid;
         place-items: center;
@@ -592,13 +627,21 @@
         border: 1px solid rgba(96, 112, 100, 0.25);
         border-radius: 6px;
         background:
-          radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.8), transparent 26%),
-          linear-gradient(135deg, rgba(47, 124, 104, 0.18), rgba(215, 170, 71, 0.24));
+          radial-gradient(
+            circle at 30% 28%,
+            rgba(255, 255, 255, 0.8),
+            transparent 26%
+          ),
+          linear-gradient(
+            135deg,
+            rgba(47, 124, 104, 0.18),
+            rgba(215, 170, 71, 0.24)
+          );
         color: rgba(18, 23, 20, 0.78);
         font-size: 2.4rem;
         font-weight: 900;
       }
-      
+
       .card-text {
         min-height: 56px;
         margin: 0 10px 10px;
@@ -606,7 +649,7 @@
         font-size: 0.9rem;
         line-height: 1.45;
       }
-      
+
       .card-foot {
         display: flex;
         align-items: center;
@@ -618,24 +661,24 @@
         font-size: 0.78rem;
         font-weight: 900;
       }
-      
+
       .side-panel {
         min-width: 0;
         padding: 14px;
       }
-      
+
       .side-stack {
         display: grid;
         gap: 12px;
       }
-      
+
       .side-block {
         padding: 12px;
         border: 1px solid rgba(96, 112, 100, 0.5);
         border-radius: var(--radius);
         background: rgba(255, 253, 247, 0.72);
       }
-      
+
       .log-list {
         display: grid;
         gap: 7px;
@@ -644,50 +687,50 @@
         margin: 0;
         padding-left: 20px;
       }
-      
+
       .log-list li {
         padding: 7px 8px;
         border-left: 4px solid var(--blue);
         background: rgba(255, 253, 247, 0.78);
         line-height: 1.42;
       }
-      
+
       .log-list li.hit {
         border-color: var(--red);
       }
-      
+
       .log-list li.good {
         border-color: var(--jade);
       }
-      
+
       .log-list li.gold {
         border-color: var(--gold);
       }
-      
+
       .reward-grid {
         display: grid;
         grid-template-columns: repeat(3, minmax(180px, 1fr));
         gap: 12px;
         margin-top: 14px;
       }
-      
+
       .reward-card {
         min-height: 250px;
         cursor: pointer;
       }
-      
+
       .reward-actions {
         margin-top: 14px;
         justify-content: space-between;
       }
-      
+
       .event-choices,
       .upgrade-list {
         display: grid;
         gap: 10px;
         margin-top: 14px;
       }
-      
+
       .event-choice,
       .upgrade-choice {
         display: flex;
@@ -701,20 +744,20 @@
         background: #fffdf7;
         text-align: left;
       }
-      
+
       .event-choice span,
       .upgrade-choice span {
         color: var(--muted);
         font-size: 0.86rem;
         line-height: 1.45;
       }
-      
+
       .deck-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
         gap: 10px;
       }
-      
+
       .empty-state {
         display: grid;
         place-items: center;
@@ -725,7 +768,7 @@
         color: var(--muted);
         text-align: center;
       }
-      
+
       .modal {
         position: fixed;
         inset: 0;
@@ -735,11 +778,11 @@
         padding: 18px;
         background: rgba(12, 18, 15, 0.64);
       }
-      
+
       .modal.hidden {
         display: none;
       }
-      
+
       .modal-card {
         width: min(640px, 100%);
         max-height: min(760px, 90vh);
@@ -748,47 +791,61 @@
         border-radius: var(--radius);
         background: var(--paper);
       }
-      
+
       .modal-body {
         color: var(--muted);
         line-height: 1.6;
       }
-      
+
       .modal-body ul {
         padding-left: 20px;
       }
-      
+      .save-code-field {
+        width: 100%;
+        min-height: 105px;
+        padding: 10px;
+        border: 1px solid var(--line-strong);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.7);
+        color: var(--ink);
+        font:
+          12px/1.45 ui-monospace,
+          Consolas,
+          monospace;
+        resize: vertical;
+      }
+
       .modal-actions {
         justify-content: flex-end;
         margin-top: 18px;
       }
-      
+
       @media (max-width: 1180px) {
         .screen-layout,
         .combat-screen {
           grid-template-columns: 1fr;
         }
-      
+
         .side-panel {
           order: 2;
         }
-      
+
         .arena {
           grid-template-columns: 1fr 1fr;
         }
       }
-      
+
       @media (max-width: 780px) {
         .app-shell {
           padding: 10px;
         }
-      
+
         .topbar {
           align-items: flex-start;
           flex-direction: column;
           min-height: auto;
         }
-      
+
         .run-strip {
           grid-template-columns: repeat(2, minmax(0, 1fr));
         }
@@ -801,24 +858,24 @@
         .stat-tile strong {
           font-size: 1.35rem;
         }
-      
+
         .relic-tile {
           grid-column: 1 / -1;
         }
-      
+
         .arena,
         .reward-grid {
           grid-template-columns: 1fr;
         }
-      
+
         .combat-panel {
           min-height: auto;
         }
-      
+
         .hand {
           grid-template-columns: 1fr;
         }
-      
+
         .map-board {
           grid-template-columns: repeat(8, minmax(92px, 1fr));
           gap: 7px;
@@ -840,7 +897,7 @@
         .node-desc {
           font-size: 0.72rem;
         }
-      
+
         .screen-head,
         .event-choice,
         .upgrade-choice {
@@ -905,14 +962,25 @@
             <option value="talisman">朱砂符师</option>
             <option value="shaman">青木巫祝</option>
           </select>
-          <select id="ascensionSelect" class="hero-select" aria-label="选择劫数">
+          <select
+            id="ascensionSelect"
+            class="hero-select"
+            aria-label="选择劫数"
+          >
             <option value="0">凡途</option>
             <option value="1">一劫</option>
             <option value="2">二劫</option>
             <option value="3">三劫</option>
           </select>
-          <button id="helpButton" class="quiet-button" type="button">规则</button>
-          <button id="newRunButton" class="quiet-button" type="button">新局</button>
+          <button id="helpButton" class="quiet-button" type="button">
+            规则
+          </button>
+          <button id="saveCodeButton" class="quiet-button" type="button">
+            存档码
+          </button>
+          <button id="newRunButton" class="quiet-button" type="button">
+            新局
+          </button>
         </div>
       </header>
 
@@ -946,20 +1014,28 @@
       <main id="gameArea" class="game-area" aria-live="polite"></main>
     </div>
 
-    <div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div
+      id="modal"
+      class="modal hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modalTitle"
+    >
       <div class="modal-card">
         <p id="modalKicker" class="eyebrow">规则</p>
         <h2 id="modalTitle">怎样伏魔</h2>
         <div id="modalBody" class="modal-body"></div>
         <div class="modal-actions">
-          <button id="modalCloseButton" class="primary-button" type="button">明白了</button>
+          <button id="modalCloseButton" class="primary-button" type="button">
+            明白了
+          </button>
         </div>
       </div>
     </div>
 
     <script>
       "use strict";
-      
+
       const FINAL_FLOOR = 12;
       const HAND_LIMIT = 10;
 
@@ -970,7 +1046,18 @@
           desc: "攻击牌伤害稳定，战斗开始力量 +1。",
           maxHp: 76,
           gold: 16,
-          starters: ["strike", "strike", "strike", "strike", "strike", "defend", "defend", "defend", "gatherQi", "swordHeart"]
+          starters: [
+            "strike",
+            "strike",
+            "strike",
+            "strike",
+            "strike",
+            "defend",
+            "defend",
+            "defend",
+            "gatherQi",
+            "swordHeart",
+          ],
         },
         talisman: {
           name: "朱砂符师",
@@ -978,7 +1065,18 @@
           desc: "首回合灵气充沛，擅长灼烧、易伤和雷印。",
           maxHp: 68,
           gold: 22,
-          starters: ["strike", "strike", "strike", "strike", "defend", "defend", "defend", "defend", "gatherQi", "fireCharm"]
+          starters: [
+            "strike",
+            "strike",
+            "strike",
+            "strike",
+            "defend",
+            "defend",
+            "defend",
+            "defend",
+            "gatherQi",
+            "fireCharm",
+          ],
         },
         shaman: {
           name: "青木巫祝",
@@ -986,10 +1084,21 @@
           desc: "战后回复更强，擅长生息、格挡和持续作战。",
           maxHp: 82,
           gold: 18,
-          starters: ["strike", "strike", "strike", "strike", "defend", "defend", "defend", "defend", "gatherQi", "moonlight"]
-        }
+          starters: [
+            "strike",
+            "strike",
+            "strike",
+            "strike",
+            "defend",
+            "defend",
+            "defend",
+            "defend",
+            "gatherQi",
+            "moonlight",
+          ],
+        },
       };
-      
+
       const CARD_LIBRARY = {
         strike: {
           name: "斩击",
@@ -997,7 +1106,7 @@
           cost: 1,
           rarity: "starter",
           art: "斩",
-          text: ["造成 6 点伤害。", "造成 9 点伤害。"]
+          text: ["造成 6 点伤害。", "造成 9 点伤害。"],
         },
         defend: {
           name: "护身符",
@@ -1005,7 +1114,7 @@
           cost: 1,
           rarity: "starter",
           art: "护",
-          text: ["获得 5 点格挡。", "获得 8 点格挡。"]
+          text: ["获得 5 点格挡。", "获得 8 点格挡。"],
         },
         gatherQi: {
           name: "聚气",
@@ -1014,7 +1123,10 @@
           rarity: "common",
           art: "气",
           exhaust: true,
-          text: ["获得 1 点灵气，抽 1 张牌。消耗。", "获得 2 点灵气，抽 1 张牌。消耗。"]
+          text: [
+            "获得 1 点灵气，抽 1 张牌。消耗。",
+            "获得 2 点灵气，抽 1 张牌。消耗。",
+          ],
         },
         bambooSword: {
           name: "破竹剑",
@@ -1022,7 +1134,7 @@
           cost: 2,
           rarity: "common",
           art: "竹",
-          text: ["造成 14 点伤害。", "造成 18 点伤害。"]
+          text: ["造成 14 点伤害。", "造成 18 点伤害。"],
         },
         vineBind: {
           name: "青藤缚",
@@ -1030,7 +1142,10 @@
           cost: 1,
           rarity: "common",
           art: "藤",
-          text: ["造成 4 点伤害，施加 2 层虚弱。", "造成 6 点伤害，施加 3 层虚弱。"]
+          text: [
+            "造成 4 点伤害，施加 2 层虚弱。",
+            "造成 6 点伤害，施加 3 层虚弱。",
+          ],
         },
         waterShield: {
           name: "玄水盾",
@@ -1038,7 +1153,7 @@
           cost: 1,
           rarity: "common",
           art: "水",
-          text: ["获得 7 点格挡。", "获得 10 点格挡，抽 1 张牌。"]
+          text: ["获得 7 点格挡。", "获得 10 点格挡，抽 1 张牌。"],
         },
         fireCharm: {
           name: "山火符",
@@ -1046,7 +1161,10 @@
           cost: 1,
           rarity: "common",
           art: "火",
-          text: ["造成 7 点伤害，施加 3 层灼烧。", "造成 10 点伤害，施加 5 层灼烧。"]
+          text: [
+            "造成 7 点伤害，施加 3 层灼烧。",
+            "造成 10 点伤害，施加 5 层灼烧。",
+          ],
         },
         shadowStep: {
           name: "影步",
@@ -1054,7 +1172,7 @@
           cost: 1,
           rarity: "common",
           art: "影",
-          text: ["获得 4 点格挡，抽 2 张牌。", "获得 6 点格挡，抽 2 张牌。"]
+          text: ["获得 4 点格挡，抽 2 张牌。", "获得 6 点格挡，抽 2 张牌。"],
         },
         moonlight: {
           name: "月华",
@@ -1062,7 +1180,10 @@
           cost: 1,
           rarity: "common",
           art: "月",
-          text: ["获得 5 点格挡，回复 2 点气血。", "获得 7 点格挡，回复 3 点气血。"]
+          text: [
+            "获得 5 点格挡，回复 2 点气血。",
+            "获得 7 点格挡，回复 3 点气血。",
+          ],
         },
         cinnabarDart: {
           name: "丹砂镖",
@@ -1071,7 +1192,7 @@
           rarity: "common",
           art: "镖",
           exhaust: true,
-          text: ["造成 4 点伤害。消耗。", "造成 6 点伤害。消耗。"]
+          text: ["造成 4 点伤害。消耗。", "造成 6 点伤害。消耗。"],
         },
         starfall: {
           name: "星落",
@@ -1079,7 +1200,10 @@
           cost: 2,
           rarity: "uncommon",
           art: "星",
-          text: ["造成 10 点伤害，施加 1 层易伤。", "造成 14 点伤害，施加 2 层易伤。"]
+          text: [
+            "造成 10 点伤害，施加 1 层易伤。",
+            "造成 14 点伤害，施加 2 层易伤。",
+          ],
         },
         soulBell: {
           name: "镇魂铃",
@@ -1087,7 +1211,10 @@
           cost: 1,
           rarity: "uncommon",
           art: "铃",
-          text: ["施加 2 层虚弱，获得 4 点格挡。", "施加 3 层虚弱，获得 6 点格挡。"]
+          text: [
+            "施加 2 层虚弱，获得 4 点格挡。",
+            "施加 3 层虚弱，获得 6 点格挡。",
+          ],
         },
         flyingSwords: {
           name: "飞剑连环",
@@ -1095,7 +1222,7 @@
           cost: 1,
           rarity: "uncommon",
           art: "剑",
-          text: ["造成 3 点伤害 3 次。", "造成 4 点伤害 3 次。"]
+          text: ["造成 3 点伤害 3 次。", "造成 4 点伤害 3 次。"],
         },
         goldenArmor: {
           name: "金甲术",
@@ -1103,7 +1230,7 @@
           cost: 2,
           rarity: "uncommon",
           art: "甲",
-          text: ["获得 12 点格挡和 2 层反震。", "获得 16 点格挡和 3 层反震。"]
+          text: ["获得 12 点格挡和 2 层反震。", "获得 16 点格挡和 3 层反震。"],
         },
         bloodCurse: {
           name: "燃血咒",
@@ -1111,7 +1238,10 @@
           cost: 0,
           rarity: "uncommon",
           art: "血",
-          text: ["失去 3 点气血，造成 13 点伤害。", "失去 2 点气血，造成 18 点伤害。"]
+          text: [
+            "失去 3 点气血，造成 13 点伤害。",
+            "失去 2 点气血，造成 18 点伤害。",
+          ],
         },
         swordHeart: {
           name: "剑心",
@@ -1119,7 +1249,7 @@
           cost: 1,
           rarity: "uncommon",
           art: "心",
-          text: ["本场战斗力量 +1。", "本场战斗力量 +2。"]
+          text: ["本场战斗力量 +1。", "本场战斗力量 +2。"],
         },
         turtleShell: {
           name: "灵龟甲",
@@ -1127,7 +1257,7 @@
           cost: 1,
           rarity: "uncommon",
           art: "龟",
-          text: ["本场战斗身法 +1。", "本场战斗身法 +2。"]
+          text: ["本场战斗身法 +1。", "本场战斗身法 +2。"],
         },
         thunderSeal: {
           name: "雷印",
@@ -1135,7 +1265,10 @@
           cost: 1,
           rarity: "uncommon",
           art: "雷",
-          text: ["每打出 1 张攻击牌，追加 1 点雷击。", "每打出 1 张攻击牌，追加 2 点雷击。"]
+          text: [
+            "每打出 1 张攻击牌，追加 1 点雷击。",
+            "每打出 1 张攻击牌，追加 2 点雷击。",
+          ],
         },
         talismanBurst: {
           name: "符爆",
@@ -1143,7 +1276,10 @@
           cost: 1,
           rarity: "uncommon",
           art: "爆",
-          text: ["造成 7 点伤害。若敌人有易伤，追加 5 点伤害。", "造成 9 点伤害。若敌人有易伤，追加 7 点伤害。"]
+          text: [
+            "造成 7 点伤害。若敌人有易伤，追加 5 点伤害。",
+            "造成 9 点伤害。若敌人有易伤，追加 7 点伤害。",
+          ],
         },
         cleanse: {
           name: "净心诀",
@@ -1151,7 +1287,10 @@
           cost: 1,
           rarity: "uncommon",
           art: "净",
-          text: ["移除自身虚弱和易伤，获得 6 点格挡。", "移除自身虚弱和易伤，获得 8 点格挡。"]
+          text: [
+            "移除自身虚弱和易伤，获得 6 点格挡。",
+            "移除自身虚弱和易伤，获得 8 点格挡。",
+          ],
         },
         demonEdict: {
           name: "斩妖令",
@@ -1159,7 +1298,10 @@
           cost: 2,
           rarity: "rare",
           art: "令",
-          text: ["造成 18 点伤害。对精英和首领额外 +4。", "造成 24 点伤害。对精英和首领额外 +6。"]
+          text: [
+            "造成 18 点伤害。对精英和首领额外 +4。",
+            "造成 24 点伤害。对精英和首领额外 +6。",
+          ],
         },
         rejuvenation: {
           name: "回春诀",
@@ -1168,7 +1310,7 @@
           rarity: "rare",
           art: "春",
           exhaust: true,
-          text: ["回复 8 点气血。消耗。", "回复 11 点气血。消耗。"]
+          text: ["回复 8 点气血。消耗。", "回复 11 点气血。消耗。"],
         },
         tenThousandSwords: {
           name: "万剑诀",
@@ -1176,7 +1318,7 @@
           cost: 3,
           rarity: "rare",
           art: "万",
-          text: ["造成 5 点伤害 5 次。", "造成 6 点伤害 5 次。"]
+          text: ["造成 5 点伤害 5 次。", "造成 6 点伤害 5 次。"],
         },
         demonArray: {
           name: "伏魔阵",
@@ -1184,7 +1326,7 @@
           cost: 2,
           rarity: "rare",
           art: "阵",
-          text: ["每回合开始获得 3 点格挡。", "每回合开始获得 5 点格挡。"]
+          text: ["每回合开始获得 3 点格挡。", "每回合开始获得 5 点格挡。"],
         },
         stargaze: {
           name: "观星",
@@ -1192,7 +1334,7 @@
           cost: 0,
           rarity: "rare",
           art: "观",
-          text: ["抽 2 张牌。", "抽 3 张牌。"]
+          text: ["抽 2 张牌。", "抽 3 张牌。"],
         },
         cloudPiercer: {
           name: "破云式",
@@ -1200,7 +1342,10 @@
           cost: 1,
           rarity: "common",
           art: "云",
-          text: ["造成 8 点伤害。若本回合打过技能牌，追加 4 点。", "造成 11 点伤害。若本回合打过技能牌，追加 6 点。"]
+          text: [
+            "造成 8 点伤害。若本回合打过技能牌，追加 4 点。",
+            "造成 11 点伤害。若本回合打过技能牌，追加 6 点。",
+          ],
         },
         spiritWard: {
           name: "万灵护",
@@ -1208,7 +1353,10 @@
           cost: 1,
           rarity: "common",
           art: "灵",
-          text: ["获得 6 点格挡。每件遗物额外 +1。", "获得 9 点格挡。每件遗物额外 +1。"]
+          text: [
+            "获得 6 点格挡。每件遗物额外 +1。",
+            "获得 9 点格挡。每件遗物额外 +1。",
+          ],
         },
         emberCycle: {
           name: "离火轮",
@@ -1216,7 +1364,10 @@
           cost: 2,
           rarity: "uncommon",
           art: "轮",
-          text: ["造成 9 点伤害并施加 6 层灼烧。", "造成 12 点伤害并施加 9 层灼烧。"]
+          text: [
+            "造成 9 点伤害并施加 6 层灼烧。",
+            "造成 12 点伤害并施加 9 层灼烧。",
+          ],
         },
         jadeBreath: {
           name: "玉息诀",
@@ -1224,7 +1375,7 @@
           cost: 1,
           rarity: "uncommon",
           art: "息",
-          text: ["回复 3 点气血，抽 1 张牌。", "回复 5 点气血，抽 2 张牌。"]
+          text: ["回复 3 点气血，抽 1 张牌。", "回复 5 点气血，抽 2 张牌。"],
         },
         mirrorCounter: {
           name: "镜返",
@@ -1232,7 +1383,7 @@
           cost: 1,
           rarity: "uncommon",
           art: "镜",
-          text: ["获得 8 点格挡与 3 层反震。", "获得 11 点格挡与 5 层反震。"]
+          text: ["获得 8 点格挡与 3 层反震。", "获得 11 点格挡与 5 层反震。"],
         },
         voidScripture: {
           name: "太虚经",
@@ -1240,7 +1391,7 @@
           cost: 2,
           rarity: "rare",
           art: "虚",
-          text: ["最大灵气 +1。", "最大灵气 +1，并抽 1 张牌。"]
+          text: ["最大灵气 +1。", "最大灵气 +1，并抽 1 张牌。"],
         },
         mountainBreaker: {
           name: "撼山印",
@@ -1248,7 +1399,10 @@
           cost: 3,
           rarity: "rare",
           art: "山",
-          text: ["造成 30 点伤害并移除敌方格挡。", "造成 40 点伤害并移除敌方格挡。"]
+          text: [
+            "造成 30 点伤害并移除敌方格挡。",
+            "造成 40 点伤害并移除敌方格挡。",
+          ],
         },
         rebirthLotus: {
           name: "返生莲",
@@ -1257,75 +1411,80 @@
           rarity: "rare",
           art: "莲",
           exhaust: true,
-          text: ["回复 12 点气血，获得 12 点格挡。消耗。", "回复 16 点气血，获得 16 点格挡。消耗。"]
-        }
+          text: [
+            "回复 12 点气血，获得 12 点格挡。消耗。",
+            "回复 16 点气血，获得 16 点格挡。消耗。",
+          ],
+        },
       };
-      
-      const REWARD_CARD_KEYS = Object.keys(CARD_LIBRARY).filter((key) => CARD_LIBRARY[key].rarity !== "starter");
-      
+
+      const REWARD_CARD_KEYS = Object.keys(CARD_LIBRARY).filter(
+        (key) => CARD_LIBRARY[key].rarity !== "starter",
+      );
+
       const RELICS = {
         bronzeBell: {
           name: "青铜铃",
           art: "铃",
-          desc: "每场战斗第一回合额外获得 1 点灵气。"
+          desc: "每场战斗第一回合额外获得 1 点灵气。",
         },
         brokenTassel: {
           name: "断剑穗",
           art: "穗",
-          desc: "每场战斗开始时力量 +1。"
+          desc: "每场战斗开始时力量 +1。",
         },
         craneFlute: {
           name: "鹤骨笛",
           art: "笛",
-          desc: "每场战斗第一回合多抽 1 张牌。"
+          desc: "每场战斗第一回合多抽 1 张牌。",
         },
         cinnabarSeal: {
           name: "朱砂印",
           art: "印",
-          desc: "你施加易伤时额外 +1 层。"
+          desc: "你施加易伤时额外 +1 层。",
         },
         nightPearl: {
           name: "夜明珠",
           art: "珠",
-          desc: "战斗胜利后回复 4 点气血。"
+          desc: "战斗胜利后回复 4 点气血。",
         },
         ironCharm: {
           name: "玄铁护符",
           art: "铁",
-          desc: "每场战斗第一回合获得 6 点格挡。"
+          desc: "每场战斗第一回合获得 6 点格挡。",
         },
         foxMask: {
           name: "九尾面具",
           art: "狐",
-          desc: "每场战斗首次打出 0 费牌时抽 1 张牌。"
+          desc: "每场战斗首次打出 0 费牌时抽 1 张牌。",
         },
         thunderDrum: {
           name: "夔牛雷鼓",
           art: "鼓",
-          desc: "每回合打出的第 3 张攻击牌额外造成 8 点伤害。"
+          desc: "每回合打出的第 3 张攻击牌额外造成 8 点伤害。",
         },
         jadeGourd: {
           name: "青玉葫芦",
           art: "葫",
-          desc: "歇脚回复量提高至最大气血的 45%。"
+          desc: "歇脚回复量提高至最大气血的 45%。",
         },
         mountainScript: {
           name: "镇岳残卷",
           art: "岳",
-          desc: "每场战斗开始时最大灵气 +1，但首回合少抽 1 张牌。"
+          desc: "每场战斗开始时最大灵气 +1，但首回合少抽 1 张牌。",
         },
         phoenixFeather: {
           name: "凤羽",
           art: "羽",
-          desc: "每局首次濒死时以 35% 气血复苏。"
+          desc: "每局首次濒死时以 35% 气血复苏。",
         },
         merchantsToken: {
           name: "妖市牙钱",
           art: "钱",
-          desc: "战斗获得银钱提高 30%。"
-        }
+          desc: "战斗获得银钱提高 30%。",
+        },
       };
-      
+
       const REGULAR_ENEMIES = [
         {
           name: "山魈",
@@ -1335,8 +1494,8 @@
           pattern: [
             { attack: 7, hits: 2, label: "裂爪", text: "攻击 2 次" },
             { block: 9, label: "抱岩", text: "获得格挡" },
-            { attack: 12, hits: 1, label: "扑击", text: "强力攻击" }
-          ]
+            { attack: 12, hits: 1, label: "扑击", text: "强力攻击" },
+          ],
         },
         {
           name: "灯魅",
@@ -1346,8 +1505,8 @@
           pattern: [
             { weak: 2, label: "迷火", text: "施加虚弱" },
             { attack: 9, hits: 1, label: "烛刺", text: "攻击" },
-            { attack: 6, hits: 2, label: "双焰", text: "攻击 2 次" }
-          ]
+            { attack: 6, hits: 2, label: "双焰", text: "攻击 2 次" },
+          ],
         },
         {
           name: "赤牙妖",
@@ -1357,8 +1516,8 @@
           pattern: [
             { attack: 11, hits: 1, label: "咬碎", text: "攻击" },
             { strength: 2, label: "磨牙", text: "力量上升" },
-            { attack: 8, hits: 2, label: "撕裂", text: "攻击 2 次" }
-          ]
+            { attack: 8, hits: 2, label: "撕裂", text: "攻击 2 次" },
+          ],
         },
         {
           name: "河伯残影",
@@ -1368,8 +1527,8 @@
           pattern: [
             { block: 7, attack: 6, hits: 1, label: "回浪", text: "格挡并攻击" },
             { vulnerable: 2, label: "湿骨", text: "施加易伤" },
-            { attack: 13, hits: 1, label: "卷流", text: "强力攻击" }
-          ]
+            { attack: 13, hits: 1, label: "卷流", text: "强力攻击" },
+          ],
         },
         {
           name: "纸鸢精",
@@ -1379,8 +1538,8 @@
           pattern: [
             { attack: 5, hits: 3, label: "纸刃", text: "攻击 3 次" },
             { weak: 1, block: 6, label: "遮天", text: "施加虚弱并格挡" },
-            { attack: 15, hits: 1, label: "俯冲", text: "强力攻击" }
-          ]
+            { attack: 15, hits: 1, label: "俯冲", text: "强力攻击" },
+          ],
         },
         {
           name: "石胎鬼",
@@ -1390,8 +1549,8 @@
           pattern: [
             { block: 13, label: "石肤", text: "大量格挡" },
             { attack: 16, hits: 1, label: "坠岩", text: "猛烈攻击" },
-            { strength: 2, label: "吞砂", text: "力量上升" }
-          ]
+            { strength: 2, label: "吞砂", text: "力量上升" },
+          ],
         },
         {
           name: "蜃气书生",
@@ -1401,8 +1560,8 @@
           pattern: [
             { vulnerable: 2, label: "幻言", text: "施加易伤" },
             { attack: 10, hits: 2, label: "墨浪", text: "攻击 2 次" },
-            { block: 8, weak: 1, label: "虚卷", text: "格挡并施加虚弱" }
-          ]
+            { block: 8, weak: 1, label: "虚卷", text: "格挡并施加虚弱" },
+          ],
         },
         {
           name: "鸣蛇",
@@ -1412,11 +1571,11 @@
           pattern: [
             { attack: 8, hits: 2, label: "翼斩", text: "攻击 2 次" },
             { weak: 2, label: "旱鸣", text: "施加虚弱" },
-            { attack: 19, hits: 1, label: "蛇坠", text: "猛烈攻击" }
-          ]
-        }
+            { attack: 19, hits: 1, label: "蛇坠", text: "猛烈攻击" },
+          ],
+        },
       ];
-      
+
       const ELITE_ENEMIES = [
         {
           name: "铜甲尸",
@@ -1427,8 +1586,13 @@
           pattern: [
             { block: 14, label: "锁甲", text: "大量格挡" },
             { attack: 10, hits: 2, label: "铜臂", text: "攻击 2 次" },
-            { strength: 3, vulnerable: 1, label: "尸吼", text: "力量上升并施加易伤" }
-          ]
+            {
+              strength: 3,
+              vulnerable: 1,
+              label: "尸吼",
+              text: "力量上升并施加易伤",
+            },
+          ],
         },
         {
           name: "九尾残相",
@@ -1439,8 +1603,14 @@
           pattern: [
             { attack: 7, hits: 3, label: "乱尾", text: "攻击 3 次" },
             { weak: 2, vulnerable: 1, label: "魅惑", text: "施加虚弱和易伤" },
-            { block: 10, attack: 12, hits: 1, label: "返身", text: "格挡并攻击" }
-          ]
+            {
+              block: 10,
+              attack: 12,
+              hits: 1,
+              label: "返身",
+              text: "格挡并攻击",
+            },
+          ],
         },
         {
           name: "夔牛战魂",
@@ -1451,8 +1621,14 @@
           pattern: [
             { strength: 3, label: "聚雷", text: "力量大幅上升" },
             { attack: 8, hits: 3, label: "雷踏", text: "攻击 3 次" },
-            { block: 16, attack: 10, hits: 1, label: "震岳", text: "格挡并攻击" }
-          ]
+            {
+              block: 16,
+              attack: 10,
+              hits: 1,
+              label: "震岳",
+              text: "格挡并攻击",
+            },
+          ],
         },
         {
           name: "无面判官",
@@ -1463,11 +1639,11 @@
           pattern: [
             { weak: 2, vulnerable: 2, label: "定罪", text: "施加虚弱和易伤" },
             { attack: 22, hits: 1, label: "朱批", text: "猛烈攻击" },
-            { block: 18, label: "铁卷", text: "大量格挡" }
-          ]
-        }
+            { block: 18, label: "铁卷", text: "大量格挡" },
+          ],
+        },
       ];
-      
+
       const BOSS_ENEMY = {
         name: "穷奇",
         mark: "凶",
@@ -1478,8 +1654,8 @@
           { attack: 9, hits: 2, label: "凶爪", text: "攻击 2 次" },
           { strength: 3, block: 10, label: "吞恶", text: "力量上升并格挡" },
           { vulnerable: 2, weak: 1, label: "恶风", text: "施加易伤和虚弱" },
-          { attack: 28, hits: 1, label: "裂山", text: "猛烈攻击" }
-        ]
+          { attack: 28, hits: 1, label: "裂山", text: "猛烈攻击" },
+        ],
       };
 
       const BOSS_ENEMIES = [
@@ -1494,8 +1670,8 @@
             { attack: 5, hits: 4, label: "九首噬", text: "攻击 4 次" },
             { weak: 2, vulnerable: 2, label: "毒泽", text: "施加虚弱和易伤" },
             { block: 18, strength: 3, label: "盘山", text: "力量上升并格挡" },
-            { attack: 34, hits: 1, label: "洪毒", text: "毁灭攻击" }
-          ]
+            { attack: 34, hits: 1, label: "洪毒", text: "毁灭攻击" },
+          ],
         },
         {
           name: "烛九阴",
@@ -1506,12 +1682,17 @@
           pattern: [
             { block: 24, label: "闭目", text: "大量格挡" },
             { attack: 12, hits: 3, label: "昼夜轮转", text: "攻击 3 次" },
-            { strength: 4, vulnerable: 2, label: "岁蚀", text: "力量上升并施加易伤" },
-            { attack: 42, hits: 1, label: "龙烛灭世", text: "终极攻击" }
-          ]
-        }
+            {
+              strength: 4,
+              vulnerable: 2,
+              label: "岁蚀",
+              text: "力量上升并施加易伤",
+            },
+            { attack: 42, hits: 1, label: "龙烛灭世", text: "终极攻击" },
+          ],
+        },
       ];
-      
+
       const EVENTS = [
         {
           title: "神龟泉",
@@ -1523,7 +1704,7 @@
               run() {
                 healPlayer(14);
                 logRun("你饮下泉水，伤口像被春风抚平。", "good");
-              }
+              },
             },
             {
               title: "捞取泉底物",
@@ -1532,9 +1713,9 @@
                 loseHp(6);
                 const relic = gainRandomRelic();
                 logRun(`泉底寒意入骨，你摸到了${relic.name}。`, "gold");
-              }
-            }
-          ]
+              },
+            },
+          ],
         },
         {
           title: "荒村铁匠",
@@ -1543,13 +1724,17 @@
             {
               title: "付 15 银钱锤炼",
               detail: "随机升级一张未升级牌。",
-              disabled: () => state.player.gold < 15 || !state.player.deck.some((card) => !card.upgraded),
+              disabled: () =>
+                state.player.gold < 15 ||
+                !state.player.deck.some((card) => !card.upgraded),
               run() {
                 state.player.gold -= 15;
-                const card = pick(state.player.deck.filter((entry) => !entry.upgraded));
+                const card = pick(
+                  state.player.deck.filter((entry) => !entry.upgraded),
+                );
                 card.upgraded = true;
                 logRun(`${cardName(card)}在炉火里亮了一寸。`, "good");
-              }
+              },
             },
             {
               title: "翻找废料",
@@ -1558,9 +1743,9 @@
                 state.player.gold += 12;
                 loseHp(4);
                 logRun("你在灰烬里翻出几枚热钱，手心也被烫伤。", "gold");
-              }
-            }
-          ]
+              },
+            },
+          ],
         },
         {
           title: "妖市旧摊",
@@ -1569,13 +1754,19 @@
             {
               title: "付 12 银钱删牌",
               detail: "移除一张斩击或护身符。",
-              disabled: () => state.player.gold < 12 || !state.player.deck.some((card) => card.key === "strike" || card.key === "defend"),
+              disabled: () =>
+                state.player.gold < 12 ||
+                !state.player.deck.some(
+                  (card) => card.key === "strike" || card.key === "defend",
+                ),
               run() {
                 state.player.gold -= 12;
-                const index = state.player.deck.findIndex((card) => card.key === "strike" || card.key === "defend");
+                const index = state.player.deck.findIndex(
+                  (card) => card.key === "strike" || card.key === "defend",
+                );
                 const [removed] = state.player.deck.splice(index, 1);
                 logRun(`摊主把${cardName(removed)}折成纸灰。`, "good");
-              }
+              },
             },
             {
               title: "买一张秘符",
@@ -1583,9 +1774,9 @@
               run() {
                 const card = addCardToDeck(randomRewardCardKey());
                 logRun(`你买下${cardName(card)}，摊主立刻收摊。`, "gold");
-              }
-            }
-          ]
+              },
+            },
+          ],
         },
         {
           title: "无字竹简",
@@ -1598,18 +1789,24 @@
                 const a = addCardToDeck(randomRewardCardKey());
                 const b = addCardToDeck(randomRewardCardKey());
                 loseHp(5);
-                logRun(`你记下${cardName(a)}和${cardName(b)}，也记下头痛。`, "gold");
-              }
+                logRun(
+                  `你记下${cardName(a)}和${cardName(b)}，也记下头痛。`,
+                  "gold",
+                );
+              },
             },
             {
               title: "合上",
               detail: "获得 8 银钱。",
               run() {
                 state.player.gold += 8;
-                logRun("你把竹简卖给路过书生，谁都没有问它为什么会呼吸。", "gold");
-              }
-            }
-          ]
+                logRun(
+                  "你把竹简卖给路过书生，谁都没有问它为什么会呼吸。",
+                  "gold",
+                );
+              },
+            },
+          ],
         },
         {
           title: "昆仑镜湖",
@@ -1621,9 +1818,11 @@
               run() {
                 state.player.maxHp = Math.max(35, state.player.maxHp - 5);
                 state.player.hp = Math.min(state.player.hp, state.player.maxHp);
-                shuffle(state.player.deck.filter((card) => !card.upgraded)).slice(0, 2).forEach((card) => card.upgraded = true);
+                shuffle(state.player.deck.filter((card) => !card.upgraded))
+                  .slice(0, 2)
+                  .forEach((card) => (card.upgraded = true));
                 logRun("倒影沉入湖底，两张牌留下银光。", "good");
-              }
+              },
             },
             {
               title: "击碎镜湖",
@@ -1632,9 +1831,9 @@
                 state.player.gold += 24;
                 healPlayer(6);
                 logRun("镜湖碎成雨，落下几枚古钱。", "gold");
-              }
-            }
-          ]
+              },
+            },
+          ],
         },
         {
           title: "百鬼夜宴",
@@ -1646,26 +1845,35 @@
               run() {
                 const relic = gainRandomRelic();
                 state.nextBattleVulnerable = 2;
-                logRun(`妖酒辛辣，你带走了${relic ? relic.name : "一段旧梦"}。`, "gold");
-              }
+                logRun(
+                  `妖酒辛辣，你带走了${relic ? relic.name : "一段旧梦"}。`,
+                  "gold",
+                );
+              },
             },
             {
               title: "献上一张牌",
               detail: "移除一张牌，最大气血 +6。",
               disabled: () => state.player.deck.length <= 7,
               run() {
-                const removed = state.player.deck.splice(randomInt(0, state.player.deck.length - 1), 1)[0];
+                const removed = state.player.deck.splice(
+                  randomInt(0, state.player.deck.length - 1),
+                  1,
+                )[0];
                 state.player.maxHp += 6;
                 state.player.hp += 6;
-                logRun(`百鬼收下${cardName(removed)}，你换回一口生气。`, "good");
-              }
-            }
-          ]
-        }
+                logRun(
+                  `百鬼收下${cardName(removed)}，你换回一口生气。`,
+                  "good",
+                );
+              },
+            },
+          ],
+        },
       ];
-      
+
       const $ = (selector) => document.querySelector(selector);
-      
+
       const elements = {
         game: $("#gameArea"),
         hp: $("#hpStat"),
@@ -1677,14 +1885,15 @@
         heroSelect: $("#heroSelect"),
         ascensionSelect: $("#ascensionSelect"),
         help: $("#helpButton"),
+        saveCode: $("#saveCodeButton"),
         newRun: $("#newRunButton"),
         modal: $("#modal"),
         modalKicker: $("#modalKicker"),
         modalTitle: $("#modalTitle"),
         modalBody: $("#modalBody"),
-        modalClose: $("#modalCloseButton")
+        modalClose: $("#modalCloseButton"),
       };
-      
+
       let uid = 1;
       let state;
       const META_KEY = "shan_hai_v2_meta";
@@ -1692,7 +1901,12 @@
 
       function loadMeta() {
         try {
-          return { dao: 0, wins: 0, bestAscension: 0, ...JSON.parse(localStorage.getItem(META_KEY) || "{}") };
+          return {
+            dao: 0,
+            wins: 0,
+            bestAscension: 0,
+            ...JSON.parse(localStorage.getItem(META_KEY) || "{}"),
+          };
         } catch {
           return { dao: 0, wins: 0, bestAscension: 0 };
         }
@@ -1701,24 +1915,79 @@
       function saveMeta() {
         localStorage.setItem(META_KEY, JSON.stringify(meta));
       }
-      
+
+      function metaHash(text) {
+        let hash = 2166136261;
+        for (let i = 0; i < text.length; i += 1) {
+          hash ^= text.charCodeAt(i);
+          hash = Math.imul(hash, 16777619);
+        }
+        return (hash >>> 0).toString(36);
+      }
+
+      function encodeMetaSave() {
+        const json = JSON.stringify({
+          game: "shan-hai",
+          version: 2,
+          data: meta,
+        });
+        const bytes = new TextEncoder().encode(json);
+        let binary = "";
+        bytes.forEach((byte) => (binary += String.fromCharCode(byte)));
+        const payload = btoa(binary);
+        return `SHM2.${payload}.${metaHash(payload)}`;
+      }
+
+      function decodeMetaSave(code) {
+        const [prefix, payload, checksum] = String(code || "")
+          .trim()
+          .split(".");
+        if (prefix !== "SHM2" || !payload || metaHash(payload) !== checksum) {
+          throw new Error("存档码校验失败");
+        }
+        const parsed = JSON.parse(
+          new TextDecoder().decode(
+            Uint8Array.from(atob(payload), (char) => char.charCodeAt(0)),
+          ),
+        );
+        if (parsed.game !== "shan-hai" || !parsed.data) {
+          throw new Error("不是山海伏魔录存档");
+        }
+        meta = { dao: 0, wins: 0, bestAscension: 0, ...parsed.data };
+        saveMeta();
+        render();
+      }
+
+      function showSaveCenter() {
+        showModal(
+          "跨设备存档",
+          "道行存档码",
+          `<p>导出后复制整段存档码；在另一台设备粘贴并导入，即可恢复道行、胜场与最高劫数。</p>
+           <textarea id="saveCodeField" class="save-code-field" placeholder="点击导出生成，或粘贴存档码"></textarea>
+           <div class="modal-actions">
+             <button class="quiet-button" data-action="export-meta-save" type="button">生成并复制</button>
+             <button class="primary-button" data-action="import-meta-save" type="button">导入存档码</button>
+           </div>`,
+        );
+      }
+
       function nextId() {
         uid += 1;
         return uid;
       }
-      
+
       function randomInt(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
       }
-      
+
       function pick(list) {
         return list[Math.floor(Math.random() * list.length)];
       }
-      
+
       function clamp(value, min, max) {
         return Math.max(min, Math.min(max, value));
       }
-      
+
       function shuffle(list) {
         const copy = [...list];
         for (let i = copy.length - 1; i > 0; i -= 1) {
@@ -1727,7 +1996,7 @@
         }
         return copy;
       }
-      
+
       function escapeHtml(value) {
         return String(value)
           .replaceAll("&", "&amp;")
@@ -1736,55 +2005,55 @@
           .replaceAll('"', "&quot;")
           .replaceAll("'", "&#039;");
       }
-      
+
       function createDeckCard(key, upgraded = false) {
         return { deckId: nextId(), key, upgraded };
       }
-      
+
       function cardDef(cardOrKey) {
         const key = typeof cardOrKey === "string" ? cardOrKey : cardOrKey.key;
         return CARD_LIBRARY[key];
       }
-      
+
       function cardName(card) {
         const def = cardDef(card);
         return `${def.name}${card.upgraded ? "+" : ""}`;
       }
-      
+
       function cardText(card) {
         return cardDef(card).text[card.upgraded ? 1 : 0];
       }
-      
+
       function cardCost(card) {
         return cardDef(card).cost;
       }
-      
+
       function cardTypeName(type) {
         return { attack: "攻击", skill: "技能", power: "法门" }[type] || type;
       }
-      
+
       function typeClass(type) {
         return type;
       }
-      
+
       function hasRelic(key) {
         return state.player.relics.includes(key);
       }
-      
+
       function relicName(key) {
         return RELICS[key].name;
       }
-      
+
       function logRun(text, type = "info") {
         state.runLog.unshift({ text, type });
         state.runLog = state.runLog.slice(0, 18);
       }
-      
+
       function logCombat(text, type = "info") {
         state.combat.log.unshift({ text, type });
         state.combat.log = state.combat.log.slice(0, 18);
       }
-      
+
       function newRun() {
         uid = 1;
         const heroKey = elements.heroSelect.value;
@@ -1803,19 +2072,22 @@
             hp: hero.maxHp - ascension * 2,
             gold: hero.gold,
             deck: hero.starters.map((key) => createDeckCard(key)),
-            relics: []
+            relics: [],
           },
           map: createMap(),
           combat: null,
           reward: null,
           event: null,
-          runLog: []
+          runLog: [],
         };
-      
-        logRun(`${hero.name}踏入万象山，${ascension ? `第 ${ascension} 重劫数已经降临。` : "第一条山路已经亮起。"}`, "info");
+
+        logRun(
+          `${hero.name}踏入万象山，${ascension ? `第 ${ascension} 重劫数已经降临。` : "第一条山路已经亮起。"}`,
+          "info",
+        );
         render();
       }
-      
+
       function createMap() {
         const floors = [
           ["fight", "fight", "event"],
@@ -1829,34 +2101,43 @@
           ["event", "fight", "rest"],
           ["elite", "fight", "event"],
           ["rest", "elite", "fight"],
-          ["boss"]
+          ["boss"],
         ];
-      
+
         return floors.map((types, floor) =>
           types.map((type, lane) => ({
             id: `f${floor}-n${lane}`,
             type,
             floor,
             lane,
-            done: false
-          }))
+            done: false,
+          })),
         );
       }
-      
+
       function nodeMeta(type) {
-        const bossName = state && state.floorIndex < 6 ? "穷奇" : state && state.ascension >= 2 ? "烛九阴" : "相柳";
+        const bossName =
+          state && state.floorIndex < 6
+            ? "穷奇"
+            : state && state.ascension >= 2
+              ? "烛九阴"
+              : "相柳";
         return {
           fight: { icon: "妖", title: "妖物", desc: "普通战斗" },
           elite: { icon: "煞", title: "精英", desc: "更危险，必掉遗物" },
           event: { icon: "?", title: "奇遇", desc: "未知选择" },
           rest: { icon: "炉", title: "歇脚", desc: "休息或升级" },
-          boss: { icon: "凶", title: bossName, desc: state && state.floorIndex < 6 ? "章节首领" : "最终首领" }
+          boss: {
+            icon: "凶",
+            title: bossName,
+            desc: state && state.floorIndex < 6 ? "章节首领" : "最终首领",
+          },
         }[type];
       }
-      
+
       function render() {
         renderStats();
-      
+
         if (state.screen === "map") renderMap();
         if (state.screen === "combat") renderCombat();
         if (state.screen === "reward") renderReward();
@@ -1865,7 +2146,7 @@
         if (state.screen === "victory") renderEnding(true);
         if (state.screen === "defeat") renderEnding(false);
       }
-      
+
       function renderStats() {
         elements.hp.textContent = `${state.player.hp}/${state.player.maxHp}`;
         elements.gold.textContent = state.player.gold;
@@ -1874,7 +2155,7 @@
         elements.relic.textContent = state.player.relics.length;
         elements.dao.textContent = meta.dao;
       }
-      
+
       function renderMap() {
         elements.game.innerHTML = `
           <section class="screen-layout">
@@ -1895,7 +2176,7 @@
                       <div class="map-floor">${floorIndex + 1}</div>
                       ${floor.map((node) => mapNodeHtml(node)).join("")}
                     </div>
-                  `
+                  `,
                   )
                   .join("")}
               </div>
@@ -1904,7 +2185,7 @@
           </section>
         `;
       }
-      
+
       function mapNodeHtml(node) {
         const meta = nodeMeta(node.type);
         const available = node.floor === state.floorIndex;
@@ -1913,12 +2194,12 @@
           "map-node",
           available ? "available" : "",
           node.done ? "done" : "",
-          locked ? "locked" : ""
+          locked ? "locked" : "",
         ]
           .filter(Boolean)
           .join(" ");
         const disabled = !available || node.done ? "disabled" : "";
-      
+
         return `
           <button class="${classes}" data-action="start-node" data-node-id="${node.id}" type="button" ${disabled}>
             <span class="node-icon">${meta.icon}</span>
@@ -1927,7 +2208,7 @@
           </button>
         `;
       }
-      
+
       function sidePanelHtml() {
         return `
           <aside class="side-panel">
@@ -1955,7 +2236,7 @@
           </aside>
         `;
       }
-      
+
       function relicsHtml() {
         if (state.player.relics.length === 0) {
           return `<p class="small-copy">还没有遗物。精英和事件会带来转机。</p>`;
@@ -1963,12 +2244,15 @@
         return `
           <div class="relic-row">
             ${state.player.relics
-              .map((key) => `<span class="relic-chip" title="${escapeHtml(RELICS[key].desc)}">${RELICS[key].art} ${escapeHtml(RELICS[key].name)}</span>`)
+              .map(
+                (key) =>
+                  `<span class="relic-chip" title="${escapeHtml(RELICS[key].desc)}">${RELICS[key].art} ${escapeHtml(RELICS[key].name)}</span>`,
+              )
               .join("")}
           </div>
         `;
       }
-      
+
       function deckSummaryHtml() {
         const counts = {};
         state.player.deck.forEach((card) => {
@@ -1977,38 +2261,46 @@
         });
         return Object.entries(counts)
           .slice(0, 12)
-          .map(([name, count]) => `<span class="pile-pill">${escapeHtml(name)} x${count}</span>`)
+          .map(
+            ([name, count]) =>
+              `<span class="pile-pill">${escapeHtml(name)} x${count}</span>`,
+          )
           .join("");
       }
-      
+
       function runLogHtml() {
-        if (state.runLog.length === 0) return `<p class="small-copy">山中暂时安静。</p>`;
+        if (state.runLog.length === 0)
+          return `<p class="small-copy">山中暂时安静。</p>`;
         return `<ol class="log-list">${state.runLog.map((entry) => `<li class="${entry.type}">${escapeHtml(entry.text)}</li>`).join("")}</ol>`;
       }
-      
+
       function startNode(nodeId) {
         const node = state.map.flat().find((entry) => entry.id === nodeId);
         if (!node || node.floor !== state.floorIndex) return;
         state.currentNode = node;
-      
-        if (node.type === "fight" || node.type === "elite" || node.type === "boss") {
+
+        if (
+          node.type === "fight" ||
+          node.type === "elite" ||
+          node.type === "boss"
+        ) {
           startCombat(node.type);
           return;
         }
-      
+
         if (node.type === "event") {
           state.event = pick(EVENTS);
           state.screen = "event";
           render();
           return;
         }
-      
+
         if (node.type === "rest") {
           state.screen = "rest";
           render();
         }
       }
-      
+
       function startCombat(type) {
         const enemy = createEnemy(type);
         state.combat = {
@@ -2025,12 +2317,17 @@
           formation: 0,
           turn: 0,
           hand: [],
-          drawPile: shuffle(state.player.deck.map((card) => ({ ...card, instanceId: nextId() }))),
+          drawPile: shuffle(
+            state.player.deck.map((card) => ({
+              ...card,
+              instanceId: nextId(),
+            })),
+          ),
           discardPile: [],
           exhaustPile: [],
-          log: []
+          log: [],
         };
-      
+
         if (hasRelic("brokenTassel")) {
           state.combat.strength += 1;
           logCombat(`${relicName("brokenTassel")}让你的剑势先起。`, "gold");
@@ -2045,22 +2342,29 @@
           state.combat.vulnerable += state.nextBattleVulnerable;
           state.nextBattleVulnerable = 0;
         }
-      
+
         state.screen = "combat";
         enemy.intent = nextEnemyIntent(enemy);
         beginPlayerTurn();
       }
-      
+
       function createEnemy(type) {
         const template =
           type === "boss"
-            ? BOSS_ENEMIES[state.floorIndex < 6 ? 0 : state.ascension >= 2 ? 2 : 1]
+            ? BOSS_ENEMIES[
+                state.floorIndex < 6 ? 0 : state.ascension >= 2 ? 2 : 1
+              ]
             : type === "elite"
               ? pick(ELITE_ENEMIES)
               : pick(REGULAR_ENEMIES);
-        const hpScale = 1 + state.ascension * 0.12 + Math.max(0, state.floorIndex - 5) * 0.025;
-        const hp = Math.round(randomInt(template.hp[0], template.hp[1]) * hpScale);
-      
+        const hpScale =
+          1 +
+          state.ascension * 0.12 +
+          Math.max(0, state.floorIndex - 5) * 0.025;
+        const hp = Math.round(
+          randomInt(template.hp[0], template.hp[1]) * hpScale,
+        );
+
         return {
           ...template,
           rank: template.rank || type,
@@ -2072,14 +2376,14 @@
           vulnerable: 0,
           burn: 0,
           turnIndex: 0,
-          intent: null
+          intent: null,
         };
       }
-      
+
       function nextEnemyIntent(enemy) {
         return enemy.pattern[enemy.turnIndex % enemy.pattern.length];
       }
-      
+
       function beginPlayerTurn() {
         const combat = state.combat;
         combat.turn += 1;
@@ -2088,7 +2392,7 @@
         combat.cardsPlayed = 0;
         combat.attacksPlayed = 0;
         combat.skillPlayed = false;
-      
+
         if (combat.turn === 1 && hasRelic("bronzeBell")) {
           combat.energy += 1;
           logCombat(`${relicName("bronzeBell")}响了一声，灵气 +1。`, "gold");
@@ -2097,22 +2401,25 @@
           combat.energy += 1;
           logCombat("朱砂符师引燃命符，灵气 +1。", "gold");
         }
-      
+
         if (combat.turn === 1 && hasRelic("ironCharm")) {
           gainBlock(6, false);
           logCombat(`${relicName("ironCharm")}护住心口，格挡 +6。`, "gold");
         }
-      
+
         if (combat.formation > 0) {
           gainBlock(combat.formation, false);
         }
-      
-        const drawCount = 5 + (combat.turn === 1 && hasRelic("craneFlute") ? 1 : 0) - (combat.turn === 1 && hasRelic("mountainScript") ? 1 : 0);
+
+        const drawCount =
+          5 +
+          (combat.turn === 1 && hasRelic("craneFlute") ? 1 : 0) -
+          (combat.turn === 1 && hasRelic("mountainScript") ? 1 : 0);
         drawCards(drawCount);
         logCombat(`第 ${combat.turn} 回合开始。`, "info");
         render();
       }
-      
+
       function drawCards(count) {
         const combat = state.combat;
         for (let i = 0; i < count; i += 1) {
@@ -2126,7 +2433,7 @@
           combat.hand.push(combat.drawPile.pop());
         }
       }
-      
+
       function renderCombat() {
         const combat = state.combat;
         elements.game.innerHTML = `
@@ -2179,7 +2486,7 @@
           </section>
         `;
       }
-      
+
       function playerFighterHtml() {
         const combat = state.combat;
         return `
@@ -2206,7 +2513,7 @@
           </article>
         `;
       }
-      
+
       function enemyFighterHtml(enemy) {
         return `
           <article class="fighter enemy">
@@ -2232,7 +2539,7 @@
           </article>
         `;
       }
-      
+
       function meterHtml(label, value, max, kind) {
         const pct = max <= 0 ? 0 : clamp((value / max) * 100, 0, 100);
         return `
@@ -2242,7 +2549,7 @@
           </div>
         `;
       }
-      
+
       function fighterSvg(kind, mark = "妖") {
         if (kind === "player") {
           return `
@@ -2259,7 +2566,7 @@
             </svg>
           `;
         }
-      
+
         return `
           <svg viewBox="0 0 160 160" role="img" aria-label="妖物剪影">
             <defs>
@@ -2277,42 +2584,73 @@
           </svg>
         `;
       }
-      
+
       function intentText(intent) {
         const parts = [];
-        if (intent.attack) parts.push(`攻击 ${intent.attack}${intent.hits > 1 ? ` x${intent.hits}` : ""}`);
+        if (intent.attack)
+          parts.push(
+            `攻击 ${intent.attack}${intent.hits > 1 ? ` x${intent.hits}` : ""}`,
+          );
         if (intent.block) parts.push(`格挡 ${intent.block}`);
         if (intent.strength) parts.push(`力量 +${intent.strength}`);
         if (intent.weak) parts.push(`虚弱 +${intent.weak}`);
         if (intent.vulnerable) parts.push(`易伤 +${intent.vulnerable}`);
         return parts.join("，") || intent.text;
       }
-      
+
       function statusHtml() {
         const combat = state.combat;
         const enemy = combat.enemy;
         const chips = [];
-      
-        if (combat.weak > 0) chips.push(`<span class="status-pill bad">自身虚弱 ${combat.weak}</span>`);
-        if (combat.vulnerable > 0) chips.push(`<span class="status-pill bad">自身易伤 ${combat.vulnerable}</span>`);
-        if (combat.strength > 0) chips.push(`<span class="status-pill power">力量 ${combat.strength}</span>`);
-        if (combat.dex > 0) chips.push(`<span class="status-pill power">身法 ${combat.dex}</span>`);
-        if (combat.lightning > 0) chips.push(`<span class="status-pill power">雷印 ${combat.lightning}</span>`);
-        if (combat.formation > 0) chips.push(`<span class="status-pill power">伏魔阵 ${combat.formation}</span>`);
-        if (enemy.weak > 0) chips.push(`<span class="status-pill bad">敌方虚弱 ${enemy.weak}</span>`);
-        if (enemy.vulnerable > 0) chips.push(`<span class="status-pill bad">敌方易伤 ${enemy.vulnerable}</span>`);
-        if (enemy.burn > 0) chips.push(`<span class="status-pill bad">灼烧 ${enemy.burn}</span>`);
-        if (enemy.strength > 0) chips.push(`<span class="status-pill bad">敌方力量 ${enemy.strength}</span>`);
-      
+
+        if (combat.weak > 0)
+          chips.push(
+            `<span class="status-pill bad">自身虚弱 ${combat.weak}</span>`,
+          );
+        if (combat.vulnerable > 0)
+          chips.push(
+            `<span class="status-pill bad">自身易伤 ${combat.vulnerable}</span>`,
+          );
+        if (combat.strength > 0)
+          chips.push(
+            `<span class="status-pill power">力量 ${combat.strength}</span>`,
+          );
+        if (combat.dex > 0)
+          chips.push(
+            `<span class="status-pill power">身法 ${combat.dex}</span>`,
+          );
+        if (combat.lightning > 0)
+          chips.push(
+            `<span class="status-pill power">雷印 ${combat.lightning}</span>`,
+          );
+        if (combat.formation > 0)
+          chips.push(
+            `<span class="status-pill power">伏魔阵 ${combat.formation}</span>`,
+          );
+        if (enemy.weak > 0)
+          chips.push(
+            `<span class="status-pill bad">敌方虚弱 ${enemy.weak}</span>`,
+          );
+        if (enemy.vulnerable > 0)
+          chips.push(
+            `<span class="status-pill bad">敌方易伤 ${enemy.vulnerable}</span>`,
+          );
+        if (enemy.burn > 0)
+          chips.push(`<span class="status-pill bad">灼烧 ${enemy.burn}</span>`);
+        if (enemy.strength > 0)
+          chips.push(
+            `<span class="status-pill bad">敌方力量 ${enemy.strength}</span>`,
+          );
+
         return chips.join("") || `<span class="status-pill">无额外状态</span>`;
       }
-      
+
       function combatLogHtml() {
         const entries = state.combat.log;
         if (!entries.length) return `<p class="small-copy">战斗刚刚开始。</p>`;
         return `<ol class="log-list">${entries.map((entry) => `<li class="${entry.type}">${escapeHtml(entry.text)}</li>`).join("")}</ol>`;
       }
-      
+
       function handCardHtml(card) {
         const def = cardDef(card);
         const playable = state.combat.energy >= cardCost(card);
@@ -2322,7 +2660,7 @@
           </button>
         `;
       }
-      
+
       function cardInnerHtml(card) {
         const def = cardDef(card);
         return `
@@ -2338,56 +2676,72 @@
           </div>
         `;
       }
-      
+
       function rarityName(rarity) {
-        return { starter: "基础", common: "普通", uncommon: "罕见", rare: "稀有" }[rarity] || rarity;
+        return (
+          { starter: "基础", common: "普通", uncommon: "罕见", rare: "稀有" }[
+            rarity
+          ] || rarity
+        );
       }
-      
+
       function playCard(instanceId) {
         const combat = state.combat;
         if (!combat) return;
-        const index = combat.hand.findIndex((card) => card.instanceId === instanceId);
+        const index = combat.hand.findIndex(
+          (card) => card.instanceId === instanceId,
+        );
         if (index < 0) return;
         const card = combat.hand[index];
         const def = cardDef(card);
         const cost = cardCost(card);
         if (combat.energy < cost) return;
-      
+
         combat.energy -= cost;
         combat.cardsPlayed = (combat.cardsPlayed || 0) + 1;
         if (def.type === "skill") combat.skillPlayed = true;
-        if (def.type === "attack") combat.attacksPlayed = (combat.attacksPlayed || 0) + 1;
+        if (def.type === "attack")
+          combat.attacksPlayed = (combat.attacksPlayed || 0) + 1;
         applyCardEffect(card);
         combat.hand.splice(index, 1);
-      
+
         if (def.type === "power" || def.exhaust) {
           combat.exhaustPile.push(card);
         } else {
           combat.discardPile.push(card);
         }
-      
-        if (def.type === "attack" && combat.lightning > 0 && combat.enemy.hp > 0) {
+
+        if (
+          def.type === "attack" &&
+          combat.lightning > 0 &&
+          combat.enemy.hp > 0
+        ) {
           directEnemyDamage(combat.lightning, "雷印");
         }
-        if (def.type === "attack" && hasRelic("thunderDrum") && combat.attacksPlayed % 3 === 0 && combat.enemy.hp > 0) {
+        if (
+          def.type === "attack" &&
+          hasRelic("thunderDrum") &&
+          combat.attacksPlayed % 3 === 0 &&
+          combat.enemy.hp > 0
+        ) {
           directEnemyDamage(8, "夔牛雷鼓");
         }
         if (cost === 0 && hasRelic("foxMask") && !combat.foxMaskUsed) {
           combat.foxMaskUsed = true;
           drawCards(1);
         }
-      
+
         if (combat.enemy.hp <= 0) {
           winCombat();
           return;
         }
-      
+
         render();
       }
-      
+
       function applyCardEffect(card) {
         const up = card.upgraded;
-      
+
         switch (card.key) {
           case "strike":
             dealEnemyDamage(up ? 9 : 6, 1, cardName(card));
@@ -2453,7 +2807,10 @@
             break;
           case "turtleShell":
             state.combat.dex += up ? 2 : 1;
-            logCombat(`${cardName(card)}护住经脉，身法 +${up ? 2 : 1}。`, "good");
+            logCombat(
+              `${cardName(card)}护住经脉，身法 +${up ? 2 : 1}。`,
+              "good",
+            );
             break;
           case "thunderSeal":
             state.combat.lightning += up ? 2 : 1;
@@ -2472,7 +2829,13 @@
             logCombat(`${cardName(card)}洗去缠身恶气。`, "good");
             break;
           case "demonEdict": {
-            const bonus = state.combat.enemy.rank === "elite" || state.combat.enemy.rank === "boss" ? (up ? 6 : 4) : 0;
+            const bonus =
+              state.combat.enemy.rank === "elite" ||
+              state.combat.enemy.rank === "boss"
+                ? up
+                  ? 6
+                  : 4
+                : 0;
             dealEnemyDamage((up ? 24 : 18) + bonus, 1, cardName(card));
             break;
           }
@@ -2492,7 +2855,11 @@
             logCombat(`${cardName(card)}照见下一手。`, "good");
             break;
           case "cloudPiercer":
-            dealEnemyDamage((up ? 11 : 8) + (state.combat.skillPlayed ? (up ? 6 : 4) : 0), 1, cardName(card));
+            dealEnemyDamage(
+              (up ? 11 : 8) + (state.combat.skillPlayed ? (up ? 6 : 4) : 0),
+              1,
+              cardName(card),
+            );
             break;
           case "spiritWard":
             gainBlock((up ? 9 : 6) + state.player.relics.length);
@@ -2527,23 +2894,31 @@
             break;
         }
       }
-      
+
       function gainBlock(amount, includeDex = true) {
         const total = Math.max(0, amount + (includeDex ? state.combat.dex : 0));
         state.combat.block += total;
         logCombat(`获得 ${total} 点格挡。`, "good");
       }
-      
+
       function healPlayer(amount) {
         const before = state.player.hp;
-        state.player.hp = clamp(state.player.hp + amount, 0, state.player.maxHp);
+        state.player.hp = clamp(
+          state.player.hp + amount,
+          0,
+          state.player.maxHp,
+        );
         return state.player.hp - before;
       }
-      
+
       function loseHp(amount) {
-        state.player.hp = clamp(state.player.hp - amount, 0, state.player.maxHp);
+        state.player.hp = clamp(
+          state.player.hp - amount,
+          0,
+          state.player.maxHp,
+        );
       }
-      
+
       function dealEnemyDamage(base, hits, source) {
         for (let i = 0; i < hits; i += 1) {
           const combat = state.combat;
@@ -2555,10 +2930,13 @@
           const blocked = Math.min(enemy.block, damage);
           enemy.block -= blocked;
           enemy.hp = clamp(enemy.hp - (damage - blocked), 0, enemy.maxHp);
-          logCombat(`${source}造成 ${damage - blocked} 点伤害${blocked ? `，被格挡 ${blocked}` : ""}。`, "hit");
+          logCombat(
+            `${source}造成 ${damage - blocked} 点伤害${blocked ? `，被格挡 ${blocked}` : ""}。`,
+            "hit",
+          );
         }
       }
-      
+
       function directEnemyDamage(amount, source) {
         const enemy = state.combat.enemy;
         const blocked = Math.min(enemy.block, amount);
@@ -2566,30 +2944,30 @@
         enemy.hp = clamp(enemy.hp - (amount - blocked), 0, enemy.maxHp);
         logCombat(`${source}造成 ${amount - blocked} 点直接伤害。`, "hit");
       }
-      
+
       function applyWeakToEnemy(amount) {
         state.combat.enemy.weak += amount;
         logCombat(`敌人虚弱 +${amount}。`, "good");
       }
-      
+
       function applyVulnerableToEnemy(amount) {
         const extra = hasRelic("cinnabarSeal") ? 1 : 0;
         state.combat.enemy.vulnerable += amount + extra;
         logCombat(`敌人易伤 +${amount + extra}。`, "good");
       }
-      
+
       function applyBurnToEnemy(amount) {
         state.combat.enemy.burn += amount;
         logCombat(`敌人灼烧 +${amount}。`, "hit");
       }
-      
+
       function endTurn() {
         const combat = state.combat;
         if (!combat) return;
-      
+
         combat.discardPile.push(...combat.hand);
         combat.hand = [];
-      
+
         tickPlayerDebuffs();
         tickEnemyDebuffs();
         applyEnemyBurn();
@@ -2597,134 +2975,152 @@
           winCombat();
           return;
         }
-      
+
         executeEnemyIntent(combat.enemy.intent);
         if (state.player.hp <= 0) {
           defeatRun();
           return;
         }
-      
+
         combat.enemy.turnIndex += 1;
         combat.enemy.intent = nextEnemyIntent(combat.enemy);
         beginPlayerTurn();
       }
-      
+
       function tickEnemyDebuffs() {
         const enemy = state.combat.enemy;
         enemy.weak = Math.max(0, enemy.weak - 1);
         enemy.vulnerable = Math.max(0, enemy.vulnerable - 1);
       }
-      
+
       function applyEnemyBurn() {
         const enemy = state.combat.enemy;
         if (enemy.burn <= 0) return;
         directEnemyDamage(enemy.burn, "灼烧");
         enemy.burn = Math.max(0, enemy.burn - 1);
       }
-      
+
       function executeEnemyIntent(intent) {
         const combat = state.combat;
         const enemy = combat.enemy;
         enemy.block = 0;
-      
+
         if (intent.block) {
           enemy.block += intent.block;
           logCombat(`${enemy.name}获得 ${intent.block} 点格挡。`, "info");
         }
-      
+
         if (intent.strength) {
           enemy.strength += intent.strength;
           logCombat(`${enemy.name}力量 +${intent.strength}。`, "hit");
         }
-      
+
         if (intent.weak) {
           combat.weak += intent.weak;
           logCombat(`你被施加 ${intent.weak} 层虚弱。`, "hit");
         }
-      
+
         if (intent.vulnerable) {
           combat.vulnerable += intent.vulnerable;
           logCombat(`你被施加 ${intent.vulnerable} 层易伤。`, "hit");
         }
-      
+
         if (intent.attack) {
           for (let i = 0; i < (intent.hits || 1); i += 1) {
             enemyAttack(intent.attack);
             if (state.player.hp <= 0) return;
           }
         }
-      
       }
-      
+
       function tickPlayerDebuffs() {
         const combat = state.combat;
         combat.weak = Math.max(0, combat.weak - 1);
         combat.vulnerable = Math.max(0, combat.vulnerable - 1);
       }
-      
+
       function enemyAttack(base) {
         const combat = state.combat;
         const enemy = combat.enemy;
-        let damage = Math.ceil(base * (1 + state.ascension * 0.1)) + enemy.strength;
+        let damage =
+          Math.ceil(base * (1 + state.ascension * 0.1)) + enemy.strength;
         if (enemy.weak > 0) damage = Math.floor(damage * 0.75);
         if (combat.vulnerable > 0) damage = Math.ceil(damage * 1.5);
         damage = Math.max(0, damage);
-      
+
         const blocked = Math.min(combat.block, damage);
         combat.block -= blocked;
         const taken = damage - blocked;
         state.player.hp = clamp(state.player.hp - taken, 0, state.player.maxHp);
-        logCombat(`${enemy.name}造成 ${taken} 点伤害${blocked ? `，你格挡 ${blocked}` : ""}。`, "hit");
-      
+        logCombat(
+          `${enemy.name}造成 ${taken} 点伤害${blocked ? `，你格挡 ${blocked}` : ""}。`,
+          "hit",
+        );
+
         if (taken >= 0 && combat.thorns > 0) {
           directEnemyDamage(combat.thorns, "反震");
         }
       }
-      
+
       function winCombat() {
         const nodeType = state.currentNode.type;
-        let gold = nodeType === "elite" ? randomInt(24, 34) : nodeType === "boss" ? randomInt(38, 48) : randomInt(12, 20);
+        let gold =
+          nodeType === "elite"
+            ? randomInt(24, 34)
+            : nodeType === "boss"
+              ? randomInt(38, 48)
+              : randomInt(12, 20);
         if (hasRelic("merchantsToken")) gold = Math.round(gold * 1.3);
         state.player.gold += gold;
         logRun(`击败${state.combat.enemy.name}，获得 ${gold} 银钱。`, "good");
-      
+
         let relic = null;
         if (hasRelic("nightPearl")) {
           const healed = healPlayer(4);
-          if (healed > 0) logRun(`${relicName("nightPearl")}在袖中发光，回复 ${healed} 点气血。`, "gold");
+          if (healed > 0)
+            logRun(
+              `${relicName("nightPearl")}在袖中发光，回复 ${healed} 点气血。`,
+              "gold",
+            );
         }
         if (state.heroKey === "shaman") {
           const healed = healPlayer(5);
           if (healed) logRun(`青木生息回复 ${healed} 点气血。`, "good");
         }
-      
-        if (nodeType === "elite" || nodeType === "boss" || Math.random() < 0.18) {
+
+        if (
+          nodeType === "elite" ||
+          nodeType === "boss" ||
+          Math.random() < 0.18
+        ) {
           relic = gainRandomRelic();
           if (relic) logRun(`你获得遗物：${relic.name}。`, "gold");
         }
-      
+
         if (nodeType === "boss" && state.floorIndex >= FINAL_FLOOR - 1) {
           state.screen = "victory";
           state.combat = null;
           render();
           return;
         }
-      
+
         state.reward = {
           gold,
           relic,
-          cards: sampleRewardCards(3)
+          cards: sampleRewardCards(3),
         };
         state.screen = "reward";
         state.combat = null;
         render();
       }
-      
+
       function defeatRun() {
         if (hasRelic("phoenixFeather") && !state.revivalUsed) {
           state.revivalUsed = true;
           state.player.hp = Math.ceil(state.player.maxHp * 0.35);
-          state.player.relics = state.player.relics.filter((key) => key !== "phoenixFeather");
+          state.player.relics = state.player.relics.filter(
+            (key) => key !== "phoenixFeather",
+          );
           logCombat("凤羽燃尽，你从灰烬中重新站起。", "gold");
           beginPlayerTurn();
           return;
@@ -2734,14 +3130,17 @@
         state.combat = null;
         render();
       }
-      
+
       function randomRewardCardKey() {
         const roll = Math.random();
-        const rarity = roll < 0.62 ? "common" : roll < 0.9 ? "uncommon" : "rare";
-        const pool = REWARD_CARD_KEYS.filter((key) => CARD_LIBRARY[key].rarity === rarity);
+        const rarity =
+          roll < 0.62 ? "common" : roll < 0.9 ? "uncommon" : "rare";
+        const pool = REWARD_CARD_KEYS.filter(
+          (key) => CARD_LIBRARY[key].rarity === rarity,
+        );
         return pick(pool);
       }
-      
+
       function sampleRewardCards(count) {
         const result = [];
         const used = new Set();
@@ -2753,21 +3152,23 @@
         }
         return result;
       }
-      
+
       function addCardToDeck(key) {
         const card = createDeckCard(key);
         state.player.deck.push(card);
         return card;
       }
-      
+
       function gainRandomRelic() {
-        const missing = Object.keys(RELICS).filter((key) => !state.player.relics.includes(key));
+        const missing = Object.keys(RELICS).filter(
+          (key) => !state.player.relics.includes(key),
+        );
         if (!missing.length) return null;
         const key = pick(missing);
         state.player.relics.push(key);
         return RELICS[key];
       }
-      
+
       function renderReward() {
         const reward = state.reward;
         elements.game.innerHTML = `
@@ -2792,7 +3193,7 @@
           </section>
         `;
       }
-      
+
       function rewardCardHtml(card) {
         const def = cardDef(card);
         return `
@@ -2801,13 +3202,13 @@
           </button>
         `;
       }
-      
+
       function chooseReward(key) {
         const card = addCardToDeck(key);
         logRun(`${cardName(card)}加入牌组。`, "good");
         completeNode();
       }
-      
+
       function renderEvent() {
         const event = state.event;
         elements.game.innerHTML = `
@@ -2829,7 +3230,7 @@
                       <strong>${escapeHtml(choice.title)}</strong>
                       <span>${escapeHtml(choice.detail)}</span>
                     </button>
-                  `
+                  `,
                   )
                   .join("")}
               </div>
@@ -2838,18 +3239,22 @@
           </section>
         `;
       }
-      
+
       function chooseEvent(index) {
         const choice = state.event.choices[index];
         if (!choice || (choice.disabled && choice.disabled())) return;
         choice.run();
         completeNode();
       }
-      
+
       function renderRest() {
-        const healAmount = Math.ceil(state.player.maxHp * (hasRelic("jadeGourd") ? 0.45 : 0.3));
-        const upgradeable = state.player.deck.filter((card) => !card.upgraded).slice(0, 10);
-      
+        const healAmount = Math.ceil(
+          state.player.maxHp * (hasRelic("jadeGourd") ? 0.45 : 0.3),
+        );
+        const upgradeable = state.player.deck
+          .filter((card) => !card.upgraded)
+          .slice(0, 10);
+
         elements.game.innerHTML = `
           <section class="screen-layout">
             <div class="game-card">
@@ -2871,7 +3276,7 @@
                             <strong>${escapeHtml(cardName(card))}</strong>
                             <span>${escapeHtml(cardText(card))} → ${escapeHtml(CARD_LIBRARY[card.key].text[1])}</span>
                           </button>
-                        `
+                        `,
                         )
                         .join("")
                     : `<div class="empty-state">所有牌都已升级，只能休息。</div>`
@@ -2882,14 +3287,16 @@
           </section>
         `;
       }
-      
+
       function restHeal() {
-        const amount = Math.ceil(state.player.maxHp * (hasRelic("jadeGourd") ? 0.45 : 0.3));
+        const amount = Math.ceil(
+          state.player.maxHp * (hasRelic("jadeGourd") ? 0.45 : 0.3),
+        );
         const healed = healPlayer(amount);
         logRun(`你在炉边休息，回复 ${healed} 点气血。`, "good");
         completeNode();
       }
-      
+
       function upgradeCard(deckId) {
         const card = state.player.deck.find((entry) => entry.deckId === deckId);
         if (!card || card.upgraded) return;
@@ -2897,7 +3304,7 @@
         logRun(`${cardName(card)}被炉火淬亮。`, "good");
         completeNode();
       }
-      
+
       function completeNode() {
         if (state.currentNode) {
           state.currentNode.done = true;
@@ -2906,7 +3313,7 @@
         state.reward = null;
         state.event = null;
         state.floorIndex += 1;
-      
+
         if (state.floorIndex >= FINAL_FLOOR) {
           state.screen = "victory";
         } else {
@@ -2914,11 +3321,18 @@
         }
         render();
       }
-      
+
       function renderEnding(victory) {
-        const score = state.player.gold + state.player.hp * 2 + state.player.relics.length * 18 + state.player.deck.filter((card) => card.upgraded).length * 5;
+        const score =
+          state.player.gold +
+          state.player.hp * 2 +
+          state.player.relics.length * 18 +
+          state.player.deck.filter((card) => card.upgraded).length * 5;
         if (!state.metaAwarded) {
-          const daoGain = Math.max(2, Math.floor(score / 45) + state.floorIndex + state.ascension * 3);
+          const daoGain = Math.max(
+            2,
+            Math.floor(score / 45) + state.floorIndex + state.ascension * 3,
+          );
           meta.dao += daoGain;
           if (victory) {
             meta.wins += 1;
@@ -2932,7 +3346,7 @@
         const copy = victory
           ? `${HEROES[state.heroKey].name}走出山口时，匣中还剩 ${state.player.deck.length} 张牌、${state.player.relics.length} 件遗物。评分 ${score}。累计胜利 ${meta.wins} 次。`
           : `你的伏魔路停在第 ${state.floorIndex + 1} 层。评分 ${score}。再开一局，换一条山路。`;
-      
+
         elements.game.innerHTML = `
           <section class="screen-layout">
             <div class="game-card">
@@ -2952,7 +3366,7 @@
           </section>
         `;
       }
-      
+
       function showHelp() {
         showModal(
           "规则",
@@ -2967,25 +3381,25 @@
               <li>三名行者拥有不同初始牌组和被动；劫数会提高敌方气血与伤害。</li>
               <li>每局结束会沉淀道行，并记录胜场与最高劫数。</li>
             </ul>
-          `
+          `,
         );
       }
-      
+
       function showModal(kicker, title, bodyHtml) {
         elements.modalKicker.textContent = kicker;
         elements.modalTitle.textContent = title;
         elements.modalBody.innerHTML = bodyHtml;
         elements.modal.classList.remove("hidden");
       }
-      
+
       function hideModal() {
         elements.modal.classList.add("hidden");
       }
-      
+
       document.addEventListener("click", (event) => {
         const button = event.target.closest("button[data-action]");
         if (!button) return;
-      
+
         const action = button.dataset.action;
         if (action === "start-node") startNode(button.dataset.nodeId);
         if (action === "play-card") playCard(Number(button.dataset.cardId));
@@ -2995,16 +3409,35 @@
           logRun("你没有收下新牌，牌组保持清爽。", "info");
           completeNode();
         }
-        if (action === "event-choice") chooseEvent(Number(button.dataset.choiceIndex));
+        if (action === "event-choice")
+          chooseEvent(Number(button.dataset.choiceIndex));
         if (action === "rest-heal") restHeal();
-        if (action === "upgrade-card") upgradeCard(Number(button.dataset.deckId));
+        if (action === "upgrade-card")
+          upgradeCard(Number(button.dataset.deckId));
         if (action === "new-run") newRun();
+        if (action === "export-meta-save") {
+          const field = $("#saveCodeField");
+          const code = encodeMetaSave();
+          if (field) field.value = code;
+          navigator.clipboard?.writeText(code).catch(() => {});
+        }
+        if (action === "import-meta-save") {
+          const field = $("#saveCodeField");
+          try {
+            decodeMetaSave(field?.value || "");
+            alert("存档导入成功，道行与远征纪录已恢复。");
+            hideModal();
+          } catch (error) {
+            alert(`导入失败：${error.message}`);
+          }
+        }
       });
-      
+
       elements.help.addEventListener("click", showHelp);
+      elements.saveCode.addEventListener("click", showSaveCenter);
       elements.newRun.addEventListener("click", newRun);
       elements.modalClose.addEventListener("click", hideModal);
-      
+
       newRun();
     </script>
   </body>

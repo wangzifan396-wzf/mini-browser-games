@@ -1,44 +1,2028 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#090718"><title>霓虹 2048：矩阵远征</title><style>
-:root{color-scheme:dark;--ink:#f4f2ff;--muted:#9d98ba;--cyan:#43dcff;--pink:#ff5caf;--gold:#ffd45e;--green:#69eea2;--violet:#a486ff;--panel:rgba(12,9,29,.92);--line:rgba(186,164,255,.18)}*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#05040e;color:var(--ink);font-family:"Segoe UI","Microsoft YaHei",system-ui,sans-serif}body{overflow:hidden}button{font:inherit}.app{height:100vh;height:100dvh;padding:9px;display:grid;grid-template-rows:auto minmax(0,1fr);gap:8px;background:radial-gradient(circle at 12% 12%,rgba(55,214,255,.11),transparent 28%),radial-gradient(circle at 88% 84%,rgba(255,75,171,.1),transparent 28%)}.topbar,.game,.side,.card,.overlay-card,.modal-card{border:1px solid var(--line);background:var(--panel);box-shadow:0 18px 48px rgba(0,0,0,.32)}.topbar{min-height:61px;border-radius:16px;padding:8px 13px;display:flex;align-items:center;justify-content:space-between}.brand{display:flex;align-items:center;gap:10px}.logo{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(145deg,var(--violet),var(--pink));font-weight:1000;color:#100821}.brand h1{margin:0;font-size:clamp(20px,2.5vw,29px);line-height:1}.brand h1 b{color:var(--pink)}.brand p{margin:4px 0 0;color:var(--muted);font-size:10px;font-weight:800}.actions{display:flex;gap:6px}.btn,.icon-btn,.choice,.tool,.upgrade-card,.archive-btn{border:1px solid var(--line);border-radius:11px;background:rgba(34,25,65,.9);color:var(--ink);font-weight:900;cursor:pointer;transition:.15s}.btn:hover,.icon-btn:hover,.choice:hover,.tool:hover,.upgrade-card:hover,.archive-btn:hover{transform:translateY(-1px);border-color:rgba(67,220,255,.7)}.btn:disabled,.icon-btn:disabled,.tool:disabled,.archive-btn:disabled{opacity:.35;cursor:not-allowed;transform:none}.btn{padding:9px 14px}.btn.primary{border:0;background:linear-gradient(135deg,var(--violet),var(--pink));color:white}.icon-btn{width:40px;height:40px}
-.layout{min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 335px;gap:8px}.game,.side{border-radius:16px;min-height:0;min-width:0}.game{display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:7px;padding:8px}.hud{display:grid;grid-template-columns:repeat(6,1fr);gap:5px}.hud div{padding:6px 8px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.025)}.hud span{display:block;color:var(--muted);font-size:8px;font-weight:900}.hud strong{font-size:15px}.hud .score strong{color:var(--gold)}.board-wrap{position:relative;min-height:0;display:grid;place-items:center;overflow:hidden;border:1px solid var(--line);border-radius:13px;background:#09071a}.board{--size:4;position:relative;width:min(100%,620px,calc(100vh - 220px));aspect-ratio:1;display:grid;grid-template-columns:repeat(var(--size),1fr);grid-template-rows:repeat(var(--size),1fr);gap:clamp(5px,1vmin,9px);padding:clamp(7px,1.2vmin,11px);border:1px solid rgba(112,84,184,.34);border-radius:15px;background:rgba(24,15,52,.86);touch-action:none}.cell{position:relative;min-width:0;border-radius:clamp(7px,1.1vmin,12px);background:rgba(255,255,255,.045);display:grid;place-items:center;overflow:hidden}.tile{position:absolute;inset:0;display:grid;place-items:center;border-radius:inherit;font-weight:1000;font-size:clamp(14px,4vmin,35px);color:white;text-shadow:0 2px 5px rgba(0,0,0,.32);animation:pop .14s ease}.tile.new{animation:spawn .18s ease}.tile.merge{animation:merge .23s ease}.cell.target{outline:3px solid var(--cyan);outline-offset:-4px}.cell.swap{outline:3px solid var(--gold);outline-offset:-4px}@keyframes spawn{from{transform:scale(.4);opacity:.3}}@keyframes merge{50%{transform:scale(1.13)}}@keyframes pop{from{opacity:.75}}.banner{position:absolute;left:50%;top:15px;transform:translate(-50%,-10px);padding:8px 14px;border:1px solid var(--line);border-radius:999px;background:rgba(8,5,21,.92);font-size:11px;font-weight:900;opacity:0;transition:.2s;pointer-events:none}.banner.show{opacity:1;transform:translate(-50%,0)}.mission-track{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);width:min(58%,470px);padding:6px 9px;border:1px solid var(--line);border-radius:999px;background:rgba(7,5,18,.85);pointer-events:none}.mission-track div{height:8px;border-radius:7px;overflow:hidden;background:rgba(255,255,255,.08)}.mission-track i{display:block;width:0;height:100%;background:linear-gradient(90deg,var(--violet),var(--cyan),var(--gold))}.mission-track span{position:absolute;inset:2px;text-align:center;font-size:8px;font-weight:900}.tools{display:grid;grid-template-columns:repeat(6,1fr);gap:5px}.tool{position:relative;min-height:51px;padding:6px}.tool b{display:block;font-size:15px}.tool span{display:block;color:var(--muted);font-size:8px}.tool em{position:absolute;right:5px;top:4px;color:var(--gold);font-style:normal;font-size:9px}.tool.active{border-color:var(--cyan);background:rgba(67,220,255,.1)}
-.side{padding:8px;display:flex;flex-direction:column;gap:7px;overflow:auto}.card{padding:10px;border-radius:13px}.objective{display:flex;gap:9px;align-items:center}.objective-icon{width:39px;height:39px;border-radius:12px;display:grid;place-items:center;font-size:19px;background:rgba(164,134,255,.14)}.objective b{display:block;font-size:12px}.objective small{display:block;color:var(--muted);font-size:9px;line-height:1.35;margin-top:2px}.bar{height:7px;margin-top:7px;border-radius:8px;overflow:hidden;background:rgba(255,255,255,.08)}.bar i{display:block;width:0;height:100%;background:linear-gradient(90deg,var(--pink),var(--violet),var(--cyan))}.card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}.card-head strong{font-size:11px}.eyebrow{color:var(--pink);font-size:8px;font-weight:1000;letter-spacing:.08em}.chips{display:flex;flex-wrap:wrap;gap:5px}.chip{padding:5px 7px;border:1px solid var(--line);border-radius:8px;background:rgba(255,255,255,.03);font-size:9px}.stats{display:grid;grid-template-columns:1fr 1fr;gap:5px}.stats div{display:flex;justify-content:space-between;padding:6px;border-radius:8px;background:rgba(255,255,255,.025);font-size:9px}.stats span{color:var(--muted)}.tip{color:var(--muted);font-size:9px;line-height:1.55}.tip b{color:var(--cyan)}
-.overlay,.modal{position:absolute;inset:0;z-index:10;display:grid;place-items:center;padding:15px;background:rgba(4,3,12,.77);backdrop-filter:blur(7px)}.overlay.hidden,.modal.hidden{display:none}.overlay-card,.modal-card{width:min(900px,96%);max-height:94%;overflow:auto;border-radius:20px;padding:17px}.overlay-title{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.overlay-title h2{margin:0;font-size:26px}.overlay-title h2 b{color:var(--pink)}.overlay-title p{margin:5px 0 0;color:var(--muted);font-size:10px}.save-pill{padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.05);font-size:9px;color:var(--muted)}.setup{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:11px}.section{padding:10px;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.018)}.section h3{margin:0 0 7px;font-size:11px}.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}.choice{min-height:63px;padding:8px;text-align:left}.choice b{display:block;font-size:11px}.choice small{display:block;color:var(--muted);font-size:8px;line-height:1.35;margin-top:3px}.choice.selected{border-color:var(--pink);background:rgba(255,92,175,.08)}.sector-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:5px}.sector{min-height:42px;text-align:center;padding:5px}.sector.locked{opacity:.3}.archive{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.archive-btn{padding:7px;text-align:left}.archive-btn b{font-size:10px}.archive-btn span{display:block;color:var(--muted);font-size:8px}.archive-btn em{display:block;color:var(--gold);font-size:8px;font-style:normal;margin-top:4px}.start-row{display:flex;justify-content:flex-end;gap:7px;margin-top:10px}.result{display:none;text-align:center}.result.show{display:block}.result h2{margin:0;font-size:27px}.result p{font-size:10px;color:var(--muted)}.result-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:12px 0}.result-grid div{padding:9px;border-radius:10px;background:rgba(255,255,255,.04)}.result-grid b{display:block;color:var(--gold);font-size:18px}.result-grid span{font-size:8px;color:var(--muted)}
-.modal-card{width:min(720px,94%)}.modal-card h2{margin:3px 0 11px}.upgrade-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.upgrade-card{min-height:125px;padding:12px;text-align:left}.upgrade-card i{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.06);font-style:normal;margin-bottom:8px}.upgrade-card strong{display:block;font-size:12px}.upgrade-card p{font-size:9px;color:var(--muted);line-height:1.4}.protocol-actions{display:flex;justify-content:flex-end;margin-top:9px}
-@media(max-width:900px){.layout{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) 205px}.side{display:grid;grid-template-columns:1fr 1fr}.side .tip-card{display:none}.setup{grid-template-columns:1fr}.board{width:min(100%,calc(100vh - 390px),560px)}}@media(max-width:560px){.app{padding:5px;gap:5px}.topbar{min-height:51px;padding:5px 8px}.logo{width:35px;height:35px}.brand p{display:none}.actions .btn{display:none}.icon-btn{width:35px;height:35px}.layout{grid-template-rows:minmax(0,1fr) 180px;gap:5px}.game{padding:4px}.hud{grid-template-columns:repeat(3,1fr);gap:3px}.hud div{padding:4px 6px}.hud strong{font-size:12px}.board{width:min(100%,calc(100vw - 20px));}.tools{grid-template-columns:repeat(6,1fr);gap:3px}.tool{min-height:43px;padding:3px}.tool b{font-size:13px}.side{padding:5px;gap:4px}.card{padding:7px}.stats{display:none}.overlay{padding:6px}.overlay-card{padding:11px}.overlay-title{display:block}.mode-grid{gap:4px}.choice{min-height:54px;padding:6px}.sector-grid{grid-template-columns:repeat(4,1fr)}.archive{grid-template-columns:1fr}.archive-btn{display:flex;justify-content:space-between}.archive-btn span{display:none}.upgrade-grid{grid-template-columns:1fr}.upgrade-card{min-height:92px}.result-grid{grid-template-columns:repeat(2,1fr)}}
-</style></head><body><main class="app"><header class="topbar"><div class="brand"><div class="logo">2ⁿ</div><div><h1>霓虹 2048 <b>V2</b></h1><p>矩阵远征 · 连锁充能数字构筑</p></div></div><div class="actions"><button class="icon-btn" id="undoBtn">↶</button><button class="btn" id="homeBtn">矩阵站</button><button class="icon-btn" id="newBtn">↻</button></div></header><div class="layout"><section class="game"><div class="hud"><div class="score"><span>得分</span><strong id="score">0</strong></div><div><span>最高</span><strong id="best">0</strong></div><div><span>步数</span><strong id="moves">0</strong></div><div><span>最大块</span><strong id="maxTile">2</strong></div><div><span>连锁</span><strong id="combo">×1</strong></div><div><span>时间/步限</span><strong id="limit">--</strong></div></div><div class="board-wrap"><div class="board" id="board"></div><div class="banner" id="banner">矩阵启动</div><div class="mission-track"><div><i id="missionBar"></i></div><span id="missionText">选择行动</span></div><div class="overlay" id="homeOverlay"><div class="overlay-card"><div id="setupView"><div class="overlay-title"><div><h2>矩阵远征：<b>选择协议</b></h2><p>保持标准合成规则，用连锁充能、工具和局内协议完成不同矩阵目标。</p></div><div class="save-pill" id="savePill">数据片 0</div></div><div class="setup"><section class="section"><h3>矩阵模式</h3><div class="mode-grid" id="modeGrid"></div></section><section class="section"><h3>远征节点</h3><div class="sector-grid" id="sectorGrid"></div></section><section class="section" style="grid-column:1/-1"><h3>永久档案强化</h3><div class="archive" id="archiveGrid"></div></section></div><div class="start-row"><button class="btn primary" id="startBtn">启动矩阵</button></div></div><div class="result" id="resultView"><h2 id="resultTitle">矩阵结束</h2><p id="resultText"></p><div class="result-grid"><div><b id="resultScore">0</b><span>得分</span></div><div><b id="resultMax">0</b><span>最大块</span></div><div><b id="resultData">0</b><span>数据片</span></div><div><b id="resultMoves">0</b><span>步数</span></div></div><div class="start-row" style="justify-content:center"><button class="btn" id="againBtn">同配置再战</button><button class="btn primary" id="resultHomeBtn">返回矩阵站</button></div></div></div></div></div><div class="tools" id="tools"><button class="tool" data-tool="hammer"><em id="hammerCount">0</em><b>锤</b><span>移除</span></button><button class="tool" data-tool="swap"><em id="swapCount">0</em><b>换</b><span>交换</span></button><button class="tool" data-tool="bomb"><em id="bombCount">0</em><b>爆</b><span>十字</span></button><button class="tool" data-tool="upgrade"><em id="upgradeCount">0</em><b>升</b><span>升阶</span></button><button class="tool" data-tool="magnet"><em id="magnetCount">0</em><b>吸</b><span>聚角</span></button><button class="tool" data-tool="undo"><em id="undoCount">0</em><b>退</b><span>撤回</span></button></div></section><aside class="side"><section class="card"><div class="objective"><div class="objective-icon" id="objectiveIcon">◇</div><div><b id="objectiveTitle">矩阵待命</b><small id="objectiveText">选择一个模式开始</small></div></div><div class="bar"><i id="chargeBar"></i></div></section><section class="card"><div class="card-head"><strong>局内协议</strong><span class="eyebrow" id="chargeText">充能 0%</span></div><div class="chips" id="buildList"></div></section><section class="card"><div class="card-head"><strong>矩阵统计</strong><span class="eyebrow">LIVE</span></div><div class="stats" id="stats"></div></section><section class="card tip-card"><div class="tip"><b>操作：</b>方向键 / WASD / 滑动合成。连续有效合成会提高连锁和充能；充能满后自动开启一次协议选择。工具用于修正坏盘，但数量有限。</div></section></aside></div></main><div class="modal hidden" id="protocolModal"><div class="modal-card"><span class="eyebrow" id="modalKicker">充能完成</span><h2 id="modalTitle">选择一项矩阵协议</h2><div class="upgrade-grid" id="protocolGrid"></div><div class="protocol-actions"><button class="btn" id="convertBtn">转化为随机工具</button></div></div></div>
-<script>
-"use strict";const $=s=>document.querySelector(s),SAVE_KEY="neon2048MatrixV2";const ui={board:$("#board"),score:$("#score"),best:$("#best"),moves:$("#moves"),max:$("#maxTile"),combo:$("#combo"),limit:$("#limit"),missionBar:$("#missionBar"),missionText:$("#missionText"),chargeBar:$("#chargeBar"),chargeText:$("#chargeText"),build:$("#buildList"),stats:$("#stats"),overlay:$("#homeOverlay"),setup:$("#setupView"),result:$("#resultView"),modal:$("#protocolModal"),protocolGrid:$("#protocolGrid"),banner:$("#banner")};
-const MODES={expedition:{name:"矩阵远征",icon:"◇",desc:"十二个节点，有限步数内达到目标。",size:4},classic:{name:"经典无尽",icon:"∞",desc:"标准 4×4 规则，冲击最高分与 2048。",size:4},sprint:{name:"极速三分",icon:"ϟ",desc:"180 秒内尽可能制造高阶数字。",size:4,time:180},wide:{name:"宽域 5×5",icon:"▦",desc:"更大的矩阵，目标提升到 4096。",size:5,target:4096},daily:{name:"今日矩阵",icon:"◈",desc:"按日期固定生成序列，公平挑战。",size:4,time:240,target:2048,daily:true}};
-const ARCHIVE={charge:{name:"充能算法",desc:"每级充能 +5%",max:8,cost:n=>8+n*7},tool:{name:"工具缓存",desc:"每 3 级随机工具 +1",max:9,cost:n=>10+n*9},score:{name:"分数协议",desc:"每级得分 +4%",max:8,cost:n=>12+n*10}};
-const PROTOCOLS=[{id:"amp",icon:"分",title:"增幅计分",desc:"合成得分永久 +18%。",apply:s=>s.scoreMult+=.18},{id:"charge",icon:"能",title:"回流电容",desc:"后续充能获取 +24%。",apply:s=>s.chargeMult+=.24},{id:"combo",icon:"连",title:"连锁缓存",desc:"无合成移动不再立刻清空连锁。",apply:s=>s.comboGrace++},{id:"spawn",icon:"净",title:"纯净生成",desc:"新生成 4 的概率降低 5%。",apply:s=>s.fourChance=Math.max(.02,s.fourChance-.05)},{id:"tools",icon:"具",title:"应急工具包",desc:"随机获得 2 个工具。",apply:s=>{grantTool();grantTool()}},{id:"steps",icon:"步",title:"路径扩容",desc:"远征步数上限 +6，限时模式 +20 秒。",apply:s=>{s.moveLimit+=6;s.timeLeft+=20}},{id:"cascade",icon:"潮",title:"连锁升阶",desc:"每连续三次合成，随机最低块自动升阶。",apply:s=>s.cascade++},{id:"undo",icon:"退",title:"时间镜像",desc:"获得 2 次撤回，历史容量增加。",apply:s=>{s.tools.undo+=2;s.historyMax+=2}}];
-const TOOL_INFO={hammer:["锤子","移除一个数字"],swap:["交换","交换两个数字"],bomb:["脉冲炸弹","清除十字区域"],upgrade:["升阶","将数字翻倍"],magnet:["角落磁吸","把大数字聚到右下"],undo:["撤回","回到上一步"]};
-let save=load(),selectedMode="expedition",selectedSector=Math.min(save.unlocked,12),state,timer=0,bannerTimer=0,pointer=null;
-function load(){try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||"null");if(s&&s.v===2)return s}catch{}return{v:2,data:0,unlocked:1,best:{},stars:{},archive:{charge:0,tool:0,score:0},totalMerges:0}}function store(){localStorage.setItem(SAVE_KEY,JSON.stringify(save))}const clone=g=>g.map(r=>r.slice()),clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-function sectorGoal(n){return Math.min(2048,32*Math.pow(2,Math.floor((n-1)/2)))}function sectorMoves(n){return Math.max(38,64-n*2)}function renderHome(){ui.setup.style.display="block";ui.result.classList.remove("show");$("#savePill").textContent=`数据片 ${save.data} · 节点 ${save.unlocked}/12 · 总合成 ${save.totalMerges}`;$("#modeGrid").innerHTML=Object.entries(MODES).map(([k,m])=>`<button class="choice ${selectedMode===k?"selected":""}" data-mode="${k}"><b>${m.icon} ${m.name}</b><small>${m.desc}<br>纪录 ${save.best[k]||0}</small></button>`).join("");$("#sectorGrid").innerHTML=Array.from({length:12},(_,i)=>{const n=i+1,locked=n>save.unlocked;return`<button class="choice sector ${selectedSector===n?"selected":""} ${locked?"locked":""}" data-sector="${n}" ${locked?"disabled":""}><b>${n}</b><small>${sectorGoal(n)}</small></button>`}).join("");$("#sectorGrid").style.opacity=selectedMode==="expedition"?1:.42;$("#archiveGrid").innerHTML=Object.entries(ARCHIVE).map(([k,a])=>{const lv=save.archive[k]||0,c=a.cost(lv),max=lv>=a.max;return`<button class="archive-btn" data-archive="${k}" ${max||save.data<c?"disabled":""}><b>${a.name} Lv.${lv}</b><span>${a.desc}</span><em>${max?"已满级":`数据片 ${c}`}</em></button>`}).join("");document.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{selectedMode=b.dataset.mode;renderHome()});document.querySelectorAll("[data-sector]").forEach(b=>b.onclick=()=>{selectedSector=+b.dataset.sector;renderHome()});document.querySelectorAll("[data-archive]").forEach(b=>b.onclick=()=>buyArchive(b.dataset.archive))}
-function buyArchive(k){const a=ARCHIVE[k],lv=save.archive[k]||0,c=a.cost(lv);if(lv>=a.max||save.data<c)return;save.data-=c;save.archive[k]=lv+1;store();renderHome()}
-function rng(seed){return()=>{seed=Math.imul(seed,1664525)+1013904223|0;return(seed>>>0)/4294967296}}function dailySeed(){const d=new Date();return d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate()}
-function fresh(){const mode=MODES[selectedMode],size=mode.size,target=selectedMode==="expedition"?sectorGoal(selectedSector):mode.target||2048,toolBonus=Math.floor((save.archive.tool||0)/3);const tools={hammer:0,swap:0,bomb:0,upgrade:0,magnet:0,undo:1};for(let i=0;i<toolBonus;i++){const ks=Object.keys(tools);tools[ks[i%ks.length]]++}return{mode:selectedMode,size,target,grid:Array.from({length:size},()=>Array(size).fill(0)),score:0,best:save.best[selectedMode]||0,moves:0,merges:0,maxTile:2,timeLeft:mode.time||0,moveLimit:selectedMode==="expedition"?sectorMoves(selectedSector):99999,sector:selectedSector,charge:0,chargeMult:1+(save.archive.charge||0)*.05,scoreMult:1+(save.archive.score||0)*.04,combo:0,comboGrace:0,mergeStreak:0,cascade:0,fourChance:.1,tools,history:[],historyMax:4,activeTool:null,swapCell:null,build:[],over:false,won:false,rand:mode.daily?rng(dailySeed()):Math.random,newCells:new Set(),mergeCells:new Set()}}
-function start(){state=fresh();spawn();spawn();renderBoard();ui.overlay.classList.add("hidden");showBanner(`${MODES[state.mode].icon} ${MODES[state.mode].name}`);clearInterval(timer);timer=setInterval(tickClock,250);sync()}
-function tickClock(){if(!state||state.over||!ui.overlay.classList.contains("hidden")||!ui.modal.classList.contains("hidden"))return;if(state.timeLeft>0){state.timeLeft=Math.max(0,state.timeLeft-.25);if(state.timeLeft<=0)end(false,"倒计时结束");sync()}if(bannerTimer>0){bannerTimer-=250;if(bannerTimer<=0)ui.banner.classList.remove("show")}}
-function spawn(){const empty=[];for(let r=0;r<state.size;r++)for(let c=0;c<state.size;c++)if(!state.grid[r][c])empty.push({r,c});if(!empty.length)return false;const p=empty[Math.floor(state.rand()*empty.length)],v=state.rand()<1-state.fourChance?2:4;state.grid[p.r][p.c]=v;state.newCells=new Set([`${p.r},${p.c}`]);return true}
-function snapshot(){state.history.push({grid:clone(state.grid),score:state.score,moves:state.moves,maxTile:state.maxTile,charge:state.charge,combo:state.combo});if(state.history.length>state.historyMax)state.history.shift()}
-function lines(dir){const out=[];for(let i=0;i<state.size;i++){const line=[];for(let j=0;j<state.size;j++){if(dir==="left")line.push([i,j]);if(dir==="right")line.push([i,state.size-1-j]);if(dir==="up")line.push([j,i]);if(dir==="down")line.push([state.size-1-j,i])}out.push(line)}return out}
-function move(dir){if(state.over||state.activeTool||!ui.modal.classList.contains("hidden"))return;const before=clone(state.grid),next=Array.from({length:state.size},()=>Array(state.size).fill(0));let gained=0,merges=0;state.mergeCells=new Set();for(const line of lines(dir)){const vals=line.map(([r,c])=>state.grid[r][c]).filter(Boolean),merged=[];for(let i=0;i<vals.length;i++){if(vals[i]===vals[i+1]){const v=vals[i]*2;merged.push(v);gained+=v;merges++;i++}else merged.push(vals[i])}while(merged.length<state.size)merged.push(0);line.forEach(([r,c],i)=>{next[r][c]=merged[i];if(i<merged.length&&merged[i]&&merged[i]!==vals[i])state.mergeCells.add(`${r},${c}`)})}if(equal(before,next))return;snapshot();state.grid=next;state.moves++;state.score+=Math.round(gained*state.scoreMult*(1+Math.min(8,state.combo)*.08));state.best=Math.max(state.best,state.score);if(merges>0){state.combo++;state.mergeStreak++;state.merges+=merges;save.totalMerges+=merges;state.charge=Math.min(100,state.charge+merges*14*state.chargeMult*(1+Math.min(6,state.combo)*.07));if(state.cascade&&state.mergeStreak%3===0)upgradeLowest();if(merges>=3)showBanner(`连锁合成 ×${merges}`)}else{if(state.comboGrace>0)state.comboGrace--;else state.combo=0;state.mergeStreak=0}spawn();state.maxTile=Math.max(...state.grid.flat());renderBoard();checkState();if(state.charge>=100&&!state.over)openProtocol();sync();store()}
-function equal(a,b){return a.every((r,i)=>r.every((v,j)=>v===b[i][j]))}function upgradeLowest(){const vals=state.grid.flat().filter(Boolean),min=Math.min(...vals),cells=[];for(let r=0;r<state.size;r++)for(let c=0;c<state.size;c++)if(state.grid[r][c]===min)cells.push([r,c]);if(cells.length){const[r,c]=cells[Math.floor(state.rand()*cells.length)];state.grid[r][c]*=2;showBanner("连锁升阶触发")}}
-function checkState(){if(state.maxTile>=state.target){if(state.mode==="expedition"||state.mode==="daily"||state.mode==="wide")return end(true,"目标数字已达成");showBanner(`${state.target} 已达成，仍可继续`);state.target*=2}if(state.moves>=state.moveLimit)return end(false,"步数耗尽");if(!canMove())end(false,"矩阵已锁死")}
-function canMove(){if(state.grid.flat().includes(0))return true;for(let r=0;r<state.size;r++)for(let c=0;c<state.size;c++){if(r+1<state.size&&state.grid[r][c]===state.grid[r+1][c])return true;if(c+1<state.size&&state.grid[r][c]===state.grid[r][c+1])return true}return false}
-function openProtocol(){state.charge=0;const opts=sample(PROTOCOLS,3);ui.protocolGrid.innerHTML=opts.map((p,i)=>`<button class="upgrade-card" data-protocol="${p.id}"><i>${p.icon}</i><strong>${p.title}</strong><p>${p.desc}</p></button>`).join("");ui.protocolGrid.querySelectorAll("[data-protocol]").forEach(b=>b.onclick=()=>chooseProtocol(b.dataset.protocol));ui.modal.classList.remove("hidden")}
-function chooseProtocol(id){const p=PROTOCOLS.find(x=>x.id===id);if(!p)return;p.apply(state);state.build.push(p.title);ui.modal.classList.add("hidden");showBanner(`${p.title} 已接入`);renderBoard();sync()}function sample(a,n){const b=[...a],o=[];while(b.length&&o.length<n)o.push(b.splice(Math.floor(state.rand()*b.length),1)[0]);return o}
-function grantTool(type){const keys=Object.keys(state.tools),k=type||keys[Math.floor(state.rand()*keys.length)];state.tools[k]++;showBanner(`获得工具：${TOOL_INFO[k][0]}`);sync()}
-function selectTool(k){if(state.over)return;if(k==="undo")return undo();if(k==="magnet")return magnet();if(state.tools[k]<=0)return;state.activeTool=state.activeTool===k?null:k;state.swapCell=null;renderBoard();sync()}
-function undo(){if(state.tools.undo<=0||!state.history.length)return;const s=state.history.pop();state.tools.undo--;Object.assign(state,{grid:clone(s.grid),score:s.score,moves:s.moves,maxTile:s.maxTile,charge:s.charge,combo:s.combo,activeTool:null});renderBoard();sync();showBanner("矩阵已回溯")}
-function magnet(){if(state.tools.magnet<=0)return;state.tools.magnet--;snapshot();for(let i=0;i<state.size*2;i++){const res=analyzeNoSpawn(i%2?"down":"right");state.grid=res}state.moves++;renderBoard();sync();showBanner("高阶数字已聚向右下")}
-function analyzeNoSpawn(dir){const next=Array.from({length:state.size},()=>Array(state.size).fill(0));for(const line of lines(dir)){const vals=line.map(([r,c])=>state.grid[r][c]).filter(Boolean);while(vals.length<state.size)vals.push(0);line.forEach(([r,c],i)=>next[r][c]=vals[i])}return next}
-function cellClick(r,c){const k=state.activeTool;if(!k)return;if(k==="hammer"){if(!state.grid[r][c])return;state.grid[r][c]=0}else if(k==="bomb"){for(const[rr,cc]of[[r,c],[r-1,c],[r+1,c],[r,c-1],[r,c+1]])if(rr>=0&&cc>=0&&rr<state.size&&cc<state.size)state.grid[rr][cc]=0}else if(k==="upgrade"){if(!state.grid[r][c])return;state.grid[r][c]*=2;state.score+=state.grid[r][c]}else if(k==="swap"){if(!state.swapCell){state.swapCell={r,c};renderBoard();return}const a=state.swapCell,v=state.grid[a.r][a.c];state.grid[a.r][a.c]=state.grid[r][c];state.grid[r][c]=v;state.swapCell=null}state.tools[k]--;state.activeTool=null;state.maxTile=Math.max(...state.grid.flat());renderBoard();sync();showBanner(`${TOOL_INFO[k][0]}已使用`)}
-function renderBoard(){ui.board.style.setProperty("--size",state.size);ui.board.innerHTML="";for(let r=0;r<state.size;r++)for(let c=0;c<state.size;c++){const cell=document.createElement("button");cell.className=`cell ${state.activeTool?"target":""} ${state.swapCell&&state.swapCell.r===r&&state.swapCell.c===c?"swap":""}`;const v=state.grid[r][c];if(v){const tile=document.createElement("span");tile.className=`tile ${state.newCells.has(`${r},${c}`)?"new":""} ${state.mergeCells.has(`${r},${c}`)?"merge":""}`;tile.textContent=v;tile.style.background=tileColor(v);tile.style.fontSize=state.size===5?"clamp(12px,3.1vmin,27px)":"";cell.appendChild(tile)}cell.onclick=()=>cellClick(r,c);ui.board.appendChild(cell)}}
-function tileColor(v){const colors={2:"#39305f",4:"#493672",8:"#5d3f8d",16:"#7043a4",32:"#8b45b2",64:"#b24cae",128:"#d6539e",256:"#eb647e",512:"#f48161",1024:"#eea64f",2048:"#e9c653",4096:"#55d6d0"};return colors[v]||"linear-gradient(135deg,#36d9ff,#9d79ff,#ff5caf)"}
-function end(win,reason){if(state.over)return;state.over=true;state.won=win;const data=Math.max(1,Math.floor(Math.log2(state.maxTile))+Math.floor(state.score/5000)+(win?selectedSector:0));save.data+=data;save.best[state.mode]=Math.max(save.best[state.mode]||0,state.score);if(win&&state.mode==="expedition"){save.unlocked=Math.max(save.unlocked,Math.min(12,state.sector+1));save.stars[state.sector]=Math.max(save.stars[state.sector]||0,state.moves<state.moveLimit*.65?3:state.moves<state.moveLimit*.85?2:1)}store();ui.overlay.classList.remove("hidden");ui.setup.style.display="none";ui.result.classList.add("show");$("#resultTitle").textContent=win?"矩阵目标完成":"矩阵暂时停摆";$("#resultText").textContent=`${reason} · ${MODES[state.mode].name}`;$("#resultScore").textContent=state.score;$("#resultMax").textContent=state.maxTile;$("#resultData").textContent=data;$("#resultMoves").textContent=state.moves}
-function sync(){if(!state)return;ui.score.textContent=state.score;ui.best.textContent=Math.max(state.best,state.score);ui.moves.textContent=state.moves;ui.max.textContent=state.maxTile;ui.combo.textContent=`×${Math.max(1,state.combo)}`;ui.limit.textContent=state.timeLeft>0?format(state.timeLeft):state.moveLimit<99999?`${state.moves}/${state.moveLimit}`:"∞";ui.chargeBar.style.width=`${state.charge}%`;ui.chargeText.textContent=`充能 ${Math.floor(state.charge)}%`;const progress=Math.min(100,Math.log2(state.maxTile)/Math.log2(state.target)*100);ui.missionBar.style.width=`${progress}%`;ui.missionText.textContent=`目标 ${state.target} · 当前 ${state.maxTile}`;$("#objectiveIcon").textContent=MODES[state.mode].icon;$("#objectiveTitle").textContent=`${MODES[state.mode].name}${state.mode==="expedition"?` · 节点 ${state.sector}`:""}`;$("#objectiveText").textContent=state.timeLeft>0?`剩余 ${format(state.timeLeft)}，保持连锁。`:`制造 ${state.target}，合理控制空格。`;ui.build.innerHTML=state.build.length?state.build.map(x=>`<span class="chip">${x}</span>`).join(""):'<span class="chip">标准合成协议</span>';ui.stats.innerHTML=[["总合成",state.merges],["有效移动",state.moves],["充能倍率",`${Math.round(state.chargeMult*100)}%`],["计分倍率",`${Math.round(state.scoreMult*100)}%`]].map(x=>`<div><span>${x[0]}</span><b>${x[1]}</b></div>`).join("");for(const[k]of Object.entries(state.tools)){const el=$(`#${k}Count`);if(el)el.textContent=state.tools[k]}document.querySelectorAll("[data-tool]").forEach(b=>{const k=b.dataset.tool;b.classList.toggle("active",state.activeTool===k);b.disabled=state.tools[k]<=0})}
-function showBanner(t){ui.banner.textContent=t;ui.banner.classList.add("show");bannerTimer=1800}function format(s){s=Math.max(0,Math.ceil(s));return`${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`}
-function keyMove(code){const m={ArrowLeft:"left",KeyA:"left",ArrowRight:"right",KeyD:"right",ArrowUp:"up",KeyW:"up",ArrowDown:"down",KeyS:"down"};if(m[code])move(m[code])}$("#startBtn").onclick=start;$("#againBtn").onclick=start;$("#resultHomeBtn").onclick=()=>{ui.result.classList.remove("show");renderHome()};$("#homeBtn").onclick=()=>{if(state&&!state.over&&state.moves&&!confirm("当前矩阵尚未结算，返回矩阵站？"))return;ui.overlay.classList.remove("hidden");renderHome()};$("#newBtn").onclick=()=>{if(confirm("重新开始当前矩阵？"))start()};$("#undoBtn").onclick=()=>selectTool("undo");$("#convertBtn").onclick=()=>{grantTool();ui.modal.classList.add("hidden")};document.querySelectorAll("[data-tool]").forEach(b=>b.onclick=()=>selectTool(b.dataset.tool));window.addEventListener("keydown",e=>{if(["ArrowLeft","ArrowRight","ArrowUp","ArrowDown"].includes(e.code))e.preventDefault();keyMove(e.code);if(e.code==="KeyZ")undo();if(e.code==="Escape"){state.activeTool=null;state.swapCell=null;renderBoard();sync()}});ui.board.addEventListener("pointerdown",e=>pointer={x:e.clientX,y:e.clientY});ui.board.addEventListener("pointerup",e=>{if(!pointer)return;const dx=e.clientX-pointer.x,dy=e.clientY-pointer.y;if(Math.hypot(dx,dy)>20)move(Math.abs(dx)>Math.abs(dy)?dx>0?"right":"left":dy>0?"down":"up");pointer=null});state=fresh();renderHome();renderBoard();sync();
-</script></body></html>
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#090718" />
+    <title>霓虹 2048：万象矩阵</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --ink: #f4f2ff;
+        --muted: #9d98ba;
+        --cyan: #43dcff;
+        --pink: #ff5caf;
+        --gold: #ffd45e;
+        --green: #69eea2;
+        --violet: #a486ff;
+        --panel: rgba(12, 9, 29, 0.92);
+        --line: rgba(186, 164, 255, 0.18);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+        background: #05040e;
+        color: var(--ink);
+        font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+      }
+      body {
+        overflow: hidden;
+      }
+      button {
+        font: inherit;
+      }
+      .app {
+        height: 100vh;
+        height: 100dvh;
+        padding: 9px;
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr);
+        gap: 8px;
+        background:
+          radial-gradient(
+            circle at 12% 12%,
+            rgba(55, 214, 255, 0.11),
+            transparent 28%
+          ),
+          radial-gradient(
+            circle at 88% 84%,
+            rgba(255, 75, 171, 0.1),
+            transparent 28%
+          );
+      }
+      .topbar,
+      .game,
+      .side,
+      .card,
+      .overlay-card,
+      .modal-card {
+        border: 1px solid var(--line);
+        background: var(--panel);
+        box-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+      }
+      .topbar {
+        min-height: 61px;
+        border-radius: 16px;
+        padding: 8px 13px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .logo {
+        width: 42px;
+        height: 42px;
+        border-radius: 13px;
+        display: grid;
+        place-items: center;
+        background: linear-gradient(145deg, var(--violet), var(--pink));
+        font-weight: 1000;
+        color: #100821;
+      }
+      .brand h1 {
+        margin: 0;
+        font-size: clamp(20px, 2.5vw, 29px);
+        line-height: 1;
+      }
+      .brand h1 b {
+        color: var(--pink);
+      }
+      .brand p {
+        margin: 4px 0 0;
+        color: var(--muted);
+        font-size: 10px;
+        font-weight: 800;
+      }
+      .actions {
+        display: flex;
+        gap: 6px;
+      }
+      .btn,
+      .icon-btn,
+      .choice,
+      .tool,
+      .upgrade-card,
+      .archive-btn {
+        border: 1px solid var(--line);
+        border-radius: 11px;
+        background: rgba(34, 25, 65, 0.9);
+        color: var(--ink);
+        font-weight: 900;
+        cursor: pointer;
+        transition: 0.15s;
+      }
+      .btn:hover,
+      .icon-btn:hover,
+      .choice:hover,
+      .tool:hover,
+      .upgrade-card:hover,
+      .archive-btn:hover {
+        transform: translateY(-1px);
+        border-color: rgba(67, 220, 255, 0.7);
+      }
+      .btn:disabled,
+      .icon-btn:disabled,
+      .tool:disabled,
+      .archive-btn:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+        transform: none;
+      }
+      .btn {
+        padding: 9px 14px;
+      }
+      .btn.primary {
+        border: 0;
+        background: linear-gradient(135deg, var(--violet), var(--pink));
+        color: white;
+      }
+      .icon-btn {
+        width: 40px;
+        height: 40px;
+      }
+      .layout {
+        min-height: 0;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 335px;
+        gap: 8px;
+      }
+      .game,
+      .side {
+        border-radius: 16px;
+        min-height: 0;
+        min-width: 0;
+      }
+      .game {
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr) auto;
+        gap: 7px;
+        padding: 8px;
+      }
+      .hud {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 5px;
+      }
+      .hud div {
+        padding: 6px 8px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.025);
+      }
+      .hud span {
+        display: block;
+        color: var(--muted);
+        font-size: 8px;
+        font-weight: 900;
+      }
+      .hud strong {
+        font-size: 15px;
+      }
+      .hud .score strong {
+        color: var(--gold);
+      }
+      .board-wrap {
+        position: relative;
+        min-height: 0;
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 13px;
+        background: #09071a;
+      }
+      .board {
+        --size: 4;
+        position: relative;
+        width: min(100%, 620px, calc(100vh - 220px));
+        aspect-ratio: 1;
+        display: grid;
+        grid-template-columns: repeat(var(--size), 1fr);
+        grid-template-rows: repeat(var(--size), 1fr);
+        gap: clamp(5px, 1vmin, 9px);
+        padding: clamp(7px, 1.2vmin, 11px);
+        border: 1px solid rgba(112, 84, 184, 0.34);
+        border-radius: 15px;
+        background: rgba(24, 15, 52, 0.86);
+        touch-action: none;
+      }
+      .cell {
+        position: relative;
+        min-width: 0;
+        border-radius: clamp(7px, 1.1vmin, 12px);
+        background: rgba(255, 255, 255, 0.045);
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+      }
+      .tile {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        border-radius: inherit;
+        font-weight: 1000;
+        font-size: clamp(14px, 4vmin, 35px);
+        color: white;
+        text-shadow: 0 2px 5px rgba(0, 0, 0, 0.32);
+        animation: pop 0.14s ease;
+      }
+      .tile.new {
+        animation: spawn 0.18s ease;
+      }
+      .tile.merge {
+        animation: merge 0.23s ease;
+      }
+      .cell.target {
+        outline: 3px solid var(--cyan);
+        outline-offset: -4px;
+      }
+      .cell.swap {
+        outline: 3px solid var(--gold);
+        outline-offset: -4px;
+      }
+      @keyframes spawn {
+        from {
+          transform: scale(0.4);
+          opacity: 0.3;
+        }
+      }
+      @keyframes merge {
+        50% {
+          transform: scale(1.13);
+        }
+      }
+      @keyframes pop {
+        from {
+          opacity: 0.75;
+        }
+      }
+      .banner {
+        position: absolute;
+        left: 50%;
+        top: 15px;
+        transform: translate(-50%, -10px);
+        padding: 8px 14px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: rgba(8, 5, 21, 0.92);
+        font-size: 11px;
+        font-weight: 900;
+        opacity: 0;
+        transition: 0.2s;
+        pointer-events: none;
+      }
+      .banner.show {
+        opacity: 1;
+        transform: translate(-50%, 0);
+      }
+      .mission-track {
+        position: absolute;
+        left: 50%;
+        bottom: 8px;
+        transform: translateX(-50%);
+        width: min(58%, 470px);
+        padding: 6px 9px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: rgba(7, 5, 18, 0.85);
+        pointer-events: none;
+      }
+      .mission-track div {
+        height: 8px;
+        border-radius: 7px;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.08);
+      }
+      .mission-track i {
+        display: block;
+        width: 0;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          var(--violet),
+          var(--cyan),
+          var(--gold)
+        );
+      }
+      .mission-track span {
+        position: absolute;
+        inset: 2px;
+        text-align: center;
+        font-size: 8px;
+        font-weight: 900;
+      }
+      .tools {
+        display: grid;
+        grid-template-columns: repeat(8, 1fr);
+        gap: 5px;
+      }
+      .tool {
+        position: relative;
+        min-height: 51px;
+        padding: 6px;
+      }
+      .tool b {
+        display: block;
+        font-size: 15px;
+      }
+      .tool span {
+        display: block;
+        color: var(--muted);
+        font-size: 8px;
+      }
+      .tool em {
+        position: absolute;
+        right: 5px;
+        top: 4px;
+        color: var(--gold);
+        font-style: normal;
+        font-size: 9px;
+      }
+      .tool.active {
+        border-color: var(--cyan);
+        background: rgba(67, 220, 255, 0.1);
+      }
+      .side {
+        padding: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+        overflow: auto;
+      }
+      .card {
+        padding: 10px;
+        border-radius: 13px;
+      }
+      .objective {
+        display: flex;
+        gap: 9px;
+        align-items: center;
+      }
+      .objective-icon {
+        width: 39px;
+        height: 39px;
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+        font-size: 19px;
+        background: rgba(164, 134, 255, 0.14);
+      }
+      .objective b {
+        display: block;
+        font-size: 12px;
+      }
+      .objective small {
+        display: block;
+        color: var(--muted);
+        font-size: 9px;
+        line-height: 1.35;
+        margin-top: 2px;
+      }
+      .bar {
+        height: 7px;
+        margin-top: 7px;
+        border-radius: 8px;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.08);
+      }
+      .bar i {
+        display: block;
+        width: 0;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          var(--pink),
+          var(--violet),
+          var(--cyan)
+        );
+      }
+      .card-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 7px;
+      }
+      .card-head strong {
+        font-size: 11px;
+      }
+      .eyebrow {
+        color: var(--pink);
+        font-size: 8px;
+        font-weight: 1000;
+        letter-spacing: 0.08em;
+      }
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+      }
+      .chip {
+        padding: 5px 7px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.03);
+        font-size: 9px;
+      }
+      .stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 5px;
+      }
+      .stats div {
+        display: flex;
+        justify-content: space-between;
+        padding: 6px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.025);
+        font-size: 9px;
+      }
+      .stats span {
+        color: var(--muted);
+      }
+      .tip {
+        color: var(--muted);
+        font-size: 9px;
+        line-height: 1.55;
+      }
+      .tip b {
+        color: var(--cyan);
+      }
+      .overlay,
+      .modal {
+        position: absolute;
+        inset: 0;
+        z-index: 10;
+        display: grid;
+        place-items: center;
+        padding: 15px;
+        background: rgba(4, 3, 12, 0.77);
+        backdrop-filter: blur(7px);
+      }
+      .overlay.hidden,
+      .modal.hidden {
+        display: none;
+      }
+      .overlay-card,
+      .modal-card {
+        width: min(900px, 96%);
+        max-height: 94%;
+        overflow: auto;
+        border-radius: 20px;
+        padding: 17px;
+      }
+      .overlay-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+      }
+      .overlay-title h2 {
+        margin: 0;
+        font-size: 26px;
+      }
+      .overlay-title h2 b {
+        color: var(--pink);
+      }
+      .overlay-title p {
+        margin: 5px 0 0;
+        color: var(--muted);
+        font-size: 10px;
+      }
+      .save-pill {
+        padding: 7px 10px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.05);
+        font-size: 9px;
+        color: var(--muted);
+      }
+      .setup {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 11px;
+      }
+      .section {
+        padding: 10px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.018);
+      }
+      .section h3 {
+        margin: 0 0 7px;
+        font-size: 11px;
+      }
+      .mode-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+      }
+      .choice {
+        min-height: 63px;
+        padding: 8px;
+        text-align: left;
+      }
+      .choice b {
+        display: block;
+        font-size: 11px;
+      }
+      .choice small {
+        display: block;
+        color: var(--muted);
+        font-size: 8px;
+        line-height: 1.35;
+        margin-top: 3px;
+      }
+      .choice.selected {
+        border-color: var(--pink);
+        background: rgba(255, 92, 175, 0.08);
+      }
+      .sector-grid {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 5px;
+      }
+      .sector {
+        min-height: 42px;
+        text-align: center;
+        padding: 5px;
+      }
+      .sector.locked {
+        opacity: 0.3;
+      }
+      .archive {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+      }
+      .archive-btn {
+        padding: 7px;
+        text-align: left;
+      }
+      .archive-btn b {
+        font-size: 10px;
+      }
+      .archive-btn span {
+        display: block;
+        color: var(--muted);
+        font-size: 8px;
+      }
+      .archive-btn em {
+        display: block;
+        color: var(--gold);
+        font-size: 8px;
+        font-style: normal;
+        margin-top: 4px;
+      }
+      .save-tools {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-top: 8px;
+      }
+      .start-row {
+        display: flex;
+        justify-content: flex-end;
+        gap: 7px;
+        margin-top: 10px;
+      }
+      .result {
+        display: none;
+        text-align: center;
+      }
+      .result.show {
+        display: block;
+      }
+      .result h2 {
+        margin: 0;
+        font-size: 27px;
+      }
+      .result p {
+        font-size: 10px;
+        color: var(--muted);
+      }
+      .result-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+        margin: 12px 0;
+      }
+      .result-grid div {
+        padding: 9px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.04);
+      }
+      .result-grid b {
+        display: block;
+        color: var(--gold);
+        font-size: 18px;
+      }
+      .result-grid span {
+        font-size: 8px;
+        color: var(--muted);
+      }
+      .modal-card {
+        width: min(720px, 94%);
+      }
+      .modal-card h2 {
+        margin: 3px 0 11px;
+      }
+      .upgrade-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 7px;
+      }
+      .upgrade-card {
+        min-height: 125px;
+        padding: 12px;
+        text-align: left;
+      }
+      .upgrade-card i {
+        display: grid;
+        place-items: center;
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.06);
+        font-style: normal;
+        margin-bottom: 8px;
+      }
+      .upgrade-card strong {
+        display: block;
+        font-size: 12px;
+      }
+      .upgrade-card p {
+        font-size: 9px;
+        color: var(--muted);
+        line-height: 1.4;
+      }
+      .protocol-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 9px;
+      }
+      @media (max-width: 900px) {
+        .layout {
+          grid-template-columns: 1fr;
+          grid-template-rows: minmax(0, 1fr) 205px;
+        }
+        .side {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+        }
+        .side .tip-card {
+          display: none;
+        }
+        .setup {
+          grid-template-columns: 1fr;
+        }
+        .board {
+          width: min(100%, calc(100vh - 390px), 560px);
+        }
+      }
+      @media (max-width: 560px) {
+        .app {
+          padding: 5px;
+          gap: 5px;
+        }
+        .topbar {
+          min-height: 51px;
+          padding: 5px 8px;
+        }
+        .logo {
+          width: 35px;
+          height: 35px;
+        }
+        .brand p {
+          display: none;
+        }
+        .actions .btn {
+          display: none;
+        }
+        .icon-btn {
+          width: 35px;
+          height: 35px;
+        }
+        .layout {
+          grid-template-rows: minmax(0, 1fr) 180px;
+          gap: 5px;
+        }
+        .game {
+          padding: 4px;
+        }
+        .hud {
+          grid-template-columns: repeat(3, 1fr);
+          gap: 3px;
+        }
+        .hud div {
+          padding: 4px 6px;
+        }
+        .hud strong {
+          font-size: 12px;
+        }
+        .board {
+          width: min(100%, calc(100vw - 20px));
+        }
+        .tools {
+          grid-template-columns: repeat(4, 1fr);
+          gap: 3px;
+        }
+        .tool {
+          min-height: 43px;
+          padding: 3px;
+        }
+        .tool b {
+          font-size: 13px;
+        }
+        .side {
+          padding: 5px;
+          gap: 4px;
+        }
+        .card {
+          padding: 7px;
+        }
+        .stats {
+          display: none;
+        }
+        .overlay {
+          padding: 6px;
+        }
+        .overlay-card {
+          padding: 11px;
+        }
+        .overlay-title {
+          display: block;
+        }
+        .mode-grid {
+          gap: 4px;
+        }
+        .choice {
+          min-height: 54px;
+          padding: 6px;
+        }
+        .sector-grid {
+          grid-template-columns: repeat(4, 1fr);
+        }
+        .archive {
+          grid-template-columns: 1fr;
+        }
+        .archive-btn {
+          display: flex;
+          justify-content: space-between;
+        }
+        .archive-btn span {
+          display: none;
+        }
+        .upgrade-grid {
+          grid-template-columns: 1fr;
+        }
+        .upgrade-card {
+          min-height: 92px;
+        }
+        .result-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <header class="topbar">
+        <div class="brand">
+          <div class="logo">2ⁿ</div>
+          <div>
+            <h1>霓虹 2048 <b>万象 V3</b></h1>
+            <p>18 节点 · 七模式 · 八工具 · 跨设备档案</p>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="icon-btn" id="undoBtn">↶</button
+          ><button class="btn" id="homeBtn">矩阵站</button
+          ><button class="icon-btn" id="newBtn">↻</button>
+        </div>
+      </header>
+      <div class="layout">
+        <section class="game">
+          <div class="hud">
+            <div class="score">
+              <span>得分</span><strong id="score">0</strong>
+            </div>
+            <div><span>最高</span><strong id="best">0</strong></div>
+            <div><span>步数</span><strong id="moves">0</strong></div>
+            <div><span>最大块</span><strong id="maxTile">2</strong></div>
+            <div><span>连锁</span><strong id="combo">×1</strong></div>
+            <div><span>时间/步限</span><strong id="limit">--</strong></div>
+          </div>
+          <div class="board-wrap">
+            <div class="board" id="board"></div>
+            <div class="banner" id="banner">矩阵启动</div>
+            <div class="mission-track">
+              <div><i id="missionBar"></i></div>
+              <span id="missionText">选择行动</span>
+            </div>
+            <div class="overlay" id="homeOverlay">
+              <div class="overlay-card">
+                <div id="setupView">
+                  <div class="overlay-title">
+                    <div>
+                      <h2>万象矩阵：<b>选择协议</b></h2>
+                      <p>
+                        保持标准合成规则，用连锁充能、工具和局内协议完成不同矩阵目标。
+                      </p>
+                    </div>
+                    <div class="save-pill" id="savePill">数据片 0</div>
+                  </div>
+                  <div class="setup">
+                    <section class="section">
+                      <h3>矩阵模式</h3>
+                      <div class="mode-grid" id="modeGrid"></div>
+                    </section>
+                    <section class="section">
+                      <h3>远征节点</h3>
+                      <div class="sector-grid" id="sectorGrid"></div>
+                    </section>
+                    <section class="section" style="grid-column: 1/-1">
+                      <h3>永久档案强化</h3>
+                      <div class="archive" id="archiveGrid"></div>
+                      <div class="save-tools">
+                        <button class="btn" id="exportSaveBtn" type="button">
+                          导出存档码
+                        </button>
+                        <button class="btn" id="importSaveBtn" type="button">
+                          导入存档码
+                        </button>
+                      </div>
+                    </section>
+                  </div>
+                  <div class="start-row">
+                    <button class="btn primary" id="startBtn">启动矩阵</button>
+                  </div>
+                </div>
+                <div class="result" id="resultView">
+                  <h2 id="resultTitle">矩阵结束</h2>
+                  <p id="resultText"></p>
+                  <div class="result-grid">
+                    <div><b id="resultScore">0</b><span>得分</span></div>
+                    <div><b id="resultMax">0</b><span>最大块</span></div>
+                    <div><b id="resultData">0</b><span>数据片</span></div>
+                    <div><b id="resultMoves">0</b><span>步数</span></div>
+                  </div>
+                  <div class="start-row" style="justify-content: center">
+                    <button class="btn" id="againBtn">同配置再战</button
+                    ><button class="btn primary" id="resultHomeBtn">
+                      返回矩阵站
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="tools" id="tools">
+            <button class="tool" data-tool="hammer">
+              <em id="hammerCount">0</em><b>锤</b><span>移除</span></button
+            ><button class="tool" data-tool="swap">
+              <em id="swapCount">0</em><b>换</b><span>交换</span></button
+            ><button class="tool" data-tool="bomb">
+              <em id="bombCount">0</em><b>爆</b><span>十字</span></button
+            ><button class="tool" data-tool="upgrade">
+              <em id="upgradeCount">0</em><b>升</b><span>升阶</span></button
+            ><button class="tool" data-tool="magnet">
+              <em id="magnetCount">0</em><b>吸</b><span>聚角</span></button
+            ><button class="tool" data-tool="undo">
+              <em id="undoCount">0</em><b>退</b><span>撤回</span>
+            </button>
+            <button class="tool" data-tool="downgrade">
+              <em id="downgradeCount">0</em><b>降</b><span>降阶充能</span>
+            </button>
+            <button class="tool" data-tool="clone">
+              <em id="cloneCount">0</em><b>复</b><span>复制数字</span>
+            </button>
+          </div>
+        </section>
+        <aside class="side">
+          <section class="card">
+            <div class="objective">
+              <div class="objective-icon" id="objectiveIcon">◇</div>
+              <div>
+                <b id="objectiveTitle">矩阵待命</b
+                ><small id="objectiveText">选择一个模式开始</small>
+              </div>
+            </div>
+            <div class="bar"><i id="chargeBar"></i></div>
+          </section>
+          <section class="card">
+            <div class="card-head">
+              <strong>局内协议</strong
+              ><span class="eyebrow" id="chargeText">充能 0%</span>
+            </div>
+            <div class="chips" id="buildList"></div>
+          </section>
+          <section class="card">
+            <div class="card-head">
+              <strong>矩阵统计</strong><span class="eyebrow">LIVE</span>
+            </div>
+            <div class="stats" id="stats"></div>
+          </section>
+          <section class="card tip-card">
+            <div class="tip">
+              <b>操作：</b>方向键 / WASD /
+              滑动合成。连续有效合成会提高连锁和充能；充能满后自动开启一次协议选择。工具用于修正坏盘，但数量有限。
+            </div>
+          </section>
+        </aside>
+      </div>
+    </main>
+    <div class="modal hidden" id="protocolModal">
+      <div class="modal-card">
+        <span class="eyebrow" id="modalKicker">充能完成</span>
+        <h2 id="modalTitle">选择一项矩阵协议</h2>
+        <div class="upgrade-grid" id="protocolGrid"></div>
+        <div class="protocol-actions">
+          <button class="btn" id="convertBtn">转化为随机工具</button>
+        </div>
+      </div>
+    </div>
+    <script>
+      "use strict";
+      const $ = (s) => document.querySelector(s),
+        SAVE_KEY = "neon2048MatrixV2";
+      const ui = {
+        board: $("#board"),
+        score: $("#score"),
+        best: $("#best"),
+        moves: $("#moves"),
+        max: $("#maxTile"),
+        combo: $("#combo"),
+        limit: $("#limit"),
+        missionBar: $("#missionBar"),
+        missionText: $("#missionText"),
+        chargeBar: $("#chargeBar"),
+        chargeText: $("#chargeText"),
+        build: $("#buildList"),
+        stats: $("#stats"),
+        overlay: $("#homeOverlay"),
+        setup: $("#setupView"),
+        result: $("#resultView"),
+        modal: $("#protocolModal"),
+        protocolGrid: $("#protocolGrid"),
+        banner: $("#banner"),
+      };
+      const MODES = {
+        expedition: {
+          name: "矩阵远征",
+          icon: "◇",
+          desc: "十二个节点，有限步数内达到目标。",
+          size: 4,
+        },
+        classic: {
+          name: "经典无尽",
+          icon: "∞",
+          desc: "标准 4×4 规则，冲击最高分与 2048。",
+          size: 4,
+        },
+        sprint: {
+          name: "极速三分",
+          icon: "ϟ",
+          desc: "180 秒内尽可能制造高阶数字。",
+          size: 4,
+          time: 180,
+        },
+        wide: {
+          name: "宽域 5×5",
+          icon: "▦",
+          desc: "更大的矩阵，目标提升到 4096。",
+          size: 5,
+          target: 4096,
+        },
+        daily: {
+          name: "今日矩阵",
+          icon: "◈",
+          desc: "按日期固定生成序列，公平挑战。",
+          size: 4,
+          time: 240,
+          target: 2048,
+          daily: true,
+        },
+        zen: {
+          name: "超域 6×6",
+          icon: "▧",
+          desc: "六阶大盘，充足空间冲击 8192。",
+          size: 6,
+          target: 8192,
+        },
+        entropy: {
+          name: "熵增矩阵",
+          icon: "⌁",
+          desc: "5×5 限时战，每三步额外生成一个数字。",
+          size: 5,
+          target: 4096,
+          time: 300,
+          entropy: true,
+        },
+      };
+      const ARCHIVE = {
+        charge: {
+          name: "充能算法",
+          desc: "每级充能 +5%",
+          max: 8,
+          cost: (n) => 8 + n * 7,
+        },
+        tool: {
+          name: "工具缓存",
+          desc: "每 3 级随机工具 +1",
+          max: 9,
+          cost: (n) => 10 + n * 9,
+        },
+        score: {
+          name: "分数协议",
+          desc: "每级得分 +4%",
+          max: 8,
+          cost: (n) => 12 + n * 10,
+        },
+        history: {
+          name: "历史镜像",
+          desc: "每 2 级历史容量 +1",
+          max: 8,
+          cost: (n) => 13 + n * 10,
+        },
+        yield: {
+          name: "数据增产",
+          desc: "每级结算数据片 +6%",
+          max: 8,
+          cost: (n) => 15 + n * 11,
+        },
+      };
+      const MILESTONES = [
+        {
+          id: "merge250",
+          name: "合成学徒",
+          reward: 25,
+          done: (s) => s.totalMerges >= 250,
+        },
+        {
+          id: "node12",
+          name: "旧矩阵毕业",
+          reward: 36,
+          done: (s) => s.unlocked >= 12,
+        },
+        {
+          id: "node18",
+          name: "万象解算",
+          reward: 64,
+          done: (s) => s.unlocked >= 18,
+        },
+        { id: "wins8", name: "稳定算法", reward: 48, done: (s) => s.wins >= 8 },
+      ];
+      const PROTOCOLS = [
+        {
+          id: "amp",
+          icon: "分",
+          title: "增幅计分",
+          desc: "合成得分永久 +18%。",
+          apply: (s) => (s.scoreMult += 0.18),
+        },
+        {
+          id: "charge",
+          icon: "能",
+          title: "回流电容",
+          desc: "后续充能获取 +24%。",
+          apply: (s) => (s.chargeMult += 0.24),
+        },
+        {
+          id: "combo",
+          icon: "连",
+          title: "连锁缓存",
+          desc: "无合成移动不再立刻清空连锁。",
+          apply: (s) => s.comboGrace++,
+        },
+        {
+          id: "spawn",
+          icon: "净",
+          title: "纯净生成",
+          desc: "新生成 4 的概率降低 5%。",
+          apply: (s) => (s.fourChance = Math.max(0.02, s.fourChance - 0.05)),
+        },
+        {
+          id: "tools",
+          icon: "具",
+          title: "应急工具包",
+          desc: "随机获得 2 个工具。",
+          apply: (s) => {
+            grantTool();
+            grantTool();
+          },
+        },
+        {
+          id: "steps",
+          icon: "步",
+          title: "路径扩容",
+          desc: "远征步数上限 +6，限时模式 +20 秒。",
+          apply: (s) => {
+            s.moveLimit += 6;
+            s.timeLeft += 20;
+          },
+        },
+        {
+          id: "cascade",
+          icon: "潮",
+          title: "连锁升阶",
+          desc: "每连续三次合成，随机最低块自动升阶。",
+          apply: (s) => s.cascade++,
+        },
+        {
+          id: "undo",
+          icon: "退",
+          title: "时间镜像",
+          desc: "获得 2 次撤回，历史容量增加。",
+          apply: (s) => {
+            s.tools.undo += 2;
+            s.historyMax += 2;
+          },
+        },
+        {
+          id: "yield",
+          icon: "档",
+          title: "数据虹吸",
+          desc: "本局结算数据片 +25%。",
+          apply: (s) => (s.dataMult += 0.25),
+        },
+        {
+          id: "purge",
+          icon: "净",
+          title: "低阶清理",
+          desc: "立即移除最多两个最低阶数字。",
+          apply: (s) => purgeLowest(s, 2),
+        },
+        {
+          id: "overcap",
+          icon: "溢",
+          title: "过载电容",
+          desc: "立即获得随机工具，后续充能 +15%。",
+          apply: (s) => {
+            s.chargeMult += 0.15;
+            grantTool();
+          },
+        },
+        {
+          id: "anchor",
+          icon: "锚",
+          title: "高阶锚点",
+          desc: "最大数字立刻升阶一次，但充能归零。",
+          apply: (s) => {
+            const max = Math.max(...s.grid.flat());
+            const index = s.grid.flat().indexOf(max);
+            if (index >= 0)
+              s.grid[Math.floor(index / s.size)][index % s.size] *= 2;
+            s.charge = 0;
+          },
+        },
+      ];
+      const TOOL_INFO = {
+        hammer: ["锤子", "移除一个数字"],
+        swap: ["交换", "交换两个数字"],
+        bomb: ["脉冲炸弹", "清除十字区域"],
+        upgrade: ["升阶", "将数字翻倍"],
+        magnet: ["角落磁吸", "把大数字聚到右下"],
+        undo: ["撤回", "回到上一步"],
+        downgrade: ["降阶", "数字减半并获得充能"],
+        clone: ["复制", "复制数字到随机空格"],
+      };
+      let save = load(),
+        selectedMode = "expedition",
+        selectedSector = Math.min(save.unlocked, 18),
+        state,
+        timer = 0,
+        bannerTimer = 0,
+        pointer = null;
+      selectedMode = MODES[save.loadout?.mode]
+        ? save.loadout.mode
+        : selectedMode;
+      function load() {
+        const base = {
+          v: 3,
+          data: 0,
+          unlocked: 1,
+          best: {},
+          stars: {},
+          archive: { charge: 0, tool: 0, score: 0, history: 0, yield: 0 },
+          totalMerges: 0,
+          runs: 0,
+          wins: 0,
+          records: {},
+          milestones: {},
+          loadout: { mode: "expedition" },
+        };
+        try {
+          const s = JSON.parse(localStorage.getItem(SAVE_KEY) || "null");
+          if (s && (s.v === 2 || s.v === 3))
+            return {
+              ...base,
+              ...s,
+              v: 3,
+              archive: { ...base.archive, ...(s.archive || {}) },
+              records: s.records || {},
+              milestones: s.milestones || {},
+              loadout: { ...base.loadout, ...(s.loadout || {}) },
+            };
+        } catch {}
+        return base;
+      }
+      function store() {
+        save.v = 3;
+        save.loadout = { mode: selectedMode };
+        localStorage.setItem(SAVE_KEY, JSON.stringify(save));
+      }
+      function saveHash(text) {
+        let hash = 2166136261;
+        for (let i = 0; i < text.length; i++) {
+          hash ^= text.charCodeAt(i);
+          hash = Math.imul(hash, 16777619);
+        }
+        return (hash >>> 0).toString(36);
+      }
+      function encodeSave() {
+        const json = JSON.stringify({
+          game: "neon-2048",
+          version: 3,
+          data: save,
+        });
+        const bytes = new TextEncoder().encode(json);
+        let binary = "";
+        bytes.forEach((byte) => (binary += String.fromCharCode(byte)));
+        const payload = btoa(binary);
+        return `NMX3.${payload}.${saveHash(payload)}`;
+      }
+      function importSave(code) {
+        const [prefix, payload, checksum] = String(code || "")
+          .trim()
+          .split(".");
+        if (prefix !== "NMX3" || !payload || saveHash(payload) !== checksum)
+          throw new Error("存档码校验失败");
+        const parsed = JSON.parse(
+          new TextDecoder().decode(
+            Uint8Array.from(atob(payload), (char) => char.charCodeAt(0)),
+          ),
+        );
+        if (parsed.game !== "neon-2048" || !parsed.data)
+          throw new Error("不是霓虹 2048 存档");
+        localStorage.setItem(SAVE_KEY, JSON.stringify(parsed.data));
+        save = load();
+        selectedMode = MODES[save.loadout.mode]
+          ? save.loadout.mode
+          : "expedition";
+        selectedSector = Math.min(save.unlocked, 18);
+        store();
+        renderHome();
+      }
+      const clone = (g) => g.map((r) => r.slice()),
+        clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+      function sectorGoal(n) {
+        return Math.min(8192, 32 * Math.pow(2, Math.floor((n - 1) / 2)));
+      }
+      function sectorMoves(n) {
+        return Math.max(36, 68 - Math.floor(n * 1.7));
+      }
+      function renderHome() {
+        ui.setup.style.display = "block";
+        ui.result.classList.remove("show");
+        $("#savePill").textContent =
+          `数据片 ${save.data} · 节点 ${save.unlocked}/18 · ${save.wins || 0} 胜 · 总合成 ${save.totalMerges}`;
+        $("#modeGrid").innerHTML = Object.entries(MODES)
+          .map(
+            ([k, m]) =>
+              `<button class="choice ${selectedMode === k ? "selected" : ""}" data-mode="${k}"><b>${m.icon} ${m.name}</b><small>${m.desc}<br>纪录 ${save.best[k] || 0}</small></button>`,
+          )
+          .join("");
+        $("#sectorGrid").innerHTML = Array.from({ length: 18 }, (_, i) => {
+          const n = i + 1,
+            locked = n > save.unlocked;
+          return `<button class="choice sector ${selectedSector === n ? "selected" : ""} ${locked ? "locked" : ""}" data-sector="${n}" ${locked ? "disabled" : ""}><b>${n}</b><small>${sectorGoal(n)}</small></button>`;
+        }).join("");
+        $("#sectorGrid").style.opacity =
+          selectedMode === "expedition" ? 1 : 0.42;
+        $("#archiveGrid").innerHTML = Object.entries(ARCHIVE)
+          .map(([k, a]) => {
+            const lv = save.archive[k] || 0,
+              c = a.cost(lv),
+              max = lv >= a.max;
+            return `<button class="archive-btn" data-archive="${k}" ${max || save.data < c ? "disabled" : ""}><b>${a.name} Lv.${lv}</b><span>${a.desc}</span><em>${max ? "已满级" : `数据片 ${c}`}</em></button>`;
+          })
+          .join("");
+        document.querySelectorAll("[data-mode]").forEach(
+          (b) =>
+            (b.onclick = () => {
+              selectedMode = b.dataset.mode;
+              store();
+              renderHome();
+            }),
+        );
+        document.querySelectorAll("[data-sector]").forEach(
+          (b) =>
+            (b.onclick = () => {
+              selectedSector = +b.dataset.sector;
+              renderHome();
+            }),
+        );
+        document
+          .querySelectorAll("[data-archive]")
+          .forEach((b) => (b.onclick = () => buyArchive(b.dataset.archive)));
+      }
+      function buyArchive(k) {
+        const a = ARCHIVE[k],
+          lv = save.archive[k] || 0,
+          c = a.cost(lv);
+        if (lv >= a.max || save.data < c) return;
+        save.data -= c;
+        save.archive[k] = lv + 1;
+        store();
+        renderHome();
+      }
+      function rng(seed) {
+        return () => {
+          seed = (Math.imul(seed, 1664525) + 1013904223) | 0;
+          return (seed >>> 0) / 4294967296;
+        };
+      }
+      function dailySeed() {
+        const d = new Date();
+        return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+      }
+      function fresh() {
+        const mode = MODES[selectedMode],
+          size = mode.size,
+          target =
+            selectedMode === "expedition"
+              ? sectorGoal(selectedSector)
+              : mode.target || 2048,
+          toolBonus = Math.floor((save.archive.tool || 0) / 3);
+        const tools = {
+          hammer: 0,
+          swap: 0,
+          bomb: 0,
+          upgrade: 0,
+          magnet: 0,
+          undo: 1,
+          downgrade: 0,
+          clone: 0,
+        };
+        for (let i = 0; i < toolBonus; i++) {
+          const ks = Object.keys(tools);
+          tools[ks[i % ks.length]]++;
+        }
+        return {
+          mode: selectedMode,
+          size,
+          target,
+          grid: Array.from({ length: size }, () => Array(size).fill(0)),
+          score: 0,
+          best: save.best[selectedMode] || 0,
+          moves: 0,
+          merges: 0,
+          maxTile: 2,
+          timeLeft: mode.time || 0,
+          moveLimit:
+            selectedMode === "expedition" ? sectorMoves(selectedSector) : 99999,
+          sector: selectedSector,
+          charge: 0,
+          chargeMult: 1 + (save.archive.charge || 0) * 0.05,
+          scoreMult: 1 + (save.archive.score || 0) * 0.04,
+          dataMult: 1,
+          combo: 0,
+          comboGrace: 0,
+          mergeStreak: 0,
+          cascade: 0,
+          fourChance: 0.1,
+          tools,
+          history: [],
+          historyMax: 4 + Math.floor((save.archive.history || 0) / 2),
+          activeTool: null,
+          swapCell: null,
+          build: [],
+          over: false,
+          won: false,
+          rand: mode.daily ? rng(dailySeed()) : Math.random,
+          newCells: new Set(),
+          mergeCells: new Set(),
+        };
+      }
+      function start() {
+        state = fresh();
+        spawn();
+        spawn();
+        renderBoard();
+        ui.overlay.classList.add("hidden");
+        showBanner(`${MODES[state.mode].icon} ${MODES[state.mode].name}`);
+        clearInterval(timer);
+        timer = setInterval(tickClock, 250);
+        sync();
+      }
+      function tickClock() {
+        if (
+          !state ||
+          state.over ||
+          !ui.overlay.classList.contains("hidden") ||
+          !ui.modal.classList.contains("hidden")
+        )
+          return;
+        if (state.timeLeft > 0) {
+          state.timeLeft = Math.max(0, state.timeLeft - 0.25);
+          if (state.timeLeft <= 0) end(false, "倒计时结束");
+          sync();
+        }
+        if (bannerTimer > 0) {
+          bannerTimer -= 250;
+          if (bannerTimer <= 0) ui.banner.classList.remove("show");
+        }
+      }
+      function spawn() {
+        const empty = [];
+        for (let r = 0; r < state.size; r++)
+          for (let c = 0; c < state.size; c++)
+            if (!state.grid[r][c]) empty.push({ r, c });
+        if (!empty.length) return false;
+        const p = empty[Math.floor(state.rand() * empty.length)],
+          v = state.rand() < 1 - state.fourChance ? 2 : 4;
+        state.grid[p.r][p.c] = v;
+        state.newCells = new Set([`${p.r},${p.c}`]);
+        return true;
+      }
+      function snapshot() {
+        state.history.push({
+          grid: clone(state.grid),
+          score: state.score,
+          moves: state.moves,
+          maxTile: state.maxTile,
+          charge: state.charge,
+          combo: state.combo,
+        });
+        if (state.history.length > state.historyMax) state.history.shift();
+      }
+      function lines(dir) {
+        const out = [];
+        for (let i = 0; i < state.size; i++) {
+          const line = [];
+          for (let j = 0; j < state.size; j++) {
+            if (dir === "left") line.push([i, j]);
+            if (dir === "right") line.push([i, state.size - 1 - j]);
+            if (dir === "up") line.push([j, i]);
+            if (dir === "down") line.push([state.size - 1 - j, i]);
+          }
+          out.push(line);
+        }
+        return out;
+      }
+      function move(dir) {
+        if (
+          state.over ||
+          state.activeTool ||
+          !ui.modal.classList.contains("hidden")
+        )
+          return;
+        const before = clone(state.grid),
+          next = Array.from({ length: state.size }, () =>
+            Array(state.size).fill(0),
+          );
+        let gained = 0,
+          merges = 0;
+        state.mergeCells = new Set();
+        for (const line of lines(dir)) {
+          const vals = line.map(([r, c]) => state.grid[r][c]).filter(Boolean),
+            merged = [];
+          for (let i = 0; i < vals.length; i++) {
+            if (vals[i] === vals[i + 1]) {
+              const v = vals[i] * 2;
+              merged.push(v);
+              gained += v;
+              merges++;
+              i++;
+            } else merged.push(vals[i]);
+          }
+          while (merged.length < state.size) merged.push(0);
+          line.forEach(([r, c], i) => {
+            next[r][c] = merged[i];
+            if (i < merged.length && merged[i] && merged[i] !== vals[i])
+              state.mergeCells.add(`${r},${c}`);
+          });
+        }
+        if (equal(before, next)) return;
+        snapshot();
+        state.grid = next;
+        state.moves++;
+        state.score += Math.round(
+          gained * state.scoreMult * (1 + Math.min(8, state.combo) * 0.08),
+        );
+        state.best = Math.max(state.best, state.score);
+        if (merges > 0) {
+          state.combo++;
+          state.mergeStreak++;
+          state.merges += merges;
+          save.totalMerges += merges;
+          state.charge = Math.min(
+            100,
+            state.charge +
+              merges *
+                14 *
+                state.chargeMult *
+                (1 + Math.min(6, state.combo) * 0.07),
+          );
+          if (state.cascade && state.mergeStreak % 3 === 0) upgradeLowest();
+          if (merges >= 3) showBanner(`连锁合成 ×${merges}`);
+        } else {
+          if (state.comboGrace > 0) state.comboGrace--;
+          else state.combo = 0;
+          state.mergeStreak = 0;
+        }
+        spawn();
+        if (MODES[state.mode].entropy && state.moves % 3 === 0) {
+          spawn();
+          showBanner("熵增：额外数字生成");
+        }
+        state.maxTile = Math.max(...state.grid.flat());
+        renderBoard();
+        checkState();
+        if (state.charge >= 100 && !state.over) openProtocol();
+        sync();
+        store();
+      }
+      function equal(a, b) {
+        return a.every((r, i) => r.every((v, j) => v === b[i][j]));
+      }
+      function purgeLowest(target, count) {
+        for (let step = 0; step < count; step++) {
+          const values = target.grid.flat().filter(Boolean);
+          if (!values.length) return;
+          const min = Math.min(...values);
+          const cells = [];
+          for (let r = 0; r < target.size; r++)
+            for (let c = 0; c < target.size; c++)
+              if (target.grid[r][c] === min) cells.push([r, c]);
+          if (!cells.length) return;
+          const [r, c] = cells[Math.floor(target.rand() * cells.length)];
+          target.grid[r][c] = 0;
+        }
+        showBanner("低阶数字已清理");
+      }
+      function upgradeLowest() {
+        const vals = state.grid.flat().filter(Boolean),
+          min = Math.min(...vals),
+          cells = [];
+        for (let r = 0; r < state.size; r++)
+          for (let c = 0; c < state.size; c++)
+            if (state.grid[r][c] === min) cells.push([r, c]);
+        if (cells.length) {
+          const [r, c] = cells[Math.floor(state.rand() * cells.length)];
+          state.grid[r][c] *= 2;
+          showBanner("连锁升阶触发");
+        }
+      }
+      function checkState() {
+        if (state.maxTile >= state.target) {
+          if (
+            state.mode === "expedition" ||
+            state.mode === "daily" ||
+            state.mode === "wide" ||
+            state.mode === "zen" ||
+            state.mode === "entropy"
+          )
+            return end(true, "目标数字已达成");
+          showBanner(`${state.target} 已达成，仍可继续`);
+          state.target *= 2;
+        }
+        if (state.moves >= state.moveLimit) return end(false, "步数耗尽");
+        if (!canMove()) end(false, "矩阵已锁死");
+      }
+      function canMove() {
+        if (state.grid.flat().includes(0)) return true;
+        for (let r = 0; r < state.size; r++)
+          for (let c = 0; c < state.size; c++) {
+            if (r + 1 < state.size && state.grid[r][c] === state.grid[r + 1][c])
+              return true;
+            if (c + 1 < state.size && state.grid[r][c] === state.grid[r][c + 1])
+              return true;
+          }
+        return false;
+      }
+      function openProtocol() {
+        state.charge = 0;
+        const opts = sample(PROTOCOLS, 3);
+        ui.protocolGrid.innerHTML = opts
+          .map(
+            (p, i) =>
+              `<button class="upgrade-card" data-protocol="${p.id}"><i>${p.icon}</i><strong>${p.title}</strong><p>${p.desc}</p></button>`,
+          )
+          .join("");
+        ui.protocolGrid
+          .querySelectorAll("[data-protocol]")
+          .forEach(
+            (b) => (b.onclick = () => chooseProtocol(b.dataset.protocol)),
+          );
+        ui.modal.classList.remove("hidden");
+      }
+      function chooseProtocol(id) {
+        const p = PROTOCOLS.find((x) => x.id === id);
+        if (!p) return;
+        p.apply(state);
+        state.build.push(p.title);
+        ui.modal.classList.add("hidden");
+        state.maxTile = Math.max(...state.grid.flat());
+        showBanner(`${p.title} 已接入`);
+        renderBoard();
+        checkState();
+        sync();
+      }
+      function sample(a, n) {
+        const b = [...a],
+          o = [];
+        while (b.length && o.length < n)
+          o.push(b.splice(Math.floor(state.rand() * b.length), 1)[0]);
+        return o;
+      }
+      function grantTool(type) {
+        const keys = Object.keys(state.tools),
+          k = type || keys[Math.floor(state.rand() * keys.length)];
+        state.tools[k]++;
+        showBanner(`获得工具：${TOOL_INFO[k][0]}`);
+        sync();
+      }
+      function selectTool(k) {
+        if (state.over) return;
+        if (k === "undo") return undo();
+        if (k === "magnet") return magnet();
+        if (state.tools[k] <= 0) return;
+        state.activeTool = state.activeTool === k ? null : k;
+        state.swapCell = null;
+        renderBoard();
+        sync();
+      }
+      function undo() {
+        if (state.tools.undo <= 0 || !state.history.length) return;
+        const s = state.history.pop();
+        state.tools.undo--;
+        Object.assign(state, {
+          grid: clone(s.grid),
+          score: s.score,
+          moves: s.moves,
+          maxTile: s.maxTile,
+          charge: s.charge,
+          combo: s.combo,
+          activeTool: null,
+        });
+        renderBoard();
+        sync();
+        showBanner("矩阵已回溯");
+      }
+      function magnet() {
+        if (state.tools.magnet <= 0) return;
+        state.tools.magnet--;
+        snapshot();
+        for (let i = 0; i < state.size * 2; i++) {
+          const res = analyzeNoSpawn(i % 2 ? "down" : "right");
+          state.grid = res;
+        }
+        state.moves++;
+        renderBoard();
+        sync();
+        showBanner("高阶数字已聚向右下");
+      }
+      function analyzeNoSpawn(dir) {
+        const next = Array.from({ length: state.size }, () =>
+          Array(state.size).fill(0),
+        );
+        for (const line of lines(dir)) {
+          const vals = line.map(([r, c]) => state.grid[r][c]).filter(Boolean);
+          while (vals.length < state.size) vals.push(0);
+          line.forEach(([r, c], i) => (next[r][c] = vals[i]));
+        }
+        return next;
+      }
+      function cellClick(r, c) {
+        const k = state.activeTool;
+        if (!k) return;
+        if (k === "hammer") {
+          if (!state.grid[r][c]) return;
+          state.grid[r][c] = 0;
+        } else if (k === "bomb") {
+          for (const [rr, cc] of [
+            [r, c],
+            [r - 1, c],
+            [r + 1, c],
+            [r, c - 1],
+            [r, c + 1],
+          ])
+            if (rr >= 0 && cc >= 0 && rr < state.size && cc < state.size)
+              state.grid[rr][cc] = 0;
+        } else if (k === "upgrade") {
+          if (!state.grid[r][c]) return;
+          state.grid[r][c] *= 2;
+          state.score += state.grid[r][c];
+        } else if (k === "downgrade") {
+          if (state.grid[r][c] <= 2) return;
+          state.grid[r][c] /= 2;
+          state.charge = Math.min(100, state.charge + 25);
+        } else if (k === "clone") {
+          if (!state.grid[r][c]) return;
+          const empty = [];
+          for (let rr = 0; rr < state.size; rr++)
+            for (let cc = 0; cc < state.size; cc++)
+              if (!state.grid[rr][cc]) empty.push([rr, cc]);
+          if (!empty.length) return;
+          const [rr, cc] = empty[Math.floor(state.rand() * empty.length)];
+          state.grid[rr][cc] = state.grid[r][c];
+        } else if (k === "swap") {
+          if (!state.swapCell) {
+            state.swapCell = { r, c };
+            renderBoard();
+            return;
+          }
+          const a = state.swapCell,
+            v = state.grid[a.r][a.c];
+          state.grid[a.r][a.c] = state.grid[r][c];
+          state.grid[r][c] = v;
+          state.swapCell = null;
+        }
+        state.tools[k]--;
+        state.activeTool = null;
+        state.maxTile = Math.max(...state.grid.flat());
+        renderBoard();
+        sync();
+        showBanner(`${TOOL_INFO[k][0]}已使用`);
+        if (state.charge >= 100 && !state.over) openProtocol();
+      }
+      function renderBoard() {
+        ui.board.style.setProperty("--size", state.size);
+        ui.board.innerHTML = "";
+        for (let r = 0; r < state.size; r++)
+          for (let c = 0; c < state.size; c++) {
+            const cell = document.createElement("button");
+            cell.className = `cell ${state.activeTool ? "target" : ""} ${state.swapCell && state.swapCell.r === r && state.swapCell.c === c ? "swap" : ""}`;
+            const v = state.grid[r][c];
+            if (v) {
+              const tile = document.createElement("span");
+              tile.className = `tile ${state.newCells.has(`${r},${c}`) ? "new" : ""} ${state.mergeCells.has(`${r},${c}`) ? "merge" : ""}`;
+              tile.textContent = v;
+              tile.style.background = tileColor(v);
+              tile.style.fontSize =
+                state.size >= 5
+                  ? state.size === 6
+                    ? "clamp(9px,2.5vmin,22px)"
+                    : "clamp(12px,3.1vmin,27px)"
+                  : "";
+              cell.appendChild(tile);
+            }
+            cell.onclick = () => cellClick(r, c);
+            ui.board.appendChild(cell);
+          }
+      }
+      function tileColor(v) {
+        const colors = {
+          2: "#39305f",
+          4: "#493672",
+          8: "#5d3f8d",
+          16: "#7043a4",
+          32: "#8b45b2",
+          64: "#b24cae",
+          128: "#d6539e",
+          256: "#eb647e",
+          512: "#f48161",
+          1024: "#eea64f",
+          2048: "#e9c653",
+          4096: "#55d6d0",
+        };
+        return colors[v] || "linear-gradient(135deg,#36d9ff,#9d79ff,#ff5caf)";
+      }
+      function settleMilestones() {
+        let bonus = 0;
+        for (const milestone of MILESTONES) {
+          if (!save.milestones[milestone.id] && milestone.done(save)) {
+            save.milestones[milestone.id] = true;
+            save.data += milestone.reward;
+            bonus += milestone.reward;
+          }
+        }
+        return bonus;
+      }
+      function end(win, reason) {
+        if (state.over) return;
+        state.over = true;
+        state.won = win;
+        const data = Math.max(
+          1,
+          Math.floor(
+            (Math.floor(Math.log2(state.maxTile)) +
+              Math.floor(state.score / 5000) +
+              (win ? selectedSector : 0)) *
+              (1 + (save.archive.yield || 0) * 0.06) *
+              state.dataMult,
+          ),
+        );
+        save.data += data;
+        save.runs += 1;
+        save.wins += win ? 1 : 0;
+        save.best[state.mode] = Math.max(
+          save.best[state.mode] || 0,
+          state.score,
+        );
+        if (win && state.mode === "expedition") {
+          save.unlocked = Math.max(
+            save.unlocked,
+            Math.min(18, state.sector + 1),
+          );
+          save.stars[state.sector] = Math.max(
+            save.stars[state.sector] || 0,
+            state.moves < state.moveLimit * 0.65
+              ? 3
+              : state.moves < state.moveLimit * 0.85
+                ? 2
+                : 1,
+          );
+        }
+        const record = save.records[state.mode] || {
+          plays: 0,
+          wins: 0,
+          bestTile: 0,
+        };
+        record.plays += 1;
+        record.wins += win ? 1 : 0;
+        record.bestTile = Math.max(record.bestTile, state.maxTile);
+        save.records[state.mode] = record;
+        const milestoneBonus = settleMilestones();
+        store();
+        ui.overlay.classList.remove("hidden");
+        ui.setup.style.display = "none";
+        ui.result.classList.add("show");
+        $("#resultTitle").textContent = win ? "矩阵目标完成" : "矩阵暂时停摆";
+        $("#resultText").textContent =
+          `${reason} · ${MODES[state.mode].name}${milestoneBonus ? ` · 里程碑 +${milestoneBonus} 数据片` : ""}`;
+        $("#resultScore").textContent = state.score;
+        $("#resultMax").textContent = state.maxTile;
+        $("#resultData").textContent = data;
+        $("#resultMoves").textContent = state.moves;
+      }
+      function sync() {
+        if (!state) return;
+        ui.score.textContent = state.score;
+        ui.best.textContent = Math.max(state.best, state.score);
+        ui.moves.textContent = state.moves;
+        ui.max.textContent = state.maxTile;
+        ui.combo.textContent = `×${Math.max(1, state.combo)}`;
+        ui.limit.textContent =
+          state.timeLeft > 0
+            ? format(state.timeLeft)
+            : state.moveLimit < 99999
+              ? `${state.moves}/${state.moveLimit}`
+              : "∞";
+        ui.chargeBar.style.width = `${state.charge}%`;
+        ui.chargeText.textContent = `充能 ${Math.floor(state.charge)}%`;
+        const progress = Math.min(
+          100,
+          (Math.log2(state.maxTile) / Math.log2(state.target)) * 100,
+        );
+        ui.missionBar.style.width = `${progress}%`;
+        ui.missionText.textContent = `目标 ${state.target} · 当前 ${state.maxTile}`;
+        $("#objectiveIcon").textContent = MODES[state.mode].icon;
+        $("#objectiveTitle").textContent =
+          `${MODES[state.mode].name}${state.mode === "expedition" ? ` · 节点 ${state.sector}` : ""}`;
+        $("#objectiveText").textContent =
+          state.timeLeft > 0
+            ? `剩余 ${format(state.timeLeft)}，保持连锁。`
+            : `制造 ${state.target}，合理控制空格。`;
+        ui.build.innerHTML = state.build.length
+          ? state.build.map((x) => `<span class="chip">${x}</span>`).join("")
+          : '<span class="chip">标准合成协议</span>';
+        ui.stats.innerHTML = [
+          ["总合成", state.merges],
+          ["有效移动", state.moves],
+          ["充能倍率", `${Math.round(state.chargeMult * 100)}%`],
+          ["计分倍率", `${Math.round(state.scoreMult * 100)}%`],
+        ]
+          .map((x) => `<div><span>${x[0]}</span><b>${x[1]}</b></div>`)
+          .join("");
+        for (const [k] of Object.entries(state.tools)) {
+          const el = $(`#${k}Count`);
+          if (el) el.textContent = state.tools[k];
+        }
+        document.querySelectorAll("[data-tool]").forEach((b) => {
+          const k = b.dataset.tool;
+          b.classList.toggle("active", state.activeTool === k);
+          b.disabled = state.tools[k] <= 0;
+        });
+      }
+      function showBanner(t) {
+        ui.banner.textContent = t;
+        ui.banner.classList.add("show");
+        bannerTimer = 1800;
+      }
+      function format(s) {
+        s = Math.max(0, Math.ceil(s));
+        return `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+      }
+      function keyMove(code) {
+        const m = {
+          ArrowLeft: "left",
+          KeyA: "left",
+          ArrowRight: "right",
+          KeyD: "right",
+          ArrowUp: "up",
+          KeyW: "up",
+          ArrowDown: "down",
+          KeyS: "down",
+        };
+        if (m[code]) move(m[code]);
+      }
+      $("#startBtn").onclick = start;
+      $("#againBtn").onclick = start;
+      $("#resultHomeBtn").onclick = () => {
+        ui.result.classList.remove("show");
+        renderHome();
+      };
+      $("#homeBtn").onclick = () => {
+        if (
+          state &&
+          !state.over &&
+          state.moves &&
+          !confirm("当前矩阵尚未结算，返回矩阵站？")
+        )
+          return;
+        ui.overlay.classList.remove("hidden");
+        renderHome();
+      };
+      $("#newBtn").onclick = () => {
+        if (confirm("重新开始当前矩阵？")) start();
+      };
+      $("#undoBtn").onclick = () => selectTool("undo");
+      $("#convertBtn").onclick = () => {
+        grantTool();
+        ui.modal.classList.add("hidden");
+      };
+      $("#exportSaveBtn").onclick = async () => {
+        const code = encodeSave();
+        try {
+          await navigator.clipboard.writeText(code);
+        } catch (error) {}
+        prompt("霓虹 2048 存档码（已尝试复制，可在其他设备导入）", code);
+      };
+      $("#importSaveBtn").onclick = () => {
+        const code = prompt("粘贴霓虹 2048 存档码：");
+        if (!code) return;
+        try {
+          importSave(code);
+          alert("存档导入成功，矩阵档案与远征进度已恢复。");
+        } catch (error) {
+          alert(`导入失败：${error.message}`);
+        }
+      };
+      document
+        .querySelectorAll("[data-tool]")
+        .forEach((b) => (b.onclick = () => selectTool(b.dataset.tool)));
+      window.addEventListener("keydown", (e) => {
+        if (
+          ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.code)
+        )
+          e.preventDefault();
+        keyMove(e.code);
+        if (e.code === "KeyZ") undo();
+        if (e.code === "Escape") {
+          state.activeTool = null;
+          state.swapCell = null;
+          renderBoard();
+          sync();
+        }
+      });
+      ui.board.addEventListener(
+        "pointerdown",
+        (e) => (pointer = { x: e.clientX, y: e.clientY }),
+      );
+      ui.board.addEventListener("pointerup", (e) => {
+        if (!pointer) return;
+        const dx = e.clientX - pointer.x,
+          dy = e.clientY - pointer.y;
+        if (Math.hypot(dx, dy) > 20)
+          move(
+            Math.abs(dx) > Math.abs(dy)
+              ? dx > 0
+                ? "right"
+                : "left"
+              : dy > 0
+                ? "down"
+                : "up",
+          );
+        pointer = null;
+      });
+      state = fresh();
+      renderHome();
+      renderBoard();
+      sync();
+    </script>
+  </body>
+</html>

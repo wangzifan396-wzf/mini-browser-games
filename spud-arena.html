@@ -912,6 +912,8 @@
                     </section>
                   </div>
                   <div class="start-row">
+                    <button class="btn" id="exportSaveBtn">导出存档码</button>
+                    <button class="btn" id="importSaveBtn">导入存档码</button>
                     <button class="btn primary" id="startBtn">开始突围</button>
                   </div>
                 </div>
@@ -1124,7 +1126,14 @@
           desc: "古代装置唤醒护盾军团与重型首领。",
           ground: "#3a3b35",
           accent: "#d6ad62",
-          pool: ["grunt", "shieldling", "sniper", "charger", "healer", "splitter"],
+          pool: [
+            "grunt",
+            "shieldling",
+            "sniper",
+            "charger",
+            "healer",
+            "splitter",
+          ],
         },
         endless: {
           name: "无尽丰收",
@@ -1732,6 +1741,44 @@
       function storeSave() {
         localStorage.setItem(SAVE_KEY, JSON.stringify(save));
       }
+      function saveHash(text) {
+        let hash = 2166136261;
+        for (let i = 0; i < text.length; i++) {
+          hash ^= text.charCodeAt(i);
+          hash = Math.imul(hash, 16777619);
+        }
+        return (hash >>> 0).toString(36);
+      }
+      function encodeSave() {
+        const json = JSON.stringify({
+          game: "spud-arena",
+          version: 3,
+          data: save,
+        });
+        const bytes = new TextEncoder().encode(json);
+        let binary = "";
+        bytes.forEach((byte) => (binary += String.fromCharCode(byte)));
+        const payload = btoa(binary);
+        return `SPU3.${payload}.${saveHash(payload)}`;
+      }
+      function importSave(code) {
+        const [prefix, payload, checksum] = String(code || "")
+          .trim()
+          .split(".");
+        if (prefix !== "SPU3" || !payload || saveHash(payload) !== checksum)
+          throw new Error("存档码校验失败");
+        const parsed = JSON.parse(
+          new TextDecoder().decode(
+            Uint8Array.from(atob(payload), (char) => char.charCodeAt(0)),
+          ),
+        );
+        if (parsed.game !== "spud-arena" || !parsed.data)
+          throw new Error("不是薯仔突围存档");
+        localStorage.setItem(SAVE_KEY, JSON.stringify(parsed.data));
+        save = loadSave();
+        resetRun();
+        renderHome();
+      }
       function createState() {
         const h = HEROES[selectedHero],
           op = OPERATIONS[selectedOp],
@@ -1859,7 +1906,9 @@
           `⚔ 总击倒 ${save.totalKills || 0}`,
           `📜 任务 ${Object.values(save.missions || {}).reduce((a, b) => a + b, 0)}`,
           `🧭 发现 ${Object.keys(save.discoveries || {}).length}/${Object.keys(HEROES).length + Object.keys(OPERATIONS).length}`,
-        ].map((text) => `<span class="save-pill">${text}</span>`).join("");
+        ]
+          .map((text) => `<span class="save-pill">${text}</span>`)
+          .join("");
         document.querySelectorAll("[data-hero]").forEach(
           (b) =>
             (b.onclick = () => {
@@ -1915,12 +1964,33 @@
           "good",
         );
         const missionPool = [
-          { id: "kills", text: "击倒 180 名敌人", done: () => state.killCount >= 180 },
-          { id: "level", text: "达到 12 级", done: () => state.player.level >= 12 },
-          { id: "relic", text: "获得 2 件遗物", done: () => state.player.relics.length >= 2 },
-          { id: "boss", text: "击败行动首领", done: () => state.bossKills >= 1 },
+          {
+            id: "kills",
+            text: "击倒 180 名敌人",
+            done: () => state.killCount >= 180,
+          },
+          {
+            id: "level",
+            text: "达到 12 级",
+            done: () => state.player.level >= 12,
+          },
+          {
+            id: "relic",
+            text: "获得 2 件遗物",
+            done: () => state.player.relics.length >= 2,
+          },
+          {
+            id: "boss",
+            text: "击败行动首领",
+            done: () => state.bossKills >= 1,
+          },
         ];
-        state.mission = missionPool[(Object.keys(HEROES).indexOf(state.hero) + Object.keys(OPERATIONS).indexOf(state.op)) % missionPool.length];
+        state.mission =
+          missionPool[
+            (Object.keys(HEROES).indexOf(state.hero) +
+              Object.keys(OPERATIONS).indexOf(state.op)) %
+              missionPool.length
+          ];
         addLog(`营地任务：${state.mission.text}。`, "gold");
         showBanner(`${OPERATIONS[state.op].icon} ${OPERATIONS[state.op].name}`);
         if (!raf) raf = requestAnimationFrame(loop);
@@ -1996,7 +2066,8 @@
           v.l
         )
           dash();
-        const moveBoost = (p.speedBuff > 0 ? 1.65 : 1) * (p.chilled > 0 ? 0.62 : 1);
+        const moveBoost =
+          (p.speedBuff > 0 ? 1.65 : 1) * (p.chilled > 0 ? 0.62 : 1);
         if (p.dashTime > 0) {
           p.dashTime -= dt;
           p.x += p.dashX * p.speed * p.speedMult * 3.2 * dt;
@@ -2586,9 +2657,9 @@
             if (d.type === "xp") gainXp(d.value);
             else if (d.type === "crystal") {
               p.crystals += d.value;
-              if (p.bonusCrystal && Math.random() < p.bonusCrystal) p.crystals += 1;
-            }
-            else if (d.type === "heal")
+              if (p.bonusCrystal && Math.random() < p.bonusCrystal)
+                p.crystals += 1;
+            } else if (d.type === "heal")
               p.hp = Math.min(p.maxHp, p.hp + d.value);
             else if (d.type === "crate") openRelic();
           }
@@ -2674,7 +2745,8 @@
           for (let i = 0; i < 6; i++) spawnEnemy("frostling");
         } else {
           showBanner("✦ 遗迹宝箱苏醒");
-          for (let i = 0; i < 3 + Math.floor(state.stage / 2); i++) spawnEnemy("mimic");
+          for (let i = 0; i < 3 + Math.floor(state.stage / 2); i++)
+            spawnEnemy("mimic");
         }
       }
       function spawnEnemy(kind) {
@@ -2728,7 +2800,12 @@
       }
       function spawnBoss() {
         state.bossSpawned = true;
-        const key = state.op === "glacier" ? "frostBoss" : state.op === "ruins" ? "ruinBoss" : "boss";
+        const key =
+          state.op === "glacier"
+            ? "frostBoss"
+            : state.op === "ruins"
+              ? "ruinBoss"
+              : "boss";
         spawnEnemy(key);
         showBanner(`☠ ${ENEMIES[key].name}进入战场`);
         addLog(`最终首领${ENEMIES[key].name}压入行动区域。`, "warn");
@@ -2919,7 +2996,8 @@
         );
         if (state.mission && state.mission.done()) {
           reward += 12;
-          save.missions[state.mission.id] = (save.missions[state.mission.id] || 0) + 1;
+          save.missions[state.mission.id] =
+            (save.missions[state.mission.id] || 0) + 1;
           addLog(`营地任务完成，额外带回 12 晶薯。`, "gold");
         }
         save.cores += reward;
@@ -3297,10 +3375,20 @@
       function drawHazards() {
         for (const h of state.hazards) {
           const s = screen(h.x, h.y);
-          ctx.fillStyle = h.kind === "frost"
-            ? h.warning > 0 ? "rgba(130,220,244,.12)" : "rgba(86,179,220,.25)"
-            : h.warning > 0 ? "rgba(255,190,84,.12)" : "rgba(234,83,60,.22)";
-          ctx.strokeStyle = h.kind === "frost" ? "#8bdcf0" : h.warning > 0 ? "#efbf62" : "#e95e4f";
+          ctx.fillStyle =
+            h.kind === "frost"
+              ? h.warning > 0
+                ? "rgba(130,220,244,.12)"
+                : "rgba(86,179,220,.25)"
+              : h.warning > 0
+                ? "rgba(255,190,84,.12)"
+                : "rgba(234,83,60,.22)";
+          ctx.strokeStyle =
+            h.kind === "frost"
+              ? "#8bdcf0"
+              : h.warning > 0
+                ? "#efbf62"
+                : "#e95e4f";
           ctx.setLineDash(h.warning > 0 ? [8, 7] : []);
           ctx.lineWidth = 3;
           ctx.beginPath();
@@ -3427,6 +3515,23 @@
       }
       $("#startBtn").onclick = startRun;
       $("#againBtn").onclick = startRun;
+      $("#exportSaveBtn").onclick = async () => {
+        const code = encodeSave();
+        try {
+          await navigator.clipboard.writeText(code);
+        } catch (error) {}
+        prompt("薯仔突围存档码（已尝试复制，可在其他设备导入）", code);
+      };
+      $("#importSaveBtn").onclick = () => {
+        const code = prompt("粘贴薯仔突围存档码：");
+        if (!code) return;
+        try {
+          importSave(code);
+          alert("存档导入成功，营地成长与丰收档案已恢复。");
+        } catch (error) {
+          alert(`导入失败：${error.message}`);
+        }
+      };
       $("#resultHomeBtn").onclick = () => {
         ui.result.classList.remove("show");
         renderHome();

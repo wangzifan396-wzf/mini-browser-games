@@ -863,6 +863,8 @@
               <div class="almanac-grid" id="almanacGrid"></div>
             </div>
             <div class="start-row">
+              <button class="mini-btn" id="exportSaveBtn">导出存档码</button>
+              <button class="mini-btn" id="importSaveBtn">导入存档码</button>
               <button class="mini-btn" id="resetSaveBtn">重置进度</button
               ><button class="primary-btn" id="startBtn">开始行动</button>
             </div>
@@ -1771,6 +1773,44 @@
         }
         function saveProgress() {
           localStorage.setItem(SAVE_KEY, JSON.stringify(save));
+        }
+        function saveHash(text) {
+          let hash = 2166136261;
+          for (let i = 0; i < text.length; i++) {
+            hash ^= text.charCodeAt(i);
+            hash = Math.imul(hash, 16777619);
+          }
+          return (hash >>> 0).toString(36);
+        }
+        function encodeSave() {
+          const json = JSON.stringify({
+            game: "garden-front",
+            version: 3,
+            data: save,
+          });
+          const bytes = new TextEncoder().encode(json);
+          let binary = "";
+          bytes.forEach((byte) => (binary += String.fromCharCode(byte)));
+          const payload = btoa(binary);
+          return `GDF3.${payload}.${saveHash(payload)}`;
+        }
+        function importSave(code) {
+          const [prefix, payload, checksum] = String(code || "")
+            .trim()
+            .split(".");
+          if (prefix !== "GDF3" || !payload || saveHash(payload) !== checksum)
+            throw new Error("存档码校验失败");
+          const parsed = JSON.parse(
+            new TextDecoder().decode(
+              Uint8Array.from(atob(payload), (char) => char.charCodeAt(0)),
+            ),
+          );
+          if (parsed.game !== "garden-front" || !parsed.data)
+            throw new Error("不是芽阵前线存档");
+          localStorage.setItem(SAVE_KEY, JSON.stringify(parsed.data));
+          save = loadSave();
+          selectedLevel = Math.min(save.unlocked, 18);
+          renderMenu();
         }
         function resize() {
           const r = canvas.getBoundingClientRect();
@@ -3804,6 +3844,23 @@
             save = loadSave();
             selectedLevel = 1;
             renderMenu();
+          }
+        };
+        $("exportSaveBtn").onclick = async () => {
+          const code = encodeSave();
+          try {
+            await navigator.clipboard.writeText(code);
+          } catch (error) {}
+          prompt("芽阵前线存档码（已尝试复制，可在其他设备导入）", code);
+        };
+        $("importSaveBtn").onclick = () => {
+          const code = prompt("粘贴芽阵前线存档码：");
+          if (!code) return;
+          try {
+            importSave(code);
+            alert("存档导入成功，远征、熟练与挑战纪录已恢复。");
+          } catch (error) {
+            alert(`导入失败：${error.message}`);
           }
         };
         canvas.addEventListener("click", canvasClick);
