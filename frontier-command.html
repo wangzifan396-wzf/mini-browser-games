@@ -1,327 +1,37 @@
-<!doctype html>
-<html lang="zh-CN">
-  <meta charset="utf-8" /><meta
-    name="viewport"
-    content="width=device-width,initial-scale=1"
-  /><title>前线指挥部</title
-  ><style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      background: #111b20;
-      color: #eff8f3;
-      font-family: system-ui, "Microsoft YaHei";
-    }
-    .app {
-      min-height: 100vh;
-      padding: 14px;
-      display: grid;
-      place-items: center;
-    }
-    .shell {
-      width: min(1000px, 100%);
-      background: #22343a;
-      border: 1px solid #5f787e;
-      border-radius: 20px;
-      padding: 16px;
-    }
-    .top,
-    .row {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .field {
-      height: 440px;
-      margin: 12px 0;
-      border: 1px solid #60766f;
-      border-radius: 14px;
-      background: linear-gradient(90deg, #385945, #52633f 50%, #63433d);
-      position: relative;
-      overflow: hidden;
-    }
-    .base {
-      position: absolute;
-      top: 140px;
-      width: 90px;
-      text-align: center;
-      font-size: 55px;
-    }
-    .base.player {
-      left: 25px;
-    }
-    .base.enemy {
-      right: 25px;
-    }
-    .unit {
-      position: absolute;
-      font-size: 28px;
-      transition: transform 0.1s;
-    }
-    .resource {
-      position: absolute;
-      font-size: 30px;
-    }
-    .panel {
-      background: #182a2f;
-      border: 1px solid #4e686e;
-      border-radius: 11px;
-      padding: 10px;
-    }
-    .builds {
-      display: flex;
-      gap: 7px;
-      flex-wrap: wrap;
-    }
-    .bar {
-      height: 9px;
-      background: #192427;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-    .bar i {
-      display: block;
-      height: 100%;
-      background: #6dde96;
-    }
-    .log {
-      height: 75px;
-      overflow: auto;
-      color: #bdcccf;
-      font-size: 13px;
-    }
-    button {
-      padding: 9px 11px;
-      border: 1px solid #6e858a;
-      border-radius: 9px;
-      background: #405c63;
-      color: white;
-      font-weight: bold;
-    }
-    .wave {
-      background: #8b552e;
-    }
-    .help {
-      font-size: 13px;
-      color: #bdcbce;
-    }
-    @media (max-width: 650px) {
-      .field {
-        height: 340px;
-      }
-      .app {
-        place-items: start center;
-      }
-    }
-  </style>
-  <main class="app">
-    <section class="shell">
-      <div class="top">
-        <div>
-          <h1 style="margin: 0">前线指挥部</h1>
-          <div class="help">
-            采集晶矿、扩充人口、训练步兵与坦克；合理把握出兵时机，摧毁敌方要塞。
-          </div>
-        </div>
-        <div>
-          晶矿 <b id="ore"></b>　人口 <b id="pop"></b>/<b id="cap"></b>　波次
-          <b id="wave"></b>　敌军压力 <b id="pressure"></b>
-        </div>
-      </div>
-      <div class="field" id="field">
-        <div class="base player">
-          🏰
-          <div class="bar"><i id="php"></i></div>
-        </div>
-        <div class="base enemy">
-          🏯
-          <div class="bar"><i id="ehp"></i></div>
-        </div>
-      </div>
-      <div class="panel">
-        <div class="builds">
-          <button data-b="worker">👷 工兵 30</button
-          ><button data-b="soldier">🪖 步兵 45</button
-          ><button data-b="tank">🚙 坦克 90</button
-          ><button data-b="turret">🗼 炮塔 75</button
-          ><button data-b="house">🏠 扩容 60</button
-          ><button class="wave" id="assault">全军突击</button
-          ><button id="pause">暂停</button><button id="restart">新战役</button>
-        </div>
-        <div class="log" id="log"></div>
-      </div>
-    </section>
-  </main>
-  <script>
-    let q,
-      last = 0;
-    const $ = (x) => document.getElementById(x);
-    function fresh() {
-      return {
-        ore: 120,
-        cap: 8,
-        wave: 1,
-        pbase: 300,
-        ebase: 360,
-        units: [],
-        enemies: [],
-        turrets: 0,
-        spawn: 5,
-        paused: false,
-        over: false,
-        logs: ["基地建立，工兵会持续采集前线晶矿。"],
-      };
-    }
-    function add(type) {
-      let cost = { worker: 30, soldier: 45, tank: 90, turret: 75, house: 60 }[
-          type
-        ],
-        used = q.units.reduce((s, u) => s + (u.type === "tank" ? 2 : 1), 0);
-      if (q.ore < cost) return;
-      if (
-        type !== "turret" &&
-        type !== "house" &&
-        used + (type === "tank" ? 2 : 1) > q.cap
-      )
-        return;
-      q.ore -= cost;
-      if (type === "turret") q.turrets++;
-      else if (type === "house") q.cap += 4;
-      else
-        q.units.push({
-          type,
-          x: 100,
-          hp: type === "tank" ? 90 : type === "soldier" ? 45 : 30,
-          atk: type === "tank" ? 18 : type === "soldier" ? 9 : 1,
-          go: false,
-        });
-    }
-    function enemyWave() {
-      let n = 2 + q.wave;
-      for (let i = 0; i < n; i++)
-        q.enemies.push({
-          x: 850 + i * 18,
-          hp: 35 + q.wave * 9,
-          atk: 6 + q.wave * 2,
-        });
-      q.logs.unshift(`敌军第 ${q.wave} 波抵达！`);
-      q.wave++;
-    }
-    function update(dt) {
-      if (q.paused || q.over) return;
-      q.spawn -= dt;
-      if (q.spawn <= 0) {
-        enemyWave();
-        q.spawn = Math.max(7, 14 - q.wave * 0.5);
-      }
-      for (const u of q.units) {
-        if (u.type === "worker") {
-          q.ore += dt * 2.1;
-          continue;
-        }
-        let target = q.enemies.sort((a, b) => a.x - b.x)[0];
-        if (u.go || (target && target.x - u.x < 150))
-          u.x += dt * (u.type === "tank" ? 35 : 48);
-        if (target && Math.abs(target.x - u.x) < 35) {
-          target.hp -= u.atk * dt * 2;
-          u.hp -= target.atk * dt;
-        }
-      }
-      for (const e of q.enemies) {
-        let target = q.units
-          .filter((u) => u.type !== "worker")
-          .sort((a, b) => b.x - a.x)[0];
-        if (target && e.x - target.x < 45) {
-          target.hp -= e.atk * dt;
-          e.hp -= target.atk * dt;
-        } else e.x -= dt * 38;
-        if (e.x < 85) {
-          q.pbase -= e.atk * dt;
-          e.hp -= q.turrets * 5 * dt;
-        }
-      }
-      for (const u of q.units)
-        if (u.x > 875) {
-          q.ebase -= u.atk * dt;
-          u.hp -= 12 * dt;
-        }
-      q.units = q.units.filter((u) => u.hp > 0);
-      q.enemies = q.enemies.filter((e) => e.hp > 0);
-      if (q.ebase <= 0) {
-        q.over = true;
-        q.logs.unshift("敌方要塞被摧毁，战役胜利！");
-      }
-      if (q.pbase <= 0) {
-        q.over = true;
-        q.logs.unshift("指挥部失守，战役失败。");
-      }
-      draw();
-    }
-    function draw() {
-      ore.textContent = Math.floor(q.ore);
-      let used = q.units.reduce((s, u) => s + (u.type === "tank" ? 2 : 1), 0);
-      pop.textContent = used;
-      cap.textContent = q.cap;
-      wave.textContent = q.wave;
-      pressure.textContent = q.enemies.length;
-      php.style.width = Math.max(0, q.pbase / 3) + "%";
-      ehp.style.width = Math.max(0, q.ebase / 3.6) + "%";
-      field.querySelectorAll(".unit,.resource").forEach((e) => e.remove());
-      q.units.forEach((u) => {
-        let e = document.createElement("span");
-        e.className = "unit";
-        e.textContent =
-          u.type === "worker" ? "👷" : u.type === "tank" ? "🚙" : "🪖";
-        e.style.left = u.x + "px";
-        e.style.top = 220 + (q.units.indexOf(u) % 4) * 35 + "px";
-        field.append(e);
-      });
-      q.enemies.forEach((u, i) => {
-        let e = document.createElement("span");
-        e.className = "unit";
-        e.textContent = "👾";
-        e.style.left = u.x + "px";
-        e.style.top = 120 + (i % 5) * 45 + "px";
-        field.append(e);
-      });
-      for (let i = 0; i < q.turrets; i++) {
-        let e = document.createElement("span");
-        e.className = "unit";
-        e.textContent = "🗼";
-        e.style.left = 135 + i * 35 + "px";
-        e.style.top = "85px";
-        field.append(e);
-      }
-      log.innerHTML = q.logs
-        .slice(0, 8)
-        .map((x) => `<div>• ${x}</div>`)
-        .join("");
-      assault.disabled = q.over;
-    }
-    function loop(t) {
-      let dt = Math.min(0.04, (t - last) / 1000 || 0);
-      last = t;
-      update(dt);
-      requestAnimationFrame(loop);
-    }
-    document
-      .querySelectorAll("[data-b]")
-      .forEach((e) => (e.onclick = () => add(e.dataset.b)));
-    assault.onclick = () => q.units.forEach((u) => (u.go = true));
-    pause.onclick = () => {
-      q.paused = !q.paused;
-      pause.textContent = q.paused ? "继续" : "暂停";
-    };
-    restart.onclick = () => {
-      q = fresh();
-      draw();
-    };
-    q = fresh();
-    draw();
-    loop(0);
-  </script>
-</html>
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>前线指挥部：赤潮防线</title><style>
+:root{color-scheme:dark;--bg:#0c1418;--panel:#18262b;--panel2:#101c21;--line:#465e65;--text:#eef5ef;--muted:#aebec1;--gold:#ffce63;--green:#65dc96;--red:#ff6671;--blue:#66b7ff}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% -25%,#3a4a45,#091115 48%);color:var(--text);font-family:Inter,"Microsoft YaHei",system-ui,sans-serif}.app{width:min(1320px,100%);margin:auto;padding:10px}.top{display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px solid var(--line);padding-bottom:9px}h1{font-size:clamp(24px,3.8vw,36px);margin:0}.sub{font-size:11px;color:var(--muted);margin-top:3px}.stats{display:flex;gap:6px;flex-wrap:wrap}.stat{min-width:78px;padding:6px 9px;background:#0c171b;border:1px solid var(--line);border-radius:7px}.stat small{display:block;font-size:9px;color:var(--muted)}.stat b{font-size:16px;color:var(--gold)}.layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:9px;margin-top:9px}.panel{background:rgba(23,37,42,.97);border:1px solid var(--line);border-radius:9px}.battle{padding:7px;min-width:0}.battle-head,.controls,.lanes,.tabs{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.battle-head{justify-content:space-between;margin-bottom:6px}.stage{position:relative}canvas{display:block;width:100%;aspect-ratio:16/9;background:#28392d;border:2px solid #60756a;border-radius:7px;touch-action:none}.bar{height:7px;background:#081114;border:1px solid #35484e;border-radius:8px;overflow:hidden}.bar i{display:block;height:100%;background:var(--green)}.basebars{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px;font-size:9px;color:var(--muted)}.btn,.tab{border:1px solid #5b747c;background:#2d4851;color:#fff;border-radius:6px;padding:8px 10px;min-height:38px;font-weight:800;cursor:pointer}.btn:hover,.tab:hover{filter:brightness(1.13)}.btn:disabled{opacity:.35}.btn.primary,.tab.active{background:var(--gold);color:#332300;border-color:var(--gold)}.btn.red{background:#7c3e43}.btn.blue{background:#285f80}.controls{margin-top:7px}.message{margin-top:7px;min-height:38px;background:#0b1519;border-left:3px solid var(--gold);padding:7px;font-size:10px;line-height:1.5}.side{display:flex;flex-direction:column;gap:8px}.section{padding:9px}.section h2{font-size:14px;margin:0 0 7px}.unit-grid,.building-grid,.tech-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}.card{background:#101c21;border:1px solid #3d5259;border-radius:6px;padding:7px;min-width:0}.card button{width:100%;margin-top:5px}.card b,.card small{display:block}.card small{font-size:8px;color:var(--muted);line-height:1.45}.unit-card span{font-size:23px;float:left;margin-right:7px}.lane.active{outline:2px solid var(--gold)}.log{max-height:105px;overflow:auto;font-size:9px;color:#bdc9c9}.log div{padding:3px 0;border-bottom:1px solid #ffffff10}.overlay{position:fixed;inset:0;background:#071014ed;z-index:20;display:flex;align-items:center;justify-content:center;padding:13px}.overlay.hidden{display:none}.modal{width:min(900px,100%);max-height:93vh;overflow:auto;background:#17272c;border:1px solid #526c73;border-radius:9px;padding:16px}.modal h2{font-size:25px;margin:0 0 4px}.modal>p{color:var(--muted);line-height:1.55}.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.choice{text-align:left;min-height:125px;background:#101c21;border:1px solid #42585f;border-radius:7px;padding:11px;color:#fff;cursor:pointer}.choice:hover{border-color:var(--gold)}.choice span{font-size:33px}.choice h3{margin:5px 0}.choice p{font-size:9px;color:var(--muted);line-height:1.5}.campaign{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin:11px 0}.mission{background:#101c21;border:1px solid #42585f;border-radius:6px;padding:8px;color:#fff;cursor:pointer;text-align:left}.mission.active{border-color:var(--gold)}.mission:disabled{opacity:.35}.mission b,.mission small{display:block}.mission small{font-size:8px;color:var(--muted)}.meta{border-top:1px solid var(--line);margin-top:11px;padding-top:10px}.tech-grid{grid-template-columns:repeat(4,1fr)}.savebox{width:100%;height:125px;background:#081216;border:1px solid var(--line);color:#fff;padding:8px}.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#101c21;border:1px solid var(--gold);padding:8px 13px;z-index:30}@media(max-width:900px){.layout{grid-template-columns:1fr}.side{display:grid;grid-template-columns:1fr 1fr}.side .panel:last-child{grid-column:1/-1}}@media(max-width:580px){.app{padding:6px}.top{flex-direction:column;align-items:flex-start}.stats{width:100%}.stat{flex:1;min-width:64px;padding:5px}.side{display:flex}.unit-grid,.building-grid{grid-template-columns:1fr 1fr}canvas{aspect-ratio:4/3}.controls .btn{flex:1;padding:6px}.choices{grid-template-columns:1fr}.choice{min-height:98px}.campaign{grid-template-columns:1fr 1fr}.tech-grid{grid-template-columns:1fr 1fr}}
+</style></head><body><main class="app"><header class="top"><div><h1>前线指挥部：赤潮防线</h1><div class="sub">三战线实时攻防、基地经济、兵种克制与战术技能；守住五章边境并发动最终反攻。</div></div><div class="stats"><div class="stat"><small>晶矿</small><b id="ore">0</b></div><div class="stat"><small>战术能源</small><b id="power">0</b></div><div class="stat"><small>人口</small><b id="supply">0 / 0</b></div><div class="stat"><small>波次</small><b id="wave">0 / 0</b></div><div class="stat"><small>倒计时</small><b id="countdown">0</b></div></div></header><section class="layout"><section class="panel battle"><div class="battle-head"><div><b id="missionName">等待部署</b><div class="sub" id="doctrineName"></div></div><div class="tabs"><button class="tab lane active" data-lane="0">北线</button><button class="tab lane" data-lane="1">中线</button><button class="tab lane" data-lane="2">南线</button></div></div><div class="stage"><canvas id="canvas" width="960" height="540"></canvas></div><div class="basebars"><div>指挥部 <span id="baseText"></span><div class="bar"><i id="baseBar"></i></div></div><div>敌方要塞 <span id="enemyBaseText"></span><div class="bar"><i id="enemyBaseBar" style="background:var(--red)"></i></div></div></div><div class="controls"><button class="btn red" id="assaultBtn">全线推进</button><button class="btn blue" id="airstrikeBtn">空袭 35能量</button><button class="btn" id="repairBtn">紧急维修 25能量</button><button class="btn" id="rallyBtn">火力超载 30能量</button><button class="btn" id="pauseBtn">暂停</button><button class="btn" id="saveBtn">存档码</button><button class="btn" id="retreatBtn">撤离战役</button></div><div class="message" id="message">选择战役与指挥学说后部署。</div></section><aside class="side"><section class="panel section"><h2>部队部署 · 当前战线</h2><div class="unit-grid" id="units"></div></section><section class="panel section"><h2>基地建设</h2><div class="building-grid" id="buildings"></div></section><section class="panel section"><h2>战地记录</h2><div class="log" id="log"></div></section></aside></section></main>
+<div class="overlay" id="startOverlay"><section class="modal"><h2>赤潮边境战役</h2><p>先选择章节，再选择本局指挥学说。永久研究会作用于所有新战役。</p><div class="campaign" id="campaign"></div><div class="choices" id="doctrines"></div><div class="meta"><h3>战役研究 · <span id="commendations">0</span> 勋章</h3><div class="tech-grid" id="techs"></div></div></section></div><div class="overlay hidden" id="infoOverlay"><section class="modal"><h2 id="infoTitle">战役档案</h2><div id="infoBody"></div><div class="controls"><button class="btn primary" id="closeInfoBtn">返回战场</button></div></section></div>
+<script>(()=>{'use strict';const $=id=>document.getElementById(id),cv=$('canvas'),ctx=cv.getContext('2d'),SAVE='frontierCommandV3';
+const MISSIONS=[{n:'灰桥哨站',i:'🌉',d:'基础防线，熟悉经济与反攻。',waves:5,hp:420,eHp:360,reward:12},{n:'砂海补给线',i:'🏜️',d:'敌军突袭更快，北线晶矿丰富。',waves:6,hp:460,eHp:440,reward:17},{n:'冻原反应堆',i:'❄️',d:'能源恢复减慢，重甲单位增加。',waves:7,hp:500,eHp:520,reward:23},{n:'赤潮工厂',i:'🏭',d:'机械海与精英炮车持续压迫。',waves:8,hp:540,eHp:620,reward:30},{n:'黑曜王城',i:'🌋',d:'三线总攻与最终攻城巨兽。',waves:10,hp:600,eHp:800,reward:45}];
+const DOCTRINES={fortress:{i:'🛡️',n:'堡垒学说',d:'基地生命 +25%，炮塔射速提高，适合稳守反击。'},blitz:{i:'⚡',n:'闪击学说',d:'部队移动 +20%，首次全线推进获得伤害强化。'},logistics:{i:'📦',n:'后勤学说',d:'开局晶矿 +70，资源生产 +18%，人口扩建更便宜。'}};
+const UNITS={rifle:{i:'🪖',n:'突击兵',d:'廉价中程主力',cost:38,pop:1,hp:55,a:10,range:82,spd:38,cd:.75,need:['barracks',1]},medic:{i:'🧑‍⚕️',n:'战地医师',d:'治疗同线友军',cost:54,pop:1,hp:46,a:0,range:105,spd:34,cd:1.2,heal:9,need:['barracks',2]},tank:{i:'🚙',n:'铁甲战车',d:'高生命前排',cost:95,pop:2,hp:145,a:19,range:90,spd:25,cd:1.15,armor:.18,need:['factory',1]},artillery:{i:'💥',n:'远程火炮',d:'超远范围溅射',cost:125,pop:2,hp:70,a:34,range:220,spd:18,cd:2.4,splash:45,need:['factory',2]},drone:{i:'🛸',n:'蜂群无人机',d:'快速无视护甲',cost:82,pop:1,hp:58,a:13,range:120,spd:52,cd:.55,pierce:1,need:['lab',1]},walker:{i:'🤖',n:'雷霆机甲',d:'终局攻城单位',cost:180,pop:3,hp:230,a:38,range:105,spd:22,cd:1.25,armor:.25,need:['lab',3]}};
+const BUILDINGS={refinery:{i:'⛏️',n:'精炼厂',d:'提高每秒晶矿收入',base:65,max:4},barracks:{i:'🏕️',n:'兵营',d:'解锁医师并扩大人口',base:80,max:4},factory:{i:'🏭',n:'载具厂',d:'解锁战车与火炮',base:110,max:3},lab:{i:'🧪',n:'战术实验室',d:'提高能源并解锁无人机',base:130,max:3},turret:{i:'🗼',n:'自动炮塔',d:'攻击接近基地的敌军',base:90,max:4},reactor:{i:'⚛️',n:'反应堆',d:'加快战术能源恢复',base:100,max:4}};
+const TECHS={armor:{i:'🔩',n:'复合装甲',d:'部队生命 +8%',cost:12},weapons:{i:'🎯',n:'校准武器',d:'部队伤害 +8%',cost:12},economy:{i:'💎',n:'晶矿测绘',d:'资源生产 +10%',cost:14},capacity:{i:'🏗️',n:'模块营房',d:'初始人口 +3',cost:15},air:{i:'✈️',n:'空袭协议',d:'空袭伤害 +35%',cost:18},repair:{i:'🧰',n:'纳米维修',d:'维修效果 +40%',cost:18},veteran:{i:'🏅',n:'老兵体系',d:'击杀后小幅恢复生命',cost:22},command:{i:'📡',n:'前线指挥网',d:'技能冷却 -15%',cost:24}};
+const ENEMIES={raider:{i:'👾',hp:42,a:8,range:48,spd:34,cd:.9},brute:{i:'👹',hp:105,a:16,range:45,spd:21,cd:1.25,armor:.16},gunner:{i:'🦹',hp:58,a:11,range:115,spd:27,cd:1.05},crawler:{i:'🕷️',hp:34,a:7,range:38,spd:58,cd:.55},siege:{i:'🦂',hp:150,a:25,range:190,spd:15,cd:2.2},boss:{i:'🐲',hp:620,a:34,range:100,spd:14,cd:1.2,armor:.24}};
+let profile={commend:0,unlocked:1,wins:0,tech:{}},q=null,last=0,selectedLane=0,raf,selectedMission=0;const has=id=>profile.tech[id],techMul=id=>has(id)?1:0;
+function fresh(mission,doctrine){const m=MISSIONS[mission],base=Math.round(m.hp*(doctrine==='fortress'?1.25:1));return{v:3,mission,doctrine,time:0,ore:doctrine==='logistics'?210:140,power:25,wave:0,nextWave:8,base,maxBase:base,enemyBase:m.eHp,maxEnemyBase:m.eHp,units:[],enemies:[],buildings:{refinery:1,barracks:1,factory:0,lab:0,turret:0,reactor:0},assault:false,boost:0,cool:{air:0,repair:0,rally:0},paused:false,over:false,won:false,kills:0,logs:['前线展开，敌军侦察信号正在逼近。']}}
+function save(){localStorage.setItem(SAVE,JSON.stringify({v:3,profile,q}))}function load(){try{const d=JSON.parse(localStorage.getItem(SAVE));if(d?.v===3){profile={...profile,...d.profile,tech:{...profile.tech,...d.profile.tech}};q=d.q}}catch{}}
+function checksum(s){let h=5381;for(const ch of s)h=((h<<5)-h+ch.charCodeAt(0))>>>0;return h.toString(36)}function exportCode(){const clean=q?{...q,paused:true}:null,b=btoa(unescape(encodeURIComponent(JSON.stringify({v:3,profile,q:clean}))));return`FC3-${b}-${checksum(b)}`}function importCode(x){const m=x.trim().match(/^FC3-(.+)-([a-z0-9]+)$/i);if(!m||checksum(m[1])!==m[2])throw Error('存档码校验失败');const d=JSON.parse(decodeURIComponent(escape(atob(m[1]))));if(d.v!==3)throw Error('版本不兼容');profile=d.profile;q=d.q;if(q)q.paused=false;save();draw()}
+function supplyCap(){return 8+q.buildings.barracks*4+techMul('capacity')*3}function usedSupply(){return q.units.reduce((a,u)=>a+UNITS[u.type].pop,0)}function income(){return(1.3+q.buildings.refinery*1.25)*(1+(q.doctrine==='logistics'?.18:0)+techMul('economy')*.1)}function say(s){q.logs.unshift(s);q.logs=q.logs.slice(0,18);$('message').textContent=s}function toast(s){const e=document.createElement('div');e.className='toast';e.textContent=s;document.body.append(e);setTimeout(()=>e.remove(),1400)}
+function spawnUnit(type){const d=UNITS[type],need=d.need;if(q.buildings[need[0]]<need[1])return toast(`${BUILDINGS[need[0]].n} Lv.${need[1]} 解锁`);if(q.ore<d.cost)return toast('晶矿不足');if(usedSupply()+d.pop>supplyCap())return toast('人口已满，升级兵营');q.ore-=d.cost;const hp=Math.round(d.hp*(1+techMul('armor')*.08));q.units.push({type,lane:selectedLane,x:115,hp,max:hp,shot:Math.random()*.5,flash:0});say(`${d.n}部署至${['北','中','南'][selectedLane]}线`);save()}
+function build(id){const d=BUILDINGS[id],lv=q.buildings[id],discount=q.doctrine==='logistics'&&id==='barracks'?.8:1,cost=Math.round(d.base*Math.pow(1.65,lv)*discount);if(lv>=d.max)return;if(q.ore<cost)return toast('晶矿不足');q.ore-=cost;q.buildings[id]++;say(`${d.n}升级到 Lv.${q.buildings[id]}`);save();draw()}
+function spawnWave(){const m=MISSIONS[q.mission];q.wave++;const count=2+q.wave+Math.floor(q.mission*.8),pool=['raider','gunner',...(q.wave>2?['brute','crawler']:[]),...(q.wave>4?['siege']:[])];for(let i=0;i<count;i++){const type=pool[Math.floor(Math.random()*pool.length)],d=ENEMIES[type],scale=1+q.mission*.16+q.wave*.055,hp=Math.round(d.hp*scale);q.enemies.push({type,lane:i%3,x:845+Math.random()*70,hp,max:hp,shot:Math.random(),flash:0})}if(q.wave===m.waves){const d=ENEMIES.boss,scale=1+q.mission*.24;for(let lane=0;lane<3;lane++)if(lane===1||q.mission>=4){const hp=Math.round(d.hp*scale);q.enemies.push({type:'boss',lane,x:880+lane*12,hp,max:hp,shot:1,flash:0})}}q.nextWave=q.wave>=m.waves?999:Math.max(10,19-q.mission*1.2-q.wave*.35);say(`第 ${q.wave}/${m.waves} 波抵达${q.wave===m.waves?'，攻城巨兽出现！':''}`)}
+function nearestEnemy(u){return q.enemies.filter(e=>e.lane===u.lane&&e.hp>0&&e.x>=u.x-10).sort((a,b)=>a.x-b.x)[0]}function nearestUnit(e){return q.units.filter(u=>u.lane===e.lane&&u.hp>0&&u.x<=e.x+10).sort((a,b)=>b.x-a.x)[0]}
+function damage(target,raw,pierce=0){const d=target.type&&UNITS[target.type]||target.type&&ENEMIES[target.type],armor=pierce?0:d?.armor||0;target.hp-=raw*(1-armor);target.flash=.1}
+function update(dt){if(!q||q.paused||q.over)return;const m=MISSIONS[q.mission];q.time+=dt;q.ore+=income()*dt;q.power=Math.min(100,q.power+(1.2+q.buildings.reactor*.7)*(q.mission===2?.72:1)*dt);q.nextWave-=dt;q.boost=Math.max(0,q.boost-dt);for(const k in q.cool)q.cool[k]=Math.max(0,q.cool[k]-dt);if(q.nextWave<=0&&q.wave<m.waves)spawnWave();
+for(const u of q.units){const d=UNITS[u.type];u.shot-=dt;u.flash=Math.max(0,u.flash-dt);if(d.heal){const ally=q.units.filter(x=>x.lane===u.lane&&x!==u&&x.hp<x.max).sort((a,b)=>a.hp/a.max-b.hp/b.max)[0];if(ally&&Math.abs(ally.x-u.x)<d.range&&u.shot<=0){ally.hp=Math.min(ally.max,ally.hp+d.heal);u.shot=d.cd}else if(u.x<285)u.x+=d.spd*dt;continue}const e=nearestEnemy(u),range=d.range;if(e&&e.x-u.x<=range){if(u.shot<=0){let atk=d.a*(1+techMul('weapons')*.08)*(q.boost>0?1.35:1);damage(e,atk,d.pierce);if(d.splash)q.enemies.filter(x=>x!==e&&x.lane===e.lane&&Math.abs(x.x-e.x)<d.splash).forEach(x=>damage(x,atk*.42));u.shot=d.cd}}else if(q.assault||u.x<280)u.x+=d.spd*(q.doctrine==='blitz'?1.2:1)*dt;if(u.x>835){q.enemyBase-=d.a*dt*.55;u.hp-=8*dt}}
+for(const e of q.enemies){const d=ENEMIES[e.type];e.shot-=dt;e.flash=Math.max(0,e.flash-dt);const u=nearestUnit(e);if(u&&e.x-u.x<=d.range){if(e.shot<=0){damage(u,d.a);e.shot=d.cd}}else e.x-=d.spd*dt;if(e.x<125){q.base-=d.a*dt*.55;e.hp-=q.buildings.turret*(q.doctrine==='fortress'?7:5)*dt}}
+const deadEnemies=q.enemies.filter(e=>e.hp<=0);deadEnemies.forEach(()=>{q.kills++;q.ore+=3;if(has('veteran'))q.units.filter(u=>u.hp>0).slice(0,2).forEach(u=>u.hp=Math.min(u.max,u.hp+2))});q.enemies=q.enemies.filter(e=>e.hp>0);q.units=q.units.filter(u=>u.hp>0&&u.x<900);if(q.base<=0)return finish(false);if(q.enemyBase<=0||(q.wave>=m.waves&&!q.enemies.length&&q.nextWave>100))return finish(true);const ui=Math.floor(q.time*4);if(ui!==q.uiTick){q.uiTick=ui;drawFast()}if(Math.floor(q.time/3)!==q.saveTick){q.saveTick=Math.floor(q.time/3);save()}}
+function ability(id){if(q.cool[id]>0)return toast('战术仍在冷却');const reduce=has('command')?.85:1;if(id==='air'){if(q.power<35)return toast('能源不足');q.power-=35;const targets=q.enemies.filter(e=>e.lane===selectedLane);targets.forEach(e=>damage(e,Math.round((68+q.mission*10)*(has('air')?1.35:1)),1));q.cool.air=16*reduce;say(`空袭覆盖${['北','中','南'][selectedLane]}线`)}if(id==='repair'){if(q.power<25)return toast('能源不足');q.power-=25;const n=Math.round(95*(has('repair')?1.4:1));q.base=Math.min(q.maxBase,q.base+n);q.units.forEach(u=>u.hp=Math.min(u.max,u.hp+n*.18));q.cool.repair=20*reduce;say('纳米维修群抵达前线')}if(id==='rally'){if(q.power<30)return toast('能源不足');q.power-=30;q.boost=8;q.cool.rally=18*reduce;say('全军进入火力超载')}draw()}
+function finish(win){q.over=true;q.paused=true;q.won=win;if(win){const m=MISSIONS[q.mission],reward=m.reward+Math.floor(q.base/q.maxBase*8);profile.commend+=reward;profile.wins++;profile.unlocked=Math.max(profile.unlocked,Math.min(5,q.mission+2));say(`战役胜利，获得 ${reward} 枚勋章`)}else say('指挥部失守，战役失败');save();$('infoTitle').textContent=win?'边境战役胜利':'战线撤离';$('infoBody').innerHTML=`<h3>${win?'敌方要塞已被摧毁':'防线已经崩溃'}</h3><p>击破 ${q.kills} · 剩余基地 ${Math.max(0,Math.round(q.base))} · 完成波次 ${q.wave}/${MISSIONS[q.mission].waves}</p><button class="btn primary" id="returnCampaign">返回战役地图</button>`;$('infoOverlay').classList.remove('hidden');$('returnCampaign').onclick=()=>{q=null;save();$('infoOverlay').classList.add('hidden');startScreen();$('startOverlay').classList.remove('hidden')}}
+function research(id){const d=TECHS[id];if(has(id)||profile.commend<d.cost)return;profile.commend-=d.cost;profile.tech[id]=1;save();startScreen()}
+function showSave(){const code=exportCode();$('infoTitle').textContent='跨设备战役档案';$('infoBody').innerHTML=`<p>章节、永久研究、当前战场、建筑与部队状态均会导出，并带完整性校验。</p><textarea class="savebox" id="saveCode">${code}</textarea><div class="controls"><button class="btn" id="copyCode">复制导出</button><button class="btn" id="importCodeBtn">导入上方存档</button></div>`;$('infoOverlay').classList.remove('hidden');$('copyCode').onclick=()=>navigator.clipboard?.writeText($('saveCode').value);$('importCodeBtn').onclick=()=>{try{importCode($('saveCode').value);$('infoOverlay').classList.add('hidden');$('startOverlay').classList.toggle('hidden',!!q);alert('战役档案导入成功')}catch(e){alert(e.message)}}}
+function render(){if(!q)return;ctx.clearRect(0,0,960,540);const colors=['#425d49','#394f42','#30463b'];colors.forEach((c,l)=>{ctx.fillStyle=c;ctx.fillRect(0,35+l*165,960,145);ctx.strokeStyle='#82917d55';ctx.setLineDash([12,10]);ctx.beginPath();ctx.moveTo(0,107+l*165);ctx.lineTo(960,107+l*165);ctx.stroke();ctx.setLineDash([])});ctx.fillStyle='#263831';ctx.fillRect(70,20,80,500);ctx.fillStyle='#543337';ctx.fillRect(820,20,80,500);ctx.font='45px serif';ctx.textAlign='center';ctx.fillText('🏰',110,280);ctx.fillText('🏯',860,280);ctx.font='19px sans-serif';ctx.fillStyle='#adc6b5';['北线','中线','南线'].forEach((x,l)=>ctx.fillText(x,36,112+l*165));
+q.units.forEach(u=>{const d=UNITS[u.type],y=108+u.lane*165;ctx.globalAlpha=u.flash?.45:1;ctx.font='29px serif';ctx.fillText(d.i,u.x,y+9);ctx.globalAlpha=1;ctx.fillStyle='#132018';ctx.fillRect(u.x-17,y-25,34,4);ctx.fillStyle=varColor('--green','#65dc96');ctx.fillRect(u.x-17,y-25,34*Math.max(0,u.hp/u.max),4)});q.enemies.forEach(e=>{const d=ENEMIES[e.type],y=108+e.lane*165;ctx.globalAlpha=e.flash?.45:1;ctx.font=e.type==='boss'?'45px serif':'28px serif';ctx.fillText(d.i,e.x,y+9);ctx.globalAlpha=1;ctx.fillStyle='#271418';ctx.fillRect(e.x-18,y-27,36,4);ctx.fillStyle='#ff6671';ctx.fillRect(e.x-18,y-27,36*Math.max(0,e.hp/e.max),4)});if(q.paused&&!q.over){ctx.fillStyle='#061013aa';ctx.fillRect(0,0,960,540);ctx.fillStyle='#fff';ctx.font='bold 35px sans-serif';ctx.fillText('战术暂停',480,270)}}function varColor(n,f){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()||f}
+function drawFast(){if(!q)return;const m=MISSIONS[q.mission];$('ore').textContent=Math.floor(q.ore);$('power').textContent=Math.floor(q.power);$('supply').textContent=`${usedSupply()} / ${supplyCap()}`;$('wave').textContent=`${q.wave} / ${m.waves}`;$('countdown').textContent=q.nextWave>100?'最终清场':Math.max(0,Math.ceil(q.nextWave))+'s';$('baseText').textContent=`${Math.max(0,Math.round(q.base))}/${q.maxBase}`;$('enemyBaseText').textContent=`${Math.max(0,Math.round(q.enemyBase))}/${q.maxEnemyBase}`;$('baseBar').style.width=Math.max(0,q.base/q.maxBase*100)+'%';$('enemyBaseBar').style.width=Math.max(0,q.enemyBase/q.maxEnemyBase*100)+'%';$('message').textContent=q.logs[0]||'';$('log').innerHTML=q.logs.map(x=>`<div>${x}</div>`).join('');$('airstrikeBtn').textContent=`空袭 ${q.cool.air>0?q.cool.air.toFixed(0)+'s':'35能量'}`;$('repairBtn').textContent=`维修 ${q.cool.repair>0?q.cool.repair.toFixed(0)+'s':'25能量'}`;$('rallyBtn').textContent=`超载 ${q.cool.rally>0?q.cool.rally.toFixed(0)+'s':'30能量'}`}
+function draw(){if(!q)return;const m=MISSIONS[q.mission];drawFast();$('missionName').textContent=`${m.i} ${m.n}`;$('doctrineName').textContent=DOCTRINES[q.doctrine].n;
+$('units').innerHTML=Object.entries(UNITS).map(([id,d])=>{const locked=q.buildings[d.need[0]]<d.need[1];return`<div class="card unit-card"><span>${d.i}</span><b>${d.n}</b><small>${d.d}<br>${d.cost}矿 · ${d.pop}人口</small><button class="btn" data-unit="${id}" ${locked?'disabled':''}>${locked?'未解锁':'部署'}</button></div>`}).join('');document.querySelectorAll('[data-unit]').forEach(b=>b.onclick=()=>spawnUnit(b.dataset.unit));$('buildings').innerHTML=Object.entries(BUILDINGS).map(([id,d])=>{const lv=q.buildings[id],discount=q.doctrine==='logistics'&&id==='barracks'?.8:1,cost=Math.round(d.base*Math.pow(1.65,lv)*discount);return`<div class="card"><b>${d.i}${d.n} Lv.${lv}</b><small>${d.d}</small><button class="btn" data-build="${id}" ${lv>=d.max?'disabled':''}>${lv>=d.max?'满级':`升级 ${cost}`}</button></div>`}).join('');document.querySelectorAll('[data-build]').forEach(b=>b.onclick=()=>build(b.dataset.build));$('log').innerHTML=q.logs.map(x=>`<div>${x}</div>`).join('');$('assaultBtn').textContent=q.assault?'停止推进':'全线推进';$('airstrikeBtn').textContent=`空袭 ${q.cool.air>0?q.cool.air.toFixed(0)+'s':'35能量'}`;$('repairBtn').textContent=`维修 ${q.cool.repair>0?q.cool.repair.toFixed(0)+'s':'25能量'}`;$('rallyBtn').textContent=`超载 ${q.cool.rally>0?q.cool.rally.toFixed(0)+'s':'30能量'}`;$('pauseBtn').textContent=q.paused?'继续':'暂停';render();save()}
+function startScreen(){$('commendations').textContent=profile.commend;$('campaign').innerHTML=MISSIONS.map((m,i)=>`<button class="mission ${selectedMission===i?'active':''}" data-mission="${i}" ${i>=profile.unlocked?'disabled':''}><b>${m.i} ${i+1}.${m.n}</b><small>${m.waves} 波 · 奖励 ${m.reward} 勋章</small></button>`).join('');document.querySelectorAll('[data-mission]').forEach(b=>b.onclick=()=>{selectedMission=+b.dataset.mission;startScreen()});$('doctrines').innerHTML=Object.entries(DOCTRINES).map(([id,d])=>`<button class="choice" data-doctrine="${id}"><span>${d.i}</span><h3>${d.n}</h3><p>${d.d}<br>开始章节：${MISSIONS[selectedMission].n}</p></button>`).join('');document.querySelectorAll('[data-doctrine]').forEach(b=>b.onclick=()=>{q=fresh(selectedMission,b.dataset.doctrine);$('startOverlay').classList.add('hidden');draw()});$('techs').innerHTML=Object.entries(TECHS).map(([id,d])=>`<div class="card"><b>${d.i}${d.n}</b><small>${d.d}</small><button class="btn" data-tech="${id}" ${has(id)||profile.commend<d.cost?'disabled':''}>${has(id)?'已研究':d.cost+' 勋章'}</button></div>`).join('');document.querySelectorAll('[data-tech]').forEach(b=>b.onclick=()=>research(b.dataset.tech))}
+document.querySelectorAll('[data-lane]').forEach(b=>b.onclick=()=>{selectedLane=+b.dataset.lane;document.querySelectorAll('[data-lane]').forEach(x=>x.classList.toggle('active',x===b))});$('assaultBtn').onclick=()=>{q.assault=!q.assault;if(q.assault&&q.doctrine==='blitz'&&!q.blitzUsed){q.boost=8;q.blitzUsed=1}draw()};$('airstrikeBtn').onclick=()=>ability('air');$('repairBtn').onclick=()=>ability('repair');$('rallyBtn').onclick=()=>ability('rally');$('pauseBtn').onclick=()=>{q.paused=!q.paused;draw()};$('saveBtn').onclick=()=>q&&showSave();$('closeInfoBtn').onclick=()=>$('infoOverlay').classList.add('hidden');$('retreatBtn').onclick=()=>{if(confirm('撤离当前战役并返回章节地图？')){q=null;save();startScreen();$('startOverlay').classList.remove('hidden')}};function loop(t){const dt=Math.min(.04,(t-last)/1000||0);last=t;update(dt);render();raf=requestAnimationFrame(loop)}load();startScreen();if(q&&!q.over){$('startOverlay').classList.add('hidden');q.paused=false;draw()}loop(0)
+})();</script><style>@media(max-width:580px){.battle>.controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.battle>.controls .btn{width:100%}}</style></body></html>

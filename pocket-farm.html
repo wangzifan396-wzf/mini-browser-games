@@ -1,369 +1,41 @@
-<!doctype html>
-<html lang="zh-CN">
-  <meta charset="utf-8" /><meta
-    name="viewport"
-    content="width=device-width,initial-scale=1"
-  /><title>四季小农场</title
-  ><style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      background: #14271f;
-      color: #fff8dd;
-      font-family: system-ui, "Microsoft YaHei";
-    }
-    .app {
-      min-height: 100vh;
-      padding: 14px;
-      display: grid;
-      place-items: center;
-    }
-    .shell {
-      width: min(920px, 100%);
-      background: #234332;
-      border: 1px solid #71926d;
-      border-radius: 20px;
-      padding: 16px;
-    }
-    .top,
-    .row,
-    .tools {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .top {
-      justify-content: space-between;
-    }
-    .stats {
-      display: flex;
-      gap: 13px;
-    }
-    .layout {
-      display: grid;
-      grid-template-columns: 1fr 280px;
-      gap: 12px;
-      margin-top: 12px;
-    }
-    .farm {
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 6px;
-      background: #789552;
-      padding: 10px;
-      border-radius: 14px;
-    }
-    .plot {
-      aspect-ratio: 1;
-      border: 2px solid #745331;
-      border-radius: 10px;
-      background: #9b7042;
-      display: grid;
-      place-items: center;
-      font-size: 30px;
-      position: relative;
-      cursor: pointer;
-    }
-    .plot.dry {
-      filter: saturate(0.7);
-    }
-    .plot small {
-      position: absolute;
-      bottom: 2px;
-      font-size: 10px;
-    }
-    .panel {
-      background: #193627;
-      border: 1px solid #55785a;
-      border-radius: 13px;
-      padding: 11px;
-      margin-bottom: 9px;
-    }
-    .tools button.active {
-      outline: 3px solid #ffe077;
-    }
-    button {
-      padding: 9px 11px;
-      border: 1px solid #8fb27e;
-      border-radius: 9px;
-      background: #3f714b;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    button:disabled {
-      opacity: 0.45;
-    }
-    .book {
-      max-height: 180px;
-      overflow: auto;
-    }
-    .item {
-      display: flex;
-      justify-content: space-between;
-      padding: 5px;
-      border-bottom: 1px solid #ffffff18;
-    }
-    .quest {
-      color: #ffe084;
-    }
-    .hint {
-      font-size: 13px;
-      color: #c7dfc4;
-    }
-    @media (max-width: 680px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
-      .plot {
-        font-size: 23px;
-      }
-      .stats {
-        font-size: 12px;
-        gap: 6px;
-      }
-      .app {
-        place-items: start center;
-      }
-    }
-  </style>
-  <main class="app">
-    <section class="shell">
-      <div class="top">
-        <div>
-          <h1 style="margin: 0">四季小农场</h1>
-          <div id="season" class="hint"></div>
-        </div>
-        <div class="stats">
-          <span>第 <b id="day"></b> 天</span
-          ><span>☀️ <b id="energy"></b>/<b id="maxEnergy">12</b></span
-          ><span>🪙 <b id="coins"></b></span
-          ><span>等级 <b id="level"></b></span>
-        </div>
-      </div>
-      <div class="tools" id="tools"></div>
-      <div class="layout">
-        <div>
-          <div class="farm" id="farm"></div>
-          <div class="row" style="margin-top: 10px">
-            <button id="sleep">结束一天</button
-            ><button id="sell">出售收获</button
-            ><button id="upgrade">扩建水井（<span id="cost"></span>）</button
-            ><span id="msg" class="hint"></span>
-          </div>
-        </div>
-        <aside>
-          <div class="panel">
-            <b>村民委托</b>
-            <div id="quest" class="quest"></div>
-          </div>
-          <div class="panel">
-            <b>仓库</b>
-            <div id="bag"></div>
-          </div>
-          <div class="panel book">
-            <b>农场手册</b>
-            <div id="book"></div>
-          </div>
-        </aside>
-      </div>
-    </section>
-  </main>
-  <script>
-    const C = [
-      ["萝卜", "🥕", 1, 3, 8],
-      ["小麦", "🌾", 2, 4, 13],
-      ["草莓", "🍓", 3, 5, 20],
-      ["南瓜", "🎃", 4, 7, 34],
-      ["葡萄", "🍇", 5, 8, 48],
-      ["星果", "⭐", 6, 10, 72],
-    ].map((x, id) => ({
-      id,
-      n: x[0],
-      ic: x[1],
-      lv: x[2],
-      grow: x[3],
-      v: x[4],
-    }));
-    let q,
-      tool = { kind: "seed", id: 0 };
-    const $ = (x) => document.getElementById(x);
-    function fresh() {
-      return {
-        day: 1,
-        energy: 12,
-        coins: 30,
-        lv: 1,
-        xp: 0,
-        well: 1,
-        plots: Array.from({ length: 36 }, () => null),
-        bag: {},
-        weather: 0,
-        quest: { id: 0, n: 3 },
-      };
-    }
-    function load() {
-      try {
-        q = JSON.parse(localStorage.getItem("pocket_farm_save")) || fresh();
-      } catch {
-        q = fresh();
-      }
-      draw();
-    }
-    function save() {
-      localStorage.setItem("pocket_farm_save", JSON.stringify(q));
-    }
-    function use(i) {
-      if (q.energy <= 0) return note("体力耗尽，结束一天恢复。");
-      let p = q.plots[i];
-      if (tool.kind === "seed") {
-        let c = C[tool.id];
-        if (p) return note("这块地已经种了东西。");
-        if (q.lv < c.lv) return note(`农场等级 ${c.lv} 解锁。`);
-        if (q.coins < 2 + c.id) return note("种子金币不足。");
-        q.coins -= 2 + c.id;
-        q.plots[i] = { id: c.id, age: 0, water: false };
-        q.energy--;
-      } else if (tool.kind === "water") {
-        if (!p || p.water) return;
-        q.energy--;
-        p.water = true;
-      } else if (tool.kind === "harvest") {
-        if (!p) return;
-        let c = C[p.id];
-        if (p.age < c.grow) return note(`还需 ${c.grow - p.age} 个生长点。`);
-        q.bag[p.id] = (q.bag[p.id] || 0) + 1;
-        q.plots[i] = null;
-        q.energy--;
-        q.xp += 4 + c.id;
-        if (q.xp >= q.lv * 12) {
-          q.xp -= q.lv * 12;
-          q.lv++;
-          note(`农场升到 ${q.lv} 级！`);
-        }
-        checkQuest();
-      }
-      save();
-      draw();
-    }
-    function checkQuest() {
-      let a = q.quest;
-      if ((q.bag[a.id] || 0) >= a.n) {
-        q.bag[a.id] -= a.n;
-        let reward = C[a.id].v * a.n * 2;
-        q.coins += reward;
-        q.quest = {
-          id: Math.min(
-            C.length - 1,
-            Math.floor(Math.random() * Math.min(C.length, q.lv + 1)),
-          ),
-          n: 2 + Math.floor(Math.random() * 4),
-        };
-        note(`委托完成，获得 ${reward} 金币。`);
-      }
-    }
-    function next() {
-      q.day++;
-      q.energy = 10 + q.well * 2;
-      q.weather = Math.floor(Math.random() * 4);
-      q.plots.forEach((p) => {
-        if (!p) return;
-        let gain = p.water ? 2 : 0;
-        if (q.weather === 1) gain += 2;
-        if (q.weather === 0) gain++;
-        p.age += gain;
-        p.water = q.weather === 1;
-      });
-      note("新的一天开始，作物继续生长。");
-      save();
-      draw();
-    }
-    function note(s) {
-      msg.textContent = s;
-    }
-    function draw() {
-      day.textContent = q.day;
-      energy.textContent = q.energy;
-      maxEnergy.textContent = 10 + q.well * 2;
-      coins.textContent = q.coins;
-      level.textContent = `${q.lv} (${q.xp}/${q.lv * 12})`;
-      season.textContent = [
-        "晴朗：作物生长 +1",
-        "雨天：自动浇水并生长 +2",
-        "多云：浇水后正常生长",
-        "丰收风：成熟作物售价提升",
-      ][q.weather];
-      tools.innerHTML =
-        C.map(
-          (c) =>
-            `<button data-seed="${c.id}" class="${tool.kind === "seed" && tool.id === c.id ? "active" : ""}" ${q.lv < c.lv ? "disabled" : ""}>${c.ic}${c.n}种子</button>`,
-        ).join("") +
-        `<button data-tool="water" class="${tool.kind === "water" ? "active" : ""}">💧浇水</button><button data-tool="harvest" class="${tool.kind === "harvest" ? "active" : ""}">🧺收获</button>`;
-      tools.querySelectorAll("[data-seed]").forEach(
-        (e) =>
-          (e.onclick = () => {
-            tool = { kind: "seed", id: +e.dataset.seed };
-            draw();
-          }),
-      );
-      tools.querySelectorAll("[data-tool]").forEach(
-        (e) =>
-          (e.onclick = () => {
-            tool = { kind: e.dataset.tool };
-            draw();
-          }),
-      );
-      farm.innerHTML = q.plots
-        .map((p, i) => {
-          if (!p) return `<button class="plot dry" data-i="${i}"></button>`;
-          let c = C[p.id],
-            stage = Math.min(3, Math.floor((p.age / c.grow) * 4)),
-            icons = ["·", "🌱", "🌿", c.ic];
-          return `<button class="plot ${p.water ? "" : "dry"}" data-i="${i}">${icons[stage]}<small>${Math.min(p.age, c.grow)}/${c.grow}${p.water ? " 💧" : ""}</small></button>`;
-        })
-        .join("");
-      farm
-        .querySelectorAll("[data-i]")
-        .forEach((e) => (e.onclick = () => use(+e.dataset.i)));
-      bag.innerHTML = C.map(
-        (c) =>
-          `<div class="item"><span>${c.ic}${c.n}</span><b>${q.bag[c.id] || 0}</b></div>`,
-      ).join("");
-      book.innerHTML = C.map(
-        (c) =>
-          `<div class="item"><span>${c.ic}${c.n} · ${c.grow} 生长点</span><span>Lv.${c.lv} · ${c.v}金</span></div>`,
-      ).join("");
-      let a = q.quest;
-      quest.textContent = `交付 ${a.n} 个 ${C[a.id].ic}${C[a.id].n}（${Math.min(a.n, q.bag[a.id] || 0)}/${a.n}）`;
-      cost.textContent = q.well * 45;
-      upgrade.disabled = q.well >= 4;
-    }
-    sleep.onclick = next;
-    sell.onclick = () => {
-      let v = 0;
-      C.forEach((c) => {
-        let n = q.bag[c.id] || 0;
-        v += n * c.v * (q.weather === 3 ? 1.3 : 1);
-        q.bag[c.id] = 0;
-      });
-      q.coins += Math.round(v);
-      note(v ? `收获售出，收入 ${Math.round(v)} 金币。` : "仓库里没有收获。");
-      save();
-      draw();
-    };
-    upgrade.onclick = () => {
-      let v = q.well * 45;
-      if (q.coins < v) return note("金币不足。");
-      q.coins -= v;
-      q.well++;
-      q.energy = 10 + q.well * 2;
-      note("水井扩建完成，今日体力获得补充。");
-      save();
-      draw();
-    };
-    load();
-  </script>
-</html>
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>四季小农场：溪谷年鉴</title><style>
+:root{color-scheme:dark;--bg:#14241c;--panel:#21392b;--panel2:#192d22;--line:#54745b;--cream:#fff4d5;--muted:#bad0bd;--gold:#ffd36b;--green:#78d889;--soil:#8b5d38}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% -20%,#52704d,#102019 48%);color:var(--cream);font-family:Inter,"Microsoft YaHei",system-ui,sans-serif}.app{width:min(1260px,100%);margin:auto;padding:12px}.top{display:flex;justify-content:space-between;gap:12px;align-items:center;border-bottom:1px solid var(--line);padding-bottom:10px}h1{font-size:clamp(25px,4vw,38px);margin:0}.sub{font-size:12px;color:var(--muted);margin-top:4px}.stats{display:flex;gap:7px;flex-wrap:wrap}.stat{min-width:85px;background:#102019;border:1px solid var(--line);border-radius:10px;padding:7px 10px}.stat small{display:block;color:var(--muted);font-size:9px}.stat b{font-size:17px;color:var(--gold)}.tabs,.controls,.tools{display:flex;gap:6px;flex-wrap:wrap}.tabs{margin:10px 0}.btn,.tab{border:1px solid #69816d;background:#31543c;color:#fff;border-radius:8px;padding:9px 12px;min-height:40px;font-weight:800;cursor:pointer}.btn:hover,.tab:hover{filter:brightness(1.12)}.btn:disabled{opacity:.4}.btn.primary,.tab.active{background:var(--gold);color:#3d2d00;border-color:var(--gold)}.btn.danger{background:#7e3f42}.view{display:none}.view.active{display:block}.layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:10px}.panel{background:rgba(30,50,38,.96);border:1px solid var(--line);border-radius:12px}.section{padding:11px}.farm-wrap{padding:9px}.farm-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}.farm{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px;background:#6f8d50;padding:8px;border-radius:10px}.plot{aspect-ratio:1;border:2px solid #694522;background:var(--soil);border-radius:9px;display:grid;place-items:center;font-size:clamp(20px,4.5vw,35px);position:relative;cursor:pointer;min-width:0;padding:0}.plot:hover{filter:brightness(1.08)}.plot.dry{filter:saturate(.65)}.plot small{position:absolute;bottom:1px;left:2px;right:2px;text-align:center;font-size:8px;color:white;text-shadow:0 1px 2px #000}.plot .spark{position:absolute;right:2px;top:0;font-size:11px}.seedbar{display:flex;gap:5px;overflow:auto;padding:4px 0 8px;scrollbar-width:thin}.seed{min-width:90px;text-align:left;border:1px solid #54745b;background:#1a3225;border-radius:8px;padding:7px;color:#fff;cursor:pointer}.seed.active{outline:2px solid var(--gold)}.seed span{font-size:22px}.seed b,.seed small{display:block}.seed small{font-size:8px;color:var(--muted)}.side{display:flex;flex-direction:column;gap:9px}.message{background:#0f2018;border-left:3px solid var(--gold);padding:9px;min-height:48px;font-size:11px;line-height:1.5}.weather{display:flex;gap:9px;align-items:center}.weather span{font-size:35px}.weather small{display:block;color:var(--muted)}.order,.building,.resident,.crop-card{border:1px solid #48644e;background:#192e22;border-radius:8px;padding:9px}.order+.order,.building+.building{margin-top:7px}.order header,.building header{display:flex;justify-content:space-between;gap:8px}.order p,.building p,.resident p{font-size:10px;color:var(--muted);line-height:1.5;margin:4px 0 7px}.progress{height:6px;background:#0d1c15;border-radius:9px;overflow:hidden}.progress i{display:block;height:100%;background:var(--green)}.town{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.resident{text-align:center}.resident .avatar{font-size:42px}.hearts{color:#ff8b98;letter-spacing:2px}.buildings{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.building+.building{margin-top:0}.collection{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.crop-card{text-align:center}.crop-card.locked{filter:grayscale(1);opacity:.45}.crop-card span{font-size:34px}.crop-card b,.crop-card small{display:block}.crop-card small{font-size:9px;color:var(--muted)}.overlay{position:fixed;inset:0;background:#0a160fed;z-index:20;display:flex;align-items:center;justify-content:center;padding:14px}.overlay.hidden{display:none}.modal{width:min(860px,100%);max-height:92vh;overflow:auto;background:#20382a;border:1px solid #6f8d73;border-radius:12px;padding:17px}.modal h2{font-size:26px;margin:0 0 5px}.modal>p{color:var(--muted);line-height:1.55}.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.choice{text-align:left;min-height:140px;background:#172c20;border:1px solid #54725b;border-radius:9px;padding:12px;color:#fff;cursor:pointer}.choice:hover{border-color:var(--gold)}.choice span{font-size:35px}.choice h3{margin:5px 0}.choice p{font-size:10px;color:var(--muted);line-height:1.55}.savebox{width:100%;height:130px;background:#0d1c15;color:#fff;border:1px solid var(--line);padding:9px;resize:vertical}.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#13261b;border:1px solid var(--gold);padding:9px 14px;z-index:30}@media(max-width:820px){.layout{grid-template-columns:1fr}.side{display:grid;grid-template-columns:1fr 1fr}.side .panel:last-child{grid-column:1/-1}.town,.buildings{grid-template-columns:repeat(2,1fr)}}@media(max-width:560px){.app{padding:7px}.top{align-items:flex-start;flex-direction:column}.stats{width:100%}.stat{flex:1;min-width:70px;padding:6px}.farm{gap:3px;padding:5px}.plot{border-width:1px;border-radius:5px}.seed{min-width:78px;padding:6px}.side{display:flex}.town,.buildings{grid-template-columns:1fr}.collection{grid-template-columns:repeat(3,1fr)}.choices{grid-template-columns:1fr}.choice{min-height:105px}.tab{flex:1;padding:7px}}
+</style></head><body><main class="app"><header class="top"><div><h1>四季小农场：溪谷年鉴</h1><div class="sub">四季轮作、村民羁绊、节庆订单与农场建设；用一整年把荒地变成溪谷名庄。</div></div><div class="stats"><div class="stat"><small>日期</small><b id="date">春 1 · 第1年</b></div><div class="stat"><small>体力</small><b id="energy">14 / 14</b></div><div class="stat"><small>金币</small><b id="coins">0</b></div><div class="stat"><small>农场等级</small><b id="level">1</b></div><div class="stat"><small>声望</small><b id="renown">0</b></div></div></header><nav class="tabs"><button class="tab active" data-view="farm">农田</button><button class="tab" data-view="town">溪谷镇</button><button class="tab" data-view="build">农场建设</button><button class="tab" data-view="collection">年鉴</button><button class="tab" id="saveBtn">存档码</button><button class="tab" id="newBtn">新农场</button></nav>
+<section class="view active" id="farmView"><div class="layout"><section class="panel farm-wrap"><div class="farm-head"><div><b id="seasonTitle">春日播种季</b><div class="sub" id="seasonGoal"></div></div><div class="weather"><span id="weatherIcon">☀️</span><div><b id="weatherName">晴朗</b><small id="weatherText"></small></div></div></div><div class="seedbar" id="seedbar"></div><div class="tools"><button class="btn" data-tool="water">💧 浇水</button><button class="btn" data-tool="harvest">🧺 收获</button><button class="btn" data-tool="fertilize">✨ 堆肥 3金</button></div><div class="farm" id="farm"></div><div class="controls" style="margin-top:8px"><button class="btn primary" id="sleepBtn">结束一天</button><button class="btn" id="sellBtn">集市出售</button><button class="btn" id="autoWaterBtn">水井灌溉</button></div><div class="message" id="message">选择当季种子，点击土地开始耕作。</div></section><aside class="side"><section class="panel section"><h3 style="margin-top:0">今日委托</h3><div id="orders"></div></section><section class="panel section"><h3 style="margin-top:0">仓库</h3><div id="bag"></div></section><section class="panel section"><h3 style="margin-top:0">年度进度</h3><div id="yearStats"></div></section></aside></div></section>
+<section class="view" id="townView"><div class="panel section"><h2>溪谷镇居民</h2><p class="sub">每天可赠送一次仓库中价值最低的作物。达到 3/6/9 心会解锁农场增益。</p><div class="town" id="residents"></div></div></section>
+<section class="view" id="buildView"><div class="panel section"><h2>农场建设</h2><p class="sub">建筑不是单纯数值升级：它们会解锁自动化、动物产物、加工溢价或跨季种植。</p><div class="buildings" id="buildings"></div></div></section>
+<section class="view" id="collectionView"><div class="panel section"><h2>四季作物年鉴</h2><div class="collection" id="collection"></div></div></section></main>
+<div class="overlay" id="startOverlay"><section class="modal"><h2>选择农场出身</h2><p>三种出身改变开局资源和长期方向，但都能体验完整年度内容。</p><div class="choices" id="origins"></div></section></div><div class="overlay hidden" id="choiceOverlay"><section class="modal"><h2 id="choiceTitle">溪谷节庆</h2><p id="choiceHelp"></p><div class="choices" id="choices"></div></section></div><div class="overlay hidden" id="infoOverlay"><section class="modal"><h2 id="infoTitle">农场档案</h2><div id="infoBody"></div><div class="controls"><button class="btn primary" id="closeInfoBtn">返回农场</button></div></section></div>
+<script>(()=>{'use strict';const $=id=>document.getElementById(id),SAVE='pocketFarmV3';
+const SEASONS=[{n:'春',i:'🌸',title:'春日播种季',goal:'培育新芽，首个节庆在第 7 天举行。'},{n:'夏',i:'☀️',title:'盛夏丰收季',goal:'高价值作物需要更多浇水与体力规划。'},{n:'秋',i:'🍂',title:'金秋加工季',goal:'利用厨房和粮仓把收获转成更高利润。'},{n:'冬',i:'❄️',title:'冬藏温室季',goal:'耐寒作物与温室是冬季经营核心。'}];
+const CROPS=[['萝卜','🥕',0,2,4,10,0],['豌豆','🫛',0,3,6,17,2],['草莓','🍓',0,4,9,27,3],['郁金香','🌷',0,3,7,22,0],['番茄','🍅',1,3,7,20,2],['蓝莓','🫐',1,4,9,31,3],['玉米','🌽',1,5,11,42,2],['西瓜','🍉',1,6,14,60,0],['南瓜','🎃',2,5,12,48,0],['葡萄','🍇',2,4,10,36,2],['茄子','🍆',2,3,8,25,2],['向日葵','🌻',2,5,12,52,0],['冬萝卜','🥬',3,3,8,28,0],['雪豆','🫘',3,4,10,38,2],['水晶果','💎',3,6,16,75,0],['冬玫瑰','🌹',3,5,13,58,0]].map((x,id)=>({id,n:x[0],i:x[1],season:x[2],grow:x[3],cost:x[4],value:x[5],regrow:x[6]}));
+const WEATHERS=[{n:'晴朗',i:'☀️',d:'正常生长，浇水后次日 +1 生长',rain:0,grow:0},{n:'细雨',i:'🌧️',d:'土地自动浇水，作物额外 +1 生长',rain:1,grow:1},{n:'微风',i:'🌤️',d:'花卉售价提高 25%',rain:0,grow:0},{n:'丰收雾',i:'🌫️',d:'成熟作物有概率产出双份',rain:0,grow:0},{n:'热浪',i:'🔥',d:'浇水消耗增加，但夏季作物额外生长',rain:0,grow:0}];
+const ORIGINS={grower:{i:'🌱',n:'田园学徒',d:'体力 +2，浇水消耗降低，适合稳定轮作。'},merchant:{i:'🧺',n:'集市行商',d:'开局金币更多，所有出售价格 +12%。'},naturalist:{i:'🦋',n:'溪谷自然家',d:'初始声望更高，发现新品种与送礼获得额外关系。'}};
+const PEOPLE=[{n:'林芽',i:'👩‍🌾',d:'种子商，喜欢春季作物。',season:0,perk:'种子价格 -12%'},{n:'墨叔',i:'🧔',d:'集市老板，喜欢高价值收获。',season:2,perk:'出售价格 +12%'},{n:'澄澄',i:'👩‍🍳',d:'餐馆主厨，喜欢夏季作物。',season:1,perk:'订单奖励 +20%'},{n:'阿岳',i:'🧑‍🔧',d:'木匠，喜欢冬季作物。',season:3,perk:'建筑价格 -10%'},{n:'小禾',i:'🧒',d:'博物馆志愿者，喜欢新品种。',season:0,perk:'首次发现声望 +2'},{n:'牧遥',i:'🧑‍🎨',d:'花艺师，偏爱花卉。',season:2,perk:'花卉售价 +25%'}];
+const BUILDINGS={well:{i:'🪣',n:'深水井',d:'每天可一键灌溉更多土地。',base:80,max:4},silo:{i:'🏚️',n:'粮仓',d:'出售时每级增加 5% 仓储溢价。',base:110,max:4},coop:{i:'🐔',n:'鸡舍',d:'每天产出鸡蛋，可直接出售。',base:140,max:3},barn:{i:'🐄',n:'畜棚',d:'每天产出牛奶，提高稳定收入。',base:190,max:3},kitchen:{i:'🍳',n:'乡野厨房',d:'订单奖励每级提高 10%。',base:160,max:3},greenhouse:{i:'🏡',n:'玻璃温室',d:'等级范围内的土地允许跨季种植。',base:260,max:3}};
+let q=null,tool={kind:'seed',id:0},activeView='farm';const season=()=>Math.floor((q.day-1)/7)%4,year=()=>Math.floor((q.day-1)/28)+1,maxEnergy=()=>14+(q.origin==='grower'?2:0)+q.buildings.well,friend=i=>q.friends[i]||0,hasPerk=i=>friend(i)>=3;
+function fresh(origin){const x={v:3,origin,day:1,energy:origin==='grower'?16:14,coins:origin==='merchant'?105:70,lv:1,xp:0,renown:origin==='naturalist'?5:0,weather:0,plots:Array(36).fill(null),bag:{},dex:[],friends:{},giftDay:{},buildings:{well:0,silo:0,coop:0,barn:0,kitchen:0,greenhouse:0},orders:[],stats:{harvest:0,sold:0,orders:0,festivals:0},log:'新农场的第一缕晨光落在土地上。'};x.orders=makeOrders(x);return x}
+function makeOrders(state=q){const s=Math.floor((state.day-1)/7)%4,pool=CROPS.filter(c=>c.season===s&&c.cost<=8+state.lv*2);return Array.from({length:3},(_,i)=>{const c=pool[(Math.floor(Math.random()*pool.length)+i)%pool.length],need=2+Math.floor(Math.random()*(2+Math.min(3,state.lv)));return{id:c.id,need,done:false,reward:Math.round(c.value*need*(1.45+i*.12)),expires:state.day+3}})}
+function save(){if(q)localStorage.setItem(SAVE,JSON.stringify(q))}function load(){try{const x=JSON.parse(localStorage.getItem(SAVE));if(x?.v===3)q=x}catch{}}
+function checksum(s){let h=2166136261;for(const ch of s){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)}return(h>>>0).toString(36)}function exportCode(){const b=btoa(unescape(encodeURIComponent(JSON.stringify(q))));return`PF3-${b}-${checksum(b)}`}function importCode(x){const m=x.trim().match(/^PF3-(.+)-([a-z0-9]+)$/i);if(!m||checksum(m[1])!==m[2])throw Error('存档码校验失败');const d=JSON.parse(decodeURIComponent(escape(atob(m[1]))));if(d.v!==3)throw Error('版本不兼容');q=d;save();draw()}
+function toast(s){const e=document.createElement('div');e.className='toast';e.textContent=s;document.body.append(e);setTimeout(()=>e.remove(),1500)}function msg(s){q.log=s;$('message').textContent=s}
+function seedCost(c){return Math.max(1,Math.round(c.cost*(hasPerk(0)?.88:1)))}function saleMult(c){return(1+(q.origin==='merchant'?.12:0)+(hasPerk(1)?.12:0)+(q.buildings.silo*.05)+(hasPerk(5)&&['郁金香','向日葵','冬玫瑰'].includes(c.n)?.25:0)+(q.weather===2&&['郁金香','向日葵','冬玫瑰'].includes(c.n)?.25:0))}
+function spendEnergy(n=1){if(q.energy<n){msg('体力不足，结束一天或提升水井与关系增益。');return false}q.energy-=n;return true}
+function usePlot(i){const p=q.plots[i];if(tool.kind==='seed'){const c=CROPS[tool.id],green=i<q.buildings.greenhouse*6;if(c.season!==season()&&!green)return msg('这不是当季作物，只有温室土地可以跨季种植。');if(p)return msg('这块土地已经种有作物。');const cost=seedCost(c);if(q.coins<cost)return msg('金币不足，先出售收获或完成委托。');if(!spendEnergy())return;q.coins-=cost;q.plots[i]={id:c.id,age:0,water:false,fert:0};msg(`种下 ${c.n}，需要 ${c.grow} 生长点。`)}else if(tool.kind==='water'){if(!p||p.water)return msg(p?'土地已经湿润。':'空地无需浇水。');if(!spendEnergy(q.origin==='grower'?0:1))return;p.water=true;msg('土地已浇透。')}else if(tool.kind==='fertilize'){if(!p||p.fert)return msg(p?'这株作物已经施肥。':'先播种再施肥。');if(q.coins<3)return msg('堆肥需要 3 金币。');q.coins-=3;p.fert=1;msg('堆肥会让作物每天额外获得生长点。')}else if(tool.kind==='harvest'){if(!p)return msg('这里没有可收获的作物。');const c=CROPS[p.id];if(p.age<c.grow)return msg(`还需 ${c.grow-p.age} 生长点。`);if(!spendEnergy())return;let n=1+(q.weather===3&&Math.random()<.3?1:0);q.bag[c.id]=(q.bag[c.id]||0)+n;q.stats.harvest+=n;q.xp+=5+c.cost;const first=!q.dex.includes(c.id);if(first){q.dex.push(c.id);q.renown+=1+(q.origin==='naturalist'?2:0)+(hasPerk(4)?2:0);toast(`年鉴新增：${c.n}`)}if(c.regrow){p.age=Math.max(0,c.grow-c.regrow);p.water=false}else q.plots[i]=null;levelUp();msg(`收获 ${n} 份${c.n}${first?'，首次发现已登记':''}。`)}save();draw()}
+function levelUp(){while(q.xp>=q.lv*24){q.xp-=q.lv*24;q.lv++;q.renown+=2;toast(`农场升至 Lv.${q.lv}`)}}
+function sellAll(){let total=0;CROPS.forEach(c=>{const n=q.bag[c.id]||0;if(n){total+=Math.round(n*c.value*saleMult(c));q.stats.sold+=n;q.bag[c.id]=0}});const egg=q.bag.egg||0,milk=q.bag.milk||0;total+=egg*18+milk*32;q.bag.egg=q.bag.milk=0;q.coins+=total;msg(total?`集市结算 ${total} 金币，仓储和关系增益已计入。`:'仓库里没有可出售的货物。');save();draw()}
+function nextDay(){q.day++;q.energy=maxEnergy();q.weather=Math.floor(Math.random()*WEATHERS.length);const rain=WEATHERS[q.weather].rain,s=season();q.plots.forEach((p,i)=>{if(!p)return;const green=i<q.buildings.greenhouse*6;if((p.water||rain)&&(CROPS[p.id].season===s||green))p.age+=1+WEATHERS[q.weather].grow+p.fert+(q.weather===4&&s===1?1:0);p.water=!!rain});if(q.buildings.coop)q.bag.egg=(q.bag.egg||0)+q.buildings.coop;if(q.buildings.barn)q.bag.milk=(q.bag.milk||0)+q.buildings.barn;if(q.orders.every(o=>o.done)||q.orders.some(o=>o.expires<q.day))q.orders=makeOrders();msg(`${SEASONS[s].i}${SEASONS[s].n}季第 ${(q.day-1)%7+1} 天，${WEATHERS[q.weather].n}。`);if((q.day-1)%7===6)setTimeout(showFestival,150);save();draw()}
+function deliver(i){const o=q.orders[i],have=q.bag[o.id]||0;if(o.done)return;if(have<o.need)return toast('仓库数量不足');q.bag[o.id]-=o.need;o.done=true;const reward=Math.round(o.reward*(1+q.buildings.kitchen*.1+(hasPerk(2)?.2:0)));q.coins+=reward;q.renown+=2;q.stats.orders++;msg(`委托完成，获得 ${reward} 金币与 2 声望。`);save();draw()}
+function showFestival(){q.stats.festivals++;const opts=[{i:'🏆',n:'丰收展台',d:`按已发现 ${q.dex.length} 种作物获得金币与声望。`,f:()=>{q.coins+=q.dex.length*12;q.renown+=3}},{i:'🎣',n:'溪谷休假',d:'永久体力 +1，并恢复今日全部体力。',f:()=>{q.buildings.well++;q.energy=maxEnergy()}},{i:'🎁',n:'邻里宴席',d:'所有居民关系 +1，订单立即刷新。',f:()=>{PEOPLE.forEach((_,i)=>q.friends[i]=(q.friends[i]||0)+1);q.orders=makeOrders()}}];$('choiceTitle').textContent=`${SEASONS[season()].i}${SEASONS[season()].n}季节庆`;$('choiceHelp').textContent='每七天一次的节庆会改变农场长期成长。';$('choices').innerHTML=opts.map((o,i)=>`<button class="choice" data-festival="${i}"><span>${o.i}</span><h3>${o.n}</h3><p>${o.d}</p></button>`).join('');$('choiceOverlay').classList.remove('hidden');document.querySelectorAll('[data-festival]').forEach(b=>b.onclick=()=>{opts[+b.dataset.festival].f();$('choiceOverlay').classList.add('hidden');msg(`参加节庆：${opts[+b.dataset.festival].n}`);save();draw()})}
+function gift(i){if(q.giftDay[i]===q.day)return toast('今天已经赠送过礼物');const ids=CROPS.filter(c=>(q.bag[c.id]||0)>0).sort((a,b)=>a.value-b.value);if(!ids.length)return toast('仓库没有可赠送的作物');const c=ids[0];q.bag[c.id]--;q.giftDay[i]=q.day;const gain=1+(c.season===PEOPLE[i].season?1:0)+(q.origin==='naturalist'?.5:0);q.friends[i]=Math.min(10,(q.friends[i]||0)+gain);msg(`${PEOPLE[i].n}收到${c.n}，关系提升 ${gain}。`);save();draw()}
+function upgrade(id){const d=BUILDINGS[id],lv=q.buildings[id],cost=Math.round(d.base*Math.pow(1.65,lv)*(hasPerk(3)?.9:1));if(lv>=d.max)return;if(q.coins<cost)return toast('金币不足');q.coins-=cost;q.buildings[id]++;q.renown++;msg(`${d.n}升级到 Lv.${q.buildings[id]}。`);save();draw()}
+function autoWater(){const n=4+q.buildings.well*5,targets=q.plots.map((p,i)=>p&&!p.water?i:-1).filter(i=>i>=0).slice(0,n);if(!targets.length)return msg('没有需要灌溉的作物。');targets.forEach(i=>q.plots[i].water=true);msg(`水井灌溉 ${targets.length} 块土地。`);draw();save()}
+function showSave(){const code=exportCode();$('infoTitle').textContent='跨设备农场档案';$('infoBody').innerHTML=`<p>年度、农田、仓库、居民关系、建筑和年鉴都会导出，并带完整性校验。</p><textarea class="savebox" id="saveCode">${code}</textarea><div class="controls"><button class="btn" id="copyCode">复制导出</button><button class="btn" id="importCodeBtn">导入上方存档</button></div>`;$('infoOverlay').classList.remove('hidden');$('copyCode').onclick=()=>navigator.clipboard?.writeText($('saveCode').value);$('importCodeBtn').onclick=()=>{try{importCode($('saveCode').value);$('infoOverlay').classList.add('hidden');alert('农场档案导入成功')}catch(e){alert(e.message)}}}
+function draw(){if(!q)return;const s=season(),w=WEATHERS[q.weather];$('date').textContent=`${SEASONS[s].n} ${(q.day-1)%7+1} · 第${year()}年`;$('energy').textContent=`${q.energy} / ${maxEnergy()}`;$('coins').textContent=Math.floor(q.coins);$('level').textContent=`${q.lv} · ${q.xp}/${q.lv*24}`;$('renown').textContent=q.renown;$('seasonTitle').textContent=SEASONS[s].title;$('seasonGoal').textContent=SEASONS[s].goal;$('weatherIcon').textContent=w.i;$('weatherName').textContent=w.n;$('weatherText').textContent=w.d;$('message').textContent=q.log;
+const available=CROPS.filter(c=>c.season===s||q.buildings.greenhouse>0);$('seedbar').innerHTML=available.map(c=>`<button class="seed ${tool.kind==='seed'&&tool.id===c.id?'active':''}" data-seed="${c.id}"><span>${c.i}</span><b>${c.n}</b><small>${seedCost(c)}金 · ${c.grow}天${c.regrow?' · 再生':''}</small></button>`).join('');document.querySelectorAll('[data-seed]').forEach(b=>b.onclick=()=>{tool={kind:'seed',id:+b.dataset.seed};draw()});document.querySelectorAll('[data-tool]').forEach(b=>b.classList.toggle('primary',tool.kind===b.dataset.tool));$('farm').innerHTML=q.plots.map((p,i)=>{if(!p)return`<button class="plot dry" data-plot="${i}"></button>`;const c=CROPS[p.id],stage=Math.min(3,Math.floor(p.age/c.grow*4)),icons=['·','🌱','🌿',c.i];return`<button class="plot ${p.water?'':'dry'}" data-plot="${i}">${icons[stage]}${p.fert?'<span class="spark">✨</span>':''}<small>${Math.min(p.age,c.grow)}/${c.grow}${p.water?' 💧':''}</small></button>`}).join('');document.querySelectorAll('[data-plot]').forEach(b=>b.onclick=()=>usePlot(+b.dataset.plot));
+$('orders').innerHTML=q.orders.map((o,i)=>{const c=CROPS[o.id],have=q.bag[o.id]||0;return`<div class="order"><header><b>${o.done?'✓ ':''}${c.i}${c.n} × ${o.need}</b><span>${o.reward}金</span></header><p>期限第 ${o.expires} 天 · 当前 ${Math.min(have,o.need)}/${o.need}</p><div class="progress"><i style="width:${Math.min(100,have/o.need*100)}%"></i></div><button class="btn" data-deliver="${i}" ${o.done?'disabled':''}>交付</button></div>`}).join('');document.querySelectorAll('[data-deliver]').forEach(b=>b.onclick=()=>deliver(+b.dataset.deliver));const stocks=CROPS.filter(c=>(q.bag[c.id]||0)>0).map(c=>`${c.i}${c.n} × ${q.bag[c.id]}`).concat(q.bag.egg?[`🥚鸡蛋 × ${q.bag.egg}`]:[],q.bag.milk?[`🥛牛奶 × ${q.bag.milk}`]:[]);$('bag').innerHTML=stocks.length?stocks.map(x=>`<div class="order">${x}</div>`).join(''):'<div class="sub">仓库还是空的。</div>';$('yearStats').innerHTML=`<div class="order">发现 <b>${q.dex.length}/16</b> 种作物</div><div class="order">收获 <b>${q.stats.harvest}</b> · 委托 <b>${q.stats.orders}</b></div><div class="order">节庆 <b>${q.stats.festivals}</b> · 建筑等级 <b>${Object.values(q.buildings).reduce((a,b)=>a+b,0)}</b></div>`;
+$('residents').innerHTML=PEOPLE.map((p,i)=>`<article class="resident"><div class="avatar">${p.i}</div><h3>${p.n}</h3><div class="hearts">${'♥'.repeat(Math.floor(friend(i)))}${'♡'.repeat(Math.max(0,10-Math.floor(friend(i))))}</div><p>${p.d}<br><b>${p.perk}</b>${hasPerk(i)?' · 已生效':''}</p><button class="btn" data-gift="${i}" ${q.giftDay[i]===q.day?'disabled':''}>赠送作物</button></article>`).join('');document.querySelectorAll('[data-gift]').forEach(b=>b.onclick=()=>gift(+b.dataset.gift));
+$('buildings').innerHTML=Object.entries(BUILDINGS).map(([id,d])=>{const lv=q.buildings[id],cost=Math.round(d.base*Math.pow(1.65,lv)*(hasPerk(3)?.9:1));return`<article class="building"><header><b>${d.i} ${d.n}</b><span>Lv.${lv}/${d.max}</span></header><p>${d.d}</p><button class="btn" data-up="${id}" ${lv>=d.max?'disabled':''}>${lv>=d.max?'已满级':`升级 ${cost}`}</button></article>`}).join('');document.querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>upgrade(b.dataset.up));$('collection').innerHTML=CROPS.map(c=>`<article class="crop-card ${q.dex.includes(c.id)?'':'locked'}"><span>${q.dex.includes(c.id)?c.i:'❔'}</span><b>${q.dex.includes(c.id)?c.n:'未发现'}</b><small>${SEASONS[c.season].n} · ${c.grow}天 · ${c.value}金${c.regrow?' · 再生':''}</small></article>`).join('');save()}
+function originScreen(){$('origins').innerHTML=Object.entries(ORIGINS).map(([id,o])=>`<button class="choice" data-origin="${id}"><span>${o.i}</span><h3>${o.n}</h3><p>${o.d}</p></button>`).join('');document.querySelectorAll('[data-origin]').forEach(b=>b.onclick=()=>{q=fresh(b.dataset.origin);$('startOverlay').classList.add('hidden');draw()})}
+document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{activeView=b.dataset.view;document.querySelectorAll('.tab[data-view]').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id===activeView+'View'))});document.querySelectorAll('[data-tool]').forEach(b=>b.onclick=()=>{tool={kind:b.dataset.tool};draw()});$('sleepBtn').onclick=nextDay;$('sellBtn').onclick=sellAll;$('autoWaterBtn').onclick=autoWater;$('saveBtn').onclick=()=>q&&showSave();$('closeInfoBtn').onclick=()=>$('infoOverlay').classList.add('hidden');$('newBtn').onclick=()=>{if(!q||confirm('清空当前农场档案？')){q=null;localStorage.removeItem(SAVE);$('startOverlay').classList.remove('hidden')}};load();originScreen();if(q){$('startOverlay').classList.add('hidden');draw()}
+})();</script></body></html>

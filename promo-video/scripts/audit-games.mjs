@@ -70,6 +70,15 @@ const startSelectors = [
   "#dealBtn",
   "#launchBtn",
   "#beginBtn",
+  "[data-origin]",
+  "[data-doctrine]",
+  "[data-case]",
+  "[data-night]",
+  "[data-city]",
+  "[data-cmd]",
+  "[data-class]",
+  "[data-captain]",
+  "[data-starter]",
 ];
 const startPattern = /^(开始|开始游戏|开始战斗|开始挑战|新游戏|发牌|出发|启程|进入|开局|投币|抛竿|旋转)$/;
 

@@ -1,269 +1,37 @@
-<!doctype html>
-<html lang="zh-CN">
-  <meta charset="utf-8" /><meta
-    name="viewport"
-    content="width=device-width,initial-scale=1"
-  /><title>午夜监控室</title
-  ><style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      background: #08090b;
-      color: #e9ece9;
-      font-family: ui-monospace, Consolas, "Microsoft YaHei", monospace;
-    }
-    .app {
-      min-height: 100vh;
-      padding: 14px;
-      display: grid;
-      place-items: center;
-    }
-    .shell {
-      width: min(940px, 100%);
-      background: #15181a;
-      border: 1px solid #484e50;
-      border-radius: 16px;
-      padding: 16px;
-    }
-    .top,
-    .row {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .screen {
-      height: 430px;
-      margin: 12px 0;
-      border: 10px solid #2c3132;
-      border-radius: 12px;
-      background: repeating-linear-gradient(#1b2423 0 3px, #14201e 3px 6px);
-      position: relative;
-      display: grid;
-      place-items: center;
-      text-align: center;
-      overflow: hidden;
-    }
-    .feed {
-      font-size: 90px;
-    }
-    .static {
-      position: absolute;
-      inset: 0;
-      background: repeating-linear-gradient(
-        90deg,
-        transparent 0 30px,
-        #ffffff08 30px 31px
-      );
-      pointer-events: none;
-    }
-    .cams {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-    .cams button.active {
-      outline: 3px solid #ddd;
-    }
-    .danger {
-      color: #ff6969;
-    }
-    .bar {
-      height: 9px;
-      background: #272b2c;
-      border-radius: 7px;
-      overflow: hidden;
-    }
-    .bar i {
-      display: block;
-      height: 100%;
-      background: #d7d269;
-    }
-    .log {
-      height: 70px;
-      overflow: auto;
-      color: #aeb5b2;
-      font-size: 13px;
-    }
-    button {
-      padding: 9px 11px;
-      border: 1px solid #5c6363;
-      border-radius: 7px;
-      background: #303637;
-      color: white;
-      font-weight: bold;
-    }
-    .door {
-      background: #713b3e;
-    }
-    .help {
-      font-size: 13px;
-      color: #abb3b0;
-    }
-    @media (max-width: 650px) {
-      .screen {
-        height: 330px;
-      }
-      .app {
-        place-items: start center;
-      }
-    }
-  </style>
-  <main class="app">
-    <section class="shell">
-      <div class="top">
-        <div>
-          <h1 style="margin: 0">午夜监控室</h1>
-          <div class="help">
-            在六个监控区追踪异常玩偶，关门能挡住袭击但持续消耗电力；坚持到清晨六点。
-          </div>
-        </div>
-        <div>
-          时间 <b id="hour"></b>:00　电力 <b id="power"></b>%　夜晚
-          <b id="night"></b>/5
-        </div>
-      </div>
-      <div class="bar"><i id="powerBar"></i></div>
-      <div class="screen">
-        <div>
-          <div id="camName"></div>
-          <div class="feed" id="feed"></div>
-          <div id="status"></div>
-        </div>
-        <div class="static"></div>
-      </div>
-      <div class="row">
-        <div class="cams" id="cams"></div>
-        <div>
-          <button class="door" id="leftDoor">左门</button
-          ><button class="door" id="rightDoor">右门</button
-          ><button id="light">走廊灯</button><button id="pause">暂停</button
-          ><button id="restart">新夜晚</button>
-        </div>
-      </div>
-      <div class="log" id="log"></div>
-    </section>
-  </main>
-  <script>
-    const rooms = ["舞台", "餐厅", "仓库", "西走廊", "东走廊", "办公室"],
-      icons = ["🎭", "🍕", "📦", "🚪", "🚪", "🪑"];
-    let q,
-      timer = null;
-    const $ = (x) => document.getElementById(x);
-    function fresh(n = 1) {
-      return {
-        night: n,
-        t: 0,
-        power: 100,
-        cam: 0,
-        left: false,
-        right: false,
-        light: false,
-        creatures: [
-          { ic: "🐰", room: 0 },
-          { ic: "🦊", room: 2 },
-        ],
-        logs: ["午夜值班开始，监控画面出现微弱雪花。"],
-        over: false,
-        paused: false,
-      };
-    }
-    function tick() {
-      if (q.paused || q.over) return;
-      q.t++;
-      q.power -=
-        0.45 + (q.left ? 1.1 : 0) + (q.right ? 1.1 : 0) + (q.light ? 0.7 : 0);
-      for (const c of q.creatures)
-        if (Math.random() < 0.06 + q.night * 0.012) {
-          if (c.room < 3) c.room = 2 + Math.floor(Math.random() * 3);
-          else if (c.room === 3 || c.room === 4) {
-            let blocked = c.room === 3 ? q.left : q.right;
-            if (blocked) {
-              c.room = Math.floor(Math.random() * 3);
-              q.logs.unshift(`${c.ic}被门挡回黑暗中。`);
-            } else {
-              c.room = 5;
-              q.over = true;
-              q.logs.unshift(`${c.ic}进入办公室，夜班失败。`);
-            }
-          }
-        }
-      if (q.power <= 0) {
-        q.power = 0;
-        q.left = q.right = false;
-        if (Math.random() < 0.18) {
-          q.over = true;
-          q.logs.unshift("电力耗尽，监控室陷入黑暗。");
-        }
-      }
-      if (q.t >= 72 && !q.over) {
-        q.over = true;
-        q.logs.unshift("清晨六点！你安全完成了夜班。");
-        if (q.night < 5)
-          setTimeout(() => {
-            q = fresh(q.night + 1);
-            draw();
-          }, 900);
-      }
-      draw();
-    }
-    function draw() {
-      hour.textContent = Math.min(6, Math.floor(q.t / 12));
-      power.textContent = Math.floor(q.power);
-      night.textContent = q.night;
-      powerBar.style.width = q.power + "%";
-      camName.textContent = `CAM ${q.cam + 1} · ${rooms[q.cam]}`;
-      let seen = q.creatures.filter((c) => c.room === q.cam);
-      feed.textContent = seen.map((c) => c.ic).join(" ") || icons[q.cam];
-      status.textContent =
-        q.cam === 5 && seen.length
-          ? "异常进入办公室！"
-          : seen.length
-            ? "画面检测到移动"
-            : "画面稳定";
-      cams.innerHTML = rooms
-        .map(
-          (r, i) =>
-            `<button data-i="${i}" class="${q.cam === i ? "active" : ""}">${i + 1}.${r}</button>`,
-        )
-        .join("");
-      cams.querySelectorAll("[data-i]").forEach(
-        (e) =>
-          (e.onclick = () => {
-            q.cam = +e.dataset.i;
-            draw();
-          }),
-      );
-      leftDoor.textContent = `左门 ${q.left ? "关闭" : "开启"}`;
-      rightDoor.textContent = `右门 ${q.right ? "关闭" : "开启"}`;
-      light.textContent = `走廊灯 ${q.light ? "亮" : "灭"}`;
-      log.innerHTML = q.logs
-        .slice(0, 7)
-        .map((x) => `<div>• ${x}</div>`)
-        .join("");
-    }
-    leftDoor.onclick = () => {
-      q.left = !q.left;
-      draw();
-    };
-    rightDoor.onclick = () => {
-      q.right = !q.right;
-      draw();
-    };
-    light.onclick = () => {
-      q.light = !q.light;
-      draw();
-    };
-    pause.onclick = () => (q.paused = !q.paused);
-    restart.onclick = () => {
-      q = fresh(q.night);
-      draw();
-    };
-    q = fresh();
-    draw();
-    timer = setInterval(tick, 500);
-  </script>
-</html>
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>午夜监控室：第七码头</title><style>
+:root{color-scheme:dark;--bg:#07090b;--panel:#14191c;--panel2:#0d1215;--line:#444c4f;--text:#e9ece9;--muted:#9ea9a7;--amber:#ddcf70;--red:#ff6269;--green:#75d39a;--blue:#79b9d3}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% -20%,#252f30,#050709 48%);color:var(--text);font-family:ui-monospace,Consolas,"Microsoft YaHei",monospace}.app{width:min(1220px,100%);margin:auto;padding:10px}.top{display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px solid var(--line);padding-bottom:8px}h1{font-size:clamp(23px,3.8vw,35px);margin:0}.sub{font-size:10px;color:var(--muted);margin-top:3px}.stats{display:flex;gap:6px;flex-wrap:wrap}.stat{min-width:78px;background:#090d0f;border:1px solid var(--line);border-radius:5px;padding:6px 8px}.stat small{display:block;font-size:8px;color:var(--muted)}.stat b{font-size:16px;color:var(--amber)}.layout{display:grid;grid-template-columns:minmax(0,1fr) 285px;gap:8px;margin-top:8px}.panel{background:rgba(18,23,26,.98);border:1px solid var(--line);border-radius:7px}.monitor{padding:7px}.meters{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:8px;color:var(--muted);margin-bottom:6px}.bar{height:7px;background:#050809;border:1px solid #30383b;border-radius:8px;overflow:hidden;margin-top:2px}.bar i{display:block;height:100%;background:var(--amber)}.screen{position:relative;height:min(55vw,490px);min-height:350px;border:10px solid #292f31;border-radius:8px;overflow:hidden;background:repeating-linear-gradient(#18211f 0 3px,#101816 3px 6px);display:grid;place-items:center;text-align:center}.screen::before{content:"";position:absolute;inset:0;background:radial-gradient(circle,transparent 35%,#000a 100%);pointer-events:none}.scan{position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 29px,#ffffff08 29px 30px);animation:static .16s steps(2) infinite;pointer-events:none}@keyframes static{50%{transform:translate(2px,-1px)}}.feed{position:relative;z-index:1}.room-name{font-size:12px;color:#cbd3cf}.entities{font-size:clamp(55px,10vw,105px);min-height:125px;display:grid;place-items:center;text-shadow:0 0 18px #fff2}.signal{font-size:10px;color:var(--muted)}.warning{color:var(--red);font-weight:900;animation:blink .55s infinite}@keyframes blink{50%{opacity:.35}}.office{position:absolute;inset:0;display:none;grid-template-columns:1fr 1fr;align-items:center}.office.show{display:grid}.door-view{height:100%;display:grid;place-items:center;font-size:65px;border-right:1px solid #454b4c}.door-view:last-child{border:0}.controls,.cams{display:flex;gap:5px;flex-wrap:wrap}.controls{margin-top:7px}.btn{border:1px solid #535d60;background:#2a3235;color:#fff;border-radius:5px;padding:8px 9px;min-height:38px;font-weight:800;cursor:pointer}.btn:hover{filter:brightness(1.14)}.btn:disabled{opacity:.35}.btn.active{background:#774044;border-color:#a4575b}.btn.blue{background:#275468}.btn.amber{background:#685c2d}.message{margin-top:6px;min-height:38px;background:#080c0e;border-left:3px solid var(--amber);padding:7px;font-size:9px;line-height:1.45}.side{display:flex;flex-direction:column;gap:7px}.section{padding:8px}.section h2{font-size:13px;margin:0 0 6px}.map{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}.cam{border:1px solid #444d50;background:#1b2326;color:#cfd6d2;border-radius:4px;padding:7px 3px;min-height:45px;font-size:8px;cursor:pointer}.cam.active{outline:2px solid var(--amber)}.cam.danger{color:var(--red);border-color:#753d41}.threat{display:flex;justify-content:space-between;border-bottom:1px solid #ffffff0d;padding:5px 0;font-size:9px}.threat span:first-child{font-size:18px}.log{max-height:120px;overflow:auto;font-size:8px;color:#aeb8b4}.log div{padding:3px 0;border-bottom:1px solid #ffffff0d}.overlay{position:fixed;inset:0;background:#050709f2;z-index:20;display:flex;align-items:center;justify-content:center;padding:12px}.overlay.hidden{display:none}.modal{width:min(900px,100%);max-height:93vh;overflow:auto;background:#141a1d;border:1px solid #4b5558;border-radius:7px;padding:15px}.modal h2{font-size:24px;margin:0 0 4px}.modal>p{font-size:10px;color:var(--muted);line-height:1.55}.nights{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.night{text-align:left;background:#0d1215;border:1px solid #3c4548;border-radius:5px;padding:10px;color:#fff;cursor:pointer}.night:disabled{opacity:.32}.night.active{border-color:var(--amber)}.night span{font-size:29px}.night h3{margin:4px 0}.night p{font-size:8px;color:var(--muted);line-height:1.45}.upgrades{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;border-top:1px solid var(--line);padding-top:9px;margin-top:10px}.upgrade{background:#0d1215;border:1px solid #3c4548;border-radius:5px;padding:8px}.upgrade b,.upgrade small{display:block}.upgrade small{font-size:8px;color:var(--muted);min-height:34px}.savebox{width:100%;height:125px;background:#070a0c;border:1px solid var(--line);color:#fff;padding:8px}.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#101619;border:1px solid var(--amber);padding:8px 13px;z-index:30}@media(max-width:850px){.layout{grid-template-columns:1fr}.side{display:grid;grid-template-columns:1fr 1fr}.side .panel:last-child{grid-column:1/-1}}@media(max-width:560px){.app{padding:5px}.top{flex-direction:column;align-items:flex-start}.stats{width:100%}.stat{flex:1;min-width:64px;padding:5px}.screen{height:390px;min-height:0;border-width:7px}.side{display:flex}.controls .btn{flex:1;padding:6px}.nights,.upgrades{grid-template-columns:1fr}.map{grid-template-columns:repeat(3,1fr)}}
+</style></head><body><main class="app"><header class="top"><div><h1>午夜监控室：第七码头</h1><div class="sub">六个故事夜、五种异常行为与双资源防守；读懂征兆，在有限电力中坚持到清晨。</div></div><div class="stats"><div class="stat"><small>时间</small><b id="hour">12 AM</b></div><div class="stat"><small>夜晚</small><b id="night">1 / 6</b></div><div class="stat"><small>电力</small><b id="power">100%</b></div><div class="stat"><small>信号</small><b id="signal">100%</b></div><div class="stat"><small>威胁</small><b id="threatLevel">低</b></div></div></header><section class="layout"><section class="panel monitor"><div class="meters"><div>备用电池<div class="bar"><i id="powerBar"></i></div></div><div>监控信号<div class="bar"><i id="signalBar" style="background:var(--blue)"></i></div></div></div><div class="screen"><div class="feed" id="feed"><div class="room-name" id="roomName"></div><div class="entities" id="entities"></div><div class="signal" id="roomSignal"></div></div><div class="office" id="office"><div class="door-view" id="leftView">🚪</div><div class="door-view" id="rightView">🚪</div></div><div class="scan"></div></div><div class="controls"><button class="btn blue" id="monitorBtn">放下监控</button><button class="btn" id="leftDoorBtn">左侧闸门</button><button class="btn" id="rightDoorBtn">右侧闸门</button><button class="btn amber" id="lightBtn">走廊灯</button><button class="btn" id="ventBtn">通风封锁</button><button class="btn" id="musicBtn">上紧音乐盒</button><button class="btn" id="lureBtn">声源诱饵</button><button class="btn" id="pauseBtn">暂停</button><button class="btn" id="saveBtn">存档码</button><button class="btn" id="retreatBtn">结束值班</button></div><div class="message" id="message">摄像头上线，舞台传来轻微金属摩擦声。</div></section><aside class="side"><section class="panel section"><h2>监控地图</h2><div class="map" id="cams"></div></section><section class="panel section"><h2>异常档案</h2><div id="threats"></div></section><section class="panel section"><h2>值班记录</h2><div class="log" id="log"></div></section></aside></section></main>
+<div class="overlay" id="startOverlay"><section class="modal"><h2>第七码头夜班</h2><p>每种异常体遵循不同规则。选择已解锁夜晚，设备升级会永久作用于所有新值班。</p><div class="nights" id="nights"></div><div class="upgrades" id="upgrades"></div></section></div><div class="overlay hidden" id="infoOverlay"><section class="modal"><h2 id="infoTitle">夜班档案</h2><div id="infoBody"></div><div class="controls"><button class="btn" id="closeInfoBtn">返回监控室</button></div></section></div>
+<script>(()=>{'use strict';const $=id=>document.getElementById(id),SAVE='midnightMonitorV3';
+const ROOMS=[['主舞台','🎪'],['旧餐厅','🍽️'],['奖品廊','🎁'],['零件库','⚙️'],['西走廊','⬅️'],['东走廊','➡️'],['左闸门','🚪'],['右闸门','🚪'],['通风管','🕳️']];
+const NIGHTS=[{n:'首次异动',i:'🌙',d:'长耳与赤狐开始移动，学习门与监控。',active:['hare','fox'],reward:10},{n:'音乐停摆',i:'🎵',d:'瓷偶加入，必须定期上紧音乐盒。',active:['hare','fox','doll'],reward:14},{n:'管道来客',i:'🕳️',d:'爬行者从通风口接近办公室。',active:['hare','fox','doll','crawler'],reward:18},{n:'低电压夜',i:'⚡',d:'影噬在低电力时出现，灯光能驱散它。',active:['hare','fox','doll','crawler','shade'],reward:24},{n:'全员巡游',i:'👁️',d:'所有异常体更积极，信号干扰增强。',active:['hare','fox','doll','crawler','shade'],reward:32},{n:'零点协议',i:'☠️',d:'最长夜班、最高 AI 与频繁断讯。',active:['hare','fox','doll','crawler','shade'],reward:45}];
+const THREATS={hare:{i:'🐰',n:'长耳巡游者',d:'沿西侧路线逼近；左闸门可将其逼退。',path:[0,1,4,6]},fox:{i:'🦊',n:'赤狐快影',d:'长时间不看奖品廊会冲向右门。',path:[2,5,7]},doll:{i:'🎎',n:'瓷偶',d:'音乐盒归零后从舞台进入通风管。',path:[0,8]},crawler:{i:'🕷️',n:'管道爬行者',d:'只走通风管；短时封锁能使其撤退。',path:[3,8]},shade:{i:'🌑',n:'影噬',d:'低电力时出现在办公室，走廊灯可驱散。',path:[]}};
+const UPGRADES={battery:{i:'🔋',n:'高密电池',d:'初始电力每级 +12。',base:12,max:4},signal:{i:'📡',n:'滤波天线',d:'信号恢复加快，断讯概率下降。',base:14,max:4},door:{i:'🚪',n:'节能闸门',d:'左右门耗电每级 -10%。',base:16,max:3},music:{i:'🎶',n:'发条模块',d:'音乐盒容量和上紧效率提升。',base:18,max:3},lure:{i:'🔊',n:'声源诱饵',d:'冷却缩短，可将走廊目标引回。',base:20,max:3},scanner:{i:'🔍',n:'运动扫描',d:'监控地图提示危险房间。',base:22,max:3}};
+let profile={scrap:0,unlocked:1,wins:0,best:{},upgrades:{battery:0,signal:0,door:0,music:0,lure:0,scanner:0}},q=null,timer=null,selectedNight=0,audio=null;
+function fresh(n){const cfg=NIGHTS[n],maxPower=100+profile.upgrades.battery*12,creatures={};cfg.active.forEach(id=>{creatures[id]={id,step:0,room:id==='crawler'?3:0,meter:id==='fox'?100:0}});return{v:3,night:n,tick:0,maxPower,power:maxPower,signal:100,cam:0,monitor:true,left:false,right:false,light:false,vent:false,music:100+profile.upgrades.music*15,lureCd:0,creatures,paused:false,over:false,won:false,logs:['12:00 AM · 夜班开始，监控信号已接通。'],message:'摄像头上线，舞台传来轻微金属摩擦声。'}}
+function save(){localStorage.setItem(SAVE,JSON.stringify({v:3,profile,q}))}function load(){try{const d=JSON.parse(localStorage.getItem(SAVE));if(d?.v===3){profile={...profile,...d.profile,upgrades:{...profile.upgrades,...d.profile.upgrades},best:{...profile.best,...d.profile.best}};q=d.q}}catch{}}
+function checksum(s){let h=2166136261;for(const ch of s){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)}return(h>>>0).toString(36)}function exportCode(){const b=btoa(unescape(encodeURIComponent(JSON.stringify({v:3,profile,q}))));return`MM3-${b}-${checksum(b)}`}function importCode(x){const m=x.trim().match(/^MM3-(.+)-([a-z0-9]+)$/i);if(!m||checksum(m[1])!==m[2])throw Error('存档码校验失败');const d=JSON.parse(decodeURIComponent(escape(atob(m[1]))));if(d.v!==3)throw Error('版本不兼容');profile=d.profile;q=d.q;save();draw()}
+function beep(f=220,d=.08){try{audio??=new AudioContext;const o=audio.createOscillator(),g=audio.createGain();o.frequency.value=f;o.type='square';g.gain.value=.025;o.connect(g);g.connect(audio.destination);o.start();g.gain.exponentialRampToValueAtTime(.001,audio.currentTime+d);o.stop(audio.currentTime+d)}catch{}}
+function log(s){q.logs.unshift(s);q.logs=q.logs.slice(0,18);q.message=s}function toast(s){const e=document.createElement('div');e.className='toast';e.textContent=s;document.body.append(e);setTimeout(()=>e.remove(),1400)}function chance(base){return Math.random()<base+q.night*.012}
+function movePath(c,th){if(c.step<th.path.length-1){c.step++;c.room=th.path[c.step];return true}return false}function retreat(c,th){c.step=Math.max(0,c.step-2);c.room=th.path[c.step]}
+function fail(reason){q.over=true;q.paused=true;q.won=false;log(reason);beep(70,.55);save();setTimeout(()=>result(false),350)}
+function tick(){if(!q||q.paused||q.over)return;q.tick++;const doorDrain=(q.left?1:0)+(q.right?1:0),doorEff=1-profile.upgrades.door*.1;q.power-=.22+(q.monitor?.28:0)+doorDrain*.62*doorEff+(q.light?.42:0)+(q.vent?.34:0);q.signal=Math.min(100,q.signal+(.6+profile.upgrades.signal*.28)-(q.monitor?.08:0));q.music=Math.max(0,q.music-(q.creatures.doll?1.25+q.night*.12:.15));q.lureCd=Math.max(0,q.lureCd-1);if(chance(.025+q.night*.006))q.signal=Math.max(0,q.signal-(9-profile.upgrades.signal));
+const hare=q.creatures.hare;if(hare&&chance(.045)){const th=THREATS.hare;if(hare.room===6){if(q.left){retreat(hare,th);log('左闸门传来重击，长耳被挡回西走廊。');beep(105)}else return fail('长耳从左侧闯入办公室，夜班失败。')}else if(!(q.monitor&&q.cam===hare.room))movePath(hare,th)}
+const fox=q.creatures.fox;if(fox){fox.meter-=q.monitor&&q.cam===2?-.6:1+q.night*.08;if(fox.meter<=0){fox.step=Math.min(fox.step+1,2);fox.room=THREATS.fox.path[fox.step];fox.meter=50-profile.upgrades.scanner*3;if(fox.room===7){if(q.right){retreat(fox,THREATS.fox);fox.meter=75;log('赤狐撞上右闸门后退回奖品廊。');beep(95)}else return fail('赤狐沿东侧高速突入办公室。')}}}
+const doll=q.creatures.doll;if(doll&&q.music<=0){doll.step=1;doll.room=8;if(q.vent){doll.step=0;doll.room=0;q.music=35;log('通风封锁迫使瓷偶返回舞台。')}else if(chance(.13))return fail('音乐停止后，瓷偶沿通风管进入办公室。')}
+const crawler=q.creatures.crawler;if(crawler&&chance(.035+q.night*.008)){if(crawler.room===8){if(q.vent){crawler.room=3;log('管道爬行者被封锁挡回零件库。');beep(120)}else return fail('通风口传来刮擦声，爬行者落入办公室。')}else crawler.room=8}
+const shade=q.creatures.shade;if(shade&&q.power/q.maxPower<.38&&chance(.035+q.night*.008)){if(q.light){log('灯光照亮角落，影噬消散。');q.power=Math.max(0,q.power-2)}else return fail('低电压让影噬在办公室凝聚成形。')}
+if(q.signal<=0){q.signal=0;if(chance(.11))log('监控信号完全丢失，当前位置无法确认。')}if(q.power<=0){q.power=0;q.left=q.right=q.light=q.vent=q.monitor=false;if(chance(.1+q.night*.018))return fail('备用电池耗尽，黑暗中传来逼近的脚步。')}if(q.tick>=90+q.night*4)return win();if(q.tick%15===0){log(`${Math.min(5,Math.floor(q.tick/15))}:00 AM · 电力 ${Math.round(q.power)}%`);beep(440,.04)}draw();save()}
+function win(){q.over=true;q.won=true;q.paused=true;const reward=NIGHTS[q.night].reward+Math.round(q.power/q.maxPower*8);profile.scrap+=reward;profile.wins++;profile.unlocked=Math.max(profile.unlocked,Math.min(NIGHTS.length,q.night+2));profile.best[q.night]=Math.max(profile.best[q.night]||0,Math.round(q.power/q.maxPower*100));log(`6:00 AM · 值班完成，回收 ${reward} 零件。`);beep(740,.3);save();setTimeout(()=>result(true),350)}
+function result(win){$('infoTitle').textContent=win?'6:00 AM · 安全交班':'夜班中断';$('infoBody').innerHTML=`<h3>${win?'你熬过了第七码头的黑夜':'异常进入办公室'}</h3><p>剩余电力 ${Math.round(q.power)}% · 信号 ${Math.round(q.signal)}% · 夜晚 ${q.night+1}/6</p><button class="btn" id="returnNights">返回夜班列表</button>`;$('infoOverlay').classList.remove('hidden');$('returnNights').onclick=()=>{q=null;save();$('infoOverlay').classList.add('hidden');startScreen();$('startOverlay').classList.remove('hidden')}}
+function toggle(id){q[id]=!q[id];beep(q[id]?260:180,.04);draw()}
+function windMusic(){if(!q.creatures.doll)return toast('今晚没有瓷偶活动');q.music=Math.min(100+profile.upgrades.music*15,q.music+22+profile.upgrades.music*5);q.signal=Math.max(0,q.signal-3);beep(520,.08);log('音乐盒发条重新上紧。');draw()}
+function lure(){if(q.lureCd>0)return toast('声源诱饵仍在冷却');const lane=q.cam<=3?0:q.cam<=5?1:2;let moved=0;Object.values(q.creatures).forEach(c=>{const th=THREATS[c.id];if(th.path?.includes(c.room)&&c.step>0&&Math.abs((c.room<=3?0:c.room<=5?1:2)-lane)<=1){retreat(c,th);moved++}});q.lureCd=Math.max(8,18-profile.upgrades.lure*3);q.power=Math.max(0,q.power-5);log(moved?`声源诱饵引开 ${moved} 个移动目标。`:'诱饵播放，但附近没有目标响应。');beep(330,.12);draw()}
+function upgrade(id){const d=UPGRADES[id],lv=profile.upgrades[id],cost=d.base*(lv+1);if(lv>=d.max||profile.scrap<cost)return;profile.scrap-=cost;profile.upgrades[id]++;save();startScreen()}
+function showSave(){const code=exportCode();$('infoTitle').textContent='跨设备夜班档案';$('infoBody').innerHTML=`<p>夜晚解锁、设备升级、最佳剩余电力与当前监控状态都会导出，并带完整性校验。</p><textarea class="savebox" id="saveCode">${code}</textarea><div class="controls"><button class="btn" id="copyCode">复制导出</button><button class="btn" id="importCodeBtn">导入上方存档</button></div>`;$('infoOverlay').classList.remove('hidden');$('copyCode').onclick=()=>navigator.clipboard?.writeText($('saveCode').value);$('importCodeBtn').onclick=()=>{try{importCode($('saveCode').value);$('infoOverlay').classList.add('hidden');$('startOverlay').classList.toggle('hidden',!!q);alert('夜班档案导入成功')}catch(e){alert(e.message)}}}
+function draw(){if(!q)return;const active=Object.values(q.creatures),hour=Math.min(6,Math.floor(q.tick/15));$('hour').textContent=hour?`${hour} AM`:'12 AM';$('night').textContent=`${q.night+1} / 6`;$('power').textContent=Math.round(q.power)+'%';$('signal').textContent=Math.round(q.signal)+'%';const near=active.filter(c=>[6,7,8].includes(c.room)).length;$('threatLevel').textContent=near>=2?'极高':near?'高':'低';$('threatLevel').style.color=near?'var(--red)':'var(--green)';$('powerBar').style.width=Math.max(0,q.power/q.maxPower*100)+'%';$('signalBar').style.width=Math.max(0,q.signal)+'%';$('message').textContent=q.message;
+$('office').classList.toggle('show',!q.monitor);$('feed').style.display=q.monitor?'block':'none';if(q.monitor){$('roomName').textContent=`CAM ${String(q.cam+1).padStart(2,'0')} · ${ROOMS[q.cam][0]}`;const seen=q.signal<15?[]:active.filter(c=>c.room===q.cam);$('entities').textContent=seen.length?seen.map(c=>THREATS[c.id].i).join(' '):ROOMS[q.cam][1];$('roomSignal').className='signal '+(seen.length?'warning':'');$('roomSignal').textContent=q.signal<15?'NO SIGNAL':seen.length?'检测到异常移动':'画面稳定'}$('leftView').textContent=`${q.left?'🔒':'🚪'} ${q.light&&active.some(c=>c.room===6)?active.filter(c=>c.room===6).map(c=>THREATS[c.id].i).join(''):''}`;$('rightView').textContent=`${q.right?'🔒':'🚪'} ${q.light&&active.some(c=>c.room===7)?active.filter(c=>c.room===7).map(c=>THREATS[c.id].i).join(''):''}`;
+$('cams').innerHTML=ROOMS.map((r,i)=>{const danger=profile.upgrades.scanner&&active.some(c=>c.room===i);return`<button class="cam ${q.cam===i?'active':''} ${danger?'danger':''}" data-cam="${i}">CAM${i+1}<br>${r[0]}${danger?' · !':''}</button>`}).join('');document.querySelectorAll('[data-cam]').forEach(b=>b.onclick=()=>{q.cam=+b.dataset.cam;q.monitor=true;q.signal=Math.max(0,q.signal-1);beep(240,.025);draw()});$('threats').innerHTML=active.map(c=>{const th=THREATS[c.id],extra=c.id==='fox'?`耐心 ${Math.max(0,Math.round(c.meter))}`:c.id==='doll'?`音乐 ${Math.round(q.music)}`:`位置 ${q.signal>25?ROOMS[c.room]?.[0]||'办公室':'未知'}`;return`<div class="threat"><span>${th.i}</span><div><b>${th.n}</b><div class="sub">${extra}</div></div></div>`}).join('');$('log').innerHTML=q.logs.map(x=>`<div>${x}</div>`).join('');$('monitorBtn').textContent=q.monitor?'放下监控':'打开监控';$('leftDoorBtn').classList.toggle('active',q.left);$('rightDoorBtn').classList.toggle('active',q.right);$('lightBtn').classList.toggle('active',q.light);$('ventBtn').classList.toggle('active',q.vent);$('musicBtn').textContent=`音乐盒 ${Math.round(q.music)}`;$('lureBtn').textContent=`诱饵 ${q.lureCd?Math.ceil(q.lureCd)+'s':'就绪'}`;$('pauseBtn').textContent=q.paused?'继续':'暂停';save()}
+function startScreen(){$('nights').innerHTML=NIGHTS.map((n,i)=>`<button class="night ${selectedNight===i?'active':''}" data-night="${i}" ${i>=profile.unlocked?'disabled':''}><span>${n.i}</span><h3>${i+1}. ${n.n}</h3><p>${n.d}<br>活动目标 ${n.active.length} · 奖励 ${n.reward}+</p></button>`).join('');document.querySelectorAll('[data-night]').forEach(b=>b.onclick=()=>{selectedNight=+b.dataset.night;q=fresh(selectedNight);$('startOverlay').classList.add('hidden');draw()});$('upgrades').innerHTML=Object.entries(UPGRADES).map(([id,d])=>{const lv=profile.upgrades[id],cost=d.base*(lv+1);return`<div class="upgrade"><b>${d.i}${d.n} Lv.${lv}/${d.max}</b><small>${d.d}</small><button class="btn" data-up="${id}" ${lv>=d.max||profile.scrap<cost?'disabled':''}>${lv>=d.max?'满级':cost+' 零件'}</button></div>`}).join('')+`<div class="upgrade"><b>可用零件 ${profile.scrap}</b><small>完成夜班并保留更多电力可获得额外零件。</small></div>`;document.querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>upgrade(b.dataset.up))}
+$('monitorBtn').onclick=()=>toggle('monitor');$('leftDoorBtn').onclick=()=>toggle('left');$('rightDoorBtn').onclick=()=>toggle('right');$('lightBtn').onclick=()=>toggle('light');$('ventBtn').onclick=()=>toggle('vent');$('musicBtn').onclick=windMusic;$('lureBtn').onclick=lure;$('pauseBtn').onclick=()=>{q.paused=!q.paused;draw()};$('saveBtn').onclick=()=>q&&showSave();$('closeInfoBtn').onclick=()=>$('infoOverlay').classList.add('hidden');$('retreatBtn').onclick=()=>{if(confirm('结束当前值班并返回夜班列表？')){q=null;save();startScreen();$('startOverlay').classList.remove('hidden')}};load();startScreen();if(q&&!q.over){$('startOverlay').classList.add('hidden');q.paused=false;draw()}timer=setInterval(tick,700)
+})();</script><style>@media(max-width:560px){.monitor>.controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.monitor>.controls .btn{width:100%}}</style></body></html>

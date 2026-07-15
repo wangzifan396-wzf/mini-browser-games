@@ -1,324 +1,41 @@
-<!doctype html>
-<html lang="zh-CN">
-  <meta charset="utf-8" /><meta
-    name="viewport"
-    content="width=device-width,initial-scale=1"
-  /><title>雾城侦探</title
-  ><style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      background: #151719;
-      color: #eee9db;
-      font-family: system-ui, "Microsoft YaHei";
-    }
-    .app {
-      min-height: 100vh;
-      padding: 14px;
-      display: grid;
-      place-items: center;
-    }
-    .shell {
-      width: min(980px, 100%);
-      background: #24272a;
-      border: 1px solid #62676a;
-      border-radius: 20px;
-      padding: 16px;
-    }
-    .top,
-    .row {
-      display: flex;
-      justify-content: space-between;
-      gap: 9px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .layout {
-      display: grid;
-      grid-template-columns: 1fr 300px;
-      gap: 12px;
-      margin-top: 12px;
-    }
-    .scene {
-      min-height: 440px;
-      background: linear-gradient(135deg, #3b3d3d, #202325);
-      border: 1px solid #5c6263;
-      border-radius: 13px;
-      padding: 16px;
-    }
-    .places {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 9px;
-    }
-    .place {
-      min-height: 100px;
-      font-size: 30px;
-    }
-    .place.found {
-      outline: 3px solid #d8b969;
-    }
-    .panel {
-      background: #191c1e;
-      border: 1px solid #4d5355;
-      border-radius: 11px;
-      padding: 10px;
-      margin-bottom: 9px;
-    }
-    .suspect {
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      margin: 5px 0;
-    }
-    .evidence {
-      padding: 6px;
-      border-bottom: 1px solid #ffffff18;
-    }
-    .log {
-      height: 105px;
-      overflow: auto;
-      color: #bdc2bf;
-      font-size: 13px;
-    }
-    button {
-      padding: 9px 11px;
-      border: 1px solid #6d7474;
-      border-radius: 9px;
-      background: #3b4243;
-      color: #fff;
-      font-weight: bold;
-    }
-    .accuse {
-      background: #873d42;
-    }
-    .hint {
-      color: #d9bf7b;
-      font-size: 13px;
-    }
-    @media (max-width: 700px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
-      .places {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      .app {
-        place-items: start center;
-      }
-    }
-  </style>
-  <main class="app">
-    <section class="shell">
-      <div class="top">
-        <div>
-          <h1 style="margin: 0">雾城侦探</h1>
-          <div id="caseTitle" class="hint"></div>
-        </div>
-        <div>
-          案件 <b id="caseNo"></b>/5　声望 <b id="score"></b>　失误
-          <b id="mistakes"></b>/3
-        </div>
-      </div>
-      <div class="layout">
-        <div class="scene">
-          <h3>案发现场</h3>
-          <div class="places" id="places"></div>
-          <div class="panel" style="margin-top: 12px">
-            <b>案情记录</b>
-            <div id="brief"></div>
-          </div>
-          <div class="panel log" id="log"></div>
-        </div>
-        <aside>
-          <div class="panel">
-            <b>证据板</b>
-            <div id="evidence"></div>
-          </div>
-          <div class="panel">
-            <b>嫌疑人</b>
-            <div id="suspects"></div>
-          </div>
-          <button id="hint">请求提示（扣 10 声望）</button
-          ><button id="restart">重开档案</button>
-        </aside>
-      </div>
-    </section>
-  </main>
-  <script>
-    const CASES = [
-      {
-        t: "午夜画廊失窃案",
-        brief: "名画在闭馆后的十分钟内消失，报警器却没有响。",
-        places: [
-          ["门禁记录", "💳", "馆长的卡在 22:08 开启侧门。"],
-          ["报警器", "🚨", "线路被绝缘手套精准剪断。"],
-          ["画框", "🖼️", "框沿沾有新鲜的紫色颜料。"],
-          ["储物柜", "🗄️", "找到一副沾紫漆的绝缘手套。"],
-          ["雨巷", "🌧️", "脚印尺码很小，通向员工停车区。"],
-        ],
-        sus: [
-          ["馆长", "我整晚都在办公室，卡可能被复制了。"],
-          ["修复师", "我只用蓝色颜料，闭馆前就离开了。"],
-          ["保安", "我巡逻时报警器一切正常。"],
-        ],
-        culprit: 1,
-        hint: "修复师今天真只使用蓝色颜料吗？门禁卡可能是栽赃。",
-      },
-      {
-        t: "蓝港密信案",
-        brief: "外交密信从上锁的船舱里被替换成白纸。",
-        places: [
-          ["舷窗", "🪟", "窗锁内侧有盐晶，但没有撬痕。"],
-          ["茶杯", "☕", "杯底检出强效安眠成分。"],
-          ["航海日志", "📘", "大副把换岗时间提前了二十分钟。"],
-          ["绳结", "🪢", "舷窗下方是水手学校特有的双套结。"],
-          ["医药箱", "🧰", "安眠药少了两片。"],
-        ],
-        sus: [
-          ["船医", "药箱钥匙一直在我身上。"],
-          ["大副", "提前换岗是船长的命令。"],
-          ["见习水手", "我不会靠近外交船舱。"],
-        ],
-        culprit: 2,
-        hint: "绳结比口供更诚实，谁最近刚从水手学校毕业？",
-      },
-      {
-        t: "雪夜钟表店案",
-        brief: "店主晕倒，唯一一枚金表从反锁店内消失。",
-        places: [
-          ["壁炉", "🔥", "灰烬里有烧焦的快递标签。"],
-          ["后门", "🚪", "门下方能穿过一个扁平包裹。"],
-          ["工作台", "🔧", "金表盒尺寸正好装进快递纸箱。"],
-          ["电话", "☎️", "20:10 有一通假冒客服的来电。"],
-          ["雪地", "❄️", "只有快递车轮印，没有脚印。"],
-        ],
-        sus: [
-          ["学徒", "我在仓库清点零件。"],
-          ["快递员", "我只在门口等了两分钟。"],
-          ["收藏家", "我下午看过金表，但没买。"],
-        ],
-        culprit: 1,
-        hint: "反锁房间不需要人离开，只需要让包裹离开。",
-      },
-      {
-        t: "剧院幽灵案",
-        brief: "首演前主角的王冠被调包，后台监控出现“幽灵”。",
-        places: [
-          ["监控室", "📹", "幽灵影像每 47 秒完全重复。"],
-          ["服装间", "👑", "假王冠使用舞美泡沫制作。"],
-          ["升降台", "🎭", "台下发现复制视频的存储卡。"],
-          ["化妆镜", "🪞", "镜边粘着舞美部门的银粉。"],
-          ["票务处", "🎫", "导演在事发时一直在前厅致辞。"],
-        ],
-        sus: [
-          ["导演", "这是竞争剧团的破坏。"],
-          ["舞美师", "我从没进过服装间。"],
-          ["替补演员", "我只想公平获得机会。"],
-        ],
-        culprit: 1,
-        hint: "循环影像与假道具都需要后台技术。",
-      },
-      {
-        t: "终局：无声电台",
-        brief: "午夜节目播出一段预告犯罪的录音，主持人却称直播间无人进入。",
-        places: [
-          ["调音台", "🎚️", "自动播放被设定在 00:00。"],
-          ["麦克风", "🎙️", "录音含有只有副控室才听得到的风扇声。"],
-          ["门锁", "🔐", "门禁没有外来记录。"],
-          ["节目单", "📄", "制作人临时删除了最后一段广告。"],
-          ["服务器", "🖥️", "文件上传账号属于节目制作人。"],
-        ],
-        sus: [
-          ["主持人", "我对录音毫不知情。"],
-          ["制作人", "服务器账号可能被盗。"],
-          ["保洁员", "我只清扫走廊。"],
-        ],
-        culprit: 1,
-        hint: "没有人需要进入直播间，自动播放也能制造“直播”。",
-      },
-    ];
-    let q = { case: 0, score: 100, mistakes: 0, found: [], logs: [] };
-    const $ = (x) => document.getElementById(x);
-    function cur() {
-      return CASES[q.case];
-    }
-    function inspect(i) {
-      if (q.found.includes(i)) return;
-      q.found.push(i);
-      q.logs.unshift(`发现：${cur().places[i][2]}`);
-      q.score += 5;
-      draw();
-    }
-    function accuse(i) {
-      if (q.found.length < 3) return note("至少收集三条证据再指控。");
-      if (i === cur().culprit) {
-        q.score += 40;
-        q.logs.unshift(`推理正确：${cur().sus[i][0]}的口供与物证矛盾。`);
-        if (q.case === CASES.length - 1) {
-          draw();
-          setTimeout(() => alert(`五案告破！最终声望 ${q.score}`), 50);
-        } else {
-          q.case++;
-          q.found = [];
-          q.logs = ["新案件已开启。"];
-          draw();
-        }
-      } else {
-        q.mistakes++;
-        q.score = Math.max(0, q.score - 20);
-        q.logs.unshift(`${cur().sus[i][0]}有不在场证明，指控失败。`);
-        if (q.mistakes >= 3) q.logs.unshift("失误达到三次，但仍可继续调查。");
-        draw();
-      }
-    }
-    function note(s) {
-      q.logs.unshift(s);
-      draw();
-    }
-    function draw() {
-      let c = cur();
-      caseNo.textContent = q.case + 1;
-      score.textContent = q.score;
-      mistakes.textContent = q.mistakes;
-      caseTitle.textContent = c.t;
-      brief.textContent = c.brief;
-      places.innerHTML = c.places
-        .map(
-          (p, i) =>
-            `<button class="place ${q.found.includes(i) ? "found" : ""}" data-i="${i}">${p[1]}<br><small>${p[0]}</small></button>`,
-        )
-        .join("");
-      places
-        .querySelectorAll("[data-i]")
-        .forEach((e) => (e.onclick = () => inspect(+e.dataset.i)));
-      evidence.innerHTML =
-        q.found
-          .map((i) => `<div class="evidence">📌 ${c.places[i][2]}</div>`)
-          .join("") || "<div>尚未取得证据</div>";
-      suspects.innerHTML = c.sus
-        .map(
-          (s, i) =>
-            `<div><button class="suspect" data-i="${i}"><span>${s[0]}</span><span>指控</span></button><small>${s[1]}</small></div>`,
-        )
-        .join("");
-      suspects
-        .querySelectorAll("[data-i]")
-        .forEach((e) => (e.onclick = () => accuse(+e.dataset.i)));
-      log.innerHTML = q.logs.map((x) => `<div>• ${x}</div>`).join("");
-    }
-    hint.onclick = () => {
-      q.score = Math.max(0, q.score - 10);
-      note(`提示：${cur().hint}`);
-    };
-    restart.onclick = () => {
-      if (confirm("重新打开全部案件？")) {
-        q = { case: 0, score: 100, mistakes: 0, found: [], logs: [] };
-        draw();
-      }
-    };
-    draw();
-  </script>
-</html>
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>雾城侦探：证言迷局</title><style>
+:root{color-scheme:dark;--bg:#111217;--panel:#1d2028;--panel2:#151820;--line:#525662;--paper:#e7dfca;--muted:#aaaeb8;--gold:#e7bb63;--red:#e36b72;--green:#68cf9a;--blue:#72a8dc}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% -20%,#454551,#0c0d11 48%);color:var(--paper);font-family:Inter,"Microsoft YaHei",system-ui,sans-serif}.app{width:min(1240px,100%);margin:auto;padding:11px}.top{display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px solid var(--line);padding-bottom:9px}h1{font-size:clamp(24px,3.8vw,36px);margin:0}.sub{color:var(--muted);font-size:11px;margin-top:4px}.stats{display:flex;gap:6px;flex-wrap:wrap}.stat{background:#11131a;border:1px solid var(--line);border-radius:7px;padding:6px 9px;min-width:80px}.stat small{display:block;font-size:9px;color:var(--muted)}.stat b{color:var(--gold);font-size:16px}.tabs,.controls{display:flex;gap:6px;flex-wrap:wrap}.tabs{margin:9px 0}.btn,.tab{border:1px solid #606571;background:#30343e;color:#fff;border-radius:6px;padding:8px 11px;min-height:39px;font-weight:800;cursor:pointer}.btn:hover,.tab:hover{filter:brightness(1.13)}.btn:disabled{opacity:.38}.btn.primary,.tab.active{background:var(--gold);color:#32250c;border-color:var(--gold)}.btn.danger{background:#783b42}.view{display:none}.view.active{display:block}.layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:9px}.panel{background:rgba(28,31,39,.97);border:1px solid var(--line);border-radius:9px}.section{padding:11px}.brief{background:#15171e;border-left:3px solid var(--gold);padding:9px;font-size:11px;line-height:1.6;margin-bottom:9px}.scenes{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.scene{border:1px solid #4d515d;background:#171a22;border-radius:8px;padding:10px}.scene header{display:flex;align-items:center;gap:8px}.scene .icon{font-size:32px}.scene p{font-size:10px;color:var(--muted);line-height:1.5;min-height:30px}.found-list{font-size:9px;color:#d5c28d;min-height:28px}.side{display:flex;flex-direction:column;gap:8px}.log{max-height:150px;overflow:auto;font-size:9px;color:#c2c3c8}.log div{padding:4px 0;border-bottom:1px solid #ffffff0c}.evidence-board{position:relative;min-height:420px;background:radial-gradient(circle,#542f2b 1px,transparent 1px),#321e1d;background-size:18px 18px;border:8px solid #1b1212;border-radius:8px;padding:12px}.evidence-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.evidence{background:#e5dcc5;color:#26231f;border:0;border-radius:3px;padding:9px;text-align:left;min-height:105px;box-shadow:2px 3px 0 #0005;cursor:pointer;transform:rotate(var(--r,0deg))}.evidence.selected{outline:4px solid var(--gold)}.evidence.locked{filter:grayscale(1);opacity:.35}.evidence span{font-size:25px}.evidence b,.evidence small{display:block}.evidence small{font-size:8px;line-height:1.45;margin-top:4px}.deductions{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}.deduction{background:#19261f;border:1px solid #47705a;border-radius:6px;padding:8px;font-size:10px;color:#bde8ca}.suspects{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.suspect{background:#171a22;border:1px solid #4d515d;border-radius:8px;padding:10px;text-align:center}.suspect .avatar{font-size:42px}.suspect p{font-size:9px;line-height:1.5;color:var(--muted);min-height:55px}.suspect blockquote{background:#11131a;margin:6px 0;padding:7px;font-size:9px;text-align:left;min-height:48px}.accuse{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.choice-list{display:flex;flex-direction:column;gap:5px}.choice-list button.active{outline:2px solid var(--gold)}.case-file{background:#161920;border:1px solid #454a55;border-radius:7px;padding:10px}.case-file h3{margin:0 0 5px}.case-file p{font-size:9px;color:var(--muted);line-height:1.5}.stars{color:var(--gold);letter-spacing:2px}.overlay{position:fixed;inset:0;background:#090a0eed;z-index:20;display:flex;align-items:center;justify-content:center;padding:13px}.overlay.hidden{display:none}.modal{width:min(940px,100%);max-height:93vh;overflow:auto;background:#1d2028;border:1px solid #555b67;border-radius:9px;padding:16px}.modal h2{font-size:25px;margin:0 0 4px}.modal>p{color:var(--muted);line-height:1.55}.case-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.case-card{text-align:left;background:#14171e;border:1px solid #464b56;border-radius:7px;padding:11px;color:#fff;cursor:pointer}.case-card:disabled{opacity:.35}.case-card span{font-size:31px}.case-card h3{margin:5px 0}.case-card p{font-size:9px;color:var(--muted);line-height:1.45}.skills{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;border-top:1px solid var(--line);padding-top:10px;margin-top:11px}.savebox{width:100%;height:125px;background:#0e1016;border:1px solid var(--line);color:#fff;padding:8px}.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#171a22;border:1px solid var(--gold);padding:8px 13px;z-index:30}@media(max-width:820px){.layout{grid-template-columns:1fr}.side{display:grid;grid-template-columns:1fr 1fr}.side .panel:last-child{grid-column:1/-1}}@media(max-width:580px){.app{padding:6px}.top{flex-direction:column;align-items:flex-start}.stats{width:100%}.stat{flex:1;min-width:65px}.side{display:flex}.scenes,.suspects,.accuse{grid-template-columns:1fr}.evidence-grid{grid-template-columns:repeat(2,1fr)}.deductions{grid-template-columns:1fr}.evidence-board{padding:7px;min-height:360px}.case-grid,.skills{grid-template-columns:1fr}.tab{flex:1;padding:7px}}
+</style></head><body><main class="app"><header class="top"><div><h1>雾城侦探：证言迷局</h1><div class="sub">搜查现场、盘问证人、连接证据形成推论；凶手、动机与手法缺一不可。</div></div><div class="stats"><div class="stat"><small>案件</small><b id="caseNo">1 / 6</b></div><div class="stat"><small>洞察</small><b id="insight">5</b></div><div class="stat"><small>失误</small><b id="mistakes">0</b></div><div class="stat"><small>声望</small><b id="reputation">0</b></div><div class="stat"><small>推论</small><b id="deductionCount">0 / 3</b></div></div></header><nav class="tabs"><button class="tab active" data-view="scene">现场搜查</button><button class="tab" data-view="board">证据板</button><button class="tab" data-view="suspect">嫌疑人</button><button class="tab" data-view="accuse">最终推理</button><button class="tab" data-view="archive">案件档案</button><button class="tab" id="hintBtn">案件提示</button><button class="tab" id="saveBtn">存档码</button><button class="tab" id="casesBtn">案件地图</button></nav>
+<section class="view active" id="sceneView"><div class="layout"><section class="panel section"><h2 id="caseTitle">等待案件</h2><div class="brief" id="brief"></div><div class="scenes" id="scenes"></div></section><aside class="side"><section class="panel section"><h3 style="margin-top:0">调查目标</h3><div id="objective" class="brief"></div></section><section class="panel section"><h3 style="margin-top:0">最近行动</h3><div class="log" id="log"></div></section></aside></div></section>
+<section class="view" id="boardView"><div class="panel section"><h2>证据关联板</h2><p class="sub">依次选择两张已发现证据。正确组合形成关键推论；错误连接消耗洞察并记录失误。</p><div class="evidence-board"><div class="evidence-grid" id="evidence"></div><div class="deductions" id="deductions"></div></div></div></section>
+<section class="view" id="suspectView"><div class="panel section"><h2>嫌疑人档案</h2><p class="sub">盘问不消耗洞察。证词往往不会直接说谎，但会刻意省略时间、地点或关系。</p><div class="suspects" id="suspects"></div></div></section>
+<section class="view" id="accuseView"><div class="panel section"><h2>最终推理</h2><p class="brief" id="accuseHelp"></p><div class="accuse"><div><h3>凶手</h3><div class="choice-list" id="culprits"></div></div><div><h3>动机</h3><div class="choice-list" id="motives"></div></div><div><h3>手法</h3><div class="choice-list" id="methods"></div></div></div><button class="btn danger" id="submitAccuse" style="margin-top:10px">提交完整指控</button></div></section>
+<section class="view" id="archiveView"><div class="panel section"><h2>已结案件</h2><div class="case-grid" id="archive"></div></div></section></main>
+<div class="overlay" id="caseOverlay"><section class="modal"><h2>雾城案件地图</h2><p>六起案件构成一条连续暗线。已结案件可以重开以追求更高评级。</p><div class="case-grid" id="caseGrid"></div><div class="skills"><div class="case-file"><h3>🔎 观察训练</h3><p>每级使案件初始洞察 +1。</p><button class="btn" data-skill="observe"></button></div><div class="case-file"><h3>🗣️ 审讯技巧</h3><p>每级降低错误关联的声望损失。</p><button class="btn" data-skill="talk"></button></div><div class="case-file"><h3>🧠 直觉笔记</h3><p>每级提供一次不扣分的提示。</p><button class="btn" data-skill="intuition"></button></div></div></section></div><div class="overlay hidden" id="infoOverlay"><section class="modal"><h2 id="infoTitle">侦探档案</h2><div id="infoBody"></div><div class="controls"><button class="btn primary" id="closeInfoBtn">返回调查</button></div></section></div>
+<script>(()=>{'use strict';const $=id=>document.getElementById(id),SAVE='detectiveDeskV3';
+const CASES=[
+{i:'🚉',t:'雨夜末班车',brief:'收藏家在末班车抵站前失去一枚蓝宝石胸针。车厢门全程锁闭，三名乘客都声称没有离座。',sc:[['🚃','三号车厢','雨水沿着车窗滴落，座位下留着泥痕。'],['☕','餐车吧台','杯碟还温热，收银抽屉没有异常。'],['🧳','行李架','一只皮箱锁扣沾着蓝色纤维。']],e:[['👣','反向泥印','泥印从车厢末端朝座位延伸，却没有返回痕迹。',0],['🧵','蓝色纤维','纤维与乘务员窗帘布料一致。',2],['🧊','融化冰块','餐车杯中有一枚被凿空的冰块。',1],['🗝️','备用钥匙','乘务柜的备用钥匙刚被擦拭。',0],['🧾','结账时间','记者的咖啡在失窃前两分钟结账。',1],['📦','空首饰盒','盒底有短暂受潮后干燥的水痕。',2]],sus:[['乘务员岑青','👩‍✈️','我一直在前车门检票，备用钥匙从没离柜。'],['记者罗安','🧑‍💼','我去餐车买过咖啡，但胸针失踪时已经回座。'],['魔术师白栩','🎩','我的皮箱从未打开，蓝纤维是舞台道具。']],links:[[2,5,'胸针曾被藏进凿空冰块，融化后留下水痕。'],[1,3,'蓝色纤维和被擦拭的备用钥匙共同指向乘务区域。'],[0,4,'反向泥印是离座伪装，结账时间证明记者确实短暂离开。']],mot:['偿还赌债','制造独家新闻','报复收藏家'],method:['藏入空心冰块','调包皮箱','从车窗抛接'],sol:[0,0,0],hint:'先比较“容器上的水痕”和餐车中不自然的东西。'},
+{i:'🌿',t:'玻璃花房毒雾',brief:'植物学家倒在上锁花房中。门窗完整，空气检测却发现高浓度麻醉气体。',sc:[['🏡','玻璃花房','自动灌溉刚刚结束，地面只有受害者足迹。'],['🧪','配药间','试剂柜少了一瓶挥发催化剂。'],['🌬️','通风屋顶','通风扇定时器被调快了十分钟。']],e:[['💧','灌溉残液','水槽残液含有遇热挥发的镇静成分。',0],['🧪','空试剂瓶','瓶身有园艺手套的橡胶粉末。',1],['⏲️','定时器划痕','旋钮被细金属工具拨动。',2],['🧤','破损手套','助理手套指尖沾有催化剂。',1],['🌡️','加热记录','灌溉后暖灯温度突然升高。',0],['🪛','钟表螺丝刀','赞助人随身工具能拨动屋顶定时器。',2]],sus:[['助理苏茉','👩‍🔬','我配过药，但离开前灌溉槽里只有清水。'],['赞助人顾衡','🧔','我来催研究进度，没有碰过任何设备。'],['园丁乔木','🧑‍🌾','暖灯故障不是第一次，和我无关。']],links:[[0,4,'镇静剂通过灌溉与暖灯转化为花房毒雾。'],[1,3,'空试剂瓶与破损手套证明助理接触了催化剂。'],[2,5,'定时器划痕可由赞助人的螺丝刀造成，是另一条干扰线。']],mot:['掩盖实验数据造假','逼迫项目延期','争夺稀有花种'],method:['灌溉液受热挥发','通风口投毒','暖灯电路漏气'],sol:[0,0,0],hint:'密室不一定需要有人留在里面，关注自动系统的先后顺序。'},
+{i:'🎭',t:'无声剧院魅影',brief:'首演前，男主角在封闭升降台受伤。后台监控有七分钟无声黑屏，所有演员都穿着相同戏服。',sc:[['🎬','主舞台','升降台安全卡扣被替换成易断蜡件。'],['🎼','乐池','指挥谱中夹着一张错误换景表。'],['🧵','服装间','一件戏服袖口沾有舞台蜡与银粉。']],e:[['🕯️','蜡制卡扣','卡扣在聚光灯加热后必然断裂。',0],['📄','错误换景表','表格让受害者提前站上升降台。',1],['✨','银色粉末','银粉只用于替补演员的面具。',2],['🔇','静音记录','黑屏期间音控台仍记录了一次手动静音。',0],['🧥','沾蜡戏服','替补演员戏服同时沾有蜡与银粉。',2],['✍️','改写笔迹','换景表笔迹与舞台监督工作本一致。',1]],sus:[['替补演员季宁','🎭','我一直在服装间，首演对我没有那么重要。'],['舞台监督程岸','🎧','换景表是机器打印，不可能有我的笔迹。'],['指挥家闻歌','🎼','乐池能看到舞台，但听不到后台通话。']],links:[[0,4,'蜡制卡扣与沾蜡戏服把破坏行为指向替补演员。'],[1,5,'错误换景表由舞台监督手写修改，解释受害者为何提前到位。'],[2,3,'银粉身份与手动静音证明替补利用黑屏行动。']],mot:['夺取首演角色','报复舞台监督','制造保险事故'],method:['聚光灯融化蜡卡扣','割断升降钢索','篡改电机程序'],sol:[0,0,0],hint:'同款戏服无法证明身份，但只有一种面具使用银粉。'},
+{i:'⚓',t:'港湾十三号信号',brief:'海关截获一批走私芯片，但仓库封条完整。凌晨十三号信标曾发出不存在于航表的短讯。',sc:[['📦','海关仓库','封条完好，货箱重量却比入库时轻。'],['🗼','十三号信标','维护日志缺失凌晨一页。'],['🚤','旧拖船','船底藏着可吸附货箱的电磁托架。']],e:[['⚖️','两份磅单','入库与查验重量相差四十公斤。',0],['📻','短波编码','短讯内容是潮位与巡逻间隔。',1],['🧲','电磁托架','托架能隔着薄仓壁吸走金属货盒。',2],['📓','撕页日志','撕痕与信标员口袋纸片吻合。',1],['🪙','盐渍硬币','仓管鞋底硬币来自旧拖船赌桌。',0],['🔋','过载电池','拖船电池在短讯时段有大功率放电记录。',2]],sus:[['信标员安塔','🧑‍✈️','十三号设备整夜离线，不可能发出短讯。'],['仓管费林','👷','封条是我亲手贴的，货箱从未打开。'],['拖船长海洛','🧔‍♂️','旧船电池早坏了，夜里根本无法出港。']],links:[[1,3,'缺失日志与短波编码证明信标员发送了导航短讯。'],[2,5,'电磁托架和过载记录揭示隔墙转移货物的手法。'],[0,4,'重量差和拖船硬币说明仓管知情并接触过拖船。']],mot:['偿还港口债务','窃取军用技术','陷害海关主管'],method:['电磁托架隔墙转移','伪造封条后开箱','潜水员从排水口搬运'],sol:[0,0,0],hint:'封条完整意味着箱盖没开，考虑金属货物能否隔着墙移动。'},
+{i:'🕰️',t:'钟塔逆行者',brief:'钟表协会会长在整点报时后遇害。三座街钟显示不同时间，每名嫌疑人的不在场证明都依赖钟声。',sc:[['🕰️','中央钟塔','主齿轮被塞入一片磁化薄片。'],['🍷','协会宴厅','留声机滚筒录有提前制作的报时钟声。'],['🚲','河岸车棚','一辆自行车轮胎带有钟塔机油。']],e:[['🧲','磁化薄片','薄片让钟塔慢了整整九分钟。',0],['🎙️','报时滚筒','宴厅钟声来自留声机而非钟塔。',1],['🛞','机油胎印','胎印连接河岸与钟塔后门。',2],['⌚','校准怀表','秘书怀表仍显示真实时间。',1],['📝','维修申请','钟匠提前申请更换主齿轮却被会长拒绝。',0],['🧣','河雾围巾','秘书围巾沾有车棚木屑。',2]],sus:[['钟匠伊文','🧑‍🔧','报时响起时我在宴厅，所有人都能证明。'],['秘书栖云','👩‍💼','我按怀表记录会议，从没去过河岸。'],['收藏家伯恩','🎩','三座钟都不会错，我在九点后才离席。']],links:[[0,4,'钟匠知道齿轮弱点并用磁片制造九分钟时间差。'],[1,3,'秘书的怀表证明她知道宴厅钟声是预录的。'],[2,5,'胎印与木屑说明秘书骑车往返钟塔后门。']],mot:['报复维修提案被拒','篡改协会遗嘱','盗取古董怀表'],method:['制造九分钟时间差','藏在报时机关内袭击','用留声机声波触发机关'],sol:[1,1,0],hint:'谁拥有不依赖街钟的真实时间，又否认去过河岸？'},
+{i:'🏛️',t:'市政厅灰色档案',brief:'前五案的证物编号都指向同一批被删除的市政采购记录。档案员在公开证据前失踪，市长办公室彻夜亮灯。',sc:[['🗄️','地下档案库','六只空档案盒的编号跨越十年。'],['🏢','市长办公室','碎纸机里残留同一基金会抬头。'],['🚇','废弃地铁站','站台藏着转移证人使用的临时房间。']],e:[['🔢','连续编号','五案赃款最终都进入雾桥基金会。',0],['📃','碎纸残页','采购签字使用市长私人印章。',1],['🛏️','临时床铺','失踪档案员主动藏在废站等待保护。',2],['📞','加密通话','警务顾问向各案嫌疑人提供行动时间。',1],['🗺️','旧线路图','档案员用线路图标出安全出口。',2],['🖋️','双层印泥','市长印章下还有警务顾问的授权暗纹。',0]],sus:[['市长赫德','🧑‍⚖️','基金会依法运作，我从未签过秘密采购。'],['警务顾问洛因','🕵️','我的工作是保护市长，接触案件时间很正常。'],['档案员弥莎','👩‍💻','我删除记录是为了活命，不是为了钱。']],links:[[0,1,'资金编号与私人印章证明市长控制秘密采购。'],[3,5,'加密通话和授权暗纹证明警务顾问实际协调犯罪。'],[2,4,'床铺与线路图证明档案员是主动躲藏的证人。']],mot:['维持秘密监控网络','侵吞城市重建款','掩盖旧案误判'],method:['借独立案件转移采购资金','绑架档案员销毁记录','伪造基金会海外账户'],sol:[1,0,0],hint:'签字者未必是执行者，寻找能接触所有案件时间的人。'}
+];
+const SKILLS={observe:{n:'观察训练',base:18},talk:{n:'审讯技巧',base:20},intuition:{n:'直觉笔记',base:24}};let profile={rep:0,unlocked:1,solved:{},skills:{observe:0,talk:0,intuition:0}},q=null,activeView='scene';
+function fresh(i){return{v:3,case:i,found:[],searched:{},questioned:[],selected:[],deductions:[],insight:5+profile.skills.observe,mistakes:0,hints:0,freeHints:profile.skills.intuition,culprit:null,motive:null,method:null,logs:['案件卷宗开启，先从现场开始搜查。']}}
+function save(){localStorage.setItem(SAVE,JSON.stringify({v:3,profile,q}))}function load(){try{const d=JSON.parse(localStorage.getItem(SAVE));if(d?.v===3){profile={...profile,...d.profile,skills:{...profile.skills,...d.profile.skills}};q=d.q}}catch{}}
+function checksum(s){let h=1779033703;for(const ch of s)h=Math.imul(h^ch.charCodeAt(0),3432918353);return(h>>>0).toString(36)}function exportCode(){const b=btoa(unescape(encodeURIComponent(JSON.stringify({v:3,profile,q}))));return`DDK3-${b}-${checksum(b)}`}function importCode(x){const m=x.trim().match(/^DDK3-(.+)-([a-z0-9]+)$/i);if(!m||checksum(m[1])!==m[2])throw Error('存档码校验失败');const d=JSON.parse(decodeURIComponent(escape(atob(m[1]))));if(d.v!==3)throw Error('版本不兼容');profile=d.profile;q=d.q;save();draw()}
+const cur=()=>CASES[q.case];function log(s){q.logs.unshift(s);q.logs=q.logs.slice(0,18)}function toast(s){const e=document.createElement('div');e.className='toast';e.textContent=s;document.body.append(e);setTimeout(()=>e.remove(),1500)}
+function search(scene){const c=cur(),ids=c.e.map((e,i)=>e[3]===scene&&!q.found.includes(i)?i:-1).filter(i=>i>=0);q.searched[scene]=(q.searched[scene]||0)+1;if(!ids.length){log(`${c.sc[scene][1]}已经没有遗漏线索。`);return draw()}const id=ids[0];q.found.push(id);log(`发现证据：${c.e[id][1]}——${c.e[id][2]}`);if(profile.skills.observe>=2&&Math.random()<.25&&ids[1]!=null){q.found.push(ids[1]);log(`敏锐观察额外发现：${c.e[ids[1]][1]}`)}save();draw()}
+function selectEvidence(i){if(!q.found.includes(i))return;if(q.selected.includes(i))q.selected=q.selected.filter(x=>x!==i);else{q.selected.push(i);if(q.selected.length>2)q.selected.shift()}if(q.selected.length===2)setTimeout(connectEvidence,120);draw()}
+function connectEvidence(){const [a,b]=q.selected.sort((x,y)=>x-y),c=cur(),link=c.links.findIndex(x=>Math.min(x[0],x[1])===a&&Math.max(x[0],x[1])===b);q.selected=[];if(link>=0){if(!q.deductions.includes(link)){q.deductions.push(link);q.insight++;log(`形成推论：${c.links[link][2]}`);toast('关键推论成立')}else toast('这条推论已经记录')}else{q.mistakes++;q.insight=Math.max(0,q.insight-1);profile.rep=Math.max(0,profile.rep-Math.max(1,3-profile.skills.talk));log('证据之间缺少逻辑联系，洞察下降。')}save();draw()}
+function question(i){if(q.questioned.includes(i))return toast('证词已经记录');q.questioned.push(i);log(`${cur().sus[i][0]}：${cur().sus[i][2]}`);save();draw()}
+function hint(){if(!q)return;const c=cur();if(q.freeHints>0){q.freeHints--;log(`直觉提示：${c.hint}`)}else{if(profile.rep<3)return toast('声望不足，提示需要 3 点声望');profile.rep-=3;q.hints++;log(`案件提示：${c.hint}`)}save();draw()}
+function accuse(){if(q.deductions.length<3)return toast('至少完成三条关键推论');if(q.culprit==null||q.motive==null||q.method==null)return toast('凶手、动机和手法都必须选择');const ok=q.culprit===cur().sol[0]&&q.motive===cur().sol[1]&&q.method===cur().sol[2];if(!ok){q.mistakes++;profile.rep=Math.max(0,profile.rep-5);log('指控存在矛盾：至少一个结论错误。重新检查推论。');save();return draw()}const score=Math.max(40,100-q.mistakes*12-q.hints*8),stars=score>=90?3:score>=70?2:1,best=profile.solved[q.case]?.score||0;profile.solved[q.case]={score:Math.max(best,score),stars:Math.max(profile.solved[q.case]?.stars||0,stars)};profile.rep+=Math.round(score/8);profile.unlocked=Math.max(profile.unlocked,Math.min(CASES.length,q.case+2));save();$('infoTitle').textContent='案件侦破';$('infoBody').innerHTML=`<h3>${cur().i} ${cur().t}</h3><p>完整指控成立：${cur().sus[q.culprit][0]}因“${cur().mot[q.motive]}”，使用“${cur().method[q.method]}”完成案件。</p><div class="stars">${'★'.repeat(stars)}${'☆'.repeat(3-stars)} · ${score} 分</div><button class="btn primary" id="nextCaseBtn">返回案件地图</button>`;$('infoOverlay').classList.remove('hidden');$('nextCaseBtn').onclick=()=>{q=null;save();$('infoOverlay').classList.add('hidden');caseScreen();$('caseOverlay').classList.remove('hidden')}}
+function upgradeSkill(id){const lv=profile.skills[id],cost=SKILLS[id].base*(lv+1);if(lv>=3||profile.rep<cost)return;profile.rep-=cost;profile.skills[id]++;save();caseScreen()}
+function showSave(){const code=exportCode();$('infoTitle').textContent='跨设备侦探档案';$('infoBody').innerHTML=`<p>已结案件、最高评级、侦探技能与当前证据板都会导出，并带完整性校验。</p><textarea class="savebox" id="saveCode">${code}</textarea><div class="controls"><button class="btn" id="copyCode">复制导出</button><button class="btn" id="importCodeBtn">导入上方存档</button></div>`;$('infoOverlay').classList.remove('hidden');$('copyCode').onclick=()=>navigator.clipboard?.writeText($('saveCode').value);$('importCodeBtn').onclick=()=>{try{importCode($('saveCode').value);$('infoOverlay').classList.add('hidden');$('caseOverlay').classList.toggle('hidden',!!q);alert('侦探档案导入成功')}catch(e){alert(e.message)}}}
+function switchView(v){activeView=v;document.querySelectorAll('.tab[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===v));document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id===v+'View'))}
+function draw(){if(!q)return;const c=cur();$('caseNo').textContent=`${q.case+1} / ${CASES.length}`;$('insight').textContent=q.insight;$('mistakes').textContent=q.mistakes;$('reputation').textContent=profile.rep;$('deductionCount').textContent=`${q.deductions.length} / ${c.links.length}`;$('caseTitle').textContent=`${c.i} ${c.t}`;$('brief').textContent=c.brief;$('objective').innerHTML=`发现证据 <b>${q.found.length}/${c.e.length}</b><br>盘问嫌疑人 <b>${q.questioned.length}/${c.sus.length}</b><br>关键推论 <b>${q.deductions.length}/${c.links.length}</b>`;$('log').innerHTML=q.logs.map(x=>`<div>${x}</div>`).join('');
+$('scenes').innerHTML=c.sc.map((s,i)=>{const ids=c.e.map((e,j)=>e[3]===i&&q.found.includes(j)?j:-1).filter(j=>j>=0);return`<article class="scene"><header><span class="icon">${s[0]}</span><div><b>${s[1]}</b><div class="sub">${ids.length}/2 条证据</div></div></header><p>${s[2]}</p><div class="found-list">${ids.map(j=>`${c.e[j][0]} ${c.e[j][1]}`).join(' · ')||'尚未搜查'}</div><button class="btn" data-search="${i}" ${ids.length>=2?'disabled':''}>继续搜查</button></article>`}).join('');document.querySelectorAll('[data-search]').forEach(b=>b.onclick=()=>search(+b.dataset.search));
+$('evidence').innerHTML=c.e.map((e,i)=>`<button class="evidence ${q.found.includes(i)?'':'locked'} ${q.selected.includes(i)?'selected':''}" style="--r:${(i%3-1)*1.5}deg" data-evidence="${i}"><span>${q.found.includes(i)?e[0]:'❔'}</span><b>${q.found.includes(i)?e[1]:'未发现证据'}</b><small>${q.found.includes(i)?e[2]:'前往现场继续搜查'}</small></button>`).join('');document.querySelectorAll('[data-evidence]').forEach(b=>b.onclick=()=>selectEvidence(+b.dataset.evidence));$('deductions').innerHTML=c.links.map((l,i)=>`<div class="deduction">${q.deductions.includes(i)?'✓ '+l[2]:'尚未形成的关键推论'}</div>`).join('');
+$('suspects').innerHTML=c.sus.map((s,i)=>`<article class="suspect"><div class="avatar">${s[1]}</div><h3>${s[0]}</h3><p>${i===0?'与案发核心场所关系密切。':i===1?'时间证言存在需要核验的部分。':'掌握一条可能干扰判断的信息。'}</p><blockquote>${q.questioned.includes(i)?'“'+s[2]+'”':'尚未取得正式证词'}</blockquote><button class="btn" data-question="${i}" ${q.questioned.includes(i)?'disabled':''}>盘问</button></article>`).join('');document.querySelectorAll('[data-question]').forEach(b=>b.onclick=()=>question(+b.dataset.question));
+$('accuseHelp').textContent=q.deductions.length<c.links.length?`还需 ${c.links.length-q.deductions.length} 条关键推论才能提交完整指控。`:'证据链已经完整。任何一项错误都会导致指控失败。';$('culprits').innerHTML=c.sus.map((s,i)=>`<button class="btn ${q.culprit===i?'active primary':''}" data-culprit="${i}">${s[1]} ${s[0]}</button>`).join('');$('motives').innerHTML=c.mot.map((x,i)=>`<button class="btn ${q.motive===i?'active primary':''}" data-motive="${i}">${x}</button>`).join('');$('methods').innerHTML=c.method.map((x,i)=>`<button class="btn ${q.method===i?'active primary':''}" data-method="${i}">${x}</button>`).join('');document.querySelectorAll('[data-culprit]').forEach(b=>b.onclick=()=>{q.culprit=+b.dataset.culprit;draw()});document.querySelectorAll('[data-motive]').forEach(b=>b.onclick=()=>{q.motive=+b.dataset.motive;draw()});document.querySelectorAll('[data-method]').forEach(b=>b.onclick=()=>{q.method=+b.dataset.method;draw()});$('submitAccuse').disabled=q.deductions.length<c.links.length;
+$('archive').innerHTML=CASES.map((x,i)=>{const r=profile.solved[i];return`<article class="case-file"><h3>${x.i} ${x.t}</h3><div class="stars">${r?'★'.repeat(r.stars)+'☆'.repeat(3-r.stars):'未结案'}</div><p>${r?`最高 ${r.score} 分 · 可在案件地图重开`:'继续主线后解锁'}</p></article>`}).join('');save()}
+function caseScreen(){$('caseGrid').innerHTML=CASES.map((c,i)=>{const r=profile.solved[i];return`<button class="case-card" data-case="${i}" ${i>=profile.unlocked?'disabled':''}><span>${c.i}</span><h3>${i+1}. ${c.t}</h3><p>${c.brief.slice(0,45)}……<br>${r?`最高 ${r.score} · ${'★'.repeat(r.stars)}`:'尚未结案'}</p></button>`}).join('');document.querySelectorAll('[data-case]').forEach(b=>b.onclick=()=>{q=fresh(+b.dataset.case);$('caseOverlay').classList.add('hidden');switchView('scene');draw()});document.querySelectorAll('[data-skill]').forEach(b=>{const id=b.dataset.skill,lv=profile.skills[id],cost=SKILLS[id].base*(lv+1);b.textContent=lv>=3?'已满级':`Lv.${lv} → ${cost}声望`;b.disabled=lv>=3||profile.rep<cost;b.onclick=()=>upgradeSkill(id)})}
+document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>switchView(b.dataset.view));$('hintBtn').onclick=hint;$('submitAccuse').onclick=accuse;$('saveBtn').onclick=()=>q&&showSave();$('closeInfoBtn').onclick=()=>$('infoOverlay').classList.add('hidden');$('casesBtn').onclick=()=>{caseScreen();$('caseOverlay').classList.remove('hidden')};load();caseScreen();if(q){$('caseOverlay').classList.add('hidden');draw()}
+})();</script><style>@media(max-width:580px){.tabs{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}.tab{flex:0 0 auto;min-width:82px;padding:7px;white-space:nowrap}}</style></body></html>
