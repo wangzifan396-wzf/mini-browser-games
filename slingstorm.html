@@ -781,6 +781,7 @@
   let view = { dpr: 1, scale: 1, ox: 0, oy: 0 };
   let lastTime = 0;
   let toastTimer = 0;
+  let settleTimer = 0;
   let launchedAt = 0;
   let started = false;
   let paused = false;
@@ -807,7 +808,8 @@
     windShiftLeft: 0,
     abilityUsed: false,
     stars: 0,
-    endScheduled: false
+    endScheduled: false,
+    loadingLevel: false
   };
 
   function loadBestStars() {
@@ -870,6 +872,19 @@
     engine.positionIterations = 8;
     engine.velocityIterations = 7;
     Events.on(engine, "collisionStart", handleCollisions);
+  }
+
+  function stabilizeLevel() {
+    state.loadingLevel = true;
+    for (let index = 0; index < 120; index += 1) {
+      Engine.update(engine, 1000 / 60);
+    }
+    for (const body of [...blocks, ...targets]) {
+      if (body.isStatic) continue;
+      Body.setVelocity(body, { x: 0, y: 0 });
+      Body.setAngularVelocity(body, 0);
+    }
+    state.loadingLevel = false;
   }
 
   function addStaticWorld() {
@@ -1028,6 +1043,10 @@
   }
 
   function loadLevel(index) {
+    if (settleTimer) {
+      window.clearTimeout(settleTimer);
+      settleTimer = 0;
+    }
     state.level = (index + levels.length) % levels.length;
     state.status = "ready";
     state.ammoIndex = 0;
@@ -1036,6 +1055,7 @@
     state.targetDestroyed = 0;
     state.stars = 0;
     state.endScheduled = false;
+    state.loadingLevel = false;
     paused = false;
     pauseBtn.textContent = "Ⅱ";
     particles = [];
@@ -1053,6 +1073,10 @@
     for (const spec of level.blocks) addBlock(spec);
     for (const spec of level.targets) addTarget(spec);
     state.targetStart = targets.length;
+    // Let intentionally tight towers find a stable resting pose before play.
+    // Collision damage is disabled during this warm-up so a level cannot
+    // award points or destroy a crystal before the player fires.
+    stabilizeLevel();
     prepareProjectile();
     resultModal.classList.remove("show");
     updateUI();
@@ -1094,6 +1118,7 @@
   }
 
   function handleCollisions(event) {
+    if (state.loadingLevel) return;
     for (const pair of event.pairs) {
       const a = pair.bodyA;
       const b = pair.bodyB;
@@ -1317,7 +1342,8 @@
         if (state.ammoIndex < levels[state.level].ammo.length) {
           state.status = "settling";
           state.endScheduled = true;
-          window.setTimeout(() => {
+          settleTimer = window.setTimeout(() => {
+            settleTimer = 0;
             state.endScheduled = false;
             if (targets.length === 0) finishLevel(true);
             else prepareProjectile();
