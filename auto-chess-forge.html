@@ -1,538 +1,69 @@
 <!doctype html>
 <html lang="zh-CN">
-  <meta charset="utf-8" /><meta
-    name="viewport"
-    content="width=device-width,initial-scale=1"
-  /><title>符文自走棋</title
-  ><style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      background: #0b1020;
-      color: #eef2ff;
-      font-family: system-ui, "Microsoft YaHei";
-    }
-    .app {
-      min-height: 100vh;
-      padding: 14px;
-      display: grid;
-      place-items: center;
-    }
-    .shell {
-      width: min(1050px, 100%);
-      background: #121b32;
-      border: 1px solid #34466c;
-      border-radius: 20px;
-      padding: 16px;
-      box-shadow: 0 18px 60px #0008;
-    }
-    .top,
-    .actions,
-    .shop,
-    .bench {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-    .top {
-      justify-content: space-between;
-    }
-    .stats {
-      display: flex;
-      gap: 12px;
-      color: #bdc9e8;
-    }
-    .board {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 5px;
-      margin: 14px 0;
-    }
-    .cell {
-      height: 72px;
-      border: 1px solid #31466f;
-      background: #182745;
-      border-radius: 9px;
-      display: grid;
-      place-items: center;
-      position: relative;
-      min-width: 38px;
-    }
-    .cell.enemy {
-      background: #321d37;
-    }
-    .cell:nth-child(2n) {
-      filter: brightness(1.08);
-    }
-    .unit {
-      width: 90%;
-      height: 90%;
-      display: grid;
-      place-items: center;
-      border-radius: 9px;
-      background: #263f69;
-      cursor: pointer;
-      position: relative;
-      font-size: 25px;
-    }
-    .unit.enemy {
-      background: #67334b;
-    }
-    .unit.sel {
-      outline: 3px solid #ffd568;
-    }
-    .unit small {
-      position: absolute;
-      bottom: 1px;
-      font-size: 10px;
-    }
-    .unit b {
-      position: absolute;
-      top: 1px;
-      right: 3px;
-      color: #ffd568;
-      font-size: 12px;
-    }
-    .hp {
-      position: absolute;
-      left: 5%;
-      right: 5%;
-      bottom: -4px;
-      height: 4px;
-      background: #172033;
-    }
-    .hp i {
-      display: block;
-      height: 100%;
-      background: #63e49a;
-    }
-    .panel {
-      border: 1px solid #2d4268;
-      border-radius: 13px;
-      background: #0f1930;
-      padding: 10px;
-    }
-    .shop {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      margin-top: 8px;
-    }
-    .offer {
-      padding: 8px;
-      border: 1px solid #3d5b8c;
-      border-radius: 10px;
-      background: #1b2e51;
-      color: white;
-      min-height: 70px;
-    }
-    .offer:disabled {
-      opacity: 0.4;
-    }
-    .bench {
-      margin-top: 8px;
-    }
-    .slot {
-      width: 64px;
-      height: 64px;
-      border: 1px dashed #4c6387;
-      border-radius: 9px;
-      display: grid;
-      place-items: center;
-    }
-    .actions {
-      margin-top: 10px;
-    }
-    button {
-      border: 1px solid #4e6fa2;
-      border-radius: 9px;
-      background: #244879;
-      color: white;
-      padding: 9px 12px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-    button:hover {
-      filter: brightness(1.15);
-    }
-    #fight {
-      background: #a64a55;
-    }
-    .log {
-      height: 76px;
-      overflow: auto;
-      color: #b6c8e8;
-      font-size: 13px;
-      margin-top: 8px;
-    }
-    .tag {
-      padding: 4px 8px;
-      border-radius: 20px;
-      background: #22385e;
-      font-size: 12px;
-    }
-    .help {
-      color: #91a4c7;
-      font-size: 13px;
-    }
-    @media (max-width: 650px) {
-      .shop {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      .board {
-        gap: 2px;
-      }
-      .cell {
-        min-width: 0;
-        height: 52px;
-      }
-      .unit {
-        font-size: 18px;
-      }
-      .stats {
-        font-size: 12px;
-        gap: 6px;
-      }
-    }
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>符文自走棋：群星赛季</title>
+  <style>
+    :root{color-scheme:dark;--bg:#080c18;--panel:#11192c;--panel2:#1a2640;--line:#34476a;--text:#f2f5ff;--muted:#9eaccb;--gold:#ffd166;--blue:#62a5ff;--red:#ff667a;--green:#63dda5;--purple:#b286ff}*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:radial-gradient(circle at 50% -20%,#243558,#080c18 48%);color:var(--text);font-family:Inter,"Microsoft YaHei",system-ui,sans-serif;letter-spacing:0}button{font:inherit;color:inherit}.app{width:min(1320px,100%);margin:auto;padding:14px}.top{display:flex;align-items:center;justify-content:space-between;gap:14px;border-bottom:1px solid var(--line);padding:3px 0 12px}.brand h1{font-size:clamp(23px,3vw,36px);margin:0}.brand p{color:var(--muted);font-size:12px;margin:4px 0 0}.stats{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}.stat{background:#0d1425;border:1px solid var(--line);padding:7px 10px;border-radius:6px;min-width:76px}.stat small{display:block;color:var(--muted);font-size:10px}.stat b{font-size:17px;color:var(--gold)}.main{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:12px;margin-top:12px}.panel{background:rgba(17,25,44,.97);border:1px solid var(--line);border-radius:8px}.arena{padding:10px}.battle-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}.phase{font-weight:900}.phase span{color:var(--gold)}.timer{font-size:12px;color:var(--muted)}.board{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;background:#080c17;padding:7px;border:2px solid #425779;border-radius:7px;min-height:520px}.cell{min-width:0;min-height:78px;position:relative;display:grid;place-items:center;border:1px solid #2d466a;background:#172b47;cursor:pointer}.cell:nth-child(2n){background:#1b3150}.cell.enemy{background:#382238;border-color:#593350}.cell.enemy:nth-child(2n){background:#402640}.cell.deploy{box-shadow:inset 0 0 0 2px #63dda588}.unit{position:relative;width:90%;height:88%;border:1px solid #6080ad;background:linear-gradient(145deg,#29496e,#172b49);display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:6px;cursor:pointer;transition:transform .15s,filter .15s}.unit.enemy{border-color:#a45572;background:linear-gradient(145deg,#62334d,#351d33)}.unit.selected{outline:3px solid var(--gold);z-index:2}.unit.hit{animation:hit .2s}.unit.cast{animation:cast .3s}.unit .icon{font-size:27px;line-height:1}.unit .name{font-size:9px;font-weight:800;margin-top:3px;white-space:nowrap}.unit .stars{position:absolute;top:1px;right:2px;color:var(--gold);font-size:8px}.bars{position:absolute;left:4px;right:4px;bottom:3px;display:grid;gap:2px}.bar{height:3px;background:#090d17}.bar i{display:block;height:100%;background:var(--green)}.bar.mana i{background:var(--blue)}.damage{position:absolute;z-index:5;color:#fff;font-weight:900;text-shadow:0 2px 5px #000;animation:rise .65s forwards;pointer-events:none}@keyframes rise{to{transform:translateY(-28px);opacity:0}}@keyframes hit{50%{transform:translateX(5px);filter:brightness(1.7)}}@keyframes cast{50%{transform:scale(1.15);filter:drop-shadow(0 0 9px #8bbaff)}}.side{display:flex;flex-direction:column;gap:10px}.section{padding:11px}.section h2{font-size:14px;margin:0 0 8px}.opponent{display:flex;align-items:center;gap:10px}.portrait{width:48px;height:48px;display:grid;place-items:center;background:#351f39;border:1px solid #694169;border-radius:6px;font-size:27px}.opponent b{display:block}.opponent small{color:var(--muted)}.preview{display:flex;gap:4px;margin-top:8px}.preview span{flex:1;text-align:center;background:#241b31;padding:7px 2px;border:1px solid #4b385c}.trait{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #2e3c58;padding:6px 0;font-size:12px}.trait:last-child{border:0}.trait strong{color:var(--muted)}.trait.on strong{color:var(--green)}.items{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.item{min-height:54px;background:#202d48;border:1px solid #445b80;border-radius:5px;padding:5px;cursor:pointer}.item b{font-size:18px}.item small{display:block;font-size:9px;color:var(--muted)}.prep{margin-top:10px;padding:10px}.bench{display:grid;grid-template-columns:repeat(9,1fr);gap:5px;margin-top:7px}.slot{height:64px;background:#0c1323;border:1px dashed #405273;display:grid;place-items:center;min-width:0}.slot .unit{height:58px}.shop{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-top:9px}.offer{position:relative;min-width:0;min-height:92px;background:#1b2b49;border:1px solid #48638d;border-radius:6px;padding:8px 5px;cursor:pointer}.offer:hover{border-color:var(--gold);filter:brightness(1.08)}.offer:disabled{opacity:.35;cursor:not-allowed}.offer .icon{font-size:25px}.offer b{display:block;font-size:12px}.offer small{color:var(--muted);font-size:9px}.cost{position:absolute;right:5px;top:4px;color:var(--gold);font-weight:900}.controls{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}.btn{border:1px solid #50688f;background:#263b60;border-radius:5px;padding:8px 11px;min-height:40px;font-weight:800;cursor:pointer}.btn:hover{filter:brightness(1.12)}.btn:disabled{opacity:.4;cursor:not-allowed}.btn.primary{background:#ad4859;border-color:#d86978}.btn.gold{background:var(--gold);border-color:var(--gold);color:#231800}.btn.active{box-shadow:inset 0 0 0 2px var(--gold)}.log{margin-top:8px;background:#0c1221;border-left:3px solid var(--blue);padding:8px;min-height:42px;color:#cbd6ef;font-size:12px;line-height:1.5}.overlay{position:fixed;inset:0;z-index:20;background:#060910ed;display:flex;align-items:center;justify-content:center;padding:14px}.overlay.hidden{display:none}.modal{width:min(850px,100%);max-height:92vh;overflow:auto;background:#11192c;border:1px solid #526888;border-radius:8px;padding:17px}.modal h2{margin:0 0 5px;font-size:25px}.modal>p{margin:0 0 13px;color:var(--muted);line-height:1.55}.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.choice{text-align:left;min-height:150px;background:#1b2945;border:1px solid #465f87;border-radius:6px;padding:12px;cursor:pointer}.choice:hover{border-color:var(--gold);transform:translateY(-2px)}.choice .big{font-size:32px}.choice h3{font-size:15px;margin:7px 0 4px}.choice p{font-size:12px;color:var(--muted);line-height:1.5;margin:0}.savebox{width:100%;height:130px;background:#080d19;border:1px solid #415779;color:#e9efff;padding:9px;resize:vertical}.rank{color:var(--gold);font-size:22px;font-weight:900}@media(max-width:900px){.main{grid-template-columns:1fr}.side{display:grid;grid-template-columns:1fr 1fr}.side .panel:last-child{grid-column:1/-1}.board{min-height:470px}.cell{min-height:70px}}@media(max-width:600px){.app{padding:8px}.top{align-items:flex-start;flex-direction:column}.stats{justify-content:flex-start}.stat{min-width:71px;padding:6px}.brand h1{font-size:24px}.main{margin-top:8px}.arena{padding:6px}.board{gap:2px;padding:4px;min-height:354px}.cell{min-height:55px}.unit{width:94%;height:92%}.unit .icon{font-size:20px}.unit .name{font-size:7px}.bench{gap:3px}.slot{height:49px}.slot .unit{height:44px}.shop{grid-template-columns:repeat(5,minmax(0,1fr));gap:3px}.offer{min-height:83px;padding:6px 2px}.offer .icon{font-size:21px}.offer b{font-size:9px}.offer small{font-size:7px}.side{display:flex}.choices{grid-template-columns:1fr}.choice{min-height:115px}.controls .btn{flex:1;padding:7px 6px}.battle-head{font-size:12px}}
   </style>
-  <main class="app">
-    <section class="shell">
-      <div class="top">
-        <div>
-          <h1 style="margin: 0">符文自走棋</h1>
-          <div class="help">
-            购买英雄 → 点击英雄再点击己方格部署；凑齐 3 个同名自动升星
-          </div>
-        </div>
-        <div class="stats">
-          <span>❤️ <b id="life">100</b></span
-          ><span>💰 <b id="gold">10</b></span
-          ><span>等级 <b id="level">2</b></span
-          ><span>回合 <b id="round">1</b></span>
-        </div>
-      </div>
-      <div id="traits" class="actions"></div>
-      <div id="board" class="board"></div>
-      <div class="panel">
-        <b>备战席</b>
-        <div id="bench" class="bench"></div>
-        <div class="shop" id="shop"></div>
-        <div class="actions">
-          <button id="reroll">刷新商店（2）</button
-          ><button id="xp">研习经验（4）</button
-          ><button id="sell">出售选中</button
-          ><button id="fight">开始战斗</button
-          ><button id="restart">新赛季</button>
-        </div>
-        <div id="log" class="log"></div>
-      </div>
-    </section>
-  </main>
-  <script>
-    const D = [
-      ["盾卫", "🛡️", "守卫", 55, 7],
-      ["剑客", "⚔️", "战士", 42, 11],
-      ["游侠", "🏹", "游侠", 34, 13],
-      ["火法", "🔥", "法师", 30, 16],
-      ["医师", "💚", "秘术", 36, 7],
-      ["狼骑", "🐺", "战士", 45, 12],
-      ["冰女", "❄️", "法师", 31, 15],
-      ["枪手", "🔫", "游侠", 33, 14],
-      ["树灵", "🌳", "守卫", 62, 6],
-      ["雷君", "⚡", "秘术", 40, 18],
-    ].map((x, id) => ({ id, n: x[0], ic: x[1], t: x[2], hp: x[3], atk: x[4] }));
-    let q,
-      selected = null,
-      timer = null;
-    const $ = (x) => document.getElementById(x);
-    function fresh() {
-      return {
-        life: 100,
-        gold: 10,
-        lv: 2,
-        xp: 0,
-        round: 1,
-        units: [],
-        shop: [],
-        log: ["新赛季开始：先布置阵容。"],
-      };
-    }
-    function save() {
-      localStorage.setItem("auto_chess_save", JSON.stringify(q));
-    }
-    function load() {
-      try {
-        q = JSON.parse(localStorage.getItem("auto_chess_save")) || fresh();
-      } catch {
-        q = fresh();
-      }
-      roll(true);
-      draw();
-    }
-    function cap() {
-      return q.lv;
-    }
-    function roll(free = false) {
-      if (!free) {
-        if (q.gold < 2) return say("金币不足");
-        q.gold -= 2;
-      }
-      q.shop = Array.from({ length: 5 }, () =>
-        Math.floor(Math.random() * Math.min(D.length, 4 + q.lv)),
-      );
-      save();
-      draw();
-    }
-    function say(s) {
-      q.log.unshift(s);
-      q.log = q.log.slice(0, 10);
-    }
-    function buy(i) {
-      if (q.gold < 1 || q.units.length >= 15)
-        return say(q.gold < 1 ? "金币不足" : "备战席已满");
-      q.gold--;
-      q.units.push({ id: q.shop[i], star: 1, pos: null });
-      q.shop.splice(i, 1, -1);
-      merge();
-      save();
-      draw();
-    }
-    function merge() {
-      for (let id = 0; id < D.length; id++)
-        for (let star = 1; star < 3; star++) {
-          let a = q.units.filter((u) => u.id === id && u.star === star);
-          while (a.length >= 3) {
-            let keep = a[0],
-              gone = a.slice(1, 3);
-            keep.star++;
-            q.units = q.units.filter((u) => !gone.includes(u));
-            say(`${D[id].n} 合成 ${keep.star} 星！`);
-            a = q.units.filter((u) => u.id === id && u.star === star);
-          }
-        }
-    }
-    function place(idx, pos) {
-      let u = q.units[idx];
-      if (!u) return;
-      if (pos >= 21) {
-        let occupying = q.units.find((x) => x.pos === pos);
-        let deployed = q.units.filter((x) => x.pos !== null).length;
-        if (u.pos === null && !occupying && deployed >= cap()) {
-          say(`当前等级最多上阵 ${cap()} 名英雄`);
-          draw();
-          return;
-        }
-        if (occupying) occupying.pos = u.pos;
-        u.pos = pos;
-      } else u.pos = null;
-      selected = null;
-      save();
-      draw();
-    }
-    function enemyTeam() {
-      let n = Math.min(7, 2 + Math.floor(q.round / 2)),
-        ids = [];
-      for (let i = 0; i < n; i++)
-        ids.push({
-          id: Math.floor(
-            Math.random() * Math.min(D.length, 3 + Math.floor(q.round / 2)),
-          ),
-          star: 1 + +(q.round > 5 && Math.random() < 0.28),
-          pos: i,
-        });
-      return ids;
-    }
-    function battle() {
-      let ours = q.units.filter((u) => u.pos !== null);
-      if (!ours.length) return say("至少部署一名英雄");
-      if (timer) return;
-      let enemies = enemyTeam(),
-        A = ours.map((u) => fighter(u, false)),
-        B = enemies.map((u) => fighter(u, true));
-      $("fight").disabled = true;
-      say(`第 ${q.round} 回合交锋！`);
-      drawBattle(A, B);
-      timer = setInterval(() => {
-        let aliveA = A.filter((x) => x.hp > 0),
-          aliveB = B.filter((x) => x.hp > 0);
-        if (!aliveA.length || !aliveB.length) {
-          clearInterval(timer);
-          timer = null;
-          let win = aliveA.length > 0;
-          if (win) {
-            q.gold += 5 + Math.min(5, Math.floor(q.round / 3));
-            say("胜利！获得回合金币。");
-          } else {
-            let dmg = Math.max(4, aliveB.length * 3);
-            q.life -= dmg;
-            say(`败北，受到 ${dmg} 点伤害。`);
-          }
-          q.round++;
-          if (q.round % 3 === 0 && q.lv < 8) q.gold += 2;
-          q.gold += 2;
-          roll(true);
-          $("fight").disabled = false;
-          if (q.life <= 0) {
-            say("赛季结束，点击“新赛季”再来。");
-            $("fight").disabled = true;
-          }
-          save();
-          draw();
-          return;
-        }
-        for (const x of [...aliveA, ...aliveB]) {
-          x.cd--;
-          if (x.cd <= 0) {
-            let targets = x.enemy ? aliveA : aliveB,
-              t = targets[Math.floor(Math.random() * targets.length)],
-              def = D[t.id],
-              dmg = Math.max(
-                1,
-                Math.round(
-                  D[x.id].atk * Math.pow(1.7, x.star - 1) * (x.buff || 1) -
-                    (def.t === "守卫" ? 3 : 0),
-                ),
-              );
-            t.hp -= dmg;
-            if (D[x.id].t === "秘术") {
-              let team = x.enemy ? aliveB : aliveA,
-                low = team.sort((a, b) => a.hp - b.hp)[0];
-              low.hp = Math.min(low.max, low.hp + 5 * x.star);
-            }
-            x.cd = D[x.id].t === "游侠" ? 1 : 2;
-          }
-        }
-        drawBattle(A, B);
-      }, 550);
-    }
-    function fighter(u, enemy) {
-      let d = D[u.id],
-        mul = Math.pow(1.75, u.star - 1),
-        same = q.units.filter(
-          (x) => x.pos !== null && D[x.id].t === d.t,
-        ).length,
-        buff = same >= 4 ? 1.35 : same >= 2 ? 1.15 : 1;
-      return {
-        ...u,
-        enemy,
-        max: Math.round(d.hp * mul),
-        hp: Math.round(d.hp * mul),
-        cd: 1,
-        buff,
-      };
-    }
-    function drawBattle(A, B) {
-      let cells = [...$("board").children];
-      cells.forEach((c) => (c.innerHTML = ""));
-      B.forEach((u, i) => renderUnit(u, cells[i], true, i));
-      A.forEach((u) =>
-        renderUnit(
-          u,
-          cells[u.pos],
-          false,
-          q.units.findIndex((x) => x.id === u.id && x.pos === u.pos),
-        ),
-      );
-    }
-    function renderUnit(u, cell, enemy, idx) {
-      if (!cell) return;
-      let d = D[u.id],
-        el = document.createElement("div");
-      el.className =
-        "unit " + (enemy ? "enemy " : "") + (selected === idx ? "sel" : "");
-      el.innerHTML = `${d.ic}<b>${"★".repeat(u.star)}</b><small>${d.n}</small>${u.hp !== undefined ? `<span class="hp"><i style="width:${Math.max(0, (u.hp / u.max) * 100)}%"></i></span>` : ""}`;
-      if (!enemy)
-        el.onclick = (e) => {
-          e.stopPropagation();
-          selected = idx;
-          draw();
-        };
-      cell.append(el);
-    }
-    function draw() {
-      if (timer) return;
-      $("life").textContent = q.life;
-      $("gold").textContent = q.gold;
-      $("level").textContent = `${q.lv} (${q.xp}/${q.lv * 4})`;
-      $("round").textContent = q.round;
-      let b = $("board");
-      b.innerHTML = "";
-      for (let i = 0; i < 42; i++) {
-        let c = document.createElement("div");
-        c.className = "cell " + (i < 21 ? "enemy" : "");
-        if (i >= 21) c.onclick = () => selected !== null && place(selected, i);
-        b.append(c);
-      }
-      q.units.forEach((u, i) => {
-        if (u.pos !== null) renderUnit(u, b.children[u.pos], false, i);
-      });
-      let be = $("bench");
-      be.innerHTML = "";
-      q.units.forEach((u, i) => {
-        if (u.pos === null) {
-          let s = document.createElement("div");
-          s.className = "slot";
-          renderUnit(u, s, false, i);
-          be.append(s);
-        }
-      });
-      while (be.children.length < 8)
-        be.insertAdjacentHTML("beforeend", '<div class="slot"></div>');
-      $("shop").innerHTML = q.shop
-        .map((id, i) =>
-          id < 0
-            ? '<button class="offer" disabled>已购买</button>'
-            : `<button class="offer" data-i="${i}">${D[id].ic}<br><b>${D[id].n}</b><br><small>${D[id].t} · 1 金</small></button>`,
-        )
-        .join("");
-      $("shop")
-        .querySelectorAll("[data-i]")
-        .forEach((x) => (x.onclick = () => buy(+x.dataset.i)));
-      let counts = {};
-      q.units
-        .filter((u) => u.pos !== null)
-        .forEach((u) => (counts[D[u.id].t] = (counts[D[u.id].t] || 0) + 1));
-      $("traits").innerHTML = Object.entries(counts)
-        .map(
-          ([k, v]) =>
-            `<span class="tag">${k} ${v}${v >= 2 ? " · 已激活" : ""}</span>`,
-        )
-        .join("");
-      $("log").innerHTML = q.log.map((x) => `<div>• ${x}</div>`).join("");
-      $("fight").disabled = q.life <= 0;
-    }
-    reroll.onclick = () => roll();
-    xp.onclick = () => {
-      if (q.gold < 4) return say("金币不足");
-      q.gold -= 4;
-      q.xp += 4;
-      if (q.xp >= q.lv * 4 && q.lv < 8) {
-        q.xp -= q.lv * 4;
-        q.lv++;
-        say(`升到 ${q.lv} 级，人口上限提高！`);
-      }
-      save();
-      draw();
-    };
-    sell.onclick = () => {
-      if (selected === null) return;
-      let u = q.units[selected];
-      q.gold += u.star;
-      q.units.splice(selected, 1);
-      selected = null;
-      save();
-      draw();
-    };
-    fight.onclick = battle;
-    restart.onclick = () => {
-      if (confirm("确定开启新赛季？")) {
-        q = fresh();
-        save();
-        roll(true);
-      }
-    };
-    load();
-  </script>
-</html>
+  <style>@media(max-width:600px){.controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.controls .btn{width:100%;padding:7px 5px;white-space:normal}}</style>
+</head>
+<body>
+<main class="app">
+  <header class="top"><div class="brand"><h1>符文自走棋：群星赛季</h1><p>经营利息，侦察对手，组合双系羁绊与装备，冲击二十回合王座。</p></div><div class="stats"><div class="stat"><small>生命</small><b id="life">100</b></div><div class="stat"><small>金币</small><b id="gold">10</b></div><div class="stat"><small>等级 / 经验</small><b id="level">2</b></div><div class="stat"><small>回合</small><b id="round">1</b></div><div class="stat"><small>连胜</small><b id="streak">0</b></div></div></header>
+  <section class="main"><div class="panel arena"><div class="battle-head"><div class="phase" id="phase">备战阶段 · <span>部署 2 名英雄</span></div><div class="timer" id="economy">基础收入 5 · 利息 0</div></div><div class="board" id="board"></div></div>
+  <aside class="side"><section class="panel section"><h2>下一位对手</h2><div id="opponent"></div></section><section class="panel section"><h2>阵容羁绊</h2><div id="traits"></div></section><section class="panel section"><h2>装备库 · 先选英雄再装备</h2><div class="items" id="items"></div></section></aside></section>
+  <section class="panel prep"><b>备战席 <span style="color:var(--muted);font-size:11px">点击英雄后再点棋盘部署；三枚同名同星自动合成</span></b><div class="bench" id="bench"></div><div class="shop" id="shop"></div><div class="controls"><button class="btn" id="rerollBtn">刷新 2</button><button class="btn" id="lockBtn">锁定商店</button><button class="btn" id="xpBtn">研习经验 4</button><button class="btn" id="sellBtn">出售选中</button><button class="btn gold" id="fightBtn">开始战斗</button><button class="btn" id="saveBtn">存档码</button><button class="btn" id="newBtn">新赛季</button></div><div class="log" id="log">选择一位星灵指挥官开始赛季。</div></section>
+</main>
+<div class="overlay" id="commanderOverlay"><section class="modal"><h2>选择星灵指挥官</h2><p>指挥官会改变经济或阵容规则。每四回合还能获得一次赛季强化。</p><div class="choices" id="commanderChoices"></div></section></div>
+<div class="overlay hidden" id="choiceOverlay"><section class="modal"><h2 id="choiceTitle">赛季强化</h2><p id="choiceHelp">选择一项永久强化。</p><div class="choices" id="choices"></div></section></div>
+<div class="overlay hidden" id="infoOverlay"><section class="modal"><h2 id="infoTitle">赛季档案</h2><div id="infoBody"></div><div class="controls"><button class="btn gold" id="closeInfoBtn">返回棋盘</button></div></section></div>
+<script>
+(()=>{"use strict";
+const $=id=>document.getElementById(id),SAVE="autoChessForgeV3";
+const HEROES=[
+ {n:"铁壁",i:"🛡️",c:1,hp:72,a:8,sp:38,traits:["守卫","机械"],skill:"shield",d:"技能：获得护盾"},{n:"刃舞",i:"⚔️",c:1,hp:48,a:13,sp:45,traits:["决斗","星裔"],skill:"ramp",d:"技能：永久提高攻速"},{n:"风弦",i:"🏹",c:1,hp:39,a:14,sp:32,traits:["游侠","荒野"],skill:"snipe",d:"技能：狙击低生命敌人"},{n:"芽医",i:"🌿",c:1,hp:44,a:7,sp:42,traits:["秘术","荒野"],skill:"heal",d:"技能：治疗最弱友军"},
+ {n:"熔拳",i:"🔥",c:2,hp:61,a:14,sp:48,traits:["决斗","炎铸"],skill:"splash",d:"技能：火焰溅射"},{n:"潮卫",i:"🌊",c:2,hp:78,a:9,sp:55,traits:["守卫","潮汐"],skill:"taunt",d:"技能：群体减伤"},{n:"霜语",i:"❄️",c:2,hp:45,a:17,sp:58,traits:["法师","潮汐"],skill:"stun",d:"技能：冻结目标"},{n:"齿轮鸦",i:"🐦‍⬛",c:2,hp:47,a:15,sp:35,traits:["游侠","机械"],skill:"rapid",d:"技能：连续射击"},
+ {n:"狼骑",i:"🐺",c:3,hp:70,a:18,sp:44,traits:["决斗","荒野"],skill:"leap",d:"技能：扑向后排"},{n:"星术师",i:"🔮",c:3,hp:48,a:20,sp:65,traits:["法师","星裔"],skill:"splash",d:"技能：星爆群伤"},{n:"锻炉王",i:"🔨",c:3,hp:88,a:13,sp:58,traits:["守卫","炎铸"],skill:"shield",d:"技能：锻造护盾"},{n:"雾歌",i:"🪈",c:3,hp:53,a:12,sp:50,traits:["秘术","潮汐"],skill:"heal",d:"技能：潮歌群疗"},
+ {n:"雷君",i:"⚡",c:4,hp:63,a:25,sp:62,traits:["法师","机械"],skill:"chain",d:"技能：连锁闪电"},{n:"焰翼",i:"🐉",c:4,hp:82,a:23,sp:60,traits:["游侠","炎铸"],skill:"splash",d:"技能：龙焰扫射"},{n:"月裁",i:"🌙",c:4,hp:74,a:26,sp:48,traits:["决斗","星裔"],skill:"execute",d:"技能：处决残血"},{n:"森之心",i:"🌳",c:4,hp:112,a:15,sp:70,traits:["守卫","荒野"],skill:"heal",d:"技能：森林复苏"},
+ {n:"天穹鲸",i:"🐋",c:5,hp:130,a:28,sp:75,traits:["潮汐","星裔"],skill:"stun",d:"技能：坠星海啸"},{n:"终焉机神",i:"🤖",c:5,hp:118,a:34,sp:68,traits:["机械","炎铸"],skill:"chain",d:"技能：终焉炮击"}
+];
+const TRAITS={守卫:[2,4,6],决斗:[2,4,6],游侠:[2,4],法师:[2,4],秘术:[2,3],机械:[2,4],荒野:[2,4],炎铸:[2,4],潮汐:[2,4],星裔:[2,4]};
+const ITEMS={blade:{n:"风暴刃",i:"🗡️",d:"攻击 +7",a:7},plate:{n:"星铠",i:"🛡️",d:"生命 +35",hp:35},orb:{n:"法力核",i:"🔵",d:"初始法力 +25",mana:25},bow:{n:"疾风弓",i:"🏹",d:"攻速 +25%",speed:.25},crown:{n:"王冠",i:"👑",d:"全属性强化",a:4,hp:18,speed:.1},spark:{n:"电容器",i:"⚡",d:"技能伤害 +35%",power:.35}};
+const COMMANDERS={merchant:{n:"星港商人",i:"🧾",d:"每回合利息上限提高到 7；起始金币 +4。"},vanguard:{n:"先锋统领",i:"🚩",d:"前两排英雄获得 12% 减伤；起始拥有铁壁。"},oracle:{n:"万象先知",i:"👁️",d:"商店每次刷新首格必定至少为 2 费；首次强化提前到第 3 回合。"}};
+const AUGMENTS={rich:{n:"高利贷",i:"💰",d:"立即获得 18 金币，但失去 8 生命。"},forge:{n:"便携锻炉",i:"⚒️",d:"立即获得两件随机装备。"},army:{n:"扩编令",i:"📜",d:"人口上限永久 +1。"},vital:{n:"复苏之风",i:"💚",d:"每次胜利恢复 3 生命。"},tempo:{n:"战斗节拍",i:"🥁",d:"全队攻击速度 +15%。"},arcane:{n:"符文涌流",i:"✨",d:"全队技能伤害 +25%。"},scout:{n:"精密侦察",i:"🔭",d:"对手预览更完整，胜利额外 +1 金币。"},rerolls:{n:"黄金门票",i:"🎫",d:"每回合第一次刷新免费。"},second:{n:"背水阵",i:"🔥",d:"生命低于 45 时全队攻击 +20%。"}};
+const OPPONENTS=[['雾港猫','🐈'],['赤曜骑士','🦁'],['月桂学者','🦉'],['齿轮公爵','🦾'],['潮声女王','🧜'],['荒原猎手','🦊'],['星环冠军','👑']];
+let q=null,profile={wins:0,best:0,rank:0},selected=null,battleTimer=null,battleUnits=[],freeRoll=false;
+const uid=()=>Math.random().toString(36).slice(2),unit=(id,pos=null)=>({uid:uid(),id,star:1,pos,items:[]});
+function fresh(commander){const c={v:3,commander,life:100,gold:10+(commander==='merchant'?4:0),lv:2,xp:0,round:1,units:[],shop:[],locked:false,streak:0,lastWin:null,augments:[],items:[],bonusCap:0,log:[],gameOver:false,win:false};if(commander==='vanguard')c.units.push(unit(0,40));return c}
+function save(){localStorage.setItem(SAVE,JSON.stringify({q,profile}))}function load(){try{const x=JSON.parse(localStorage.getItem(SAVE));if(x?.profile)profile={...profile,...x.profile};if(x?.q?.v===3)q=x.q}catch{}}
+function checksum(s){let h=5381;for(const ch of s)h=((h<<5)-h+ch.charCodeAt(0))>>>0;return h.toString(36)}function exportCode(){const b=btoa(unescape(encodeURIComponent(JSON.stringify({v:3,q,profile}))));return`AC3-${b}-${checksum(b)}`}function importCode(x){const m=x.trim().match(/^AC3-(.+)-([a-z0-9]+)$/i);if(!m||checksum(m[1])!==m[2])throw Error('存档码校验失败');const d=JSON.parse(decodeURIComponent(escape(atob(m[1]))));if(d.v!==3)throw Error('存档版本不兼容');q=d.q;profile=d.profile;save();draw()}
+function say(s){q.log.unshift(s);q.log=q.log.slice(0,14);$('log').textContent=s;save()}
+function levelCap(){return Math.min(9,q.lv+(q.bonusCap||0))}function interest(){return Math.min(q.commander==='merchant'?7:5,Math.floor(q.gold/10))}
+function odds(){return q.lv<=3?[.75,.22,.03,0,0]:q.lv<=5?[.43,.35,.18,.04,0]:q.lv<=7?[.2,.35,.3,.13,.02]:[.1,.22,.32,.28,.08]}
+function shopHero(slot=0){const o=odds();let x=Math.random(),cost=1;for(let i=0;i<o.length;i++){x-=o[i];if(x<=0){cost=i+1;break}}if(q.commander==='oracle'&&slot===0)cost=Math.max(2,cost);const pool=HEROES.map((h,i)=>h.c===cost?i:-1).filter(i=>i>=0);return pool[Math.floor(Math.random()*pool.length)]}
+function roll(free=false){if(!free&&!freeRoll){if(q.gold<2)return say('金币不足，无法刷新商店');q.gold-=2}freeRoll=false;q.shop=Array.from({length:5},(_,i)=>shopHero(i));draw();save()}
+function buy(i){const id=q.shop[i],h=HEROES[id];if(id==null)return;if(q.gold<h.c)return say('金币不足');if(q.units.filter(u=>u.pos==null).length>=9)return say('备战席已满');q.gold-=h.c;q.units.push(unit(id));q.shop[i]=null;merge();draw();save()}
+function merge(){let changed=true;while(changed){changed=false;for(let id=0;id<HEROES.length;id++)for(let star=1;star<3;star++){const a=q.units.filter(u=>u.id===id&&u.star===star);if(a.length>=3){const keep=a[0],gone=a.slice(1,3);keep.star++;keep.items=[...keep.items,...gone.flatMap(x=>x.items)].slice(0,3);q.units=q.units.filter(u=>!gone.includes(u));say(`${HEROES[id].n} 合成为 ${keep.star} 星`);changed=true}}}}
+function deploy(uid,pos){const u=q.units.find(x=>x.uid===uid);if(!u||pos<24)return;const other=q.units.find(x=>x.pos===pos);if(u.pos==null&&!other&&q.units.filter(x=>x.pos!=null).length>=levelCap())return say(`当前最多部署 ${levelCap()} 名英雄`);if(other)other.pos=u.pos;u.pos=pos;selected=null;draw();save()}
+function select(uid){selected=selected===uid?null:uid;draw()}
+function sellSelected(){const u=q.units.find(x=>x.uid===selected);if(!u)return say('先选择一名英雄');q.gold+=HEROES[u.id].c*Math.pow(3,u.star-1);q.items.push(...u.items);q.units=q.units.filter(x=>x!==u);selected=null;say(`出售 ${HEROES[u.id].n}`);draw()}
+function equip(id,index){const u=q.units.find(x=>x.uid===selected);if(!u)return say('先选择要装备的英雄');if(u.items.length>=3)return say('每名英雄最多装备三件');u.items.push(id);q.items.splice(index,1);say(`${HEROES[u.id].n} 装备 ${ITEMS[id].n}`);draw()}
+function traitCounts(units=q.units.filter(u=>u.pos!=null)){const c={};units.forEach(u=>HEROES[u.id].traits.forEach(t=>c[t]=(c[t]||0)+1));return c}function tier(t,n){const a=TRAITS[t];let v=0;a.forEach(x=>{if(n>=x)v=x});return v}
+function enemyTeam(){const n=Math.min(9,2+Math.floor(q.round*.42)),maxCost=Math.min(5,1+Math.floor((q.round+2)/4)),out=[];for(let i=0;i<n;i++){const pool=HEROES.map((h,j)=>h.c<=maxCost?j:-1).filter(j=>j>=0),id=pool[Math.floor(Math.random()*pool.length)];out.push({uid:'e'+i,id,star:1+(q.round>7&&Math.random()<.35)+(q.round>15&&Math.random()<.18),pos:i%8+Math.floor(i/8)*8,items:q.round>5&&Math.random()<.4?[Object.keys(ITEMS)[Math.floor(Math.random()*6)]]:[]})}return out}
+function statsFor(u,enemy=false,counts={}){const h=HEROES[u.id],mul=Math.pow(1.72,u.star-1);let hp=h.hp*mul,a=h.a*mul,speed=1,mana=0,power=1,armor=0;u.items.forEach(id=>{const it=ITEMS[id];hp+=it.hp||0;a+=it.a||0;speed+=it.speed||0;mana+=it.mana||0;power+=it.power||0});const active=t=>tier(t,counts[t]||0);if(active('守卫'))armor+=active('守卫')*.035;if(active('决斗'))speed+=active('决斗')*.07;if(active('游侠'))a*=1+active('游侠')*.045;if(active('法师'))power+=active('法师')*.07;if(active('秘术'))hp*=1+active('秘术')*.04;if(active('机械'))armor+=active('机械')*.025;if(active('荒野'))hp*=1+active('荒野')*.035;if(active('炎铸'))a*=1+active('炎铸')*.04;if(active('潮汐'))mana+=active('潮汐')*3;if(active('星裔'))power+=active('星裔')*.05;if(!enemy&&q.commander==='vanguard'&&u.pos>=32)armor+=.12;if(!enemy&&q.augments.includes('tempo'))speed+=.15;if(!enemy&&q.augments.includes('arcane'))power+=.25;if(!enemy&&q.augments.includes('second')&&q.life<45)a*=1.2;return{...u,enemy,max:Math.round(hp),hp:Math.round(hp),a:Math.round(a),speed,power,mana:Math.min(90,mana),armor,stun:0}}
+function startBattle(){if(battleTimer||q.gameOver||q.win)return;const ours=q.units.filter(u=>u.pos!=null);if(!ours.length)return say('至少部署一名英雄');selected=null;const enemies=enemyTeam(),ac=traitCounts(ours),bc=traitCounts(enemies);battleUnits=[...ours.map(u=>statsFor(structuredClone(u),false,ac)),...enemies.map(u=>statsFor(structuredClone(u),true,bc))];$('phase').innerHTML='战斗阶段 · <span>自动交锋</span>';$('fightBtn').disabled=true;renderBattle();let tick=0;battleTimer=setInterval(()=>battleStep(++tick),360)}
+function living(enemy){return battleUnits.filter(x=>x.enemy===enemy&&x.hp>0)}function battleStep(tick){const A=living(false),B=living(true);if(!A.length||!B.length||tick>100)return finishBattle(A.length>0,B.length);for(const u of [...A,...B]){if(u.hp<=0)continue;if(u.stun>0){u.stun--;continue}u.mana+=18*u.speed;const targets=living(!u.enemy);if(!targets.length)break;let target=targets.reduce((a,b)=>a.hp<b.hp?a:b);if(u.mana>=HEROES[u.id].sp){u.mana=0;cast(u,target,targets)}else hitUnit(u,target,u.a)}renderBattle()}
+function hitUnit(source,target,raw){const dmg=Math.max(1,Math.round(raw*(1-target.armor)));target.hp-=dmg;source.mana=Math.min(100,source.mana+9);target.mana=Math.min(100,target.mana+5);source.last='cast';target.hit=true;target.float=dmg}
+function cast(u,t,targets){const s=HEROES[u.id].skill,p=u.power;if(s==='shield'){u.hp=Math.min(u.max,u.hp+Math.round(32*p));u.float='护盾'}else if(s==='heal'){const team=living(u.enemy).sort((a,b)=>a.hp/a.max-b.hp/b.max);team.slice(0,HEROES[u.id].c>=3?2:1).forEach(x=>x.hp=Math.min(x.max,x.hp+Math.round(28*p)));u.float='治疗'}else if(s==='stun'){hitUnit(u,t,u.a*1.35*p);t.stun=2}else if(s==='splash'||s==='chain'){targets.slice(0,s==='chain'?3:2).forEach((x,i)=>hitUnit(u,x,u.a*p*(i?0.65:1.25)))}else if(s==='rapid'){for(let i=0;i<3;i++)hitUnit(u,t,u.a*.65*p)}else if(s==='execute'){hitUnit(u,t,u.a*p*(t.hp/t.max<.35?3:1.35))}else if(s==='ramp'){u.speed+=.22;hitUnit(u,t,u.a*1.2*p)}else if(s==='snipe'){hitUnit(u,t,u.a*2.15*p)}else{hitUnit(u,t,u.a*1.55*p)}u.cast=true}
+function finishBattle(win,remaining){clearInterval(battleTimer);battleTimer=null;q.lastWin=win;q.streak=win?Math.max(1,q.streak>0?q.streak+1:1):Math.min(-1,q.streak<0?q.streak-1:-1);if(win){let reward=2+(q.augments.includes('scout')?1:0);q.gold+=reward;if(q.augments.includes('vital'))q.life=Math.min(100,q.life+3);say(`战斗胜利，额外获得 ${reward} 金币`)}else{const dmg=Math.max(4,(remaining||1)*2+Math.floor(q.round/4));q.life-=dmg;say(`战斗失利，受到 ${dmg} 点伤害`)}const streakGold=Math.min(3,Math.floor(Math.abs(q.streak)/2)),income=5+interest()+streakGold;q.gold+=income;q.round++;profile.best=Math.max(profile.best,q.round);if(q.round%3===0){const id=Object.keys(ITEMS)[Math.floor(Math.random()*Object.keys(ITEMS).length)];q.items.push(id);say(`战利品：${ITEMS[id].n}`)}if(q.round>20){q.win=true;profile.wins++;profile.rank+=80;say('群星赛季夺冠！')}else if(q.life<=0){q.gameOver=true;profile.rank+=Math.max(5,q.round*2);say('赛季结束，整备后再次挑战')}if(q.augments.includes('rerolls'))freeRoll=true;if(!q.locked)roll(true);if(!q.gameOver&&!q.win&&augmentRound())showAugment();draw();save()}
+function augmentRound(){return q.round%4===0||(q.commander==='oracle'&&q.round===3)}function showAugment(){const ids=Object.keys(AUGMENTS).filter(id=>!q.augments.includes(id)).sort(()=>Math.random()-.5).slice(0,3);$('choiceTitle').textContent='选择赛季强化';$('choiceHelp').textContent='强化会在本赛季永久生效。';$('choices').innerHTML=ids.map(id=>`<button class="choice" data-aug="${id}"><span class="big">${AUGMENTS[id].i}</span><h3>${AUGMENTS[id].n}</h3><p>${AUGMENTS[id].d}</p></button>`).join('');$('choiceOverlay').classList.remove('hidden');document.querySelectorAll('[data-aug]').forEach(b=>b.onclick=()=>{const id=b.dataset.aug;q.augments.push(id);if(id==='rich'){q.gold+=18;q.life-=8}if(id==='forge'){q.items.push(...Array.from({length:2},()=>Object.keys(ITEMS)[Math.floor(Math.random()*6)]))}if(id==='army')q.bonusCap=(q.bonusCap||0)+1;$('choiceOverlay').classList.add('hidden');say(`获得强化：${AUGMENTS[id].n}`);draw()})}
+function renderUnit(u,enemy=false){const h=HEROES[u.id],el=document.createElement('div');el.className=`unit ${enemy?'enemy ':''}${selected===u.uid?'selected ':''}${u.hit?'hit ':''}${u.cast?'cast ':''}`;el.innerHTML=`<span class="stars">${'★'.repeat(u.star)}</span><span class="icon">${h.i}</span><span class="name">${h.n}</span>${u.hp!=null?`<span class="bars"><span class="bar"><i style="width:${Math.max(0,u.hp/u.max*100)}%"></i></span><span class="bar mana"><i style="width:${Math.min(100,u.mana)}%"></i></span></span>`:''}`;if(!enemy)el.onclick=e=>{e.stopPropagation();select(u.uid)};return el}
+function boardCells(){const b=$('board');b.innerHTML='';for(let i=0;i<48;i++){const c=document.createElement('div');c.className=`cell ${i<24?'enemy':''}`;if(i>=24)c.onclick=()=>selected&&deploy(selected,i);b.append(c)}return b.children}
+function renderBattle(){const cells=boardCells();battleUnits.forEach((u,i)=>{if(u.hp<=0)return;const pos=u.enemy?u.pos:Math.max(24,u.pos);const el=renderUnit(u,u.enemy);cells[pos]?.append(el);if(u.float!=null){const f=document.createElement('span');f.className='damage';f.textContent=typeof u.float==='number'?`-${u.float}`:u.float;f.style.left='30%';f.style.top='5%';cells[pos]?.append(f)}u.hit=false;u.cast=false;u.float=null})}
+function draw(){if(!q||battleTimer)return;$('life').textContent=Math.max(0,q.life);$('gold').textContent=q.gold;$('level').textContent=`${q.lv} · ${q.xp}/${q.lv*4}`;$('round').textContent=q.round;$('streak').textContent=q.streak>0?`${q.streak}胜`:q.streak<0?`${-q.streak}负`:'0';$('economy').textContent=`基础收入 5 · 利息 ${interest()} · 连胜奖励 ${Math.min(3,Math.floor(Math.abs(q.streak)/2))}`;$('phase').innerHTML=q.win?'赛季完成 · <span>群星冠军</span>':q.gameOver?'赛季结束 · <span>等待重启</span>':`备战阶段 · <span>部署 ${levelCap()} 名英雄</span>`;const cells=boardCells();q.units.filter(u=>u.pos!=null).forEach(u=>cells[u.pos]?.append(renderUnit(u)));const bench=$('bench');bench.innerHTML='';q.units.filter(u=>u.pos==null).forEach(u=>{const s=document.createElement('div');s.className='slot';s.append(renderUnit(u));bench.append(s)});while(bench.children.length<9)bench.insertAdjacentHTML('beforeend','<div class="slot"></div>');$('shop').innerHTML=q.shop.map((id,i)=>id==null?'<button class="offer" disabled>已招募</button>':`<button class="offer" data-buy="${i}"><span class="cost">${HEROES[id].c}</span><span class="icon">${HEROES[id].i}</span><b>${HEROES[id].n}</b><small>${HEROES[id].traits.join(' · ')}</small></button>`).join('');document.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>buy(+b.dataset.buy));const counts=traitCounts();$('traits').innerHTML=Object.keys(TRAITS).filter(t=>counts[t]).map(t=>{const n=counts[t],lv=tier(t,n),next=TRAITS[t].find(x=>x>n);return`<div class="trait ${lv?'on':''}"><span>${t} ${n}</span><strong>${lv?`激活 ${lv}`:`还差 ${next-n}`}</strong></div>`}).join('')||'<div style="color:var(--muted);font-size:12px">部署英雄后显示羁绊。</div>';$('items').innerHTML=q.items.map((id,i)=>`<button class="item" data-item="${i}"><b>${ITEMS[id].i}</b><small>${ITEMS[id].n}<br>${ITEMS[id].d}</small></button>`).join('')||'<div style="color:var(--muted);font-size:12px">每三回合获得一件装备。</div>';document.querySelectorAll('[data-item]').forEach(b=>b.onclick=()=>equip(q.items[+b.dataset.item],+b.dataset.item));const op=OPPONENTS[(q.round-1)%OPPONENTS.length],preview=enemyTeam().slice(0,q.augments.includes('scout')?6:3);$('opponent').innerHTML=`<div class="opponent"><span class="portrait">${op[1]}</span><div><b>${op[0]}</b><small>威胁 ${Math.min(5,1+Math.floor(q.round/4))} · ${q.round%5===0?'精英回合':'常规回合'}</small></div></div><div class="preview">${preview.map(u=>`<span>${HEROES[u.id].i}</span>`).join('')}</div>`;$('lockBtn').classList.toggle('active',q.locked);$('fightBtn').disabled=q.gameOver||q.win;$('rerollBtn').textContent=freeRoll?'刷新 免费':'刷新 2';if(q.log[0])$('log').textContent=q.log[0];save()}
+function commanderScreen(){$('commanderChoices').innerHTML=Object.entries(COMMANDERS).map(([id,c])=>`<button class="choice" data-cmd="${id}"><span class="big">${c.i}</span><h3>${c.n}</h3><p>${c.d}</p></button>`).join('');document.querySelectorAll('[data-cmd]').forEach(b=>b.onclick=()=>{q=fresh(b.dataset.cmd);$('commanderOverlay').classList.add('hidden');say(`${COMMANDERS[q.commander].n}加入赛季`);roll(true)})}
+function showSave(){const code=exportCode();$('infoTitle').textContent='跨设备赛季档案';$('infoBody').innerHTML=`<p class="rank">星阶积分 ${profile.rank}</p><p>胜场 ${profile.wins} · 最佳回合 ${profile.best}</p><textarea class="savebox" id="saveCode">${code}</textarea><div class="controls"><button class="btn" id="copyCode">复制导出</button><button class="btn" id="importCode">导入上方存档</button></div>`;$('infoOverlay').classList.remove('hidden');$('copyCode').onclick=()=>navigator.clipboard?.writeText($('saveCode').value);$('importCode').onclick=()=>{try{importCode($('saveCode').value);$('infoOverlay').classList.add('hidden');alert('存档导入成功')}catch(e){alert(e.message)}}}
+$('rerollBtn').onclick=()=>roll();$('lockBtn').onclick=()=>{q.locked=!q.locked;draw()};$('xpBtn').onclick=()=>{if(q.gold<4)return say('金币不足');q.gold-=4;q.xp+=4;while(q.lv<9&&q.xp>=q.lv*4){q.xp-=q.lv*4;q.lv++;say(`升到 ${q.lv} 级`)}draw()};$('sellBtn').onclick=sellSelected;$('fightBtn').onclick=startBattle;$('saveBtn').onclick=showSave;$('closeInfoBtn').onclick=()=>$('infoOverlay').classList.add('hidden');$('newBtn').onclick=()=>{if(confirm('放弃当前赛季并重新开始？')){q=null;save();$('commanderOverlay').classList.remove('hidden')}};
+load();commanderScreen();if(q){$('commanderOverlay').classList.add('hidden');if(!q.shop?.length)roll(true);else draw()}else boardCells();
+})();
+</script></body></html>

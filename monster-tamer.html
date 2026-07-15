@@ -1,346 +1,55 @@
-<!doctype html>
-<html lang="zh-CN">
-  <meta charset="utf-8" /><meta
-    name="viewport"
-    content="width=device-width,initial-scale=1"
-  /><title>灵兽远征</title
-  ><style>
-    body {
-      margin: 0;
-      background: #101827;
-      color: #eef8ff;
-      font-family: system-ui, "Microsoft YaHei";
-    }
-    .app {
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      padding: 12px;
-    }
-    .shell {
-      width: min(920px, 100%);
-      padding: 16px;
-      border: 1px solid #405e82;
-      border-radius: 18px;
-      background: #18283b;
-    }
-    .top,
-    .battle {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-    .card {
-      padding: 12px;
-      border: 1px solid #3c5b79;
-      border-radius: 12px;
-      background: #132235;
-    }
-    .beast {
-      text-align: center;
-    }
-    .beast .icon {
-      font-size: 70px;
-    }
-    .hp {
-      height: 9px;
-      background: #253d54;
-      border-radius: 9px;
-      overflow: hidden;
-    }
-    .hp i {
-      display: block;
-      height: 100%;
-      background: #64e896;
-    }
-    .moves,
-    .row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 7px;
-      margin-top: 10px;
-    }
-    button {
-      padding: 10px;
-      border: 1px solid #5486aa;
-      border-radius: 9px;
-      background: #234b69;
-      color: white;
-      font-weight: bold;
-    }
-    .log {
-      height: 120px;
-      overflow: auto;
-      color: #b9d0e1;
-    }
-    .team {
-      display: flex;
-      gap: 7px;
-      flex-wrap: wrap;
-    }
-    .chip {
-      padding: 7px;
-      border: 1px solid #456a88;
-      border-radius: 8px;
-    }
-    .type-fire {
-      color: #ff846a;
-    }
-    .type-water {
-      color: #68d9ff;
-    }
-    .type-leaf {
-      color: #76e995;
-    }
-    @media (max-width: 650px) {
-      .top,
-      .battle {
-        grid-template-columns: 1fr;
-      }
-      .beast .icon {
-        font-size: 48px;
-      }
-    }
-  </style>
-  <main class="app">
-    <div class="shell">
-      <div class="top">
-        <div>
-          <h1>灵兽远征</h1>
-          <div id="stage">区域 1 · 晨露原野</div>
-        </div>
-        <div class="card">
-          金币 <b id="coins">100</b>　图鉴 <b id="dex">1/9</b>
-          <div class="team" id="team"></div>
-        </div>
-      </div>
-      <div class="battle">
-        <section class="card beast">
-          <div class="icon" id="pIcon">🌱</div>
-          <h2 id="pName">芽团</h2>
-          <div class="hp"><i id="pHp"></i></div>
-          <small id="pStat"></small>
-        </section>
-        <section class="card beast">
-          <div class="icon" id="eIcon">🔥</div>
-          <h2 id="eName">焰仔</h2>
-          <div class="hp"><i id="eHp"></i></div>
-          <small id="eStat"></small>
-        </section>
-      </div>
-      <div class="moves" id="moves"></div>
-      <div class="row">
-        <button id="capture">投掷灵球（20）</button
-        ><button id="switchBtn">切换队伍</button
-        ><button id="heal">营地治疗（30）</button
-        ><button id="next">寻找灵兽</button>
-      </div>
-      <div class="card log" id="log"></div>
-    </div>
-  </main>
-  <script>
-    const defs = [
-      ["芽团", "🌱", "leaf", 80, 15],
-      ["焰仔", "🔥", "fire", 72, 18],
-      ["水灵", "💧", "water", 86, 14],
-      ["雷雀", "⚡", "light", 68, 21],
-      ["岩龟", "🪨", "rock", 105, 12],
-      ["霜狐", "❄️", "ice", 74, 19],
-      ["月猫", "🌙", "dark", 78, 18],
-      ["光鹿", "✨", "light", 90, 17],
-      ["龙芽", "🐲", "fire", 125, 24],
-    ].map((a, i) => ({
-      id: i,
-      name: a[0],
-      icon: a[1],
-      type: a[2],
-      max: a[3],
-      atk: a[4],
-    }));
-    const strong = {
-      fire: "leaf",
-      leaf: "water",
-      water: "fire",
-      light: "dark",
-      dark: "light",
-      ice: "leaf",
-      rock: "fire",
-    };
-    let q = load();
-    function load() {
-      try {
-        return (
-          JSON.parse(localStorage.getItem("monster_tamer_save")) || fresh()
-        );
-      } catch {
-        return fresh();
-      }
-    }
-    function fresh() {
-      return {
-        stage: 1,
-        coins: 100,
-        owned: [{ id: 0, hp: 80, lv: 1, xp: 0 }],
-        active: 0,
-        enemy: null,
-        log: [],
-      };
-    }
-    function save() {
-      localStorage.setItem("monster_tamer_save", JSON.stringify(q));
-    }
-    function enemy() {
-      let max = Math.min(defs.length - 1, 2 + Math.floor(q.stage / 2)),
-        id =
-          q.stage % 5 === 0
-            ? Math.min(8, 4 + q.stage / 5)
-            : Math.floor(Math.random() * (max + 1)),
-        d = defs[id],
-        lv = 1 + Math.floor(q.stage / 2);
-      q.enemy = { id, hp: d.max + lv * 8, max: d.max + lv * 8, lv };
-      say(`野生${d.name}出现了！`);
-      draw();
-    }
-    function active() {
-      return q.owned[q.active];
-    }
-    function attack(power, type) {
-      if (!q.enemy) return;
-      let a = active(),
-        pd = defs[a.id],
-        ed = defs[q.enemy.id],
-        mult =
-          strong[type] === ed.type ? 1.6 : strong[ed.type] === type ? 0.72 : 1,
-        damage = Math.round(
-          (pd.atk + a.lv * 3) * power * mult * (0.85 + Math.random() * 0.3),
-        );
-      q.enemy.hp -= damage;
-      say(`${pd.name}造成 ${damage} 伤害${mult > 1 ? "，效果拔群！" : ""}`);
-      if (q.enemy.hp <= 0) return win();
-      let back = Math.round(
-        (ed.atk + q.enemy.lv * 2) * (0.8 + Math.random() * 0.35),
-      );
-      a.hp -= back;
-      say(`${ed.name}反击造成 ${back} 伤害`);
-      if (a.hp <= 0) {
-        a.hp = 0;
-        let n = q.owned.findIndex((x) => x.hp > 0);
-        if (n < 0) {
-          say("队伍失去战斗能力，已返回营地");
-          q.owned.forEach((x) => (x.hp = defs[x.id].max + x.lv * 8));
-          q.coins = Math.max(0, q.coins - 20);
-          q.enemy = null;
-        } else q.active = n;
-      }
-      draw();
-      save();
-    }
-    function win() {
-      let a = active();
-      q.coins += 25 + q.stage * 3;
-      a.xp += 20;
-      if (a.xp >= a.lv * 30) {
-        a.xp = 0;
-        a.lv++;
-        a.hp = defs[a.id].max + a.lv * 8;
-        say(`${defs[a.id].name}升到 Lv.${a.lv}`);
-      }
-      say("战斗胜利，获得金币");
-      q.stage++;
-      q.enemy = null;
-      save();
-      draw();
-    }
-    function say(t) {
-      q.log.unshift(t);
-      q.log = q.log.slice(0, 10);
-    }
-    function draw() {
-      let a = active(),
-        pd = defs[a.id],
-        e = q.enemy,
-        ed = e ? defs[e.id] : null;
-      stage.textContent = `区域 ${q.stage} · ${q.stage % 5 === 0 ? "道馆挑战" : "远征野地"}`;
-      coins.textContent = q.coins;
-      dex.textContent = `${q.owned.length}/9`;
-      pIcon.textContent = pd.icon;
-      pName.textContent = pd.name;
-      pStat.textContent = `${pd.type} · Lv.${a.lv} · ${a.hp}/${pd.max + a.lv * 8}`;
-      pHp.style.width = `${(a.hp / (pd.max + a.lv * 8)) * 100}%`;
-      eIcon.textContent = ed ? ed.icon : "❔";
-      eName.textContent = ed ? ed.name : "等待探索";
-      eStat.textContent = e
-        ? `${ed.type} · Lv.${e.lv} · ${Math.max(0, e.hp)}/${e.max}`
-        : "";
-      eHp.style.width = e ? `${(Math.max(0, e.hp) / e.max) * 100}%` : "0";
-      team.innerHTML = q.owned
-        .map(
-          (x, i) =>
-            `<button class="chip" data-i="${i}" ${x.hp <= 0 ? "disabled" : ""}>${defs[x.id].icon} Lv.${x.lv}${i === q.active ? " ✓" : ""}</button>`,
-        )
-        .join("");
-      team.querySelectorAll("button").forEach(
-        (b) =>
-          (b.onclick = () => {
-            q.active = +b.dataset.i;
-            draw();
-          }),
-      );
-      moves.innerHTML = [
-        ["普通攻击", 1, pd.type],
-        ["强力技能", 1.45, pd.type],
-        ["守势反击", 0.8, "rock"],
-      ]
-        .map((m, i) => `<button data-i="${i}">${m[0]}</button>`)
-        .join("");
-      moves
-        .querySelectorAll("button")
-        .forEach(
-          (b, i) =>
-            (b.onclick = () =>
-              attack([1, 1.45, 0.8][i], i === 2 ? "rock" : pd.type)),
-        );
-      log.innerHTML = q.log.map((x) => `<div>• ${x}</div>`).join("");
-    }
-    capture.onclick = () => {
-      if (!q.enemy || q.coins < 20) return;
-      q.coins -= 20;
-      let chance = 0.18 + (1 - q.enemy.hp / q.enemy.max) * 0.7;
-      if (Math.random() < chance) {
-        if (!q.owned.some((x) => x.id === q.enemy.id))
-          q.owned.push({
-            id: q.enemy.id,
-            hp: defs[q.enemy.id].max,
-            lv: q.enemy.lv,
-            xp: 0,
-          });
-        say("捕捉成功！");
-        q.enemy = null;
-        q.stage++;
-      } else {
-        say("灵球被挣脱了！");
-        attack(0, "rock");
-      }
-      draw();
-      save();
-    };
-    switchBtn.onclick = () => {
-      q.active = (q.active + 1) % q.owned.length;
-      draw();
-    };
-    heal.onclick = () => {
-      if (q.coins >= 30) {
-        q.coins -= 30;
-        q.owned.forEach((x) => (x.hp = defs[x.id].max + x.lv * 8));
-        say("队伍已恢复");
-        draw();
-        save();
-      }
-    };
-    next.onclick = () => {
-      if (!q.enemy) enemy();
-    };
-    if (!q.enemy) enemy();
-    draw();
-  </script>
-</html>
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>灵兽远征：群岛图鉴</title><style>
+:root{color-scheme:dark;--bg:#09111a;--panel:#122333;--panel2:#1b3143;--line:#35536a;--text:#f2f8ff;--muted:#a9bfd0;--gold:#ffd166;--green:#68d99d;--red:#ff7080;--blue:#67b7ff;--purple:#ba8cff}*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:radial-gradient(circle at 50% -20%,#244a5c,#09111a 48%);color:var(--text);font-family:Inter,"Microsoft YaHei",system-ui,sans-serif;letter-spacing:0}button{font:inherit;color:inherit}.app{width:min(1200px,100%);margin:auto;padding:14px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:12px;border-bottom:1px solid var(--line)}h1{font-size:clamp(24px,3.5vw,36px);margin:0}.sub{color:var(--muted);font-size:12px;margin-top:4px}.stats{display:flex;gap:7px;flex-wrap:wrap}.stat{min-width:83px;background:#0d1925;border:1px solid var(--line);border-radius:6px;padding:7px 9px}.stat small{display:block;color:var(--muted);font-size:10px}.stat b{color:var(--gold);font-size:17px}.tabs{display:flex;gap:6px;margin:11px 0;overflow:auto}.tab,.btn{border:1px solid #45657c;background:#203a4d;border-radius:5px;min-height:40px;padding:8px 12px;font-weight:800;cursor:pointer;white-space:nowrap}.tab.active,.btn.primary{background:var(--gold);border-color:var(--gold);color:#241b00}.btn:hover,.tab:hover{filter:brightness(1.12)}.btn:disabled{opacity:.4;cursor:not-allowed}.view{display:none}.view.active{display:block}.panel{background:rgba(18,35,51,.97);border:1px solid var(--line);border-radius:8px}.expedition{display:grid;grid-template-columns:310px minmax(0,1fr);gap:12px}.map{padding:12px}.map h2{font-size:16px;margin:0 0 9px}.region-tabs{display:flex;gap:5px;overflow:auto;margin-bottom:10px}.region-btn{border:1px solid #3c5d74;background:#172b3b;border-radius:5px;padding:7px 9px;white-space:nowrap;cursor:pointer}.region-btn.active{border-color:var(--gold);color:var(--gold)}.region-btn:disabled{opacity:.35}.route{display:flex;flex-direction:column;gap:6px}.node{display:grid;grid-template-columns:42px 1fr auto;gap:9px;align-items:center;text-align:left;background:#172d3e;border:1px solid #385a70;border-radius:6px;padding:8px;min-height:60px;cursor:pointer}.node.current{border-color:var(--gold);box-shadow:inset 3px 0 var(--gold)}.node.done{opacity:.55}.node.locked{opacity:.35;cursor:not-allowed}.node .ico{font-size:24px}.node b{display:block;font-size:12px}.node small{color:var(--muted);font-size:10px}.battle{padding:12px;min-width:0}.battlefield{position:relative;min-height:330px;background:linear-gradient(#163d51 0 46%,#254531 46%);border:2px solid #426b79;border-radius:7px;overflow:hidden;display:grid;grid-template-columns:1fr 1fr;align-items:end;padding:18px 32px 22px}.battlefield::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 75% 20%,#fff5 0 3%,transparent 4%),linear-gradient(transparent 70%,#0002);pointer-events:none}.beast{text-align:center;position:relative;z-index:1}.beast.enemy{align-self:start;margin-top:24px}.beast .sprite{font-size:76px;filter:drop-shadow(0 8px 7px #0007);display:inline-block}.beast.hit .sprite{animation:hit .25s}.beast.cast .sprite{animation:cast .35s}.beast h3{font-size:14px;margin:4px}.level{color:var(--gold);font-size:11px}.hpbar{height:9px;background:#071018;border:1px solid #304d5f;border-radius:4px;overflow:hidden;max-width:240px;margin:5px auto}.hpbar i{display:block;height:100%;background:var(--green);transition:width .25s}.status{min-height:20px;color:var(--gold);font-size:11px}.combat-ui{display:grid;grid-template-columns:1fr 1.2fr;gap:9px;margin-top:9px}.message{background:#0b1823;border-left:3px solid var(--blue);padding:9px;min-height:88px;color:#d8e8f3;font-size:12px;line-height:1.55}.moves{display:grid;grid-template-columns:1fr 1fr;gap:6px}.move{text-align:left;position:relative;min-height:57px;background:#223f54;border:1px solid #4e7187;border-radius:5px;padding:7px;cursor:pointer}.move:hover{filter:brightness(1.12)}.move b{font-size:12px}.move small{display:block;color:var(--muted);font-size:9px}.move em{position:absolute;right:5px;top:5px;font-size:9px;font-style:normal}.tools{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}.teamstrip{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:9px}.teambeast{text-align:left;background:#162b3b;border:1px solid #38576e;border-radius:5px;padding:6px;min-height:60px;cursor:pointer}.teambeast.active{border-color:var(--gold)}.teambeast.fainted{opacity:.38}.teambeast span{font-size:23px}.teambeast b{font-size:10px}.teambeast small{display:block;color:var(--muted);font-size:9px}.roster{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}.petcard{position:relative;background:#132737;border:1px solid #34546b;border-radius:7px;padding:9px;min-height:150px}.petcard.selected{border-color:var(--gold)}.petcard .sprite{font-size:41px}.petcard h3{font-size:13px;margin:5px 0 2px}.petcard p{color:var(--muted);font-size:10px;margin:0;line-height:1.4}.petcard .actions{display:flex;gap:4px;margin-top:7px}.petcard button{flex:1;border:1px solid #42647b;background:#213a4d;border-radius:4px;padding:5px;font-size:10px}.element{display:inline-block;border-radius:3px;background:#273f50;padding:2px 5px;font-size:9px;color:#dceaf4}.progress{height:5px;background:#08131d;margin-top:6px}.progress i{display:block;height:100%;background:var(--purple)}.codex{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:7px}.codex-card{background:#122635;border:1px solid #335268;border-radius:6px;padding:8px;min-height:105px}.codex-card.locked{filter:grayscale(1);opacity:.4}.codex-card span{font-size:31px}.codex-card b{display:block;font-size:11px}.codex-card small{color:var(--muted);font-size:9px}.section{padding:12px}.section h2{font-size:17px;margin:0 0 9px}.overlay{position:fixed;inset:0;z-index:20;background:#071019ed;display:flex;align-items:center;justify-content:center;padding:14px}.overlay.hidden{display:none}.modal{width:min(830px,100%);max-height:92vh;overflow:auto;background:#122333;border:1px solid #496b81;border-radius:8px;padding:17px}.modal h2{font-size:25px;margin:0 0 5px}.modal>p{color:var(--muted);margin:0 0 13px;line-height:1.55}.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.choice{text-align:left;min-height:150px;background:#1b3447;border:1px solid #456a82;border-radius:6px;padding:12px;cursor:pointer}.choice:hover{border-color:var(--gold);transform:translateY(-2px)}.choice .big{font-size:38px}.choice h3{font-size:15px;margin:6px 0 3px}.choice p{color:var(--muted);font-size:11px;line-height:1.5;margin:0}.savebox{width:100%;height:130px;background:#08131c;border:1px solid #45677c;color:#fff;padding:9px;resize:vertical}.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#0b1722;border:1px solid var(--gold);padding:9px 14px;border-radius:5px;z-index:30}@keyframes hit{50%{transform:translateX(-12px);filter:brightness(1.8)}}@keyframes cast{50%{transform:translateY(-14px) scale(1.08)}}@media(max-width:850px){.expedition{grid-template-columns:1fr}.map{order:2}.route{display:grid;grid-template-columns:repeat(5,1fr)}.node{display:flex;flex-direction:column;text-align:center;gap:3px}.node>span:last-child{display:none}.roster{grid-template-columns:repeat(3,1fr)}.codex{grid-template-columns:repeat(4,1fr)}}@media(max-width:560px){.app{padding:8px}.top{flex-direction:column;align-items:flex-start}.stats{width:100%}.stat{flex:1;min-width:70px}.battle{padding:7px}.battlefield{min-height:270px;padding:10px 8px 15px}.beast .sprite{font-size:57px}.combat-ui{grid-template-columns:1fr}.message{min-height:62px}.route{grid-template-columns:repeat(5,minmax(0,1fr));gap:3px}.node{padding:5px;min-height:75px}.node .ico{font-size:19px}.node b{font-size:8px}.roster{grid-template-columns:repeat(2,1fr)}.codex{grid-template-columns:repeat(3,1fr)}.choices{grid-template-columns:1fr}.choice{min-height:115px}.tabs{margin:8px 0}}
+</style><style>.expedition,.map,.battle,.combat-ui,.moves{min-width:0;max-width:100%}.move{min-width:0;white-space:normal;overflow:hidden}</style></head><body><main class="app"><header class="top"><div><h1>灵兽远征：群岛图鉴</h1><div class="sub">探索五座生态岛，捕捉、进化并组建三兽小队，挑战守岛灵王。</div></div><div class="stats"><div class="stat"><small>灵晶</small><b id="crystals">0</b></div><div class="stat"><small>灵球</small><b id="orbs">5</b></div><div class="stat"><small>徽章</small><b id="medals">0 / 5</b></div><div class="stat"><small>图鉴</small><b id="dexCount">0 / 18</b></div></div></header><nav class="tabs"><button class="tab active" data-view="expedition">远征</button><button class="tab" data-view="roster">灵兽队伍</button><button class="tab" data-view="codex">图鉴</button><button class="tab" id="saveBtn">存档码</button><button class="tab" id="newBtn">新档案</button></nav>
+<section class="view active" id="expeditionView"><div class="expedition"><aside class="panel map"><h2>群岛航图</h2><div class="region-tabs" id="regionTabs"></div><div class="route" id="route"></div></aside><section class="panel battle"><div class="battlefield"><div class="beast" id="playerBeast"></div><div class="beast enemy" id="enemyBeast"></div></div><div class="combat-ui"><div class="message" id="message">选择一只初始灵兽，开启群岛远征。</div><div class="moves" id="moves"></div></div><div class="tools"><button class="btn" id="captureBtn">投掷灵球</button><button class="btn" id="campBtn">营地治疗</button><button class="btn primary" id="nextBtn">进入节点</button></div><div class="teamstrip" id="teamstrip"></div></section></div></section>
+<section class="view" id="rosterView"><div class="panel section"><h2>灵兽队伍</h2><p class="sub">每次远征可携带三只灵兽。点击“编入”调整队伍，战斗中点击底部队员可换兽。</p><div class="roster" id="roster"></div></div></section><section class="view" id="codexView"><div class="panel section"><h2>群岛图鉴</h2><div class="codex" id="codex"></div></div></section></main>
+<div class="overlay" id="starterOverlay"><section class="modal"><h2>选择初始伙伴</h2><p>三只伙伴分别代表火、水、自然。它们会在 8 级时进化，并学习新的招式。</p><div class="choices" id="starterChoices"></div></section></div><div class="overlay hidden" id="choiceOverlay"><section class="modal"><h2 id="choiceTitle">远征事件</h2><p id="choiceHelp"></p><div class="choices" id="choices"></div></section></div><div class="overlay hidden" id="infoOverlay"><section class="modal"><h2 id="infoTitle">跨设备档案</h2><div id="infoBody"></div><div class="tools"><button class="btn primary" id="closeInfoBtn">返回</button></div></section></div>
+<script>
+(()=>{"use strict";const $=id=>document.getElementById(id),SAVE='monsterTamerV3';
+const MOVES={claw:{n:'迅爪',e:'无',p:13,d:'稳定的近身攻击'},ember:{n:'火花',e:'火',p:18,s:'burn',d:'可能灼烧'},blaze:{n:'烈焰冲锋',e:'火',p:28,c:2,d:'强力火系招式'},splash:{n:'水弹',e:'水',p:18,s:'soak',d:'可能附加潮湿'},tide:{n:'潮汐尾击',e:'水',p:27,c:2,d:'潮湿目标承伤提高'},leaf:{n:'飞叶',e:'自然',p:18,s:'root',d:'可能缠绕'},bloom:{n:'生命绽放',e:'自然',p:0,heal:24,c:2,d:'恢复生命'},spark:{n:'电光',e:'风暴',p:18,s:'shock',d:'潮湿目标必定眩晕'},thunder:{n:'雷霆俯冲',e:'风暴',p:29,c:2,d:'高爆发'},rock:{n:'岩砾',e:'大地',p:19,d:'厚重打击'},guard:{n:'晶壳',e:'大地',p:0,shield:20,c:2,d:'获得护盾'},spirit:{n:'灵息',e:'灵',p:20,d:'无视部分护盾'},dream:{n:'梦魇波',e:'灵',p:25,s:'sleep',c:2,d:'可能催眠'},fang:{n:'裂牙',e:'无',p:22,c:1,d:'高暴击率'},renew:{n:'自然回响',e:'自然',p:0,heal:16,d:'小幅治疗'},quake:{n:'地脉震击',e:'大地',p:31,c:2,d:'重型攻击'},gale:{n:'疾风刃',e:'风暴',p:23,d:'优先行动'},nova:{n:'星灵新星',e:'灵',p:34,c:3,d:'终极灵系招式'}};
+const BEASTS=[
+ {n:'焰尾狐',i:'🦊',e:'火',base:0,evo:1,hp:55,a:16,sp:15,m:['claw','ember','fang']},{n:'赤曜九尾',i:'🦊',e:'火',base:0,hp:88,a:27,sp:25,m:['ember','blaze','fang','nova']},
+ {n:'泡泡獭',i:'🦦',e:'水',base:2,evo:3,hp:62,a:14,sp:13,m:['claw','splash','renew']},{n:'潮冠海獭',i:'🦦',e:'水',base:2,hp:98,a:23,sp:21,m:['splash','tide','renew','guard']},
+ {n:'芽耳兔',i:'🐇',e:'自然',base:4,evo:5,hp:58,a:14,sp:17,m:['claw','leaf','renew']},{n:'森鹿祭司',i:'🦌',e:'自然',base:4,hp:93,a:22,sp:28,m:['leaf','bloom','renew','spirit']},
+ {n:'电栗鼬',i:'⚡',e:'风暴',base:6,evo:7,hp:50,a:18,sp:20,m:['claw','spark','gale']},{n:'雷鬃狮',i:'🦁',e:'风暴',base:6,hp:84,a:29,sp:30,m:['spark','thunder','gale','fang']},
+ {n:'卵石猪',i:'🐗',e:'大地',base:8,evo:9,hp:72,a:15,sp:9,m:['claw','rock','guard']},{n:'晶甲山王',i:'🐢',e:'大地',base:8,hp:116,a:24,sp:14,m:['rock','quake','guard','fang']},
+ {n:'梦灯灵',i:'👻',e:'灵',base:10,evo:11,hp:52,a:17,sp:18,m:['spirit','dream','renew']},{n:'月蚀鸦',i:'🐦‍⬛',e:'灵',base:10,hp:82,a:28,sp:29,m:['spirit','dream','nova','gale']},
+ {n:'珊瑚蟹',i:'🦀',e:'水',base:12,evo:13,hp:75,a:13,sp:8,m:['splash','rock','guard']},{n:'深潮巨钳',i:'🦀',e:'水',base:12,hp:120,a:25,sp:12,m:['tide','quake','guard','fang']},
+ {n:'花粉蛾',i:'🦋',e:'自然',base:14,evo:15,hp:48,a:15,sp:22,m:['leaf','dream','renew']},{n:'幻彩蝶后',i:'🦋',e:'自然',base:14,hp:78,a:25,sp:33,m:['leaf','bloom','dream','nova']},
+ {n:'沙铃蛇',i:'🐍',e:'大地',base:16,evo:17,hp:60,a:19,sp:18,m:['rock','fang','spirit']},{n:'风暴翼蛇',i:'🐉',e:'风暴',base:16,hp:92,a:31,sp:31,m:['gale','thunder','quake','nova']}
+];
+const REGIONS=[{n:'青芽原',i:'🌿',e:'自然',pool:[4,8,14]},{n:'潮鸣湾',i:'🌊',e:'水',pool:[2,12,6]},{n:'赤砂环',i:'🌋',e:'火',pool:[0,8,16]},{n:'雷云脊',i:'⛈️',e:'风暴',pool:[6,14,16]},{n:'月蚀岛',i:'🌙',e:'灵',pool:[10,1,3,7,9,13,15,17]}];
+const TYPES={火:'自然',自然:'大地',大地:'风暴',风暴:'水',水:'火',灵:'灵'};
+let profile={crystals:20,orbs:7,medals:0,region:0,owned:[],team:[],dex:[],best:0},run={region:0,node:0},battle=null,busy=false,currentView='expedition';
+const makePet=(id,lv=1)=>{const d=BEASTS[id],max=Math.round(d.hp*(1+(lv-1)*.09));return{uid:Math.random().toString(36).slice(2),id,lv,xp:0,hp:max,max,shield:0,status:null,statusTurns:0}};
+function save(){localStorage.setItem(SAVE,JSON.stringify({v:3,profile,run,battle}))}function load(){try{const x=JSON.parse(localStorage.getItem(SAVE));if(x?.v===3){profile=x.profile;run=x.run||run;battle=x.battle}}catch{}profile.dex=[...new Set(profile.dex||[])];profile.team=profile.team||[]}
+function checksum(s){let h=2166136261;for(const ch of s){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)}return(h>>>0).toString(36)}function exportCode(){const b=btoa(unescape(encodeURIComponent(JSON.stringify({v:3,profile,run,battle}))));return`MT3-${b}-${checksum(b)}`}function importCode(x){const m=x.trim().match(/^MT3-(.+)-([a-z0-9]+)$/i);if(!m||checksum(m[1])!==m[2])throw Error('存档码校验失败');const d=JSON.parse(decodeURIComponent(escape(atob(m[1]))));if(d.v!==3)throw Error('版本不兼容');profile=d.profile;run=d.run;battle=d.battle;save();draw()}
+function pet(uid){return profile.owned.find(x=>x.uid===uid)}function team(){return profile.team.map(pet).filter(Boolean)}function maxHp(p){return Math.round(BEASTS[p.id].hp*(1+(p.lv-1)*.09))}function discover(id){profile.dex.push(id);profile.dex=[...new Set(profile.dex)]}
+function routeType(n){return n===4?'boss':n===2?'event':n===3?'elite':'wild'}function currentRegion(){return REGIONS[run.region]}
+function generateEnemy(){const r=currentRegion(),type=routeType(run.node),pool=r.pool.filter(id=>type==='boss'||BEASTS[id].evo!=null),base=pool[(run.node+Math.floor(Math.random()*pool.length))%pool.length];let id=base,lv=2+run.region*3+run.node;if(type==='boss'){id=BEASTS[base].evo??base;lv+=3}if(type==='elite'){id=BEASTS[base].evo??base;lv+=1}const p=makePet(id,lv);p.wild=type!=='boss';p.boss=type==='boss';return p}
+function startBattle(){if(battle||busy)return;if(!team().length)return message('先在队伍页面编入至少一只灵兽');const active=team().find(x=>x.hp>0);if(!active)return message('队伍全部倒下，请返回营地治疗');const type=routeType(run.node);if(type==='event')return showEvent();battle={active:active.uid,enemy:generateEnemy(),turn:1,log:['野生灵兽出现了！'],cool:{},enemyCool:{}};draw();save()}
+function effectiveness(move,def){if(move.e==='无')return 1;if(TYPES[move.e]===def)return 1.5;if(TYPES[def]===move.e)return .68;return 1}
+function tickStatus(target,label){if(!target.status)return true;if(target.status==='burn'){target.hp-=Math.max(2,Math.round(target.max*.06));message(`${label}受到灼烧伤害`)}if(target.status==='sleep'||target.status==='shock'){message(`${label}无法行动`);target.statusTurns--;if(target.statusTurns<=0)target.status=null;return false}target.statusTurns--;if(target.statusTurns<=0)target.status=null;return target.hp>0}
+function useMove(id){if(!battle||busy)return;const move=MOVES[id],p=pet(battle.active),e=battle.enemy;if(!p||p.hp<=0)return;if((battle.cool[id]||0)>0)return message('招式仍在冷却');busy=true;if(!tickStatus(p,BEASTS[p.id].n)){setTimeout(enemyTurn,500);return}animate('playerBeast','cast');resolveMove(p,e,move,false);battle.cool[id]=move.c||0;Object.keys(battle.cool).forEach(k=>battle.cool[k]=Math.max(0,battle.cool[k]-1));if(e.hp<=0)return setTimeout(victory,650);setTimeout(enemyTurn,680)}
+function resolveMove(a,d,m,enemy){const ad=BEASTS[a.id],dd=BEASTS[d.id],label=enemy?'敌方':'我方';if(m.heal){const n=Math.round(m.heal*(1+a.lv*.04));a.hp=Math.min(a.max,a.hp+n);message(`${label}${ad.n}恢复 ${n} 生命`);return}if(m.shield){a.shield+=m.shield;message(`${label}${ad.n}获得 ${m.shield} 护盾`);return}let crit=m===MOVES.fang&&Math.random()<.28?1.6:1,mul=effectiveness(m,dd.e),raw=Math.round((m.p+ad.a*.45+a.lv*1.5)*mul*crit),block=Math.min(d.shield||0,raw);d.shield-=block;d.hp-=raw-block;message(`${ad.n}的${m.n}造成 ${raw}${mul>1?'，效果拔群！':mul<1?'，效果不佳':''}`);if(m.s&&Math.random()<.32){if(m.s==='shock'&&d.status==='soak'){d.status='shock';d.statusTurns=1}else if(!d.status){d.status=m.s;d.statusTurns=m.s==='burn'?3:2}}animate(enemy?'playerBeast':'enemyBeast','hit')}
+function enemyTurn(){if(!battle)return;const e=battle.enemy,p=pet(battle.active);if(!tickStatus(e,BEASTS[e.id].n)){busy=false;nextTurn();return}const moves=BEASTS[e.id].m.filter(id=>(battle.enemyCool[id]||0)<=0),id=moves[Math.floor(Math.random()*moves.length)]||BEASTS[e.id].m[0],m=MOVES[id];animate('enemyBeast','cast');resolveMove(e,p,m,true);battle.enemyCool[id]=m.c||0;Object.keys(battle.enemyCool).forEach(k=>battle.enemyCool[k]=Math.max(0,battle.enemyCool[k]-1));if(p.hp<=0){p.hp=0;const next=team().find(x=>x.hp>0);if(next){battle.active=next.uid;message(`${BEASTS[p.id].n}倒下，${BEASTS[next.id].n}接替出战`)}else return setTimeout(defeat,600)}busy=false;nextTurn()}
+function nextTurn(){battle.turn++;draw();save()}
+function victory(){busy=false;const p=pet(battle.active),type=routeType(run.node),xp=18+run.region*9+(type==='boss'?35:type==='elite'?18:0),cr=5+run.region*3+(type==='boss'?15:0);grantXp(p,xp);profile.crystals+=cr;profile.best=Math.max(profile.best,run.region*5+run.node+1);message(`胜利！获得 ${xp} 经验与 ${cr} 灵晶`);if(type==='boss'){profile.medals=Math.max(profile.medals,run.region+1);profile.region=Math.max(profile.region,Math.min(4,run.region+1));profile.orbs+=2}battle=null;run.node++;if(run.node>=5){run.node=0;if(run.region<4)run.region=Math.min(profile.region,run.region+1);else showEnding()}draw();save()}
+function defeat(){busy=false;battle=null;profile.crystals=Math.max(0,profile.crystals-5);message('远征失败，损失 5 灵晶。营地已为队伍恢复一半生命');team().forEach(p=>p.hp=Math.max(1,Math.round(p.max*.5)));draw();save()}
+function grantXp(p,n){p.xp+=n;while(p.xp>=p.lv*22){p.xp-=p.lv*22;p.lv++;p.max=maxHp(p);p.hp=p.max;if(p.lv>=8&&BEASTS[p.id].evo!=null){p.id=BEASTS[p.id].evo;p.max=maxHp(p);p.hp=p.max;discover(p.id);toast(`${BEASTS[p.id].n}完成进化！`)}}}
+function capture(){if(!battle||busy||!battle.enemy.wild)return message('当前目标无法捕捉');if(profile.orbs<=0)return message('灵球不足');profile.orbs--;const e=battle.enemy,chance=.16+(1-e.hp/e.max)*.68+(e.status?.12:0);if(Math.random()<chance){const caught=makePet(BEASTS[e.id].base??e.id,Math.max(1,e.lv-1));profile.owned.push(caught);discover(caught.id);message(`成功捕捉 ${BEASTS[caught.id].n}！`);battle=null;run.node++;if(run.node>=5){run.node=0;run.region=Math.min(profile.region,run.region+1)}busy=false;draw();save()}else{message('灵球摇晃后弹开了！');busy=true;setTimeout(enemyTurn,500);save()}}
+function switchPet(uid){if(!battle||busy||uid===battle.active)return;const p=pet(uid);if(!p||p.hp<=0)return message('这只灵兽无法出战');battle.active=uid;message(`${BEASTS[p.id].n}上场！`);busy=true;setTimeout(enemyTurn,450);draw()}
+function camp(){if(profile.crystals<8)return message('营地治疗需要 8 灵晶');profile.crystals-=8;team().forEach(p=>p.hp=p.max);message('队伍已在营地完全恢复');draw();save()}
+function showEvent(){const opts=[{i:'🫧',n:'灵泉休整',d:'全队恢复 45% 生命',f:()=>team().forEach(p=>p.hp=Math.min(p.max,p.hp+p.max*.45))},{i:'🪙',n:'晶洞采集',d:'获得 14 灵晶',f:()=>profile.crystals+=14},{i:'🔮',n:'神秘蛋',d:'支付 10 灵晶，获得随机幼兽',f:()=>{if(profile.crystals<10)return toast('灵晶不足');profile.crystals-=10;const ids=BEASTS.map((b,i)=>b.evo!=null?i:-1).filter(i=>i>=0),id=ids[Math.floor(Math.random()*ids.length)];profile.owned.push(makePet(id,1));discover(id)}}];$('choiceTitle').textContent='群岛奇遇';$('choiceHelp').textContent='风改变了航线，你只能选择一份馈赠。';$('choices').innerHTML=opts.map((o,i)=>`<button class="choice" data-event="${i}"><span class="big">${o.i}</span><h3>${o.n}</h3><p>${o.d}</p></button>`).join('');$('choiceOverlay').classList.remove('hidden');document.querySelectorAll('[data-event]').forEach(b=>b.onclick=()=>{opts[+b.dataset.event].f();run.node++;$('choiceOverlay').classList.add('hidden');draw();save()})}
+function message(s){$('message').textContent=s;if(battle){battle.log.unshift(s);battle.log=battle.log.slice(0,10)}}function animate(id,cls){const el=$(id);el.classList.add(cls);setTimeout(()=>el.classList.remove(cls),360)}function toast(s){const e=document.createElement('div');e.className='toast';e.textContent=s;document.body.append(e);setTimeout(()=>e.remove(),1700)}
+function beastHtml(p,enemy=false){if(!p)return'<span class="sprite">❔</span><h3>等待遭遇</h3>';const d=BEASTS[p.id];return`<span class="sprite">${d.i}</span><h3>${d.n} <span class="level">Lv.${p.lv}</span></h3><span class="element">${d.e}</span><div class="hpbar"><i style="width:${Math.max(0,p.hp/p.max*100)}%"></i></div><div class="status">${p.shield?`护盾 ${Math.round(p.shield)} `:''}${p.status?statusName(p.status):''}</div>`}function statusName(s){return{burn:'灼烧',soak:'潮湿',root:'缠绕',shock:'眩晕',sleep:'沉睡'}[s]||s}
+function draw(){profile.owned.forEach(p=>{p.max=maxHp(p);p.hp=Math.min(p.hp,p.max)});$('crystals').textContent=profile.crystals;$('orbs').textContent=profile.orbs;$('medals').textContent=`${profile.medals} / 5`;$('dexCount').textContent=`${profile.dex.length} / 18`;$('regionTabs').innerHTML=REGIONS.map((r,i)=>`<button class="region-btn ${run.region===i?'active':''}" data-region="${i}" ${i>profile.region?'disabled':''}>${r.i} ${r.n}</button>`).join('');document.querySelectorAll('[data-region]').forEach(b=>b.onclick=()=>{if(!battle){run.region=+b.dataset.region;run.node=0;draw()}});$('route').innerHTML=Array.from({length:5},(_,i)=>{const type=routeType(i),names={wild:'野外遭遇',event:'群岛奇遇',elite:'精英驯兽师',boss:'守岛灵王'},icons={wild:'🐾',event:'❔',elite:'⚔️',boss:'👑'};return`<button class="node ${i===run.node?'current':i<run.node?'done':'locked'}" ${i!==run.node||battle?'disabled':''} data-node="${i}"><span class="ico">${icons[type]}</span><span><b>${names[type]}</b><small>${i===4?'赢得徽章并解锁下一岛':'节点 '+(i+1)}</small></span><span>›</span></button>`}).join('');document.querySelectorAll('[data-node]').forEach(b=>b.onclick=startBattle);const active=battle?pet(battle.active):team().find(x=>x.hp>0);$('playerBeast').innerHTML=beastHtml(active);$('enemyBeast').innerHTML=beastHtml(battle?.enemy,true);const moves=active?BEASTS[active.id].m:[];$('moves').innerHTML=battle?moves.map(id=>{const m=MOVES[id],cd=battle.cool[id]||0;return`<button class="move" data-move="${id}" ${cd||busy?'disabled':''}><em>${m.e}</em><b>${m.n}</b><small>${m.d}${cd?` · 冷却${cd}`:''}</small></button>`}).join(''):'<div class="sub">进入节点后显示战斗招式。</div>';document.querySelectorAll('[data-move]').forEach(b=>b.onclick=()=>useMove(b.dataset.move));$('captureBtn').disabled=!battle||!battle.enemy.wild||busy;$('nextBtn').disabled=!!battle||busy;$('nextBtn').textContent=battle?'战斗进行中':'进入节点';$('teamstrip').innerHTML=team().map(p=>`<button class="teambeast ${battle?.active===p.uid?'active':''} ${p.hp<=0?'fainted':''}" data-switch="${p.uid}"><span>${BEASTS[p.id].i}</span><b>${BEASTS[p.id].n}</b><small>Lv.${p.lv} · ${Math.round(p.hp)}/${p.max}</small></button>`).join('');document.querySelectorAll('[data-switch]').forEach(b=>b.onclick=()=>switchPet(b.dataset.switch));drawRoster();drawCodex();save()}
+function drawRoster(){$('roster').innerHTML=profile.owned.map(p=>{const d=BEASTS[p.id],inTeam=profile.team.includes(p.uid);return`<article class="petcard ${inTeam?'selected':''}"><span class="sprite">${d.i}</span><span class="element">${d.e}</span><h3>${d.n} · Lv.${p.lv}</h3><p>生命 ${Math.round(p.hp)}/${p.max} · 攻击 ${d.a}<br>${d.m.map(id=>MOVES[id].n).join(' / ')}</p><div class="progress"><i style="width:${p.xp/(p.lv*22)*100}%"></i></div><div class="actions"><button data-team="${p.uid}">${inTeam?'移出':'编入'}</button><button data-heal="${p.uid}">治疗 4</button></div></article>`}).join('');document.querySelectorAll('[data-team]').forEach(b=>b.onclick=()=>{const uid=b.dataset.team;if(profile.team.includes(uid))profile.team=profile.team.filter(x=>x!==uid);else if(profile.team.length<3)profile.team.push(uid);else return toast('队伍最多三只');draw()});document.querySelectorAll('[data-heal]').forEach(b=>b.onclick=()=>{const p=pet(b.dataset.heal);if(profile.crystals<4)return toast('灵晶不足');profile.crystals-=4;p.hp=p.max;draw()})}
+function drawCodex(){$('codex').innerHTML=BEASTS.map((d,id)=>`<div class="codex-card ${profile.dex.includes(id)?'':'locked'}"><span>${profile.dex.includes(id)?d.i:'❔'}</span><b>${profile.dex.includes(id)?d.n:'未发现'}</b><small>${profile.dex.includes(id)?`${d.e}系 · ${d.m.map(x=>MOVES[x].n).join('/')}`:'在群岛远征中遭遇'}</small></div>`).join('')}
+function showSave(){const code=exportCode();$('infoTitle').textContent='跨设备驯兽档案';$('infoBody').innerHTML=`<p>灵晶、队伍、图鉴、徽章和当前远征均会导出，并带完整性校验。</p><textarea class="savebox" id="saveCode">${code}</textarea><div class="tools"><button class="btn" id="copyCode">复制导出</button><button class="btn" id="importCodeBtn">导入上方存档</button></div>`;$('infoOverlay').classList.remove('hidden');$('copyCode').onclick=()=>navigator.clipboard?.writeText($('saveCode').value);$('importCodeBtn').onclick=()=>{try{importCode($('saveCode').value);$('infoOverlay').classList.add('hidden');alert('导入成功')}catch(e){alert(e.message)}}}
+function showEnding(){$('infoTitle').textContent='群岛图鉴大师';$('infoBody').innerHTML=`<h3>五枚徽章已经共鸣。</h3><p>你完成了群岛主线，但仍可回到各岛捕捉未发现灵兽、培养进化队伍并挑战更高等级。</p>`;$('infoOverlay').classList.remove('hidden')}
+function starterScreen(){$('starterChoices').innerHTML=[0,2,4].map(id=>{const d=BEASTS[id];return`<button class="choice" data-starter="${id}"><span class="big">${d.i}</span><h3>${d.n} · ${d.e}系</h3><p>生命 ${d.hp} · 攻击 ${d.a} · 速度 ${d.sp}<br>${d.m.map(x=>MOVES[x].n).join(' / ')}</p></button>`}).join('');document.querySelectorAll('[data-starter]').forEach(b=>b.onclick=()=>{const p=makePet(+b.dataset.starter,1);profile.owned=[p];profile.team=[p.uid];profile.dex=[p.id];$('starterOverlay').classList.add('hidden');draw()})}
+document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{currentView=b.dataset.view;document.querySelectorAll('.tab[data-view]').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id===currentView+'View'))});$('nextBtn').onclick=startBattle;$('captureBtn').onclick=capture;$('campBtn').onclick=camp;$('saveBtn').onclick=showSave;$('closeInfoBtn').onclick=()=>$('infoOverlay').classList.add('hidden');$('newBtn').onclick=()=>{if(confirm('清空当前灵兽档案并重新开始？')){localStorage.removeItem(SAVE);location.reload()}};
+load();starterScreen();if(profile.owned.length){$('starterOverlay').classList.add('hidden');draw()}else draw();
+})();
+</script></body></html>

@@ -17,11 +17,14 @@
     .app {
       min-height: 100vh;
       padding: 14px;
-      display: grid;
-      place-items: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .shell {
-      width: min(1000px, 100%);
+      width: 100%;
+      max-width: 1000px;
+      min-width: 0;
       background: #1c1733;
       border: 1px solid #5d527f;
       border-radius: 20px;
@@ -105,7 +108,7 @@
     }
     @media (max-width: 650px) {
       .app {
-        place-items: start center;
+        align-items: flex-start;
       }
     }
   </style>

@@ -17,11 +17,14 @@
     .app {
       min-height: 100vh;
       padding: 14px;
-      display: grid;
-      place-items: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .shell {
-      width: min(940px, 100%);
+      width: 100%;
+      max-width: 940px;
+      min-width: 0;
       background: #132a36;
       border: 1px solid #3f7285;
       border-radius: 20px;
@@ -107,10 +110,13 @@
     }
     @media (max-width: 680px) {
       .layout {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .layout > * {
+        min-width: 0;
       }
       .app {
-        place-items: start center;
+        align-items: flex-start;
       }
     }
   </style>
@@ -304,7 +310,7 @@
       level.textContent = q.lv + 1;
       budget.textContent = `${q.prog.length}/${8 + q.lv}`;
       steps.textContent = q.steps;
-      board.style.gridTemplateColumns = `repeat(${q.w},1fr)`;
+      board.style.gridTemplateColumns = `repeat(${q.w},minmax(0,1fr))`;
       board.innerHTML = "";
       for (let y = 0; y < q.h; y++)
         for (let x = 0; x < q.w; x++) {

@@ -17,11 +17,14 @@
     .app {
       min-height: 100vh;
       padding: 14px;
-      display: grid;
-      place-items: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .shell {
-      width: min(920px, 100%);
+      width: 100%;
+      max-width: 920px;
+      min-width: 0;
       background: #1b2638;
       border: 1px solid #536781;
       border-radius: 20px;
@@ -43,7 +46,7 @@
     }
     .board {
       display: grid;
-      grid-template-columns: repeat(8, 1fr);
+      grid-template-columns: repeat(8, minmax(0, 1fr));
       gap: 3px;
       background: #0d1420;
       padding: 7px;
@@ -126,7 +129,7 @@
         font-size: 20px;
       }
       .app {
-        place-items: start center;
+        align-items: flex-start;
       }
     }
   </style>

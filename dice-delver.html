@@ -17,11 +17,14 @@
     .app {
       min-height: 100vh;
       padding: 14px;
-      display: grid;
-      place-items: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .shell {
-      width: min(900px, 100%);
+      width: 100%;
+      max-width: 900px;
+      min-width: 0;
       background: #372344;
       border: 1px solid #806194;
       border-radius: 20px;
@@ -37,7 +40,7 @@
     }
     .battle {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 12px;
       margin: 12px 0;
     }
@@ -48,6 +51,13 @@
       padding: 16px;
       text-align: center;
       font-size: 55px;
+      min-width: 0;
+    }
+    .fighter small {
+      display: block;
+      margin-top: 6px;
+      font-size: 14px;
+      white-space: nowrap;
     }
     .bar {
       height: 9px;
@@ -109,8 +119,12 @@
         width: 58px;
         height: 58px;
       }
+      .fighter {
+        padding: 12px 6px;
+        font-size: 44px;
+      }
       .app {
-        place-items: start center;
+        align-items: flex-start;
       }
     }
   </style>

@@ -1,436 +1,55 @@
-<!doctype html>
-<html lang="zh-CN">
-  <meta charset="utf-8" /><meta
-    name="viewport"
-    content="width=device-width,initial-scale=1"
-  /><title>背包角斗场</title
-  ><style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      background: #17131f;
-      color: #f6efff;
-      font-family: system-ui, "Microsoft YaHei";
-    }
-    .app {
-      min-height: 100vh;
-      padding: 14px;
-      display: grid;
-      place-items: center;
-    }
-    .shell {
-      width: min(980px, 100%);
-      background: #282037;
-      border: 1px solid #6b5c83;
-      border-radius: 20px;
-      padding: 16px;
-    }
-    .top,
-    .row {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .layout {
-      display: grid;
-      grid-template-columns: 1fr 310px;
-      gap: 12px;
-      margin-top: 12px;
-    }
-    .bag {
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 4px;
-      background: #161020;
-      padding: 8px;
-      border-radius: 12px;
-    }
-    .slot {
-      height: 72px;
-      border: 1px dashed #695c7b;
-      border-radius: 7px;
-      background: #302742;
-      display: grid;
-      place-items: center;
-      font-size: 25px;
-      position: relative;
-    }
-    .slot.valid {
-      outline: 3px solid #6ce0a2;
-    }
-    .slot small {
-      position: absolute;
-      bottom: 1px;
-      font-size: 9px;
-    }
-    .panel {
-      background: #1b1626;
-      border: 1px solid #554a68;
-      border-radius: 11px;
-      padding: 10px;
-      margin-bottom: 9px;
-    }
-    .shop {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 7px;
-    }
-    .offer {
-      min-height: 90px;
-    }
-    .offer.sel {
-      outline: 3px solid #ffd866;
-    }
-    .battle {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      text-align: center;
-    }
-    .fighter {
-      padding: 14px;
-      border-radius: 12px;
-      background: #332943;
-      font-size: 35px;
-    }
-    .bar {
-      height: 8px;
-      background: #211a2a;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-    .bar i {
-      display: block;
-      height: 100%;
-      background: #70dc9a;
-    }
-    .log {
-      height: 90px;
-      overflow: auto;
-      color: #c3b8d1;
-      font-size: 13px;
-    }
-    button {
-      padding: 9px 11px;
-      border: 1px solid #77678d;
-      border-radius: 9px;
-      background: #43345a;
-      color: white;
-      font-weight: bold;
-    }
-    .fight {
-      background: #9b4651;
-    }
-    .help {
-      font-size: 13px;
-      color: #c6b8d5;
-    }
-    @media (max-width: 700px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
-      .slot {
-        height: auto;
-        aspect-ratio: 1;
-        font-size: 20px;
-      }
-      .app {
-        place-items: start center;
-      }
-    }
-  </style>
-  <main class="app">
-    <section class="shell">
-      <div class="top">
-        <div>
-          <h1 style="margin: 0">背包角斗场</h1>
-          <div class="help">
-            购买装备后点击背包格放置；位置、相邻加成和有限空间共同决定自动战斗强度。
-          </div>
-        </div>
-        <div>
-          回合 <b id="round"></b>　生命 <b id="lives"></b>　金币
-          <b id="gold"></b>　胜场 <b id="wins"></b>
-        </div>
-      </div>
-      <div class="layout">
-        <div>
-          <div class="bag" id="bag"></div>
-          <div class="row" style="margin-top: 9px">
-            <button class="fight" id="fight">开始战斗</button
-            ><button id="sell">出售选中装备</button
-            ><button id="rotate">旋转待放装备</button
-            ><button id="restart">新赛季</button>
-          </div>
-          <div class="panel battle" style="margin-top: 10px">
-            <div class="fighter">
-              🧙
-              <div class="bar"><i id="php"></i></div>
-              <small id="pstats"></small>
-            </div>
-            <div class="fighter">
-              👹
-              <div class="bar"><i id="ehp"></i></div>
-              <small id="estats"></small>
-            </div>
-          </div>
-          <div class="panel log" id="log"></div>
-        </div>
-        <aside>
-          <div class="panel">
-            <b>装备商店</b>
-            <div class="shop" id="shop"></div>
-            <button id="reroll" style="margin-top: 8px">刷新（1 金币）</button>
-          </div>
-          <div class="panel">
-            <b>构筑统计</b>
-            <div id="stats"></div>
-            <div class="help">
-              武器输出伤害，护甲吸收攻击，食物提高生命；宝石会强化相邻装备，药水每战触发一次。
-            </div>
-          </div>
-        </aside>
-      </div>
-    </section>
-  </main>
-  <script>
-    const I = [
-      ["短剑", "🗡️", "weapon", 2, 1, 8],
-      ["长弓", "🏹", "weapon", 3, 2, 13],
-      ["圆盾", "🛡️", "armor", 2, 1, 7],
-      ["板甲", "🥋", "armor", 3, 2, 12],
-      ["苹果", "🍎", "food", 1, 1, 8],
-      ["药水", "🧪", "potion", 2, 1, 12],
-      ["红宝石", "♦️", "gem", 3, 1, 0],
-      ["战锤", "🔨", "weapon", 4, 2, 18],
-      ["奶酪", "🧀", "food", 2, 1, 13],
-    ].map((x, id) => ({
-      id,
-      n: x[0],
-      ic: x[1],
-      type: x[2],
-      cost: x[3],
-      size: x[4],
-      pow: x[5],
-    }));
-    let q,
-      selectedOffer = null,
-      selectedItem = null,
-      vertical = false,
-      timer = null;
-    const $ = (x) => document.getElementById(x);
-    function fresh() {
-      return {
-        round: 1,
-        lives: 5,
-        gold: 10,
-        wins: 0,
-        cells: Array(30).fill(null),
-        items: [],
-        shop: [],
-        logs: ["选择商店装备，再点击空背包格放置。"],
-        battle: null,
-      };
-    }
-    function roll(free = false) {
-      if (!free) {
-        if (q.gold < 1) return;
-        q.gold--;
-      }
-      q.shop = Array.from({ length: 3 }, () =>
-        Math.floor(Math.random() * I.length),
-      );
-      draw();
-    }
-    function cellsFor(start, size, vert) {
-      let r = Math.floor(start / 6),
-        c = start % 6,
-        out = [];
-      for (let k = 0; k < size; k++) {
-        let rr = r + (vert ? k : 0),
-          cc = c + (vert ? 0 : k);
-        if (rr >= 5 || cc >= 6) return [];
-        out.push(rr * 6 + cc);
-      }
-      return out;
-    }
-    function place(start) {
-      if (selectedOffer === null) return selectPlaced(start);
-      let d = I[q.shop[selectedOffer]],
-        cells = cellsFor(start, d.size, vertical);
-      if (cells.length !== d.size || cells.some((i) => q.cells[i] !== null))
-        return note("这里放不下该装备。");
-      if (q.gold < d.cost) return note("金币不足。");
-      q.gold -= d.cost;
-      let item = { uid: Date.now() + Math.random(), id: d.id, cells };
-      q.items.push(item);
-      cells.forEach((i) => (q.cells[i] = item.uid));
-      q.shop[selectedOffer] = -1;
-      selectedOffer = null;
-      draw();
-    }
-    function selectPlaced(i) {
-      let uid = q.cells[i];
-      selectedItem = uid === null ? null : q.items.find((x) => x.uid === uid);
-      draw();
-    }
-    function adjacent(item) {
-      let set = new Set(item.cells),
-        near = new Set();
-      for (const i of item.cells) {
-        let r = Math.floor(i / 6),
-          c = i % 6;
-        for (const j of [i - 6, i + 6, i - 1, i + 1])
-          if (
-            j >= 0 &&
-            j < 30 &&
-            Math.abs((j % 6) - c) + Math.abs(Math.floor(j / 6) - r) === 1 &&
-            !set.has(j) &&
-            q.cells[j] !== null
-          )
-            near.add(q.cells[j]);
-      }
-      return [...near];
-    }
-    function calc() {
-      let hp = 55,
-        atk = 2,
-        armor = 0,
-        heal = 0;
-      for (const item of q.items) {
-        let d = I[item.id],
-          gems = adjacent(item).filter(
-            (uid) => I[q.items.find((x) => x.uid === uid).id].type === "gem",
-          ).length,
-          mul = 1 + gems * 0.35;
-        if (d.type === "weapon") atk += d.pow * mul;
-        if (d.type === "armor") armor += d.pow * mul;
-        if (d.type === "food") hp += d.pow * mul;
-        if (d.type === "potion") heal += d.pow * mul;
-      }
-      return {
-        hp: Math.round(hp),
-        atk: Math.round(atk),
-        armor: Math.round(armor),
-        heal: Math.round(heal),
-      };
-    }
-    function battle() {
-      if (timer || !q.items.length) return note("背包里至少需要一件装备。");
-      let p = calc(),
-        e = {
-          hp: 50 + q.round * 18,
-          atk: 7 + q.round * 3,
-          armor: Math.floor(q.round * 1.5),
-        },
-        ph = p.hp,
-        eh = e.hp,
-        used = false;
-      q.battle = { p, ph, e, eh };
-      fight.disabled = true;
-      note(`第 ${q.round} 轮自动战斗开始！`);
-      timer = setInterval(() => {
-        let pd = Math.max(1, p.atk - e.armor),
-          ed = Math.max(1, e.atk - p.armor);
-        eh -= pd;
-        if (eh > 0) ph -= ed;
-        if (ph < p.hp * 0.35 && !used && p.heal) {
-          ph = Math.min(p.hp, ph + p.heal);
-          used = true;
-          q.logs.unshift(`药水恢复 ${p.heal} 生命。`);
-        }
-        q.battle.ph = ph;
-        q.battle.eh = eh;
-        if (ph <= 0 || eh <= 0) {
-          clearInterval(timer);
-          timer = null;
-          fight.disabled = false;
-          if (eh <= 0) {
-            q.wins++;
-            q.gold += 4 + Math.floor(q.round / 2);
-            q.logs.unshift("胜利！获得竞技场奖金。");
-          } else {
-            q.lives--;
-            q.logs.unshift("败北，损失一点赛季生命。");
-          }
-          q.round++;
-          if (q.lives <= 0) q.logs.unshift("赛季结束，重新整理背包再来。");
-          roll(true);
-        }
-        draw();
-      }, 500);
-    }
-    function note(s) {
-      q.logs.unshift(s);
-      q.logs = q.logs.slice(0, 10);
-      draw();
-    }
-    function draw() {
-      round.textContent = q.round;
-      lives.textContent = q.lives;
-      gold.textContent = q.gold;
-      wins.textContent = q.wins;
-      bag.innerHTML = q.cells
-        .map((uid, i) => {
-          let item = q.items.find((x) => x.uid === uid),
-            first = item && item.cells[0] === i;
-          return `<button class="slot ${selectedItem?.uid === uid ? "valid" : ""}" data-i="${i}">${first ? I[item.id].ic : ""}${first ? `<small>${I[item.id].n}</small>` : ""}</button>`;
-        })
-        .join("");
-      bag
-        .querySelectorAll("[data-i]")
-        .forEach((e) => (e.onclick = () => place(+e.dataset.i)));
-      shop.innerHTML = q.shop
-        .map((id, i) =>
-          id < 0
-            ? "<button disabled>已购买</button>"
-            : `<button class="offer ${selectedOffer === i ? "sel" : ""}" data-i="${i}">${I[id].ic}<br><b>${I[id].n}</b><br><small>${I[id].cost}金 · ${I[id].size}格</small></button>`,
-        )
-        .join("");
-      shop.querySelectorAll("[data-i]").forEach(
-        (e) =>
-          (e.onclick = () => {
-            selectedOffer = +e.dataset.i;
-            selectedItem = null;
-            draw();
-          }),
-      );
-      let s = calc();
-      stats.innerHTML = `生命 ${s.hp}<br>攻击 ${s.atk}<br>护甲 ${s.armor}<br>药水恢复 ${s.heal}`;
-      let b = q.battle;
-      php.style.width = (b ? Math.max(0, (b.ph / b.p.hp) * 100) : 100) + "%";
-      ehp.style.width = (b ? Math.max(0, (b.eh / b.e.hp) * 100) : 100) + "%";
-      pstats.textContent = b
-        ? `${Math.max(0, b.ph)}/${b.p.hp}`
-        : `${s.hp} HP · ${s.atk} 攻`;
-      estats.textContent = b ? `${Math.max(0, b.eh)}/${b.e.hp}` : `等待挑战`;
-      log.innerHTML = q.logs.map((x) => `<div>• ${x}</div>`).join("");
-      fight.disabled = !!timer || q.lives <= 0;
-    }
-    reroll.onclick = () => roll();
-    rotate.onclick = () => {
-      vertical = !vertical;
-      note(`待放装备已切换为${vertical ? "纵向" : "横向"}。`);
-    };
-    sell.onclick = () => {
-      if (!selectedItem) return;
-      let d = I[selectedItem.id];
-      q.gold += Math.ceil(d.cost / 2);
-      selectedItem.cells.forEach((i) => (q.cells[i] = null));
-      q.items = q.items.filter((x) => x !== selectedItem);
-      selectedItem = null;
-      draw();
-    };
-    fight.onclick = battle;
-    restart.onclick = () => {
-      q = fresh();
-      roll(true);
-    };
-    q = fresh();
-    roll(true);
-  </script>
-</html>
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>背包角斗场：百炼赛季</title>
+<style>
+:root{color-scheme:dark;--bg:#0d0c16;--panel:#1a1727;--panel2:#272039;--line:#4b4163;--text:#f8f3ff;--muted:#b9abc9;--gold:#ffc760;--green:#6bdd9b;--red:#ff6d7f;--blue:#72a7ff;--purple:#bb83ff}*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:radial-gradient(circle at 50% -15%,#3d2d50,#0d0c16 48%);color:var(--text);font-family:Inter,"Microsoft YaHei",system-ui,sans-serif;letter-spacing:0}button{font:inherit;color:inherit}.app{width:min(1260px,100%);margin:auto;padding:14px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:12px;border-bottom:1px solid var(--line)}h1{font-size:clamp(24px,3.5vw,36px);margin:0}.subtitle{color:var(--muted);font-size:12px;margin-top:4px}.stats{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}.stat{min-width:77px;background:#13101d;border:1px solid var(--line);border-radius:6px;padding:7px 9px}.stat small{display:block;color:var(--muted);font-size:10px}.stat b{font-size:17px;color:var(--gold)}.layout{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:12px;margin-top:12px}.panel{background:rgba(26,23,39,.97);border:1px solid var(--line);border-radius:8px}.workbench{padding:11px}.round-head{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:9px}.round-head b span{color:var(--gold)}.round-head small{color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;background:#09080f;border:2px solid #5a4b70;border-radius:7px;padding:6px;min-height:500px}.cell{position:relative;min-width:0;min-height:78px;background:#251e34;border:1px dashed #554766;cursor:pointer}.cell:nth-child(2n){background:#2a2239}.cell.hover{box-shadow:inset 0 0 0 2px var(--green)}.cell.bad{box-shadow:inset 0 0 0 2px var(--red)}.gear{position:absolute;inset:3px;z-index:2;border:1px solid #75608d;background:linear-gradient(145deg,#46345b,#2b223c);border-radius:5px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer;overflow:hidden}.gear.weapon{border-color:#bc6571}.gear.armor{border-color:#6594c4}.gear.potion{border-color:#7f69c6}.gear.food{border-color:#9a804b}.gear.gem{border-color:#6ec4ae}.gear.selected{outline:3px solid var(--gold);z-index:4}.gear.trigger{animation:pulse .3s}.gear .icon{font-size:26px}.gear b{font-size:9px;line-height:1.1}.gear em{position:absolute;right:3px;top:1px;color:var(--gold);font-size:9px;font-style:normal}.gear .cool{position:absolute;left:0;right:0;bottom:0;height:4px;background:#07060b}.gear .cool i{height:100%;display:block;background:var(--gold)}@keyframes pulse{50%{transform:scale(1.08);filter:brightness(1.7)}}.actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}.btn{border:1px solid #65557d;background:#382d4d;border-radius:5px;min-height:40px;padding:8px 11px;font-weight:800;cursor:pointer}.btn:hover{filter:brightness(1.14)}.btn:disabled{opacity:.4;cursor:not-allowed}.btn.primary{background:var(--gold);color:#2a1b00;border-color:var(--gold)}.btn.danger{background:#713443;border-color:#a84d5e}.hint{margin-top:8px;background:#100e19;border-left:3px solid var(--purple);padding:8px;color:#d9cee6;font-size:12px;line-height:1.5;min-height:39px}.side{display:flex;flex-direction:column;gap:10px}.section{padding:11px}.section h2{font-size:14px;margin:0 0 8px}.shop{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}.offer{position:relative;min-width:0;min-height:102px;text-align:left;background:#2b2340;border:1px solid #5f4c78;border-radius:6px;padding:8px;cursor:pointer}.offer:hover,.offer.active{border-color:var(--gold);filter:brightness(1.08)}.offer .icon{font-size:25px}.offer b{display:block;font-size:11px}.offer small{display:block;color:var(--muted);font-size:9px;line-height:1.35}.offer .price{position:absolute;right:5px;top:4px;color:var(--gold);font-weight:900}.build-row,.trait{display:flex;justify-content:space-between;border-bottom:1px solid #3b324d;padding:6px 0;font-size:12px}.build-row:last-child,.trait:last-child{border:0}.build-row strong{color:var(--green)}.battle{padding:11px;margin-top:10px}.fighters{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px}.fighter{background:#110e19;border:1px solid #443951;padding:10px;border-radius:6px;text-align:center}.avatar{font-size:34px}.fighter b{display:block}.bars{display:grid;gap:5px;margin-top:8px}.bar{height:8px;background:#08070c;border:1px solid #30283d;overflow:hidden}.bar i{display:block;height:100%;background:var(--green);transition:width .2s}.bar.shield i{background:var(--blue)}.bar.stamina i{background:var(--gold)}.vs{font-weight:900;color:var(--red)}.feed{height:74px;overflow:auto;margin-top:8px;background:#100d17;padding:7px;font-size:11px;color:#d2c5df}.feed div{border-left:2px solid #554366;padding-left:6px;margin-bottom:3px}.enemy-items{display:flex;gap:4px;justify-content:center;margin-top:6px}.enemy-items span{background:#2d2032;border:1px solid #5e3b53;padding:5px}.overlay{position:fixed;inset:0;background:#09070eea;z-index:20;display:flex;align-items:center;justify-content:center;padding:14px}.overlay.hidden{display:none}.modal{width:min(820px,100%);max-height:92vh;overflow:auto;background:#1a1727;border:1px solid #66557d;border-radius:8px;padding:17px}.modal h2{font-size:25px;margin:0 0 5px}.modal>p{color:var(--muted);margin:0 0 13px;line-height:1.55}.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.choice{text-align:left;min-height:145px;background:#2a223c;border:1px solid #604e76;border-radius:6px;padding:12px;cursor:pointer}.choice:hover{border-color:var(--gold);transform:translateY(-2px)}.choice .big{font-size:31px}.choice h3{font-size:15px;margin:7px 0 4px}.choice p{color:var(--muted);font-size:12px;line-height:1.5;margin:0}.savebox{width:100%;height:130px;resize:vertical;background:#0c0911;border:1px solid #5d4b70;color:#fff;padding:9px}.codex{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.codex>div{background:#110e19;border:1px solid #41364f;padding:7px;min-height:85px}.codex b{display:block;font-size:11px}.codex small{font-size:9px;color:var(--muted)}@media(max-width:880px){.layout{grid-template-columns:1fr}.side{display:grid;grid-template-columns:1fr 1fr}.side .panel:last-child{grid-column:1/-1}.grid{min-height:450px}.cell{min-height:70px}}@media(max-width:580px){.app{padding:8px}.top{flex-direction:column;align-items:flex-start}.stats{justify-content:flex-start}.stat{min-width:70px;padding:6px}.layout{margin-top:8px}.workbench{padding:7px}.grid{gap:2px;padding:4px;min-height:355px}.cell{min-height:55px}.gear .icon{font-size:20px}.gear b{font-size:7px}.side{display:flex}.shop{grid-template-columns:repeat(2,1fr)}.fighters{gap:5px}.fighter{padding:7px}.avatar{font-size:28px}.choices{grid-template-columns:1fr}.choice{min-height:110px}.codex{grid-template-columns:repeat(2,1fr)}.actions{display:grid;grid-template-columns:repeat(3,1fr)}.actions .btn{padding:7px 4px}.round-head{font-size:12px}}
+</style></head><body>
+<main class="app"><header class="top"><div><h1>背包角斗场：百炼赛季</h1><div class="subtitle">让每一格空间参与战斗：规划形状、邻接、冷却、耐力与合成链。</div></div><div class="stats"><div class="stat"><small>金币</small><b id="gold">10</b></div><div class="stat"><small>轮次</small><b id="round">1 / 12</b></div><div class="stat"><small>生命</small><b id="lives">5</b></div><div class="stat"><small>胜场</small><b id="wins">0</b></div></div></header>
+<section class="layout"><div><section class="panel workbench"><div class="round-head"><b>行囊工坊 · <span id="className">待选择</span></b><small id="spaceText">0 / 42 格</small></div><div class="grid" id="grid"></div><div class="actions"><button class="btn" id="rotateBtn">旋转</button><button class="btn" id="forgeBtn">百炼合成</button><button class="btn" id="sellBtn">出售选中</button><button class="btn" id="rerollBtn">刷新商店 1</button><button class="btn" id="lockBtn">锁定商店</button><button class="btn primary" id="fightBtn">迎战</button></div><div class="hint" id="hint">选择流派后开始整理背包。</div></section>
+<section class="panel battle"><div class="fighters"><div class="fighter"><span class="avatar" id="playerAvatar">🧳</span><b id="playerName">行囊斗士</b><div class="bars"><span class="bar"><i id="playerHp"></i></span><span class="bar shield"><i id="playerShield"></i></span><span class="bar stamina"><i id="playerStamina"></i></span></div></div><span class="vs">VS</span><div class="fighter"><span class="avatar" id="enemyAvatar">❔</span><b id="enemyName">等待对手</b><div class="bars"><span class="bar"><i id="enemyHp"></i></span><span class="bar shield"><i id="enemyShield"></i></span><span class="bar stamina"><i id="enemyStamina"></i></span></div><div class="enemy-items" id="enemyItems"></div></div></div><div class="feed" id="feed"></div></section></div>
+<aside class="side"><section class="panel section"><h2>装备商店</h2><div class="shop" id="shop"></div></section><section class="panel section"><h2>构筑参数</h2><div id="buildStats"></div></section><section class="panel section"><h2>邻接协同</h2><div id="traits"></div><div class="actions"><button class="btn" id="codexBtn">装备图鉴</button><button class="btn" id="saveBtn">存档码</button><button class="btn" id="newBtn">新赛季</button></div></section></aside></section></main>
+<div class="overlay" id="classOverlay"><section class="modal"><h2>选择行囊流派</h2><p>三种流派拥有不同起始装备、资源规则与擅长的构筑方向。</p><div class="choices" id="classChoices"></div></section></div>
+<div class="overlay hidden" id="choiceOverlay"><section class="modal"><h2 id="choiceTitle">选择专精</h2><p id="choiceHelp">专精在本赛季永久生效。</p><div class="choices" id="choices"></div></section></div>
+<div class="overlay hidden" id="infoOverlay"><section class="modal"><h2 id="infoTitle">装备图鉴</h2><div id="infoBody"></div><div class="actions"><button class="btn primary" id="closeInfoBtn">返回工坊</button></div></section></div>
+<script>
+(()=>{"use strict";const $=id=>document.getElementById(id),SAVE='backpackArenaV3',COLS=7,ROWS=6;
+const ITEMS={
+ dagger:{n:'短匕',i:'🗡️',r:'common',type:'weapon',cost:2,shape:[[0,0],[1,0]],d:'1.7秒造成 7 伤害',dmg:7,cd:1.7,stam:2,t:['利刃']},buckler:{n:'圆盾',i:'🛡️',r:'common',type:'armor',cost:2,shape:[[0,0],[0,1]],d:'战斗开始获得 14 护盾',armor:14,t:['壁垒']},herb:{n:'疗愈草',i:'🌿',r:'common',type:'potion',cost:2,shape:[[0,0]],d:'生命低于50%时恢复 10',heal:10,t:['炼金']},bread:{n:'麦香包',i:'🥖',r:'common',type:'food',cost:2,shape:[[0,0],[1,0]],d:'最大生命 +8，耐力恢复 +8%',hp:8,regen:.08,t:['补给']},stone:{n:'磨刀石',i:'🪨',r:'common',type:'gem',cost:2,shape:[[0,0]],d:'相邻武器伤害 +2',adj:'weapon',bonus:2,t:['工艺']},
+ sword:{n:'长剑',i:'⚔️',r:'uncommon',type:'weapon',cost:4,shape:[[0,0],[1,0],[2,0]],d:'2.5秒造成 14 伤害',dmg:14,cd:2.5,stam:3,t:['利刃']},bow:{n:'猎弓',i:'🏹',r:'uncommon',type:'weapon',cost:4,shape:[[0,0],[0,1],[0,2]],d:'1.9秒造成 10 伤害，受宝石强化',dmg:10,cd:1.9,stam:2.5,t:['远射']},mail:{n:'锁子甲',i:'🥋',r:'uncommon',type:'armor',cost:4,shape:[[0,0],[1,0],[0,1],[1,1]],d:'生命 +18，开始获得 10 护盾',hp:18,armor:10,t:['壁垒']},potion:{n:'红药剂',i:'🧪',r:'uncommon',type:'potion',cost:4,shape:[[0,0],[0,1]],d:'生命低于45%时恢复 22',heal:22,t:['炼金']},cheese:{n:'陈年奶酪',i:'🧀',r:'uncommon',type:'food',cost:4,shape:[[0,0]],d:'每5秒恢复 3 生命',tickHeal:3,t:['补给']},ruby:{n:'红宝石',i:'🔴',r:'uncommon',type:'gem',cost:4,shape:[[0,0]],d:'相邻武器伤害 +4',adj:'weapon',bonus:4,t:['工艺']},thorn:{n:'荆棘环',i:'🌵',r:'uncommon',type:'armor',cost:4,shape:[[0,0],[1,0],[1,1]],d:'开始获得 8 护盾；受击反伤 2',armor:8,reflect:2,t:['自然','壁垒']},
+ greatsword:{n:'百炼巨剑',i:'🗡️',r:'rare',type:'weapon',cost:7,shape:[[0,0],[1,0],[2,0],[2,1]],d:'3.8秒造成 28 伤害',dmg:28,cd:3.8,stam:5,t:['利刃','工艺']},crossbow:{n:'星弩',i:'🏹',r:'rare',type:'weapon',cost:7,shape:[[0,0],[0,1],[1,1]],d:'2.2秒造成 18 伤害，暴击率20%',dmg:18,cd:2.2,stam:3,crit:.2,t:['远射','工艺']},tower:{n:'塔盾',i:'🛡️',r:'rare',type:'armor',cost:7,shape:[[0,0],[0,1],[0,2],[1,2]],d:'开始获得 35 护盾',armor:35,t:['壁垒']},elixir:{n:'月华灵药',i:'⚗️',r:'rare',type:'potion',cost:7,shape:[[0,0],[1,0]],d:'恢复 28 并使武器加速15%',heal:28,haste:.15,t:['炼金']},pepper:{n:'战椒',i:'🌶️',r:'rare',type:'food',cost:6,shape:[[0,0]],d:'武器伤害 +10%，最大耐力 +2',damagePct:.1,stamina:2,t:['补给']},sapphire:{n:'蓝宝石',i:'🔵',r:'rare',type:'gem',cost:6,shape:[[0,0]],d:'相邻物品冷却 -12%',adj:'all',speed:.12,t:['工艺']},poison:{n:'毒蛇瓶',i:'🐍',r:'rare',type:'potion',cost:7,shape:[[0,0],[0,1]],d:'战斗开始使敌人中毒，每2秒3伤害',poison:3,t:['炼金']},
+ sunblade:{n:'日冕圣刃',i:'🌞',r:'epic',type:'weapon',cost:11,shape:[[0,0],[1,0],[2,0],[1,1]],d:'2.8秒造成 24；每次攻击恢复3生命',dmg:24,cd:2.8,stam:4,lifesteal:3,t:['利刃','光辉']},moonbow:{n:'月蚀长弓',i:'🌙',r:'epic',type:'weapon',cost:11,shape:[[0,0],[0,1],[0,2],[1,1]],d:'1.6秒造成14；每四击造成双倍',dmg:14,cd:1.6,stam:2.5,burst:4,t:['远射','光辉']},dragon:{n:'龙鳞甲',i:'🐉',r:'epic',type:'armor',cost:11,shape:[[0,0],[1,0],[0,1],[1,1],[0,2]],d:'生命 +30，护盾 24，减伤8%',hp:30,armor:24,resist:.08,t:['壁垒','自然']},prism:{n:'万象棱晶',i:'💠',r:'epic',type:'gem',cost:10,shape:[[0,0],[1,0]],d:'所有相邻物品效果 +18%',adj:'all',amp:.18,t:['工艺','光辉']}
+};
+const RECIPES=[['dagger','dagger','sword'],['sword','stone','greatsword'],['bow','ruby','crossbow'],['buckler','buckler','tower'],['herb','potion','elixir'],['greatsword','ruby','sunblade'],['crossbow','sapphire','moonbow'],['mail','thorn','dragon']];
+const CLASSES={berserker:{n:'赤刃斗士',i:'🪓',d:'生命越低，武器伤害越高；起始短匕与战椒。',start:['dagger','pepper']},alchemist:{n:'药剂师',i:'🧙‍♀️',d:'药剂可额外触发一次；起始红药剂与毒蛇瓶。',start:['potion','poison']},ranger:{n:'巡林客',i:'🧝',d:'远射武器冷却 -12%；起始猎弓与红宝石。',start:['bow','ruby']}};
+const PERKS={expand:{n:'异次元夹层',i:'🧳',d:'最大生命 +15，所有物品效果 +5%。'},economy:{n:'旧货行家',i:'🪙',d:'每次胜利额外获得 2 金币。'},tempo:{n:'快手整理',i:'⚡',d:'所有武器冷却 -10%。'},brew:{n:'随身坩埚',i:'⚗️',d:'药剂治疗 +30%。'},guard:{n:'层叠护具',i:'🛡️',d:'每件护甲额外提供 4 护盾。'},craft:{n:'大师磨具',i:'🔨',d:'宝石邻接加成 +30%。'},last:{n:'绝境反击',i:'🔥',d:'生命低于35%时伤害 +25%。'},stamina:{n:'轻量扣带',i:'🪶',d:'最大耐力 +4，恢复速度 +12%。'}};
+const ENEMIES=[{n:'铁锅佣兵',i:'🧑‍🍳',style:'壁垒',gear:['mail','buckler','sword']},{n:'暮林猎手',i:'🦊',style:'远射',gear:['bow','ruby','cheese']},{n:'毒沼巫师',i:'🧙',style:'炼金',gear:['poison','potion','herb']},{n:'赤角狂徒',i:'👹',style:'利刃',gear:['dagger','sword','pepper']},{n:'王城卫士',i:'🦁',style:'反击',gear:['tower','thorn','sword']},{n:'月弓冠军',i:'🌙',style:'爆发',gear:['crossbow','sapphire','elixir']}];
+let q=null,profile={wins:0,best:0,glory:0,seen:[]},selectedOffer=null,selectedItem=null,rotation=0,battleTimer=null,runtime=null;
+const uid=()=>Math.random().toString(36).slice(2),shape=(id,rot=0)=>{const raw=ITEMS[id].shape.map(([x,y])=>rot%2?[y,-x]:[x,y]),minX=Math.min(...raw.map(x=>x[0])),minY=Math.min(...raw.map(x=>x[1]));return raw.map(([x,y])=>[x-minX,y-minY])};
+function fresh(cls){return{v:3,cls,gold:12,round:1,lives:5,wins:0,losses:0,items:[],shop:[],locked:false,perks:[],log:[],gameOver:false,champion:false}}
+function save(){localStorage.setItem(SAVE,JSON.stringify({q,profile}))}function load(){try{const x=JSON.parse(localStorage.getItem(SAVE));if(x?.profile)profile={...profile,...x.profile};if(x?.q?.v===3)q=x.q}catch{}}
+function checksum(s){let h=0;for(let i=0;i<s.length;i++)h=(Math.imul(h,31)+s.charCodeAt(i))>>>0;return h.toString(36)}function exportCode(){const b=btoa(unescape(encodeURIComponent(JSON.stringify({v:3,q,profile}))));return`BA3-${b}-${checksum(b)}`}function importCode(x){const m=x.trim().match(/^BA3-(.+)-([a-z0-9]+)$/i);if(!m||checksum(m[1])!==m[2])throw Error('存档码校验失败');const d=JSON.parse(decodeURIComponent(escape(atob(m[1]))));if(d.v!==3)throw Error('版本不兼容');q=d.q;profile=d.profile;save();draw()}
+function cellsFor(id,start,rot=0){const r=Math.floor(start/COLS),c=start%COLS;return shape(id,rot).map(([x,y])=>(r+y)*COLS+c+x)}function fits(id,start,rot=0,ignore=null){const raw=shape(id,rot),r=Math.floor(start/COLS),c=start%COLS;if(raw.some(([x,y])=>r+y<0||r+y>=ROWS||c+x<0||c+x>=COLS))return false;const cells=cellsFor(id,start,rot);return !q.items.some(it=>it.uid!==ignore&&it.cells.some(x=>cells.includes(x)))}
+function place(start){if(selectedOffer!=null){const id=q.shop[selectedOffer];if(!id||!fits(id,start,rotation))return hint('这里放不下，旋转或腾出空间后再试');const d=ITEMS[id];if(q.gold<d.cost)return hint('金币不足');q.gold-=d.cost;q.items.push({uid:uid(),id,rot:rotation,cells:cellsFor(id,start,rotation),level:1});q.shop[selectedOffer]=null;discover(id);selectedOffer=null;rotation=0;hint(`购入 ${d.n}`);draw();return}if(selectedItem){const it=q.items.find(x=>x.uid===selectedItem);if(it&&fits(it.id,start,it.rot,it.uid)){it.cells=cellsFor(it.id,start,it.rot);selectedItem=null;hint(`移动 ${ITEMS[it.id].n}`);draw()}}}
+function discover(id){profile.seen.push(id);profile.seen=[...new Set(profile.seen)]}function hint(s){$('hint').textContent=s;if(q){q.log.unshift(s);q.log=q.log.slice(0,12)}save()}
+function rarityRoll(){const x=Math.random(),max=q.round;return x<Math.min(.08,max*.005)?'epic':x<Math.min(.3,.12+max*.012)?'rare':x<.65?'uncommon':'common'}function makeOffer(){const r=rarityRoll(),pool=Object.keys(ITEMS).filter(id=>ITEMS[id].r===r);return pool[Math.floor(Math.random()*pool.length)]}function roll(free=false){if(!free){if(q.gold<1)return hint('金币不足');q.gold--}q.shop=Array.from({length:4},makeOffer);selectedOffer=null;draw()}
+function adjacency(){const map={};q.items.forEach(a=>{map[a.uid]=[];q.items.forEach(b=>{if(a===b)return;const near=a.cells.some(x=>{const r=Math.floor(x/COLS),c=x%COLS;return b.cells.some(y=>{const rr=Math.floor(y/COLS),cc=y%COLS;return Math.abs(r-rr)+Math.abs(c-cc)===1})});if(near)map[a.uid].push(b)})});return map}
+function buildStats(){const adj=adjacency(),s={hp:55,shield:0,stamina:10,regen:3,weapons:[],reflect:0,resist:0,poison:0,tickHeal:0,heals:[],damagePct:0,speed:0,amp:q.perks.includes('expand')?.05:0};q.items.forEach(it=>{const d=ITEMS[it.id],mult=1+(it.level-1)*.35+(s.amp||0);s.hp+=(d.hp||0)*mult;s.shield+=(d.armor||0)*mult;s.stamina+=(d.stamina||0);s.regen+=(d.regen||0)*3;s.reflect+=(d.reflect||0);s.resist=Math.max(s.resist,d.resist||0);s.poison+=d.poison||0;s.tickHeal+=(d.tickHeal||0);s.damagePct+=d.damagePct||0;s.speed+=d.haste||0;if(d.heal)s.heals.push({value:d.heal*mult,used:0,haste:d.haste||0});if(d.type==='weapon'){let damage=d.dmg*mult,cd=d.cd;adj[it.uid].forEach(n=>{const x=ITEMS[n.id];if(x.adj==='weapon'||x.adj==='all'){const perk=q.perks.includes('craft')?1.3:1;damage+=(x.bonus||0)*perk;cd*=1-(x.speed||0)*perk;damage*=1+(x.amp||0)}});s.weapons.push({uid:it.uid,id:it.id,damage,cd,stam:d.stam,crit:d.crit||0,lifesteal:d.lifesteal||0,burst:d.burst||0,count:0,t:0})}});if(q.cls==='ranger')s.weapons.filter(w=>ITEMS[w.id].t.includes('远射')).forEach(w=>w.cd*=.88);if(q.perks.includes('tempo'))s.weapons.forEach(w=>w.cd*=.9);if(q.perks.includes('guard'))s.shield+=q.items.filter(x=>ITEMS[x.id].type==='armor').length*4;if(q.perks.includes('brew'))s.heals.forEach(x=>x.value*=1.3);if(q.perks.includes('stamina')){s.stamina+=4;s.regen+=.36}s.damagePct+=q.perks.includes('last')?0:0;return s}
+function enemyStats(){const e=ENEMIES[(q.round-1)%ENEMIES.length],scale=1+(q.round-1)*.105,s={...e,hp:Math.round((48+q.round*5)*scale),shield:Math.round((q.round%3)*7+q.round*1.4),stamina:10,regen:3,weapons:[],reflect:e.style==='反击'?3:0,resist:e.style==='壁垒'?.1:0,poison:e.style==='炼金'?2:0,tickHeal:0,heals:e.style==='炼金'?[{value:15+q.round,used:0}]:[],damagePct:0,speed:0};e.gear.slice(0,2+Math.floor(q.round/5)).forEach(id=>{const d=ITEMS[id];if(d.dmg)s.weapons.push({uid:uid(),id,damage:d.dmg*scale,cd:d.cd,stam:d.stam,crit:d.crit||0,lifesteal:0,burst:d.burst||0,count:0,t:0});s.shield+=(d.armor||0);s.hp+=(d.hp||0)});if(!s.weapons.length)s.weapons.push({uid:uid(),id:'dagger',damage:7*scale,cd:1.8,stam:2,crit:0,count:0,t:0});return s}
+function forge(){for(const[a,b,out]of RECIPES){const x=q.items.find(it=>it.id===a),y=q.items.find(it=>it!==x&&it.id===b);if(x&&y){x.id=out;x.level=1;const newShape=shape(out,x.rot);const start=x.cells[0];q.items=q.items.filter(it=>it!==y);if(fits(out,start,x.rot,x.uid))x.cells=cellsFor(out,start,x.rot);else{x.id=a;q.items.push(y);continue}discover(out);selectedItem=null;hint(`百炼成功：${ITEMS[out].n}`);draw();return}}const pair=q.items.find(x=>q.items.some(y=>y!==x&&y.id===x.id&&y.level===x.level));if(pair){const y=q.items.find(z=>z!==pair&&z.id===pair.id&&z.level===pair.level);pair.level++;q.items=q.items.filter(z=>z!==y);hint(`${ITEMS[pair.id].n} 强化到 +${pair.level}`);draw();return}hint('没有可用配方：尝试两件同名装备，或利刃+磨刀石等组合')}
+function startBattle(){if(battleTimer||q.gameOver||q.champion)return;if(!q.items.some(x=>ITEMS[x.id].type==='weapon'))return hint('至少装备一件武器');selectedItem=null;const p=buildStats(),e=enemyStats();runtime={time:0,p:{...p,max:p.hp,cur:p.hp,shieldCur:p.shield,stamCur:p.stamina},e:{...e,max:e.hp,cur:e.hp,shieldCur:e.shield,stamCur:e.stamina},feed:[]};$('fightBtn').disabled=true;drawBattle();battleTimer=setInterval(stepBattle,250)}
+function damage(from,to,amount,label){let dmg=amount*(1-(to.resist||0));if(from===runtime.p&&q.cls==='berserker')dmg*=1+(1-from.cur/from.max)*.5;if(from===runtime.p&&q.perks.includes('last')&&from.cur/from.max<.35)dmg*=1.25;dmg*=1+from.damagePct;dmg=Math.round(dmg);const blocked=Math.min(to.shieldCur,dmg);to.shieldCur-=blocked;to.cur-=dmg-blocked;if(to.reflect&&dmg>0)from.cur-=to.reflect;runtime.feed.unshift(`${label}造成 ${dmg} 伤害${blocked?`（格挡${blocked}）`:''}`);runtime.feed=runtime.feed.slice(0,12)}
+function act(side,other){side.stamCur=Math.min(side.stamina,side.stamCur+side.regen*.25);for(const w of side.weapons){w.t+=.25*(1+side.speed);if(w.t>=w.cd&&side.stamCur>=w.stam){w.t=0;side.stamCur-=w.stam;w.count++;let dmg=w.damage*(Math.random()<w.crit?1.75:1);if(w.burst&&w.count%w.burst===0)dmg*=2;damage(side,other,dmg,ITEMS[w.id].n);if(w.lifesteal)side.cur=Math.min(side.max,side.cur+w.lifesteal);flash(w.uid)}}for(const pot of side.heals){if(!pot.used&&side.cur/side.max<.48){pot.used=1;side.cur=Math.min(side.max,side.cur+pot.value);side.speed+=pot.haste||0;runtime.feed.unshift(`药剂恢复 ${Math.round(pot.value)} 生命`);if(side===runtime.p&&q.cls==='alchemist'){side.cur=Math.min(side.max,side.cur+pot.value*.55);runtime.feed.unshift('药剂师复触恢复')}}}}
+function stepBattle(){runtime.time+=.25;act(runtime.p,runtime.e);act(runtime.e,runtime.p);if(Math.floor(runtime.time*4)%8===0){if(runtime.p.poison)damage(runtime.p,runtime.e,runtime.p.poison,'毒素');if(runtime.e.poison)damage(runtime.e,runtime.p,runtime.e.poison,'毒素');runtime.p.cur=Math.min(runtime.p.max,runtime.p.cur+runtime.p.tickHeal);runtime.e.cur=Math.min(runtime.e.max,runtime.e.cur+runtime.e.tickHeal)}drawBattle();if(runtime.p.cur<=0||runtime.e.cur<=0||runtime.time>=35)finishBattle(runtime.e.cur<=0||(runtime.time>=35&&runtime.p.cur>runtime.e.cur))}
+function flash(uid){const el=document.querySelector(`[data-uid="${uid}"]`);if(el){el.classList.add('trigger');setTimeout(()=>el.classList.remove('trigger'),300)}}
+function finishBattle(win){clearInterval(battleTimer);battleTimer=null;if(win){q.wins++;q.gold+=6+(q.perks.includes('economy')?2:0)+Math.floor(q.round/4);hint(`胜利！获得 ${6+(q.perks.includes('economy')?2:0)+Math.floor(q.round/4)} 金币`)}else{q.losses++;q.lives--;q.gold+=3;hint('败北，获得 3 金币整备补给')}q.round++;profile.best=Math.max(profile.best,q.round);if(q.wins>=10||q.round>12){q.champion=true;profile.wins++;profile.glory+=60;showResult(true)}else if(q.lives<=0){q.gameOver=true;profile.glory+=q.wins*4;showResult(false)}else{if(!q.locked)roll(true);if(q.round===5||q.round===9)showPerk();draw()}save()}
+function showPerk(){const ids=Object.keys(PERKS).filter(x=>!q.perks.includes(x)).sort(()=>Math.random()-.5).slice(0,3);$('choiceTitle').textContent='选择行囊专精';$('choiceHelp').textContent='专精会永久改变本赛季的装备效率。';$('choices').innerHTML=ids.map(id=>`<button class="choice" data-perk="${id}"><span class="big">${PERKS[id].i}</span><h3>${PERKS[id].n}</h3><p>${PERKS[id].d}</p></button>`).join('');$('choiceOverlay').classList.remove('hidden');document.querySelectorAll('[data-perk]').forEach(b=>b.onclick=()=>{q.perks.push(b.dataset.perk);$('choiceOverlay').classList.add('hidden');hint(`获得专精：${PERKS[b.dataset.perk].n}`);draw()})}
+function renderGear(it,origin){const d=ITEMS[it.id],el=document.createElement('div');el.className=`gear ${d.type} ${selectedItem===it.uid?'selected':''}`;el.dataset.uid=it.uid;el.innerHTML=`<em>${it.level>1?'+'+it.level:''}</em><span class="icon">${d.i}</span><b>${d.n}</b>`;el.onclick=e=>{e.stopPropagation();selectedOffer=null;selectedItem=selectedItem===it.uid?null:it.uid;rotation=it.rot;draw()};return el}
+function draw(){if(!q)return;$('gold').textContent=q.gold;$('round').textContent=`${Math.min(q.round,12)} / 12`;$('lives').textContent='♥'.repeat(Math.max(0,q.lives));$('wins').textContent=q.wins;$('className').textContent=CLASSES[q.cls].n;$('playerAvatar').textContent=CLASSES[q.cls].i;$('spaceText').textContent=`${new Set(q.items.flatMap(x=>x.cells)).size} / ${ROWS*COLS} 格`;const grid=$('grid');grid.innerHTML='';for(let i=0;i<ROWS*COLS;i++){const c=document.createElement('div');c.className='cell';c.onclick=()=>place(i);grid.append(c)}q.items.forEach(it=>{const first=Math.min(...it.cells);grid.children[first]?.append(renderGear(it,first));it.cells.filter(x=>x!==first).forEach(x=>{if(grid.children[x])grid.children[x].style.background='#342844'})});$('shop').innerHTML=q.shop.map((id,i)=>id?`<button class="offer ${selectedOffer===i?'active':''}" data-offer="${i}"><span class="price">${ITEMS[id].cost}</span><span class="icon">${ITEMS[id].i}</span><b>${ITEMS[id].n}</b><small>${ITEMS[id].d}<br>${ITEMS[id].shape.length} 格 · ${ITEMS[id].t.join('/')}</small></button>`:'<button class="offer" disabled>已售出</button>').join('');document.querySelectorAll('[data-offer]').forEach(b=>b.onclick=()=>{selectedOffer=+b.dataset.offer;selectedItem=null;rotation=0;hint(`选择 ${ITEMS[q.shop[selectedOffer]].n}，点击背包空格放置`);draw()});const s=buildStats();$('buildStats').innerHTML=[['最大生命',Math.round(s.hp)],['起始护盾',Math.round(s.shield)],['武器数量',s.weapons.length],['秒均伤害',s.weapons.reduce((a,w)=>a+w.damage/w.cd,0).toFixed(1)],['耐力 / 恢复',`${s.stamina.toFixed(1)} / ${s.regen.toFixed(1)}`]].map(x=>`<div class="build-row"><span>${x[0]}</span><strong>${x[1]}</strong></div>`).join('');const tags={};q.items.forEach(it=>ITEMS[it.id].t.forEach(t=>tags[t]=(tags[t]||0)+1));$('traits').innerHTML=Object.entries(tags).sort((a,b)=>b[1]-a[1]).map(([t,n])=>`<div class="trait"><span>${t}</span><strong>${n} 件</strong></div>`).join('')||'<small style="color:var(--muted)">购入装备后显示协同。</small>';$('lockBtn').classList.toggle('primary',q.locked);$('fightBtn').disabled=q.gameOver||q.champion;$('enemyName').textContent=ENEMIES[(q.round-1)%ENEMIES.length].n;$('enemyAvatar').textContent=ENEMIES[(q.round-1)%ENEMIES.length].i;$('enemyItems').innerHTML=ENEMIES[(q.round-1)%ENEMIES.length].gear.slice(0,2+Math.floor(q.round/5)).map(id=>`<span>${ITEMS[id].i}</span>`).join('');if(!battleTimer){['playerHp','playerShield','playerStamina','enemyHp','enemyShield','enemyStamina'].forEach(id=>$(id).style.width='100%');$('feed').innerHTML=q.log.slice(0,8).map(x=>`<div>${x}</div>`).join('')}save()}
+function drawBattle(){const p=runtime.p,e=runtime.e;$('playerHp').style.width=Math.max(0,p.cur/p.max*100)+'%';$('playerShield').style.width=Math.min(100,p.shieldCur/Math.max(1,p.shield)*100)+'%';$('playerStamina').style.width=p.stamCur/p.stamina*100+'%';$('enemyHp').style.width=Math.max(0,e.cur/e.max*100)+'%';$('enemyShield').style.width=Math.min(100,e.shieldCur/Math.max(1,e.shield)*100)+'%';$('enemyStamina').style.width=e.stamCur/e.stamina*100+'%';$('feed').innerHTML=runtime.feed.map(x=>`<div>${x}</div>`).join('')}
+function startClass(id){q=fresh(id);$('classOverlay').classList.add('hidden');for(const itemId of CLASSES[id].start){let placed=false;for(let i=0;i<ROWS*COLS&&!placed;i++)if(fits(itemId,i,0)){q.items.push({uid:uid(),id:itemId,rot:0,cells:cellsFor(itemId,i,0),level:1});discover(itemId);placed=true}}roll(true);hint(`${CLASSES[id].n}进入百炼赛季`);draw()}
+function classScreen(){$('classChoices').innerHTML=Object.entries(CLASSES).map(([id,c])=>`<button class="choice" data-class="${id}"><span class="big">${c.i}</span><h3>${c.n}</h3><p>${c.d}</p></button>`).join('');document.querySelectorAll('[data-class]').forEach(b=>b.onclick=()=>startClass(b.dataset.class))}
+function showCodex(){$('infoTitle').textContent='百炼装备图鉴';$('infoBody').innerHTML=`<div class="codex">${Object.entries(ITEMS).map(([id,d])=>`<div style="opacity:${profile.seen.includes(id)?1:.42}"><span style="font-size:24px">${profile.seen.includes(id)?d.i:'❔'}</span><b>${profile.seen.includes(id)?d.n:'未发现'}</b><small>${profile.seen.includes(id)?d.d:'在商店或合成中发现'}</small></div>`).join('')}</div>`;$('infoOverlay').classList.remove('hidden')}
+function showSave(){const code=exportCode();$('infoTitle').textContent='跨设备百炼档案';$('infoBody').innerHTML=`<p>荣耀 ${profile.glory} · 冠军 ${profile.wins} · 最佳轮次 ${profile.best}</p><textarea class="savebox" id="saveCode">${code}</textarea><div class="actions"><button class="btn" id="copyCode">复制导出</button><button class="btn" id="importCodeBtn">导入上方存档</button></div>`;$('infoOverlay').classList.remove('hidden');$('copyCode').onclick=()=>navigator.clipboard?.writeText($('saveCode').value);$('importCodeBtn').onclick=()=>{try{importCode($('saveCode').value);$('infoOverlay').classList.add('hidden');alert('导入成功')}catch(e){alert(e.message)}}}
+function showResult(win){$('infoTitle').textContent=win?'百炼冠军':'赛季止步';$('infoBody').innerHTML=`<h3>${win?'你以十胜战绩登顶角斗场。':'生命耗尽，重新整理构筑再战。'}</h3><div class="build-row"><span>胜场</span><strong>${q.wins}</strong></div><div class="build-row"><span>荣耀</span><strong>${profile.glory}</strong></div>`;$('infoOverlay').classList.remove('hidden')}
+$('rotateBtn').onclick=()=>{rotation=(rotation+1)%2;if(selectedItem){const it=q.items.find(x=>x.uid===selectedItem);const start=Math.min(...it.cells);if(fits(it.id,start,rotation,it.uid)){it.rot=rotation;it.cells=cellsFor(it.id,start,rotation)}else hint('当前位置无法旋转')}draw()};$('forgeBtn').onclick=forge;$('sellBtn').onclick=()=>{const it=q.items.find(x=>x.uid===selectedItem);if(!it)return hint('先选择一件已放置装备');q.gold+=Math.max(1,Math.floor(ITEMS[it.id].cost*.6));q.items=q.items.filter(x=>x!==it);selectedItem=null;draw()};$('rerollBtn').onclick=()=>roll();$('lockBtn').onclick=()=>{q.locked=!q.locked;draw()};$('fightBtn').onclick=startBattle;$('codexBtn').onclick=showCodex;$('saveBtn').onclick=showSave;$('closeInfoBtn').onclick=()=>$('infoOverlay').classList.add('hidden');$('newBtn').onclick=()=>{if(confirm('放弃当前赛季并重新开始？')){q=null;save();$('classOverlay').classList.remove('hidden')}};
+load();classScreen();if(q){$('classOverlay').classList.add('hidden');if(!q.shop?.length)roll(true);else draw()}else{for(let i=0;i<ROWS*COLS;i++)$('grid').insertAdjacentHTML('beforeend','<div class="cell"></div>')}
+})();
+</script></body></html>

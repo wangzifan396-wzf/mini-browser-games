@@ -1,287 +1,200 @@
 <!doctype html>
 <html lang="zh-CN">
-  <meta charset="utf-8" /><meta
-    name="viewport"
-    content="width=device-width,initial-scale=1"
-  /><title>幸运符文机</title
-  ><style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      background: #171126;
-      color: #fff0d8;
-      font-family: system-ui, "Microsoft YaHei";
-    }
-    .app {
-      min-height: 100vh;
-      padding: 14px;
-      display: grid;
-      place-items: center;
-    }
-    .shell {
-      width: min(920px, 100%);
-      background: #2e1d49;
-      border: 1px solid #765d9a;
-      border-radius: 24px;
-      padding: 18px;
-    }
-    .top,
-    .row {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .machine {
-      margin: 14px 0;
-      padding: 25px;
-      border: 8px solid #a87528;
-      border-radius: 25px;
-      background: #55306d;
-    }
-    .reels {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 9px;
-    }
-    .reel {
-      height: 130px;
-      border-radius: 12px;
-      background: #fff7df;
-      color: #22172c;
-      display: grid;
-      place-items: center;
-      font-size: 65px;
-      border: 4px solid #d6b56a;
-    }
-    .panel {
-      background: #201332;
-      border: 1px solid #5f487b;
-      border-radius: 11px;
-      padding: 10px;
-      margin-bottom: 9px;
-    }
-    .offers {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 7px;
-    }
-    .offer {
-      min-height: 80px;
-    }
-    .offer:disabled {
-      opacity: 0.45;
-    }
-    .charms {
-      display: flex;
-      gap: 7px;
-      flex-wrap: wrap;
-    }
-    .tag {
-      padding: 6px 9px;
-      border-radius: 16px;
-      background: #473160;
-    }
-    .log {
-      height: 85px;
-      overflow: auto;
-      color: #d0bfdc;
-      font-size: 13px;
-    }
-    button {
-      padding: 10px 12px;
-      border: 1px solid #856da4;
-      border-radius: 9px;
-      background: #533c70;
-      color: white;
-      font-weight: bold;
-    }
-    .spin {
-      background: #a65d29;
-      font-size: 18px;
-    }
-    .help {
-      font-size: 13px;
-      color: #cdbed8;
-    }
-    @media (max-width: 650px) {
-      .reel {
-        height: 85px;
-        font-size: 40px;
-      }
-      .app {
-        place-items: start center;
-      }
-    }
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>幸运符文机：百夜契约</title>
+  <style>
+    :root{color-scheme:dark;--bg:#0d1020;--panel:#171b2f;--panel2:#20263d;--line:#3b4568;--text:#f4f6ff;--muted:#aeb7d5;--gold:#ffc857;--mint:#63ddb8;--red:#ff6b78;--blue:#73a9ff;--violet:#b78cff}
+    *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:radial-gradient(circle at 50% 0,#252348 0,#0d1020 42%);font-family:Inter,"Microsoft YaHei",system-ui,sans-serif;color:var(--text);letter-spacing:0}button{font:inherit;color:inherit}button:focus-visible{outline:3px solid #fff;outline-offset:2px}.app{width:min(1180px,100%);margin:auto;padding:18px}.topbar{display:flex;align-items:center;gap:16px;justify-content:space-between;border-bottom:1px solid var(--line);padding:4px 0 15px}.brand h1{margin:0;font-size:clamp(24px,4vw,38px)}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.stats{display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end}.stat{min-width:90px;padding:8px 10px;background:#101529;border:1px solid var(--line);border-radius:6px}.stat b{display:block;color:var(--gold);font-size:18px}.stat small{color:var(--muted)}.layout{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:14px;margin-top:14px}.panel{background:rgba(23,27,47,.96);border:1px solid var(--line);border-radius:8px}.machine{padding:14px}.contract-line{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;margin-bottom:12px}.rent-copy b{font-size:17px}.rent-copy span{color:var(--muted);font-size:13px}.meter{height:9px;background:#0b0e1b;border:1px solid #303955;border-radius:4px;overflow:hidden;margin-top:7px}.meter i{display:block;height:100%;background:linear-gradient(90deg,var(--red),var(--gold));width:0;transition:width .35s}.reels{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:12px;background:#090c18;border:2px solid #4a5275;border-radius:8px;min-height:374px;align-content:stretch}.symbol{position:relative;min-width:0;min-height:108px;border:1px solid #465171;border-radius:7px;background:linear-gradient(145deg,#262d49,#181d32);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:7px;text-align:center;overflow:hidden;transition:transform .18s,filter .18s,border-color .18s}.symbol .icon{font-size:36px;line-height:1}.symbol b{font-size:13px;margin-top:5px}.symbol small{color:var(--gold);font-weight:800}.symbol em{position:absolute;right:5px;top:4px;color:#dbe3ff;font-style:normal;font-size:11px}.symbol.active{transform:translateY(-4px);border-color:var(--gold);filter:brightness(1.22);box-shadow:0 0 18px #ffc85744}.symbol.common{border-color:#465171}.symbol.uncommon{border-color:#58b898}.symbol.rare{border-color:#689cff}.symbol.epic{border-color:#b979ff}.symbol.legendary{border-color:#ffbb45;background:linear-gradient(145deg,#443119,#202039)}.machine-actions{display:flex;gap:8px;align-items:stretch;margin-top:12px}.primary,.secondary,.danger,.icon-btn{border:1px solid transparent;border-radius:6px;min-height:44px;padding:9px 14px;font-weight:800;cursor:pointer;transition:transform .12s,filter .12s}.primary{background:var(--gold);color:#251800}.primary:hover,.secondary:hover,.danger:hover,.icon-btn:hover{filter:brightness(1.1);transform:translateY(-1px)}.primary:disabled,.secondary:disabled{opacity:.45;cursor:not-allowed;transform:none}.secondary{background:#303958;border-color:#526187}.danger{background:#5b2835;border-color:#9a4859}.icon-btn{width:44px;padding:8px;background:#20263d;border-color:#4b5678}.spin{flex:1;font-size:17px}.message{min-height:46px;margin-top:10px;padding:10px 12px;background:#101428;border-left:4px solid var(--blue);color:#dce4ff;font-size:13px;line-height:1.55}.sidebar{display:flex;flex-direction:column;gap:12px}.section{padding:13px}.section h2{font-size:15px;margin:0 0 10px}.build{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.charm{min-width:0;background:#101428;border:1px solid #485477;border-radius:6px;padding:8px}.charm b{display:block;font-size:13px}.charm span{display:block;color:var(--muted);font-size:11px;margin-top:3px}.empty{color:var(--muted);font-size:13px}.synergy{display:flex;justify-content:space-between;gap:8px;border-bottom:1px solid #303850;padding:6px 0;font-size:12px}.synergy:last-child{border-bottom:0}.synergy strong{color:var(--mint)}.log{max-height:190px;overflow:auto;display:flex;flex-direction:column;gap:5px}.log div{font-size:12px;color:#ccd5f3;padding-left:8px;border-left:2px solid #424d70}.toolbar{display:flex;gap:7px;flex-wrap:wrap}.toolbar button{min-height:40px}.overlay{position:fixed;inset:0;background:#080a12e8;display:flex;align-items:center;justify-content:center;padding:16px;z-index:20}.overlay.hidden{display:none}.modal{width:min(820px,100%);max-height:min(760px,92vh);overflow:auto;background:#171b2f;border:1px solid #596685;border-radius:8px;padding:18px;box-shadow:0 20px 80px #000b}.modal h2{margin:0 0 6px;font-size:25px}.modal>p{margin:0 0 14px;color:var(--muted);line-height:1.55}.choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.choice{position:relative;text-align:left;background:#222943;border:1px solid #4c587a;border-radius:7px;padding:13px;min-height:154px;cursor:pointer}.choice:hover{border-color:var(--gold);transform:translateY(-2px)}.choice .choice-icon{font-size:31px}.choice h3{margin:7px 0 4px;font-size:16px}.choice p{margin:0;color:var(--muted);font-size:12px;line-height:1.55}.choice .rarity{position:absolute;right:9px;top:9px;font-size:10px;color:var(--blue)}.tabs{display:flex;gap:6px;margin:14px 0 10px;overflow:auto}.tab{white-space:nowrap;background:#242b46;border:1px solid #485477;border-radius:5px;padding:8px 11px;cursor:pointer}.tab.active{background:#46537c}.codex{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}.codex-item{background:#101428;border:1px solid #38425f;border-radius:6px;padding:8px;min-height:91px}.codex-item.locked{filter:grayscale(1);opacity:.5}.codex-item b{display:block;font-size:12px}.codex-item span{font-size:24px}.codex-item small{display:block;color:var(--muted);font-size:10px;margin-top:4px}.savebox{width:100%;height:130px;resize:vertical;background:#0c1020;border:1px solid #4a5678;color:#e9eeff;border-radius:6px;padding:10px;font:12px ui-monospace,Consolas,monospace}.result-score{font-size:42px;color:var(--gold);font-weight:900;margin:8px 0}.float-score{position:fixed;pointer-events:none;z-index:30;color:var(--gold);font-size:28px;font-weight:900;text-shadow:0 3px 12px #000;animation:float .9s forwards}@keyframes float{to{transform:translateY(-80px);opacity:0}}@media(max-width:840px){.layout{grid-template-columns:1fr}.sidebar{display:grid;grid-template-columns:1fr 1fr}.sidebar .panel:last-child{grid-column:1/-1}.reels{min-height:340px}.symbol{min-height:96px}}@media(max-width:560px){.app{padding:10px}.topbar{align-items:flex-start;flex-direction:column}.stats{justify-content:flex-start;width:100%}.stat{min-width:calc(33.333% - 6px);flex:1;padding:6px 7px}.stat b{font-size:15px}.brand h1{font-size:25px}.layout{margin-top:10px}.machine{padding:9px}.reels{gap:5px;padding:7px;min-height:292px}.symbol{min-height:87px;padding:4px}.symbol .icon{font-size:29px}.symbol b{font-size:10px}.symbol em{font-size:9px}.sidebar{display:flex}.choices{grid-template-columns:1fr}.choice{min-height:118px}.codex{grid-template-columns:repeat(2,1fr)}.machine-actions{flex-wrap:wrap}.spin{min-width:55%}.contract-line{grid-template-columns:1fr}.modal{padding:14px}.build{grid-template-columns:1fr 1fr}}
   </style>
+</head>
+<body>
   <main class="app">
-    <section class="shell">
-      <div class="top">
-        <div>
-          <h1 style="margin: 0">幸运符文机</h1>
-          <div class="help">
-            构筑自己的符号袋，利用相邻与组合加成，在每轮租金到期前赚够目标金币。
-          </div>
+    <header class="topbar">
+      <div class="brand"><h1>幸运符文机：百夜契约</h1><p>构筑符号袋，制造连锁，在收租钟响前兑现每一份契约。</p></div>
+      <div class="stats">
+        <div class="stat"><small>金币</small><b id="coins">0</b></div>
+        <div class="stat"><small>阶段</small><b id="stage">1 / 8</b></div>
+        <div class="stat"><small>剩余旋转</small><b id="spins">5</b></div>
+      </div>
+    </header>
+    <section class="layout">
+      <div class="panel machine">
+        <div class="contract-line">
+          <div class="rent-copy"><b id="rentTitle">本期契约 · 25 金币</b><br><span id="captainText">选择契约人开始新局</span><div class="meter"><i id="rentMeter"></i></div></div>
+          <button class="secondary" id="newRunBtn">新契约</button>
         </div>
-        <div>
-          轮次 <b id="round"></b>/12　旋转 <b id="spins"></b>/5　金币
-          <b id="coins"></b>　租金 <b id="rent"></b>
+        <div class="reels" id="reels" aria-label="符文转轮"></div>
+        <div class="machine-actions">
+          <button class="primary spin" id="spinBtn">旋转符文</button>
+          <button class="secondary" id="removeBtn" title="移除一个符号">移除 <span id="removes">0</span></button>
+          <button class="secondary" id="codexBtn">图鉴</button>
+          <button class="icon-btn" id="soundBtn" title="声音">♪</button>
         </div>
+        <div class="message" id="message">选择一位契约人，开始百夜挑战。</div>
       </div>
-      <div class="machine">
-        <div class="reels" id="reels"></div>
-        <div class="row" style="justify-content: center; margin-top: 18px">
-          <button class="spin" id="spin">旋转符文</button
-          ><span id="gain"></span>
-        </div>
-      </div>
-      <div class="panel">
-        <b>本轮奖励：选择一个新符号加入袋中</b>
-        <div class="offers" id="offers"></div>
-      </div>
-      <div class="panel">
-        <b>护符与符号袋</b>
-        <div class="charms" id="charms"></div>
-      </div>
-      <div class="panel log" id="log"></div>
-      <button id="restart">新命运</button>
+      <aside class="sidebar">
+        <section class="panel section"><h2>护符构筑</h2><div class="build" id="charms"></div></section>
+        <section class="panel section"><h2>当前协同</h2><div id="synergies"></div></section>
+        <section class="panel section"><h2>契约记录</h2><div class="log" id="log"></div><div class="toolbar" style="margin-top:10px"><button class="secondary" id="saveBtn">存档码</button><button class="secondary" id="achieveBtn">成就</button></div></section>
+      </aside>
     </section>
   </main>
+
+  <div class="overlay" id="startOverlay">
+    <section class="modal"><h2>选择契约人</h2><p>每位契约人有不同的起始符号与永久规则。完成 8 期租约即可赢得百夜契约。</p><div class="choices" id="captainChoices"></div></section>
+  </div>
+  <div class="overlay hidden" id="choiceOverlay"><section class="modal"><h2 id="choiceTitle">选择新符号</h2><p id="choiceHelp">每次旋转后，将一个符号加入袋中。</p><div class="choices" id="choices"></div></section></div>
+  <div class="overlay hidden" id="infoOverlay"><section class="modal"><h2 id="infoTitle">图鉴</h2><div id="infoBody"></div><div class="toolbar" style="margin-top:14px"><button class="primary" id="closeInfoBtn">返回转轮</button></div></section></div>
+
   <script>
-    const S = [
-        ["樱桃", "🍒", 2],
-        ["金币", "🪙", 3],
-        ["宝石", "💎", 5],
-        ["猫咪", "🐱", 2],
-        ["牛奶", "🥛", 2],
-        ["蜂巢", "🍯", 3],
-        ["蜜蜂", "🐝", 2],
-        ["月亮", "🌙", 4],
-        ["太阳", "☀️", 4],
-        ["小丑", "🃏", 1],
-      ],
-      C = [
-        ["招财猫", "猫咪每个 +3"],
-        ["甜蜜产业", "蜜蜂紧邻蜂巢时翻倍"],
-        ["日月同辉", "太阳与月亮同时出现各 +4"],
-        ["连锁宝石", "每颗宝石使下一颗 +2"],
-      ];
-    let q,
-      rolled = [];
-    const $ = (x) => document.getElementById(x);
-    function fresh() {
-      return {
-        round: 1,
-        spins: 5,
-        coins: 0,
-        rent: 35,
-        bag: [0, 0, 0, 1, 1, 3, 4, 6, 7, 8],
-        charms: [],
-        logs: ["命运开始：五次旋转内支付第一笔租金。"],
-        choose: false,
-        over: false,
-      };
-    }
-    function roll() {
-      if (q.over || q.choose || q.spins <= 0) return;
-      rolled = Array.from(
-        { length: 5 },
-        () => q.bag[Math.floor(Math.random() * q.bag.length)],
-      );
-      let total = rolled.reduce((s, id) => s + S[id][2], 0);
-      if (q.charms.includes(0))
-        total += rolled.filter((x) => x === 3).length * 3;
-      if (q.charms.includes(1))
-        for (let i = 0; i < 4; i++)
-          if ([rolled[i], rolled[i + 1]].sort().join(",") === "5,6")
-            total += S[5][2] + S[6][2];
-      if (q.charms.includes(2) && rolled.includes(7) && rolled.includes(8))
-        total += rolled.filter((x) => x === 7 || x === 8).length * 4;
-      if (q.charms.includes(3)) {
-        let gems = rolled.filter((x) => x === 2).length;
-        total += gems * (gems - 1);
-      }
-      q.coins += total;
-      q.spins--;
-      gain.textContent = `本次获得 ${total} 金币`;
-      if (q.spins === 0) endRound();
-      draw();
-    }
-    function endRound() {
-      if (q.coins < q.rent) {
-        q.over = true;
-        q.logs.unshift(`租金 ${q.rent} 未能支付，命运终止。`);
-        return;
-      }
-      q.coins -= q.rent;
-      q.logs.unshift(`支付租金 ${q.rent}，进入下一轮。`);
-      q.round++;
-      if (q.round > 12) {
-        q.over = true;
-        q.logs.unshift("十二轮全部通过，符文大师诞生！");
-        return;
-      }
-      q.rent = Math.round(q.rent * 1.34 + 5);
-      q.spins = 5;
-      q.choose = true;
-      makeOffers();
-    }
-    function makeOffers() {
-      q.offers = Array.from({ length: 3 }, () =>
-        Math.floor(Math.random() * S.length),
-      );
-      if (q.round % 3 === 0 && q.charms.length < C.length)
-        q.charmOffer = q.charms.length;
-      else q.charmOffer = null;
-    }
-    function choose(i) {
-      q.bag.push(q.offers[i]);
-      q.choose = false;
-      if (q.charmOffer !== null) {
-        q.charms.push(q.charmOffer);
-        q.logs.unshift(`获得护符：${C[q.charmOffer][0]}。`);
-      }
-      draw();
-    }
-    function draw() {
-      round.textContent = Math.min(12, q.round);
-      spins.textContent = q.spins;
-      coins.textContent = q.coins;
-      rent.textContent = q.rent;
-      reels.innerHTML = (rolled.length ? rolled : [9, 9, 9, 9, 9])
-        .map((id) => `<div class="reel">${S[id][1]}</div>`)
-        .join("");
-      offers.innerHTML = q.choose
-        ? q.offers
-            .map(
-              (id, i) =>
-                `<button class="offer" data-i="${i}">${S[id][1]}<br><b>${S[id][0]}</b> · 基础 ${S[id][2]}</button>`,
-            )
-            .join("")
-        : '<div class="help">完成本轮后出现奖励</div>';
-      offers
-        .querySelectorAll("[data-i]")
-        .forEach((e) => (e.onclick = () => choose(+e.dataset.i)));
-      charms.innerHTML =
-        q.charms
-          .map((i) => `<span class="tag">${C[i][0]}：${C[i][1]}</span>`)
-          .join("") + `<span class="tag">符号 ${q.bag.length} 个</span>`;
-      log.innerHTML = q.logs
-        .slice(0, 8)
-        .map((x) => `<div>• ${x}</div>`)
-        .join("");
-      spin.disabled = q.over || q.choose;
-    }
-    spin.onclick = roll;
-    restart.onclick = () => {
-      q = fresh();
-      rolled = [];
-      draw();
+  (()=>{
+    "use strict";
+    const $=id=>document.getElementById(id);
+    const RENTS=[25,55,100,165,250,370,520,720];
+    const RARITY={common:{name:"普通",w:58},uncommon:{name:"精良",w:27},rare:{name:"稀有",w:11},epic:{name:"史诗",w:3.4},legendary:{name:"传说",w:.6}};
+    const SYMBOLS={
+      coin:{n:"铜币",i:"🪙",r:"common",v:1,t:["财富"],d:"每个相邻铜币 +1。"},
+      seed:{n:"种子",i:"🌱",r:"common",v:1,t:["自然"],d:"出现 3 次后长成花朵。"},
+      mouse:{n:"信使鼠",i:"🐭",r:"common",v:1,t:["兽群"],d:"相邻奶酪时 +5，并有机会吃掉它。"},
+      cheese:{n:"月酪",i:"🧀",r:"common",v:2,t:["食物"],d:"可被信使鼠吃掉。"},
+      rain:{n:"雨滴",i:"🌧️",r:"common",v:1,t:["自然","潮汐"],d:"相邻种子和花朵各 +2。"},
+      shell:{n:"贝壳",i:"🐚",r:"common",v:2,t:["潮汐"],d:"每 4 次出现化为珍珠。"},
+      bee:{n:"蜜蜂",i:"🐝",r:"uncommon",v:2,t:["自然","兽群"],d:"每个相邻花朵 +3。"},
+      flower:{n:"花朵",i:"🌼",r:"uncommon",v:2,t:["自然"],d:"每个相邻蜜蜂或雨滴 +2。"},
+      cat:{n:"港猫",i:"🐈",r:"uncommon",v:2,t:["兽群"],d:"相邻鱼时 +5。"},
+      fish:{n:"银鱼",i:"🐟",r:"uncommon",v:3,t:["食物","潮汐"],d:"相邻港猫或船锚 +3。"},
+      moon:{n:"月轮",i:"🌙",r:"uncommon",v:2,t:["星象"],d:"相邻太阳或星辰 +4。"},
+      gem:{n:"原石",i:"💎",r:"uncommon",v:3,t:["矿藏"],d:"相邻矿镐时价值翻倍。"},
+      spirit:{n:"游魂",i:"👻",r:"uncommon",v:3,t:["秘术"],d:"出现 4 次后消散并支付 18。"},
+      sun:{n:"太阳",i:"☀️",r:"rare",v:5,t:["星象"],d:"每个相邻月轮 +5。"},
+      pick:{n:"星矿镐",i:"⛏️",r:"rare",v:4,t:["矿藏"],d:"每个相邻原石或珍珠 +4。"},
+      pearl:{n:"珍珠",i:"⚪",r:"rare",v:7,t:["矿藏","潮汐"],d:"相邻潮汐符号时 +2。"},
+      key:{n:"古钥匙",i:"🗝️",r:"rare",v:1,t:["秘术"],d:"打开相邻宝箱，获得 30 金币后一起消失。"},
+      chest:{n:"宝箱",i:"🧰",r:"rare",v:0,t:["财富"],d:"等待古钥匙开启。"},
+      witch:{n:"符文女巫",i:"🧙",r:"rare",v:5,t:["秘术"],d:"每个相邻游魂、钥匙或宝箱 +3。"},
+      anchor:{n:"星港锚",i:"⚓",r:"rare",v:5,t:["潮汐"],d:"每种相邻潮汐符号 +3。"},
+      star:{n:"星辰",i:"⭐",r:"epic",v:8,t:["星象"],d:"相邻星象符号的基础价值翻倍。"},
+      crown:{n:"契约王冠",i:"👑",r:"epic",v:10,t:["财富"],d:"每拥有 10 个符号 +2。"},
+      mirror:{n:"万象镜",i:"🪞",r:"epic",v:0,t:["秘术"],d:"复制相邻符号中的最高得分。"},
+      comet:{n:"彗核",i:"☄️",r:"legendary",v:14,t:["星象","矿藏"],d:"每个不同标签 +2。"}
     };
-    q = fresh();
-    draw();
+    const CAPTAINS={
+      astrologer:{n:"观星人",i:"🔭",d:"星象符号 +1；起始拥有太阳和月轮。",start:["coin","coin","seed","rain","moon","sun","shell","mouse","cheese","gem","spirit","fish"]},
+      beekeeper:{n:"蜂庭主",i:"🍯",d:"自然连锁额外 +1；起始拥有双蜂与花园。",start:["coin","coin","seed","seed","rain","bee","bee","flower","flower","mouse","cheese","shell"]},
+      machinist:{n:"星港匠",i:"🛠️",d:"矿藏符号 +1；每期租约后多获得一次移除。",start:["coin","coin","coin","gem","gem","pick","shell","shell","fish","anchor","seed","rain"]}
+    };
+    const CHARMS={
+      compound:{n:"复利徽记",i:"📈",d:"每期结算后，剩余金币的 8% 转为利息（最多 25）。"},
+      honey:{n:"蜂蜜王冠",i:"🍯",d:"蜜蜂每相邻两朵花，再额外 +4。"},
+      tide:{n:"涨潮瓶",i:"🌊",d:"每次旋转随机一个潮汐符号价值翻倍。"},
+      starmap:{n:"折叠星图",i:"🗺️",d:"星象符号彼此视为相邻。"},
+      polish:{n:"珠宝蜡",i:"✨",d:"原石、珍珠和彗核 +2。"},
+      pantry:{n:"永鲜柜",i:"🧺",d:"食物符号 +2，且不会被消耗。"},
+      echo:{n:"回声铃",i:"🔔",d:"每次旋转重新触发一个最低分符号。"},
+      focus:{n:"聚焦透镜",i:"🔍",d:"转轮中心一行所有符号 +2。"},
+      archive:{n:"契约档案",i:"📚",d:"每拥有一种不同符号，本次旋转 +1。"},
+      bargain:{n:"讨价印章",i:"🤝",d:"所有后续租金降低 8%。"},
+      magnet:{n:"财富磁石",i:"🧲",d:"财富符号每有一个相邻财富符号 +1。"},
+      alchemy:{n:"炼金坩埚",i:"⚗️",d:"每第 3 次旋转将一个普通符号升格为随机精良符号。"}
+    };
+    const ACHIEVEMENTS={
+      first100:{n:"百金之夜",d:"单次旋转获得 100 金币"},
+      chain8:{n:"八重回响",d:"一次旋转触发 8 个以上连锁"},
+      collector:{n:"万象收藏",d:"在一局中发现 18 种符号"},
+      win:{n:"契约自由",d:"完成八期百夜契约"},
+      tinybag:{n:"精简主义",d:"以不超过 15 个符号完成第五期"}
+    };
+    const key="charmReelsV3";
+    let audio=null,muted=false,removeMode=false,animating=false;
+    let profile={essence:0,best:0,wins:0,seen:[],ach:[]};
+    let q=null;
+    function item(id){return{id,age:0,uid:Math.random().toString(36).slice(2)}}
+    function fresh(captain){const c=CAPTAINS[captain];return{v:3,captain,coins:10,stage:0,spins:5,bag:c.start.map(item),charms:[],removes:1,history:[],lastGrid:[],lastScore:0,gameOver:false,won:false,spinNo:0,seen:[...new Set(c.start)]}}
+    function save(){localStorage.setItem(key,JSON.stringify({q,profile,muted}))}
+    function load(){try{const x=JSON.parse(localStorage.getItem(key));if(x?.profile)profile={...profile,...x.profile};if(x?.q?.v===3)q=x.q;muted=!!x?.muted}catch{}profile.seen=[...new Set(profile.seen||[])];profile.ach=[...new Set(profile.ach||[])]}
+    function checksum(text){let h=2166136261;for(let i=0;i<text.length;i++){h^=text.charCodeAt(i);h=Math.imul(h,16777619)}return(h>>>0).toString(36)}
+    function encodeSave(){const raw=JSON.stringify({v:3,q,profile});const body=btoa(unescape(encodeURIComponent(raw)));return`CR3-${body}-${checksum(body)}`}
+    function decodeSave(code){const m=code.trim().match(/^CR3-(.+)-([a-z0-9]+)$/i);if(!m||checksum(m[1])!==m[2])throw Error("存档码校验失败");const data=JSON.parse(decodeURIComponent(escape(atob(m[1]))));if(data.v!==3||!data.profile)throw Error("存档版本不兼容");q=data.q;profile={...profile,...data.profile};save()}
+    function beep(freq=440,dur=.06,type="sine",gain=.035){if(muted)return;try{audio??=new AudioContext();const o=audio.createOscillator(),g=audio.createGain();o.type=type;o.frequency.value=freq;g.gain.value=gain;o.connect(g).connect(audio.destination);o.start();g.gain.exponentialRampToValueAtTime(.0001,audio.currentTime+dur);o.stop(audio.currentTime+dur)}catch{}}
+    function neighbors(i){const r=Math.floor(i/5),c=i%5,out=[];for(const[dr,dc]of[[0,1],[1,0],[0,-1],[-1,0]]){const rr=r+dr,cc=c+dc;if(rr>=0&&rr<3&&cc>=0&&cc<5)out.push(rr*5+cc)}return out}
+    function hasCharm(id){return q.charms.includes(id)}
+    function weightedSymbol(){const entries=Object.entries(SYMBOLS).filter(([id])=>!q.seen.includes(id)||Math.random()<.42);let total=0;for(const[,d]of entries)total+=RARITY[d.r].w;let x=Math.random()*total;for(const[id,d]of entries){x-=RARITY[d.r].w;if(x<=0)return id}return"coin"}
+    function offers(count=3){const ids=[];while(ids.length<count){let id=weightedSymbol();if(!ids.includes(id))ids.push(id)}return ids}
+    function log(text){q.history.unshift(text);q.history=q.history.slice(0,16)}
+    function discover(id){q.seen.push(id);q.seen=[...new Set(q.seen)];profile.seen.push(id);profile.seen=[...new Set(profile.seen)]}
+    function unlock(id){if(!profile.ach.includes(id)){profile.ach.push(id);log(`成就解锁：${ACHIEVEMENTS[id].n}`);profile.essence+=8;beep(880,.16,"triangle",.06)}}
+    function scoreGrid(grid){
+      const scores=grid.map(x=>SYMBOLS[x.id].v),notes=grid.map(()=>[]),consume=new Set(),transforms=[],tags=new Set(),c=CAPTAINS[q.captain];let chains=0,bonus=0;
+      grid.forEach(x=>SYMBOLS[x.id].t.forEach(t=>tags.add(t)));
+      grid.forEach((x,i)=>{
+        const d=SYMBOLS[x.id],near=neighbors(i).map(n=>grid[n]),count=id=>near.filter(a=>a.id===id).length,tag=t=>near.filter(a=>SYMBOLS[a.id].t.includes(t)).length;
+        if(q.captain==="astrologer"&&d.t.includes("星象"))scores[i]++;
+        if(q.captain==="machinist"&&d.t.includes("矿藏"))scores[i]++;
+        if(q.captain==="beekeeper"&&d.t.includes("自然")&&(tag("自然")>0))scores[i]++;
+        if(x.id==="coin"){const n=count("coin");scores[i]+=n;chains+=n>0;}
+        if(x.id==="seed"&&++x.age>=3)transforms.push([x,"flower"]);
+        if(x.id==="shell"&&++x.age>=4)transforms.push([x,"pearl"]);
+        if(x.id==="spirit"&&++x.age>=4){bonus+=18;consume.add(x.uid);notes[i].push("归魂 +18");chains++}
+        if(x.id==="bee"){const n=count("flower");scores[i]+=n*3+(hasCharm("honey")&&n>=2?4:0);chains+=n}
+        if(x.id==="flower"){const n=count("bee")+count("rain");scores[i]+=n*2;chains+=n}
+        if(x.id==="rain"){const n=count("seed")+count("flower");scores[i]+=n*2;chains+=n}
+        if(x.id==="mouse"&&count("cheese")){scores[i]+=5;chains++;if(!hasCharm("pantry")&&Math.random()<.35){const food=near.find(a=>a.id==="cheese");consume.add(food.uid);notes[i].push("享用月酪")}}
+        if(x.id==="cat"&&count("fish")){scores[i]+=5;chains++}
+        if(x.id==="fish"){const n=count("cat")+count("anchor");scores[i]+=n*3;chains+=n}
+        if(x.id==="moon"){const n=count("sun")+count("star");scores[i]+=n*4;chains+=n}
+        if(x.id==="sun"){const n=count("moon");scores[i]+=n*5;chains+=n}
+        if(x.id==="gem"&&count("pick")){scores[i]*=2;chains++}
+        if(x.id==="pick"){const n=count("gem")+count("pearl");scores[i]+=n*4;chains+=n}
+        if(x.id==="pearl"){scores[i]+=tag("潮汐")*2;chains+=tag("潮汐")}
+        if(x.id==="witch"){const n=count("spirit")+count("key")+count("chest");scores[i]+=n*3;chains+=n}
+        if(x.id==="anchor"){const n=tag("潮汐");scores[i]+=n*3;chains+=n}
+        if(x.id==="key"&&count("chest")){const chest=near.find(a=>a.id==="chest");consume.add(x.uid);consume.add(chest.uid);bonus+=30;notes[i].push("开启宝箱 +30");chains+=2}
+        if(x.id==="star"){near.forEach(a=>{if(SYMBOLS[a.id].t.includes("星象")){const j=grid.indexOf(a);scores[j]+=SYMBOLS[a.id].v;chains++}})}
+        if(x.id==="crown")scores[i]+=Math.floor(q.bag.length/10)*2;
+        if(x.id==="mirror"){scores[i]=Math.max(0,...neighbors(i).map(n=>scores[n]));chains+=scores[i]>0}
+        if(x.id==="comet")scores[i]+=tags.size*2;
+        if(hasCharm("polish")&&d.t.includes("矿藏"))scores[i]+=2;
+        if(hasCharm("pantry")&&d.t.includes("食物"))scores[i]+=2;
+        if(hasCharm("focus")&&Math.floor(i/5)===1)scores[i]+=2;
+        if(hasCharm("magnet")&&d.t.includes("财富"))scores[i]+=tag("财富");
+      });
+      if(hasCharm("starmap")){const stars=grid.filter(x=>SYMBOLS[x.id].t.includes("星象")).length;if(stars>1)grid.forEach((x,i)=>{if(SYMBOLS[x.id].t.includes("星象")){scores[i]+=stars-1;chains+=stars-1}})}
+      if(hasCharm("tide")){const indexes=grid.map((x,i)=>SYMBOLS[x.id].t.includes("潮汐")?i:-1).filter(i=>i>=0);if(indexes.length){const i=indexes[Math.floor(Math.random()*indexes.length)];scores[i]*=2;notes[i].push("涨潮翻倍");chains++}}
+      if(hasCharm("archive"))bonus+=new Set(q.bag.map(x=>x.id)).size;
+      if(hasCharm("echo")){let i=scores.indexOf(Math.min(...scores));bonus+=scores[i];notes[i].push("回声");chains++}
+      transforms.forEach(([x,id])=>{x.id=id;x.age=0;discover(id)});
+      if(consume.size)q.bag=q.bag.filter(x=>!consume.has(x.uid));
+      if(hasCharm("alchemy")&&q.spinNo%3===0){const common=q.bag.filter(x=>SYMBOLS[x.id].r==="common");if(common.length){const x=common[Math.floor(Math.random()*common.length)],pool=Object.keys(SYMBOLS).filter(id=>SYMBOLS[id].r==="uncommon");x.id=pool[Math.floor(Math.random()*pool.length)];x.age=0;discover(x.id);log(`炼金坩埚将符号升格为 ${SYMBOLS[x.id].n}`)}}
+      return{scores,notes,total:scores.reduce((a,b)=>a+b,0)+bonus,bonus,chains};
+    }
+    function renderGrid(grid=q.lastGrid,scores=[]){const box=$("reels");box.innerHTML="";for(let i=0;i<15;i++){const x=grid[i],el=document.createElement("div");if(!x){el.className="symbol common";el.innerHTML='<span class="icon">✦</span><b>等待旋转</b>';box.appendChild(el);continue}const d=SYMBOLS[x.id];el.className=`symbol ${d.r}`;el.dataset.uid=x.uid;el.innerHTML=`<em>${RARITY[d.r].name}</em><span class="icon">${d.i}</span><b>${d.n}</b><small>${scores[i]!=null?`+${scores[i]}`:`基础 ${d.v}`}</small>`;if(removeMode){el.style.cursor="pointer";el.title="点击从符号袋移除";el.onclick=()=>removeSymbol(x.uid)}box.appendChild(el)}}
+    function draw(){if(!q)return;$("coins").textContent=q.coins;$("stage").textContent=`${Math.min(q.stage+1,8)} / 8`;$("spins").textContent=q.spins;$("removes").textContent=q.removes;const rent=Math.ceil(RENTS[Math.min(q.stage,7)]*(hasCharm("bargain") ? .92 : 1));$("rentTitle").textContent=q.won?"契约已完成":q.gameOver?"契约已终止":`本期契约 · ${rent} 金币`;$("captainText").textContent=CAPTAINS[q.captain].i+" "+CAPTAINS[q.captain].n+" · 符号袋 "+q.bag.length+" 枚";$("rentMeter").style.width=Math.min(100,q.coins/rent*100)+"%";$("spinBtn").disabled=animating||q.gameOver||q.won;$("removeBtn").disabled=!q.removes||animating||q.gameOver;$("removeBtn").classList.toggle("danger",removeMode);renderGrid();$("charms").innerHTML=q.charms.length?q.charms.map(id=>`<div class="charm"><b>${CHARMS[id].i} ${CHARMS[id].n}</b><span>${CHARMS[id].d}</span></div>`).join(""):'<div class="empty">结清租约后可选择护符。</div>';const counts={};q.bag.forEach(x=>SYMBOLS[x.id].t.forEach(t=>counts[t]=(counts[t]||0)+1));$("synergies").innerHTML=Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([t,n])=>`<div class="synergy"><span>${t}</span><strong>${n} 枚</strong></div>`).join("")||'<div class="empty">暂无协同</div>';$("log").innerHTML=q.history.map(x=>`<div>${x}</div>`).join("")||'<div>新的契约等待第一声钟响。</div>';$("soundBtn").textContent=muted?"×":"♪";save()}
+    async function spin(){if(animating||q.gameOver||q.won)return;removeMode=false;animating=true;q.spinNo++;q.spins--;beep(220,.08,"square",.025);const pool=[...q.bag].sort(()=>Math.random()-.5),grid=[];while(grid.length<15)grid.push(pool[grid.length%pool.length]);q.lastGrid=grid;for(let k=0;k<6;k++){renderGrid(Array.from({length:15},()=>q.bag[Math.floor(Math.random()*q.bag.length)]));await new Promise(r=>setTimeout(r,55+k*18))}const result=scoreGrid(grid);renderGrid(grid,result.scores);[...$("reels").children].forEach((el,i)=>setTimeout(()=>{el.classList.add("active");beep(300+Math.min(900,result.scores[i]*35),.05,"triangle",.02)},i*38));await new Promise(r=>setTimeout(r,700));q.coins+=result.total;q.lastScore=result.total;profile.best=Math.max(profile.best,result.total);if(result.total>=100)unlock("first100");if(result.chains>=8)unlock("chain8");if(q.seen.length>=18)unlock("collector");log(`第 ${q.spinNo} 转获得 ${result.total} 金币 · ${result.chains} 次连锁`);$("message").textContent=`本次结算 ${result.total} 金币${result.bonus?`，其中额外收益 ${result.bonus}`:""}。`;
+      const rect=$("reels").getBoundingClientRect(),f=document.createElement("div");f.className="float-score";f.textContent=`+${result.total}`;f.style.left=(rect.left+rect.width/2-35)+"px";f.style.top=(rect.top+rect.height/2)+"px";document.body.appendChild(f);setTimeout(()=>f.remove(),950);animating=false;draw();if(q.spins<=0)await settleRent();else showSymbolChoice();}
+    function showSymbolChoice(){const ids=offers(3);$("choiceTitle").textContent="选择一枚新符号";$("choiceHelp").textContent="新符号将永久加入本局符号袋。观察标签和现有护符再做决定。";$("choices").innerHTML=ids.map((id,i)=>{const d=SYMBOLS[id];return`<button class="choice" data-symbol="${id}"><span class="rarity">${RARITY[d.r].name}</span><span class="choice-icon">${d.i}</span><h3>${d.n} · ${d.v}</h3><p>${d.d}<br>标签：${d.t.join(" / ")}</p></button>`}).join("");$("choiceOverlay").classList.remove("hidden");document.querySelectorAll("[data-symbol]").forEach(b=>b.onclick=()=>{const id=b.dataset.symbol;q.bag.push(item(id));discover(id);log(`获得新符号：${SYMBOLS[id].n}`);$("choiceOverlay").classList.add("hidden");beep(660,.1,"triangle",.04);draw()})}
+    async function settleRent(){const rent=Math.ceil(RENTS[Math.min(q.stage,7)]*(hasCharm("bargain") ? .92 : 1));await new Promise(r=>setTimeout(r,250));if(q.coins<rent){q.gameOver=true;profile.essence+=q.stage*3;log(`契约终止：缺少 ${rent-q.coins} 金币`);showResult(false);draw();return}q.coins-=rent;let interest=hasCharm("compound")?Math.min(25,Math.floor(q.coins*.08)):0;q.coins+=interest;q.stage++;q.removes+=q.captain==="machinist"?2:1;profile.essence+=4+q.stage*2;if(q.stage===5&&q.bag.length<=15)unlock("tinybag");if(q.stage>=RENTS.length){q.won=true;profile.wins++;profile.essence+=50;unlock("win");showResult(true);draw();return}q.spins=5+(q.stage>=4?1:0);log(`第 ${q.stage} 期租约结清${interest?`，复利 +${interest}`:""}`);showCharmChoice();draw()}
+    function showCharmChoice(){const available=Object.keys(CHARMS).filter(id=>!q.charms.includes(id)).sort(()=>Math.random()-.5).slice(0,3);$("choiceTitle").textContent="选择契约护符";$("choiceHelp").textContent="护符会永久改变本局规则。";$("choices").innerHTML=available.map(id=>`<button class="choice" data-charm="${id}"><span class="choice-icon">${CHARMS[id].i}</span><h3>${CHARMS[id].n}</h3><p>${CHARMS[id].d}</p></button>`).join("");$("choiceOverlay").classList.remove("hidden");document.querySelectorAll("[data-charm]").forEach(b=>b.onclick=()=>{q.charms.push(b.dataset.charm);log(`获得护符：${CHARMS[b.dataset.charm].n}`);$("choiceOverlay").classList.add("hidden");beep(760,.12,"triangle",.05);draw()})}
+    function removeSymbol(uid){if(!removeMode||!q.removes)return;const x=q.bag.find(a=>a.uid===uid);if(!x)return;q.bag=q.bag.filter(a=>a.uid!==uid);q.removes--;removeMode=false;log(`移除符号：${SYMBOLS[x.id].n}`);$("message").textContent="符号已从袋中移除。精简符号袋能让关键连锁更稳定。";draw()}
+    function startRun(id){q=fresh(id);$("startOverlay").classList.add("hidden");log(`${CAPTAINS[id].n}签下百夜契约`);Object.keys(SYMBOLS).forEach(()=>{});draw();beep(520,.12,"triangle",.05)}
+    function showResult(win){$("infoTitle").textContent=win?"百夜契约完成":"契约终止";$("infoBody").innerHTML=`<div class="result-score">${win?"自由之夜":"再试一次"}</div><p>${win?"你结清了全部八期租约，符文机的契约已经解除。":"本局构筑未能支付下一期租约。尝试减少低协同符号，并围绕一到两个标签构筑。"}</p><div class="synergy"><span>完成阶段</span><strong>${q.stage} / 8</strong></div><div class="synergy"><span>最佳单转</span><strong>${profile.best}</strong></div><div class="synergy"><span>获得契约精华</span><strong>${profile.essence}</strong></div>`;$("infoOverlay").classList.remove("hidden")}
+    function showCodex(){
+      const tabs='<div class="tabs"><button class="tab active" data-info="symbols">符号图鉴</button><button class="tab" data-info="charms">护符图鉴</button></div><div id="codexContent"></div>';
+      $("infoTitle").textContent="万象图鉴";$("infoBody").innerHTML=tabs;
+      const render=mode=>{
+        document.querySelectorAll("[data-info]").forEach(x=>x.classList.toggle("active",x.dataset.info===mode));
+        if(mode==="symbols")$("codexContent").innerHTML=`<div class="codex">${Object.entries(SYMBOLS).map(([id,d])=>`<div class="codex-item ${profile.seen.includes(id)?"":"locked"}"><span>${profile.seen.includes(id)?d.i:"?"}</span><b>${profile.seen.includes(id)?d.n:"未发现"}</b><small>${profile.seen.includes(id)?d.d:"在契约中发现后解锁"}</small></div>`).join("")}</div>`;
+        else $("codexContent").innerHTML=`<div class="codex">${Object.values(CHARMS).map(d=>`<div class="codex-item"><span>${d.i}</span><b>${d.n}</b><small>${d.d}</small></div>`).join("")}</div>`;
+      };
+      document.querySelectorAll("[data-info]").forEach(x=>x.onclick=()=>render(x.dataset.info));render("symbols");$("infoOverlay").classList.remove("hidden");
+    }
+    function showAchievements(){$("infoTitle").textContent="契约成就";$("infoBody").innerHTML=`<p>契约精华 ${profile.essence} · 胜利 ${profile.wins} · 最佳单转 ${profile.best}</p><div class="codex">${Object.entries(ACHIEVEMENTS).map(([id,a])=>`<div class="codex-item ${profile.ach.includes(id)?"":"locked"}"><span>${profile.ach.includes(id)?"🏆":"🔒"}</span><b>${a.n}</b><small>${a.d}</small></div>`).join("")}</div>`;$("infoOverlay").classList.remove("hidden")}
+    function showSave(){const code=encodeSave();$("infoTitle").textContent="跨设备存档码";$("infoBody").innerHTML=`<p>存档码包含当前契约、图鉴、成就和精华，并带有完整性校验。</p><textarea class="savebox" id="saveCode">${code}</textarea><div class="toolbar" style="margin-top:9px"><button class="secondary" id="copySave">复制导出</button><button class="primary" id="importSave">导入上方存档</button></div>`;$("infoOverlay").classList.remove("hidden");$("copySave").onclick=async()=>{await navigator.clipboard?.writeText($("saveCode").value);$("message").textContent="存档码已复制。"};$("importSave").onclick=()=>{try{decodeSave($("saveCode").value);$("infoOverlay").classList.add("hidden");$("startOverlay").classList.toggle("hidden",!!q);draw();alert("存档导入成功") }catch(e){alert(e.message)}}}
+    function captainScreen(){$("captainChoices").innerHTML=Object.entries(CAPTAINS).map(([id,c])=>`<button class="choice" data-captain="${id}"><span class="choice-icon">${c.i}</span><h3>${c.n}</h3><p>${c.d}</p></button>`).join("");document.querySelectorAll("[data-captain]").forEach(b=>b.onclick=()=>startRun(b.dataset.captain))}
+    $("spinBtn").onclick=spin;$("removeBtn").onclick=()=>{removeMode=!removeMode;$("message").textContent=removeMode?"点击转轮或最近一轮中的符号，将同一枚符号从袋中移除。":"已取消移除。";draw()};$("newRunBtn").onclick=()=>{if(!q||confirm("放弃当前契约并开始新局？")){q=null;save();$("startOverlay").classList.remove("hidden")}};$("codexBtn").onclick=showCodex;$("achieveBtn").onclick=showAchievements;$("saveBtn").onclick=showSave;$("closeInfoBtn").onclick=()=>$("infoOverlay").classList.add("hidden");$("soundBtn").onclick=()=>{muted=!muted;draw();if(!muted)beep(520)};
+    load();captainScreen();if(q){$("startOverlay").classList.add("hidden");draw()}else renderGrid([]);
+  })();
   </script>
+</body>
 </html>
