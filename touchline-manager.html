@@ -1,374 +1,48 @@
-<!doctype html>
-<html lang="zh-CN">
-  <meta charset="utf-8" /><meta
-    name="viewport"
-    content="width=device-width,initial-scale=1"
-  /><title>绿茵经理</title
-  ><style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      background: #10241b;
-      color: #f2faef;
-      font-family: system-ui, "Microsoft YaHei";
-    }
-    .app {
-      min-height: 100vh;
-      padding: 14px;
-      display: grid;
-      place-items: center;
-    }
-    .shell {
-      width: min(980px, 100%);
-      background: #1c422f;
-      border: 1px solid #5c876c;
-      border-radius: 20px;
-      padding: 16px;
-    }
-    .top,
-    .row {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .layout {
-      display: grid;
-      grid-template-columns: 1fr 310px;
-      gap: 12px;
-      margin-top: 12px;
-    }
-    .pitch {
-      min-height: 420px;
-      background: repeating-linear-gradient(
-        90deg,
-        #397d4b 0 70px,
-        #347346 70px 140px
-      );
-      border: 3px solid white;
-      border-radius: 12px;
-      padding: 15px;
-    }
-    .squad {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-    }
-    .player {
-      background: #184f2d;
-      border: 1px solid #77a584;
-      border-radius: 9px;
-      padding: 8px;
-      text-align: center;
-    }
-    .player.tired {
-      opacity: 0.55;
-    }
-    .panel {
-      background: #123523;
-      border: 1px solid #4c7459;
-      border-radius: 11px;
-      padding: 10px;
-      margin-bottom: 9px;
-    }
-    .table {
-      max-height: 210px;
-      overflow: auto;
-    }
-    .club {
-      display: flex;
-      justify-content: space-between;
-      padding: 5px;
-      border-bottom: 1px solid #ffffff18;
-    }
-    .log {
-      height: 105px;
-      overflow: auto;
-      color: #bbd1c1;
-      font-size: 13px;
-    }
-    button,
-    select {
-      padding: 9px 11px;
-      border: 1px solid #6c9678;
-      border-radius: 9px;
-      background: #2e6841;
-      color: white;
-      font-weight: bold;
-    }
-    .match {
-      background: #92712f;
-    }
-    .help {
-      font-size: 13px;
-      color: #bad0bf;
-    }
-    @media (max-width: 700px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
-      .squad {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      .app {
-        place-items: start center;
-      }
-    }
-  </style>
-  <main class="app">
-    <section class="shell">
-      <div class="top">
-        <div>
-          <h1 style="margin: 0">绿茵经理</h1>
-          <div class="help">
-            安排阵型、攻守倾向、训练和转会，在十轮联赛中争夺冠军。
-          </div>
-        </div>
-        <div>
-          第 <b id="week"></b>/10 轮　积分 <b id="points"></b>　资金
-          <b id="money"></b>　排名 <b id="rank"></b>
-        </div>
-      </div>
-      <div class="layout">
-        <div>
-          <div class="pitch">
-            <div class="row">
-              <label
-                >阵型
-                <select id="formation">
-                  <option>4-3-3</option>
-                  <option>4-4-2</option>
-                  <option>3-5-2</option>
-                </select></label
-              ><label
-                >战术
-                <select id="tactic">
-                  <option value="balanced">均衡</option>
-                  <option value="attack">高位进攻</option>
-                  <option value="defend">防守反击</option>
-                </select></label
-              ><button id="train">本周训练</button
-              ><button class="match" id="match">进行比赛</button>
-            </div>
-            <h3>首发阵容</h3>
-            <div class="squad" id="squad"></div>
-          </div>
-          <div class="panel log" id="log"></div>
-        </div>
-        <aside>
-          <div class="panel">
-            <b>联赛积分榜</b>
-            <div class="table" id="table"></div>
-          </div>
-          <div class="panel">
-            <b>转会市场</b>
-            <div id="market"></div>
-            <button id="scout">刷新球探名单（5）</button>
-          </div>
-          <button id="restart">新赛季</button>
-        </aside>
-      </div>
-    </section>
-  </main>
-  <script>
-    const names = [
-        "云翼",
-        "铁壁",
-        "流星",
-        "青锋",
-        "山猫",
-        "飞火",
-        "林塔",
-        "雷鸣",
-        "白帆",
-        "赤鹿",
-        "星尘",
-      ],
-      clubs = [
-        "你的球队",
-        "北城联",
-        "海湾竞技",
-        "赤峰队",
-        "学院十一人",
-        "港口城",
-      ];
-    let q;
-    const $ = (x) => document.getElementById(x);
-    function makePlayer(i) {
-      return {
-        n: names[i % names.length],
-        pos: i < 1 ? "门将" : i < 5 ? "后卫" : i < 8 ? "中场" : "前锋",
-        atk: 45 + Math.floor(Math.random() * 30) + (i > 7 ? 12 : 0),
-        def: 45 + Math.floor(Math.random() * 30) + (i < 5 ? 12 : 0),
-        fit: 100,
-      };
-    }
-    function fresh() {
-      return {
-        week: 1,
-        money: 80,
-        trained: false,
-        players: Array.from({ length: 11 }, (_, i) => makePlayer(i)),
-        clubs: clubs.map((n, i) => ({
-          n,
-          p: 0,
-          gd: 0,
-          pow: 62 + Math.floor(Math.random() * 15) + (i === 0 ? 2 : 0),
-        })),
-        logs: ["新赛季开始，董事会目标是联赛前三。"],
-        market: [],
-        over: false,
-      };
-    }
-    function strength() {
-      let atk = q.players.reduce((s, p) => s + (p.atk * p.fit) / 100, 0) / 11,
-        def = q.players.reduce((s, p) => s + (p.def * p.fit) / 100, 0) / 11,
-        t = tactic.value;
-      if (t === "attack") {
-        atk += 9;
-        def -= 6;
-      }
-      if (t === "defend") {
-        def += 9;
-        atk -= 6;
-      }
-      if (formation.value === "4-3-3") atk += 4;
-      if (formation.value === "4-4-2") {
-        atk += 2;
-        def += 2;
-      }
-      if (formation.value === "3-5-2") {
-        atk += 5;
-        def -= 2;
-      }
-      return { atk, def };
-    }
-    function play() {
-      if (q.over) return;
-      let s = strength(),
-        opp = q.clubs[1 + ((q.week - 1) % 5)],
-        ourGoals = Math.max(
-          0,
-          Math.round((s.atk - opp.pow + Math.random() * 28) / 12),
-        ),
-        theirGoals = Math.max(
-          0,
-          Math.round((opp.pow - s.def + Math.random() * 28) / 12),
-        );
-      let us = q.clubs[0];
-      if (ourGoals > theirGoals) {
-        us.p += 3;
-        q.logs.unshift(`${ourGoals}:${theirGoals} 获胜！战术执行出色。`);
-      } else if (ourGoals === theirGoals) {
-        us.p++;
-        q.logs.unshift(`${ourGoals}:${theirGoals} 战平。`);
-      } else q.logs.unshift(`${ourGoals}:${theirGoals} 失利，需要调整阵容。`);
-      us.gd += ourGoals - theirGoals;
-      opp.p += ourGoals < theirGoals ? 3 : ourGoals === theirGoals ? 1 : 0;
-      opp.gd += theirGoals - ourGoals;
-      for (let i = 1; i < 6; i++)
-        if (q.clubs[i] !== opp) {
-          let win = Math.random();
-          q.clubs[i].p += win < 0.35 ? 3 : win < 0.6 ? 1 : 0;
-          q.clubs[i].gd += win < 0.35 ? 1 : win > 0.8 ? -1 : 0;
-        }
-      q.players.forEach(
-        (p) =>
-          (p.fit = Math.max(45, p.fit - (tactic.value === "attack" ? 16 : 11))),
-      );
-      q.money += 10 + (ourGoals > theirGoals ? 5 : 0);
-      q.week++;
-      q.trained = false;
-      if (q.week > 10) {
-        q.over = true;
-        let r = ranking().findIndex((c) => c === us) + 1;
-        q.logs.unshift(`赛季结束：最终排名第 ${r}。`);
-      }
-      draw();
-    }
-    function ranking() {
-      return [...q.clubs].sort((a, b) => b.p - a.p || b.gd - a.gd);
-    }
-    function training() {
-      if (q.trained || q.over) return;
-      q.trained = true;
-      q.players.forEach((p) => {
-        p.atk += Math.random() < 0.55 ? 1 : 0;
-        p.def += Math.random() < 0.55 ? 1 : 0;
-        p.fit = Math.min(100, p.fit + 18);
-      });
-      q.logs.unshift("完成本周训练，能力与体能恢复。");
-      draw();
-    }
-    function scout() {
-      if (q.money < 5) return;
-      q.money -= 5;
-      q.market = Array.from({ length: 3 }, (_, i) => {
-        let p = makePlayer(Math.floor(Math.random() * 11));
-        p.cost = Math.round((p.atk + p.def) / 4);
-        return p;
-      });
-      draw();
-    }
-    function buy(i) {
-      let p = q.market[i];
-      if (!p || q.money < p.cost) return;
-      q.money -= p.cost;
-      let worst = q.players
-        .map((x, i) => ({ x, i, v: x.atk + x.def }))
-        .sort((a, b) => a.v - b.v)[0];
-      q.players[worst.i] = p;
-      q.market.splice(i, 1);
-      q.logs.unshift(`签下 ${p.n}，替换阵容中能力最低的球员。`);
-      draw();
-    }
-    function draw() {
-      week.textContent = Math.min(10, q.week);
-      points.textContent = q.clubs[0].p;
-      money.textContent = q.money;
-      rank.textContent = ranking().findIndex((c) => c === q.clubs[0]) + 1;
-      squad.innerHTML = q.players
-        .map(
-          (p) =>
-            `<div class="player ${p.fit < 60 ? "tired" : ""}"><b>${p.n}</b><br><small>${p.pos} · 攻${p.atk} 防${p.def} · 体能${Math.round(p.fit)}</small></div>`,
-        )
-        .join("");
-      table.innerHTML = ranking()
-        .map(
-          (c, i) =>
-            `<div class="club"><span>${i + 1}. ${c.n}</span><b>${c.p}分 ${c.gd >= 0 ? "+" : ""}${c.gd}</b></div>`,
-        )
-        .join("");
-      market.innerHTML =
-        q.market
-          .map(
-            (p, i) =>
-              `<button data-i="${i}" style="width:100%;margin:4px 0">${p.n} · 攻${p.atk}/防${p.def} · ${p.cost}资金</button>`,
-          )
-          .join("") || '<div class="help">点击刷新寻找新援</div>';
-      market
-        .querySelectorAll("[data-i]")
-        .forEach((e) => (e.onclick = () => buy(+e.dataset.i)));
-      log.innerHTML = q.logs
-        .slice(0, 9)
-        .map((x) => `<div>• ${x}</div>`)
-        .join("");
-      train.disabled = q.trained || q.over;
-      match.disabled = q.over;
-    }
-    train.onclick = training;
-    match.onclick = play;
-    scout.onclick = scout;
-    restart.onclick = () => {
-      q = fresh();
-      scout();
-      draw();
-    };
-    q = fresh();
-    scout();
-    draw();
-  </script>
-</html>
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>绿茵经理：冠军之路</title><style>
+:root{color-scheme:dark;--bg:#0e1c19;--panel:#18332c;--panel2:#10251f;--line:#426d5e;--text:#f0f6e9;--muted:#adcabc;--gold:#ffd46e;--green:#72d79a;--red:#ff747c;--blue:#70bde5}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% -20%,#396a4c,#091512 48%);color:var(--text);font-family:Inter,"Microsoft YaHei",system-ui,sans-serif}.app{width:min(1280px,100%);margin:auto;padding:9px}.top{display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px solid var(--line);padding-bottom:8px}h1{font-size:clamp(24px,3.8vw,36px);margin:0}.sub{font-size:11px;color:var(--muted);margin-top:3px}.stats{display:flex;gap:6px;flex-wrap:wrap}.stat{min-width:76px;background:#0b1b16;border:1px solid var(--line);border-radius:7px;padding:6px 9px}.stat small{display:block;font-size:8px;color:var(--muted)}.stat b{font-size:16px;color:var(--gold)}.tabs,.controls{display:flex;gap:5px;flex-wrap:wrap}.tabs{margin:8px 0}.btn,.tab{border:1px solid #557d6e;background:#315c4c;color:#fff;border-radius:7px;padding:8px 10px;min-height:39px;font-weight:800;cursor:pointer}.btn:hover,.tab:hover{filter:brightness(1.12)}.btn:disabled{opacity:.36}.btn.primary,.tab.active{background:var(--gold);color:#362800;border-color:var(--gold)}.btn.red{background:#794046}.view{display:none}.view.active{display:block}.layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:8px}.panel{background:rgba(23,50,42,.97);border:1px solid var(--line);border-radius:9px}.section{padding:9px}.squad{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.player{background:#10251f;border:1px solid #3e6859;border-radius:7px;padding:8px;cursor:pointer;min-width:0}.player.starter{outline:2px solid var(--gold)}.player.injured{opacity:.55}.player header{display:flex;justify-content:space-between;gap:6px}.player p{font-size:8px;color:var(--muted);line-height:1.45;margin:4px 0}.bars{display:grid;grid-template-columns:1fr 1fr;gap:5px}.bar{height:5px;background:#081510;border-radius:6px;overflow:hidden}.bar i{display:block;height:100%;background:var(--green)}.bar.morale i{background:var(--blue)}.side{display:flex;flex-direction:column;gap:7px}.fixture{background:linear-gradient(135deg,#174837,#10251f);border:1px solid #4c806d;border-radius:8px;padding:11px;text-align:center}.fixture .teams{display:flex;justify-content:space-around;align-items:center;font-size:34px}.fixture h3{margin:5px}.message{background:#0b1b16;border-left:3px solid var(--gold);padding:8px;min-height:42px;font-size:9px;line-height:1.45}.table{width:100%;border-collapse:collapse;font-size:9px}.table th,.table td{padding:5px;border-bottom:1px solid #ffffff12;text-align:center}.table tr.me{background:#335b47}.tactics{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.tactic-card{background:#10251f;border:1px solid #3e6859;border-radius:7px;padding:8px}.tactic-card h3{margin:0 0 6px;font-size:13px}.choice-row{display:flex;gap:4px;flex-wrap:wrap}.choice-row button{flex:1;min-width:70px}.training,.market,.facilities{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.training-card,.market-card,.facility{background:#10251f;border:1px solid #3e6859;border-radius:7px;padding:9px}.training-card span,.market-card .avatar,.facility span{font-size:34px}.training-card p,.market-card p,.facility p{font-size:8px;color:var(--muted);line-height:1.45;min-height:35px}.market-card header,.facility header{display:flex;justify-content:space-between;gap:7px}.events{max-height:190px;overflow:auto;font-size:9px}.events div{padding:5px;border-bottom:1px solid #ffffff10}.board{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.objective{background:#10251f;border:1px solid #3e6859;border-radius:7px;padding:9px}.objective b,.objective small{display:block}.objective small{font-size:8px;color:var(--muted)}.progress{height:5px;background:#081510;border-radius:7px;overflow:hidden;margin-top:5px}.progress i{display:block;height:100%;background:var(--green)}.overlay{position:fixed;inset:0;background:#081411ed;z-index:20;display:flex;align-items:center;justify-content:center;padding:12px}.overlay.hidden{display:none}.modal{width:min(920px,100%);max-height:93vh;overflow:auto;background:#18332c;border:1px solid #507a6a;border-radius:9px;padding:16px}.modal h2{font-size:25px;margin:0 0 4px}.modal>p{font-size:10px;color:var(--muted);line-height:1.55}.clubs{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.club{text-align:left;background:#10251f;border:1px solid #3e6859;border-radius:7px;padding:10px;color:#fff;cursor:pointer}.club span{font-size:35px}.club h3{margin:5px 0}.club p{font-size:8px;color:var(--muted);line-height:1.5}.savebox{width:100%;height:125px;background:#0b1b16;border:1px solid var(--line);color:#fff;padding:8px}.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#10251f;border:1px solid var(--gold);padding:8px 13px;z-index:30}@media(max-width:850px){.layout{grid-template-columns:1fr}.side{display:grid;grid-template-columns:1fr 1fr}.side .panel:last-child{grid-column:1/-1}}@media(max-width:580px){.app{padding:5px}.top{flex-direction:column;align-items:flex-start}.stats{width:100%}.stat{flex:1;min-width:63px}.side{display:flex}.squad{grid-template-columns:repeat(2,1fr)}.tactics,.training,.market,.facilities,.board{grid-template-columns:1fr}.clubs{grid-template-columns:1fr 1fr}.tabs{flex-wrap:nowrap;overflow-x:auto}.tab{flex:0 0 auto;white-space:nowrap}}
+</style></head><body><main class="app"><header class="top"><div><h1>绿茵经理：冠军之路</h1><div class="sub">完整联赛与杯赛、阵容轮换、战术克制、训练转会和俱乐部建设；从保级预算走向三冠王。</div></div><div class="stats"><div class="stat"><small>赛季</small><b id="season">第1季</b></div><div class="stat"><small>赛程</small><b id="round">1 / 21</b></div><div class="stat"><small>资金</small><b id="money">0</b></div><div class="stat"><small>声望</small><b id="rep">0</b></div><div class="stat"><small>联赛排名</small><b id="rank">--</b></div><div class="stat"><small>杯赛</small><b id="cup">进行中</b></div></div></header><nav class="tabs"><button class="tab active" data-view="match">比赛日</button><button class="tab" data-view="squad">一线队</button><button class="tab" data-view="tactics">阵型战术</button><button class="tab" data-view="training">训练中心</button><button class="tab" data-view="transfer">球探转会</button><button class="tab" data-view="club">俱乐部</button><button class="tab" data-view="league">积分榜</button><button class="tab" id="saveBtn">存档码</button><button class="tab" id="newBtn">新生涯</button></nav>
+<section class="view active" id="matchView"><div class="layout"><section class="panel section"><div class="fixture" id="fixture"></div><div class="controls" style="justify-content:center;margin-top:9px"><button class="btn primary" id="playBtn">开始比赛</button></div><div class="message" id="message">选择首发和战术后迎接第一场比赛。</div><h3>比赛事件</h3><div class="events" id="events"></div></section><aside class="side"><section class="panel section"><h3 style="margin-top:0">赛前评估</h3><div id="preview"></div></section><section class="panel section"><h3 style="margin-top:0">董事会目标</h3><div id="objectives"></div></section><section class="panel section"><h3 style="margin-top:0">近期赛果</h3><div id="results" class="events"></div></section></aside></div></section>
+<section class="view" id="squadView"><div class="panel section"><h2>一线队阵容</h2><p class="sub">点击球员切换首发，必须选择 11 人。体能、士气、伤病和位置结构都会影响比赛强度。</p><div class="squad" id="squad"></div></div></section>
+<section class="view" id="tacticsView"><div class="panel section"><h2>阵型与比赛计划</h2><div class="tactics" id="tactics"></div></div></section>
+<section class="view" id="trainingView"><div class="panel section"><h2>本轮训练</h2><p class="sub">每个赛程只能安排一次训练；高强度项目会消耗体能并提高伤病风险。</p><div class="training" id="training"></div></div></section>
+<section class="view" id="transferView"><div class="panel section"><h2>球探名单</h2><div class="market" id="market"></div><div class="controls" style="margin-top:9px"><button class="btn" id="scoutBtn">刷新球探名单 18资金</button><button class="btn red" id="sellBtn">出售选中替补</button></div></div></section>
+<section class="view" id="clubView"><div class="panel section"><h2>俱乐部建设</h2><div class="facilities" id="facilities"></div></div></section><section class="view" id="leagueView"><div class="panel section"><h2>联赛积分榜</h2><table class="table"><thead><tr><th>#</th><th>球队</th><th>赛</th><th>胜</th><th>平</th><th>负</th><th>净胜</th><th>分</th></tr></thead><tbody id="league"></tbody></table></div></section></main>
+<div class="overlay" id="startOverlay"><section class="modal"><h2>选择执教俱乐部</h2><p>四支球队的阵容结构、预算和董事会期待不同。完成赛季可继承生涯荣誉。</p><div class="clubs" id="clubs"></div></section></div><div class="overlay hidden" id="infoOverlay"><section class="modal"><h2 id="infoTitle">经理档案</h2><div id="infoBody"></div><div class="controls"><button class="btn primary" id="closeInfoBtn">返回俱乐部</button></div></section></div>
+<script>(()=>{'use strict';const $=id=>document.getElementById(id),SAVE='touchlineManagerV3';
+const CLUBS={harbor:{i:'⚓',n:'港湾竞技',d:'均衡阵容与中等预算，目标进入前六。',money:150,bonus:{def:2},target:6},academy:{i:'🌱',n:'青苗联队',d:'年轻球员潜力高，预算紧张，目标前八。',money:115,bonus:{pot:5},target:8},royal:{i:'👑',n:'王冠城',d:'豪华进攻线和高期待，目标争冠。',money:210,bonus:{atk:4},target:2},forge:{i:'🛡️',n:'铁炉工人',d:'强硬防守与高体能，目标前四。',money:135,bonus:{def:5,fit:5},target:4}};
+const FORMATIONS={f433:{n:'4-3-3',need:{GK:1,DF:4,MF:3,FW:3},bonus:'边路进攻'},f442:{n:'4-4-2',need:{GK:1,DF:4,MF:4,FW:2},bonus:'攻守均衡'},f352:{n:'3-5-2',need:{GK:1,DF:3,MF:5,FW:2},bonus:'中场控制'},f532:{n:'5-3-2',need:{GK:1,DF:5,MF:3,FW:2},bonus:'稳守反击'}};
+const TACTICS={mentality:['谨慎','均衡','进攻'],press:['低位','区域','高压'],tempo:['控球','均衡','快速'],focus:['中路','均衡','边路']};
+const TRAINING=[{id:'attack',i:'🎯',n:'进攻套路',d:'前锋与中场进攻 +1，体能 -8。'},{id:'defense',i:'🛡️',n:'防线协作',d:'门将与后卫防守 +1，体能 -7。'},{id:'fitness',i:'🏃',n:'体能恢复',d:'全队体能 +16，降低伤病天数。'},{id:'morale',i:'🤝',n:'团队建设',d:'全队士气 +12。'},{id:'youth',i:'🌟',n:'潜力训练',d:'23 岁以下随机三人能力成长。'},{id:'rest',i:'🛏️',n:'完全休整',d:'体能 +22，伤员恢复加快。'}];
+const FACILITIES={stadium:{i:'🏟️',n:'主场看台',d:'主场收入与比赛优势提高。',base:100,max:4},academy:{i:'🌱',n:'青训学院',d:'市场更容易出现高潜年轻球员。',base:130,max:4},medical:{i:'🏥',n:'运动医学',d:'降低伤病率并加快恢复。',base:120,max:4},scouting:{i:'🔭',n:'球探网络',d:'转会名单质量与数量提高。',base:110,max:4},training:{i:'🏋️',n:'训练基地',d:'训练成长效果提高。',base:140,max:4},commercial:{i:'📣',n:'商务中心',d:'每场比赛额外获得稳定收入。',base:150,max:4}};
+const NAMES=['林赫','秦川','苏野','罗伊','叶锋','韩森','周岚','顾北','江驰','许明','陆航','唐溪','魏安','沈岳','白川','程风','余野','陈星','夏洛','岳青','孟凡','杜衡','段宇','宁舟','乔恩','米洛','安德','莱奥','凯文','诺亚'];const TEAMS=[['港湾竞技','⚓'],['青苗联队','🌱'],['王冠城','👑'],['铁炉工人','🛡️'],['星海城','⭐'],['北境狼','🐺'],['河谷联','🌊'],['红杉队','🌲'],['银翼城','🪽'],['旧港FC','🚢']];
+let profile={v:3,seasons:0,trophies:0,best:10,careerRep:0},q=null,activeView='match',selectedSell=null;function makePlayer(i,club,market=false){const pos=i===0?'GK':i<7?'DF':i<13?'MF':'FW',age=18+Math.floor(Math.random()*15),base=market?54+Math.floor(Math.random()*22):55+Math.floor(Math.random()*17),bonus=CLUBS[club]?.bonus||{};return{uid:Math.random().toString(36),n:NAMES[(i+Math.floor(Math.random()*NAMES.length))%NAMES.length],pos,age,atk:Math.min(90,base+(pos==='FW'?8:pos==='MF'?3:0)+(bonus.atk||0)),def:Math.min(90,base+(pos==='DF'?8:pos==='GK'?10:0)+(bonus.def||0)),fit:Math.min(100,78+Math.floor(Math.random()*22)+(bonus.fit||0)),morale:70+Math.floor(Math.random()*25),pot:Math.min(95,base+8+Math.floor(Math.random()*14)+(bonus.pot||0)),wage:4+Math.floor(base/12),value:Math.round(base*.8),injured:0,form:0,trait:['领袖','快马','铁人','组织者','门前猎手','大场面'][i%6]}}
+function makeSchedule(){const league=[];for(let r=0;r<18;r++)league.push({type:'league',opp:1+(r%9),home:r%2===0});league.splice(5,0,{type:'cup',round:'八强',opp:4,home:true});league.splice(11,0,{type:'cup',round:'半决赛',opp:6,home:false});league.splice(18,0,{type:'cup',round:'决赛',opp:2,home:true});return league}
+function makeTable(club){return TEAMS.map((t,i)=>({id:i,n:i===0?CLUBS[club].n:t[0],i:i===0?CLUBS[club].i:t[1],p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0}))}
+function fresh(club){const players=Array.from({length:18},(_,i)=>makePlayer(i,club));return{v:3,club,season:profile.seasons+1,round:0,leagueRound:0,money:CLUBS[club].money,rep:10,players,starters:players.slice(0,11).map(p=>p.uid),formation:'f433',mentality:1,press:1,tempo:1,focus:1,trained:false,market:Array.from({length:5},(_,i)=>makePlayer(i+30,club,true)),table:makeTable(club),schedule:makeSchedule(),cupAlive:true,facilities:{stadium:0,academy:0,medical:0,scouting:0,training:0,commercial:0},results:[],events:['新赛季集结，董事会正在等待首场比赛。'],message:'选择首发和战术后迎接第一场比赛。'}}
+function save(){localStorage.setItem(SAVE,JSON.stringify({v:3,profile,q}))}function load(){try{const d=JSON.parse(localStorage.getItem(SAVE));if(d?.v===3){profile={...profile,...d.profile};q=d.q}}catch{}}
+function checksum(s){let h=2166136261;for(const ch of s){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)}return(h>>>0).toString(36)}function exportCode(){const b=btoa(unescape(encodeURIComponent(JSON.stringify({v:3,profile,q}))));return`TM3-${b}-${checksum(b)}`}function importCode(x){const m=x.trim().match(/^TM3-(.+)-([a-z0-9]+)$/i);if(!m||checksum(m[1])!==m[2])throw Error('存档码校验失败');const d=JSON.parse(decodeURIComponent(escape(atob(m[1]))));if(d.v!==3)throw Error('版本不兼容');profile=d.profile;q=d.q;save();draw()}
+function toast(s){const e=document.createElement('div');e.className='toast';e.textContent=s;document.body.append(e);setTimeout(()=>e.remove(),1400)}function msg(s){q.message=s;q.events.unshift(s);q.events=q.events.slice(0,25)}function starters(){return q.starters.map(id=>q.players.find(p=>p.uid===id)).filter(Boolean)}function overall(p){return Math.round((p.atk+p.def)/2+p.form)}
+function lineupPower(){const list=starters();if(list.length!==11)return 0;const avg=list.reduce((a,p)=>a+overall(p)*(p.fit/100)*(.75+p.morale/400),0)/11,structure=formationFit(list),facility=q.facilities.training*.6;return avg+structure+facility}
+function formationFit(list){const need=FORMATIONS[q.formation].need,have={GK:0,DF:0,MF:0,FW:0};list.forEach(p=>have[p.pos]++);return 8-Object.keys(need).reduce((a,k)=>a+Math.abs(need[k]-have[k])*2,0)}function currentFixture(){return q.schedule[q.round]}
+function toggleStarter(uid){const p=q.players.find(x=>x.uid===uid);if(p.injured)return toast('伤员无法进入首发');if(q.starters.includes(uid))q.starters=q.starters.filter(x=>x!==uid);else{if(q.starters.length>=11)return toast('首发最多 11 人');q.starters.push(uid)}draw()}
+function tacticBonus(me,opp){let b=0;if(q.mentality===2&&opp<me)b+=3;if(q.mentality===0&&opp>me)b+=3;if(q.press===2&&q.tempo===2)b+=2;if(q.focus===2&&q.formation==='f433')b+=2;if(q.focus===0&&q.formation==='f352')b+=2;if(q.press===0&&q.formation==='f532')b+=2;return b}
+function play(){if(q.starters.length!==11)return toast('必须选择 11 名首发');if(starters().some(p=>p.injured))return toast('首发中有伤员');const f=currentFixture();if(!f)return endSeason();if(f.type==='cup'&&!q.cupAlive){q.round++;return play()}const me=lineupPower(),opp=57+f.opp*1.4+q.season*1.2+Math.random()*8,bonus=tacticBonus(me,opp)+(f.home?2+q.facilities.stadium*.7:0),xgMe=Math.max(.25,1.15+(me+bonus-opp)/18),xgOpp=Math.max(.2,1.05+(opp-me-bonus)/20),goals=(xg)=>Array.from({length:6},()=>Math.random()<xg/6).filter(Boolean).length,gf=goals(xgMe),ga=goals(xgOpp),events=[];for(let i=0;i<gf;i++){const p=starters().filter(x=>x.pos!=='GK').sort(()=>Math.random()-.5)[0];events.push(`${12+i*17}' ⚽ ${p.n} 为我方进球`);p.form=Math.min(5,p.form+1)}for(let i=0;i<ga;i++)events.push(`${20+i*19}' 对手抓住机会得分`);if(!events.length)events.push("90' 双方门将守住零封");events.sort(()=>Math.random()-.5);q.events=events;const win=gf>ga,drawn=gf===ga,fee=12+q.facilities.commercial*5+(f.home?q.facilities.stadium*4:0);q.money+=fee+(win?8:drawn?3:0);q.rep=Math.max(0,q.rep+(win?3:drawn?1:-2));q.results.unshift(`${f.type==='cup'?'杯赛':'联赛'} ${CLUBS[q.club].i} ${gf}-${ga} ${TEAMS[f.opp][1]}`);q.results=q.results.slice(0,8);
+if(f.type==='league'){updateTable(0,f.opp,gf,ga);simulateOthers(f.opp);q.leagueRound++}else if(!win){q.cupAlive=false;msg(`${f.round}出局，杯赛征程结束。`)}else{q.money+=20+q.round*2;q.rep+=4;msg(`晋级杯赛${f.round}，获得晋级奖金。`)}q.players.forEach(p=>{if(q.starters.includes(p.uid)){p.fit=Math.max(18,p.fit-9-Math.floor(Math.random()*7));p.morale=Math.max(20,Math.min(100,p.morale+(win?6:drawn?1:-5)));if(Math.random()<Math.max(.005,.04-q.facilities.medical*.008)*(p.fit<45?1.8:1))p.injured=Math.max(1,3-q.facilities.medical)}else p.fit=Math.min(100,p.fit+8);if(p.injured)p.injured--});q.round++;q.trained=false;q.market=Array.from({length:5+q.facilities.scouting},(_,i)=>makePlayer(i+q.round*7,q.club,true));if(q.round>=q.schedule.length)return endSeason();q.message=`${gf}-${ga} ${win?'获胜':drawn?'战平':'失利'}，获得 ${fee+(win?8:drawn?3:0)} 资金。`;save();draw()}
+function updateTable(a,b,gf,ga){for(const [id,forG,against] of [[a,gf,ga],[b,ga,gf]]){const t=q.table[id];t.p++;t.gf+=forG;t.ga+=against;if(forG>against){t.w++;t.pts+=3}else if(forG===against){t.d++;t.pts++}else t.l++}}
+function simulateOthers(excluded){const teams=Array.from({length:9},(_,i)=>i+1).filter(id=>id!==excluded).sort(()=>Math.random()-.5);for(let i=0;i<teams.length;i+=2){const a=teams[i],b=teams[i+1],ga=Math.floor(Math.random()*4),gb=Math.floor(Math.random()*4);updateTable(a,b,ga,gb)}}function sortedTable(){return[...q.table].sort((a,b)=>b.pts-a.pts||(b.gf-b.ga)-(a.gf-a.ga)||b.gf-a.gf)}
+function train(id){if(q.trained)return toast('本轮已经安排训练');const bonus=1+q.facilities.training*.25;if(id==='attack')q.players.filter(p=>['MF','FW'].includes(p.pos)).forEach(p=>{p.atk=Math.min(p.pot,p.atk+bonus);p.fit=Math.max(18,p.fit-8)});if(id==='defense')q.players.filter(p=>['GK','DF'].includes(p.pos)).forEach(p=>{p.def=Math.min(p.pot,p.def+bonus);p.fit=Math.max(18,p.fit-7)});if(id==='fitness')q.players.forEach(p=>p.fit=Math.min(100,p.fit+16+q.facilities.medical*2));if(id==='morale')q.players.forEach(p=>p.morale=Math.min(100,p.morale+12));if(id==='youth')[...q.players].filter(p=>p.age<23).sort(()=>Math.random()-.5).slice(0,3).forEach(p=>{p.atk=Math.min(p.pot,p.atk+bonus);p.def=Math.min(p.pot,p.def+bonus)});if(id==='rest')q.players.forEach(p=>{p.fit=Math.min(100,p.fit+22);p.injured=Math.max(0,p.injured-1)});q.trained=true;msg(`完成训练：${TRAINING.find(x=>x.id===id).n}`);save();draw()}
+function scout(){if(q.money<18)return toast('资金不足');q.money-=18;q.market=Array.from({length:5+q.facilities.scouting},(_,i)=>makePlayer(i+Math.floor(Math.random()*99),q.club,true));draw();save()}
+function buy(i){const p=q.market[i],cost=Math.round(p.value*1.5);if(q.money<cost)return toast('转会资金不足');q.money-=cost;q.players.push(p);q.market.splice(i,1);msg(`签下 ${p.pos} ${p.n}，转会费 ${cost}。`);save();draw()}
+function sell(){const p=q.players.find(x=>x.uid===selectedSell);if(!p||q.starters.includes(p.uid))return toast('先在阵容中选择一名替补');if(q.players.length<=16)return toast('阵容至少保留 16 人');q.money+=p.value;q.players=q.players.filter(x=>x!==p);selectedSell=null;msg(`出售 ${p.n}，回收 ${p.value} 资金。`);save();draw()}
+function upgrade(id){const d=FACILITIES[id],lv=q.facilities[id],cost=Math.round(d.base*Math.pow(1.7,lv));if(lv>=d.max||q.money<cost)return toast('资金不足或设施满级');q.money-=cost;q.facilities[id]++;q.rep++;msg(`${d.n}升级到 Lv.${q.facilities[id]}。`);save();draw()}
+function endSeason(){const place=sortedTable().findIndex(t=>t.id===0)+1,champ=place===1,cupWin=q.cupAlive&&q.schedule.filter(f=>f.type==='cup').every((_,i)=>q.results.some(r=>r.startsWith('杯赛')))&&q.round>=q.schedule.length;profile.seasons++;profile.best=Math.min(profile.best,place);profile.trophies+=champ?1:0;profile.careerRep+=q.rep;save();$('infoTitle').textContent='赛季结算';$('infoBody').innerHTML=`<h3>${CLUBS[q.club].i}${CLUBS[q.club].n} · 联赛第 ${place} 名</h3><p>积分 ${q.table[0].pts} · 净胜 ${q.table[0].gf-q.table[0].ga} · ${q.cupAlive?'杯赛坚持到最后':'杯赛已出局'} · 资金 ${q.money}</p><button class="btn primary" id="nextCareer">开启新赛季</button>`;$('infoOverlay').classList.remove('hidden');$('nextCareer').onclick=()=>{q=null;save();$('infoOverlay').classList.add('hidden');clubScreen();$('startOverlay').classList.remove('hidden')}}
+function showSave(){const code=exportCode();$('infoTitle').textContent='跨设备经理生涯';$('infoBody').innerHTML=`<p>赛季荣誉、阵容、战术、积分榜、转会与设施都会导出，并带完整性校验。</p><textarea class="savebox" id="saveCode">${code}</textarea><div class="controls"><button class="btn" id="copyCode">复制导出</button><button class="btn" id="importCodeBtn">导入上方存档</button></div>`;$('infoOverlay').classList.remove('hidden');$('copyCode').onclick=()=>navigator.clipboard?.writeText($('saveCode').value);$('importCodeBtn').onclick=()=>{try{importCode($('saveCode').value);$('infoOverlay').classList.add('hidden');alert('经理生涯导入成功')}catch(e){alert(e.message)}}}
+function switchView(v){activeView=v;document.querySelectorAll('.tab[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===v));document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id===v+'View'))}
+function draw(){if(!q)return;const f=currentFixture(),table=sortedTable(),place=table.findIndex(t=>t.id===0)+1;$('season').textContent=`第${q.season}季`;$('round').textContent=`${Math.min(q.round+1,q.schedule.length)} / ${q.schedule.length}`;$('money').textContent=Math.floor(q.money);$('rep').textContent=q.rep;$('rank').textContent=`${place || '--'}`;$('cup').textContent=q.cupAlive?'进行中':'已出局';$('message').textContent=q.message;
+if(f){const opp=TEAMS[f.opp];$('fixture').innerHTML=`<div class="sub">${f.type==='cup'?`杯赛${f.round}`:`联赛第 ${q.leagueRound+1} 轮`} · ${f.home?'主场':'客场'}</div><div class="teams"><span>${CLUBS[q.club].i}</span><b>VS</b><span>${opp[1]}</span></div><h3>${CLUBS[q.club].n} vs ${opp[0]}</h3>`}else $('fixture').innerHTML='<h3>赛季赛程已经完成</h3>';$('preview').innerHTML=`<div class="objective"><b>我方强度 ${lineupPower().toFixed(1)}</b><small>${q.starters.length}/11 首发 · ${FORMATIONS[q.formation].n} · ${TACTICS.mentality[q.mentality]}</small></div><div class="objective"><b>阵型适配 ${formationFit(starters())}</b><small>${FORMATIONS[q.formation].bonus}</small></div>`;$('events').innerHTML=q.events.map(x=>`<div>${x}</div>`).join('');$('results').innerHTML=q.results.map(x=>`<div>${x}</div>`).join('')||'<div>尚无赛果</div>';const target=CLUBS[q.club].target;$('objectives').innerHTML=`<div class="objective"><b>联赛进入前 ${target}</b><small>当前第 ${place} 名</small><div class="progress"><i style="width:${Math.min(100,target/Math.max(1,place)*100)}%"></i></div></div><div class="objective"><b>声望达到 35</b><small>${q.rep}/35</small><div class="progress"><i style="width:${Math.min(100,q.rep/35*100)}%"></i></div></div>`;
+$('squad').innerHTML=[...q.players].sort((a,b)=>['GK','DF','MF','FW'].indexOf(a.pos)-['GK','DF','MF','FW'].indexOf(b.pos)||overall(b)-overall(a)).map(p=>`<article class="player ${q.starters.includes(p.uid)?'starter':''} ${p.injured?'injured':''}" data-player="${p.uid}"><header><b>${p.pos} ${p.n}</b><span>${overall(p)}</span></header><p>${p.age}岁 · 潜力 ${p.pot} · ${p.trait}${p.injured?` · 伤 ${p.injured}轮`:''}<br>攻${Math.round(p.atk)} 防${Math.round(p.def)} · 身价${p.value}</p><div class="bars"><div class="bar"><i style="width:${p.fit}%"></i></div><div class="bar morale"><i style="width:${p.morale}%"></i></div></div></article>`).join('');document.querySelectorAll('[data-player]').forEach(b=>{b.onclick=()=>toggleStarter(b.dataset.player);b.oncontextmenu=e=>{e.preventDefault();selectedSell=b.dataset.player;toast(`已选择出售：${q.players.find(p=>p.uid===selectedSell).n}`)}});
+$('tactics').innerHTML=[['阵型','formation',Object.entries(FORMATIONS).map(([id,x])=>[id,x.n])],['比赛心态','mentality',TACTICS.mentality.map((x,i)=>[i,x])],['逼抢方式','press',TACTICS.press.map((x,i)=>[i,x])],['推进节奏','tempo',TACTICS.tempo.map((x,i)=>[i,x])],['进攻重心','focus',TACTICS.focus.map((x,i)=>[i,x])]].map(([title,id,opts])=>`<article class="tactic-card"><h3>${title}</h3><div class="choice-row">${opts.map(([v,n])=>`<button class="btn ${String(q[id])===String(v)?'primary':''}" data-tactic="${id}" data-value="${v}">${n}</button>`).join('')}</div></article>`).join('');document.querySelectorAll('[data-tactic]').forEach(b=>b.onclick=()=>{q[b.dataset.tactic]=b.dataset.tactic==='formation'?b.dataset.value:+b.dataset.value;draw()});$('training').innerHTML=TRAINING.map(t=>`<article class="training-card"><span>${t.i}</span><h3>${t.n}</h3><p>${t.d}</p><button class="btn" data-train="${t.id}" ${q.trained?'disabled':''}>安排训练</button></article>`).join('');document.querySelectorAll('[data-train]').forEach(b=>b.onclick=()=>train(b.dataset.train));
+$('market').innerHTML=q.market.map((p,i)=>{const cost=Math.round(p.value*1.5);return`<article class="market-card"><header><b>${p.pos} ${p.n}</b><span>${overall(p)}</span></header><div class="avatar">${p.pos==='GK'?'🧤':p.pos==='DF'?'🛡️':p.pos==='MF'?'🎯':'⚽'}</div><p>${p.age}岁 · 潜力${p.pot} · ${p.trait}<br>攻${p.atk} 防${p.def}</p><button class="btn" data-buy="${i}">签约 ${cost}</button></article>`}).join('');document.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>buy(+b.dataset.buy));$('facilities').innerHTML=Object.entries(FACILITIES).map(([id,d])=>{const lv=q.facilities[id],cost=Math.round(d.base*Math.pow(1.7,lv));return`<article class="facility"><header><b>${d.i}${d.n}</b><span>Lv.${lv}/${d.max}</span></header><p>${d.d}</p><button class="btn" data-up="${id}" ${lv>=d.max?'disabled':''}>${lv>=d.max?'满级':'升级 '+cost}</button></article>`}).join('');document.querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>upgrade(b.dataset.up));$('league').innerHTML=table.map((t,i)=>`<tr class="${t.id===0?'me':''}"><td>${i+1}</td><td>${t.i}${t.n}</td><td>${t.p}</td><td>${t.w}</td><td>${t.d}</td><td>${t.l}</td><td>${t.gf-t.ga}</td><td><b>${t.pts}</b></td></tr>`).join('');$('playBtn').disabled=!f;save()}
+function clubScreen(){$('clubs').innerHTML=Object.entries(CLUBS).map(([id,c])=>`<button class="club" data-club="${id}"><span>${c.i}</span><h3>${c.n}</h3><p>${c.d}<br>预算 ${c.money} · 目标前 ${c.target}</p></button>`).join('');document.querySelectorAll('[data-club]').forEach(b=>b.onclick=()=>{q=fresh(b.dataset.club);$('startOverlay').classList.add('hidden');draw()})}
+document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>switchView(b.dataset.view));$('playBtn').onclick=play;$('scoutBtn').onclick=scout;$('sellBtn').onclick=sell;$('saveBtn').onclick=()=>q&&showSave();$('closeInfoBtn').onclick=()=>$('infoOverlay').classList.add('hidden');$('newBtn').onclick=()=>{if(!q||confirm('放弃当前生涯并重新选择俱乐部？')){q=null;save();clubScreen();$('startOverlay').classList.remove('hidden')}};load();clubScreen();if(q){$('startOverlay').classList.add('hidden');draw()}
+})();</script></body></html>

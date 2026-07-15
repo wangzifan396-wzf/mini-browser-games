@@ -1,320 +1,39 @@
-<!doctype html>
-<html lang="zh-CN">
-  <meta charset="utf-8" /><meta
-    name="viewport"
-    content="width=device-width,initial-scale=1"
-  /><title>万象炼金室</title
-  ><style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      background: #100f21;
-      color: #f4edff;
-      font-family: system-ui, "Microsoft YaHei";
-    }
-    .app {
-      min-height: 100vh;
-      padding: 14px;
-      display: grid;
-      place-items: center;
-    }
-    .shell {
-      width: min(950px, 100%);
-      padding: 17px;
-      background: #1c1936;
-      border: 1px solid #625987;
-      border-radius: 20px;
-    }
-    .top,
-    .row {
-      display: flex;
-      justify-content: space-between;
-      gap: 9px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-    .layout {
-      display: grid;
-      grid-template-columns: 1fr 310px;
-      gap: 12px;
-      margin-top: 12px;
-    }
-    .panel {
-      background: #15132a;
-      border: 1px solid #4e4771;
-      border-radius: 13px;
-      padding: 11px;
-    }
-    .elements {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-    }
-    .el {
-      min-height: 75px;
-      border: 1px solid #625997;
-      border-radius: 10px;
-      background: #28234b;
-      color: white;
-      font-size: 25px;
-      cursor: pointer;
-    }
-    .el.sel {
-      outline: 3px solid #ffdc74;
-    }
-    .el small {
-      display: block;
-      font-size: 11px;
-    }
-    .cauldron {
-      min-height: 130px;
-      margin-top: 10px;
-      border-radius: 50%;
-      background: radial-gradient(circle, #793d97, #251f45 60%);
-      display: grid;
-      place-items: center;
-      text-align: center;
-      font-size: 24px;
-    }
-    .panel button,
-    .row button {
-      padding: 9px 12px;
-      border: 1px solid #7b70a7;
-      border-radius: 9px;
-      background: #4a3d78;
-      color: #fff;
-      font-weight: bold;
-    }
-    .recipe {
-      display: flex;
-      justify-content: space-between;
-      padding: 5px;
-      border-bottom: 1px solid #ffffff18;
-    }
-    .scroll {
-      max-height: 250px;
-      overflow: auto;
-    }
-    .order {
-      color: #ffe17b;
-    }
-    .hint {
-      font-size: 13px;
-      color: #c3badd;
-    }
-    @media (max-width: 680px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
-      .elements {
-        grid-template-columns: repeat(3, 1fr);
-      }
-      .app {
-        place-items: start center;
-      }
-    }
-  </style>
-  <main class="app">
-    <section class="shell">
-      <div class="top">
-        <div>
-          <h1 style="margin: 0">万象炼金室</h1>
-          <div class="hint">
-            选择两种素材投入坩埚，发现未知配方；相同素材也能组合。
-          </div>
-        </div>
-        <div>
-          ✨灵感 <b id="insight"></b>　🪙 <b id="coins"></b>　发现
-          <b id="found"></b>/18
-        </div>
-      </div>
-      <div class="layout">
-        <div>
-          <div class="panel">
-            <b>素材架</b>
-            <div class="elements" id="elements"></div>
-            <div class="cauldron" id="cauldron">等待投入两种素材</div>
-            <div class="row" style="margin-top: 10px">
-              <button id="brew">开始炼制</button
-              ><button id="clearBtn">清空</button
-              ><button id="research">研究提示（8 灵感）</button
-              ><span id="msg" class="hint"></span>
-            </div>
-          </div>
-        </div>
-        <aside>
-          <div class="panel">
-            <b>商会订单</b>
-            <div id="order" class="order"></div>
-            <button id="deliver">交付</button>
-          </div>
-          <div class="panel scroll" style="margin-top: 10px">
-            <b>配方图鉴</b>
-            <div id="recipes"></div>
-          </div>
-          <div class="panel" style="margin-top: 10px">
-            <b>成品仓库</b>
-            <div id="bag"></div>
-          </div>
-        </aside>
-      </div>
-    </section>
-  </main>
-  <script>
-    const E = [
-      ["火", "🔥"],
-      ["水", "💧"],
-      ["土", "🪨"],
-      ["风", "🌬️"],
-      ["光", "✨"],
-      ["影", "🌑"],
-      ["生命", "🌿"],
-      ["金属", "⚙️"],
-      ["冰", "❄️"],
-      ["雷", "⚡"],
-      ["蒸汽", "♨️"],
-      ["泥", "🟤"],
-    ].map((x, id) => ({ id, n: x[0], ic: x[1] }));
-    const R = [
-      ["0,1", "蒸汽瓶", "♨️", 12],
-      ["1,2", "活性泥", "🟤", 11],
-      ["0,2", "熔岩珠", "🌋", 18],
-      ["1,3", "云朵精华", "☁️", 14],
-      ["0,3", "焰旋药剂", "🌪️", 17],
-      ["2,6", "生长药剂", "🌱", 16],
-      ["4,6", "治愈圣露", "💚", 24],
-      ["5,6", "夜行药剂", "🦉", 25],
-      ["0,7", "赤热合金", "🔩", 27],
-      ["3,7", "轻羽钢", "🪶", 28],
-      ["1,7", "水银镜", "🪞", 30],
-      ["4,5", "暮光结晶", "🔮", 36],
-      ["3,9", "雷暴瓶", "⛈️", 32],
-      ["1,8", "霜露", "🧊", 23],
-      ["0,8", "温泉石", "♨️", 29],
-      ["7,9", "磁力核心", "🧲", 38],
-      ["6,6", "生命种子", "🌳", 42],
-      ["4,4", "太阳结晶", "☀️", 50],
-    ].map((x, id) => ({ id, key: x[0], n: x[1], ic: x[2], v: x[3] }));
-    let q,
-      sel = [];
-    const $ = (x) => document.getElementById(x);
-    function fresh() {
-      return {
-        insight: 20,
-        coins: 20,
-        unlocked: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-        found: {},
-        bag: {},
-        order: Math.floor(Math.random() * 4),
-      };
-    }
-    function load() {
-      try {
-        q = JSON.parse(localStorage.getItem("alchemy_save")) || fresh();
-      } catch {
-        q = fresh();
-      }
-      draw();
-    }
-    function save() {
-      localStorage.setItem("alchemy_save", JSON.stringify(q));
-    }
-    function choose(id) {
-      if (sel.length >= 2) sel = [];
-      sel.push(id);
-      draw();
-    }
-    function brewIt() {
-      if (sel.length !== 2) return note("需要投入两种素材。");
-      let key = [...sel].sort((a, b) => a - b).join(","),
-        r = R.find((x) => x.key === key);
-      q.insight = Math.max(0, q.insight - 1);
-      if (r) {
-        let first = !q.found[r.id];
-        q.found[r.id] = (q.found[r.id] || 0) + 1;
-        q.bag[r.id] = (q.bag[r.id] || 0) + 1;
-        if (first) {
-          q.insight += 5;
-          note(`新发现：${r.ic}${r.n}！获得 5 灵感。`);
-        } else note(`炼成 ${r.ic}${r.n}。`);
-      } else note("配方失衡，只得到一团灰烬。");
-      sel = [];
-      save();
-      draw();
-    }
-    function note(s) {
-      msg.textContent = s;
-    }
-    function draw() {
-      insight.textContent = q.insight;
-      coins.textContent = q.coins;
-      found.textContent = Object.keys(q.found).length;
-      elements.innerHTML = q.unlocked
-        .map(
-          (id) =>
-            `<button class="el ${sel.includes(id) ? "sel" : ""}" data-i="${id}">${E[id].ic}<small>${E[id].n}</small></button>`,
-        )
-        .join("");
-      elements
-        .querySelectorAll("[data-i]")
-        .forEach((e) => (e.onclick = () => choose(+e.dataset.i)));
-      cauldron.innerHTML = sel.length
-        ? sel.map((id) => `${E[id].ic}${E[id].n}`).join(" ＋ ")
-        : "等待投入两种素材";
-      recipes.innerHTML = R.map(
-        (r) =>
-          `<div class="recipe"><span>${q.found[r.id] ? `${r.ic}${r.n}` : "❔ 未知配方"}</span><span>${
-            q.found[r.id]
-              ? r.key
-                  .split(",")
-                  .map((i) => E[i].ic)
-                  .join("+")
-              : "???"
-          }</span></div>`,
-      ).join("");
-      bag.innerHTML =
-        R.filter((r) => q.bag[r.id])
-          .map(
-            (r) =>
-              `<div class="recipe"><span>${r.ic}${r.n}</span><b>${q.bag[r.id]}</b></div>`,
-          )
-          .join("") || '<div class="hint">尚无成品</div>';
-      let r = R[q.order];
-      order.textContent = `需要 2 瓶 ${r.ic}${r.n}（${Math.min(2, q.bag[r.id] || 0)}/2）· 奖励 ${r.v * 4} 金币`;
-    }
-    brew.onclick = brewIt;
-    clearBtn.onclick = () => {
-      sel = [];
-      draw();
-    };
-    research.onclick = () => {
-      if (q.insight < 8) return note("灵感不足。");
-      let unknown = R.filter((r) => !q.found[r.id]);
-      if (!unknown.length) return note("所有配方都已发现！");
-      q.insight -= 8;
-      let r = unknown[Math.floor(Math.random() * unknown.length)];
-      note(
-        `研究线索：尝试 ${r.key
-          .split(",")
-          .map((i) => E[i].n)
-          .join(" ＋ ")}`,
-      );
-      save();
-      draw();
-    };
-    deliver.onclick = () => {
-      let r = R[q.order];
-      if ((q.bag[r.id] || 0) < 2) return note("成品数量不足。");
-      q.bag[r.id] -= 2;
-      q.coins += r.v * 4;
-      q.insight += 3;
-      q.order = Math.floor(Math.random() * R.length);
-      note("订单交付完成，商会声望提升！");
-      save();
-      draw();
-    };
-    load();
-  </script>
-</html>
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>万象炼金室：秘釜纪元</title><style>
+:root{color-scheme:dark;--bg:#171321;--panel:#292035;--panel2:#1c1727;--line:#645475;--text:#fff0d8;--muted:#c5b7d0;--gold:#ffd16b;--green:#73dda5;--red:#ff7780;--blue:#73b9ed}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% -20%,#5a3c61,#120f1a 48%);color:var(--text);font-family:Inter,"Microsoft YaHei",system-ui,sans-serif}.app{width:min(1240px,100%);margin:auto;padding:10px}.top{display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px solid var(--line);padding-bottom:8px}h1{font-size:clamp(24px,3.8vw,36px);margin:0}.sub{font-size:11px;color:var(--muted);margin-top:3px}.stats{display:flex;gap:6px;flex-wrap:wrap}.stat{min-width:78px;background:#15101e;border:1px solid var(--line);border-radius:7px;padding:6px 9px}.stat small{display:block;color:var(--muted);font-size:8px}.stat b{font-size:16px;color:var(--gold)}.tabs,.controls{display:flex;gap:6px;flex-wrap:wrap}.tabs{margin:9px 0}.btn,.tab{border:1px solid #755e86;background:#4c3860;color:#fff;border-radius:7px;padding:8px 11px;min-height:39px;font-weight:800;cursor:pointer}.btn:hover,.tab:hover{filter:brightness(1.12)}.btn:disabled{opacity:.38}.btn.primary,.tab.active{background:var(--gold);color:#3e2a00;border-color:var(--gold)}.btn.danger{background:#773e4a}.view{display:none}.view.active{display:block}.layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:9px}.panel{background:rgba(39,30,50,.97);border:1px solid var(--line);border-radius:9px}.section{padding:10px}.cauldron{display:grid;grid-template-columns:1fr 220px;gap:9px}.ingredients{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}.ingredient{background:#1c1626;border:1px solid #544464;border-radius:7px;padding:7px;color:#fff;cursor:pointer;min-width:0}.ingredient.selected{outline:2px solid var(--gold)}.ingredient:disabled{opacity:.3}.ingredient span{font-size:25px}.ingredient b,.ingredient small{display:block}.ingredient small{font-size:8px;color:var(--muted)}.pot{background:radial-gradient(circle at 50% 58%,#74507d,#1d1726 56%);border:1px solid #705b80;border-radius:9px;display:grid;place-items:center;text-align:center;min-height:250px;padding:10px}.pot .icon{font-size:70px;animation:bob 2s infinite ease-in-out}@keyframes bob{50%{transform:translateY(-5px)}}.slots{display:flex;justify-content:center;gap:6px;margin:8px 0}.slot{width:48px;height:48px;border:1px dashed #9a83a8;border-radius:8px;display:grid;place-items:center;font-size:25px}.side{display:flex;flex-direction:column;gap:7px}.message{background:#15101e;border-left:3px solid var(--gold);padding:8px;min-height:45px;font-size:10px;line-height:1.5}.order,.upgrade,.potion-card,.region,.recipe{background:#1c1626;border:1px solid #51425f;border-radius:7px;padding:8px}.order+.order,.upgrade+.upgrade{margin-top:6px}.order header,.upgrade header{display:flex;justify-content:space-between;gap:7px}.order p,.upgrade p,.region p,.recipe p{font-size:9px;color:var(--muted);line-height:1.5;margin:4px 0 7px}.stock{display:flex;justify-content:space-between;border-bottom:1px solid #ffffff12;padding:5px;font-size:9px}.regions{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.region{text-align:center}.region span{font-size:42px}.region.locked{opacity:.4}.potion-grid,.recipe-grid,.upgrade-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.potion-card,.recipe{text-align:center}.potion-card span,.recipe span{font-size:34px}.potion-card b,.potion-card small,.recipe b,.recipe small{display:block}.potion-card small,.recipe small{font-size:8px;color:var(--muted)}.recipe.locked{filter:grayscale(1);opacity:.4}.upgrade-grid{grid-template-columns:repeat(3,1fr)}.upgrade+.upgrade{margin-top:0}.overlay{position:fixed;inset:0;background:#100c17ed;z-index:20;display:flex;align-items:center;justify-content:center;padding:12px}.overlay.hidden{display:none}.modal{width:min(880px,100%);max-height:93vh;overflow:auto;background:#292035;border:1px solid #705d80;border-radius:9px;padding:16px}.modal h2{font-size:25px;margin:0 0 4px}.modal>p{font-size:10px;color:var(--muted);line-height:1.55}.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.choice{text-align:left;background:#1a1423;border:1px solid #59486a;border-radius:7px;padding:11px;color:#fff;cursor:pointer;min-height:125px}.choice:hover{border-color:var(--gold)}.choice span{font-size:35px}.choice h3{margin:5px 0}.choice p{font-size:9px;color:var(--muted);line-height:1.5}.savebox{width:100%;height:125px;background:#130f1b;border:1px solid var(--line);color:#fff;padding:8px}.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#1c1626;border:1px solid var(--gold);padding:8px 13px;z-index:30}@media(max-width:820px){.layout{grid-template-columns:1fr}.side{display:grid;grid-template-columns:1fr 1fr}.side .panel:last-child{grid-column:1/-1}}@media(max-width:580px){.app{padding:6px}.top{flex-direction:column;align-items:flex-start}.stats{width:100%}.stat{flex:1;min-width:64px}.side{display:flex}.cauldron{grid-template-columns:1fr}.ingredients{grid-template-columns:repeat(4,1fr)}.pot{min-height:210px}.regions,.upgrade-grid{grid-template-columns:1fr}.potion-grid,.recipe-grid{grid-template-columns:repeat(2,1fr)}.choices{grid-template-columns:1fr}.tabs{flex-wrap:nowrap;overflow-x:auto}.tab{flex:0 0 auto;white-space:nowrap}}
+</style></head><body><main class="app"><header class="top"><div><h1>万象炼金室：秘釜纪元</h1><div class="sub">远征采集、三素材推理、四类炼制设备与商会经营；发现 24 份秘方，建立自己的炼金学派。</div></div><div class="stats"><div class="stat"><small>日期</small><b id="day">第1日</b></div><div class="stat"><small>金币</small><b id="coins">0</b></div><div class="stat"><small>灵感</small><b id="insight">0</b></div><div class="stat"><small>行动</small><b id="energy">0 / 0</b></div><div class="stat"><small>声望</small><b id="renown">0</b></div><div class="stat"><small>秘方</small><b id="recipeCount">0 / 24</b></div></div></header><nav class="tabs"><button class="tab active" data-view="brew">炼制台</button><button class="tab" data-view="gather">远征采集</button><button class="tab" data-view="orders">商会订单</button><button class="tab" data-view="warehouse">药剂仓库</button><button class="tab" data-view="grimoire">秘方书</button><button class="tab" data-view="upgrade">工坊建设</button><button class="tab" id="saveBtn">存档码</button><button class="tab" id="newBtn">新工坊</button></nav>
+<section class="view active" id="brewView"><div class="layout"><section class="panel section"><div class="cauldron"><div><h2>素材柜</h2><p class="sub">最多投入三种不同素材；配方与顺序无关，但必须使用正确设备。</p><div class="ingredients" id="ingredients"></div></div><div class="pot"><div><div class="icon" id="stationIcon">⚗️</div><b id="stationName">秘银坩埚</b><div class="slots" id="slots"></div><div class="controls" style="justify-content:center"><button class="btn" id="stationBtn">切换设备</button><button class="btn primary" id="brewBtn">开始炼制</button></div></div></div></div><div class="message" id="message">导师留下三瓶基础素材，也留下一张没有答案的配方图。</div></section><aside class="side"><section class="panel section"><h3 style="margin-top:0">研究线索</h3><div id="researchHint" class="message"></div><button class="btn" id="researchBtn">消耗 4 灵感研究</button></section><section class="panel section"><h3 style="margin-top:0">素材库存</h3><div id="quickStock"></div></section><section class="panel section"><h3 style="margin-top:0">炼制记录</h3><div id="log" class="message"></div></section></aside></div></section>
+<section class="view" id="gatherView"><div class="panel section"><h2>素材远征</h2><p class="sub">每次采集消耗 1 行动并获得三份素材。声望和建筑会解锁更危险的地区。</p><div class="regions" id="regions"></div><div class="controls" style="margin-top:9px"><button class="btn primary" id="nextDayBtn">结束今日</button></div></div></section>
+<section class="view" id="ordersView"><div class="panel section"><h2>商会订单</h2><div id="orders"></div></div></section>
+<section class="view" id="warehouseView"><div class="panel section"><h2>药剂仓库</h2><div class="potion-grid" id="potions"></div><div class="controls" style="margin-top:9px"><button class="btn" id="sellAllBtn">出售非订单药剂</button></div></div></section>
+<section class="view" id="grimoireView"><div class="panel section"><h2>万象秘方书</h2><div class="recipe-grid" id="recipes"></div></div></section>
+<section class="view" id="upgradeView"><div class="panel section"><h2>工坊建设</h2><div class="upgrade-grid" id="upgrades"></div></div></section></main>
+<div class="overlay" id="startOverlay"><section class="modal"><h2>选择炼金导师</h2><p>导师决定开局素材与长期专长，但全部 24 份配方都能在同一档案发现。</p><div class="choices" id="mentors"></div></section></div><div class="overlay hidden" id="infoOverlay"><section class="modal"><h2 id="infoTitle">炼金档案</h2><div id="infoBody"></div><div class="controls"><button class="btn primary" id="closeInfoBtn">返回工坊</button></div></section></div>
+<script>(()=>{'use strict';const $=id=>document.getElementById(id),SAVE='alchemyWorkshopV3';
+const ING=[['晨露','💧','水',0],['火莓','🔥','火',0],['月草','🌿','生',0],['风铃花','🌸','风',0],['岩盐','🧂','土',1],['银苔','🪴','生',1],['夜菇','🍄','影',1],['蜂蜡','🍯','火',1],['珊瑚粉','🪸','水',2],['海星砂','⭐','光',2],['雷藻','🌱','风',2],['珍珠泪','🫧','水',2],['幽火','👻','影',3],['日曜石','🔆','光',3],['龙鳞屑','🐉','火',3],['古树心','🪵','生',3],['霜晶','❄️','水',4],['熔核','🌋','火',4],['星尘','✨','光',4],['虚空墨','🌑','影',4]].map((x,id)=>({id,n:x[0],i:x[1],e:x[2],region:x[3]}));
+const STATIONS=[{n:'秘银坩埚',i:'⚗️',id:'pot'},{n:'蒸馏塔',i:'🧪',id:'still'},{n:'星辉浸注器',i:'🔮',id:'infuse'},{n:'炽热熔炉',i:'♨️',id:'forge'}];
+const RAW=[['微光药水','🧴','pot',[0,2],24,'恢复'],['灼热合剂','🧨','pot',[1,7],30,'火焰'],['风行露','🪽','still',[0,3],34,'速度'],['石肤剂','🪨','pot',[4,5],38,'防护'],['夜视墨水','👁️','still',[0,6],42,'洞察'],['丰饶精华','🌾','infuse',[2,5,7],55,'生长'],['潮汐呼吸','🐟','still',[8,9],58,'水息'],['雷鸣瓶','⚡','forge',[10,14],65,'雷电'],['月影药剂','🌙','infuse',[6,11,12],72,'隐匿'],['太阳灵露','☀️','infuse',[9,13],76,'光明'],['龙血酊','🩸','forge',[1,14,15],88,'力量'],['古树复苏','🌳','infuse',[2,15],82,'治疗'],['霜火矛盾剂','☯️','forge',[16,17],95,'转化'],['星界墨水','🌌','still',[18,19],105,'知识'],['凤凰灰烬','🪶','forge',[7,14,17],118,'复生'],['虚空屏障','🕳️','infuse',[4,12,19],110,'防护'],['海月珍珠剂','🪼','still',[8,11,18],102,'魅力'],['雷霜催化剂','🌩️','forge',[10,16,17],112,'雷电'],['生命之泉','⛲','pot',[0,11,15],120,'治疗'],['黄金转化液','🪙','forge',[4,13,18],145,'财富'],['梦境香雾','💤','still',[3,6,16],100,'梦境'],['巨龙星火','🐲','infuse',[13,14,18],155,'力量'],['万象溶剂','🌈','pot',[0,1,2],130,'转化'],['贤者之滴','💎','infuse',[15,18,19],180,'知识']].map((x,id)=>({id,n:x[0],i:x[1],station:x[2],ing:x[3],value:x[4],tag:x[5]}));
+const REGIONS=[{n:'晨雾林地',i:'🌲',d:'基础草木与晨露。',need:0,pool:[0,1,2,3]},{n:'回声矿洞',i:'⛏️',d:'盐、苔、夜菇与蜂蜡。',need:2,pool:[4,5,6,7]},{n:'珊瑚海岸',i:'🏖️',d:'潮汐素材与雷藻。',need:5,pool:[8,9,10,11]},{n:'失落遗迹',i:'🏛️',d:'幽火、曜石、龙鳞与树心。',need:10,pool:[12,13,14,15]},{n:'星落火山',i:'🌋',d:'终局霜晶、熔核与星界素材。',need:18,pool:[16,17,18,19]}];
+const MENTORS={herbal:{i:'🌿',n:'林地药师',d:'基础草木库存更多，采集时有概率额外获得素材。'},merchant:{i:'🪙',n:'商会学徒',d:'开局金币更多，订单与出售价格提高 12%。'},scholar:{i:'📚',n:'星象学者',d:'开局灵感更多，首次发现配方额外获得灵感。'}};
+const UPGRADES={garden:{i:'🌱',n:'温室苗圃',d:'每天自动获得基础草木素材。',base:90,max:4},shelves:{i:'🗄️',n:'扩展货架',d:'出售药剂每级提高 6%。',base:110,max:4},library:{i:'📖',n:'研究书库',d:'每日灵感与研究线索增强。',base:130,max:4},caravan:{i:'🛒',n:'远征车队',d:'每日行动 +1，采集品质提高。',base:150,max:3},guild:{i:'🏛️',n:'商会柜台',d:'订单奖励每级提高 10%。',base:170,max:3},automation:{i:'⚙️',n:'自动搅拌机',d:'发现过的双素材配方有概率产出双份。',base:210,max:3}};
+let q=null,selected=[],station=0,activeView='brew';function fresh(mentor){const stock={};[0,1,2,3].forEach(i=>stock[i]=mentor==='herbal'?6:4);const x={v:3,mentor,day:1,coins:mentor==='merchant'?130:80,insight:mentor==='scholar'?12:6,energy:5,renown:0,stock,potions:{},known:[],orders:[],upgrades:{garden:0,shelves:0,library:0,caravan:0,guild:0,automation:0},stats:{brews:0,discoveries:0,orders:0,gathers:0},log:'导师留下基础素材，也留下一张没有答案的配方图。'};x.orders=makeOrders(x);return x}
+function makeOrders(state=q){const pool=RECIPES.filter(r=>state.known.includes(r.id));const fallback=RECIPES.slice(0,4);return Array.from({length:3},(_,i)=>{const list=pool.length?pool:fallback,r=list[(Math.floor(Math.random()*list.length)+i)%list.length],need=1+(i===2?1:0);return{id:r.id,need,reward:Math.round(r.value*need*(1.5+i*.12)),done:false,expires:state.day+3}})}
+const RECIPES=RAW;function save(){if(q)localStorage.setItem(SAVE,JSON.stringify(q))}function load(){try{const x=JSON.parse(localStorage.getItem(SAVE));if(x?.v===3)q=x}catch{}}
+function checksum(s){let h=2166136261;for(const ch of s){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)}return(h>>>0).toString(36)}function exportCode(){const b=btoa(unescape(encodeURIComponent(JSON.stringify(q))));return`AW3-${b}-${checksum(b)}`}function importCode(x){const m=x.trim().match(/^AW3-(.+)-([a-z0-9]+)$/i);if(!m||checksum(m[1])!==m[2])throw Error('存档码校验失败');const d=JSON.parse(decodeURIComponent(escape(atob(m[1]))));if(d.v!==3)throw Error('版本不兼容');q=d;save();draw()}
+function key(a){return[...a].sort((x,y)=>x-y).join(',')}function msg(s){q.log=s;$('message').textContent=s}function toast(s){const e=document.createElement('div');e.className='toast';e.textContent=s;document.body.append(e);setTimeout(()=>e.remove(),1400)}
+function selectIngredient(id){if((q.stock[id]||0)<=0)return;if(selected.includes(id))selected=selected.filter(x=>x!==id);else{if(selected.length>=3)selected.shift();selected.push(id)}draw()}
+function brew(){if(selected.length<2)return toast('至少投入两种素材');const stationId=STATIONS[station].id,recipe=RECIPES.find(r=>key(r.ing)===key(selected)&&r.station===stationId);selected.forEach(id=>q.stock[id]--);q.stats.brews++;if(!recipe){q.potions.sludge=(q.potions.sludge||0)+1;q.insight++;msg('配方没有稳定成形，获得一份炼金残渣与 1 灵感。')}else{let n=1;if(q.upgrades.automation&&recipe.ing.length===2&&Math.random()<q.upgrades.automation*.18)n++;q.potions[recipe.id]=(q.potions[recipe.id]||0)+n;const first=!q.known.includes(recipe.id);if(first){q.known.push(recipe.id);q.stats.discoveries++;q.renown+=2;q.insight+=2+(q.mentor==='scholar'?2:0);msg(`发现秘方：${recipe.i}${recipe.n}！已记录进万象书。`)}else msg(`炼成 ${n} 瓶${recipe.n}。`)}selected=[];save();draw()}
+function gather(i){const r=REGIONS[i];if(q.renown<r.need)return;if(q.energy<=0)return toast('今日行动已经用完');q.energy--;q.stats.gathers++;const count=3+q.upgrades.caravan+(q.mentor==='herbal'&&Math.random()<.4?1:0),got={};for(let n=0;n<count;n++){const id=r.pool[Math.floor(Math.random()*r.pool.length)];q.stock[id]=(q.stock[id]||0)+1;got[id]=(got[id]||0)+1}msg(`从${r.n}带回：${Object.entries(got).map(([id,n])=>ING[id].i+ING[id].n+'×'+n).join('、')}`);save();draw()}
+function research(){if(q.insight<4)return toast('灵感不足');q.insight-=4;const unknown=RECIPES.filter(r=>!q.known.includes(r.id));if(!unknown.length){q.insight+=4;return toast('全部秘方已经发现')}const r=unknown[Math.floor(Math.random()*unknown.length)],knownCount=r.ing.filter(id=>(q.stock[id]||0)>0).length;$('researchHint').textContent=`线索：${r.n}需要 ${r.ing.length} 种素材，设备为${STATIONS.find(s=>s.id===r.station).n}；你目前持有其中 ${knownCount} 种。元素倾向：${[...new Set(r.ing.map(id=>ING[id].e))].join('/')}`;save();draw()}
+function deliver(i){const o=q.orders[i];if(o.done)return;if((q.potions[o.id]||0)<o.need)return toast('药剂数量不足');q.potions[o.id]-=o.need;o.done=true;const reward=Math.round(o.reward*(1+q.upgrades.guild*.1+(q.mentor==='merchant'?.12:0)));q.coins+=reward;q.renown+=2;q.insight++;q.stats.orders++;msg(`订单完成，获得 ${reward} 金币、2 声望与 1 灵感。`);if(q.orders.every(x=>x.done))q.orders=makeOrders();save();draw()}
+function sellAll(){let total=0;RECIPES.forEach(r=>{const reserved=q.orders.filter(o=>!o.done&&o.id===r.id).reduce((a,o)=>a+o.need,0),n=Math.max(0,(q.potions[r.id]||0)-reserved);if(n){total+=Math.round(n*r.value*(1+q.upgrades.shelves*.06+(q.mentor==='merchant'?.12:0)));q.potions[r.id]-=n}});total+=(q.potions.sludge||0)*4;q.potions.sludge=0;q.coins+=total;msg(total?`非订单药剂售出，收入 ${total} 金币。`:'没有可出售的药剂。');save();draw()}
+function nextDay(){q.day++;q.energy=5+q.upgrades.caravan;q.insight+=q.upgrades.library;if(q.upgrades.garden)for(let n=0;n<q.upgrades.garden;n++){const id=Math.floor(Math.random()*4);q.stock[id]=(q.stock[id]||0)+1}if(q.orders.some(o=>o.expires<q.day&&!o.done))q.orders=makeOrders();msg(`第 ${q.day} 日开始，工坊恢复行动与研究进度。`);save();draw()}
+function upgrade(id){const d=UPGRADES[id],lv=q.upgrades[id],cost=Math.round(d.base*Math.pow(1.7,lv));if(lv>=d.max||q.coins<cost)return toast('金币不足或已满级');q.coins-=cost;q.upgrades[id]++;q.renown++;msg(`${d.n}升级到 Lv.${q.upgrades[id]}。`);save();draw()}
+function showSave(){const code=exportCode();$('infoTitle').textContent='跨设备炼金档案';$('infoBody').innerHTML=`<p>素材、配方、药剂、订单、建筑与统计都会导出，并带完整性校验。</p><textarea class="savebox" id="saveCode">${code}</textarea><div class="controls"><button class="btn" id="copyCode">复制导出</button><button class="btn" id="importCodeBtn">导入上方存档</button></div>`;$('infoOverlay').classList.remove('hidden');$('copyCode').onclick=()=>navigator.clipboard?.writeText($('saveCode').value);$('importCodeBtn').onclick=()=>{try{importCode($('saveCode').value);$('infoOverlay').classList.add('hidden');alert('炼金档案导入成功')}catch(e){alert(e.message)}}}
+function draw(){if(!q)return;$('day').textContent=`第${q.day}日`;$('coins').textContent=Math.floor(q.coins);$('insight').textContent=q.insight;$('energy').textContent=`${q.energy} / ${5+q.upgrades.caravan}`;$('renown').textContent=q.renown;$('recipeCount').textContent=`${q.known.length} / ${RECIPES.length}`;$('message').textContent=q.log;$('log').textContent=q.log;$('stationIcon').textContent=STATIONS[station].i;$('stationName').textContent=STATIONS[station].n;$('slots').innerHTML=Array.from({length:3},(_,i)=>`<div class="slot">${selected[i]!=null?ING[selected[i]].i:'+'}</div>`).join('');
+$('ingredients').innerHTML=ING.map(x=>`<button class="ingredient ${selected.includes(x.id)?'selected':''}" data-ing="${x.id}" ${(q.stock[x.id]||0)<=0?'disabled':''}><span>${x.i}</span><b>${x.n}</b><small>${x.e} · 库存 ${q.stock[x.id]||0}</small></button>`).join('');document.querySelectorAll('[data-ing]').forEach(b=>b.onclick=()=>selectIngredient(+b.dataset.ing));const stock=ING.filter(x=>(q.stock[x.id]||0)>0);$('quickStock').innerHTML=stock.length?stock.map(x=>`<div class="stock"><span>${x.i}${x.n}</span><b>${q.stock[x.id]}</b></div>`).join(''):'<div class="sub">素材柜为空。</div>';
+$('regions').innerHTML=REGIONS.map((r,i)=>`<article class="region ${q.renown<r.need?'locked':''}"><span>${r.i}</span><h3>${r.n}</h3><p>${r.d}<br>解锁声望 ${r.need}</p><button class="btn" data-region="${i}" ${q.renown<r.need||q.energy<=0?'disabled':''}>采集 1行动</button></article>`).join('');document.querySelectorAll('[data-region]').forEach(b=>b.onclick=()=>gather(+b.dataset.region));
+$('orders').innerHTML=q.orders.map((o,i)=>{const r=RECIPES[o.id],have=q.potions[o.id]||0;return`<div class="order"><header><b>${o.done?'✓ ':''}${r.i}${r.n} × ${o.need}</b><strong>${o.reward}金</strong></header><p>期限第 ${o.expires} 日 · 库存 ${have}/${o.need} · ${r.tag}</p><button class="btn" data-order="${i}" ${o.done?'disabled':''}>交付</button></div>`}).join('');document.querySelectorAll('[data-order]').forEach(b=>b.onclick=()=>deliver(+b.dataset.order));$('potions').innerHTML=RECIPES.filter(r=>(q.potions[r.id]||0)>0).map(r=>`<article class="potion-card"><span>${r.i}</span><b>${r.n}</b><small>${r.tag} · ${r.value}金 · 库存 ${q.potions[r.id]}</small></article>`).join('')+(q.potions.sludge?`<article class="potion-card"><span>🫙</span><b>炼金残渣</b><small>4金 · 库存 ${q.potions.sludge}</small></article>`:'')||'<div class="sub">还没有成品药剂。</div>';
+$('recipes').innerHTML=RECIPES.map(r=>{const known=q.known.includes(r.id);return`<article class="recipe ${known?'':'locked'}"><span>${known?r.i:'❔'}</span><b>${known?r.n:'未知秘方'}</b><small>${known?`${STATIONS.find(s=>s.id===r.station).n}<br>${r.ing.map(id=>ING[id].i+ING[id].n).join(' + ')}`:'通过实验或研究发现'}</small></article>`}).join('');$('upgrades').innerHTML=Object.entries(UPGRADES).map(([id,d])=>{const lv=q.upgrades[id],cost=Math.round(d.base*Math.pow(1.7,lv));return`<article class="upgrade"><header><b>${d.i}${d.n}</b><span>Lv.${lv}/${d.max}</span></header><p>${d.d}</p><button class="btn" data-up="${id}" ${lv>=d.max?'disabled':''}>${lv>=d.max?'满级':'升级 '+cost}</button></article>`}).join('');document.querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>upgrade(b.dataset.up));save()}
+function mentorScreen(){$('mentors').innerHTML=Object.entries(MENTORS).map(([id,m])=>`<button class="choice" data-mentor="${id}"><span>${m.i}</span><h3>${m.n}</h3><p>${m.d}</p></button>`).join('');document.querySelectorAll('[data-mentor]').forEach(b=>b.onclick=()=>{q=fresh(b.dataset.mentor);$('startOverlay').classList.add('hidden');draw()})}
+document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{activeView=b.dataset.view;document.querySelectorAll('.tab[data-view]').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id===activeView+'View'))});$('stationBtn').onclick=()=>{station=(station+1)%STATIONS.length;draw()};$('brewBtn').onclick=brew;$('researchBtn').onclick=research;$('nextDayBtn').onclick=nextDay;$('sellAllBtn').onclick=sellAll;$('saveBtn').onclick=()=>q&&showSave();$('closeInfoBtn').onclick=()=>$('infoOverlay').classList.add('hidden');$('newBtn').onclick=()=>{if(!q||confirm('清空当前炼金档案？')){q=null;localStorage.removeItem(SAVE);$('startOverlay').classList.remove('hidden')}};load();mentorScreen();if(q){$('startOverlay').classList.add('hidden');draw()}
+})();</script></body></html>

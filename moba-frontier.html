@@ -562,7 +562,7 @@
       <section class="stage" aria-label="晶塔前线游戏区">
         <header class="topbar">
           <div>
-            <h1>晶塔前线 <b>群星赛季 V3</b></h1>
+            <h1>晶塔前线 <b>群星赛季 V4</b></h1>
             <div class="subline">
               <span id="statusText">待命</span> ·
               <span id="timerText">00:00</span>
@@ -688,6 +688,9 @@
             <button class="shop-btn" id="buyWard">
               <strong>守望屏障</strong><span>160 金币</span>
             </button>
+            <button class="shop-btn" id="buyMomentum">
+              <strong>追风战靴</strong><span>175 金币</span>
+            </button>
           </div>
         </section>
 
@@ -730,6 +733,7 @@
         const buyHaste = document.getElementById("buyHaste");
         const buySustain = document.getElementById("buySustain");
         const buyWard = document.getElementById("buyWard");
+        const buyMomentum = document.getElementById("buyMomentum");
         const championGrid = document.getElementById("championGrid");
         const ruleGrid = document.getElementById("ruleGrid");
         const careerGrid = document.getElementById("careerGrid");
@@ -984,6 +988,37 @@
             skill: 1.34,
             aoe: 1.24,
           },
+          riftstalker: {
+            name: "隙影",
+            icon: "◐",
+            role: "duelist",
+            desc: "高机动刺客，暴击与追击能力突出。",
+            abilities: ["裂隙刃", "影跃", "蚀星域", "终夜坠击"],
+            hp: 0.84,
+            mana: 1.08,
+            speed: 1.14,
+            damage: 1.2,
+            range: 0.96,
+            skill: 1.16,
+            crit: 0.18,
+            lifesteal: 0.02,
+          },
+          dawnweaver: {
+            name: "曦织",
+            icon: "✺",
+            role: "mage",
+            desc: "支援法师，持续恢复并强化范围护盾。",
+            abilities: ["晨辉矛", "光织步", "复苏星域", "黎明晶陨"],
+            hp: 1.02,
+            mana: 1.18,
+            speed: 1.02,
+            damage: 0.9,
+            range: 1.12,
+            skill: 1.15,
+            aoe: 1.12,
+            shield: 1.35,
+            regen: 2.6,
+          },
         };
         const MATCH_RULES = {
           conquest: {
@@ -1028,6 +1063,28 @@
             reward: 1.3,
             dualObjective: true,
           },
+          sudden: {
+            name: "晶核闪袭",
+            icon: "✹",
+            desc: "塔防显著削弱、经济加速，十分钟内决胜。",
+            structure: 0.6,
+            enemy: 1.1,
+            wave: 0.66,
+            objective: 0.72,
+            reward: 1.55,
+            startGold: 120,
+          },
+          ascension: {
+            name: "群星天梯",
+            icon: "♛",
+            desc: "敌军、塔与晶兽全面强化，最高赛季收益。",
+            structure: 1.3,
+            enemy: 1.34,
+            wave: 0.82,
+            objective: 1.32,
+            reward: 2.05,
+            startGold: 35,
+          },
         };
         const CAREER_TECH = {
           power: {
@@ -1048,6 +1105,24 @@
             max: 6,
             cost: (n) => 16 + n * 12,
           },
+          wealth: {
+            name: "开局补给",
+            desc: "每级初始金币 +18",
+            max: 5,
+            cost: (n) => 18 + n * 14,
+          },
+          recovery: {
+            name: "重构舱",
+            desc: "每级复活时间 -8%",
+            max: 5,
+            cost: (n) => 20 + n * 15,
+          },
+          objective: {
+            name: "晶兽共鸣",
+            desc: "每级团队晶潮 +6 秒",
+            max: 5,
+            cost: (n) => 22 + n * 16,
+          },
         };
         const CAREER_KEY = "crystalFrontCareerV3";
         let selectedChampion = "starblade";
@@ -1067,7 +1142,9 @@
             wins: 0,
             games: 0,
             bestKills: 0,
-            tech: { power: 0, vitality: 0, fortune: 0 },
+            tech: { power: 0, vitality: 0, fortune: 0, wealth: 0, recovery: 0, objective: 0 },
+            rankPoints: 0,
+            streak: 0,
             mastery: {},
             records: {},
             loadout: { champion: "starblade", rule: "conquest" },
@@ -1143,6 +1220,15 @@
           renderDeployment();
         }
 
+        function rankName(points = career.rankPoints || 0) {
+          if (points >= 900) return "群星王者";
+          if (points >= 600) return "曜晶大师";
+          if (points >= 360) return "星辉钻石";
+          if (points >= 180) return "苍蓝黄金";
+          if (points >= 60) return "白银先锋";
+          return "青铜新星";
+        }
+
         function renderDeployment() {
           championGrid.innerHTML = Object.entries(CHAMPIONS)
             .map(
@@ -1164,7 +1250,7 @@
               return `<button class="career-btn" data-career="${key}" ${maxed || career.shards < cost ? "disabled" : ""}><strong>${tech.name} Lv.${level}</strong><span>${tech.desc}<br>${maxed ? "已满级" : `晶屑 ${cost}`}</span></button>`;
             })
             .join("");
-          careerMeta.textContent = `晶屑 ${career.shards} · ${career.wins} 胜 / ${career.games} 场 · 最佳击败 ${career.bestKills}`;
+          careerMeta.textContent = `${rankName()} ${career.rankPoints || 0}分 · 晶屑 ${career.shards} · ${career.wins}胜/${career.games}场 · 连胜 ${career.streak || 0} · 最佳击败 ${career.bestKills}`;
           championGrid.querySelectorAll("[data-champion]").forEach(
             (button) =>
               (button.onclick = () => {
@@ -1484,7 +1570,10 @@
             hero.aoeScale = champion.aoe || 1;
             hero.shieldScale = champion.shield || 1;
             hero.lifesteal = champion.lifesteal || 0;
-            hero.gold += rule.startGold || 0;
+            hero.crit = champion.crit || 0;
+            hero.regen = champion.regen || 0;
+            hero.items = { attack: 0, health: 0, haste: 0, sustain: 0, ward: 0, momentum: 0 };
+            hero.gold += (rule.startGold || 0) + (career.tech.wealth || 0) * 18;
           } else if (team === RED) {
             hero.maxHp = Math.round(hero.maxHp * rule.enemy);
             hero.hp = hero.maxHp;
@@ -1791,6 +1880,8 @@
               hero.mana = Math.min(hero.maxMana, hero.mana + 12 * dt);
             if (hero.aetherTime > 0)
               hero.mana = Math.min(hero.maxMana, hero.mana + 16 * dt);
+            if (hero.regen > 0)
+              hero.hp = Math.min(hero.maxHp, hero.hp + hero.regen * dt);
             hero.attackTimer -= dt;
             if (hero.shieldTime > 0) {
               hero.shieldTime -= dt;
@@ -2379,6 +2470,10 @@
         function damageUnit(unit, amount, source, name) {
           if (!unit.alive) return;
           let damage = amount;
+          if (source?.crit > 0 && Math.random() < source.crit) {
+            damage *= 1.65;
+            if (source === player) showToast("暴击");
+          }
           if (source?.buffTime > 0) damage *= 1.18;
           if (source?.emberTime > 0) damage *= 1.14;
           if (
@@ -2473,7 +2568,9 @@
           }
 
           if (unit.kind === "hero") {
-            unit.respawn = unit.isPlayer ? 8 : 10;
+            unit.respawn = unit.isPlayer
+              ? 8 * (1 - (career.tech.recovery || 0) * 0.08)
+              : 10;
             if (unit.isPlayer) {
               game.deaths += 1;
               queuedAbility = null;
@@ -2522,7 +2619,8 @@
           }
           teamBuffs[source.team].duration = Math.max(
             teamBuffs[source.team].duration,
-            OBJECTIVE_BUFF_DURATION,
+            OBJECTIVE_BUFF_DURATION +
+              (source.team === BLUE ? (career.tech.objective || 0) * 6 : 0),
           );
           for (const hero of entities.heroes) {
             if (hero.team !== source.team || !hero.alive) continue;
@@ -2776,6 +2874,7 @@
             haste: 130,
             sustain: 150,
             ward: 160,
+            momentum: 175,
           };
           const cost = costs[type];
           if (player.gold < cost) {
@@ -2802,7 +2901,11 @@
             player.shield = Math.max(player.shield || 0, 150);
             player.shieldTime = 7;
             showToast("守望屏障展开");
+          } else if (type === "momentum") {
+            player.speed += 16;
+            showToast("移动速度提升");
           }
+          player.items[type] = (player.items[type] || 0) + 1;
           updateUI();
         }
 
@@ -2831,6 +2934,15 @@
           career.shards += shards;
           career.games += 1;
           career.wins += won ? 1 : 0;
+          const previousStreak = career.streak || 0;
+          const rankDelta = won
+            ? Math.round(15 * rule.reward + Math.min(10, previousStreak * 2))
+            : -Math.round(7 * Math.max(1, rule.enemy));
+          career.streak = won ? previousStreak + 1 : 0;
+          career.rankPoints = Math.max(
+            0,
+            (career.rankPoints || 0) + rankDelta,
+          );
           career.bestKills = Math.max(career.bestKills, game.kills);
           career.mastery[selectedChampion] =
             (career.mastery[selectedChampion] || 0) + 1;
@@ -2850,7 +2962,7 @@
           storeCareer();
           renderDeployment();
           resultTitle.textContent = won ? "胜利" : "失败";
-          resultCopy.textContent = `${CHAMPIONS[selectedChampion].name} · ${rule.name} · 用时 ${formatTime(game.time)} · 击败 ${game.kills} · 阵亡 ${game.deaths} · 第 ${game.waveNumber} 波 · 获得 ${shards} 晶屑`;
+          resultCopy.textContent = `${CHAMPIONS[selectedChampion].name} · ${rule.name} · 用时 ${formatTime(game.time)} · 击败 ${game.kills} · 阵亡 ${game.deaths} · 第 ${game.waveNumber} 波 · 获得 ${shards} 晶屑 · 天梯 ${rankDelta >= 0 ? "+" : ""}${rankDelta}`;
           resultModal.classList.add("show");
           pushFeed(won ? "赤晶核被摧毁" : "蓝晶核被摧毁");
           showToast(won ? "胜利" : "失败");
@@ -2961,6 +3073,7 @@
           buyHaste.disabled = player.gold < 130;
           buySustain.disabled = player.gold < 150;
           buyWard.disabled = player.gold < 160;
+          buyMomentum.disabled = player.gold < 175;
           renderAbilities();
         }
 
@@ -4432,6 +4545,7 @@
         buyHaste.addEventListener("click", () => buyUpgrade("haste"));
         buySustain.addEventListener("click", () => buyUpgrade("sustain"));
         buyWard.addEventListener("click", () => buyUpgrade("ward"));
+        buyMomentum.addEventListener("click", () => buyUpgrade("momentum"));
         exportSaveBtn.addEventListener("click", async () => {
           const code = encodeCareer();
           try {
