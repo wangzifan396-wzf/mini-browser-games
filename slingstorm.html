@@ -949,7 +949,10 @@
       friction: 0.22,
       frictionAir: 0.007,
       restitution: type.restitution,
-      isStatic: !fragment,
+      // Create every projectile as a dynamic body first. Matter.js only
+      // records a finite mass/inertia when an existing dynamic body is later
+      // made static; bodies born static otherwise keep Infinity after release.
+      isStatic: false,
       isSensor: !fragment,
       collisionFilter: {
         category: PROJECTILE_CATEGORY,
