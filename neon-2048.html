@@ -220,6 +220,7 @@
       .cell {
         position: relative;
         min-width: 0;
+        border: 1px solid rgba(186, 164, 255, 0.08);
         border-radius: clamp(7px, 1.1vmin, 12px);
         background: rgba(255, 255, 255, 0.045);
         display: grid;
@@ -561,6 +562,39 @@
       .sector.locked {
         opacity: 0.3;
       }
+      .sector b span {
+        color: var(--gold);
+        font-size: 8px;
+        letter-spacing: -0.08em;
+      }
+      .sector-brief {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+        gap: 6px;
+        margin-top: 7px;
+      }
+      .brief-rule,
+      .brief-contracts {
+        padding: 8px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.025);
+      }
+      .brief-rule b,
+      .brief-contracts b {
+        display: block;
+        color: var(--cyan);
+        font-size: 9px;
+      }
+      .brief-rule span,
+      .brief-contracts span {
+        display: block;
+        margin-top: 3px;
+        color: var(--muted);
+        font-size: 8px;
+        line-height: 1.4;
+      }
       .archive {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
@@ -591,6 +625,24 @@
         flex-wrap: wrap;
         margin-top: 8px;
       }
+      .milestones {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 5px;
+        margin-top: 8px;
+      }
+      .milestone {
+        padding: 6px;
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        color: var(--muted);
+        font-size: 8px;
+      }
+      .milestone.done {
+        border-color: rgba(105, 238, 162, 0.4);
+        color: var(--green);
+        background: rgba(105, 238, 162, 0.055);
+      }
       .start-row {
         display: flex;
         justify-content: flex-end;
@@ -611,6 +663,50 @@
       .result p {
         font-size: 10px;
         color: var(--muted);
+      }
+      .result-stars {
+        margin-top: 8px;
+        color: var(--gold);
+        font-size: 28px;
+        letter-spacing: 0.08em;
+      }
+      .result-contracts {
+        display: grid;
+        gap: 5px;
+        max-width: 540px;
+        margin: 0 auto 10px;
+      }
+      .result-contracts span {
+        padding: 6px 9px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.035);
+        color: var(--muted);
+        font-size: 9px;
+      }
+      .result-contracts span.done {
+        color: var(--green);
+      }
+      .contract-list {
+        display: grid;
+        gap: 5px;
+      }
+      .contract-item {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        gap: 6px;
+        align-items: center;
+        padding: 6px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.025);
+        color: var(--muted);
+        font-size: 9px;
+      }
+      .contract-item.done {
+        color: var(--green);
+        background: rgba(105, 238, 162, 0.055);
+      }
+      .contract-item i {
+        font-style: normal;
       }
       .result-grid {
         display: grid;
@@ -710,6 +806,21 @@
         .actions .btn {
           display: none;
         }
+        .actions #homeBtn {
+          width: 35px;
+          height: 35px;
+          padding: 0;
+          display: grid;
+          place-items: center;
+          font-size: 0;
+        }
+        .actions #homeBtn::before {
+          content: "⌂";
+          font-size: 17px;
+        }
+        .actions #undoBtn {
+          display: none;
+        }
         .icon-btn {
           width: 35px;
           height: 35px;
@@ -749,6 +860,21 @@
           padding: 5px;
           gap: 4px;
         }
+        .side {
+          grid-template-columns: 1fr;
+          grid-auto-rows: auto;
+          overflow: visible;
+        }
+        .layout {
+          grid-template-rows: auto auto;
+        }
+        body {
+          overflow: auto;
+        }
+        .app {
+          height: auto;
+          min-height: 100dvh;
+        }
         .card {
           padding: 7px;
         }
@@ -777,6 +903,12 @@
         .archive {
           grid-template-columns: 1fr;
         }
+        .sector-brief {
+          grid-template-columns: 1fr;
+        }
+        .milestones {
+          grid-template-columns: repeat(2, 1fr);
+        }
         .archive-btn {
           display: flex;
           justify-content: space-between;
@@ -794,6 +926,16 @@
           grid-template-columns: repeat(2, 1fr);
         }
       }
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
     </style>
   </head>
   <body>
@@ -802,14 +944,15 @@
         <div class="brand">
           <div class="logo">2ⁿ</div>
           <div>
-            <h1>霓虹 2048 <b>万象 V3</b></h1>
-            <p>18 节点 · 七模式 · 八工具 · 跨设备档案</p>
+            <h1>霓虹 2048 <b>星图 V4</b></h1>
+            <p>六章 18 节点 · 异常规则 · 双挑战 · 自动续局</p>
           </div>
         </div>
         <div class="actions">
-          <button class="icon-btn" id="undoBtn">↶</button
+          <button class="icon-btn" id="soundBtn" title="声音与振动开关" aria-label="声音与振动开关">♪</button
+          ><button class="icon-btn" id="undoBtn" title="撤回" aria-label="撤回">↶</button
           ><button class="btn" id="homeBtn">矩阵站</button
-          ><button class="icon-btn" id="newBtn">↻</button>
+          ><button class="icon-btn" id="newBtn" title="重新开始" aria-label="重新开始">↻</button>
         </div>
       </header>
       <div class="layout">
@@ -851,10 +994,12 @@
                     <section class="section">
                       <h3>远征节点</h3>
                       <div class="sector-grid" id="sectorGrid"></div>
+                      <div class="sector-brief" id="sectorBrief"></div>
                     </section>
                     <section class="section" style="grid-column: 1/-1">
                       <h3>永久档案强化</h3>
                       <div class="archive" id="archiveGrid"></div>
+                      <div class="milestones" id="milestoneGrid"></div>
                       <div class="save-tools">
                         <button class="btn" id="exportSaveBtn" type="button">
                           导出存档码
@@ -866,12 +1011,15 @@
                     </section>
                   </div>
                   <div class="start-row">
-                    <button class="btn primary" id="startBtn">启动矩阵</button>
+                    <button class="btn" id="resumeBtn" hidden>继续未完成矩阵</button>
+                    <button class="btn primary" id="startBtn">启动新矩阵</button>
                   </div>
                 </div>
                 <div class="result" id="resultView">
                   <h2 id="resultTitle">矩阵结束</h2>
                   <p id="resultText"></p>
+                  <div class="result-stars" id="resultStars"></div>
+                  <div class="result-contracts" id="resultContracts"></div>
                   <div class="result-grid">
                     <div><b id="resultScore">0</b><span>得分</span></div>
                     <div><b id="resultMax">0</b><span>最大块</span></div>
@@ -930,6 +1078,12 @@
           </section>
           <section class="card">
             <div class="card-head">
+              <strong>星图挑战</strong><span class="eyebrow" id="contractText">0/2</span>
+            </div>
+            <div class="contract-list" id="contractList"></div>
+          </section>
+          <section class="card">
+            <div class="card-head">
               <strong>矩阵统计</strong><span class="eyebrow">LIVE</span>
             </div>
             <div class="stats" id="stats"></div>
@@ -956,7 +1110,8 @@
     <script>
       "use strict";
       const $ = (s) => document.querySelector(s),
-        SAVE_KEY = "neon2048MatrixV2";
+        SAVE_KEY = "neon2048MatrixV2",
+        SESSION_KEY = "neon2048MatrixV4Session";
       const ui = {
         board: $("#board"),
         score: $("#score"),
@@ -982,7 +1137,7 @@
         expedition: {
           name: "矩阵远征",
           icon: "◇",
-          desc: "十二个节点，有限步数内达到目标。",
+          desc: "六章十八节点，每关拥有独立异常与双挑战。",
           size: 4,
         },
         classic: {
@@ -1031,6 +1186,212 @@
           entropy: true,
         },
       };
+      const SECTORS = [
+        {
+          chapter: "I 起源环",
+          name: "冷启动",
+          target: 32,
+          moves: 36,
+          rule: "标准校准",
+          ruleText: "标准 4×4 矩阵，建立角落与单调链。",
+          contracts: [["merges", 8, "完成 8 次合成"], ["combo", 2, "达到 2 连锁"]],
+        },
+        {
+          chapter: "I 起源环",
+          name: "回声电容",
+          target: 64,
+          moves: 46,
+          chargeMult: 1.12,
+          rule: "充能回声",
+          ruleText: "所有合成充能提高 12%，更早构筑协议。",
+          contracts: [["merges", 15, "完成 15 次合成"], ["protocols", 1, "接入 1 项协议"]],
+        },
+        {
+          chapter: "I 起源环",
+          name: "静电风暴",
+          target: 128,
+          moves: 66,
+          extraSpawnEvery: 6,
+          rule: "静电增殖",
+          ruleText: "每 6 步额外生成一个数字，提前整理低阶块。",
+          contracts: [["merges", 24, "完成 24 次合成"], ["combo", 3, "达到 3 连锁"]],
+        },
+        {
+          chapter: "II 镜像港",
+          name: "双相启动",
+          target: 128,
+          moves: 52,
+          spawnBase: 4,
+          startTiles: 3,
+          rule: "双相底数",
+          ruleText: "基础生成值提升为 4，但开局已有三个数字。",
+          contracts: [["merges", 16, "完成 16 次合成"], ["score", 1000, "本局得分达到 1000"]],
+        },
+        {
+          chapter: "II 镜像港",
+          name: "紫噪信道",
+          target: 256,
+          moves: 74,
+          spawnBase: 4,
+          fourChance: 0.2,
+          rule: "高阶噪声",
+          ruleText: "高一阶数字的生成率升至 20%，盘面更快分层。",
+          contracts: [["merges", 28, "完成 28 次合成"], ["combo", 3, "达到 3 连锁"]],
+        },
+        {
+          chapter: "II 镜像港",
+          name: "相位门",
+          target: 512,
+          moves: 90,
+          spawnBase: 4,
+          extraSpawnEvery: 5,
+          chargeMult: 1.15,
+          rule: "相位过载",
+          ruleText: "每 5 步额外生成，充能同时提高 15%。",
+          contracts: [["protocols", 2, "接入 2 项协议"], ["combo", 4, "达到 4 连锁"]],
+        },
+        {
+          chapter: "III 压缩域",
+          name: "密钥阵列",
+          target: 512,
+          moves: 72,
+          spawnBase: 8,
+          startTiles: 4,
+          rule: "压缩启动",
+          ruleText: "基础生成值为 8，四枚密钥同时入场。",
+          contracts: [["merges", 24, "完成 24 次合成"], ["score", 4000, "本局得分达到 4000"]],
+        },
+        {
+          chapter: "III 压缩域",
+          name: "修剪花园",
+          target: 1024,
+          moves: 96,
+          spawnBase: 8,
+          purgeEvery: 9,
+          rule: "周期修剪",
+          ruleText: "每 9 步自动清除一个最低阶数字。",
+          contracts: [["protocols", 2, "接入 2 项协议"], ["combo", 4, "达到 4 连锁"]],
+        },
+        {
+          chapter: "III 压缩域",
+          name: "失压核心",
+          target: 2048,
+          moves: 120,
+          spawnBase: 8,
+          chargeDecay: 7,
+          rule: "电容泄漏",
+          ruleText: "无合成的有效移动会损失 7% 充能。",
+          contracts: [["merges", 55, "完成 55 次合成"], ["combo", 5, "达到 5 连锁"]],
+        },
+        {
+          chapter: "IV 宽域城",
+          name: "五阶中继",
+          target: 1024,
+          moves: 80,
+          size: 5,
+          spawnBase: 16,
+          extraSpawnEvery: 5,
+          rule: "宽域中继",
+          ruleText: "5×5 矩阵，每 5 步发生一次额外中继。",
+          contracts: [["merges", 30, "完成 30 次合成"], ["protocols", 2, "接入 2 项协议"]],
+        },
+        {
+          chapter: "IV 宽域城",
+          name: "虹桥缓存",
+          target: 2048,
+          moves: 100,
+          size: 5,
+          spawnBase: 16,
+          scoreMult: 1.15,
+          rule: "虹桥计分",
+          ruleText: "5×5 矩阵，本关合成得分提高 15%。",
+          contracts: [["score", 12000, "本局得分达到 12000"], ["combo", 5, "达到 5 连锁"]],
+        },
+        {
+          chapter: "IV 宽域城",
+          name: "熵潮塔",
+          target: 4096,
+          moves: 132,
+          size: 5,
+          spawnBase: 16,
+          extraSpawnEvery: 4,
+          rule: "熵潮脉冲",
+          ruleText: "5×5 矩阵，每 4 步追加一个数字。",
+          contracts: [["merges", 85, "完成 85 次合成"], ["protocols", 3, "接入 3 项协议"]],
+        },
+        {
+          chapter: "V 高能井",
+          name: "量子折叠",
+          target: 2048,
+          moves: 70,
+          spawnBase: 32,
+          rule: "高能底数",
+          ruleText: "回到紧凑 4×4，基础生成值跃迁至 32。",
+          contracts: [["score", 15000, "本局得分达到 15000"], ["combo", 4, "达到 4 连锁"]],
+        },
+        {
+          chapter: "V 高能井",
+          name: "过载深井",
+          target: 4096,
+          moves: 112,
+          spawnBase: 32,
+          fourChance: 0.22,
+          chargeDecay: 5,
+          rule: "深井过载",
+          ruleText: "高阶生成率 22%，空转还会损失 5% 充能。",
+          contracts: [["merges", 65, "完成 65 次合成"], ["protocols", 3, "接入 3 项协议"]],
+        },
+        {
+          chapter: "V 高能井",
+          name: "日冕阵列",
+          target: 8192,
+          moves: 144,
+          size: 5,
+          spawnBase: 32,
+          extraSpawnEvery: 5,
+          scoreMult: 1.2,
+          rule: "日冕喷发",
+          ruleText: "5×5 高能矩阵，增殖与 20% 计分增幅并存。",
+          contracts: [["score", 35000, "本局得分达到 35000"], ["combo", 6, "达到 6 连锁"]],
+        },
+        {
+          chapter: "VI 万象核",
+          name: "奇点前哨",
+          target: 4096,
+          moves: 76,
+          size: 5,
+          spawnBase: 64,
+          extraSpawnEvery: 4,
+          rule: "奇点增殖",
+          ruleText: "基础生成值 64，每 4 步追加高能数字。",
+          contracts: [["merges", 45, "完成 45 次合成"], ["protocols", 2, "接入 2 项协议"]],
+        },
+        {
+          chapter: "VI 万象核",
+          name: "零点回廊",
+          target: 8192,
+          moves: 102,
+          size: 5,
+          spawnBase: 64,
+          chargeDecay: 8,
+          rule: "零点泄漏",
+          ruleText: "高能 5×5 矩阵，空转损失 8% 充能。",
+          contracts: [["score", 45000, "本局得分达到 45000"], ["combo", 6, "达到 6 连锁"]],
+        },
+        {
+          chapter: "VI 万象核",
+          name: "万象王座",
+          target: 16384,
+          moves: 148,
+          size: 6,
+          spawnBase: 64,
+          extraSpawnEvery: 3,
+          chargeMult: 1.2,
+          rule: "终局王座",
+          ruleText: "6×6 终局矩阵，每 3 步增殖，但充能提高 20%。",
+          contracts: [["merges", 120, "完成 120 次合成"], ["protocols", 4, "接入 4 项协议"]],
+        },
+      ];
       const ARCHIVE = {
         charge: {
           name: "充能算法",
@@ -1074,13 +1435,13 @@
           id: "node12",
           name: "旧矩阵毕业",
           reward: 36,
-          done: (s) => s.unlocked >= 12,
+          done: (s) => s.completed >= 12,
         },
         {
           id: "node18",
           name: "万象解算",
           reward: 64,
-          done: (s) => s.unlocked >= 18,
+          done: (s) => s.completed >= 18,
         },
         { id: "wins8", name: "稳定算法", reward: 48, done: (s) => s.wins >= 8 },
       ];
@@ -1110,7 +1471,7 @@
           id: "spawn",
           icon: "净",
           title: "纯净生成",
-          desc: "新生成 4 的概率降低 5%。",
+          desc: "新生成高一阶数字的概率降低 5%。",
           apply: (s) => (s.fourChance = Math.max(0.02, s.fourChance - 0.05)),
         },
         {
@@ -1127,10 +1488,11 @@
           id: "steps",
           icon: "步",
           title: "路径扩容",
-          desc: "远征步数上限 +6，限时模式 +20 秒。",
+          desc: "远征步限 +6，限时 +20 秒，无尽模式获得一次撤回。",
           apply: (s) => {
-            s.moveLimit += 6;
-            s.timeLeft += 20;
+            if (s.moveLimit < 99999) s.moveLimit += 6;
+            else if (MODES[s.mode].time) s.timeLeft += 20;
+            else s.tools.undo++;
           },
         },
         {
@@ -1204,15 +1566,17 @@
         state,
         timer = 0,
         bannerTimer = 0,
-        pointer = null;
+        pointer = null,
+        audioContext = null;
       selectedMode = MODES[save.loadout?.mode]
         ? save.loadout.mode
         : selectedMode;
       function load() {
         const base = {
-          v: 3,
+          v: 4,
           data: 0,
           unlocked: 1,
+          completed: 0,
           best: {},
           stars: {},
           archive: { charge: 0, tool: 0, score: 0, history: 0, yield: 0 },
@@ -1222,24 +1586,27 @@
           records: {},
           milestones: {},
           loadout: { mode: "expedition" },
+          settings: { sound: true, haptics: true },
         };
         try {
           const s = JSON.parse(localStorage.getItem(SAVE_KEY) || "null");
-          if (s && (s.v === 2 || s.v === 3))
+          if (s && (s.v === 2 || s.v === 3 || s.v === 4))
             return {
               ...base,
               ...s,
-              v: 3,
+              v: 4,
+              completed: Math.max(0, Number(s.completed ?? ((s.unlocked || 1) - 1)) || 0),
               archive: { ...base.archive, ...(s.archive || {}) },
               records: s.records || {},
               milestones: s.milestones || {},
               loadout: { ...base.loadout, ...(s.loadout || {}) },
+              settings: { ...base.settings, ...(s.settings || {}) },
             };
         } catch {}
         return base;
       }
       function store() {
-        save.v = 3;
+        save.v = 4;
         save.loadout = { mode: selectedMode };
         localStorage.setItem(SAVE_KEY, JSON.stringify(save));
       }
@@ -1254,20 +1621,20 @@
       function encodeSave() {
         const json = JSON.stringify({
           game: "neon-2048",
-          version: 3,
+          version: 4,
           data: save,
         });
         const bytes = new TextEncoder().encode(json);
         let binary = "";
         bytes.forEach((byte) => (binary += String.fromCharCode(byte)));
         const payload = btoa(binary);
-        return `NMX3.${payload}.${saveHash(payload)}`;
+        return `NMX4.${payload}.${saveHash(payload)}`;
       }
       function importSave(code) {
         const [prefix, payload, checksum] = String(code || "")
           .trim()
           .split(".");
-        if (prefix !== "NMX3" || !payload || saveHash(payload) !== checksum)
+        if (!['NMX3', 'NMX4'].includes(prefix) || !payload || saveHash(payload) !== checksum)
           throw new Error("存档码校验失败");
         const parsed = JSON.parse(
           new TextDecoder().decode(
@@ -1282,35 +1649,50 @@
           ? save.loadout.mode
           : "expedition";
         selectedSector = Math.min(save.unlocked, 18);
+        clearSession();
         store();
         renderHome();
       }
       const clone = (g) => g.map((r) => r.slice()),
         clamp = (v, a, b) => Math.max(a, Math.min(b, v));
       function sectorGoal(n) {
-        return Math.min(8192, 32 * Math.pow(2, Math.floor((n - 1) / 2)));
+        return SECTORS[n - 1]?.target || 32;
       }
       function sectorMoves(n) {
-        return Math.max(36, 68 - Math.floor(n * 1.7));
+        return SECTORS[n - 1]?.moves || 36;
       }
       function renderHome() {
+        const activeSession = loadSession();
         ui.setup.style.display = "block";
         ui.result.classList.remove("show");
+        $("#soundBtn").textContent = save.settings.sound ? "♪" : "×";
+        $("#soundBtn").title = save.settings.sound ? "声音与振动已开启" : "声音与振动已关闭";
+        $("#soundBtn").setAttribute("aria-label", $("#soundBtn").title);
+        $("#resumeBtn").hidden = !activeSession;
+        $("#resumeBtn").textContent = activeSession
+          ? `继续：${sessionSummary(activeSession)}`
+          : "继续未完成矩阵";
         $("#savePill").textContent =
-          `数据片 ${save.data} · 节点 ${save.unlocked}/18 · ${save.wins || 0} 胜 · 总合成 ${save.totalMerges}`;
+          `数据片 ${save.data} · 完成 ${save.completed}/18 · ${save.wins || 0} 胜 · 总合成 ${save.totalMerges}`;
         $("#modeGrid").innerHTML = Object.entries(MODES)
-          .map(
-            ([k, m]) =>
-              `<button class="choice ${selectedMode === k ? "selected" : ""}" data-mode="${k}"><b>${m.icon} ${m.name}</b><small>${m.desc}<br>纪录 ${save.best[k] || 0}</small></button>`,
-          )
+          .map(([k, m]) => {
+            const record = save.records[k] || { plays: 0, wins: 0, bestTile: 0 };
+            return `<button class="choice ${selectedMode === k ? "selected" : ""}" data-mode="${k}"><b>${m.icon} ${m.name}</b><small>${m.desc}<br>最高 ${save.best[k] || 0} · 最大 ${record.bestTile || 2} · ${record.wins}/${record.plays} 胜</small></button>`;
+          })
           .join("");
         $("#sectorGrid").innerHTML = Array.from({ length: 18 }, (_, i) => {
           const n = i + 1,
-            locked = n > save.unlocked;
-          return `<button class="choice sector ${selectedSector === n ? "selected" : ""} ${locked ? "locked" : ""}" data-sector="${n}" ${locked ? "disabled" : ""}><b>${n}</b><small>${sectorGoal(n)}</small></button>`;
+            locked = n > save.unlocked,
+            stars = save.stars[n] || 0;
+          return `<button class="choice sector ${selectedSector === n ? "selected" : ""} ${locked ? "locked" : ""}" data-sector="${n}" ${locked ? "disabled" : ""}><b>${n} <span>${"★".repeat(stars)}${"☆".repeat(3 - stars)}</span></b><small>${SECTORS[i].chapter.split(" ")[0]} · ${sectorGoal(n)}</small></button>`;
         }).join("");
         $("#sectorGrid").style.opacity =
           selectedMode === "expedition" ? 1 : 0.42;
+        const sector = SECTORS[selectedSector - 1];
+        $("#sectorBrief").innerHTML = `
+          <div class="brief-rule"><b>${sector.chapter} · ${sector.name}</b><span>${sector.rule}：${sector.ruleText}<br>目标 ${sector.target} · 步限 ${sector.moves}</span></div>
+          <div class="brief-contracts"><b>三星挑战</b><span>完成关卡获得 1 星；${sector.contracts.map((contract) => contract[2]).join("；")}。</span></div>`;
+        $("#sectorBrief").style.opacity = selectedMode === "expedition" ? 1 : 0.42;
         $("#archiveGrid").innerHTML = Object.entries(ARCHIVE)
           .map(([k, a]) => {
             const lv = save.archive[k] || 0,
@@ -1319,6 +1701,10 @@
             return `<button class="archive-btn" data-archive="${k}" ${max || save.data < c ? "disabled" : ""}><b>${a.name} Lv.${lv}</b><span>${a.desc}</span><em>${max ? "已满级" : `数据片 ${c}`}</em></button>`;
           })
           .join("");
+        $("#milestoneGrid").innerHTML = MILESTONES.map((milestone) => {
+          const done = !!save.milestones[milestone.id];
+          return `<div class="milestone ${done ? "done" : ""}">${done ? "✓" : "○"} ${milestone.name} · ${done ? "已领取" : `+${milestone.reward}`}</div>`;
+        }).join("");
         document.querySelectorAll("[data-mode]").forEach(
           (b) =>
             (b.onclick = () => {
@@ -1348,22 +1734,113 @@
         store();
         renderHome();
       }
-      function rng(seed) {
-        return () => {
-          seed = (Math.imul(seed, 1664525) + 1013904223) | 0;
-          return (seed >>> 0) / 4294967296;
-        };
+      function randomSeed() {
+        if (globalThis.crypto?.getRandomValues) {
+          const values = new Uint32Array(1);
+          globalThis.crypto.getRandomValues(values);
+          return values[0] | 0;
+        }
+        return (Math.random() * 4294967296) | 0;
+      }
+      function nextRandom(target = state) {
+        target.rngState = (Math.imul(target.rngState | 0, 1664525) + 1013904223) | 0;
+        return (target.rngState >>> 0) / 4294967296;
       }
       function dailySeed() {
         const d = new Date();
         return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
       }
+      function persistRun() {
+        if (!state || state.over) return clearSession();
+        const payload = {
+          ...state,
+          newCells: [...state.newCells],
+          mergeCells: [...state.mergeCells],
+          activeTool: null,
+          swapCell: null,
+        };
+        localStorage.setItem(
+          SESSION_KEY,
+          JSON.stringify({ version: 1, savedAt: Date.now(), state: payload }),
+        );
+      }
+      function loadSession() {
+        try {
+          const saved = JSON.parse(localStorage.getItem(SESSION_KEY) || "null");
+          if (!saved?.state || saved.state.over || !MODES[saved.state.mode]) return null;
+          const restored = saved.state;
+          restored.newCells = new Set(restored.newCells || []);
+          restored.mergeCells = new Set(restored.mergeCells || []);
+          restored.history = Array.isArray(restored.history) ? restored.history : [];
+          restored.contracts = Array.isArray(restored.contracts) ? restored.contracts : [];
+          restored.pendingProtocols = restored.pendingProtocols || [];
+          restored.rngState = restored.rngState | 0;
+          return restored;
+        } catch {
+          clearSession();
+          return null;
+        }
+      }
+      function clearSession() {
+        localStorage.removeItem(SESSION_KEY);
+      }
+      function sessionSummary(run) {
+        if (!run) return "";
+        const mode = MODES[run.mode];
+        return `${mode.icon} ${mode.name}${run.mode === "expedition" ? ` · ${SECTORS[run.sector - 1]?.name || `节点 ${run.sector}`}` : ""} · ${run.maxTile} · ${run.moves} 步`;
+      }
+      function beginTimer() {
+        clearInterval(timer);
+        timer = setInterval(tickClock, 250);
+      }
+      function resumeRun() {
+        const restored = loadSession();
+        if (!restored) return renderHome();
+        state = restored;
+        selectedMode = state.mode;
+        selectedSector = state.sector || selectedSector;
+        ui.overlay.classList.add("hidden");
+        renderBoard();
+        sync();
+        beginTimer();
+        if (state.pendingProtocols.length) renderProtocolModal();
+        else showBanner("未完成矩阵已恢复");
+      }
+      function feedback(kind, strength = 1) {
+        const sounds = {
+          move: [180, 0.035, "sine", 0.018],
+          merge: [360 + Math.min(500, strength * 28), 0.07, "triangle", 0.035],
+          tool: [520, 0.08, "square", 0.022],
+          protocol: [620, 0.14, "triangle", 0.04],
+          win: [760, 0.22, "sine", 0.045],
+          lose: [120, 0.2, "sawtooth", 0.025],
+        };
+        if (save.settings.sound && sounds[kind]) {
+          try {
+            audioContext ||= new (window.AudioContext || window.webkitAudioContext)();
+            const [frequency, duration, type, volume] = sounds[kind];
+            const oscillator = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            oscillator.type = type;
+            oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+            gain.gain.setValueAtTime(volume, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + duration);
+            oscillator.connect(gain).connect(audioContext.destination);
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + duration);
+          } catch {}
+        }
+        if (save.settings.haptics && navigator.vibrate && ["merge", "tool", "protocol", "win"].includes(kind)) {
+          navigator.vibrate(kind === "win" ? [18, 30, 28] : Math.min(24, 7 + strength * 2));
+        }
+      }
       function fresh() {
         const mode = MODES[selectedMode],
-          size = mode.size,
+          sector = selectedMode === "expedition" ? SECTORS[selectedSector - 1] : null,
+          size = sector?.size || mode.size,
           target =
             selectedMode === "expedition"
-              ? sectorGoal(selectedSector)
+              ? sector.target
               : mode.target || 2048,
           toolBonus = Math.floor((save.archive.tool || 0) / 3);
         const tools = {
@@ -1376,11 +1853,7 @@
           downgrade: 0,
           clone: 0,
         };
-        for (let i = 0; i < toolBonus; i++) {
-          const ks = Object.keys(tools);
-          tools[ks[i % ks.length]]++;
-        }
-        return {
+        const run = {
           mode: selectedMode,
           size,
           target,
@@ -1392,40 +1865,65 @@
           maxTile: 2,
           timeLeft: mode.time || 0,
           moveLimit:
-            selectedMode === "expedition" ? sectorMoves(selectedSector) : 99999,
+            selectedMode === "expedition" ? sector.moves : 99999,
           sector: selectedSector,
           charge: 0,
-          chargeMult: 1 + (save.archive.charge || 0) * 0.05,
-          scoreMult: 1 + (save.archive.score || 0) * 0.04,
+          chargeMult:
+            (1 + (save.archive.charge || 0) * 0.05) * (sector?.chargeMult || 1),
+          scoreMult:
+            (1 + (save.archive.score || 0) * 0.04) * (sector?.scoreMult || 1),
           dataMult: 1,
           combo: 0,
+          maxCombo: 0,
           comboGrace: 0,
           mergeStreak: 0,
           cascade: 0,
-          fourChance: 0.1,
+          fourChance: sector?.fourChance ?? 0.1,
+          spawnBase: sector?.spawnBase || 2,
+          startTiles: sector?.startTiles || 2,
+          extraSpawnEvery: sector?.extraSpawnEvery || (mode.entropy ? 3 : 0),
+          purgeEvery: sector?.purgeEvery || 0,
+          chargeDecay: sector?.chargeDecay || 0,
+          ruleName: sector?.rule || "标准合成协议",
+          ruleText: sector?.ruleText || mode.desc,
+          contracts: (sector?.contracts || [
+            ["merges", size * 8, `完成 ${size * 8} 次合成`],
+            ["combo", 4, "达到 4 连锁"],
+          ]).map(([type, goal, label]) => ({ type, goal, label })),
+          contractReward: sector ? 2 + Math.ceil(selectedSector / 3) : 3,
+          protocolsChosen: 0,
+          toolsUsed: 0,
+          chargeEarned: 0,
           tools,
           history: [],
           historyMax: 4 + Math.floor((save.archive.history || 0) / 2),
           activeTool: null,
           swapCell: null,
           build: [],
+          pendingProtocols: [],
+          critical: false,
           over: false,
           won: false,
-          rand: mode.daily ? rng(dailySeed()) : Math.random,
+          rngState: mode.daily ? dailySeed() : randomSeed(),
           newCells: new Set(),
           mergeCells: new Set(),
         };
+        const toolKeys = Object.keys(tools);
+        for (let i = 0; i < toolBonus; i++) {
+          tools[toolKeys[Math.floor(nextRandom(run) * toolKeys.length)]]++;
+        }
+        return run;
       }
       function start() {
+        clearSession();
         state = fresh();
-        spawn();
-        spawn();
+        for (let index = 0; index < state.startTiles; index += 1) spawn();
         renderBoard();
         ui.overlay.classList.add("hidden");
         showBanner(`${MODES[state.mode].icon} ${MODES[state.mode].name}`);
-        clearInterval(timer);
-        timer = setInterval(tickClock, 250);
+        beginTimer();
         sync();
+        persistRun();
       }
       function tickClock() {
         if (
@@ -1439,6 +1937,7 @@
           state.timeLeft = Math.max(0, state.timeLeft - 0.25);
           if (state.timeLeft <= 0) end(false, "倒计时结束");
           sync();
+          if (Math.ceil(state.timeLeft * 4) % 4 === 0) persistRun();
         }
         if (bannerTimer > 0) {
           bannerTimer -= 250;
@@ -1451,8 +1950,8 @@
           for (let c = 0; c < state.size; c++)
             if (!state.grid[r][c]) empty.push({ r, c });
         if (!empty.length) return false;
-        const p = empty[Math.floor(state.rand() * empty.length)],
-          v = state.rand() < 1 - state.fourChance ? 2 : 4;
+        const p = empty[Math.floor(nextRandom() * empty.length)],
+          v = nextRandom() < 1 - state.fourChance ? state.spawnBase : state.spawnBase * 2;
         state.grid[p.r][p.c] = v;
         state.newCells = new Set([`${p.r},${p.c}`]);
         return true;
@@ -1465,6 +1964,15 @@
           maxTile: state.maxTile,
           charge: state.charge,
           combo: state.combo,
+          maxCombo: state.maxCombo,
+          mergeStreak: state.mergeStreak,
+          merges: state.merges,
+          protocolsChosen: state.protocolsChosen,
+          toolsUsed: state.toolsUsed,
+          chargeEarned: state.chargeEarned,
+          tools: { ...state.tools },
+          rngState: state.rngState,
+          totalMerges: save.totalMerges,
         });
         if (state.history.length > state.historyMax) state.history.shift();
       }
@@ -1482,11 +1990,19 @@
         }
         return out;
       }
+      function gameplayActive() {
+        return (
+          !!state &&
+          !state.over &&
+          ui.overlay.classList.contains("hidden") &&
+          ui.modal.classList.contains("hidden")
+        );
+      }
       function move(dir) {
         if (
-          state.over ||
+          !gameplayActive() ||
           state.activeTool ||
-          !ui.modal.classList.contains("hidden")
+          !["left", "right", "up", "down"].includes(dir)
         )
           return;
         const before = clone(state.grid),
@@ -1518,6 +2034,7 @@
         if (equal(before, next)) return;
         snapshot();
         state.grid = next;
+        state.critical = false;
         state.moves++;
         state.score += Math.round(
           gained * state.scoreMult * (1 + Math.min(8, state.combo) * 0.08),
@@ -1525,35 +2042,41 @@
         state.best = Math.max(state.best, state.score);
         if (merges > 0) {
           state.combo++;
+          state.maxCombo = Math.max(state.maxCombo, state.combo);
           state.mergeStreak++;
           state.merges += merges;
           save.totalMerges += merges;
-          state.charge = Math.min(
-            100,
-            state.charge +
-              merges *
-                14 *
-                state.chargeMult *
-                (1 + Math.min(6, state.combo) * 0.07),
-          );
+          const chargeGain =
+            merges * 14 * state.chargeMult * (1 + Math.min(6, state.combo) * 0.07);
+          state.charge += chargeGain;
+          state.chargeEarned += chargeGain;
           if (state.cascade && state.mergeStreak % 3 === 0) upgradeLowest();
           if (merges >= 3) showBanner(`连锁合成 ×${merges}`);
+          feedback("merge", merges);
         } else {
           if (state.comboGrace > 0) state.comboGrace--;
           else state.combo = 0;
           state.mergeStreak = 0;
+          if (state.chargeDecay) {
+            state.charge = Math.max(0, state.charge - state.chargeDecay);
+            showBanner(`电容泄漏 -${state.chargeDecay}%`);
+          } else feedback("move");
         }
         spawn();
-        if (MODES[state.mode].entropy && state.moves % 3 === 0) {
+        if (state.extraSpawnEvery && state.moves % state.extraSpawnEvery === 0) {
           spawn();
-          showBanner("熵增：额外数字生成");
+          showBanner(`${state.ruleName}：额外数字生成`);
+        }
+        if (state.purgeEvery && state.moves % state.purgeEvery === 0) {
+          purgeLowest(state, 1);
         }
         state.maxTile = Math.max(...state.grid.flat());
         renderBoard();
         checkState();
-        if (state.charge >= 100 && !state.over) openProtocol();
+        queueProtocols();
         sync();
         store();
+        persistRun();
       }
       function equal(a, b) {
         return a.every((r, i) => r.every((v, j) => v === b[i][j]));
@@ -1568,7 +2091,7 @@
             for (let c = 0; c < target.size; c++)
               if (target.grid[r][c] === min) cells.push([r, c]);
           if (!cells.length) return;
-          const [r, c] = cells[Math.floor(target.rand() * cells.length)];
+          const [r, c] = cells[Math.floor(nextRandom(target) * cells.length)];
           target.grid[r][c] = 0;
         }
         showBanner("低阶数字已清理");
@@ -1581,7 +2104,7 @@
           for (let c = 0; c < state.size; c++)
             if (state.grid[r][c] === min) cells.push([r, c]);
         if (cells.length) {
-          const [r, c] = cells[Math.floor(state.rand() * cells.length)];
+          const [r, c] = cells[Math.floor(nextRandom() * cells.length)];
           state.grid[r][c] *= 2;
           showBanner("连锁升阶触发");
         }
@@ -1600,7 +2123,16 @@
           state.target *= 2;
         }
         if (state.moves >= state.moveLimit) return end(false, "步数耗尽");
-        if (!canMove()) end(false, "矩阵已锁死");
+        if (!canMove()) {
+          const rescueTools = ["hammer", "swap", "bomb", "upgrade", "magnet", "undo", "downgrade"],
+            canRescue = rescueTools.some((tool) => state.tools[tool] > 0);
+          if (canRescue) {
+            state.critical = true;
+            showBanner("矩阵危急：使用工具或撤回救盘");
+            return;
+          }
+          end(false, "矩阵已锁死且无救盘资源");
+        } else state.critical = false;
       }
       function canMove() {
         if (state.grid.flat().includes(0)) return true;
@@ -1613,9 +2145,17 @@
           }
         return false;
       }
-      function openProtocol() {
-        state.charge = 0;
-        const opts = sample(PROTOCOLS, 3);
+      function queueProtocols() {
+        if (state.over || state.charge < 100 || state.pendingProtocols.length) return;
+        state.charge -= 100;
+        state.pendingProtocols = sample(PROTOCOLS, 3).map((protocol) => protocol.id);
+        renderProtocolModal();
+      }
+      function renderProtocolModal() {
+        const opts = state.pendingProtocols
+          .map((id) => PROTOCOLS.find((protocol) => protocol.id === id))
+          .filter(Boolean);
+        if (!opts.length) return;
         ui.protocolGrid.innerHTML = opts
           .map(
             (p, i) =>
@@ -1628,35 +2168,41 @@
             (b) => (b.onclick = () => chooseProtocol(b.dataset.protocol)),
           );
         ui.modal.classList.remove("hidden");
+        persistRun();
       }
       function chooseProtocol(id) {
         const p = PROTOCOLS.find((x) => x.id === id);
-        if (!p) return;
+        if (!p || !state.pendingProtocols.includes(id)) return;
         p.apply(state);
         state.build.push(p.title);
+        state.protocolsChosen++;
+        state.pendingProtocols = [];
         ui.modal.classList.add("hidden");
         state.maxTile = Math.max(...state.grid.flat());
         showBanner(`${p.title} 已接入`);
+        feedback("protocol");
         renderBoard();
         checkState();
         sync();
+        persistRun();
+        queueProtocols();
       }
       function sample(a, n) {
         const b = [...a],
           o = [];
         while (b.length && o.length < n)
-          o.push(b.splice(Math.floor(state.rand() * b.length), 1)[0]);
+          o.push(b.splice(Math.floor(nextRandom() * b.length), 1)[0]);
         return o;
       }
       function grantTool(type) {
         const keys = Object.keys(state.tools),
-          k = type || keys[Math.floor(state.rand() * keys.length)];
+          k = type || keys[Math.floor(nextRandom() * keys.length)];
         state.tools[k]++;
         showBanner(`获得工具：${TOOL_INFO[k][0]}`);
         sync();
       }
       function selectTool(k) {
-        if (state.over) return;
+        if (!gameplayActive()) return;
         if (k === "undo") return undo();
         if (k === "magnet") return magnet();
         if (state.tools[k] <= 0) return;
@@ -1666,9 +2212,8 @@
         sync();
       }
       function undo() {
-        if (state.tools.undo <= 0 || !state.history.length) return;
+        if (!gameplayActive() || state.tools.undo <= 0 || !state.history.length) return;
         const s = state.history.pop();
-        state.tools.undo--;
         Object.assign(state, {
           grid: clone(s.grid),
           score: s.score,
@@ -1676,24 +2221,46 @@
           maxTile: s.maxTile,
           charge: s.charge,
           combo: s.combo,
+          maxCombo: s.maxCombo,
+          mergeStreak: s.mergeStreak,
+          merges: s.merges,
+          protocolsChosen: s.protocolsChosen,
+          toolsUsed: s.toolsUsed,
+          chargeEarned: s.chargeEarned,
+          tools: { ...s.tools, undo: Math.max(0, (s.tools.undo || 0) - 1) },
+          rngState: s.rngState,
           activeTool: null,
+          swapCell: null,
+          newCells: new Set(),
+          mergeCells: new Set(),
+          critical: false,
         });
+        save.totalMerges = s.totalMerges;
         renderBoard();
         sync();
         showBanner("矩阵已回溯");
+        feedback("tool");
+        store();
+        persistRun();
       }
       function magnet() {
-        if (state.tools.magnet <= 0) return;
-        state.tools.magnet--;
+        if (!gameplayActive() || state.tools.magnet <= 0) return;
         snapshot();
+        state.tools.magnet--;
+        state.toolsUsed++;
         for (let i = 0; i < state.size * 2; i++) {
           const res = analyzeNoSpawn(i % 2 ? "down" : "right");
           state.grid = res;
         }
-        state.moves++;
+        state.newCells = new Set();
+        state.mergeCells = new Set();
         renderBoard();
-        sync();
         showBanner("高阶数字已聚向右下");
+        feedback("tool");
+        checkState();
+        sync();
+        store();
+        persistRun();
       }
       function analyzeNoSpawn(dir) {
         const next = Array.from({ length: state.size }, () =>
@@ -1707,29 +2274,39 @@
         return next;
       }
       function cellClick(r, c) {
+        if (!gameplayActive()) return;
         const k = state.activeTool;
         if (!k) return;
         if (k === "hammer") {
           if (!state.grid[r][c]) return;
+          snapshot();
           state.grid[r][c] = 0;
         } else if (k === "bomb") {
-          for (const [rr, cc] of [
+          const affected = [
             [r, c],
             [r - 1, c],
             [r + 1, c],
             [r, c - 1],
             [r, c + 1],
-          ])
+          ].filter(
+            ([rr, cc]) => rr >= 0 && cc >= 0 && rr < state.size && cc < state.size,
+          );
+          if (!affected.some(([rr, cc]) => state.grid[rr][cc])) return;
+          snapshot();
+          for (const [rr, cc] of affected)
             if (rr >= 0 && cc >= 0 && rr < state.size && cc < state.size)
               state.grid[rr][cc] = 0;
         } else if (k === "upgrade") {
           if (!state.grid[r][c]) return;
+          snapshot();
           state.grid[r][c] *= 2;
           state.score += state.grid[r][c];
         } else if (k === "downgrade") {
           if (state.grid[r][c] <= 2) return;
+          snapshot();
           state.grid[r][c] /= 2;
-          state.charge = Math.min(100, state.charge + 25);
+          state.charge += 25;
+          state.chargeEarned += 25;
         } else if (k === "clone") {
           if (!state.grid[r][c]) return;
           const empty = [];
@@ -1737,7 +2314,8 @@
             for (let cc = 0; cc < state.size; cc++)
               if (!state.grid[rr][cc]) empty.push([rr, cc]);
           if (!empty.length) return;
-          const [rr, cc] = empty[Math.floor(state.rand() * empty.length)];
+          snapshot();
+          const [rr, cc] = empty[Math.floor(nextRandom() * empty.length)];
           state.grid[rr][cc] = state.grid[r][c];
         } else if (k === "swap") {
           if (!state.swapCell) {
@@ -1747,17 +2325,30 @@
           }
           const a = state.swapCell,
             v = state.grid[a.r][a.c];
+          if (a.r === r && a.c === c) {
+            state.swapCell = null;
+            renderBoard();
+            return;
+          }
+          snapshot();
           state.grid[a.r][a.c] = state.grid[r][c];
           state.grid[r][c] = v;
           state.swapCell = null;
         }
         state.tools[k]--;
+        state.toolsUsed++;
         state.activeTool = null;
+        state.newCells = new Set();
+        state.mergeCells = new Set();
         state.maxTile = Math.max(...state.grid.flat());
         renderBoard();
-        sync();
         showBanner(`${TOOL_INFO[k][0]}已使用`);
-        if (state.charge >= 100 && !state.over) openProtocol();
+        feedback("tool");
+        checkState();
+        queueProtocols();
+        sync();
+        store();
+        persistRun();
       }
       function renderBoard() {
         ui.board.style.setProperty("--size", state.size);
@@ -1767,6 +2358,8 @@
             const cell = document.createElement("button");
             cell.className = `cell ${state.activeTool ? "target" : ""} ${state.swapCell && state.swapCell.r === r && state.swapCell.c === c ? "swap" : ""}`;
             const v = state.grid[r][c];
+            cell.type = "button";
+            cell.setAttribute("aria-label", v ? `第 ${r + 1} 行第 ${c + 1} 列，数字 ${v}` : `第 ${r + 1} 行第 ${c + 1} 列，空格`);
             if (v) {
               const tile = document.createElement("span");
               tile.className = `tile ${state.newCells.has(`${r},${c}`) ? "new" : ""} ${state.mergeCells.has(`${r},${c}`) ? "merge" : ""}`;
@@ -1801,6 +2394,22 @@
         };
         return colors[v] || "linear-gradient(135deg,#36d9ff,#9d79ff,#ff5caf)";
       }
+      function contractProgress(contract) {
+        const values = {
+          merges: state.merges,
+          combo: state.maxCombo,
+          protocols: state.protocolsChosen,
+          score: state.score,
+          tools: state.toolsUsed,
+        };
+        return Math.max(0, values[contract.type] || 0);
+      }
+      function contractDone(contract) {
+        return contractProgress(contract) >= contract.goal;
+      }
+      function starsText(count) {
+        return `${"★".repeat(count)}${"☆".repeat(3 - count)}`;
+      }
       function settleMilestones() {
         let bonus = 0;
         for (const milestone of MILESTONES) {
@@ -1816,16 +2425,21 @@
         if (state.over) return;
         state.over = true;
         state.won = win;
-        const data = Math.max(
+        clearInterval(timer);
+        const completedContracts = state.contracts.filter(contractDone).length,
+          expeditionStars = win && state.mode === "expedition" ? 1 + completedContracts : 0,
+          contractBonus = completedContracts * state.contractReward,
+          baseData = Math.max(
           1,
           Math.floor(
-            (Math.floor(Math.log2(state.maxTile)) +
+            (Math.floor(Math.log2(Math.max(1, state.maxTile / state.spawnBase))) + 1 +
               Math.floor(state.score / 5000) +
-              (win ? selectedSector : 0)) *
+              (win && state.mode === "expedition" ? state.sector : 0)) *
               (1 + (save.archive.yield || 0) * 0.06) *
               state.dataMult,
           ),
-        );
+        ),
+          data = baseData + contractBonus;
         save.data += data;
         save.runs += 1;
         save.wins += win ? 1 : 0;
@@ -1834,17 +2448,14 @@
           state.score,
         );
         if (win && state.mode === "expedition") {
+          save.completed = Math.max(save.completed, state.sector);
           save.unlocked = Math.max(
             save.unlocked,
             Math.min(18, state.sector + 1),
           );
           save.stars[state.sector] = Math.max(
             save.stars[state.sector] || 0,
-            state.moves < state.moveLimit * 0.65
-              ? 3
-              : state.moves < state.moveLimit * 0.85
-                ? 2
-                : 1,
+            expeditionStars,
           );
         }
         const record = save.records[state.mode] || {
@@ -1858,16 +2469,28 @@
         save.records[state.mode] = record;
         const milestoneBonus = settleMilestones();
         store();
+        clearSession();
         ui.overlay.classList.remove("hidden");
         ui.setup.style.display = "none";
         ui.result.classList.add("show");
         $("#resultTitle").textContent = win ? "矩阵目标完成" : "矩阵暂时停摆";
         $("#resultText").textContent =
-          `${reason} · ${MODES[state.mode].name}${milestoneBonus ? ` · 里程碑 +${milestoneBonus} 数据片` : ""}`;
+          `${reason} · ${MODES[state.mode].name}${contractBonus ? ` · 挑战奖励 +${contractBonus}` : ""}${milestoneBonus ? ` · 里程碑 +${milestoneBonus} 数据片` : ""}`;
+        $("#resultStars").textContent =
+          state.mode === "expedition"
+            ? starsText(expeditionStars)
+            : `挑战 ${completedContracts}/${state.contracts.length}`;
+        $("#resultContracts").innerHTML = state.contracts
+          .map((contract) => {
+            const done = contractDone(contract);
+            return `<span class="${done ? "done" : ""}">${done ? "✓" : "○"} ${contract.label} · ${Math.min(contract.goal, contractProgress(contract))}/${contract.goal}</span>`;
+          })
+          .join("");
         $("#resultScore").textContent = state.score;
         $("#resultMax").textContent = state.maxTile;
         $("#resultData").textContent = data;
         $("#resultMoves").textContent = state.moves;
+        feedback(win ? "win" : "lose");
       }
       function sync() {
         if (!state) return;
@@ -1882,7 +2505,7 @@
             : state.moveLimit < 99999
               ? `${state.moves}/${state.moveLimit}`
               : "∞";
-        ui.chargeBar.style.width = `${state.charge}%`;
+        ui.chargeBar.style.width = `${Math.min(100, state.charge)}%`;
         ui.chargeText.textContent = `充能 ${Math.floor(state.charge)}%`;
         const progress = Math.min(
           100,
@@ -1892,17 +2515,23 @@
         ui.missionText.textContent = `目标 ${state.target} · 当前 ${state.maxTile}`;
         $("#objectiveIcon").textContent = MODES[state.mode].icon;
         $("#objectiveTitle").textContent =
-          `${MODES[state.mode].name}${state.mode === "expedition" ? ` · 节点 ${state.sector}` : ""}`;
+          state.mode === "expedition"
+            ? `${SECTORS[state.sector - 1].chapter} · ${SECTORS[state.sector - 1].name}`
+            : MODES[state.mode].name;
         $("#objectiveText").textContent =
-          state.timeLeft > 0
-            ? `剩余 ${format(state.timeLeft)}，保持连锁。`
-            : `制造 ${state.target}，合理控制空格。`;
-        ui.build.innerHTML = state.build.length
-          ? state.build.map((x) => `<span class="chip">${x}</span>`).join("")
-          : '<span class="chip">标准合成协议</span>';
+          state.critical
+            ? "矩阵已锁死，立即使用工具或撤回救盘。"
+            : state.timeLeft > 0
+            ? `剩余 ${format(state.timeLeft)} · ${state.ruleText}`
+            : `制造 ${state.target} · ${state.ruleText}`;
+        ui.build.innerHTML = [state.ruleName, ...state.build]
+          .map((name, index) => `<span class="chip">${index ? name : `异常：${name}`}</span>`)
+          .join("");
         ui.stats.innerHTML = [
           ["总合成", state.merges],
-          ["有效移动", state.moves],
+          ["最高连锁", `×${Math.max(1, state.maxCombo)}`],
+          ["已接协议", state.protocolsChosen],
+          ["空余格", state.grid.flat().filter((value) => !value).length],
           ["充能倍率", `${Math.round(state.chargeMult * 100)}%`],
           ["计分倍率", `${Math.round(state.scoreMult * 100)}%`],
         ]
@@ -1912,10 +2541,21 @@
           const el = $(`#${k}Count`);
           if (el) el.textContent = state.tools[k];
         }
+        const completedContracts = state.contracts.filter(contractDone).length;
+        $("#contractText").textContent = `${completedContracts}/${state.contracts.length}`;
+        $("#contractList").innerHTML = state.contracts
+          .map((contract) => {
+            const progress = contractProgress(contract),
+              done = progress >= contract.goal;
+            return `<div class="contract-item ${done ? "done" : ""}"><i>${done ? "✓" : "○"}</i><span>${contract.label}</span><b>${Math.min(contract.goal, progress)}/${contract.goal}</b></div>`;
+          })
+          .join("");
         document.querySelectorAll("[data-tool]").forEach((b) => {
           const k = b.dataset.tool;
           b.classList.toggle("active", state.activeTool === k);
           b.disabled = state.tools[k] <= 0;
+          b.title = `${TOOL_INFO[k][0]}：${TOOL_INFO[k][1]}（剩余 ${state.tools[k]}）`;
+          b.setAttribute("aria-label", b.title);
         });
       }
       function showBanner(t) {
@@ -1940,20 +2580,19 @@
         };
         if (m[code]) move(m[code]);
       }
-      $("#startBtn").onclick = start;
+      $("#startBtn").onclick = () => {
+        const activeSession = loadSession();
+        if (activeSession && !confirm("启动新矩阵会放弃当前未完成进度，继续？")) return;
+        start();
+      };
+      $("#resumeBtn").onclick = resumeRun;
       $("#againBtn").onclick = start;
       $("#resultHomeBtn").onclick = () => {
         ui.result.classList.remove("show");
         renderHome();
       };
       $("#homeBtn").onclick = () => {
-        if (
-          state &&
-          !state.over &&
-          state.moves &&
-          !confirm("当前矩阵尚未结算，返回矩阵站？")
-        )
-          return;
+        persistRun();
         ui.overlay.classList.remove("hidden");
         renderHome();
       };
@@ -1961,9 +2600,22 @@
         if (confirm("重新开始当前矩阵？")) start();
       };
       $("#undoBtn").onclick = () => selectTool("undo");
+      $("#soundBtn").onclick = () => {
+        save.settings.sound = !save.settings.sound;
+        save.settings.haptics = save.settings.sound;
+        store();
+        $("#soundBtn").textContent = save.settings.sound ? "♪" : "×";
+        $("#soundBtn").title = save.settings.sound ? "声音与振动已开启" : "声音与振动已关闭";
+        $("#soundBtn").setAttribute("aria-label", $("#soundBtn").title);
+        if (save.settings.sound) feedback("move");
+      };
       $("#convertBtn").onclick = () => {
         grantTool();
+        state.pendingProtocols = [];
         ui.modal.classList.add("hidden");
+        feedback("tool");
+        persistRun();
+        queueProtocols();
       };
       $("#exportSaveBtn").onclick = async () => {
         const code = encodeSave();
@@ -1992,7 +2644,7 @@
           e.preventDefault();
         keyMove(e.code);
         if (e.code === "KeyZ") undo();
-        if (e.code === "Escape") {
+        if (e.code === "Escape" && gameplayActive()) {
           state.activeTool = null;
           state.swapCell = null;
           renderBoard();
@@ -2001,10 +2653,14 @@
       });
       ui.board.addEventListener(
         "pointerdown",
-        (e) => (pointer = { x: e.clientX, y: e.clientY }),
+        (e) => {
+          if (!gameplayActive()) return;
+          pointer = { id: e.pointerId, x: e.clientX, y: e.clientY };
+          if (!state.activeTool) ui.board.setPointerCapture?.(e.pointerId);
+        },
       );
       ui.board.addEventListener("pointerup", (e) => {
-        if (!pointer) return;
+        if (!pointer || pointer.id !== e.pointerId) return;
         const dx = e.clientX - pointer.x,
           dy = e.clientY - pointer.y;
         if (Math.hypot(dx, dy) > 20)
@@ -2019,7 +2675,9 @@
           );
         pointer = null;
       });
-      state = fresh();
+      ui.board.addEventListener("pointercancel", () => (pointer = null));
+      window.addEventListener("beforeunload", persistRun);
+      state = loadSession() || fresh();
       renderHome();
       renderBoard();
       sync();
