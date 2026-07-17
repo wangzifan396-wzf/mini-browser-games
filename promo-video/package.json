@@ -12,6 +12,8 @@
     "render:vertical": "node scripts/render-vertical.mjs",
     "cover": "python scripts/create-cover.py",
     "cover:quality-audit": "python scripts/create-quality-audit-cover.py",
+    "article:performance:capture": "node scripts/capture-performance-article.mjs",
+    "article:performance:images": "python scripts/create-browser-performance-article-images.py",
     "verify": "node scripts/verify.mjs",
     "check:slingstorm": "node scripts/check-slingstorm.mjs",
     "check:shan-hai": "node scripts/check-shan-hai.mjs"

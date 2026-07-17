@@ -1,0 +1,914 @@
+{
+  "environment": {
+    "capturedAt": "2026-07-17T17:11:49.349Z",
+    "methodology": "Playwright headless browser; normal battle sampled after 6 seconds, stress battle sampled after 8 seconds",
+    "limitation": "This reproducible headless run is a diagnostic sample, not a cross-device benchmark.",
+    "browserChannel": "msedge",
+    "browserVersion": "150.0.4078.65",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36 Edg/150.0.0.0",
+    "viewport": {
+      "width": 1600,
+      "height": 900,
+      "deviceScaleFactor": 1
+    },
+    "requestedRefreshRate": 120,
+    "platform": "win32",
+    "node": "v24.18.0"
+  },
+  "api": {
+    "health": {
+      "ok": true,
+      "name": "star-cluster-arena",
+      "version": "2.2.0",
+      "uptimeSeconds": 0
+    },
+    "runtime": {
+      "name": "star-cluster-arena",
+      "version": "2.2.0",
+      "origin": "http://127.0.0.1:25556",
+      "renderer": {
+        "preferred": "webgl2",
+        "fallback": "canvas2d",
+        "powerPreference": "high-performance"
+      },
+      "tuning": {
+        "adaptivePixelRatio": true,
+        "maxPixelRatio": 1.25,
+        "foregroundPixelBudget": 3200000,
+        "fixedSimulationHz": 60,
+        "batchedFoodRendering": true,
+        "gpuSpriteBatching": true,
+        "singleVisibleSurface": true,
+        "stableCanvasDuringPlay": true,
+        "pooledCollisionBuffers": true,
+        "spatialIndexReuse": true
+      }
+    },
+    "telemetry": {
+      "samples": 1,
+      "averageFps": 131,
+      "averageWorkMs": 3.2,
+      "gpuSamples": 1,
+      "last": {
+        "fps": 131,
+        "workMs": 3.2,
+        "renderer": "WebGL2",
+        "gpu": true,
+        "dpr": 1,
+        "targetFps": 120,
+        "simulationFps": 60,
+        "spriteBatching": true,
+        "maxFrame": 18.8,
+        "longFrames": 0,
+        "lowQuality": true,
+        "receivedAt": "2026-07-17T17:11:49.361Z"
+      }
+    }
+  },
+  "samples": {
+    "normal": {
+      "world": 7600,
+      "mode": "battle",
+      "selectedMode": "battle",
+      "selectedSkin": "aqua",
+      "selectedSpore": "mint",
+      "selectedHalo": "none",
+      "selectedTrail": "none",
+      "skinType": "basic",
+      "sporeType": "basic",
+      "haloType": "basic",
+      "trailType": "basic",
+      "lobbyPanel": "play",
+      "dust": 171,
+      "forgeLevel": 1,
+      "forgeLuck": 0,
+      "forgeXp": 0,
+      "forgeTickets": 2,
+      "forgePityEpic": 0,
+      "forgePityLegend": 0,
+      "forgeTheme": "旧铁小炉",
+      "lastForge": null,
+      "unlockedSkins": 9,
+      "unlockedSpores": 9,
+      "unlockedHalos": 1,
+      "unlockedTrails": 1,
+      "forgeLockedSkins": 26,
+      "forgeLockedSpores": 22,
+      "forgeLockedHalos": 21,
+      "forgeLockedTrails": 21,
+      "menu": false,
+      "paused": false,
+      "over": true,
+      "targetPlayers": 100,
+      "teams": 0,
+      "duration": 0,
+      "timeLeft": 0,
+      "maxCells": 16,
+      "foodBase": 2100,
+      "foodMax": 3600,
+      "foodCount": 2255,
+      "foodTarget": 2295,
+      "foodRate": 39.2,
+      "playerMass": 0,
+      "playerColor": "#44d7b6",
+      "playerTeam": null,
+      "playerTeamColor": null,
+      "playerCells": 0,
+      "playerCellMasses": [],
+      "playerLives": 0,
+      "playerRank": 100,
+      "playerDead": true,
+      "respawnIn": 0,
+      "camera": {
+        "x": 3800,
+        "y": 3800,
+        "zoom": 1.08,
+        "viewPressure": 0,
+        "spreadRatio": 1
+      },
+      "ejectHeld": false,
+      "viruses": 52,
+      "smallViruses": 33,
+      "bigViruses": 19,
+      "ejected": 40,
+      "maxEjected": 720,
+      "lowQuality": false,
+      "avgFrame": 6.3,
+      "avgWork": 0.4,
+      "maxFrame": 134.9,
+      "longFrames": 1,
+      "pixelRatio": 1,
+      "targetFps": 120,
+      "simulationFps": 60,
+      "renderer": {
+        "active": true,
+        "backend": "WebGL2",
+        "device": "ANGLE (AMD, AMD Radeon(TM) Graphics (0x000013C0) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "spriteBatching": true,
+        "webgpuAvailable": true
+      },
+      "drawnFood": 64,
+      "drawnCells": 3,
+      "alive": 99,
+      "safeZone": {
+        "enabled": true,
+        "x": 3800,
+        "y": 3800,
+        "radius": 4408,
+        "shrinking": false
+      },
+      "event": {
+        "active": null,
+        "label": null,
+        "nextIn": 6
+      },
+      "domination": {
+        "enabled": false,
+        "leader": null,
+        "leaderId": null,
+        "share": 0,
+        "rawShare": 0,
+        "playerShare": 0,
+        "target": 0,
+        "hold": 0
+      },
+      "control": {
+        "scores": [],
+        "seekers": 0,
+        "points": []
+      },
+      "demon": {
+        "bosses": 0,
+        "bossMass": 0,
+        "minions": 0
+      },
+      "ai": [
+        {
+          "name": "青柠",
+          "mode": "追击",
+          "cells": 2,
+          "mass": 852
+        },
+        {
+          "name": "星火",
+          "mode": "追击",
+          "cells": 3,
+          "mass": 360
+        },
+        {
+          "name": "乌龙",
+          "mode": "逃跑",
+          "cells": 2,
+          "mass": 427
+        },
+        {
+          "name": "极光",
+          "mode": "逃跑",
+          "cells": 7,
+          "mass": 554
+        },
+        {
+          "name": "米粒",
+          "mode": "追击",
+          "cells": 8,
+          "mass": 579
+        },
+        {
+          "name": "山竹",
+          "mode": "追击",
+          "cells": 8,
+          "mass": 630
+        }
+      ]
+    },
+    "stressSetup": {
+      "world": 7600,
+      "mode": "battle",
+      "selectedMode": "battle",
+      "selectedSkin": "aqua",
+      "selectedSpore": "mint",
+      "selectedHalo": "none",
+      "selectedTrail": "none",
+      "skinType": "basic",
+      "sporeType": "basic",
+      "haloType": "basic",
+      "trailType": "basic",
+      "lobbyPanel": "play",
+      "dust": 171,
+      "forgeLevel": 1,
+      "forgeLuck": 0,
+      "forgeXp": 0,
+      "forgeTickets": 2,
+      "forgePityEpic": 0,
+      "forgePityLegend": 0,
+      "forgeTheme": "旧铁小炉",
+      "lastForge": null,
+      "unlockedSkins": 9,
+      "unlockedSpores": 9,
+      "unlockedHalos": 1,
+      "unlockedTrails": 1,
+      "forgeLockedSkins": 26,
+      "forgeLockedSpores": 22,
+      "forgeLockedHalos": 21,
+      "forgeLockedTrails": 21,
+      "menu": false,
+      "paused": false,
+      "over": false,
+      "targetPlayers": 100,
+      "teams": 0,
+      "duration": 0,
+      "timeLeft": 0,
+      "maxCells": 16,
+      "foodBase": 2100,
+      "foodMax": 3600,
+      "foodCount": 3600,
+      "foodTarget": 3888,
+      "foodRate": 220,
+      "playerMass": 3600,
+      "playerColor": "#44d7b6",
+      "playerTeam": null,
+      "playerTeamColor": null,
+      "playerCells": 16,
+      "playerCellMasses": [
+        225,
+        225,
+        225,
+        225,
+        225,
+        225,
+        225,
+        225,
+        225,
+        225,
+        225,
+        225,
+        225,
+        225,
+        225,
+        225
+      ],
+      "playerLives": 0,
+      "playerRank": 1,
+      "playerDead": false,
+      "respawnIn": 0,
+      "camera": {
+        "x": 3800,
+        "y": 3800,
+        "zoom": 0.82,
+        "viewPressure": 0,
+        "spreadRatio": 0
+      },
+      "ejectHeld": false,
+      "viruses": 54,
+      "smallViruses": 38,
+      "bigViruses": 16,
+      "ejected": 720,
+      "maxEjected": 720,
+      "lowQuality": false,
+      "avgFrame": 16,
+      "avgWork": 0.4,
+      "maxFrame": 0,
+      "longFrames": 0,
+      "pixelRatio": 1,
+      "targetFps": 120,
+      "simulationFps": 60,
+      "renderer": {
+        "active": true,
+        "backend": "WebGL2",
+        "device": "ANGLE (AMD, AMD Radeon(TM) Graphics (0x000013C0) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "spriteBatching": true,
+        "webgpuAvailable": true
+      },
+      "drawnFood": 0,
+      "drawnCells": 0,
+      "alive": 100,
+      "safeZone": {
+        "enabled": true,
+        "x": 3800,
+        "y": 3800,
+        "radius": 4408,
+        "shrinking": false
+      },
+      "event": {
+        "active": null,
+        "label": null,
+        "nextIn": 12
+      },
+      "domination": {
+        "enabled": false,
+        "leader": null,
+        "leaderId": null,
+        "share": 0,
+        "rawShare": 0,
+        "playerShare": 0,
+        "target": 0,
+        "hold": 0
+      },
+      "control": {
+        "scores": [],
+        "seekers": 0,
+        "points": []
+      },
+      "demon": {
+        "bosses": 0,
+        "bossMass": 0,
+        "minions": 0
+      },
+      "ai": [
+        {
+          "name": "青柠",
+          "mode": "游走",
+          "cells": 10,
+          "mass": 966
+        },
+        {
+          "name": "星火",
+          "mode": "游走",
+          "cells": 11,
+          "mass": 1376
+        },
+        {
+          "name": "乌龙",
+          "mode": "游走",
+          "cells": 5,
+          "mass": 1220
+        },
+        {
+          "name": "极光",
+          "mode": "游走",
+          "cells": 11,
+          "mass": 1737
+        },
+        {
+          "name": "米粒",
+          "mode": "游走",
+          "cells": 11,
+          "mass": 1398
+        },
+        {
+          "name": "山竹",
+          "mode": "游走",
+          "cells": 5,
+          "mass": 1314
+        }
+      ]
+    },
+    "stressMeasured": {
+      "world": 7600,
+      "mode": "battle",
+      "selectedMode": "battle",
+      "selectedSkin": "aqua",
+      "selectedSpore": "mint",
+      "selectedHalo": "none",
+      "selectedTrail": "none",
+      "skinType": "basic",
+      "sporeType": "basic",
+      "haloType": "basic",
+      "trailType": "basic",
+      "lobbyPanel": "play",
+      "dust": 171,
+      "forgeLevel": 1,
+      "forgeLuck": 0,
+      "forgeXp": 0,
+      "forgeTickets": 2,
+      "forgePityEpic": 0,
+      "forgePityLegend": 0,
+      "forgeTheme": "旧铁小炉",
+      "lastForge": null,
+      "unlockedSkins": 9,
+      "unlockedSpores": 9,
+      "unlockedHalos": 1,
+      "unlockedTrails": 1,
+      "forgeLockedSkins": 26,
+      "forgeLockedSpores": 22,
+      "forgeLockedHalos": 21,
+      "forgeLockedTrails": 21,
+      "menu": false,
+      "paused": false,
+      "over": false,
+      "targetPlayers": 100,
+      "teams": 0,
+      "duration": 0,
+      "timeLeft": 0,
+      "maxCells": 16,
+      "foodBase": 2100,
+      "foodMax": 3600,
+      "foodCount": 3888,
+      "foodTarget": 3888,
+      "foodRate": 220,
+      "playerMass": 3693.8,
+      "playerColor": "#44d7b6",
+      "playerTeam": null,
+      "playerTeamColor": null,
+      "playerCells": 9,
+      "playerCellMasses": [
+        222.5,
+        918.9,
+        231.8,
+        226.9,
+        972.6,
+        222.5,
+        453.8,
+        222.5,
+        222.5
+      ],
+      "playerLives": 0,
+      "playerRank": 2,
+      "playerDead": false,
+      "respawnIn": 0,
+      "camera": {
+        "x": 3740,
+        "y": 3859,
+        "zoom": 0.754,
+        "viewPressure": 0.582,
+        "spreadRatio": 2.09
+      },
+      "ejectHeld": false,
+      "viruses": 51,
+      "smallViruses": 32,
+      "bigViruses": 19,
+      "ejected": 569,
+      "maxEjected": 720,
+      "lowQuality": true,
+      "avgFrame": 7.4,
+      "avgWork": 4.1,
+      "maxFrame": 31.3,
+      "longFrames": 0,
+      "pixelRatio": 1,
+      "targetFps": 120,
+      "simulationFps": 60,
+      "renderer": {
+        "active": true,
+        "backend": "WebGL2",
+        "device": "ANGLE (AMD, AMD Radeon(TM) Graphics (0x000013C0) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "spriteBatching": true,
+        "webgpuAvailable": true
+      },
+      "drawnFood": 139,
+      "drawnCells": 90,
+      "alive": 99,
+      "safeZone": {
+        "enabled": true,
+        "x": 3800,
+        "y": 3800,
+        "radius": 4408,
+        "shrinking": false
+      },
+      "event": {
+        "active": null,
+        "label": null,
+        "nextIn": 4
+      },
+      "domination": {
+        "enabled": false,
+        "leader": null,
+        "leaderId": null,
+        "share": 0,
+        "rawShare": 0,
+        "playerShare": 0,
+        "target": 0,
+        "hold": 0
+      },
+      "control": {
+        "scores": [],
+        "seekers": 0,
+        "points": []
+      },
+      "demon": {
+        "bosses": 0,
+        "bossMass": 0,
+        "minions": 0
+      },
+      "ai": [
+        {
+          "name": "青柠",
+          "mode": "逃跑",
+          "cells": 7,
+          "mass": 963
+        },
+        {
+          "name": "星火",
+          "mode": "逃跑",
+          "cells": 7,
+          "mass": 1519
+        },
+        {
+          "name": "乌龙",
+          "mode": "逃跑",
+          "cells": 14,
+          "mass": 1422
+        },
+        {
+          "name": "极光",
+          "mode": "逃跑",
+          "cells": 9,
+          "mass": 1963
+        },
+        {
+          "name": "米粒",
+          "mode": "炸刺反打",
+          "cells": 11,
+          "mass": 2288
+        },
+        {
+          "name": "山竹",
+          "mode": "逃跑",
+          "cells": 4,
+          "mass": 1450
+        }
+      ]
+    },
+    "screenshotSetup": {
+      "world": 7600,
+      "mode": "battle",
+      "selectedMode": "battle",
+      "selectedSkin": "aqua",
+      "selectedSpore": "mint",
+      "selectedHalo": "none",
+      "selectedTrail": "none",
+      "skinType": "basic",
+      "sporeType": "basic",
+      "haloType": "basic",
+      "trailType": "basic",
+      "lobbyPanel": "play",
+      "dust": 171,
+      "forgeLevel": 1,
+      "forgeLuck": 0,
+      "forgeXp": 0,
+      "forgeTickets": 2,
+      "forgePityEpic": 0,
+      "forgePityLegend": 0,
+      "forgeTheme": "旧铁小炉",
+      "lastForge": null,
+      "unlockedSkins": 9,
+      "unlockedSpores": 9,
+      "unlockedHalos": 1,
+      "unlockedTrails": 1,
+      "forgeLockedSkins": 26,
+      "forgeLockedSpores": 22,
+      "forgeLockedHalos": 21,
+      "forgeLockedTrails": 21,
+      "menu": false,
+      "paused": false,
+      "over": false,
+      "targetPlayers": 100,
+      "teams": 0,
+      "duration": 0,
+      "timeLeft": 0,
+      "maxCells": 16,
+      "foodBase": 2100,
+      "foodMax": 3600,
+      "foodCount": 3600,
+      "foodTarget": 3888,
+      "foodRate": 220,
+      "playerMass": 3600,
+      "playerColor": "#44d7b6",
+      "playerTeam": null,
+      "playerTeamColor": null,
+      "playerCells": 16,
+      "playerCellMasses": [
+        225,
+        225,
+        225,
+        225,
+        225,
+        225,
+        225,
+        225,
+        225,
+        225,
+        225,
+        225,
+        225,
+        225,
+        225,
+        225
+      ],
+      "playerLives": 0,
+      "playerRank": 1,
+      "playerDead": false,
+      "respawnIn": 0,
+      "camera": {
+        "x": 3800,
+        "y": 3800,
+        "zoom": 0.82,
+        "viewPressure": 0,
+        "spreadRatio": 0
+      },
+      "ejectHeld": false,
+      "viruses": 54,
+      "smallViruses": 36,
+      "bigViruses": 18,
+      "ejected": 720,
+      "maxEjected": 720,
+      "lowQuality": false,
+      "avgFrame": 16,
+      "avgWork": 4,
+      "maxFrame": 0,
+      "longFrames": 0,
+      "pixelRatio": 1,
+      "targetFps": 120,
+      "simulationFps": 60,
+      "renderer": {
+        "active": true,
+        "backend": "WebGL2",
+        "device": "ANGLE (AMD, AMD Radeon(TM) Graphics (0x000013C0) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "spriteBatching": true,
+        "webgpuAvailable": true
+      },
+      "drawnFood": 0,
+      "drawnCells": 0,
+      "alive": 100,
+      "safeZone": {
+        "enabled": true,
+        "x": 3800,
+        "y": 3800,
+        "radius": 4408,
+        "shrinking": false
+      },
+      "event": {
+        "active": null,
+        "label": null,
+        "nextIn": 12
+      },
+      "domination": {
+        "enabled": false,
+        "leader": null,
+        "leaderId": null,
+        "share": 0,
+        "rawShare": 0,
+        "playerShare": 0,
+        "target": 0,
+        "hold": 0
+      },
+      "control": {
+        "scores": [],
+        "seekers": 0,
+        "points": []
+      },
+      "demon": {
+        "bosses": 0,
+        "bossMass": 0,
+        "minions": 0
+      },
+      "ai": [
+        {
+          "name": "青柠",
+          "mode": "游走",
+          "cells": 7,
+          "mass": 818
+        },
+        {
+          "name": "星火",
+          "mode": "游走",
+          "cells": 5,
+          "mass": 1664
+        },
+        {
+          "name": "乌龙",
+          "mode": "游走",
+          "cells": 7,
+          "mass": 1200
+        },
+        {
+          "name": "极光",
+          "mode": "游走",
+          "cells": 6,
+          "mass": 1749
+        },
+        {
+          "name": "米粒",
+          "mode": "游走",
+          "cells": 9,
+          "mass": 724
+        },
+        {
+          "name": "山竹",
+          "mode": "游走",
+          "cells": 5,
+          "mass": 1733
+        }
+      ]
+    },
+    "screenshotSnapshot": {
+      "world": 7600,
+      "mode": "battle",
+      "selectedMode": "battle",
+      "selectedSkin": "aqua",
+      "selectedSpore": "mint",
+      "selectedHalo": "none",
+      "selectedTrail": "none",
+      "skinType": "basic",
+      "sporeType": "basic",
+      "haloType": "basic",
+      "trailType": "basic",
+      "lobbyPanel": "play",
+      "dust": 171,
+      "forgeLevel": 1,
+      "forgeLuck": 0,
+      "forgeXp": 0,
+      "forgeTickets": 2,
+      "forgePityEpic": 0,
+      "forgePityLegend": 0,
+      "forgeTheme": "旧铁小炉",
+      "lastForge": null,
+      "unlockedSkins": 9,
+      "unlockedSpores": 9,
+      "unlockedHalos": 1,
+      "unlockedTrails": 1,
+      "forgeLockedSkins": 26,
+      "forgeLockedSpores": 22,
+      "forgeLockedHalos": 21,
+      "forgeLockedTrails": 21,
+      "menu": false,
+      "paused": false,
+      "over": false,
+      "targetPlayers": 100,
+      "teams": 0,
+      "duration": 0,
+      "timeLeft": 0,
+      "maxCells": 16,
+      "foodBase": 2100,
+      "foodMax": 3600,
+      "foodCount": 3341,
+      "foodTarget": 3888,
+      "foodRate": 220,
+      "playerMass": 3654.8,
+      "playerColor": "#44d7b6",
+      "playerTeam": null,
+      "playerTeamColor": null,
+      "playerCells": 16,
+      "playerCellMasses": [
+        236.7,
+        224.8,
+        232.1,
+        231.1,
+        228,
+        224.8,
+        224.8,
+        224.8,
+        235.3,
+        230.5,
+        224.8,
+        224.8,
+        224.8,
+        229,
+        233.8,
+        224.8
+      ],
+      "playerLives": 0,
+      "playerRank": 1,
+      "playerDead": false,
+      "respawnIn": 0,
+      "camera": {
+        "x": 3792,
+        "y": 3789,
+        "zoom": 1.03,
+        "viewPressure": 0.755,
+        "spreadRatio": 3.608
+      },
+      "ejectHeld": false,
+      "viruses": 50,
+      "smallViruses": 32,
+      "bigViruses": 18,
+      "ejected": 579,
+      "maxEjected": 720,
+      "lowQuality": true,
+      "avgFrame": 7.4,
+      "avgWork": 3,
+      "maxFrame": 18.8,
+      "longFrames": 0,
+      "pixelRatio": 1,
+      "targetFps": 120,
+      "simulationFps": 60,
+      "renderer": {
+        "active": true,
+        "backend": "WebGL2",
+        "device": "ANGLE (AMD, AMD Radeon(TM) Graphics (0x000013C0) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "spriteBatching": true,
+        "webgpuAvailable": true
+      },
+      "drawnFood": 87,
+      "drawnCells": 53,
+      "alive": 99,
+      "safeZone": {
+        "enabled": true,
+        "x": 3800,
+        "y": 3800,
+        "radius": 4408,
+        "shrinking": false
+      },
+      "event": {
+        "active": null,
+        "label": null,
+        "nextIn": 11
+      },
+      "domination": {
+        "enabled": false,
+        "leader": null,
+        "leaderId": null,
+        "share": 0,
+        "rawShare": 0,
+        "playerShare": 0,
+        "target": 0,
+        "hold": 0
+      },
+      "control": {
+        "scores": [],
+        "seekers": 0,
+        "points": []
+      },
+      "demon": {
+        "bosses": 0,
+        "bossMass": 0,
+        "minions": 0
+      },
+      "ai": [
+        {
+          "name": "青柠",
+          "mode": "逃跑",
+          "cells": 7,
+          "mass": 846
+        },
+        {
+          "name": "星火",
+          "mode": "追击",
+          "cells": 5,
+          "mass": 1739
+        },
+        {
+          "name": "乌龙",
+          "mode": "逃跑",
+          "cells": 8,
+          "mass": 1263
+        },
+        {
+          "name": "极光",
+          "mode": "逃跑",
+          "cells": 6,
+          "mass": 1619
+        },
+        {
+          "name": "米粒",
+          "mode": "逃跑",
+          "cells": 6,
+          "mass": 505
+        },
+        {
+          "name": "山竹",
+          "mode": "追击",
+          "cells": 6,
+          "mass": 1773
+        }
+      ]
+    }
+  },
+  "diagnostics": {
+    "pageErrors": [],
+    "consoleErrors": []
+  },
+  "artifacts": {
+    "screenshot": "docs/images/browser-performance/star-cluster-stress.jpg",
+    "measurement": "docs/images/browser-performance/runtime-measurement.json"
+  }
+}
