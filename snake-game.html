@@ -547,12 +547,60 @@
         gap: 5px;
       }
       .sector {
-        min-height: 41px;
+        min-height: 53px;
         text-align: center;
         padding: 5px;
       }
+      .sector b {
+        font-size: 12px;
+      }
+      .sector-stars {
+        display: block;
+        min-height: 11px;
+        margin-top: 3px;
+        color: var(--gold);
+        font-size: 8px;
+        letter-spacing: 0;
+      }
       .sector.locked {
         opacity: 0.3;
+      }
+      .sector.completed {
+        border-color: rgba(255, 214, 92, 0.36);
+      }
+      .sector-detail {
+        margin-top: 7px;
+        padding: 9px;
+        border: 1px solid rgba(56, 221, 255, 0.16);
+        border-radius: 10px;
+        background: rgba(4, 10, 24, 0.55);
+      }
+      .sector-detail > b {
+        display: block;
+        color: var(--ink);
+        font-size: 11px;
+      }
+      .sector-detail p {
+        margin: 4px 0 7px;
+        color: var(--muted);
+        font-size: 8px;
+        line-height: 1.45;
+      }
+      .challenge-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+      }
+      .challenge-chip {
+        padding: 4px 6px;
+        border-radius: 7px;
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--muted);
+        font-size: 8px;
+      }
+      .challenge-chip.done {
+        color: var(--gold);
+        background: rgba(255, 214, 92, 0.09);
       }
       .lab {
         display: grid;
@@ -608,6 +656,39 @@
         justify-content: flex-end;
         gap: 7px;
         margin-top: 10px;
+      }
+      #setupView > .start-row {
+        position: sticky;
+        bottom: -1px;
+        z-index: 3;
+        padding: 9px 0 2px;
+        background: rgba(8, 15, 33, 0.96);
+        box-shadow: 0 -10px 18px rgba(3, 7, 18, 0.72);
+      }
+      .boss-line {
+        display: grid;
+        grid-template-columns: auto minmax(60px, 1fr) auto;
+        align-items: center;
+        gap: 7px;
+        margin-top: 7px;
+        color: #ff9bb8;
+        font-size: 8px;
+        font-weight: 900;
+      }
+      .boss-line.hidden {
+        display: none;
+      }
+      .boss-line div {
+        height: 6px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.08);
+      }
+      .boss-line i {
+        display: block;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, #ff4f7d, #ffd65c);
       }
       .result {
         display: none;
@@ -760,8 +841,8 @@
           height: 61px;
         }
         .pad {
-          grid-template-columns: repeat(3, 39px);
-          grid-template-rows: repeat(2, 36px);
+          grid-template-columns: repeat(3, 42px);
+          grid-template-rows: repeat(2, 40px);
         }
         .overlay {
           padding: 6px;
@@ -782,6 +863,12 @@
         }
         .sector-grid {
           grid-template-columns: repeat(4, 1fr);
+        }
+        #setupView > .start-row {
+          flex-wrap: wrap;
+        }
+        #setupView > .start-row .btn {
+          flex: 1 1 145px;
         }
         .lab {
           grid-template-columns: 1fr;
@@ -811,8 +898,8 @@
         <div class="brand">
           <div class="logo">蛇</div>
           <div>
-            <h1>霓虹贪吃蛇 <b>星环 V3</b></h1>
-            <p>18 段远征 · 六框架 · 追猎首领 · 跨设备存档</p>
+            <h1>霓虹贪吃蛇 <b>星环 V4</b></h1>
+            <p>三章 18 节点 · 三星挑战 · 协议构筑 · 断点续航</p>
           </div>
         </div>
         <div class="actions">
@@ -862,7 +949,7 @@
                     <div>
                       <h2>星环远征：<b>选择航线</b></h2>
                       <p>
-                        收集光点、维持连击、避开轨道事件；每个区段都能强化蛇身。
+                        穿越三座星环、适应独立异常；每个节点都记录三星挑战。
                       </p>
                     </div>
                     <div class="save-pill" id="savePill">光核 0</div>
@@ -879,6 +966,7 @@
                     <section class="section">
                       <h3>远征区段</h3>
                       <div class="sector-grid" id="sectorGrid"></div>
+                      <div class="sector-detail" id="sectorDetail"></div>
                     </section>
                     <section class="section">
                       <h3>光轨实验室</h3>
@@ -898,6 +986,9 @@
                     </section>
                   </div>
                   <div class="start-row">
+                    <button class="btn" id="resumeBtn" hidden>
+                      继续未完成远征
+                    </button>
                     <button class="btn primary" id="startBtn">进入光轨</button>
                   </div>
                 </div>
@@ -931,6 +1022,11 @@
               </div>
             </div>
             <div class="bar"><i id="energyBar"></i></div>
+            <div class="boss-line hidden" id="bossLine">
+              <span id="bossName">首领</span>
+              <div><i id="bossBar"></i></div>
+              <b id="bossHp">0/0</b>
+            </div>
           </section>
           <section class="card">
             <div class="card-head">
@@ -993,12 +1089,16 @@
         upgrade: $("#upgradeModal"),
         upgradeGrid: $("#upgradeGrid"),
         banner: $("#banner"),
+        bossLine: $("#bossLine"),
+        bossName: $("#bossName"),
+        bossBar: $("#bossBar"),
+        bossHp: $("#bossHp"),
       };
       const MODES = {
         expedition: {
           name: "光轨远征",
           icon: "◇",
-          desc: "完成区段目标，解锁十二段路线。",
+          desc: "连续穿越章节节点，完成异常与三星挑战。",
           wrap: false,
           timed: 0,
           hunters: true,
@@ -1047,6 +1147,246 @@
           hunt: true,
         },
       };
+      const CHAPTERS = [
+        {
+          name: "初光回路",
+          range: "1-6",
+          color: "#39ddff",
+          desc: "学习边界、障碍、追猎者与裂隙的基础规则。",
+        },
+        {
+          name: "过载旧环",
+          range: "7-12",
+          color: "#aa8cff",
+          desc: "高能光点、加速轨道与复合追猎开始叠加。",
+        },
+        {
+          name: "终焉星冠",
+          range: "13-18",
+          color: "#ff6f9f",
+          desc: "镜像石阵、猎手巢与终局首领组成最终考验。",
+        },
+      ];
+      const SECTORS = [
+        {
+          name: "初光校准",
+          desc: "封闭边界与稀疏轨道，建立最基础的路线节奏。",
+          goal: 6,
+          obstacles: 0,
+          challenges: [
+            { type: "combo", target: 4, label: "达成 4 连击" },
+            { type: "clean", target: 0, label: "零碰撞完成" },
+          ],
+        },
+        {
+          name: "折线回廊",
+          desc: "短墙切割路线，提前规划转向比临场反应更重要。",
+          goal: 7,
+          obstacles: 8,
+          challenges: [
+            { type: "combo", target: 5, label: "达成 5 连击" },
+            { type: "score", target: 110, label: "节点得分 110" },
+          ],
+        },
+        {
+          name: "脉冲石阵",
+          desc: "密集石阵压缩空间，主动脉冲可以重新打开路线。",
+          goal: 7,
+          obstacles: 15,
+          pulseCost: 0.82,
+          challenges: [
+            { type: "pulses", target: 1, label: "释放 1 次脉冲" },
+            { type: "clean", target: 0, label: "零碰撞完成" },
+          ],
+        },
+        {
+          name: "追猎试场",
+          desc: "追猎者会抢走光点，路线需要同时考虑蛇头与猎手。",
+          goal: 8,
+          obstacles: 8,
+          hunters: 1,
+          challenges: [
+            { type: "pulseKills", target: 1, label: "脉冲击破猎手" },
+            { type: "combo", target: 6, label: "达成 6 连击" },
+          ],
+        },
+        {
+          name: "裂隙双门",
+          desc: "成对裂隙改变出口位置，可用于脱困也可能打乱路线。",
+          goal: 8,
+          obstacles: 12,
+          portals: 1,
+          challenges: [
+            { type: "time", target: 58, label: "58 秒内完成" },
+            { type: "clean", target: 0, label: "零碰撞完成" },
+          ],
+        },
+        {
+          name: "棱镜猎犬",
+          desc: "首位环守拥有两层核心，必须用脉冲命中并完成收集。",
+          goal: 9,
+          obstacles: 14,
+          hunters: 1,
+          bosses: 1,
+          bossHp: 2,
+          bossName: "棱镜猎犬",
+          pulseCost: 0.6,
+          challenges: [
+            { type: "boss", target: 1, label: "击破环守核心" },
+            { type: "clean", target: 1, label: "碰撞不超过 1 次" },
+          ],
+        },
+        {
+          name: "霓虹丰潮",
+          desc: "金果大量涌现，保持连击会把短暂丰潮转化为高分。",
+          goal: 8,
+          obstacles: 10,
+          foodBias: { gold: 2.8, normal: 0.72 },
+          challenges: [
+            { type: "food", key: "gold", target: 2, label: "收集 2 枚金果" },
+            { type: "score", target: 220, label: "节点得分 220" },
+          ],
+        },
+        {
+          name: "双猎交叉",
+          desc: "两名猎手从不同轴线逼近，脉冲时机决定生存空间。",
+          goal: 9,
+          obstacles: 12,
+          hunters: 2,
+          challenges: [
+            { type: "pulseKills", target: 2, label: "击破 2 名猎手" },
+            { type: "clean", target: 1, label: "碰撞不超过 1 次" },
+          ],
+        },
+        {
+          name: "环面逆流",
+          desc: "边界首尾相连且轨道提速，路线更自由也更容易咬尾。",
+          goal: 9,
+          obstacles: 14,
+          wrap: true,
+          speed: 0.9,
+          challenges: [
+            { type: "combo", target: 7, label: "达成 7 连击" },
+            { type: "time", target: 55, label: "55 秒内完成" },
+          ],
+        },
+        {
+          name: "蓝晶核心",
+          desc: "能量晶体出现率提高，鼓励更频繁地释放框架能力。",
+          goal: 10,
+          obstacles: 16,
+          hunters: 1,
+          foodBias: { energy: 3, normal: 0.75 },
+          pulseCost: 0.86,
+          challenges: [
+            { type: "food", key: "energy", target: 3, label: "收集 3 枚蓝晶" },
+            { type: "pulses", target: 2, label: "释放 2 次脉冲" },
+          ],
+        },
+        {
+          name: "彗星超载",
+          desc: "持续高速压缩判断时间，连击和风险同步放大。",
+          goal: 10,
+          obstacles: 18,
+          hunters: 2,
+          speed: 0.78,
+          challenges: [
+            { type: "combo", target: 8, label: "达成 8 连击" },
+            { type: "score", target: 320, label: "节点得分 320" },
+          ],
+        },
+        {
+          name: "旧环双生",
+          desc: "两位环守共享狭窄旧环，脉冲必须同时兼顾清场与破核。",
+          goal: 11,
+          obstacles: 20,
+          portals: 1,
+          bosses: 2,
+          bossHp: 2,
+          bossName: "旧环双生",
+          pulseCost: 0.55,
+          challenges: [
+            { type: "boss", target: 2, label: "击破双生环守" },
+            { type: "clean", target: 1, label: "碰撞不超过 1 次" },
+          ],
+        },
+        {
+          name: "镜面石海",
+          desc: "障碍沿星环镜像生成，安全区同样呈现对称变化。",
+          goal: 9,
+          obstacles: 18,
+          mirror: true,
+          challenges: [
+            { type: "clean", target: 0, label: "零碰撞完成" },
+            { type: "combo", target: 7, label: "达成 7 连击" },
+          ],
+        },
+        {
+          name: "猎手孵巢",
+          desc: "每次收集都会加速猎巢活化，拖延会让场面持续恶化。",
+          goal: 10,
+          obstacles: 16,
+          hunters: 2,
+          surge: 3,
+          challenges: [
+            { type: "pulseKills", target: 3, label: "击破 3 名猎手" },
+            { type: "score", target: 330, label: "节点得分 330" },
+          ],
+        },
+        {
+          name: "零点钟摆",
+          desc: "轨道将在倒计时结束时坍缩，必须保持连续进食。",
+          goal: 10,
+          obstacles: 20,
+          hunters: 2,
+          timeLimit: 72,
+          challenges: [
+            { type: "time", target: 48, label: "48 秒内完成" },
+            { type: "clean", target: 0, label: "零碰撞完成" },
+          ],
+        },
+        {
+          name: "彗尾猎群",
+          desc: "高速猎群追逐当前光点，先规划逃生线再争取连击。",
+          goal: 11,
+          obstacles: 20,
+          hunters: 3,
+          speed: 0.82,
+          challenges: [
+            { type: "combo", target: 9, label: "达成 9 连击" },
+            { type: "pulseKills", target: 3, label: "击破 3 名猎手" },
+          ],
+        },
+        {
+          name: "终焉裂门",
+          desc: "两组裂隙与高密度石阵重叠，出口判断成为核心难题。",
+          goal: 11,
+          obstacles: 25,
+          portals: 2,
+          hunters: 2,
+          challenges: [
+            { type: "time", target: 68, label: "68 秒内完成" },
+            { type: "clean", target: 1, label: "碰撞不超过 1 次" },
+          ],
+        },
+        {
+          name: "星环冠冕",
+          desc: "终局环守拥有四层核心，并会持续唤醒护卫猎手。",
+          goal: 12,
+          obstacles: 27,
+          portals: 1,
+          hunters: 2,
+          bosses: 1,
+          bossHp: 4,
+          bossName: "星环冠冕",
+          surge: 3,
+          pulseCost: 0.5,
+          challenges: [
+            { type: "boss", target: 1, label: "击破冠冕核心" },
+            { type: "combo", target: 10, label: "达成 10 连击" },
+          ],
+        },
+      ];
       const FRAMES = {
         pulse: {
           name: "脉冲型",
@@ -1165,6 +1505,7 @@
           grow: 1,
           color: "#72f6a8",
           weight: 62,
+          energy: 7,
         },
         gold: {
           name: "金果",
@@ -1172,6 +1513,7 @@
           grow: 2,
           color: "#ffd65c",
           weight: 12,
+          energy: 12,
         },
         energy: {
           name: "蓝晶",
@@ -1179,6 +1521,7 @@
           grow: 1,
           color: "#54d9ff",
           weight: 14,
+          energy: 32,
         },
         shield: {
           name: "护盾",
@@ -1186,6 +1529,7 @@
           grow: 1,
           color: "#ff73bd",
           weight: 7,
+          energy: 7,
         },
         ghost: {
           name: "幽影果",
@@ -1193,6 +1537,7 @@
           grow: 0,
           color: "#ae8cff",
           weight: 5,
+          energy: 15,
         },
       };
       const UPGRADES = [
@@ -1297,6 +1642,7 @@
         raf = 0,
         muted = false,
         bannerTimer = 0,
+        audioCtx = null,
         particles = [];
       selectedMode = MODES[save.loadout?.mode]
         ? save.loadout.mode
@@ -1306,7 +1652,7 @@
         : selectedFrame;
       function load() {
         const base = {
-          v: 3,
+          v: 4,
           cores: 0,
           unlocked: 1,
           best: {},
@@ -1317,26 +1663,30 @@
           mastery: {},
           records: {},
           milestones: {},
+          sectorStars: {},
+          activeRun: null,
           loadout: { mode: "expedition", frame: "pulse" },
         };
         try {
           const s = JSON.parse(localStorage.getItem(SAVE_KEY) || "null");
-          if (s && (s.v === 2 || s.v === 3))
+          if (s && [2, 3, 4].includes(s.v))
             return {
               ...base,
               ...s,
-              v: 3,
+              v: 4,
               lab: { ...base.lab, ...(s.lab || {}) },
               mastery: s.mastery || {},
               records: s.records || {},
               milestones: s.milestones || {},
+              sectorStars: s.sectorStars || {},
+              activeRun: s.v === 4 ? s.activeRun || null : null,
               loadout: { ...base.loadout, ...(s.loadout || {}) },
             };
         } catch {}
         return base;
       }
       function store() {
-        save.v = 3;
+        save.v = 4;
         save.loadout = { mode: selectedMode, frame: selectedFrame };
         localStorage.setItem(SAVE_KEY, JSON.stringify(save));
       }
@@ -1351,20 +1701,24 @@
       function encodeSave() {
         const json = JSON.stringify({
           game: "neon-snake",
-          version: 3,
+          version: 4,
           data: save,
         });
         const bytes = new TextEncoder().encode(json);
         let binary = "";
         bytes.forEach((byte) => (binary += String.fromCharCode(byte)));
         const payload = btoa(binary);
-        return `NSX3.${payload}.${saveHash(payload)}`;
+        return `NSX4.${payload}.${saveHash(payload)}`;
       }
       function importSave(code) {
         const [prefix, payload, checksum] = String(code || "")
           .trim()
           .split(".");
-        if (prefix !== "NSX3" || !payload || saveHash(payload) !== checksum)
+        if (
+          !["NSX3", "NSX4"].includes(prefix) ||
+          !payload ||
+          saveHash(payload) !== checksum
+        )
           throw new Error("存档码校验失败");
         const parsed = JSON.parse(
           new TextDecoder().decode(
@@ -1389,11 +1743,72 @@
         same = (a, b) => a.x === b.x && a.y === b.y,
         clamp = (v, a, b) => Math.max(a, Math.min(b, v)),
         rint = (a, b) => Math.floor(a + Math.random() * (b - a + 1));
+      function chapterInfo(n) {
+        return CHAPTERS[Math.min(2, Math.floor((Math.max(1, n) - 1) / 6))];
+      }
+      function sectorSpec(n = state?.sector || selectedSector) {
+        return SECTORS[Math.max(0, Math.min(17, n - 1))];
+      }
+      function totalStars() {
+        return Object.values(save.sectorStars || {}).reduce(
+          (sum, stars) => sum + Math.min(3, Number(stars) || 0),
+          0,
+        );
+      }
+      function hasActiveRun() {
+        const run = save.activeRun?.state;
+        return !!(
+          run &&
+          run.operation === "expedition" &&
+          run.sector >= 1 &&
+          run.sector <= 18 &&
+          FRAMES[run.frame]
+        );
+      }
+      function currentPulseCost() {
+        const factor =
+          state?.operation === "expedition"
+            ? sectorSpec().pulseCost || 1
+            : 1;
+        return Math.max(24, Math.round((state?.pulseCost || 72) * factor));
+      }
+      function sfx(kind) {
+        if (muted) return;
+        try {
+          audioCtx ||= new (window.AudioContext || window.webkitAudioContext)();
+          if (audioCtx.state === "suspended") audioCtx.resume();
+          const notes = {
+              start: [240, 0.12, "triangle", 0.04, 1.5],
+              eat: [520, 0.07, "sine", 0.025, 1.12],
+              gold: [740, 0.11, "triangle", 0.035, 1.35],
+              pulse: [170, 0.2, "sawtooth", 0.04, 2.1],
+              hit: [92, 0.16, "square", 0.035, 0.72],
+              upgrade: [390, 0.2, "triangle", 0.035, 1.7],
+              win: [440, 0.34, "sine", 0.045, 2],
+              lose: [180, 0.3, "sawtooth", 0.03, 0.55],
+            },
+            [frequency, duration, type, volume, ratio] = notes[kind] || notes.eat,
+            osc = audioCtx.createOscillator(),
+            gain = audioCtx.createGain(),
+            now = audioCtx.currentTime;
+          osc.type = type;
+          osc.frequency.setValueAtTime(frequency, now);
+          osc.frequency.exponentialRampToValueAtTime(
+            Math.max(40, frequency * ratio),
+            now + duration,
+          );
+          gain.gain.setValueAtTime(volume, now);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+          osc.connect(gain).connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + duration);
+        } catch {}
+      }
       function renderHome() {
         ui.setup.style.display = "block";
         ui.result.classList.remove("show");
         $("#savePill").textContent =
-          `光核 ${save.cores} · 解锁 ${save.unlocked}/18 · 总收集 ${save.total}`;
+          `★ ${totalStars()}/54 · 光核 ${save.cores} · 解锁 ${save.unlocked}/18`;
         $("#modeGrid").innerHTML = Object.entries(MODES)
           .map(
             ([k, m]) =>
@@ -1408,9 +1823,23 @@
           .join("");
         $("#sectorGrid").innerHTML = Array.from({ length: 18 }, (_, i) => {
           const n = i + 1,
-            locked = n > save.unlocked;
-          return `<button class="choice sector ${selectedSector === n ? "selected" : ""} ${locked ? "locked" : ""}" data-sector="${n}" ${locked ? "disabled" : ""}><b>${n}</b><small>${sectorName(n)}</small></button>`;
+            locked = n > save.unlocked,
+            stars = Math.min(3, save.sectorStars?.[n] || 0);
+          return `<button class="choice sector ${selectedSector === n ? "selected" : ""} ${locked ? "locked" : ""} ${stars ? "completed" : ""}" data-sector="${n}" ${locked ? "disabled" : ""}><b>${n}</b><small>${sectorName(n)}</small><span class="sector-stars">${locked ? "LOCK" : `${"★".repeat(stars)}${"☆".repeat(3 - stars)}`}</span></button>`;
         }).join("");
+        const spec = sectorSpec(selectedSector),
+          chapter = chapterInfo(selectedSector),
+          stars = Math.min(3, save.sectorStars?.[selectedSector] || 0),
+          chapterEnd = Math.ceil(selectedSector / 6) * 6;
+        $("#sectorDetail").innerHTML =
+          `<b style="color:${chapter.color}">第 ${selectedSector} 节点 · ${chapter.name}</b>` +
+          `<p>${spec.desc}<br>本次航线将连续推进至第 ${chapterEnd} 节点，节点间可接入蛇身协议。</p>` +
+          `<div class="challenge-row"><span class="challenge-chip ${stars >= 1 ? "done" : ""}">★ 完成节点</span>${spec.challenges
+            .map(
+              (challenge, index) =>
+                `<span class="challenge-chip ${stars >= index + 2 ? "done" : ""}">★ ${challenge.label}</span>`,
+            )
+            .join("")}</div>`;
         $("#labGrid").innerHTML = Object.entries(LAB)
           .map(([k, l]) => {
             const lv = save.lab[k] || 0,
@@ -1420,11 +1849,16 @@
           })
           .join("");
         $("#archiveGrid").innerHTML = [
-          `<div class="archive-chip"><b>${save.runs || 0}</b>远征次数</div>`,
+          `<div class="archive-chip"><b>${totalStars()}/54</b>节点星数</div>`,
+          `<div class="archive-chip"><b>${save.runs || 0}</b>航线次数</div>`,
           `<div class="archive-chip"><b>${save.wins || 0}</b>稳定航线</div>`,
           `<div class="archive-chip"><b>${save.mastery[selectedFrame] || 0}</b>${FRAMES[selectedFrame].name}熟练</div>`,
-          `<div class="archive-chip"><b>${MILESTONES.filter((m) => save.milestones[m.id]).length}/${MILESTONES.length}</b>里程碑</div>`,
         ].join("");
+        const resumeBtn = $("#resumeBtn");
+        resumeBtn.hidden = !hasActiveRun();
+        if (hasActiveRun())
+          resumeBtn.textContent = `继续第 ${save.activeRun.state.sector} 节点`;
+        $("#startBtn").textContent = `从第 ${selectedSector} 节点出发`;
         document.querySelectorAll("[data-mode]").forEach(
           (b) =>
             (b.onclick = () => {
@@ -1463,31 +1897,13 @@
         renderHome();
       }
       function sectorName(n) {
-        return [
-          "初光",
-          "折线",
-          "石阵",
-          "追猎",
-          "裂门",
-          "脉冲",
-          "霓虹雨",
-          "双猎",
-          "逆流",
-          "核心",
-          "超载",
-          "旧环门",
-          "镜面海",
-          "猎手巢",
-          "零点钟",
-          "彗尾群",
-          "终焉门",
-          "星环冠",
-        ][n - 1];
+        return sectorSpec(n).name;
       }
       function fresh() {
         const mid = Math.floor(N / 2),
           frame = FRAMES[selectedFrame],
           mode = MODES[selectedMode],
+          spec = sectorSpec(selectedSector),
           baseShield =
             (frame.shield || 0) + Math.floor((save.lab.shield || 0) / 3);
         return {
@@ -1496,9 +1912,17 @@
           operation: selectedMode,
           frame: selectedFrame,
           sector: selectedMode === "expedition" ? selectedSector : 1,
-          maxSector: selectedMode === "expedition" ? selectedSector : 999,
+          runStartSector:
+            selectedMode === "expedition" ? selectedSector : 1,
+          maxSector:
+            selectedMode === "expedition"
+              ? Math.ceil(selectedSector / 6) * 6
+              : 999,
           elapsed: 0,
-          timeLeft: mode.timed || 0,
+          timeLeft:
+            selectedMode === "expedition"
+              ? spec.timeLimit || 0
+              : mode.timed || 0,
           snake: [
             { x: mid, y: mid },
             { x: mid - 1, y: mid },
@@ -1514,7 +1938,10 @@
           score: 0,
           eaten: 0,
           sectorEaten: 0,
-          goal: 5 + Math.floor(selectedSector / 2),
+          goal:
+            selectedMode === "expedition"
+              ? spec.goal
+              : 5 + Math.floor(selectedSector / 2),
           combo: 0,
           comboUntil: 0,
           comboWindow: 4300,
@@ -1534,11 +1961,75 @@
           hunterSlow: 1,
           build: [],
           pending: 0,
+          pendingOptions: [],
+          sectorStats: null,
+          sectorComplete: false,
+          completedSectors: [],
+          runStars: 0,
+          lastSectorStars: 0,
+          bossMaxHp: 0,
+          shake: 0,
           gameOver: false,
           best: save.best[selectedMode] || 0,
         };
       }
-      function start() {
+      function snapshotRun() {
+        if (
+          !state ||
+          state.operation !== "expedition" ||
+          state.gameOver ||
+          state.mode !== "running"
+        )
+          return;
+        const snapshot = JSON.parse(JSON.stringify(state));
+        snapshot.comboUntil = 0;
+        snapshot.energyBoost = 0;
+        snapshot.paused = true;
+        save.activeRun = {
+          v: 1,
+          savedAt: Date.now(),
+          state: snapshot,
+        };
+        store();
+      }
+      function resumeRun() {
+        if (!hasActiveRun()) return;
+        const restored = JSON.parse(JSON.stringify(save.activeRun.state));
+        selectedMode = "expedition";
+        selectedFrame = restored.frame;
+        selectedSector = restored.runStartSector || restored.sector;
+        state = { ...fresh(), ...restored };
+        state.snake = restored.snake || fresh().snake;
+        state.obstacles = restored.obstacles || [];
+        state.portals = restored.portals || [];
+        state.hunters = restored.hunters || [];
+        state.build = restored.build || [];
+        state.completedSectors = restored.completedSectors || [];
+        state.pendingOptions = restored.pendingOptions || [];
+        state.mode = "running";
+        state.paused = false;
+        state.gameOver = false;
+        state.comboUntil = 0;
+        state.energyBoost = 0;
+        particles = [];
+        carry = 0;
+        ui.overlay.classList.add("hidden");
+        if (!state.food) spawnFood();
+        last = performance.now();
+        if (state.pending > 0) openUpgrade();
+        showBanner(`续航恢复 · 第 ${state.sector} 节点`);
+        sfx("start");
+        if (!raf) raf = requestAnimationFrame(loop);
+        sync();
+      }
+      function start(force = false) {
+        if (
+          !force &&
+          hasActiveRun() &&
+          !confirm("开始新航线会覆盖当前断点，确定继续？")
+        )
+          return;
+        save.activeRun = null;
         state = fresh();
         particles = [];
         carry = 0;
@@ -1547,10 +2038,12 @@
         setupSector();
         last = performance.now();
         showBanner(
-          `${MODES[state.operation].icon} ${state.operation === "expedition" ? `第 ${state.sector} 区段` : MODES[state.operation].name}`,
+          `${MODES[state.operation].icon} ${state.operation === "expedition" ? `${chapterInfo(state.sector).name} · 第 ${state.sector} 节点` : MODES[state.operation].name}`,
         );
+        sfx("start");
         if (!raf) raf = requestAnimationFrame(loop);
         sync();
+        snapshotRun();
       }
       function setupSector() {
         state.sectorEaten = 0;
@@ -1558,53 +2051,115 @@
         state.obstacles = [];
         state.portals = [];
         state.hunters = [];
-        const difficulty =
+        state.food = null;
+        state.sectorComplete = false;
+        const expedition = state.operation === "expedition",
+          spec = expedition ? sectorSpec() : null,
+          difficulty =
           state.operation === "expedition"
             ? state.sector
             : Math.max(1, Math.floor(state.eaten / 5) + 1);
         let obstaclePressure =
-          (difficulty - 1) * 2 +
-          (state.operation === "chaos" ? 10 : 0) +
-          (state.operation === "hunt" ? 6 : 0);
+          expedition
+            ? spec.obstacles
+            : (difficulty - 1) * 2 +
+              (state.operation === "chaos" ? 10 : 0) +
+              (state.operation === "hunt" ? 6 : 0);
         if (MODES[state.operation].zen) obstaclePressure *= 0.35;
         const count = Math.min(46, Math.max(0, Math.floor(obstaclePressure)));
         const occupied = new Set(state.snake.map(key));
-        for (let i = 0; i < count; i++) {
+        for (let i = 0; state.obstacles.length < count && i < count * 3; i++) {
           const c = openCell(occupied);
           if (c) {
             state.obstacles.push(c);
             occupied.add(key(c));
+            if (spec?.mirror && state.obstacles.length < count) {
+              const mirror = { x: N - 1 - c.x, y: N - 1 - c.y };
+              if (!occupied.has(key(mirror)) && !blocked(mirror, true)) {
+                state.obstacles.push(mirror);
+                occupied.add(key(mirror));
+              }
+            }
           }
         }
-        if (difficulty >= 5 || state.operation === "chaos") {
+        const portalPairs = expedition
+          ? spec.portals || 0
+          : difficulty >= 5 || state.operation === "chaos"
+            ? 1
+            : 0;
+        for (let pair = 0; pair < portalPairs; pair++) {
           const a = openCell(occupied);
           if (a) {
             occupied.add(key(a));
             const b = openCell(occupied);
-            if (b) state.portals = [a, b];
+            if (b) {
+              occupied.add(key(b));
+              state.portals.push(a, b);
+            }
           }
         }
-        if (MODES[state.operation].hunters && difficulty >= 4) {
-          const hunterCount =
-            Math.min(3, Math.floor((difficulty + 1) / 4)) *
-            (MODES[state.operation].hunt ? 2 : 1);
+        if (MODES[state.operation].hunters) {
+          const hunterCount = expedition
+            ? spec.hunters || 0
+            : difficulty >= 4
+              ? Math.min(3, Math.floor((difficulty + 1) / 4)) *
+                (MODES[state.operation].hunt ? 2 : 1)
+              : 0;
           for (let i = 0; i < hunterCount; i++) {
             const c = openCell(occupied);
-            if (c) state.hunters.push({ x: c.x, y: c.y, cd: i % 2 });
+            if (c) {
+              occupied.add(key(c));
+              state.hunters.push({ x: c.x, y: c.y, cd: i % 2 });
+            }
           }
         }
-        if (state.operation === "expedition" && state.sector % 6 === 0) {
+        if (expedition && spec.bosses) {
+          for (let i = 0; i < spec.bosses; i++) {
+            const c = openCell(occupied);
+            if (!c) continue;
+            occupied.add(key(c));
+            state.hunters.push({
+              x: c.x,
+              y: c.y,
+              cd: 0,
+              alpha: true,
+              boss: true,
+              hp: spec.bossHp,
+              maxHp: spec.bossHp,
+              name: spec.bossName,
+            });
+          }
+        } else if (!expedition && difficulty >= 6 && difficulty % 6 === 0) {
           const c = openCell(occupied);
-          if (c) {
-            state.hunters.push({ x: c.x, y: c.y, cd: 0, alpha: true });
-            showBanner(`⚠ 第 ${state.sector} 段 · 首领追猎者`);
-          }
+          if (c)
+            state.hunters.push({
+              x: c.x,
+              y: c.y,
+              cd: 0,
+              alpha: true,
+              boss: true,
+              hp: 2,
+              maxHp: 2,
+              name: "无尽追猎者",
+            });
         }
+        state.bossMaxHp = state.hunters
+          .filter((hunter) => hunter.boss)
+          .reduce((sum, hunter) => sum + hunter.maxHp, 0);
+        state.goal = expedition ? spec.goal : 6;
+        if (expedition) state.timeLeft = spec.timeLimit || 0;
+        state.sectorStats = {
+          startScore: state.score,
+          startLength: state.snake.length,
+          startedAt: state.elapsed,
+          hits: 0,
+          maxCombo: 0,
+          pulseKills: 0,
+          pulses: 0,
+          bossKills: 0,
+          foodTypes: {},
+        };
         spawnFood();
-        state.goal =
-          state.operation === "expedition"
-            ? 5 + Math.floor(state.sector / 2)
-            : 6;
         sync();
       }
       function openCell(reserve = new Set()) {
@@ -1624,7 +2179,12 @@
         );
       }
       function spawnFood() {
-        let pool = Object.entries(FOODS),
+        const bias =
+          state.operation === "expedition" ? sectorSpec().foodBias || {} : {};
+        let pool = Object.entries(FOODS).map(([name, food]) => [
+            name,
+            { ...food, weight: food.weight * (bias[name] || 1) },
+          ]),
           roll = Math.random() * pool.reduce((n, [, f]) => n + f.weight, 0),
           type = "normal";
         for (const [k, f] of pool) {
@@ -1665,7 +2225,13 @@
           state.elapsed += dt / 1000;
           if (state.timeLeft > 0) {
             state.timeLeft -= dt / 1000;
-            if (state.timeLeft <= 0) return end(true, "倒计时结束");
+            if (state.timeLeft <= 0)
+              return end(
+                state.operation !== "expedition",
+                state.operation === "expedition"
+                  ? "节点在零点坍缩"
+                  : "倒计时结束",
+              );
           }
           carry += dt;
           const interval = speed();
@@ -1687,6 +2253,8 @@
             (state.sector - 1) * 5 + Math.floor(state.eaten / 4) * 2,
           );
         if (state.operation === "blitz") base -= 18;
+        if (state.operation === "expedition")
+          base *= sectorSpec().speed || 1;
         base *= FRAMES[state.frame].speed || 1;
         if (state.energyBoost) base *= 0.64;
         return Math.max(52 + state.speedFloor, base);
@@ -1697,7 +2265,10 @@
           mode = MODES[state.operation];
         let next = { x: head.x + state.dir.x, y: head.y + state.dir.y };
         if (next.x < 0 || next.y < 0 || next.x >= N || next.y >= N) {
-          if (mode.wrap) {
+          if (
+            mode.wrap ||
+            (state.operation === "expedition" && sectorSpec().wrap)
+          ) {
             next = { x: (next.x + N) % N, y: (next.y + N) % N };
           } else if (state.shields > 0) {
             state.shields--;
@@ -1707,7 +2278,9 @@
         }
         const portal = state.portals.findIndex((p) => same(p, next));
         if (portal >= 0) {
-          const out = state.portals[1 - portal];
+          const pairStart = portal - (portal % 2),
+            out = state.portals[pairStart + (portal % 2 === 0 ? 1 : 0)];
+          if (!out) return collide("裂隙失稳", next);
           next = { x: out.x + state.dir.x, y: out.y + state.dir.y };
           next.x = (next.x + N) % N;
           next.y = (next.y + N) % N;
@@ -1730,17 +2303,22 @@
         moveHunters(now);
       }
       function collide(reason, cell) {
+        if (state.sectorStats) state.sectorStats.hits++;
+        state.shake = 10;
+        sfx("hit");
         if (state.shields > 0) {
           state.shields--;
           state.obstacles = state.obstacles.filter((x) => !same(x, cell));
           state.hunters = state.hunters.filter((x) => !same(x, cell));
           showBanner("护盾吸收碰撞");
+          snapshotRun();
           return;
         }
         if (state.phase > 0) {
           state.phase--;
           state.shields++;
           showBanner("相位框架穿透");
+          snapshotRun();
           return;
         }
         if (state.tailSaves > 0 && !state.tailUsed && state.snake.length > 7) {
@@ -1748,6 +2326,7 @@
           state.tailSaves--;
           state.snake.splice(-4);
           showBanner("断尾协议启动");
+          snapshotRun();
           return;
         }
         if (state.operation === "blitz" && state.snake.length > 6) {
@@ -1794,6 +2373,10 @@
           active = now < state.comboUntil;
         state.combo = active ? state.combo + 1 : 1;
         state.comboUntil = now + state.comboWindow;
+        state.sectorStats.maxCombo = Math.max(
+          state.sectorStats.maxCombo,
+          state.combo,
+        );
         let gain =
           type.points *
           (1 + Math.min(8, state.combo - 1) * 0.18) *
@@ -1804,35 +2387,115 @@
         state.score += Math.round(gain);
         state.eaten++;
         state.sectorEaten++;
+        state.sectorStats.foodTypes[state.food.type] =
+          (state.sectorStats.foodTypes[state.food.type] || 0) + 1;
         save.total++;
         for (let i = 0; i < Math.max(0, type.grow - state.growthCut); i++)
           state.snake.push({ ...state.snake[state.snake.length - 1] });
-        if (state.food.type === "energy")
-          state.energy = Math.min(
-            100,
-            state.energy + 32 * (state.frame === "harvest" ? 1.25 : 1),
-          );
+        state.energy = Math.min(
+          100,
+          state.energy + type.energy * (state.frame === "harvest" ? 1.15 : 1),
+        );
         if (state.food.type === "shield") state.shields++;
         if (state.food.type === "ghost") {
           state.phase++;
-          state.energy = Math.min(100, state.energy + 15);
         }
+        sfx(state.food.type === "gold" ? "gold" : "eat");
         burst(state.food, type.color);
         spawnFood();
-        if (state.sectorEaten >= state.goal) {
-          if (state.operation === "expedition") {
-            if (state.sector >= state.maxSector)
-              return end(true, "区段目标完成");
-            state.sector++;
-          } else state.sector++;
+        if (
+          state.operation === "expedition" &&
+          sectorSpec().surge &&
+          state.sectorEaten % sectorSpec().surge === 0
+        ) {
+          const c = openCell();
+          if (c) {
+            state.hunters.push({ x: c.x, y: c.y, cd: 1 });
+            showBanner("猎巢活化 · 新追猎者入场");
+          }
+        }
+        if (state.operation === "expedition") checkSectorComplete();
+        else if (state.sectorEaten >= state.goal) {
+          state.sector++;
           state.pending++;
           openUpgrade();
         }
+        snapshotRun();
         sync();
+      }
+      function challengeDone(challenge) {
+        const stats = state.sectorStats,
+          score = state.score - stats.startScore,
+          duration = state.elapsed - stats.startedAt,
+          growth = state.snake.length - stats.startLength;
+        if (challenge.type === "combo")
+          return stats.maxCombo >= challenge.target;
+        if (challenge.type === "clean")
+          return stats.hits <= challenge.target;
+        if (challenge.type === "score") return score >= challenge.target;
+        if (challenge.type === "time") return duration <= challenge.target;
+        if (challenge.type === "pulseKills")
+          return stats.pulseKills >= challenge.target;
+        if (challenge.type === "pulses")
+          return stats.pulses >= challenge.target;
+        if (challenge.type === "boss")
+          return stats.bossKills >= challenge.target;
+        if (challenge.type === "length") return growth >= challenge.target;
+        if (challenge.type === "food")
+          return (stats.foodTypes[challenge.key] || 0) >= challenge.target;
+        return false;
+      }
+      function checkSectorComplete() {
+        if (
+          state.operation !== "expedition" ||
+          state.sectorComplete ||
+          state.sectorEaten < state.goal
+        )
+          return;
+        const bosses = state.hunters.filter((hunter) => hunter.boss);
+        if (bosses.length) {
+          showBanner(`收集完成 · 击破 ${bosses[0].name} 核心`);
+          return;
+        }
+        completeSector();
+      }
+      function completeSector() {
+        if (state.sectorComplete) return;
+        state.sectorComplete = true;
+        const completed = state.sector,
+          spec = sectorSpec(completed),
+          challengeStars = spec.challenges.filter(challengeDone).length,
+          stars = 1 + challengeStars;
+        state.lastSectorStars = stars;
+        state.runStars += stars;
+        state.completedSectors.push({ sector: completed, stars });
+        save.sectorStars[completed] = Math.max(
+          save.sectorStars[completed] || 0,
+          stars,
+        );
+        save.unlocked = Math.max(save.unlocked, Math.min(18, completed + 1));
+        showBanner(`第 ${completed} 节点稳定 · ${"★".repeat(stars)}${"☆".repeat(3 - stars)}`);
+        if (completed >= state.maxSector || completed >= 18)
+          return end(
+            true,
+            `${chapterInfo(completed).name}稳定 · 本航线 ${state.runStars} 星`,
+          );
+        state.sector++;
+        state.pending++;
+        state.pendingOptions = sample(UPGRADES, 3).map(
+          (upgrade) => upgrade.id,
+        );
+        snapshotRun();
+        openUpgrade();
       }
       function openUpgrade() {
         state.paused = true;
-        const opts = sample(UPGRADES, 3);
+        const opts = (state.pendingOptions?.length
+          ? state.pendingOptions
+              .map((id) => UPGRADES.find((upgrade) => upgrade.id === id))
+              .filter(Boolean)
+          : sample(UPGRADES, 3));
+        state.pendingOptions = opts.map((upgrade) => upgrade.id);
         ui.upgradeGrid.innerHTML = opts
           .map(
             (u, i) =>
@@ -1850,12 +2513,15 @@
         u.apply(state);
         state.build.push(u.title);
         state.pending = Math.max(0, state.pending - 1);
+        state.pendingOptions = [];
         ui.upgrade.classList.add("hidden");
         if (state.operation !== "expedition" || state.sector <= state.maxSector)
           setupSector();
         state.paused = false;
         last = performance.now();
         showBanner(`${u.title} 已接入`);
+        sfx("upgrade");
+        snapshotRun();
         sync();
       }
       function sample(a, n) {
@@ -1865,24 +2531,61 @@
           o.push(b.splice(rint(0, b.length - 1), 1)[0]);
         return o;
       }
+      function damageHunters(predicate, damage = 1) {
+        const survivors = [];
+        let kills = 0,
+          bossKills = 0;
+        for (const hunter of state.hunters) {
+          if (!predicate(hunter)) {
+            survivors.push(hunter);
+            continue;
+          }
+          if (hunter.boss) {
+            hunter.hp -= damage;
+            burst(hunter, "#ffd65c");
+            if (hunter.hp > 0) {
+              survivors.push(hunter);
+              continue;
+            }
+            bossKills++;
+          }
+          kills++;
+          burst(hunter, hunter.boss ? "#ffd65c" : "#ff5a86");
+        }
+        state.hunters = survivors;
+        if (state.sectorStats) {
+          state.sectorStats.pulseKills += kills;
+          state.sectorStats.bossKills += bossKills;
+        }
+        return { kills, bossKills };
+      }
       function usePulse() {
+        const cost = currentPulseCost();
         if (
           state.mode !== "running" ||
           state.paused ||
-          state.energy < state.pulseCost
+          state.energy < cost
         )
           return;
-        state.energy -= state.pulseCost;
+        state.energy -= cost;
+        if (state.sectorStats) state.sectorStats.pulses++;
         const head = state.snake[0],
-          frame = FRAMES[state.frame];
-        const huntersBefore = state.hunters.length;
+          frame = FRAMES[state.frame],
+          radius =
+            frame.ability === "devour"
+              ? 7
+              : frame.ability === "clear"
+                ? 6
+                : frame.ability === "warp"
+                  ? 4
+                  : 3,
+          close = (object) =>
+            Math.abs(object.x - head.x) + Math.abs(object.y - head.y) <=
+            radius;
+        let removedObstacles = 0;
         if (frame.ability === "clear") {
-          state.obstacles = state.obstacles.filter(
-            (o) => Math.abs(o.x - head.x) + Math.abs(o.y - head.y) > 5,
-          );
-          state.hunters = state.hunters.filter(
-            (o) => Math.abs(o.x - head.x) + Math.abs(o.y - head.y) > 5,
-          );
+          removedObstacles = state.obstacles.filter(close).length;
+          state.obstacles = state.obstacles.filter((object) => !close(object));
         } else if (frame.ability === "phase") {
           state.phase += 2;
           state.shields++;
@@ -1894,20 +2597,18 @@
           state.combo = Math.max(3, state.combo);
           state.comboUntil = performance.now() + 7000;
         } else if (frame.ability === "devour") {
-          const close = (o) =>
-            Math.abs(o.x - head.x) + Math.abs(o.y - head.y) <= 7;
-          const removed =
-            state.obstacles.filter(close).length +
-            state.hunters.filter(close).length;
-          state.obstacles = state.obstacles.filter((o) => !close(o));
-          state.hunters = state.hunters.filter((o) => !close(o));
-          state.score += removed * 55;
-          state.energy = Math.min(100, state.energy + removed * 5);
+          removedObstacles = state.obstacles.filter(close).length;
+          state.obstacles = state.obstacles.filter((object) => !close(object));
         } else {
           state.shields += 2;
           state.snake.splice(-Math.min(3, state.snake.length - 4));
         }
-        const clearedHunters = huntersBefore - state.hunters.length;
+        const { kills: clearedHunters, bossKills } = damageHunters(close, 1),
+          removed = removedObstacles + clearedHunters;
+        if (frame.ability === "devour") {
+          state.score += removed * 55;
+          state.energy = Math.min(100, state.energy + removed * 5);
+        }
         if (clearedHunters > 0 && state.hunterBounty) {
           state.score += clearedHunters * 120 * state.hunterBounty;
           state.energy = Math.min(
@@ -1916,10 +2617,20 @@
           );
         }
         state.energyBoost = 1;
+        state.shake = 6;
+        burst(head, frame.color);
+        sfx("pulse");
+        const activeRun = state;
         setTimeout(() => {
-          if (state) state.energyBoost = 0;
+          if (state === activeRun) state.energyBoost = 0;
         }, state.boostDuration);
-        showBanner(`${frame.name}脉冲！`);
+        showBanner(
+          bossKills
+            ? `${frame.name}脉冲 · 首领核心击破！`
+            : `${frame.name}脉冲${removed ? ` · 清除 ${removed}` : ""}`,
+        );
+        checkSectorComplete();
+        snapshotRun();
         sync();
       }
       function settleMilestones() {
@@ -1946,7 +2657,7 @@
             (Math.floor(state.eaten / 3) +
               (win && state.operation === "expedition" ? state.sector : 0)) *
               (1 + (save.lab.bounty || 0) * 0.06),
-          ),
+          ) + (state.runStars || 0) * 2,
         );
         save.cores += cores;
         save.runs += 1;
@@ -1967,6 +2678,7 @@
             Math.min(18, state.sector + 1),
           );
         const milestoneBonus = settleMilestones();
+        save.activeRun = null;
         store();
         ui.overlay.classList.remove("hidden");
         ui.setup.style.display = "none";
@@ -1977,7 +2689,11 @@
         $("#resultScore").textContent = state.score;
         $("#resultLength").textContent = state.snake.length;
         $("#resultCore").textContent = cores;
-        $("#resultSector").textContent = state.sector;
+        $("#resultSector").textContent =
+          state.operation === "expedition"
+            ? `${state.sector} · ★${state.runStars || 0}`
+            : state.sector;
+        sfx(win ? "win" : "lose");
       }
       function sync() {
         if (!state) return;
@@ -1988,24 +2704,46 @@
         ui.energy.textContent = `${Math.floor(state.energy)}%`;
         ui.time.textContent =
           state.timeLeft > 0 ? format(state.timeLeft) : format(state.elapsed);
+        const pulseCost = currentPulseCost(),
+          bosses = state.hunters.filter((hunter) => hunter.boss),
+          bossHp = bosses.reduce((sum, hunter) => sum + hunter.hp, 0),
+          bossMax = state.bossMaxHp || 0;
         ui.pulse.disabled =
-          state.energy < state.pulseCost || state.mode !== "running";
+          state.energy < pulseCost || state.mode !== "running";
         ui.pulse.querySelector("small").textContent =
-          `Shift · ${Math.floor(state.energy)}%`;
+          `Shift · ${pulseCost}%`;
         ui.energyBar.style.width = `${state.energy}%`;
-        ui.missionBar.style.width = `${Math.min(100, (state.sectorEaten / state.goal) * 100)}%`;
-        ui.missionText.textContent = `区段 ${state.sector} · 收集 ${state.sectorEaten}/${state.goal}`;
+        const collectProgress = Math.min(1, state.sectorEaten / state.goal),
+          bossProgress = bossMax ? 1 - bossHp / bossMax : 1,
+          missionProgress = bossMax
+            ? collectProgress * 0.7 + bossProgress * 0.3
+            : collectProgress;
+        ui.missionBar.style.width = `${missionProgress * 100}%`;
+        ui.missionText.textContent =
+          state.operation === "expedition" && bosses.length && collectProgress >= 1
+            ? `${bosses[0].name} · 核心 ${bossHp}/${bossMax}`
+            : `节点 ${state.sector} · 收集 ${state.sectorEaten}/${state.goal}`;
         $("#objectiveIcon").textContent = MODES[state.operation].icon;
         $("#objectiveTitle").textContent =
-          `${MODES[state.operation].name} · ${sectorName(Math.min(18, state.sector))}`;
+          state.operation === "expedition"
+            ? `${chapterInfo(state.sector).name} · ${sectorName(state.sector)}`
+            : `${MODES[state.operation].name} · ${sectorName(Math.min(18, state.sector))}`;
         $("#objectiveText").textContent =
-          state.timeLeft > 0
-            ? `剩余 ${format(state.timeLeft)}，争取更高得分。`
-            : `完成本区段收集目标并选择强化。`;
+          state.operation === "expedition"
+            ? `${sectorSpec().desc}${state.timeLeft > 0 ? ` 剩余 ${format(state.timeLeft)}。` : ""}`
+            : state.timeLeft > 0
+              ? `剩余 ${format(state.timeLeft)}，争取更高得分。`
+              : `完成本区段收集目标并选择强化。`;
+        ui.bossLine.classList.toggle("hidden", !bosses.length);
+        if (bosses.length) {
+          ui.bossName.textContent = bosses[0].name;
+          ui.bossHp.textContent = `${bossHp}/${bossMax}`;
+          ui.bossBar.style.width = `${bossMax ? (bossHp / bossMax) * 100 : 0}%`;
+        }
         ui.shield.textContent = `护盾 ${state.shields} · 相位 ${state.phase}`;
         ui.build.innerHTML = state.build.length
-          ? state.build.map((x) => `<span class="chip">${x}</span>`).join("")
-          : `<span class="chip">${FRAMES[state.frame].name}</span>`;
+          ? `<span class="chip hot">${FRAMES[state.frame].name}</span>${state.build.map((x) => `<span class="chip">${x}</span>`).join("")}`
+          : `<span class="chip hot">${FRAMES[state.frame].name}</span>`;
         const rivals = [
           { n: "极光", v: Math.round(state.score * 0.85 + 120) },
           { n: "像素", v: Math.round(state.score * 0.62 + 260) },
@@ -2023,10 +2761,25 @@
         if (!state) return;
         const W = canvas.width,
           C = W / N,
-          t = performance.now();
-        ctx.fillStyle = "#050a19";
+          t = performance.now(),
+          accent =
+            state.operation === "expedition"
+              ? chapterInfo(state.sector).color
+              : FRAMES[state.frame].color,
+          backdrop = ctx.createRadialGradient(
+            W * 0.5,
+            W * 0.42,
+            W * 0.04,
+            W * 0.5,
+            W * 0.5,
+            W * 0.78,
+          );
+        backdrop.addColorStop(0, rgba(accent, 0.12));
+        backdrop.addColorStop(0.55, "#071022");
+        backdrop.addColorStop(1, "#030713");
+        ctx.fillStyle = backdrop;
         ctx.fillRect(0, 0, W, W);
-        ctx.strokeStyle = "rgba(65,160,230,.09)";
+        ctx.strokeStyle = rgba(accent, 0.09);
         ctx.lineWidth = 1;
         for (let i = 0; i <= N; i++) {
           ctx.beginPath();
@@ -2038,25 +2791,44 @@
           ctx.lineTo(W, i * C);
           ctx.stroke();
         }
-        for (const o of state.obstacles) cellRect(o, C, "#293653", "#6078a8");
+        ctx.save();
+        if (state.shake > 0)
+          ctx.translate(
+            (Math.random() - 0.5) * state.shake,
+            (Math.random() - 0.5) * state.shake,
+          );
+        for (const o of state.obstacles)
+          cellRect(o, C, rgba(accent, 0.17), rgba(accent, 0.48));
         for (const p of state.portals) {
-          ctx.strokeStyle = "#a684ff";
+          ctx.strokeStyle = accent;
           ctx.lineWidth = 4;
           ctx.beginPath();
           ctx.arc((p.x + 0.5) * C, (p.y + 0.5) * C, C * 0.34, 0, Math.PI * 2);
           ctx.stroke();
         }
         for (const h of state.hunters) {
-          ctx.fillStyle = h.alpha ? "#ffd65c" : "#ff5a86";
+          ctx.fillStyle = h.boss ? "#ffd65c" : h.alpha ? "#ff9a68" : "#ff5a86";
           ctx.shadowColor = h.alpha ? "#ff8b6a" : "transparent";
-          ctx.shadowBlur = h.alpha ? 16 : 0;
+          ctx.shadowBlur = h.alpha ? 18 : 0;
           ctx.beginPath();
-          ctx.moveTo((h.x + 0.5) * C, (h.y + (h.alpha ? 0.04 : 0.12)) * C);
-          ctx.lineTo((h.x + (h.alpha ? 0.96 : 0.88)) * C, (h.y + 0.88) * C);
-          ctx.lineTo((h.x + (h.alpha ? 0.04 : 0.12)) * C, (h.y + 0.88) * C);
+          ctx.moveTo((h.x + 0.5) * C, (h.y + (h.alpha ? 0.02 : 0.12)) * C);
+          ctx.lineTo((h.x + (h.alpha ? 0.98 : 0.88)) * C, (h.y + 0.9) * C);
+          ctx.lineTo((h.x + (h.alpha ? 0.02 : 0.12)) * C, (h.y + 0.9) * C);
           ctx.closePath();
           ctx.fill();
           ctx.shadowBlur = 0;
+          if (h.boss) {
+            ctx.strokeStyle = "rgba(255,255,255,.82)";
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc((h.x + 0.5) * C, (h.y + 0.54) * C, C * 0.48, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.fillStyle = "#35101b";
+            ctx.font = `900 ${Math.max(9, C * 0.28)}px system-ui`;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(String(h.hp), (h.x + 0.5) * C, (h.y + 0.58) * C);
+          }
         }
         if (state.food) {
           const f = FOODS[state.food.type],
@@ -2116,6 +2888,7 @@
           ctx.fill();
         }
         ctx.globalAlpha = 1;
+        ctx.restore();
       }
       function cellRect(c, C, fill, stroke) {
         ctx.fillStyle = fill;
@@ -2167,6 +2940,7 @@
           p.y += p.vy * dt * 0.08;
         }
         particles = particles.filter((p) => p.life > 0);
+        state.shake = Math.max(0, (state.shake || 0) - dt * 0.04);
         if (bannerTimer > 0) {
           bannerTimer -= dt;
           if (bannerTimer <= 0) ui.banner.classList.remove("show");
@@ -2188,8 +2962,9 @@
         canvas.height = size;
         draw();
       }
-      $("#startBtn").onclick = start;
-      $("#againBtn").onclick = start;
+      $("#startBtn").onclick = () => start(false);
+      $("#resumeBtn").onclick = resumeRun;
+      $("#againBtn").onclick = () => start(true);
       $("#resultHomeBtn").onclick = () => {
         ui.result.classList.remove("show");
         renderHome();
@@ -2200,12 +2975,14 @@
           !confirm("当前航线尚未结算，返回远征站？")
         )
           return;
+        snapshotRun();
         state.mode = "ready";
         ui.overlay.classList.remove("hidden");
         renderHome();
       };
       $("#restartBtn").onclick = () => {
-        if (state.mode === "running" && confirm("重新开始当前航线？")) start();
+        if (state.mode === "running" && confirm("重新开始当前航线？"))
+          start(true);
       };
       $("#pauseBtn").onclick = () => {
         if (
@@ -2216,17 +2993,19 @@
         state.paused = !state.paused;
         $("#pauseBtn").textContent = state.paused ? "▶" : "Ⅱ";
         last = performance.now();
+        if (state.paused) snapshotRun();
       };
       $("#muteBtn").onclick = () => {
         muted = !muted;
         $("#muteBtn").textContent = muted ? "静" : "音";
+        if (!muted) sfx("start");
       };
       $("#exportSaveBtn").onclick = async () => {
         const code = encodeSave();
         try {
           await navigator.clipboard.writeText(code);
         } catch (error) {}
-        prompt("霓虹贪吃蛇存档码（已尝试复制，可在其他设备导入）", code);
+        prompt("霓虹贪吃蛇 V4 存档码（已尝试复制，可在其他设备导入）", code);
       };
       $("#importSaveBtn").onclick = () => {
         const code = prompt("粘贴霓虹贪吃蛇存档码：");
@@ -2283,6 +3062,10 @@
           );
         touch = null;
       });
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) snapshotRun();
+      });
+      window.addEventListener("beforeunload", snapshotRun);
       window.addEventListener("resize", resize);
       state = fresh();
       renderHome();
