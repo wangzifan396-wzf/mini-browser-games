@@ -12,7 +12,8 @@
     "render:vertical": "node scripts/render-vertical.mjs",
     "cover": "python scripts/create-cover.py",
     "verify": "node scripts/verify.mjs",
-    "check:slingstorm": "node scripts/check-slingstorm.mjs"
+    "check:slingstorm": "node scripts/check-slingstorm.mjs",
+    "check:shan-hai": "node scripts/check-shan-hai.mjs"
   },
   "dependencies": {
     "ffprobe-static": "3.1.0",

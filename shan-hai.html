@@ -178,7 +178,7 @@
 
       .run-strip {
         display: grid;
-        grid-template-columns: repeat(5, minmax(120px, 1fr));
+        grid-template-columns: repeat(6, minmax(110px, 1fr));
         gap: 1px;
         margin-top: -1px;
         background: var(--line);
@@ -256,7 +256,10 @@
 
       .map-board {
         display: grid;
-        grid-template-columns: repeat(8, minmax(96px, 1fr));
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        grid-template-columns: repeat(6, minmax(96px, 1fr));
         gap: 10px;
         overflow-x: auto;
         padding: 8px 2px 6px;
@@ -266,6 +269,37 @@
         display: grid;
         gap: 8px;
         align-content: start;
+      }
+
+      .chapter-stack {
+        display: grid;
+        gap: 14px;
+      }
+
+      .chapter-map {
+        min-width: 0;
+        padding: 12px;
+        border: 1px solid rgba(96, 112, 100, 0.5);
+        border-radius: var(--radius);
+        background: rgba(255, 253, 247, 0.58);
+      }
+
+      .chapter-map.current {
+        border-color: var(--jade);
+        box-shadow: inset 0 0 0 3px rgba(47, 124, 104, 0.1);
+      }
+
+      .chapter-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        color: var(--muted);
+        font-size: 0.82rem;
+      }
+
+      .chapter-head strong {
+        color: var(--ink);
+        font-size: 0.96rem;
       }
 
       .map-floor {
@@ -815,6 +849,42 @@
         resize: vertical;
       }
 
+      .dao-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 14px;
+      }
+
+      .dao-upgrade {
+        min-height: 118px;
+        padding: 12px;
+        border: 1px solid rgba(96, 112, 100, 0.5);
+        border-radius: var(--radius);
+        background: #fffdf7;
+      }
+
+      .dao-upgrade strong,
+      .dao-upgrade span,
+      .dao-upgrade em {
+        display: block;
+      }
+
+      .dao-upgrade span {
+        margin-top: 5px;
+        color: var(--muted);
+        font-size: 0.82rem;
+        line-height: 1.4;
+      }
+
+      .dao-upgrade em {
+        margin-top: 8px;
+        color: var(--gold-deep);
+        font-size: 0.78rem;
+        font-style: normal;
+        font-weight: 900;
+      }
+
       .modal-actions {
         justify-content: flex-end;
         margin-top: 18px;
@@ -860,7 +930,7 @@
         }
 
         .relic-tile {
-          grid-column: 1 / -1;
+          grid-column: auto;
         }
 
         .arena,
@@ -877,9 +947,18 @@
         }
 
         .map-board {
-          grid-template-columns: repeat(8, minmax(92px, 1fr));
+          grid-template-columns: repeat(6, minmax(92px, 1fr));
           gap: 7px;
           padding-bottom: 8px;
+        }
+
+        .dao-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .chapter-head {
+          flex-direction: column;
+          gap: 4px;
         }
 
         .map-node {
@@ -929,7 +1008,7 @@
         }
 
         .map-board {
-          grid-template-columns: repeat(8, 88px);
+          grid-template-columns: repeat(6, 88px);
           gap: 7px;
         }
 
@@ -953,7 +1032,7 @@
     <div class="app-shell">
       <header class="topbar">
         <div class="brand">
-          <p class="eyebrow">大型卡牌肉鸽 · 万象远征 2.0</p>
+          <p class="eyebrow">大型卡牌肉鸽 · 三界远征 V3</p>
           <h1>山海伏魔录：万象篇</h1>
         </div>
         <div class="top-actions">
@@ -971,12 +1050,26 @@
             <option value="1">一劫</option>
             <option value="2">二劫</option>
             <option value="3">三劫</option>
+            <option value="4">四劫</option>
+            <option value="5">五劫</option>
           </select>
           <button id="helpButton" class="quiet-button" type="button">
             规则
           </button>
           <button id="saveCodeButton" class="quiet-button" type="button">
             存档码
+          </button>
+          <button id="daoHallButton" class="quiet-button" type="button">
+            道场
+          </button>
+          <button
+            id="soundButton"
+            class="quiet-button"
+            type="button"
+            aria-label="音效开关"
+            aria-pressed="true"
+          >
+            音效
           </button>
           <button id="newRunButton" class="quiet-button" type="button">
             新局
@@ -995,7 +1088,7 @@
         </div>
         <div class="stat-tile">
           <span>层数</span>
-          <strong id="floorStat">0/8</strong>
+          <strong id="floorStat">0/18</strong>
         </div>
         <div class="stat-tile">
           <span>牌组</span>
@@ -1036,8 +1129,13 @@
     <script>
       "use strict";
 
-      const FINAL_FLOOR = 12;
+      const FINAL_FLOOR = 18;
       const HAND_LIMIT = 10;
+      const CHAPTERS = [
+        { name: "岚岭妖径", range: "1-6", boss: "穷奇", desc: "识破山妖意图，建立第一套牌组核心。" },
+        { name: "毒泽九湾", range: "7-12", boss: "相柳", desc: "状态、连击与高压精英开始交织。" },
+        { name: "烛龙天门", range: "13-18", boss: "烛九阴", desc: "终局敌人、完整构筑与三界遗物共同受验。" },
+      ];
 
       const HEROES = {
         sword: {
@@ -1096,6 +1194,73 @@
             "gatherQi",
             "moonlight",
           ],
+        },
+      };
+
+      const HERO_CARD_POOLS = {
+        sword: [
+          "bambooSword",
+          "shadowStep",
+          "flyingSwords",
+          "swordHeart",
+          "demonEdict",
+          "tenThousandSwords",
+          "cloudPiercer",
+          "mountainBreaker",
+        ],
+        talisman: [
+          "fireCharm",
+          "cinnabarDart",
+          "starfall",
+          "soulBell",
+          "thunderSeal",
+          "talismanBurst",
+          "emberCycle",
+          "stargaze",
+        ],
+        shaman: [
+          "vineBind",
+          "waterShield",
+          "moonlight",
+          "goldenArmor",
+          "rejuvenation",
+          "spiritWard",
+          "jadeBreath",
+          "mirrorCounter",
+          "rebirthLotus",
+        ],
+      };
+
+      const DAO_TALENTS = {
+        pulse: {
+          name: "玉脉",
+          desc: "每级初始与最大气血 +2。",
+          max: 5,
+          cost: (level) => 10 + level * 8,
+        },
+        purse: {
+          name: "行囊",
+          desc: "每级新远征初始银钱 +4。",
+          max: 5,
+          cost: (level) => 9 + level * 7,
+        },
+        insight: {
+          name: "观星",
+          desc: "每级略微提高稀有牌出现率。",
+          max: 5,
+          cost: (level) => 12 + level * 9,
+        },
+        forge: {
+          name: "淬符",
+          desc: "每级让一张初始牌以升级形态入山。",
+          max: 4,
+          cost: (level) => 14 + level * 11,
+        },
+        ward: {
+          name: "护山",
+          desc: "每级让每场战斗开局获得 2 点格挡。",
+          max: 5,
+          cost: (level) => 11 + level * 9,
         },
       };
 
@@ -1574,6 +1739,50 @@
             { attack: 19, hits: 1, label: "蛇坠", text: "猛烈攻击" },
           ],
         },
+        {
+          name: "毕方残焰",
+          mark: "毕",
+          hp: [54, 66],
+          note: "独足踏过的地方，连影子也会烧成灰。",
+          pattern: [
+            { strength: 2, label: "衔火", text: "力量上升" },
+            { attack: 7, hits: 3, label: "焰羽", text: "攻击 3 次" },
+            { block: 10, attack: 12, hits: 1, label: "火障", text: "格挡并攻击" },
+          ],
+        },
+        {
+          name: "天狗食月",
+          mark: "狗",
+          hp: [58, 70],
+          note: "它每吞下一线月光，獠牙就长出一寸。",
+          pattern: [
+            { weak: 2, label: "蚀月", text: "施加虚弱" },
+            { attack: 9, hits: 2, label: "追影", text: "攻击 2 次" },
+            { attack: 25, hits: 1, label: "吞月", text: "毁灭攻击" },
+          ],
+        },
+        {
+          name: "玄龟神卫",
+          mark: "龟",
+          hp: [68, 82],
+          note: "龟甲上的每一道裂纹，都是旧日天门的地图。",
+          pattern: [
+            { block: 20, label: "负岳", text: "大量格挡" },
+            { attack: 16, hits: 1, label: "镇门", text: "强力攻击" },
+            { block: 12, strength: 2, label: "玄甲", text: "格挡并提升力量" },
+          ],
+        },
+        {
+          name: "混沌蜃影",
+          mark: "沌",
+          hp: [62, 76],
+          note: "没有五官的影子，却能模仿你每一次迟疑。",
+          pattern: [
+            { weak: 1, vulnerable: 2, label: "无相", text: "施加虚弱和易伤" },
+            { attack: 8, hits: 3, label: "乱象", text: "攻击 3 次" },
+            { block: 14, attack: 14, hits: 1, label: "返照", text: "格挡并攻击" },
+          ],
+        },
       ];
 
       const ELITE_ENEMIES = [
@@ -1640,6 +1849,30 @@
             { weak: 2, vulnerable: 2, label: "定罪", text: "施加虚弱和易伤" },
             { attack: 22, hits: 1, label: "朱批", text: "猛烈攻击" },
             { block: 18, label: "铁卷", text: "大量格挡" },
+          ],
+        },
+        {
+          name: "刑天战意",
+          mark: "刑",
+          hp: [102, 116],
+          note: "失去首级之后，它把战意刻进了盾与斧。",
+          rank: "elite",
+          pattern: [
+            { block: 18, strength: 3, label: "执干戚", text: "格挡并提升力量" },
+            { attack: 13, hits: 2, label: "断天", text: "攻击 2 次" },
+            { attack: 32, hits: 1, label: "不屈斩", text: "毁灭攻击" },
+          ],
+        },
+        {
+          name: "应龙遗骨",
+          mark: "龙",
+          hp: [108, 124],
+          note: "风从空荡的龙骨间穿过，仍在替它发出怒吼。",
+          rank: "elite",
+          pattern: [
+            { vulnerable: 2, block: 14, label: "风骨", text: "格挡并施加易伤" },
+            { attack: 10, hits: 3, label: "翼骨连袭", text: "攻击 3 次" },
+            { strength: 4, label: "龙威", text: "力量大幅上升" },
           ],
         },
       ];
@@ -1712,7 +1945,12 @@
               run() {
                 loseHp(6);
                 const relic = gainRandomRelic();
-                logRun(`泉底寒意入骨，你摸到了${relic.name}。`, "gold");
+                logRun(
+                  relic
+                    ? `泉底寒意入骨，你摸到了${relic.name}。`
+                    : "泉底只剩一枚空铃，但寒意仍钻进了骨头。",
+                  "gold",
+                );
               },
             },
           ],
@@ -1886,6 +2124,8 @@
         ascensionSelect: $("#ascensionSelect"),
         help: $("#helpButton"),
         saveCode: $("#saveCodeButton"),
+        daoHall: $("#daoHallButton"),
+        sound: $("#soundButton"),
         newRun: $("#newRunButton"),
         modal: $("#modal"),
         modalKicker: $("#modalKicker"),
@@ -1896,24 +2136,66 @@
 
       let uid = 1;
       let state;
-      const META_KEY = "shan_hai_v2_meta";
+      let audioContext = null;
+      const META_KEY = "shan_hai_v3_meta";
+      const LEGACY_META_KEY = "shan_hai_v2_meta";
+      const RUN_KEY = "shan_hai_v3_run";
+      const SOUND_KEY = "shan_hai_sound_v1";
+      let soundEnabled = loadSoundPreference();
       let meta = loadMeta();
+
+      function baseMeta() {
+        return {
+          v: 3,
+          dao: 0,
+          totalDao: 0,
+          wins: 0,
+          bestAscension: 0,
+          bestScore: 0,
+          talents: { pulse: 0, purse: 0, insight: 0, forge: 0, ward: 0 },
+          heroWins: { sword: 0, talisman: 0, shaman: 0 },
+        };
+      }
+
+      function cleanInteger(value, min, max) {
+        const number = Number(value);
+        if (!Number.isFinite(number)) return min;
+        return Math.max(min, Math.min(max, Math.floor(number)));
+      }
+
+      function normalizeMeta(candidate) {
+        const base = baseMeta();
+        const source = candidate && typeof candidate === "object" ? candidate : {};
+        base.dao = cleanInteger(source.dao, 0, 9999999);
+        base.totalDao = cleanInteger(source.totalDao ?? source.dao, base.dao, 99999999);
+        base.wins = cleanInteger(source.wins, 0, 9999999);
+        base.bestAscension = cleanInteger(source.bestAscension, 0, 5);
+        base.bestScore = cleanInteger(source.bestScore, 0, 999999999);
+        for (const [key, talent] of Object.entries(DAO_TALENTS)) {
+          base.talents[key] = cleanInteger(source.talents?.[key], 0, talent.max);
+        }
+        for (const key of Object.keys(HEROES)) {
+          base.heroWins[key] = cleanInteger(source.heroWins?.[key], 0, base.wins);
+        }
+        return base;
+      }
 
       function loadMeta() {
         try {
-          return {
-            dao: 0,
-            wins: 0,
-            bestAscension: 0,
-            ...JSON.parse(localStorage.getItem(META_KEY) || "{}"),
-          };
+          const current = JSON.parse(localStorage.getItem(META_KEY) || "null");
+          if (current) return normalizeMeta(current);
+          const legacy = JSON.parse(localStorage.getItem(LEGACY_META_KEY) || "null");
+          return normalizeMeta(legacy);
         } catch {
-          return { dao: 0, wins: 0, bestAscension: 0 };
+          return baseMeta();
         }
       }
 
       function saveMeta() {
-        localStorage.setItem(META_KEY, JSON.stringify(meta));
+        try {
+          meta = normalizeMeta(meta);
+          localStorage.setItem(META_KEY, JSON.stringify(meta));
+        } catch (error) {}
       }
 
       function metaHash(text) {
@@ -1928,21 +2210,21 @@
       function encodeMetaSave() {
         const json = JSON.stringify({
           game: "shan-hai",
-          version: 2,
-          data: meta,
+          version: 3,
+          data: { meta, run: currentRunCheckpoint() },
         });
         const bytes = new TextEncoder().encode(json);
         let binary = "";
         bytes.forEach((byte) => (binary += String.fromCharCode(byte)));
         const payload = btoa(binary);
-        return `SHM2.${payload}.${metaHash(payload)}`;
+        return `SHM3.${payload}.${metaHash(payload)}`;
       }
 
       function decodeMetaSave(code) {
         const [prefix, payload, checksum] = String(code || "")
           .trim()
           .split(".");
-        if (prefix !== "SHM2" || !payload || metaHash(payload) !== checksum) {
+        if (!['SHM2', 'SHM3'].includes(prefix) || !payload || metaHash(payload) !== checksum) {
           throw new Error("存档码校验失败");
         }
         const parsed = JSON.parse(
@@ -1953,22 +2235,238 @@
         if (parsed.game !== "shan-hai" || !parsed.data) {
           throw new Error("不是山海伏魔录存档");
         }
-        meta = { dao: 0, wins: 0, bestAscension: 0, ...parsed.data };
+        const importedMeta = parsed.version === 3 ? parsed.data.meta : parsed.data;
+        meta = normalizeMeta(importedMeta);
+        if (parsed.version === 3 && parsed.data.run) {
+          const importedRun = normalizeRun(parsed.data.run);
+          if (importedRun) {
+            try {
+              localStorage.setItem(RUN_KEY, JSON.stringify(importedRun));
+            } catch (error) {}
+            state = importedRun;
+            syncUidFromRun();
+            elements.heroSelect.value = state.heroKey;
+            elements.ascensionSelect.value = String(state.ascension);
+          }
+        }
         saveMeta();
+        updateAscensionOptions();
         render();
+      }
+
+      function normalizeRun(candidate) {
+        if (!candidate || typeof candidate !== "object") return null;
+        if (!HEROES[candidate.heroKey] || !Array.isArray(candidate.map) || candidate.map.length !== FINAL_FLOOR) return null;
+        if (!candidate.player || !Array.isArray(candidate.player.deck) || !Array.isArray(candidate.player.relics)) return null;
+        const restored = JSON.parse(JSON.stringify(candidate));
+        restored.screen = "map";
+        restored.floorIndex = cleanInteger(restored.floorIndex, 0, FINAL_FLOOR - 1);
+        restored.ascension = cleanInteger(restored.ascension, 0, 5);
+        restored.player.maxHp = cleanInteger(restored.player.maxHp, 30, 240);
+        restored.player.hp = cleanInteger(restored.player.hp, 1, restored.player.maxHp);
+        restored.player.gold = cleanInteger(restored.player.gold, 0, 999999);
+        restored.player.deck = restored.player.deck
+          .filter((card) => card && CARD_LIBRARY[card.key])
+          .slice(0, 80)
+          .map((card, index) => ({
+            deckId: cleanInteger(card.deckId, index + 2, 9999999),
+            key: card.key,
+            upgraded: card.upgraded === true,
+          }));
+        if (restored.player.deck.length < 5) return null;
+        restored.player.relics = [...new Set(restored.player.relics)]
+          .filter((key) => RELICS[key])
+          .slice(0, Object.keys(RELICS).length);
+        const sourceMap = restored.map;
+        restored.map = createMap().map((floor) =>
+          floor.map((node) => ({
+            ...node,
+            done: sourceMap.flat().some((entry) => entry?.id === node.id && entry.done === true),
+          })),
+        );
+        restored.nextBattleVulnerable = cleanInteger(restored.nextBattleVulnerable, 0, 12);
+        restored.revivalUsed = restored.revivalUsed === true;
+        restored.metaAwarded = false;
+        restored.currentNode = null;
+        restored.combat = null;
+        restored.reward = null;
+        restored.event = null;
+        restored.runLog = Array.isArray(restored.runLog)
+          ? restored.runLog.slice(0, 18).map((entry) => ({
+              text: String(entry?.text || "").slice(0, 240),
+              type: ["info", "good", "gold", "hit"].includes(entry?.type) ? entry.type : "info",
+            }))
+          : [];
+        return restored;
+      }
+
+      function currentRunCheckpoint() {
+        if (state?.screen === "map" && state.floorIndex < FINAL_FLOOR) {
+          return normalizeRun(state);
+        }
+        try {
+          return normalizeRun(JSON.parse(localStorage.getItem(RUN_KEY) || "null"));
+        } catch (error) {
+          return null;
+        }
+      }
+
+      function saveRunCheckpoint() {
+        const checkpoint = currentRunCheckpoint();
+        if (!checkpoint) return;
+        try {
+          localStorage.setItem(RUN_KEY, JSON.stringify(checkpoint));
+        } catch (error) {}
+      }
+
+      function loadRunCheckpoint() {
+        try {
+          return normalizeRun(JSON.parse(localStorage.getItem(RUN_KEY) || "null"));
+        } catch (error) {
+          return null;
+        }
+      }
+
+      function clearRunCheckpoint() {
+        try {
+          localStorage.removeItem(RUN_KEY);
+        } catch (error) {}
+      }
+
+      function syncUidFromRun() {
+        const ids = state?.player?.deck?.map((card) => Number(card.deckId) || 0) || [];
+        uid = Math.max(1, ...ids) + 1;
       }
 
       function showSaveCenter() {
         showModal(
           "跨设备存档",
           "道行存档码",
-          `<p>导出后复制整段存档码；在另一台设备粘贴并导入，即可恢复道行、胜场与最高劫数。</p>
+          `<p>导出后复制整段存档码；在另一台设备粘贴并导入，即可恢复道行、道场、纪录与最近一次安全远征断点。</p>
            <textarea id="saveCodeField" class="save-code-field" placeholder="点击导出生成，或粘贴存档码"></textarea>
            <div class="modal-actions">
              <button class="quiet-button" data-action="export-meta-save" type="button">生成并复制</button>
              <button class="primary-button" data-action="import-meta-save" type="button">导入存档码</button>
            </div>`,
         );
+      }
+
+      function updateAscensionOptions() {
+        const unlocked = Math.min(5, meta.bestAscension + 1);
+        [...elements.ascensionSelect.options].forEach((option) => {
+          option.disabled = Number(option.value) > unlocked;
+        });
+        if (Number(elements.ascensionSelect.value) > unlocked) {
+          elements.ascensionSelect.value = String(unlocked);
+        }
+      }
+
+      function showDaoHall() {
+        const talentCards = Object.entries(DAO_TALENTS)
+          .map(([key, talent]) => {
+            const level = meta.talents[key] || 0;
+            const maxed = level >= talent.max;
+            const cost = talent.cost(level);
+            return `
+              <button class="dao-upgrade" data-action="buy-dao-talent" data-talent="${key}" type="button" ${maxed || meta.dao < cost ? "disabled" : ""}>
+                <strong>${talent.name} Lv.${level}/${talent.max}</strong>
+                <span>${talent.desc}</span>
+                <em>${maxed ? "已圆满" : `消耗 ${cost} 道行`}</em>
+              </button>
+            `;
+          })
+          .join("");
+        const heroRecord = Object.entries(HEROES)
+          .map(([key, hero]) => `${hero.mark} ${hero.name} ${meta.heroWins[key] || 0} 胜`)
+          .join(" · ");
+        showModal(
+          "长期成长",
+          `万象道场 · 可用道行 ${meta.dao}`,
+          `<p>道行用于建立轻量永久优势，不替代牌组构筑。累计获得 ${meta.totalDao}，最高评分 ${meta.bestScore}，最高已通 ${meta.bestAscension} 劫。</p>
+           <p>${heroRecord}</p>
+           <div class="dao-grid">${talentCards}</div>`,
+        );
+      }
+
+      function buyDaoTalent(key) {
+        const talent = DAO_TALENTS[key];
+        if (!talent) return;
+        const level = meta.talents[key] || 0;
+        const cost = talent.cost(level);
+        if (level >= talent.max || meta.dao < cost) return;
+        meta.dao -= cost;
+        meta.talents[key] = level + 1;
+        saveMeta();
+        playSound("buy");
+        renderStats();
+        showDaoHall();
+      }
+
+      function loadSoundPreference() {
+        try {
+          return localStorage.getItem(SOUND_KEY) !== "0";
+        } catch (error) {
+          return true;
+        }
+      }
+
+      function ensureAudio() {
+        if (!soundEnabled) return null;
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return null;
+        if (!audioContext) audioContext = new AudioContextClass();
+        if (audioContext.state === "suspended") {
+          const resume = audioContext.resume();
+          if (resume?.catch) resume.catch(() => {});
+        }
+        return audioContext;
+      }
+
+      function playTone(frequency, offset, duration, type, gain, endFrequency = frequency) {
+        const context = ensureAudio();
+        if (!context) return;
+        const start = context.currentTime + offset;
+        const oscillator = context.createOscillator();
+        const envelope = context.createGain();
+        oscillator.type = type;
+        oscillator.frequency.setValueAtTime(Math.max(30, frequency), start);
+        oscillator.frequency.exponentialRampToValueAtTime(Math.max(30, endFrequency), start + duration);
+        envelope.gain.setValueAtTime(0.0001, start);
+        envelope.gain.exponentialRampToValueAtTime(gain, start + Math.min(0.018, duration * 0.25));
+        envelope.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+        oscillator.connect(envelope).connect(context.destination);
+        oscillator.start(start);
+        oscillator.stop(start + duration + 0.02);
+      }
+
+      function playSound(name) {
+        if (!soundEnabled) return;
+        const sounds = {
+          card: [[310, 0, 0.08, "triangle", 0.025, 440]],
+          hit: [[170, 0, 0.09, "square", 0.02, 95]],
+          block: [[250, 0, 0.08, "triangle", 0.018, 190]],
+          reward: [[430, 0, 0.1, "sine", 0.025, 620], [620, 0.07, 0.12, "sine", 0.022, 820]],
+          boss: [[150, 0, 0.2, "sawtooth", 0.032, 70], [360, 0.08, 0.22, "triangle", 0.026, 620]],
+          win: [[392, 0, 0.13, "triangle", 0.028, 440], [523, 0.11, 0.15, "triangle", 0.032, 590], [659, 0.23, 0.22, "triangle", 0.036, 784]],
+          lose: [[300, 0, 0.15, "triangle", 0.025, 220], [190, 0.12, 0.2, "sine", 0.022, 120]],
+          buy: [[520, 0, 0.08, "sine", 0.024, 680], [720, 0.07, 0.11, "sine", 0.022, 860]],
+          toggle: [[620, 0, 0.1, "sine", 0.022, 820]],
+        };
+        for (const tone of sounds[name] || []) playTone(...tone);
+      }
+
+      function renderSoundButton() {
+        elements.sound.textContent = soundEnabled ? "音效 开" : "音效 关";
+        elements.sound.setAttribute("aria-pressed", String(soundEnabled));
+      }
+
+      function toggleSound() {
+        soundEnabled = !soundEnabled;
+        try {
+          localStorage.setItem(SOUND_KEY, soundEnabled ? "1" : "0");
+        } catch (error) {}
+        renderSoundButton();
+        if (soundEnabled) playSound("toggle");
       }
 
       function nextId() {
@@ -2059,7 +2557,16 @@
         const heroKey = elements.heroSelect.value;
         const hero = HEROES[heroKey];
         const ascension = Number(elements.ascensionSelect.value) || 0;
+        const pulse = meta.talents.pulse || 0;
+        const forge = meta.talents.forge || 0;
+        const deck = hero.starters.map((key) => createDeckCard(key));
+        deck
+          .filter((card) => !card.upgraded)
+          .slice(0, forge)
+          .forEach((card) => (card.upgraded = true));
+        const maxHp = hero.maxHp - ascension * 2 + pulse * 2;
         state = {
+          v: 3,
           screen: "map",
           floorIndex: 0,
           currentNode: null,
@@ -2068,10 +2575,10 @@
           nextBattleVulnerable: 0,
           revivalUsed: false,
           player: {
-            maxHp: hero.maxHp - ascension * 2,
-            hp: hero.maxHp - ascension * 2,
-            gold: hero.gold,
-            deck: hero.starters.map((key) => createDeckCard(key)),
+            maxHp,
+            hp: maxHp,
+            gold: hero.gold + (meta.talents.purse || 0) * 4,
+            deck,
             relics: [],
           },
           map: createMap(),
@@ -2085,7 +2592,15 @@
           `${hero.name}踏入万象山，${ascension ? `第 ${ascension} 重劫数已经降临。` : "第一条山路已经亮起。"}`,
           "info",
         );
+        saveRunCheckpoint();
         render();
+      }
+
+      function requestNewRun() {
+        const active = state && !["victory", "defeat"].includes(state.screen) && state.floorIndex > 0;
+        if (active && !confirm("当前安全断点会被新远征覆盖，仍要开新局吗？")) return;
+        clearRunCheckpoint();
+        newRun();
       }
 
       function createMap() {
@@ -2102,6 +2617,12 @@
           ["elite", "fight", "event"],
           ["rest", "elite", "fight"],
           ["boss"],
+          ["fight", "event", "rest"],
+          ["elite", "fight", "event"],
+          ["rest", "fight", "event"],
+          ["fight", "elite", "rest"],
+          ["event", "elite", "fight"],
+          ["boss"],
         ];
 
         return floors.map((types, floor) =>
@@ -2115,13 +2636,8 @@
         );
       }
 
-      function nodeMeta(type) {
-        const bossName =
-          state && state.floorIndex < 6
-            ? "穷奇"
-            : state && state.ascension >= 2
-              ? "烛九阴"
-              : "相柳";
+      function nodeMeta(type, floor = state?.floorIndex || 0) {
+        const chapter = CHAPTERS[Math.min(2, Math.floor(floor / 6))];
         return {
           fight: { icon: "妖", title: "妖物", desc: "普通战斗" },
           elite: { icon: "煞", title: "精英", desc: "更危险，必掉遗物" },
@@ -2129,8 +2645,8 @@
           rest: { icon: "炉", title: "歇脚", desc: "休息或升级" },
           boss: {
             icon: "凶",
-            title: bossName,
-            desc: state && state.floorIndex < 6 ? "章节首领" : "最终首领",
+            title: chapter.boss,
+            desc: floor < 12 ? "章节首领" : "最终首领",
           },
         }[type];
       }
@@ -2157,6 +2673,7 @@
       }
 
       function renderMap() {
+        const currentChapter = Math.min(2, Math.floor(state.floorIndex / 6));
         elements.game.innerHTML = `
           <section class="screen-layout">
             <div class="game-card">
@@ -2168,17 +2685,31 @@
                 <span class="tag">${HEROES[state.heroKey].name} · ${state.ascension ? `${state.ascension} 劫` : "凡途"}</span>
               </div>
               <p class="screen-copy">每个节点会推进一层。战斗胜利后可以选牌；精英更难但会掉落遗物；歇脚处可以回血或升级一张牌。</p>
-              <div class="map-board">
-                ${state.map
-                  .map(
-                    (floor, floorIndex) => `
-                    <div class="map-column">
-                      <div class="map-floor">${floorIndex + 1}</div>
-                      ${floor.map((node) => mapNodeHtml(node)).join("")}
+              <div class="chapter-stack">
+                ${CHAPTERS.map((chapter, chapterIndex) => `
+                  <section class="chapter-map ${chapterIndex === currentChapter ? "current" : ""}">
+                    <div class="chapter-head">
+                      <strong>第 ${chapterIndex + 1} 章 · ${chapter.name}</strong>
+                      <span>${chapter.range} · 首领 ${chapter.boss} · ${chapter.desc}</span>
                     </div>
-                  `,
-                  )
-                  .join("")}
+                    <div class="map-board">
+                      ${state.map
+                        .slice(chapterIndex * 6, chapterIndex * 6 + 6)
+                        .map(
+                          (floor, offset) => {
+                            const floorIndex = chapterIndex * 6 + offset;
+                            return `
+                              <div class="map-column">
+                                <div class="map-floor">${floorIndex + 1}</div>
+                                ${floor.map((node) => mapNodeHtml(node)).join("")}
+                              </div>
+                            `;
+                          },
+                        )
+                        .join("")}
+                    </div>
+                  </section>
+                `).join("")}
               </div>
             </div>
             ${sidePanelHtml()}
@@ -2187,7 +2718,7 @@
       }
 
       function mapNodeHtml(node) {
-        const meta = nodeMeta(node.type);
+        const meta = nodeMeta(node.type, node.floor);
         const available = node.floor === state.floorIndex;
         const locked = node.floor > state.floorIndex;
         const classes = [
@@ -2338,6 +2869,11 @@
           logCombat("玄锋剑意先行，力量 +1。", "good");
         }
         if (hasRelic("mountainScript")) state.combat.maxEnergy += 1;
+        const ward = meta.talents.ward || 0;
+        if (ward) {
+          state.combat.block += ward * 2;
+          logCombat(`护山道印展开，格挡 +${ward * 2}。`, "gold");
+        }
         if (state.nextBattleVulnerable > 0) {
           state.combat.vulnerable += state.nextBattleVulnerable;
           state.nextBattleVulnerable = 0;
@@ -2349,14 +2885,23 @@
       }
 
       function createEnemy(type) {
+        const chapter = Math.min(2, Math.floor(state.floorIndex / 6));
+        const regularPools = [
+          REGULAR_ENEMIES.slice(0, 5),
+          REGULAR_ENEMIES.slice(3, 9),
+          REGULAR_ENEMIES.slice(7),
+        ];
+        const elitePools = [
+          ELITE_ENEMIES.slice(0, 2),
+          ELITE_ENEMIES.slice(1, 5),
+          ELITE_ENEMIES.slice(3),
+        ];
         const template =
           type === "boss"
-            ? BOSS_ENEMIES[
-                state.floorIndex < 6 ? 0 : state.ascension >= 2 ? 2 : 1
-              ]
+            ? BOSS_ENEMIES[chapter]
             : type === "elite"
-              ? pick(ELITE_ENEMIES)
-              : pick(REGULAR_ENEMIES);
+              ? pick(elitePools[chapter])
+              : pick(regularPools[chapter]);
         const hpScale =
           1 +
           state.ascension * 0.12 +
@@ -2703,12 +3248,18 @@
         if (def.type === "attack")
           combat.attacksPlayed = (combat.attacksPlayed || 0) + 1;
         applyCardEffect(card);
+        playSound("card");
         combat.hand.splice(index, 1);
 
         if (def.type === "power" || def.exhaust) {
           combat.exhaustPile.push(card);
         } else {
           combat.discardPile.push(card);
+        }
+
+        if (state.player.hp <= 0) {
+          defeatRun();
+          return;
         }
 
         if (
@@ -2912,9 +3463,10 @@
       }
 
       function loseHp(amount) {
+        const minimum = state.combat ? 0 : 1;
         state.player.hp = clamp(
           state.player.hp - amount,
-          0,
+          minimum,
           state.player.maxHp,
         );
       }
@@ -3052,6 +3604,7 @@
         combat.block -= blocked;
         const taken = damage - blocked;
         state.player.hp = clamp(state.player.hp - taken, 0, state.player.maxHp);
+        playSound(taken > 0 ? "hit" : "block");
         logCombat(
           `${enemy.name}造成 ${taken} 点伤害${blocked ? `，你格挡 ${blocked}` : ""}。`,
           "hit",
@@ -3064,6 +3617,7 @@
 
       function winCombat() {
         const nodeType = state.currentNode.type;
+        playSound(nodeType === "boss" ? "boss" : "reward");
         let gold =
           nodeType === "elite"
             ? randomInt(24, 34)
@@ -3098,6 +3652,9 @@
         }
 
         if (nodeType === "boss" && state.floorIndex >= FINAL_FLOOR - 1) {
+          state.currentNode.done = true;
+          state.currentNode = null;
+          state.floorIndex = FINAL_FLOOR;
           state.screen = "victory";
           state.combat = null;
           render();
@@ -3133,12 +3690,19 @@
 
       function randomRewardCardKey() {
         const roll = Math.random();
+        const insight = meta.talents?.insight || 0;
         const rarity =
-          roll < 0.62 ? "common" : roll < 0.9 ? "uncommon" : "rare";
+          roll < 0.62 - insight * 0.012
+            ? "common"
+            : roll < 0.9 - insight * 0.006
+              ? "uncommon"
+              : "rare";
         const pool = REWARD_CARD_KEYS.filter(
           (key) => CARD_LIBRARY[key].rarity === rarity,
         );
-        return pick(pool);
+        const affinity = new Set(HERO_CARD_POOLS[state.heroKey] || []);
+        const heroPool = pool.filter((key) => affinity.has(key));
+        return heroPool.length && Math.random() < 0.7 ? pick(heroPool) : pick(pool);
       }
 
       function sampleRewardCards(count) {
@@ -3318,6 +3882,7 @@
           state.screen = "victory";
         } else {
           state.screen = "map";
+          saveRunCheckpoint();
         }
         render();
       }
@@ -3334,13 +3899,20 @@
             Math.floor(score / 45) + state.floorIndex + state.ascension * 3,
           );
           meta.dao += daoGain;
+          meta.totalDao += daoGain;
+          meta.bestScore = Math.max(meta.bestScore, score);
           if (victory) {
             meta.wins += 1;
             meta.bestAscension = Math.max(meta.bestAscension, state.ascension);
+            meta.heroWins[state.heroKey] = (meta.heroWins[state.heroKey] || 0) + 1;
           }
           saveMeta();
+          clearRunCheckpoint();
           state.metaAwarded = true;
           logRun(`本次远征沉淀 ${daoGain} 点道行。`, "gold");
+          playSound(victory ? "win" : "lose");
+          updateAscensionOptions();
+          renderStats();
         }
         const title = victory ? "万象山清" : "符火已灭";
         const copy = victory
@@ -3377,9 +3949,9 @@
               <li>敌人的下一步意图会显示在右侧，先看意图再决定攻击或防守。</li>
               <li>战胜敌人后获得银钱并三选一加牌；精英和首领会掉落遗物。</li>
               <li>歇脚处可以回复 30% 最大气血，或升级一张牌。</li>
-              <li>第 6 层与第 12 层会遭遇章节首领，击败最终首领即为通关。</li>
-              <li>三名行者拥有不同初始牌组和被动；劫数会提高敌方气血与伤害。</li>
-              <li>每局结束会沉淀道行，并记录胜场与最高劫数。</li>
+              <li>第 6、12、18 层会依次遭遇穷奇、相柳与烛九阴，击败三界最终首领即为通关。</li>
+              <li>三名行者拥有不同初始牌组、被动与倾向牌池；劫数会提高敌方气血与伤害。</li>
+              <li>安全节点会自动保存远征断点；每局结束沉淀道行，可在道场投入五系长期修行。</li>
             </ul>
           `,
         );
@@ -3414,7 +3986,9 @@
         if (action === "rest-heal") restHeal();
         if (action === "upgrade-card")
           upgradeCard(Number(button.dataset.deckId));
-        if (action === "new-run") newRun();
+        if (action === "new-run") requestNewRun();
+        if (action === "buy-dao-talent")
+          buyDaoTalent(button.dataset.talent);
         if (action === "export-meta-save") {
           const field = $("#saveCodeField");
           const code = encodeMetaSave();
@@ -3425,7 +3999,7 @@
           const field = $("#saveCodeField");
           try {
             decodeMetaSave(field?.value || "");
-            alert("存档导入成功，道行与远征纪录已恢复。");
+            alert("存档导入成功，道场、纪录与安全远征断点已恢复。");
             hideModal();
           } catch (error) {
             alert(`导入失败：${error.message}`);
@@ -3435,10 +4009,25 @@
 
       elements.help.addEventListener("click", showHelp);
       elements.saveCode.addEventListener("click", showSaveCenter);
-      elements.newRun.addEventListener("click", newRun);
+      elements.daoHall.addEventListener("click", showDaoHall);
+      elements.sound.addEventListener("click", toggleSound);
+      elements.newRun.addEventListener("click", requestNewRun);
       elements.modalClose.addEventListener("click", hideModal);
 
-      newRun();
+      updateAscensionOptions();
+      renderSoundButton();
+      saveMeta();
+      const resumedRun = loadRunCheckpoint();
+      if (resumedRun) {
+        state = resumedRun;
+        syncUidFromRun();
+        elements.heroSelect.value = state.heroKey;
+        elements.ascensionSelect.value = String(state.ascension);
+        logRun(`已恢复第 ${state.floorIndex + 1} 层前的安全断点。`, "gold");
+        render();
+      } else {
+        newRun();
+      }
     </script>
   </body>
 </html>
