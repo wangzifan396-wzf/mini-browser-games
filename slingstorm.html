@@ -103,6 +103,13 @@
     letter-spacing: 0;
   }
 
+  h1 b {
+    color: var(--gold);
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    vertical-align: middle;
+  }
+
   .subline {
     margin-top: 7px;
     color: var(--muted);
@@ -125,6 +132,12 @@
     place-items: center;
     font-size: 18px;
     font-weight: 900;
+  }
+
+  .home-btn {
+    width: auto;
+    padding: 0 12px;
+    font-size: 13px;
   }
 
   .canvas-wrap {
@@ -186,6 +199,207 @@
     padding: 20px;
   }
 
+  .setup-dialog {
+    width: min(760px, 96%);
+    max-height: 94%;
+    overflow: auto;
+  }
+
+  .setup-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .progress-pill {
+    flex: 0 0 auto;
+    padding: 7px 10px;
+    border: 1px solid rgba(245, 200, 87, 0.24);
+    border-radius: 999px;
+    background: rgba(245, 200, 87, 0.08);
+    color: var(--gold);
+    font-size: 11px;
+    font-weight: 800;
+  }
+
+  .chapter-strip {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 7px;
+    margin: 13px 0 8px;
+  }
+
+  .chapter-chip {
+    padding: 8px;
+    border: 1px solid rgba(230, 242, 221, 0.12);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.035);
+    color: var(--muted);
+    font-size: 10px;
+  }
+
+  .chapter-chip b {
+    display: block;
+    margin-bottom: 3px;
+    color: var(--text);
+    font-size: 12px;
+  }
+
+  .campaign-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .campaign-node {
+    min-height: 54px;
+    padding: 6px 4px;
+    text-align: center;
+  }
+
+  .campaign-node b,
+  .campaign-node small,
+  .campaign-node span {
+    display: block;
+  }
+
+  .campaign-node b { font-size: 13px; }
+  .campaign-node small {
+    margin-top: 2px;
+    color: var(--muted);
+    font-size: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .campaign-node span {
+    min-height: 11px;
+    margin-top: 3px;
+    color: var(--gold);
+    font-size: 8px;
+  }
+  .campaign-node.selected {
+    border-color: rgba(72, 200, 217, 0.72);
+    background: rgba(72, 200, 217, 0.09);
+  }
+  .campaign-node.locked { opacity: 0.32; }
+
+  .level-detail {
+    margin-top: 8px;
+    padding: 9px;
+    border: 1px solid rgba(72, 200, 217, 0.18);
+    border-radius: 8px;
+    background: rgba(5, 12, 11, 0.46);
+  }
+
+  .level-detail b { font-size: 12px; }
+  .level-detail p {
+    margin: 4px 0 7px;
+    font-size: 10px;
+    line-height: 1.45;
+  }
+
+  .challenge-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  .challenge-chip {
+    padding: 4px 6px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--muted);
+    font-size: 9px;
+  }
+
+  .challenge-chip.done {
+    color: var(--gold);
+    background: rgba(245, 200, 87, 0.09);
+  }
+
+  .workshop-title {
+    margin: 11px 0 6px;
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+  }
+
+  .workshop-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .workshop-btn {
+    min-height: 70px;
+    padding: 7px;
+    text-align: left;
+  }
+
+  .workshop-btn b,
+  .workshop-btn span,
+  .workshop-btn em {
+    display: block;
+  }
+  .workshop-btn b { font-size: 10px; }
+  .workshop-btn span {
+    margin-top: 3px;
+    color: var(--muted);
+    font-size: 8px;
+    line-height: 1.35;
+  }
+  .workshop-btn em {
+    margin-top: 5px;
+    color: var(--gold);
+    font-size: 8px;
+    font-style: normal;
+  }
+
+  .save-tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .save-tools button {
+    min-height: 36px;
+    padding: 0 10px;
+    font-size: 10px;
+  }
+
+  .setup-actions {
+    position: sticky;
+    bottom: -1px;
+    z-index: 3;
+    justify-content: flex-end;
+    margin-top: 8px;
+    padding: 9px 0 2px;
+    background: rgba(18, 25, 23, 0.97);
+    box-shadow: 0 -10px 18px rgba(5, 8, 7, 0.72);
+  }
+
+  .mission-card {
+    padding: 8px;
+    border: 1px solid rgba(72, 200, 217, 0.18);
+    border-radius: 8px;
+    background: rgba(72, 200, 217, 0.05);
+  }
+
+  .mission-card b,
+  .mission-card span {
+    display: block;
+  }
+  .mission-card b { font-size: 11px; }
+  .mission-card span {
+    margin-top: 4px;
+    color: var(--muted);
+    font-size: 9px;
+    line-height: 1.4;
+  }
+
   .dialog h2 {
     margin: 0 0 8px;
     font-size: 26px;
@@ -220,7 +434,7 @@
 
   .rail {
     display: grid;
-    grid-template-rows: auto auto auto minmax(0, 1fr);
+    grid-template-rows: auto auto auto auto minmax(0, 1fr);
     gap: 12px;
     padding: 12px;
     overflow: hidden;
@@ -346,6 +560,8 @@
     background: rgba(72, 200, 217, 0.09);
   }
 
+  .level-btn.locked { opacity: 0.35; }
+
   .level-index {
     color: var(--gold);
     font-weight: 900;
@@ -403,6 +619,16 @@
 
     .top-actions { justify-content: flex-start; }
 
+    .setup-head { display: block; }
+    .progress-pill {
+      display: inline-block;
+      margin-top: 7px;
+    }
+    .chapter-strip { grid-template-columns: 1fr; }
+    .campaign-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .workshop-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .setup-actions .primary-btn { width: 100%; }
+
     .stat-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
@@ -414,10 +640,12 @@
   <section class="stage" aria-label="弹弓风暴游戏区">
     <header class="topbar">
       <div>
-        <h1>弹弓风暴</h1>
+        <h1>弹弓风暴 <b>风眼 V4</b></h1>
         <div class="subline"><span id="levelName">风口试射</span> · <span id="statusText">准备</span></div>
       </div>
       <div class="top-actions">
+        <button class="icon-btn home-btn" id="homeBtn" title="返回远征站">远征站</button>
+        <button class="icon-btn" id="soundBtn" title="音效开关" aria-label="音效开关" aria-pressed="true">🔊</button>
         <button class="icon-btn" id="pauseBtn" title="暂停/继续" aria-label="暂停/继续">Ⅱ</button>
         <button class="icon-btn" id="restartBtn" title="重新开始" aria-label="重新开始">↻</button>
       </div>
@@ -427,11 +655,25 @@
       <canvas id="gameCanvas" aria-label="弹弓物理谜题画布"></canvas>
       <div class="toast" id="toast"></div>
       <div class="modal show" id="startModal">
-        <div class="dialog">
-          <h2>弹弓风暴</h2>
-          <p>原创弹弓物理解谜：用元素弹丸击碎晶核塔，借风向和技能把结构连锁推倒。</p>
-          <div class="dialog-actions">
-            <button class="primary-btn" id="startBtn">开始挑战</button>
+        <div class="dialog setup-dialog">
+          <div class="setup-head">
+            <div>
+              <h2>风眼远征</h2>
+              <p>穿越三片风暴带，用弹丸技能、风向与结构连锁完成 18 份物理契约。</p>
+            </div>
+            <div class="progress-pill" id="progressPill">★ 0/54 · 光核 0</div>
+          </div>
+          <div class="chapter-strip" id="chapterStrip"></div>
+          <div class="campaign-grid" id="campaignGrid"></div>
+          <div class="level-detail" id="levelDetail"></div>
+          <div class="workshop-title">风暴工坊</div>
+          <div class="workshop-grid" id="workshopGrid"></div>
+          <div class="save-tools">
+            <button id="exportSaveBtn">导出存档</button>
+            <button id="importSaveBtn">导入存档</button>
+          </div>
+          <div class="dialog-actions setup-actions">
+            <button class="primary-btn" id="startBtn">进入风场</button>
           </div>
         </div>
       </div>
@@ -467,6 +709,13 @@
         <div class="stat-value stars" id="starValue">---</div>
       </div>
     </div>
+
+    <section>
+      <div class="mission-card">
+        <b id="missionTitle">节点挑战</b>
+        <span id="missionText">完成关卡 · 标准弹数 · 独立挑战</span>
+      </div>
+    </section>
 
     <section>
       <p class="panel-title">弹丸序列</p>
@@ -514,6 +763,8 @@
   const windBtn = document.getElementById("windBtn");
   const pauseBtn = document.getElementById("pauseBtn");
   const restartBtn = document.getElementById("restartBtn");
+  const homeBtn = document.getElementById("homeBtn");
+  const soundBtn = document.getElementById("soundBtn");
   const startModal = document.getElementById("startModal");
   const startBtn = document.getElementById("startBtn");
   const resultModal = document.getElementById("resultModal");
@@ -522,6 +773,13 @@
   const nextBtn = document.getElementById("nextBtn");
   const retryBtn = document.getElementById("retryBtn");
   const toast = document.getElementById("toast");
+  const progressPill = document.getElementById("progressPill");
+  const chapterStrip = document.getElementById("chapterStrip");
+  const campaignGrid = document.getElementById("campaignGrid");
+  const levelDetail = document.getElementById("levelDetail");
+  const workshopGrid = document.getElementById("workshopGrid");
+  const missionTitle = document.getElementById("missionTitle");
+  const missionText = document.getElementById("missionText");
 
   if (!window.Matter) {
     statusTextEl.textContent = "物理引擎未加载";
@@ -547,6 +805,63 @@
   const MIN_PULL = 18;
   const PROJECTILE_CATEGORY = 0x0002;
   const LIVE_PROJECTILE_MASK = 0xFFFFFFFF;
+  const SAVE_KEY = "slingstorm.save.v4";
+  const LEGACY_STARS_KEY = "slingstorm.bestStars.v1";
+  const SOUND_KEY = "slingstorm.sound.v1";
+
+  const chapters = [
+    {
+      name: "岚口边境",
+      range: "1-6",
+      color: "#69d47c",
+      desc: "掌握风向、材料弱点与四类弹丸的基础连锁。"
+    },
+    {
+      name: "雷幕旧城",
+      range: "7-12",
+      color: "#48c8d9",
+      desc: "脉动横风、轻重力与装甲晶核开始组合。"
+    },
+    {
+      name: "风暴王冠",
+      range: "13-18",
+      color: "#b78cff",
+      desc: "高密度塔群、爆桶链和多层风眼组成最终远征。"
+    }
+  ];
+
+  const workshop = {
+    tension: {
+      name: "星索张力",
+      desc: "每级发射速度 +2%",
+      max: 6,
+      cost: level => 10 + level * 8
+    },
+    guide: {
+      name: "轨迹测绘",
+      desc: "每级增加 4 个预测点",
+      max: 6,
+      cost: level => 8 + level * 7
+    },
+    rudder: {
+      name: "风舵储能",
+      desc: "每 2 级额外换风 1 次",
+      max: 6,
+      cost: level => 12 + level * 9
+    },
+    ability: {
+      name: "弹丸共鸣",
+      desc: "每级技能范围与伤害 +5%",
+      max: 6,
+      cost: level => 14 + level * 10
+    },
+    salvage: {
+      name: "残骸回收",
+      desc: "每级结算光核 +8%",
+      max: 6,
+      cost: level => 13 + level * 9
+    }
+  };
 
   const materials = {
     wood: {
@@ -642,130 +957,112 @@
 
   const levels = [
     {
-      name: "风口试射",
-      par: 2,
-      wind: 0.000018,
-      shifts: 1,
-      ammo: ["pulse", "split", "pulse"],
-      targets: [
-        [842, 515, 22],
-        [954, 594, 22]
-      ],
-      blocks: [
-        ["wood", 782, 604, 30, 92, 0],
-        ["wood", 902, 604, 30, 92, 0],
-        ["glass", 842, 552, 128, 24, 0],
-        ["stone", 842, 622, 150, 24, 0],
-        ["wood", 954, 620, 34, 58, 0],
-        ["glass", 1002, 620, 34, 58, 0],
-        ["wood", 978, 574, 96, 20, 0]
-      ]
+      name: "风口试射", desc: "顺风托起第一发弹丸，击穿玻璃横梁完成校准。", par: 2,
+      wind: 0.000018, shifts: 1, challenge: { type: "noShift", target: 0, label: "不换风完成" },
+      ammo: ["pulse", "split", "pulse"], targets: [[842, 515, 22], [954, 594, 22]],
+      blocks: [["wood",782,604,30,92,0],["wood",902,604,30,92,0],["glass",842,552,128,24,0],["stone",842,622,150,24,0],["wood",954,620,34,58,0],["glass",1002,620,34,58,0],["wood",978,574,96,20,0]]
     },
     {
-      name: "斜塔回声",
-      par: 3,
-      wind: -0.000026,
-      shifts: 2,
-      ammo: ["split", "pulse", "flux", "pulse"],
-      targets: [
-        [790, 586, 22],
-        [912, 500, 22],
-        [1030, 592, 22]
-      ],
-      blocks: [
-        ["stone", 760, 612, 32, 74, -0.12],
-        ["wood", 822, 612, 30, 88, 0.1],
-        ["glass", 790, 548, 112, 20, 0.1],
-        ["wood", 912, 600, 34, 100, 0],
-        ["wood", 974, 600, 34, 100, 0],
-        ["stone", 943, 532, 118, 22, -0.09],
-        ["glass", 912, 462, 28, 84, 0.12],
-        ["glass", 1030, 610, 92, 22, 0],
-        ["wood", 1000, 574, 26, 72, 0],
-        ["wood", 1060, 574, 26, 72, 0]
-      ]
+      name: "斜塔回声", desc: "逆风与倾斜支柱会改变倒塌方向，寻找一次连锁两枚晶核的角度。", par: 3,
+      wind: -0.000026, shifts: 2, challenge: { type: "combo", target: 2, label: "单发击破 2 核" },
+      ammo: ["split", "pulse", "flux", "pulse"], targets: [[790,586,22],[912,500,22],[1030,592,22]],
+      blocks: [["stone",760,612,32,74,-0.12],["wood",822,612,30,88,0.1],["glass",790,548,112,20,0.1],["wood",912,600,34,100,0],["wood",974,600,34,100,0],["stone",943,532,118,22,-0.09],["glass",912,462,28,84,0.12],["glass",1030,610,92,22,0],["wood",1000,574,26,72,0],["wood",1060,574,26,72,0]]
     },
     {
-      name: "爆桶栈桥",
-      par: 3,
-      wind: 0.000035,
-      shifts: 1,
-      ammo: ["ember", "split", "pulse", "flux"],
-      targets: [
-        [820, 593, 23],
-        [955, 523, 23],
-        [1080, 591, 23]
-      ],
-      blocks: [
-        ["wood", 750, 620, 32, 60, 0],
-        ["wood", 890, 620, 32, 60, 0],
-        ["stone", 820, 582, 172, 22, 0],
-        ["barrel", 820, 540, 36, 46, 0],
-        ["glass", 930, 604, 30, 88, 0],
-        ["glass", 980, 604, 30, 88, 0],
-        ["wood", 955, 546, 110, 22, 0],
-        ["stone", 1038, 620, 32, 60, 0.06],
-        ["wood", 1122, 620, 32, 60, -0.06],
-        ["glass", 1080, 575, 118, 20, 0],
-        ["barrel", 1080, 530, 34, 42, 0]
-      ]
+      name: "爆桶栈桥", desc: "引爆红色风桶，把局部冲击扩散成整座栈桥的连锁。", par: 3,
+      wind: 0.000035, shifts: 1, challenge: { type: "material", key: "barrel", target: 2, label: "引爆 2 个风桶" },
+      ammo: ["ember", "split", "pulse", "flux"], targets: [[820,593,23],[955,523,23],[1080,591,23]],
+      blocks: [["wood",750,620,32,60,0],["wood",890,620,32,60,0],["stone",820,582,172,22,0],["barrel",820,540,36,46,0],["glass",930,604,30,88,0],["glass",980,604,30,88,0],["wood",955,546,110,22,0],["stone",1038,620,32,60,0.06],["wood",1122,620,32,60,-0.06],["glass",1080,575,118,20,0],["barrel",1080,530,34,42,0]]
     },
     {
-      name: "磁涡双门",
-      par: 4,
-      wind: -0.00004,
-      shifts: 2,
-      ammo: ["flux", "pulse", "ember", "split", "pulse"],
-      targets: [
-        [780, 526, 24],
-        [925, 585, 24],
-        [1055, 510, 24]
-      ],
-      blocks: [
-        ["steel", 706, 626, 46, 38, 0],
-        ["wood", 758, 602, 28, 96, 0],
-        ["wood", 810, 602, 28, 96, 0],
-        ["glass", 784, 540, 92, 20, 0],
-        ["stone", 914, 620, 34, 62, 0],
-        ["stone", 976, 620, 34, 62, 0],
-        ["wood", 945, 578, 126, 22, 0],
-        ["barrel", 925, 534, 34, 44, 0],
-        ["glass", 1032, 590, 28, 108, 0.06],
-        ["glass", 1090, 590, 28, 108, -0.06],
-        ["stone", 1061, 520, 126, 22, 0],
-        ["wood", 1061, 470, 88, 22, 0]
-      ]
+      name: "磁涡双门", desc: "钢门不可摧毁，磁涡星可以把两侧结构拉进门内相撞。", par: 4,
+      wind: -0.00004, shifts: 2, challenge: { type: "abilityMax", target: 2, label: "技能不超过 2 次" },
+      ammo: ["flux", "pulse", "ember", "split", "pulse"], targets: [[780,526,24],[925,585,24],[1055,510,24]],
+      blocks: [["steel",706,626,46,38,0],["wood",758,602,28,96,0],["wood",810,602,28,96,0],["glass",784,540,92,20,0],["stone",914,620,34,62,0],["stone",976,620,34,62,0],["wood",945,578,126,22,0],["barrel",925,534,34,44,0],["glass",1032,590,28,108,0.06],["glass",1090,590,28,108,-0.06],["stone",1061,520,126,22,0],["wood",1061,470,88,22,0]]
     },
     {
-      name: "三塔压轴",
-      par: 5,
-      wind: 0.000012,
-      shifts: 3,
-      ammo: ["split", "flux", "ember", "pulse", "split", "pulse"],
-      targets: [
-        [730, 594, 22],
-        [858, 498, 24],
-        [975, 592, 22],
-        [1084, 484, 24]
-      ],
-      blocks: [
-        ["glass", 704, 620, 28, 58, 0],
-        ["glass", 758, 620, 28, 58, 0],
-        ["wood", 730, 580, 108, 20, 0],
-        ["stone", 828, 612, 30, 78, 0],
-        ["stone", 888, 612, 30, 78, 0],
-        ["wood", 858, 552, 120, 22, 0],
-        ["glass", 858, 484, 30, 84, 0],
-        ["barrel", 858, 442, 34, 42, 0],
-        ["wood", 944, 620, 28, 58, 0.08],
-        ["wood", 1004, 620, 28, 58, -0.08],
-        ["stone", 974, 578, 122, 22, 0],
-        ["glass", 1054, 608, 30, 82, 0],
-        ["glass", 1116, 608, 30, 82, 0],
-        ["stone", 1084, 548, 132, 22, 0],
-        ["wood", 1084, 496, 98, 20, 0],
-        ["barrel", 1038, 610, 32, 44, 0]
-      ]
+      name: "三塔压轴", desc: "三座不同材料的塔群要求连续切换弹丸思路。", par: 5,
+      wind: 0.000012, shifts: 3, challenge: { type: "score", target: 9200, label: "节点得分 9200" },
+      ammo: ["split", "flux", "ember", "pulse", "split", "pulse"], targets: [[730,594,22],[858,498,24],[975,592,22],[1084,484,24]],
+      blocks: [["glass",704,620,28,58,0],["glass",758,620,28,58,0],["wood",730,580,108,20,0],["stone",828,612,30,78,0],["stone",888,612,30,78,0],["wood",858,552,120,22,0],["glass",858,484,30,84,0],["barrel",858,442,34,42,0],["wood",944,620,28,58,0.08],["wood",1004,620,28,58,-0.08],["stone",974,578,122,22,0],["glass",1054,608,30,82,0],["glass",1116,608,30,82,0],["stone",1084,548,132,22,0],["wood",1084,496,98,20,0],["barrel",1038,610,32,44,0]]
+    },
+    {
+      name: "岚眼守门", desc: "第一枚多层风眼藏在双塔中心，击穿护塔后持续破坏核心。", par: 4,
+      wind: -0.000022, shifts: 2, challenge: { type: "noShift", target: 0, label: "不换风击破风眼" },
+      ammo: ["pulse","ember","flux","split","pulse"], targets: [[790,585,22],[940,510,30,"boss",170],[1070,585,22]],
+      blocks: [["stone",740,615,34,74,0],["wood",840,615,34,74,0],["glass",790,560,132,22,0],["steel",900,620,28,64,0],["steel",980,620,28,64,0],["wood",940,574,132,22,0],["glass",940,470,30,86,0],["barrel",940,430,34,42,0],["wood",1020,615,32,74,0],["stone",1120,615,32,74,0],["glass",1070,560,132,22,0]]
+    },
+    {
+      name: "玻璃合唱", desc: "脆弱玻璃构成高塔，裂光星能从多个角度同时敲响结构。", par: 3,
+      wind: 0.00003, shifts: 1, challenge: { type: "material", key: "glass", target: 5, label: "击碎 5 块玻璃" },
+      ammo: ["split","split","pulse","flux"], targets: [[810,545,22],[930,470,22],[1050,545,22]],
+      blocks: [["glass",760,610,26,84,0],["glass",860,610,26,84,0],["glass",810,558,126,20,0],["glass",900,590,24,124,0],["glass",960,590,24,124,0],["wood",930,516,112,22,0],["glass",1020,610,26,84,0],["glass",1080,610,26,84,0],["glass",1050,558,126,20,0],["stone",930,634,350,18,0]]
+    },
+    {
+      name: "脉风棋盘", desc: "风场周期性增强与减弱，观察风线后再决定释放时机。", par: 4,
+      wind: 0.000012, windPulse: 0.000025, shifts: 2, challenge: { type: "windShift", target: 1, label: "至少换风 1 次" },
+      ammo: ["pulse","flux","split","ember","pulse"], targets: [[760,590,22],[900,520,24,"armored",105],[1040,590,22]],
+      blocks: [["wood",720,610,30,82,0],["wood",800,610,30,82,0],["glass",760,560,116,22,0],["stone",850,614,28,76,0],["stone",950,614,28,76,0],["wood",900,566,128,22,0],["barrel",900,522,34,42,0],["glass",1000,610,28,82,0],["glass",1080,610,28,82,0],["stone",1040,560,118,22,0]]
+    },
+    {
+      name: "浮城断桥", desc: "低重力延长飞行时间，适合在高点释放分裂与磁涡。", par: 4,
+      wind: -0.00002, gravity: 0.68, shifts: 2, challenge: { type: "combo", target: 3, label: "单发击破 3 核" },
+      ammo: ["split","flux","pulse","split","ember"], targets: [[770,500,21],[900,420,23],[1030,500,21]],
+      blocks: [["steel",720,590,120,18,0],["wood",770,550,28,90,0],["glass",820,550,28,90,0],["stone",795,490,120,20,0],["steel",850,520,90,18,0],["glass",900,480,28,100,0],["wood",950,480,28,100,0],["glass",925,420,120,20,0],["steel",990,590,120,18,0],["wood",1030,550,28,90,0],["glass",1080,550,28,90,0]]
+    },
+    {
+      name: "重雨钟楼", desc: "强重力压低抛物线，爆燃星需要更直接地命中承重点。", par: 4,
+      wind: 0.000016, gravity: 1.26, shifts: 2, challenge: { type: "abilityMax", target: 1, label: "技能不超过 1 次" },
+      ammo: ["ember","pulse","flux","split","pulse"], targets: [[830,570,23],[950,455,25,"armored",115],[1070,570,23]],
+      blocks: [["stone",780,610,32,82,0],["stone",880,610,32,82,0],["wood",830,558,132,22,0],["glass",920,590,28,122,0],["glass",980,590,28,122,0],["stone",950,515,130,22,0],["barrel",950,470,36,44,0],["wood",1020,610,30,82,0],["wood",1120,610,30,82,0],["glass",1070,558,130,22,0]]
+    },
+    {
+      name: "装甲回廊", desc: "蓝色装甲晶核更耐冲击，利用结构重量而非只靠直接命中。", par: 5,
+      wind: -0.000036, shifts: 3, challenge: { type: "score", target: 10800, label: "节点得分 10800" },
+      ammo: ["flux","pulse","ember","split","pulse","flux"], targets: [[760,580,25,"armored",115],[900,500,25,"armored",125],[1040,580,25,"armored",115]],
+      blocks: [["steel",700,620,32,64,0],["stone",760,610,34,84,0],["glass",820,610,30,84,0],["wood",790,552,124,22,0],["steel",860,620,32,64,0],["stone",900,570,34,114,0],["glass",960,570,30,114,0],["wood",930,500,124,22,0],["steel",1000,620,32,64,0],["stone",1040,610,34,84,0],["glass",1100,610,30,84,0],["wood",1070,552,124,22,0]]
+    },
+    {
+      name: "雷幕双眼", desc: "两枚风眼在脉动风场中共振，先拆分防线再同时压垮核心。", par: 5,
+      wind: 0.000018, windPulse: 0.00003, shifts: 3, challenge: { type: "combo", target: 2, label: "单发击破 2 核" },
+      ammo: ["flux","split","ember","pulse","flux","pulse"], targets: [[820,500,30,"boss",145],[1010,500,30,"boss",145],[915,590,22]],
+      blocks: [["stone",760,610,34,84,0],["wood",880,610,34,84,0],["glass",820,552,154,22,0],["barrel",820,460,36,44,0],["steel",915,620,34,64,0],["stone",950,610,34,84,0],["wood",1070,610,34,84,0],["glass",1010,552,154,22,0],["barrel",1010,460,36,44,0],["wood",915,570,110,20,0]]
+    },
+    {
+      name: "逆岚镜塔", desc: "镜像塔群在反向强风中互相支撑，破坏一侧会改变另一侧落点。", par: 5,
+      wind: -0.000046, shifts: 3, challenge: { type: "noShift", target: 0, label: "不换风完成" },
+      ammo: ["split","flux","pulse","ember","split","pulse"], targets: [[760,540,22],[900,450,24],[1040,540,22]],
+      blocks: [["glass",720,610,28,84,0.05],["stone",800,610,32,84,-0.05],["wood",760,560,126,22,0],["glass",860,585,28,134,0.04],["stone",940,585,32,134,-0.04],["wood",900,505,126,22,0],["stone",1000,610,32,84,0.05],["glass",1080,610,28,84,-0.05],["wood",1040,560,126,22,0],["barrel",900,462,34,42,0]]
+    },
+    {
+      name: "雷桶星座", desc: "分散爆桶组成星座，正确的第一颗会点亮整条爆破路径。", par: 4,
+      wind: 0.000028, shifts: 2, challenge: { type: "material", key: "barrel", target: 4, label: "引爆 4 个风桶" },
+      ammo: ["ember","split","flux","pulse","ember"], targets: [[780,580,22],[920,500,23],[1060,580,22]],
+      blocks: [["wood",740,610,30,80,0],["glass",820,610,30,80,0],["stone",780,558,124,22,0],["barrel",820,520,34,42,0],["glass",880,590,28,120,0],["wood",960,590,28,120,0],["stone",920,520,124,22,0],["barrel",920,475,34,42,0],["wood",1020,610,30,80,0],["glass",1100,610,30,80,0],["stone",1060,558,124,22,0],["barrel",1020,520,34,42,0],["barrel",1060,515,34,42,0]]
+    },
+    {
+      name: "失重祭坛", desc: "极低重力让残骸长时间漂浮，磁涡可把它们重新聚成撞击群。", par: 5,
+      wind: -0.000014, gravity: 0.48, shifts: 2, challenge: { type: "abilityMax", target: 2, label: "技能不超过 2 次" },
+      ammo: ["flux","split","pulse","flux","ember","pulse"], targets: [[780,470,22],[910,390,25,"armored",120],[1040,470,22]],
+      blocks: [["steel",720,590,120,18,0],["glass",780,530,26,120,0],["wood",830,530,26,120,0],["stone",805,460,120,20,0],["steel",860,520,80,18,0],["glass",910,455,28,130,0],["wood",960,455,28,130,0],["stone",935,380,120,20,0],["steel",1000,590,120,18,0],["glass",1040,530,26,120,0],["wood",1090,530,26,120,0]]
+    },
+    {
+      name: "钢脊裂谷", desc: "不可摧毁的钢脊把战场切成三段，只能让冲击穿过狭窄窗口。", par: 5,
+      wind: 0.00004, shifts: 3, challenge: { type: "combo", target: 3, label: "单发击破 3 核" },
+      ammo: ["split","flux","pulse","ember","split","pulse"], targets: [[760,585,22],[910,505,24],[1060,585,22]],
+      blocks: [["steel",700,540,34,224,0],["steel",840,570,34,164,0],["steel",980,540,34,224,0],["wood",740,610,28,80,0],["glass",790,610,28,80,0],["stone",765,560,110,20,0],["wood",880,585,28,130,0],["glass",940,585,28,130,0],["stone",910,510,120,20,0],["wood",1020,610,28,80,0],["glass",1100,610,28,80,0],["stone",1060,560,120,20,0]]
+    },
+    {
+      name: "风暴坩埚", desc: "脉动风、重力变化和混合材料在同一座坩埚中叠加。", par: 6,
+      wind: -0.000022, windPulse: 0.000036, gravity: 1.12, shifts: 4, challenge: { type: "score", target: 13600, label: "节点得分 13600" },
+      ammo: ["flux","ember","split","pulse","flux","ember","pulse"], targets: [[730,585,22],[850,500,24,"armored",115],[970,585,22],[1080,480,24,"armored",125]],
+      blocks: [["glass",700,610,28,84,0],["wood",760,610,28,84,0],["stone",730,560,120,22,0],["barrel",730,520,34,42,0],["stone",820,610,30,84,0],["glass",880,610,28,84,0],["wood",850,560,120,22,0],["steel",930,620,30,64,0],["wood",970,600,30,104,0],["glass",1020,600,28,104,0],["stone",995,535,118,22,0],["glass",1050,590,28,124,0],["wood",1110,590,28,124,0],["stone",1080,515,126,22,0],["barrel",1080,470,34,42,0]]
+    },
+    {
+      name: "风暴王冠", desc: "终局风眼拥有厚重核心与三枚护卫，必须调度全部弹丸完成最终连锁。", par: 6,
+      wind: 0.000026, windPulse: 0.00004, gravity: 0.92, shifts: 4, challenge: { type: "combo", target: 4, label: "单发击破 4 核" },
+      ammo: ["flux","split","ember","pulse","flux","split","pulse"], targets: [[760,585,23,"armored",105],[900,455,34,"boss",270],[1040,585,23,"armored",105],[1120,510,22]],
+      blocks: [["stone",720,610,32,84,0],["glass",800,610,28,84,0],["wood",760,560,124,22,0],["barrel",800,515,34,42,0],["steel",850,620,34,64,0],["wood",870,585,28,134,0],["stone",930,585,32,134,0],["glass",900,505,130,22,0],["barrel",900,460,36,44,0],["steel",980,620,34,64,0],["glass",1000,610,28,84,0],["stone",1080,610,32,84,0],["wood",1040,560,124,22,0],["barrel",1040,515,34,42,0],["glass",1090,565,28,114,0],["wood",1150,565,28,114,0],["stone",1120,495,122,22,0]]
     }
   ];
 
@@ -785,8 +1082,11 @@
   let launchedAt = 0;
   let started = false;
   let paused = false;
-  const bestStarsKey = "slingstorm.bestStars.v1";
-  const bestStars = loadBestStars();
+  let audioContext = null;
+  let soundEnabled = loadSoundPreference();
+  let save = loadSave();
+  let bestStars = levels.map((_, index) => Math.max(0, Math.min(3, Number(save.stars[index + 1]) || 0)));
+  let selectedLevel = Math.max(0, Math.min(levels.length - 1, save.unlocked - 1));
 
   const pointer = {
     active: false,
@@ -804,29 +1104,189 @@
     shotsUsed: 0,
     targetStart: 0,
     targetDestroyed: 0,
+    baseWind: 0,
     wind: 0,
     windShiftLeft: 0,
+    windShiftsUsed: 0,
     abilityUsed: false,
+    abilitiesUsed: 0,
+    shotKills: 0,
+    maxShotKills: 0,
+    destroyedMaterials: {},
     stars: 0,
     endScheduled: false,
     loadingLevel: false
   };
 
-  function loadBestStars() {
-    try {
-      const stored = JSON.parse(localStorage.getItem(bestStarsKey) || "[]");
-      return levels.map((_, index) => Math.max(0, Math.min(3, Number(stored[index]) || 0)));
-    } catch (error) {
-      return levels.map(() => 0);
-    }
+  function createBaseSave() {
+    return {
+      v: 4,
+      cores: 0,
+      unlocked: 1,
+      stars: {},
+      bestScores: {},
+      lab: { tension: 0, guide: 0, rudder: 0, ability: 0, salvage: 0 },
+      milestones: {},
+      runs: 0,
+      wins: 0
+    };
   }
 
-  function saveBestStars() {
+  function cleanInteger(value, min, max) {
+    const number = Number(value);
+    if (!Number.isFinite(number)) return min;
+    return Math.max(min, Math.min(max, Math.floor(number)));
+  }
+
+  function normalizeSave(candidate) {
+    const base = createBaseSave();
+    const source = candidate && typeof candidate === "object" ? candidate : {};
+    base.cores = cleanInteger(source.cores, 0, 9999999);
+    base.unlocked = cleanInteger(source.unlocked, 1, levels.length);
+    base.runs = cleanInteger(source.runs, 0, 9999999);
+    base.wins = cleanInteger(source.wins, 0, base.runs);
+    for (let index = 1; index <= levels.length; index += 1) {
+      const stars = cleanInteger(source.stars?.[index], 0, 3);
+      const score = cleanInteger(source.bestScores?.[index], 0, 999999999);
+      if (stars) base.stars[index] = stars;
+      if (score) base.bestScores[index] = score;
+    }
+    for (const [key, item] of Object.entries(workshop)) {
+      base.lab[key] = cleanInteger(source.lab?.[key], 0, item.max);
+    }
+    for (const id of ["stars18", "stars36", "stars54"]) {
+      if (source.milestones?.[id] === true) base.milestones[id] = true;
+    }
+    return base;
+  }
+
+  function loadSave() {
+    const base = createBaseSave();
     try {
-      localStorage.setItem(bestStarsKey, JSON.stringify(bestStars));
+      const current = JSON.parse(localStorage.getItem(SAVE_KEY) || "null");
+      if (current && current.v === 4) {
+        return normalizeSave(current);
+      }
+      const legacy = JSON.parse(localStorage.getItem(LEGACY_STARS_KEY) || "[]");
+      if (Array.isArray(legacy) && legacy.some(Number)) {
+        legacy.slice(0, levels.length).forEach((stars, index) => {
+          const value = Math.max(0, Math.min(3, Number(stars) || 0));
+          if (value) base.stars[index + 1] = value;
+        });
+        const completed = legacy.reduce((last, stars, index) => Number(stars) > 0 ? index + 1 : last, 0);
+        base.unlocked = Math.min(levels.length, Math.max(1, completed + 1));
+      }
+    } catch (error) {
+      return base;
+    }
+    return normalizeSave(base);
+  }
+
+  function storeSave() {
+    try {
+      save = normalizeSave(save);
+      localStorage.setItem(SAVE_KEY, JSON.stringify(save));
     } catch (error) {
       // Local storage can be unavailable in strict browser contexts.
     }
+  }
+
+  function saveHash(text) {
+    let hash = 2166136261;
+    for (let index = 0; index < text.length; index += 1) {
+      hash ^= text.charCodeAt(index);
+      hash = Math.imul(hash, 16777619);
+    }
+    return (hash >>> 0).toString(36);
+  }
+
+  function encodeSave() {
+    const json = JSON.stringify({ game: "slingstorm", version: 4, data: save });
+    const bytes = new TextEncoder().encode(json);
+    let binary = "";
+    bytes.forEach(byte => binary += String.fromCharCode(byte));
+    const payload = btoa(binary);
+    return `SLG4.${payload}.${saveHash(payload)}`;
+  }
+
+  function importSave(code) {
+    const [prefix, payload, checksum] = String(code || "").trim().split(".");
+    if (prefix !== "SLG4" || !payload || saveHash(payload) !== checksum) throw new Error("存档码校验失败");
+    const parsed = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(payload), char => char.charCodeAt(0))));
+    if (parsed.game !== "slingstorm" || parsed.version !== 4 || !parsed.data) throw new Error("不是弹弓风暴 V4 存档");
+    save = normalizeSave(parsed.data);
+    storeSave();
+    bestStars = levels.map((_, index) => Math.max(0, Math.min(3, Number(save.stars[index + 1]) || 0)));
+    selectedLevel = Math.max(0, Math.min(levels.length - 1, save.unlocked - 1));
+    storeSave();
+    renderStation();
+    updateUI();
+  }
+
+  function totalStars() {
+    return bestStars.reduce((sum, stars) => sum + stars, 0);
+  }
+
+  function chapterInfo(index) {
+    return chapters[Math.min(2, Math.floor(Math.max(0, index) / 6))];
+  }
+
+  function challengeDone(level = levels[state.level]) {
+    const challenge = level.challenge || {};
+    if (challenge.type === "noShift") return state.windShiftsUsed === 0;
+    if (challenge.type === "windShift") return state.windShiftsUsed >= challenge.target;
+    if (challenge.type === "combo") return state.maxShotKills >= challenge.target;
+    if (challenge.type === "material") return (state.destroyedMaterials[challenge.key] || 0) >= challenge.target;
+    if (challenge.type === "abilityMax") return state.abilitiesUsed <= challenge.target;
+    if (challenge.type === "score") return state.score >= challenge.target;
+    return false;
+  }
+
+  function renderStation() {
+    progressPill.textContent = `★ ${totalStars()}/54 · 光核 ${save.cores} · 解锁 ${save.unlocked}/18`;
+    chapterStrip.innerHTML = chapters.map((chapter, chapterIndex) => {
+      const start = chapterIndex * 6;
+      const stars = bestStars.slice(start, start + 6).reduce((sum, value) => sum + value, 0);
+      return `<div class="chapter-chip"><b style="color:${chapter.color}">${chapter.name} · ${chapter.range}</b>${chapter.desc}<br>★ ${stars}/18</div>`;
+    }).join("");
+    campaignGrid.innerHTML = levels.map((level, index) => {
+      const locked = index + 1 > save.unlocked;
+      const stars = bestStars[index] || 0;
+      return `<button class="campaign-node ${selectedLevel === index ? "selected" : ""} ${locked ? "locked" : ""}" data-campaign="${index}" ${locked ? "disabled" : ""}><b>${index + 1}</b><small>${level.name}</small><span>${locked ? "LOCK" : renderStars(stars)}</span></button>`;
+    }).join("");
+    const level = levels[selectedLevel];
+    const chapter = chapterInfo(selectedLevel);
+    const stars = bestStars[selectedLevel] || 0;
+    levelDetail.innerHTML = `<b style="color:${chapter.color}">第 ${selectedLevel + 1} 节点 · ${level.name}</b><p>${level.desc}</p><div class="challenge-row"><span class="challenge-chip ${stars >= 1 ? "done" : ""}">★ 完成节点</span><span class="challenge-chip ${stars >= 2 ? "done" : ""}">★ ${level.par} 发内完成</span><span class="challenge-chip ${stars >= 3 ? "done" : ""}">★ ${level.challenge.label}</span></div>`;
+    workshopGrid.innerHTML = Object.entries(workshop).map(([key, item]) => {
+      const levelValue = save.lab[key] || 0;
+      const cost = item.cost(levelValue);
+      const maxed = levelValue >= item.max;
+      return `<button class="workshop-btn" data-workshop="${key}" ${maxed || save.cores < cost ? "disabled" : ""}><b>${item.name} Lv.${levelValue}</b><span>${item.desc}</span><em>${maxed ? "已满级" : `光核 ${cost}`}</em></button>`;
+    }).join("");
+    startBtn.textContent = `进入第 ${selectedLevel + 1} 节点`;
+    campaignGrid.querySelectorAll("[data-campaign]").forEach(button => {
+      button.addEventListener("click", () => {
+        selectedLevel = Number(button.dataset.campaign);
+        renderStation();
+      });
+    });
+    workshopGrid.querySelectorAll("[data-workshop]").forEach(button => {
+      button.addEventListener("click", () => buyWorkshop(button.dataset.workshop));
+    });
+  }
+
+  function buyWorkshop(key) {
+    const item = workshop[key];
+    if (!item) return;
+    const levelValue = save.lab[key] || 0;
+    const cost = item.cost(levelValue);
+    if (levelValue >= item.max || save.cores < cost) return;
+    save.cores -= cost;
+    save.lab[key] = levelValue + 1;
+    storeSave();
+    renderStation();
+    playSound("buy");
   }
 
   function resize() {
@@ -937,7 +1397,7 @@
   }
 
   function addTarget(spec) {
-    const [x, y, r] = spec;
+    const [x, y, r, targetType = "normal", hpOverride] = spec;
     const body = Bodies.circle(x, y, r, {
       density: 0.0015,
       friction: 0.58,
@@ -946,8 +1406,9 @@
     });
     body.game = {
       kind: "target",
-      hp: 34 + r * 0.8,
-      maxHp: 34 + r * 0.8,
+      targetType,
+      hp: hpOverride || (targetType === "armored" ? 96 + r : 34 + r * 0.8),
+      maxHp: hpOverride || (targetType === "armored" ? 96 + r : 34 + r * 0.8),
       flash: 0,
       dead: false
     };
@@ -1021,7 +1482,6 @@
     holdProjectile(currentProjectile);
     state.status = "ready";
     state.abilityUsed = false;
-    state.windShiftLeft = level.shifts;
     updateUI();
   }
 
@@ -1053,6 +1513,11 @@
     state.score = 0;
     state.shotsUsed = 0;
     state.targetDestroyed = 0;
+    state.windShiftsUsed = 0;
+    state.abilitiesUsed = 0;
+    state.shotKills = 0;
+    state.maxShotKills = 0;
+    state.destroyedMaterials = {};
     state.stars = 0;
     state.endScheduled = false;
     state.loadingLevel = false;
@@ -1069,7 +1534,10 @@
     createEngine();
     addStaticWorld();
     const level = levels[state.level];
+    engine.gravity.y = level.gravity || 1;
+    state.baseWind = level.wind;
     state.wind = level.wind;
+    state.windShiftLeft = level.shifts + Math.floor((save.lab.rudder || 0) / 2);
     for (const spec of level.blocks) addBlock(spec);
     for (const spec of level.targets) addTarget(spec);
     state.targetStart = targets.length;
@@ -1103,17 +1571,20 @@
     };
     releaseProjectileBody(currentProjectile);
     Body.setPosition(currentProjectile, launchPoint);
+    const tension = 1 + (save.lab.tension || 0) * 0.02;
     Body.setVelocity(currentProjectile, {
-      x: pull.x * SHOT_POWER,
-      y: pull.y * SHOT_POWER
+      x: pull.x * SHOT_POWER * tension,
+      y: pull.y * SHOT_POWER * tension
     });
     Body.setAngularVelocity(currentProjectile, pull.x * 0.0012);
     state.ammoIndex += 1;
     state.shotsUsed += 1;
+    state.shotKills = 0;
     state.status = "flying";
     state.abilityUsed = false;
     launchedAt = performance.now();
     spawnTrail(SLING_POUCH.x, SLING_POUCH.y, ammoTypes[currentType].color, 16, 2.5);
+    playSound("launch");
     updateUI();
   }
 
@@ -1143,7 +1614,11 @@
     const data = body.game;
     if (!data || data.dead || body.isStatic || data.kind === "ground" || data.kind === "wall") return;
 
-    if (data.kind === "target") amount *= 1.35;
+    if (data.kind === "target") {
+      if (data.targetType === "boss") amount *= 0.78;
+      else if (data.targetType === "armored") amount *= 0.92;
+      else amount *= 1.35;
+    }
     if (data.kind === "projectile") return;
     if (data.kind !== "block" && data.kind !== "target") return;
 
@@ -1159,15 +1634,22 @@
 
     if (data.kind === "target") {
       state.targetDestroyed += 1;
-      state.score += 1400;
-      spawnTrail(body.position.x, body.position.y, "#69d47c", 44, 5.2);
-      showToast("晶核碎裂 +" + 1400);
+      state.shotKills += 1;
+      state.maxShotKills = Math.max(state.maxShotKills, state.shotKills);
+      const reward = data.targetType === "boss" ? 4200 : data.targetType === "armored" ? 2100 : 1400;
+      const color = data.targetType === "boss" ? "#f5c857" : data.targetType === "armored" ? "#48c8d9" : "#69d47c";
+      state.score += reward;
+      spawnTrail(body.position.x, body.position.y, color, data.targetType === "boss" ? 72 : 44, 5.2);
+      playSound(data.targetType === "boss" ? "boss" : "target");
+      showToast(data.targetType === "boss" ? "风眼核心崩解" : `晶核碎裂 +${reward}`);
     } else if (data.kind === "block") {
       const mat = materials[data.mat] || materials.wood;
       state.score += mat.score;
+      state.destroyedMaterials[data.mat] = (state.destroyedMaterials[data.mat] || 0) + 1;
       spawnTrail(body.position.x, body.position.y, mat.stroke, 18, 3.6);
       if (data.mat === "barrel") {
         shockwave(body.position.x, body.position.y, 172, 0.011, 34, "#ff735e");
+        playSound("barrel");
         showToast("爆桶连锁");
       }
     }
@@ -1176,7 +1658,10 @@
     updateUI();
   }
 
-  function shockwave(x, y, radius, strength, damage, color) {
+  function shockwave(x, y, radius, strength, damage, color, boosted = false) {
+    const boost = boosted ? 1 + (save.lab.ability || 0) * 0.05 : 1;
+    radius *= boost;
+    damage *= boost;
     wells.push({
       x,
       y,
@@ -1209,27 +1694,31 @@
     if (!projectile) return;
     const type = currentType;
     state.abilityUsed = true;
+    state.abilitiesUsed += 1;
+    playSound("ability");
 
     if (type === "pulse") {
-      shockwave(projectile.position.x, projectile.position.y, 190, 0.012, 42, ammoTypes[type].color);
+      shockwave(projectile.position.x, projectile.position.y, 190, 0.012, 42, ammoTypes[type].color, true);
       showToast("冲击星释放震波");
     } else if (type === "split") {
       splitProjectile(projectile);
       showToast("裂光星三裂");
     } else if (type === "flux") {
+      const boost = 1 + (save.lab.ability || 0) * 0.05;
       wells.push({
         x: projectile.position.x,
         y: projectile.position.y,
-        radius: 245,
+        radius: 245 * boost,
         life: 1100,
         maxLife: 1100,
         color: ammoTypes[type].color,
+        damageBoost: boost,
         push: false
       });
       spawnTrail(projectile.position.x, projectile.position.y, ammoTypes[type].color, 28, 4.4);
       showToast("磁涡展开");
     } else if (type === "ember") {
-      shockwave(projectile.position.x, projectile.position.y, 156, 0.014, 52, ammoTypes[type].color);
+      shockwave(projectile.position.x, projectile.position.y, 156, 0.014, 52, ammoTypes[type].color, true);
       removeBody(projectile);
       showToast("爆燃星引爆");
     }
@@ -1240,12 +1729,13 @@
     const v = projectile.velocity;
     const speed = Math.max(8, Math.hypot(v.x, v.y));
     const base = Math.atan2(v.y, v.x || 0.01);
+    const boost = 1 + (save.lab.ability || 0) * 0.02;
     const angles = [-0.32, 0.32];
     for (const offset of angles) {
       const frag = createProjectile("split", projectile.position.x, projectile.position.y, true);
       Body.setVelocity(frag, {
-        x: Math.cos(base + offset) * speed * 0.92,
-        y: Math.sin(base + offset) * speed * 0.92
+        x: Math.cos(base + offset) * speed * 0.92 * boost,
+        y: Math.sin(base + offset) * speed * 0.92 * boost
       });
       Body.setAngularVelocity(frag, offset * 0.08);
     }
@@ -1260,8 +1750,11 @@
 
   function shiftWind() {
     if (!started || state.windShiftLeft <= 0 || state.status === "won" || state.status === "lost") return;
+    state.baseWind *= -1;
     state.wind *= -1;
     state.windShiftLeft -= 1;
+    state.windShiftsUsed += 1;
+    playSound("wind");
     showToast("风向切换");
     updateUI();
   }
@@ -1277,6 +1770,8 @@
   }
 
   function applyWindAndWells(step) {
+    const level = levels[state.level];
+    state.wind = state.baseWind + (level.windPulse || 0) * Math.sin(performance.now() * 0.0016);
     const windForce = state.wind;
     for (const body of projectiles) {
       if (!body.isStatic) {
@@ -1302,7 +1797,7 @@
             y: dy / d * 0.00055 * falloff * body.mass
           });
           if (body.game.kind === "target" || body.game.kind === "block") {
-            applyDamage(body, 0.04 * falloff * step, { x: well.x, y: well.y });
+            applyDamage(body, 0.04 * (well.damageBoost || 1) * falloff * step, { x: well.x, y: well.y });
           }
         }
       }
@@ -1358,30 +1853,63 @@
   function finishLevel(won) {
     state.status = won ? "won" : "lost";
     state.endScheduled = false;
+    save.runs += 1;
     if (won) {
       const level = levels[state.level];
       const unused = level.ammo.length - state.ammoIndex;
       const parBonus = Math.max(0, level.par + 1 - state.shotsUsed);
       state.score += unused * 2200 + parBonus * 900 + Math.max(0, 2800 - state.shotsUsed * 280);
       state.totalScore += state.score;
-      state.stars = state.shotsUsed <= level.par ? 3 : state.shotsUsed <= level.par + 1 ? 2 : 1;
-      if (state.stars > bestStars[state.level]) {
+      state.stars = 1 + (state.shotsUsed <= level.par ? 1 : 0) + (challengeDone(level) ? 1 : 0);
+      const previousStars = bestStars[state.level] || 0;
+      const starGain = Math.max(0, state.stars - previousStars);
+      if (state.stars > previousStars) {
         bestStars[state.level] = state.stars;
-        saveBestStars();
+        save.stars[state.level + 1] = state.stars;
       }
+      save.bestScores[state.level + 1] = Math.max(save.bestScores[state.level + 1] || 0, state.score);
+      save.unlocked = Math.max(save.unlocked, Math.min(levels.length, state.level + 2));
+      save.wins += 1;
+      const coreBase = 2 + state.stars + starGain * 3;
+      const cores = Math.max(1, Math.round(coreBase * (1 + (save.lab.salvage || 0) * 0.08)));
+      save.cores += cores;
+      const milestone = settleMilestones();
+      selectedLevel = state.level === levels.length - 1 ? state.level : state.level + 1;
+      storeSave();
       resultTitle.textContent = "关卡完成";
-      resultCopy.textContent = `${level.name} · ${renderStars(state.stars)} · ${state.score} 分`;
-      nextBtn.textContent = state.level === levels.length - 1 ? "回到第一关" : "下一关";
+      resultCopy.textContent = `${level.name} · ${renderStars(state.stars)} · ${state.score} 分 · 光核 +${cores}${milestone ? ` · 里程碑 +${milestone}` : ""}`;
+      nextBtn.textContent = state.level === levels.length - 1 ? "返回远征站" : "下一节点";
+      playSound("win");
       showToast("完成 " + renderStars(state.stars));
     } else {
       state.stars = 0;
+      storeSave();
       resultTitle.textContent = "挑战失败";
       resultCopy.textContent = "晶核还没有全部碎裂，换个角度再试。";
-      nextBtn.textContent = "跳到下一关";
+      nextBtn.textContent = "重新挑战";
+      playSound("lose");
       showToast("还差一点");
     }
     resultModal.classList.add("show");
+    renderStation();
     updateUI();
+  }
+
+  function settleMilestones() {
+    const milestones = [
+      { id: "stars18", stars: 18, reward: 24 },
+      { id: "stars36", stars: 36, reward: 42 },
+      { id: "stars54", stars: 54, reward: 72 }
+    ];
+    let reward = 0;
+    for (const milestone of milestones) {
+      if (!save.milestones[milestone.id] && totalStars() >= milestone.stars) {
+        save.milestones[milestone.id] = true;
+        save.cores += milestone.reward;
+        reward += milestone.reward;
+      }
+    }
+    return reward;
   }
 
   function renderStars(count) {
@@ -1428,6 +1956,74 @@
     toastTimer = 1500;
   }
 
+  function ensureAudio() {
+    if (!soundEnabled) return null;
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return null;
+    if (!audioContext) audioContext = new AudioContextClass();
+    if (audioContext.state === "suspended") {
+      const resume = audioContext.resume();
+      if (resume?.catch) resume.catch(() => {});
+    }
+    return audioContext;
+  }
+
+  function loadSoundPreference() {
+    try {
+      return localStorage.getItem(SOUND_KEY) !== "0";
+    } catch (error) {
+      return true;
+    }
+  }
+
+  function playTone(frequency, offset, duration, type, gain, endFrequency = frequency) {
+    const context = ensureAudio();
+    if (!context) return;
+    const start = context.currentTime + offset;
+    const oscillator = context.createOscillator();
+    const envelope = context.createGain();
+    oscillator.type = type;
+    oscillator.frequency.setValueAtTime(Math.max(30, frequency), start);
+    oscillator.frequency.exponentialRampToValueAtTime(Math.max(30, endFrequency), start + duration);
+    envelope.gain.setValueAtTime(0.0001, start);
+    envelope.gain.exponentialRampToValueAtTime(gain, start + Math.min(0.018, duration * 0.25));
+    envelope.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+    oscillator.connect(envelope).connect(context.destination);
+    oscillator.start(start);
+    oscillator.stop(start + duration + 0.02);
+  }
+
+  function playSound(name) {
+    if (!soundEnabled) return;
+    const sounds = {
+      launch: [[145, 0, 0.13, "triangle", 0.045, 285]],
+      ability: [[250, 0, 0.18, "sine", 0.04, 660], [510, 0.04, 0.14, "triangle", 0.018, 840]],
+      wind: [[360, 0, 0.14, "sine", 0.028, 210]],
+      target: [[460, 0, 0.1, "triangle", 0.035, 720], [720, 0.07, 0.12, "sine", 0.024, 940]],
+      boss: [[190, 0, 0.22, "sawtooth", 0.045, 70], [420, 0.08, 0.26, "triangle", 0.04, 820]],
+      barrel: [[130, 0, 0.22, "sawtooth", 0.045, 42]],
+      buy: [[520, 0, 0.08, "sine", 0.026, 620], [720, 0.07, 0.11, "sine", 0.025, 820]],
+      win: [[392, 0, 0.13, "triangle", 0.03, 440], [523, 0.11, 0.15, "triangle", 0.034, 590], [659, 0.23, 0.22, "triangle", 0.04, 784]],
+      lose: [[330, 0, 0.16, "triangle", 0.03, 250], [220, 0.12, 0.22, "sine", 0.026, 150]],
+      toggle: [[620, 0, 0.1, "sine", 0.025, 820]]
+    };
+    for (const tone of sounds[name] || []) playTone(...tone);
+  }
+
+  function renderSoundButton() {
+    soundBtn.textContent = soundEnabled ? "🔊" : "🔇";
+    soundBtn.setAttribute("aria-pressed", String(soundEnabled));
+  }
+
+  function toggleSound() {
+    soundEnabled = !soundEnabled;
+    try {
+      localStorage.setItem(SOUND_KEY, soundEnabled ? "1" : "0");
+    } catch (error) {}
+    renderSoundButton();
+    if (soundEnabled) playSound("toggle");
+  }
+
   function updateUI() {
     const level = levels[state.level];
     levelNameEl.textContent = level.name;
@@ -1442,9 +2038,12 @@
     };
     statusTextEl.textContent = statusLabels[state.status] || "准备";
     scoreValue.textContent = String(state.score);
-    targetValue.textContent = `${state.targetDestroyed}/${state.targetStart}`;
+    const boss = targets.find(target => target.game?.targetType === "boss");
+    targetValue.textContent = boss ? `风眼 ${Math.max(0, Math.ceil(boss.game.hp))}` : `${state.targetDestroyed}/${state.targetStart}`;
     windValue.textContent = windLabel();
     starValue.textContent = renderStars(state.stars);
+    missionTitle.textContent = `${chapterInfo(state.level).name} · 第 ${state.level + 1} 节点`;
+    missionText.textContent = `完成 · ${level.par} 发内 · ${level.challenge.label}`;
     abilityBtn.disabled = state.abilityUsed || (state.status !== "flying" && state.status !== "settling");
     windBtn.disabled = state.windShiftLeft <= 0 || state.status === "won" || state.status === "lost";
     windBtn.textContent = `换风 ${state.windShiftLeft}`;
@@ -1472,7 +2071,10 @@
     levels.forEach((level, index) => {
       const button = document.createElement("button");
       button.className = "level-btn";
+      const locked = index + 1 > save.unlocked;
       if (index === state.level) button.classList.add("current");
+      if (locked) button.classList.add("locked");
+      button.disabled = locked;
       const savedStars = bestStars[index] ? renderStars(bestStars[index]) : index === state.level ? renderStars(state.stars) : "---";
       button.innerHTML = `
         <span class="level-index">${index + 1}</span>
@@ -1480,7 +2082,9 @@
         <span class="stars">${savedStars}</span>
       `;
       button.addEventListener("click", () => {
+        if (locked) return;
         started = true;
+        selectedLevel = index;
         startModal.classList.remove("show");
         loadLevel(index);
       });
@@ -1505,6 +2109,7 @@
     drawBackground();
     drawWindLines();
     drawTrajectory();
+    drawSling("wood");
     drawSling("back");
     drawBodies({ skipCurrent: true });
     if (currentProjectile) drawProjectile(currentProjectile);
@@ -1516,10 +2121,15 @@
   }
 
   function drawBackground() {
+    const palette = [
+      ["#1a3835", "#20342a", "#19150e", "#20372f", "#182922"],
+      ["#102f3b", "#17343b", "#171b1c", "#18323a", "#14262c"],
+      ["#2b243d", "#26343c", "#18151f", "#293344", "#1d2731"]
+    ][Math.min(2, Math.floor(state.level / 6))];
     const sky = ctx.createLinearGradient(0, 0, 0, WORLD_H);
-    sky.addColorStop(0, "#1a3835");
-    sky.addColorStop(0.48, "#20342a");
-    sky.addColorStop(1, "#19150e");
+    sky.addColorStop(0, palette[0]);
+    sky.addColorStop(0.48, palette[1]);
+    sky.addColorStop(1, palette[2]);
     ctx.fillStyle = sky;
     ctx.fillRect(0, 0, WORLD_W, WORLD_H);
 
@@ -1530,8 +2140,8 @@
       ctx.fillRect(x, y, 2, 2);
     }
 
-    drawHill("#20372f", 0, 565, [0, 20, 100, -30, 230, 10, 380, -50, 540, 15, 760, -35, 930, 8, 1200, -28]);
-    drawHill("#182922", 0, 620, [0, 0, 160, -38, 300, 6, 490, -28, 650, 8, 830, -52, 1010, -10, 1200, -44]);
+    drawHill(palette[3], 0, 565, [0, 20, 100, -30, 230, 10, 380, -50, 540, 15, 760, -35, 930, 8, 1200, -28]);
+    drawHill(palette[4], 0, 620, [0, 0, 160, -38, 300, 6, 490, -28, 650, 8, 830, -52, 1010, -10, 1200, -44]);
 
     ctx.fillStyle = "#202018";
     ctx.fillRect(0, GROUND_Y, WORLD_W, WORLD_H - GROUND_Y);
@@ -1656,12 +2266,14 @@
     if (Math.hypot(pull.x, pull.y) < MIN_PULL) return;
     let x = pos.x;
     let y = pos.y;
-    let vx = pull.x * SHOT_POWER;
-    let vy = pull.y * SHOT_POWER;
+    const tension = 1 + (save.lab.tension || 0) * 0.02;
+    const points = 32 + (save.lab.guide || 0) * 4;
+    let vx = pull.x * SHOT_POWER * tension;
+    let vy = pull.y * SHOT_POWER * tension;
     ctx.fillStyle = "rgba(245, 200, 87, 0.75)";
-    for (let i = 0; i < 32; i += 1) {
+    for (let i = 0; i < points; i += 1) {
       vx += state.wind * 950;
-      vy += 0.31;
+      vy += 0.31 * (levels[state.level].gravity || 1);
       x += vx;
       y += vy;
       if (i % 2 === 0) {
@@ -1728,12 +2340,18 @@
 
   function drawTarget(body) {
     const r = body.circleRadius || 22;
+    const type = body.game.targetType || "normal";
     const hpRatio = Math.max(0, body.game.hp / body.game.maxHp);
+    const colors = type === "boss"
+      ? { fill: "#f5c857", stroke: "#fff1ae" }
+      : type === "armored"
+        ? { fill: "#48c8d9", stroke: "#c8fbff" }
+        : { fill: "#69d47c", stroke: "#d5ffd6" };
     ctx.save();
     ctx.translate(body.position.x, body.position.y);
     ctx.rotate(body.angle);
-    ctx.fillStyle = body.game.flash > 0 ? "#fffad0" : "#69d47c";
-    ctx.strokeStyle = "#d5ffd6";
+    ctx.fillStyle = body.game.flash > 0 ? "#fffad0" : colors.fill;
+    ctx.strokeStyle = colors.stroke;
     ctx.lineWidth = 3;
     ctx.beginPath();
     for (let i = 0; i < 8; i += 1) {
@@ -1750,6 +2368,13 @@
     ctx.beginPath();
     ctx.arc(0, 0, r + 6, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * hpRatio);
     ctx.stroke();
+    if (type === "boss") {
+      ctx.fillStyle = "#302616";
+      ctx.font = `900 ${Math.max(10, r * 0.42)}px 'Segoe UI', sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(String(Math.max(0, Math.ceil(body.game.hp))), 0, 1);
+    }
     ctx.restore();
   }
 
@@ -1861,6 +2486,17 @@
     showToast(paused ? "暂停" : "继续");
   }
 
+  function openStation() {
+    if (started && !paused && !["won", "lost"].includes(state.status)) {
+      if (!confirm("当前弹丸进度不会保留，返回远征站？")) return;
+    }
+    paused = true;
+    selectedLevel = Math.min(state.level, save.unlocked - 1);
+    resultModal.classList.remove("show");
+    startModal.classList.add("show");
+    renderStation();
+  }
+
   function loop(time) {
     const dt = lastTime ? time - lastTime : 16.67;
     lastTime = time;
@@ -1877,23 +2513,52 @@
   abilityBtn.addEventListener("click", activateAbility);
   windBtn.addEventListener("click", shiftWind);
   pauseBtn.addEventListener("click", togglePause);
+  soundBtn.addEventListener("click", toggleSound);
+  homeBtn.addEventListener("click", openStation);
   restartBtn.addEventListener("click", () => {
     started = true;
     startModal.classList.remove("show");
     loadLevel(state.level);
   });
   startBtn.addEventListener("click", () => {
+    ensureAudio();
     started = true;
     startModal.classList.remove("show");
-    loadLevel(0);
+    loadLevel(selectedLevel);
   });
   nextBtn.addEventListener("click", () => {
+    if (state.status === "lost") {
+      started = true;
+      loadLevel(state.level);
+      return;
+    }
+    if (state.level === levels.length - 1) {
+      openStation();
+      return;
+    }
     started = true;
     loadLevel(state.level + 1);
   });
   retryBtn.addEventListener("click", () => {
     started = true;
     loadLevel(state.level);
+  });
+  document.getElementById("exportSaveBtn").addEventListener("click", async () => {
+    const code = encodeSave();
+    try {
+      await navigator.clipboard.writeText(code);
+    } catch (error) {}
+    prompt("弹弓风暴 V4 存档码（已尝试复制）", code);
+  });
+  document.getElementById("importSaveBtn").addEventListener("click", () => {
+    const code = prompt("粘贴弹弓风暴 V4 存档码：");
+    if (!code) return;
+    try {
+      importSave(code);
+      alert("存档导入成功，远征与工坊数据已恢复。");
+    } catch (error) {
+      alert(`导入失败：${error.message}`);
+    }
   });
 
   window.addEventListener("keydown", event => {
@@ -1913,14 +2578,16 @@
   window.addEventListener("resize", resize);
 
   resize();
+  renderSoundButton();
   createEngine();
   addStaticWorld();
+  renderStation();
   renderLevelButtons();
   updateUI();
   if (new URLSearchParams(window.location.search).get("autostart") === "1") {
     started = true;
     startModal.classList.remove("show");
-    loadLevel(0);
+    loadLevel(selectedLevel);
   }
   requestAnimationFrame(loop);
 })();

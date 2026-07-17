@@ -11,7 +11,8 @@
     "render:v2": "node scripts/render-v2.mjs",
     "render:vertical": "node scripts/render-vertical.mjs",
     "cover": "python scripts/create-cover.py",
-    "verify": "node scripts/verify.mjs"
+    "verify": "node scripts/verify.mjs",
+    "check:slingstorm": "node scripts/check-slingstorm.mjs"
   },
   "dependencies": {
     "ffprobe-static": "3.1.0",
