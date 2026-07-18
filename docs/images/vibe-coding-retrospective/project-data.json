@@ -1,0 +1,111 @@
+{
+  "generatedAt": "2026-07-18T07:44:30.436Z",
+  "methodology": "Repository-derived counts plus Playwright screenshots from five different games; ratings are the project's own quality rubric, not market scores.",
+  "audit": {
+    "games": 100,
+    "pages": 200,
+    "loadFailures": 0,
+    "javascriptFailures": 0,
+    "consoleFailures": 0,
+    "overflows": 0,
+    "weakPages": 17
+  },
+  "ratings": {
+    "S": 10,
+    "A": 21,
+    "B": 35,
+    "C": 13,
+    "D": 21
+  },
+  "qualityRounds": 7,
+  "html": {
+    "files": 100,
+    "totalBytes": 2887069,
+    "totalLines": 64359,
+    "medianBytes": 10372
+  },
+  "diagnostics": [
+    {
+      "id": "starforge",
+      "name": "星炉工坊",
+      "file": "starforge-idle.html",
+      "title": "星炉工坊",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "horizontalOverflow": false,
+      "screenshot": "output/vibe-coding-retrospective/starforge.jpg"
+    },
+    {
+      "id": "moba",
+      "name": "晶塔前线",
+      "file": "moba-frontier.html",
+      "title": "晶塔前线：群星赛季 V5",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "horizontalOverflow": false,
+      "screenshot": "output/vibe-coding-retrospective/moba.jpg"
+    },
+    {
+      "id": "shan-hai",
+      "name": "山海伏魔录",
+      "file": "shan-hai.html",
+      "title": "山海伏魔录",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "horizontalOverflow": false,
+      "screenshot": "output/vibe-coding-retrospective/shan-hai.jpg"
+    },
+    {
+      "id": "snake",
+      "name": "霓虹贪吃蛇",
+      "file": "snake-game.html",
+      "title": "霓虹贪吃蛇：星环远征",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "horizontalOverflow": false,
+      "screenshot": "output/vibe-coding-retrospective/snake.jpg"
+    },
+    {
+      "id": "neon-2048",
+      "name": "霓虹 2048",
+      "file": "neon-2048.html",
+      "title": "霓虹 2048：万象矩阵",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "horizontalOverflow": false,
+      "screenshot": "output/vibe-coding-retrospective/neon-2048.jpg"
+    }
+  ],
+  "captures": [
+    {
+      "id": "starforge",
+      "name": "星炉工坊",
+      "path": "output/vibe-coding-retrospective/starforge.jpg"
+    },
+    {
+      "id": "moba",
+      "name": "晶塔前线",
+      "path": "output/vibe-coding-retrospective/moba.jpg"
+    },
+    {
+      "id": "shan-hai",
+      "name": "山海伏魔录",
+      "path": "output/vibe-coding-retrospective/shan-hai.jpg"
+    },
+    {
+      "id": "snake",
+      "name": "霓虹贪吃蛇",
+      "path": "output/vibe-coding-retrospective/snake.jpg"
+    },
+    {
+      "id": "neon-2048",
+      "name": "霓虹 2048",
+      "path": "output/vibe-coding-retrospective/neon-2048.jpg"
+    }
+  ],
+  "committedReference": {
+    "id": "star-cluster",
+    "name": "星团大作战",
+    "path": "docs/images/browser-performance/star-cluster-stress.jpg"
+  }
+}
