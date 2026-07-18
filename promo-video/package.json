@@ -16,6 +16,8 @@
     "article:performance:images": "python scripts/create-browser-performance-article-images.py",
     "article:retrospective:capture": "node scripts/capture-vibe-coding-retrospective.mjs",
     "article:retrospective:images": "python scripts/create-vibe-coding-retrospective-images.py",
+    "article:source-corpus:analyze": "node scripts/analyze-game-source-corpus.mjs",
+    "article:source-corpus:images": "python scripts/create-source-corpus-article-images.py",
     "verify": "node scripts/verify.mjs",
     "check:slingstorm": "node scripts/check-slingstorm.mjs",
     "check:shan-hai": "node scripts/check-shan-hai.mjs",
