@@ -6,7 +6,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, user-scalable=no"
     />
-    <title>晶塔前线：群星赛季</title>
+    <title>晶塔前线：群星赛季 V5</title>
     <style>
       :root {
         color-scheme: dark;
@@ -197,6 +197,7 @@
         place-items: center;
         padding: 20px;
         background: rgba(5, 8, 6, 0.56);
+        z-index: 10;
       }
 
       .modal.show {
@@ -291,6 +292,111 @@
         font-weight: 800;
       }
 
+      .season-board,
+      .augment-grid {
+        display: grid;
+        gap: 8px;
+      }
+      .season-board {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+      .medal-card {
+        min-height: 58px;
+        padding: 9px;
+        border: 1px solid rgba(221, 238, 213, 0.12);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.03);
+      }
+      .medal-card strong,
+      .medal-card span {
+        display: block;
+      }
+      .medal-card strong {
+        font-size: 12px;
+      }
+      .medal-card span {
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 10px;
+        line-height: 1.35;
+      }
+      .medal-card.unlocked {
+        border-color: rgba(244, 202, 88, 0.6);
+        background: rgba(244, 202, 88, 0.1);
+      }
+
+      #augmentModal {
+        z-index: 14;
+        background: rgba(4, 9, 7, 0.78);
+      }
+      #augmentModal .dialog {
+        width: min(760px, 96%);
+      }
+      .augment-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+      .augment-card {
+        min-height: 190px;
+        padding: 14px;
+        text-align: left;
+        position: relative;
+        overflow: hidden;
+      }
+      .augment-card::before {
+        content: "";
+        position: absolute;
+        inset: 0 auto 0 0;
+        width: 5px;
+        background: var(--augment-color, var(--green));
+      }
+      .augment-card strong,
+      .augment-card span,
+      .augment-card em {
+        display: block;
+      }
+      .augment-card strong {
+        color: var(--augment-color, var(--green));
+        font-size: 18px;
+      }
+      .augment-card span {
+        margin-top: 11px;
+        color: var(--text);
+        font-size: 13px;
+        line-height: 1.55;
+      }
+      .augment-card em {
+        margin-top: 14px;
+        color: var(--muted);
+        font-size: 11px;
+        font-style: normal;
+      }
+      .augment-summary {
+        display: grid;
+        gap: 7px;
+      }
+      .augment-slots {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 6px;
+      }
+      .augment-chip {
+        min-height: 34px;
+        display: grid;
+        place-items: center;
+        padding: 5px;
+        border: 1px dashed rgba(221, 238, 213, 0.18);
+        border-radius: 8px;
+        color: var(--muted);
+        font-size: 11px;
+        text-align: center;
+      }
+      .augment-chip.filled {
+        border-style: solid;
+        border-color: var(--augment-color, var(--green));
+        background: rgba(255, 255, 255, 0.045);
+        color: var(--text);
+      }
+
       .primary-btn,
       .wide-btn {
         min-height: 42px;
@@ -309,10 +415,10 @@
 
       .rail {
         display: grid;
-        grid-template-rows: auto auto auto auto minmax(0, 1fr);
+        grid-template-rows: auto auto auto auto auto minmax(0, 1fr);
         gap: 12px;
         padding: 12px;
-        overflow: hidden;
+        overflow: auto;
       }
 
       .stat-grid {
@@ -554,6 +660,13 @@
         .career-row {
           grid-template-columns: 1fr;
         }
+        .season-board,
+        .augment-grid {
+          grid-template-columns: 1fr;
+        }
+        .augment-card {
+          min-height: 130px;
+        }
       }
     </style>
   </head>
@@ -562,13 +675,22 @@
       <section class="stage" aria-label="晶塔前线游戏区">
         <header class="topbar">
           <div>
-            <h1>晶塔前线 <b>群星赛季 V4</b></h1>
+            <h1>晶塔前线 <b>群星赛季 V5</b></h1>
             <div class="subline">
               <span id="statusText">待命</span> ·
               <span id="timerText">00:00</span>
             </div>
           </div>
           <div class="top-actions">
+            <button
+              class="icon-btn"
+              id="soundBtn"
+              title="音效开关"
+              aria-label="音效开关"
+              aria-pressed="true"
+            >
+              音
+            </button>
             <button
               class="icon-btn"
               id="pauseBtn"
@@ -593,9 +715,9 @@
           <div class="toast" id="toast"></div>
           <div class="modal show" id="startModal">
             <div class="dialog">
-              <h2>晶塔前线：群星赛季</h2>
+              <h2>晶塔前线：群星赛季 V5</h2>
               <p>
-                选择英雄与战场规则，三线带兵破塔，争夺野区、符印和远古晶兽，摧毁敌方晶核。
+                选择英雄与战场规则，三线带兵破塔；等级 2/4/6 选择星契，构筑本局战术，最终摧毁敌方晶核。
               </p>
               <section class="deploy-section">
                 <h3>选择出战英雄</h3>
@@ -608,6 +730,10 @@
               <section class="deploy-section">
                 <h3>赛季研究</h3>
                 <div class="career-row" id="careerGrid"></div>
+              </section>
+              <section class="deploy-section">
+                <h3>赛季勋章</h3>
+                <div class="season-board" id="seasonBoard"></div>
               </section>
               <div class="save-row">
                 <span id="careerMeta">晶屑 0 · 0 胜</span>
@@ -626,6 +752,13 @@
               <div class="dialog-actions">
                 <button class="primary-btn" id="againBtn">再来一局</button>
               </div>
+            </div>
+          </div>
+          <div class="modal" id="augmentModal" aria-modal="true" role="dialog">
+            <div class="dialog">
+              <h2 id="augmentTitle">选择星契</h2>
+              <p id="augmentCopy">三选一强化只在本局生效。不同效果通过统一修饰器管线叠加。</p>
+              <div class="augment-grid" id="augmentGrid"></div>
             </div>
           </div>
         </div>
@@ -668,6 +801,11 @@
         <section>
           <p class="panel-title">技能</p>
           <div class="ability-grid" id="abilityGrid"></div>
+        </section>
+
+        <section class="augment-summary">
+          <p class="panel-title">星契构筑 <span id="augmentProgress">0 / 3</span></p>
+          <div class="augment-slots" id="augmentSlots"></div>
         </section>
 
         <section>
@@ -721,6 +859,7 @@
         const feed = document.getElementById("feed");
         const toast = document.getElementById("toast");
         const pauseBtn = document.getElementById("pauseBtn");
+        const soundBtn = document.getElementById("soundBtn");
         const restartBtn = document.getElementById("restartBtn");
         const startModal = document.getElementById("startModal");
         const startBtn = document.getElementById("startBtn");
@@ -740,6 +879,13 @@
         const careerMeta = document.getElementById("careerMeta");
         const exportSaveBtn = document.getElementById("exportSaveBtn");
         const importSaveBtn = document.getElementById("importSaveBtn");
+        const seasonBoard = document.getElementById("seasonBoard");
+        const augmentModal = document.getElementById("augmentModal");
+        const augmentTitle = document.getElementById("augmentTitle");
+        const augmentCopy = document.getElementById("augmentCopy");
+        const augmentGrid = document.getElementById("augmentGrid");
+        const augmentSlots = document.getElementById("augmentSlots");
+        const augmentProgress = document.getElementById("augmentProgress");
 
         const WORLD_W = 1800;
         const WORLD_H = 1180;
@@ -1124,7 +1270,154 @@
             cost: (n) => 22 + n * 16,
           },
         };
-        const CAREER_KEY = "crystalFrontCareerV3";
+        const AUGMENT_DRAFT_LEVELS = [2, 4, 6];
+        const MODIFIER_DEFAULTS = Object.freeze({
+          attackDamage: 1,
+          skillDamage: 1,
+          damageTaken: 1,
+          cooldownRate: 1,
+          manaCost: 1,
+          moveSpeed: 1,
+          structureDamage: 1,
+          objectiveDamage: 1,
+          minionDamage: 1,
+          minionSpeed: 1,
+          runePower: 1,
+          goldGain: 1,
+          aoeRadius: 1,
+          critChance: 0,
+          lifesteal: 0,
+          shieldOnCast: 0,
+          killHeal: 0,
+          killRefund: 0,
+          objectiveBuffSeconds: 0,
+          executeThreshold: 0,
+          executeBonus: 0,
+          lastStand: 0,
+        });
+        const MULTIPLICATIVE_MODIFIERS = new Set([
+          "attackDamage",
+          "skillDamage",
+          "damageTaken",
+          "cooldownRate",
+          "manaCost",
+          "moveSpeed",
+          "structureDamage",
+          "objectiveDamage",
+          "minionDamage",
+          "minionSpeed",
+          "runePower",
+          "goldGain",
+          "aoeRadius",
+        ]);
+        const AUGMENTS = {
+          bladeCircuit: {
+            name: "刃脉回路",
+            icon: "✦",
+            school: "锋锐",
+            color: "#ff8b72",
+            desc: "普攻伤害 +18%，暴击率 +8%。",
+            effects: { attackDamage: 1.18, critChance: 0.08 },
+          },
+          voidExecution: {
+            name: "虚空处决",
+            icon: "◐",
+            school: "终结",
+            color: "#c39bff",
+            desc: "目标低于 28% 生命时，伤害额外 +32%。",
+            effects: { executeThreshold: 0.28, executeBonus: 0.32 },
+          },
+          cometMatrix: {
+            name: "彗星矩阵",
+            icon: "✹",
+            school: "术式",
+            color: "#f4ca58",
+            desc: "技能伤害 +20%，范围技能半径 +12%。",
+            effects: { skillDamage: 1.2, aoeRadius: 1.12 },
+          },
+          aetherLoop: {
+            name: "以太循环",
+            icon: "∞",
+            school: "回路",
+            color: "#61c9ff",
+            desc: "冷却恢复 +18%，技能能量消耗 -18%。",
+            effects: { cooldownRate: 1.18, manaCost: 0.82 },
+          },
+          phaseEngine: {
+            name: "相位引擎",
+            icon: "ϟ",
+            school: "机动",
+            color: "#67d784",
+            desc: "移动速度 +14%；每次施法获得 42 点短暂护盾。",
+            effects: { moveSpeed: 1.14, shieldOnCast: 42 },
+          },
+          bloodCore: {
+            name: "猩红晶核",
+            icon: "◆",
+            school: "续航",
+            color: "#ff6c5f",
+            desc: "获得 7% 汲取；参与击败主要目标恢复 10% 生命。",
+            effects: { lifesteal: 0.07, killHeal: 0.1 },
+          },
+          prismBastion: {
+            name: "棱晶壁垒",
+            icon: "⬡",
+            school: "守御",
+            color: "#8de8d0",
+            desc: "承受伤害 -14%；每局可抵挡一次致命伤。",
+            effects: { damageTaken: 0.86, lastStand: 1 },
+          },
+          wardEcho: {
+            name: "守望回响",
+            icon: "▣",
+            school: "守御",
+            color: "#87b7ff",
+            desc: "每次施法获得 80 点护盾；符印效果 +20%。",
+            effects: { shieldOnCast: 80, runePower: 1.2 },
+          },
+          siegeProtocol: {
+            name: "破城协议",
+            icon: "▲",
+            school: "攻城",
+            color: "#ffb45e",
+            desc: "对防御塔与晶核伤害 +42%，蓝方兵线伤害 +18%。",
+            effects: { structureDamage: 1.42, minionDamage: 1.18 },
+          },
+          beastPact: {
+            name: "晶兽盟约",
+            icon: "◇",
+            school: "目标",
+            color: "#e5d56b",
+            desc: "对远古晶兽伤害 +50%，晶潮推进延长 12 秒。",
+            effects: { objectiveDamage: 1.5, objectiveBuffSeconds: 12 },
+          },
+          commandNetwork: {
+            name: "兵线网络",
+            icon: "♟",
+            school: "指挥",
+            color: "#75e6a0",
+            desc: "蓝方兵线伤害 +24%、移动速度 +15%。",
+            effects: { minionDamage: 1.24, minionSpeed: 1.15 },
+          },
+          bountyLens: {
+            name: "赏金透镜",
+            icon: "◎",
+            school: "经济",
+            color: "#f4ca58",
+            desc: "获得金币 +24%；击败主要目标返还技能冷却 2 秒。",
+            effects: { goldGain: 1.24, killRefund: 2 },
+          },
+        };
+        const SEASON_MEDALS = {
+          firstVictory: { name: "前线初捷", desc: "赢得任意一局", reward: 12, test: (summary) => summary.won },
+          flawless: { name: "无暇晶甲", desc: "零阵亡获胜", reward: 18, test: (summary) => summary.won && summary.deaths === 0 },
+          beastHunter: { name: "双兽猎手", desc: "单局击败 2 只晶兽", reward: 18, test: (summary) => summary.objectives >= 2 },
+          siegeMaster: { name: "三线破城", desc: "单局摧毁 3 座敌塔", reward: 20, test: (summary) => summary.towers >= 3 },
+          fullBuild: { name: "星契成型", desc: "携带 3 项星契获胜", reward: 22, test: (summary) => summary.won && summary.augments >= 3 },
+          veteran: { name: "百战档案", desc: "累计完成 10 场", reward: 26, test: (_summary, nextCareer) => nextCareer.games >= 10 },
+        };
+        const CAREER_KEY = "crystalFrontCareerV4";
+        const LEGACY_CAREER_KEY = "crystalFrontCareerV3";
         let selectedChampion = "starblade";
         let selectedRule = "conquest";
         let career = loadCareer();
@@ -1134,10 +1427,11 @@
         selectedRule = MATCH_RULES[career.loadout?.rule]
           ? career.loadout.rule
           : selectedRule;
+        if (!localStorage.getItem(CAREER_KEY)) storeCareer();
 
         function loadCareer() {
           const base = {
-            version: 3,
+            version: 4,
             shards: 0,
             wins: 0,
             games: 0,
@@ -1147,27 +1441,111 @@
             streak: 0,
             mastery: {},
             records: {},
+            championWins: {},
+            medals: {},
+            augmentWins: {},
+            bestGrade: "-",
             loadout: { champion: "starblade", rule: "conquest" },
           };
+          const cleanInt = (value, min = 0, max = Number.MAX_SAFE_INTEGER) =>
+            Math.max(min, Math.min(max, Math.floor(Number(value) || 0)));
+          const cleanObject = (value) =>
+            value && typeof value === "object" && !Array.isArray(value)
+              ? value
+              : {};
           try {
             const value = JSON.parse(
-              localStorage.getItem(CAREER_KEY) || "null",
+              localStorage.getItem(CAREER_KEY) ||
+                localStorage.getItem(LEGACY_CAREER_KEY) ||
+                "null",
             );
-            if (value)
+            if (value) {
+              const rawTech = cleanObject(value.tech);
+              const rawMastery = cleanObject(value.mastery);
+              const rawChampionWins = cleanObject(value.championWins);
+              const rawAugmentWins = cleanObject(value.augmentWins);
+              const rawRecords = cleanObject(value.records);
+              const rawMedals = cleanObject(value.medals);
+              const tech = Object.fromEntries(
+                Object.entries(CAREER_TECH).map(([key, def]) => [
+                  key,
+                  cleanInt(rawTech[key], 0, def.max),
+                ]),
+              );
+              const mastery = Object.fromEntries(
+                Object.keys(CHAMPIONS).map((key) => [
+                  key,
+                  cleanInt(rawMastery[key]),
+                ]),
+              );
+              const championWins = Object.fromEntries(
+                Object.keys(CHAMPIONS).map((key) => [
+                  key,
+                  cleanInt(rawChampionWins[key]),
+                ]),
+              );
+              const augmentWins = Object.fromEntries(
+                Object.keys(AUGMENTS).map((key) => [
+                  key,
+                  cleanInt(rawAugmentWins[key]),
+                ]),
+              );
+              const records = Object.fromEntries(
+                Object.keys(MATCH_RULES).map((key) => {
+                  const raw = cleanObject(rawRecords[key]);
+                  const plays = cleanInt(raw.plays);
+                  return [
+                    key,
+                    {
+                      plays,
+                      wins: cleanInt(raw.wins, 0, plays),
+                      bestTime: cleanInt(raw.bestTime),
+                    },
+                  ];
+                }),
+              );
+              const medals = Object.fromEntries(
+                Object.keys(SEASON_MEDALS)
+                  .filter((key) => rawMedals[key])
+                  .map((key) => [key, rawMedals[key]]),
+              );
+              const rawLoadout = cleanObject(value.loadout);
               return {
                 ...base,
-                ...value,
-                version: 3,
-                tech: { ...base.tech, ...(value.tech || {}) },
-                mastery: value.mastery || {},
-                records: value.records || {},
-                loadout: { ...base.loadout, ...(value.loadout || {}) },
+                version: 4,
+                shards: cleanInt(value.shards),
+                wins: cleanInt(value.wins),
+                games: cleanInt(value.games),
+                bestKills: cleanInt(value.bestKills),
+                rankPoints: cleanInt(value.rankPoints),
+                streak: cleanInt(value.streak),
+                tech,
+                mastery,
+                records,
+                championWins,
+                medals,
+                augmentWins,
+                bestGrade: ["-", "C", "B", "A", "S"].includes(
+                  value.bestGrade,
+                )
+                  ? value.bestGrade
+                  : "-",
+                loadout: {
+                  champion: CHAMPIONS[rawLoadout.champion]
+                    ? rawLoadout.champion
+                    : base.loadout.champion,
+                  rule: MATCH_RULES[rawLoadout.rule]
+                    ? rawLoadout.rule
+                    : base.loadout.rule,
+                },
               };
+            }
           } catch (error) {}
           return base;
         }
 
         function storeCareer() {
+          career.version = 4;
           career.loadout = { champion: selectedChampion, rule: selectedRule };
           localStorage.setItem(CAREER_KEY, JSON.stringify(career));
         }
@@ -1184,21 +1562,25 @@
         function encodeCareer() {
           const json = JSON.stringify({
             game: "crystal-front",
-            version: 3,
+            version: 4,
             data: career,
           });
           const bytes = new TextEncoder().encode(json);
           let binary = "";
           bytes.forEach((byte) => (binary += String.fromCharCode(byte)));
           const payload = btoa(binary);
-          return `CFT3.${payload}.${careerHash(payload)}`;
+          return `CFT4.${payload}.${careerHash(payload)}`;
         }
 
         function importCareer(code) {
           const [prefix, payload, checksum] = String(code || "")
             .trim()
             .split(".");
-          if (prefix !== "CFT3" || !payload || careerHash(payload) !== checksum)
+          if (
+            !["CFT3", "CFT4"].includes(prefix) ||
+            !payload ||
+            careerHash(payload) !== checksum
+          )
             throw new Error("存档码校验失败");
           const binary = atob(payload);
           const parsed = JSON.parse(
@@ -1250,7 +1632,16 @@
               return `<button class="career-btn" data-career="${key}" ${maxed || career.shards < cost ? "disabled" : ""}><strong>${tech.name} Lv.${level}</strong><span>${tech.desc}<br>${maxed ? "已满级" : `晶屑 ${cost}`}</span></button>`;
             })
             .join("");
-          careerMeta.textContent = `${rankName()} ${career.rankPoints || 0}分 · 晶屑 ${career.shards} · ${career.wins}胜/${career.games}场 · 连胜 ${career.streak || 0} · 最佳击败 ${career.bestKills}`;
+          seasonBoard.innerHTML = Object.entries(SEASON_MEDALS)
+            .map(([key, medal]) => {
+              const unlocked = Boolean(career.medals[key]);
+              return `<div class="medal-card ${unlocked ? "unlocked" : ""}"><strong>${unlocked ? "◆" : "◇"} ${medal.name}</strong><span>${medal.desc}${unlocked ? " · 已获得" : ` · 奖励 ${medal.reward} 晶屑`}</span></div>`;
+            })
+            .join("");
+          const medalCount = Object.keys(SEASON_MEDALS).filter(
+            (key) => career.medals[key],
+          ).length;
+          careerMeta.textContent = `${rankName()} ${career.rankPoints || 0}分 · 晶屑 ${career.shards} · ${career.wins}胜/${career.games}场 · 勋章 ${medalCount}/${Object.keys(SEASON_MEDALS).length} · 最高评价 ${career.bestGrade || "-"}`;
           championGrid.querySelectorAll("[data-champion]").forEach(
             (button) =>
               (button.onclick = () => {
@@ -1326,6 +1717,9 @@
         let toastTimer = 0;
         let abilityRenderKey = "";
         let laneRenderKey = "";
+        let augmentRenderKey = "";
+        let soundEnabled = localStorage.getItem("crystalFrontSound") !== "off";
+        let audioContext = null;
 
         const game = {
           started: false,
@@ -1337,6 +1731,17 @@
           waveNumber: 0,
           kills: 0,
           deaths: 0,
+          towers: 0,
+          objectives: 0,
+          damageDealt: 0,
+          augmentPicks: [],
+          pendingDraftLevels: [],
+          draftOptions: [],
+          draftOpen: false,
+          modifiers: { ...MODIFIER_DEFAULTS },
+          lastStandCharges: 0,
+          seed: 1,
+          rngState: 1,
           message: "待命",
         };
 
@@ -1427,7 +1832,134 @@
           return { x: dx / len, y: dy / len, len };
         }
 
-        function startGame() {
+        function playCue(kind = "tap") {
+          if (!soundEnabled) return;
+          try {
+            audioContext ||= new (window.AudioContext || window.webkitAudioContext)();
+            if (audioContext.state === "suspended") audioContext.resume();
+            const now = audioContext.currentTime;
+            const notes = {
+              tap: [330, 0.05, 0.025],
+              skill: [520, 0.09, 0.04],
+              level: [440, 0.18, 0.045],
+              augment: [660, 0.24, 0.055],
+              objective: [220, 0.28, 0.06],
+              victory: [740, 0.42, 0.065],
+              defeat: [150, 0.36, 0.055],
+            };
+            const [frequency, duration, volume] = notes[kind] || notes.tap;
+            const oscillator = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            oscillator.type = kind === "defeat" ? "sawtooth" : "triangle";
+            oscillator.frequency.setValueAtTime(frequency, now);
+            if (["level", "augment", "victory"].includes(kind))
+              oscillator.frequency.exponentialRampToValueAtTime(frequency * 1.5, now + duration);
+            gain.gain.setValueAtTime(volume, now);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+            oscillator.connect(gain).connect(audioContext.destination);
+            oscillator.start(now);
+            oscillator.stop(now + duration);
+          } catch (error) {}
+        }
+
+        function renderSoundButton() {
+          soundBtn.setAttribute("aria-pressed", String(soundEnabled));
+          soundBtn.textContent = soundEnabled ? "音" : "静";
+          soundBtn.classList.toggle("muted", !soundEnabled);
+        }
+
+        function compileModifiers(augmentKeys = []) {
+          const result = { ...MODIFIER_DEFAULTS };
+          for (const key of augmentKeys) {
+            const augment = AUGMENTS[key];
+            if (!augment) continue;
+            for (const [modifier, value] of Object.entries(augment.effects)) {
+              if (!(modifier in result)) continue;
+              if (MULTIPLICATIVE_MODIFIERS.has(modifier)) result[modifier] *= value;
+              else result[modifier] += value;
+            }
+          }
+          return result;
+        }
+
+        function matchRandom() {
+          let value = game.rngState >>> 0 || 1;
+          value ^= value << 13;
+          value ^= value >>> 17;
+          value ^= value << 5;
+          game.rngState = value >>> 0;
+          return game.rngState / 4294967296;
+        }
+
+        function draftCandidates(forcedKeys) {
+          const available = Object.keys(AUGMENTS).filter(
+            (key) => !game.augmentPicks.includes(key),
+          );
+          if (Array.isArray(forcedKeys))
+            return forcedKeys.filter((key) => available.includes(key)).slice(0, 3);
+          for (let index = available.length - 1; index > 0; index--) {
+            const pick = Math.floor(matchRandom() * (index + 1));
+            [available[index], available[pick]] = [available[pick], available[index]];
+          }
+          return available.slice(0, 3);
+        }
+
+        function renderAugmentDraft(level) {
+          augmentTitle.textContent = `等级 ${level} · 选择第 ${game.augmentPicks.length + 1} 项星契`;
+          augmentCopy.textContent = "三选一强化只在本局生效；乘法、加法与触发效果由统一修饰器管线结算。";
+          augmentGrid.innerHTML = game.draftOptions
+            .map((key) => {
+              const augment = AUGMENTS[key];
+              return `<button class="augment-card" data-augment="${key}" style="--augment-color:${augment.color}"><strong>${augment.icon} ${augment.name}</strong><span>${augment.desc}</span><em>${augment.school}星契 · 点击装配</em></button>`;
+            })
+            .join("");
+          augmentGrid.querySelectorAll("[data-augment]").forEach(
+            (button) => (button.onclick = () => chooseAugment(button.dataset.augment)),
+          );
+        }
+
+        function openNextAugmentDraft(forcedKeys) {
+          if (game.draftOpen || !game.pendingDraftLevels.length || game.over) return;
+          const level = game.pendingDraftLevels.shift();
+          game.draftOptions = draftCandidates(forcedKeys);
+          if (!game.draftOptions.length) return;
+          game.draftOpen = true;
+          game.paused = true;
+          pauseBtn.textContent = "◆";
+          renderAugmentDraft(level);
+          augmentModal.classList.add("show");
+          updateUI();
+        }
+
+        function queueAugmentDraft(level, forcedKeys) {
+          if (!AUGMENT_DRAFT_LEVELS.includes(level)) return;
+          game.pendingDraftLevels.push(level);
+          openNextAugmentDraft(forcedKeys);
+        }
+
+        function chooseAugment(key) {
+          if (!game.draftOpen || !game.draftOptions.includes(key) || !AUGMENTS[key]) return false;
+          game.augmentPicks.push(key);
+          game.modifiers = compileModifiers(game.augmentPicks);
+          game.lastStandCharges = Math.max(game.lastStandCharges, game.modifiers.lastStand);
+          game.draftOpen = false;
+          game.draftOptions = [];
+          augmentModal.classList.remove("show");
+          augmentRenderKey = "";
+          pushFeed(`装配星契 · ${AUGMENTS[key].name}`);
+          showToast(`${AUGMENTS[key].icon} ${AUGMENTS[key].name}`);
+          playCue("augment");
+          if (game.pendingDraftLevels.length) openNextAugmentDraft();
+          else {
+            game.paused = false;
+            pauseBtn.textContent = "Ⅱ";
+          }
+          updateUI();
+          return true;
+        }
+
+        function startGame(options = {}) {
+          if (!options || options instanceof Event) options = {};
           game.started = true;
           game.paused = false;
           game.over = false;
@@ -1437,6 +1969,17 @@
           game.waveNumber = 0;
           game.kills = 0;
           game.deaths = 0;
+          game.towers = 0;
+          game.objectives = 0;
+          game.damageDealt = 0;
+          game.augmentPicks = [];
+          game.pendingDraftLevels = [];
+          game.draftOptions = [];
+          game.draftOpen = false;
+          game.modifiers = { ...MODIFIER_DEFAULTS };
+          game.lastStandCharges = 0;
+          game.seed = (Number(options.seed) || (Date.now() ^ (career.games + 1) * 2654435761)) >>> 0;
+          game.rngState = game.seed || 1;
           game.rule = selectedRule;
           game.champion = selectedChampion;
           game.message = "兵线集结";
@@ -1446,8 +1989,10 @@
           feed.innerHTML = "";
           startModal.classList.remove("show");
           resultModal.classList.remove("show");
+          augmentModal.classList.remove("show");
           pauseBtn.textContent = "Ⅱ";
           laneRenderKey = "";
+          augmentRenderKey = "";
 
           for (const key of Object.keys(entities)) entities[key] = [];
           createStructures();
@@ -1469,6 +2014,7 @@
           pushFeed("蓝方晶塔上线");
           pushFeed("赤方守军出动");
           showToast("对局开始");
+          playCue("tap");
           updateUI();
         }
 
@@ -1896,10 +2442,11 @@
 
         function tickCooldowns(hero, dt) {
           const buffHaste = hero.aetherTime > 0 ? 1.25 : 1;
+          const augmentRate = hero.isPlayer ? game.modifiers.cooldownRate : 1;
           for (const key of Object.keys(hero.cooldowns)) {
             hero.cooldowns[key] = Math.max(
               0,
-              hero.cooldowns[key] - dt * hero.haste * buffHaste,
+              hero.cooldowns[key] - dt * hero.haste * buffHaste * augmentRate,
             );
           }
         }
@@ -1914,10 +2461,10 @@
 
           if (dx || dy) {
             const n = normalize(dx, dy);
-            moveUnit(hero, n.x, n.y, dt, hero.speed);
+            moveUnit(hero, n.x, n.y, dt, hero.speed * game.modifiers.moveSpeed);
             hero.moveTarget = null;
           } else if (hero.moveTarget) {
-            moveToward(hero, hero.moveTarget, dt, hero.speed);
+            moveToward(hero, hero.moveTarget, dt, hero.speed * game.modifiers.moveSpeed);
             if (distance(hero, hero.moveTarget) < 12) hero.moveTarget = null;
           }
 
@@ -1999,12 +2546,22 @@
               if (d <= minion.range + minion.target.r) {
                 tryAttack(minion, minion.target);
               } else {
-                moveToward(minion, minion.target, dt, minion.speed);
+                moveToward(
+                  minion,
+                  minion.target,
+                  dt,
+                  minion.speed * (minion.team === BLUE ? game.modifiers.minionSpeed : 1),
+                );
               }
             } else {
               const wp = minion.path[minion.wp];
               if (wp) {
-                moveToward(minion, wp, dt, minion.speed);
+                moveToward(
+                  minion,
+                  wp,
+                  dt,
+                  minion.speed * (minion.team === BLUE ? game.modifiers.minionSpeed : 1),
+                );
                 if (distance(minion, wp) < 24) minion.wp += 1;
               } else {
                 const core = getCore(1 - minion.team);
@@ -2213,20 +2770,30 @@
         function takeRune(hero, rune) {
           rune.available = false;
           rune.timer = 24;
+          const runePower = hero.isPlayer ? game.modifiers.runePower : 1;
           if (rune.type === "renew") {
-            hero.hp = Math.min(hero.maxHp, hero.hp + hero.maxHp * 0.28);
-            hero.mana = Math.min(hero.maxMana, hero.mana + hero.maxMana * 0.42);
+            hero.hp = Math.min(
+              hero.maxHp,
+              hero.hp + hero.maxHp * 0.28 * runePower,
+            );
+            hero.mana = Math.min(
+              hero.maxMana,
+              hero.mana + hero.maxMana * 0.42 * runePower,
+            );
           } else if (rune.type === "power") {
-            hero.buffTime = Math.max(hero.buffTime || 0, 16);
+            hero.buffTime = Math.max(hero.buffTime || 0, 16 * runePower);
           } else if (rune.type === "haste") {
-            hero.cooldowns.q = Math.max(0, hero.cooldowns.q - 3);
-            hero.cooldowns.w = Math.max(0, hero.cooldowns.w - 3);
-            hero.cooldowns.e = Math.max(0, hero.cooldowns.e - 3);
-            hero.buffTime = Math.max(hero.buffTime || 0, 9);
+            hero.cooldowns.q = Math.max(0, hero.cooldowns.q - 3 * runePower);
+            hero.cooldowns.w = Math.max(0, hero.cooldowns.w - 3 * runePower);
+            hero.cooldowns.e = Math.max(0, hero.cooldowns.e - 3 * runePower);
+            hero.buffTime = Math.max(hero.buffTime || 0, 9 * runePower);
           } else if (rune.type === "guard") {
-            hero.shield = Math.max(hero.shield || 0, 150 + hero.level * 22);
-            hero.shieldTime = 5.5;
-            hero.guardTime = Math.max(hero.guardTime || 0, 12);
+            hero.shield = Math.max(
+              hero.shield || 0,
+              (150 + hero.level * 22) * runePower,
+            );
+            hero.shieldTime = 5.5 * runePower;
+            hero.guardTime = Math.max(hero.guardTime || 0, 12 * runePower);
           }
           floatingText(hero.x, hero.y - 36, rune.name, rune.color);
           burst(rune.x, rune.y, rune.color, 22);
@@ -2470,7 +3037,27 @@
         function damageUnit(unit, amount, source, name) {
           if (!unit.alive) return;
           let damage = amount;
-          if (source?.crit > 0 && Math.random() < source.crit) {
+          if (source === player) {
+            const skillHit = name !== "普攻";
+            damage *= skillHit
+              ? game.modifiers.skillDamage
+              : game.modifiers.attackDamage;
+            if (unit.kind === "tower" || unit.kind === "core")
+              damage *= game.modifiers.structureDamage;
+            if (unit.kind === "objective")
+              damage *= game.modifiers.objectiveDamage;
+            if (
+              game.modifiers.executeThreshold > 0 &&
+              unit.hp / Math.max(1, unit.maxHp) <= game.modifiers.executeThreshold
+            )
+              damage *= 1 + game.modifiers.executeBonus;
+          } else if (source?.kind === "minion" && source.team === BLUE) {
+            damage *= game.modifiers.minionDamage;
+          }
+          const critChance =
+            (source?.crit || 0) +
+            (source === player ? game.modifiers.critChance : 0);
+          if (critChance > 0 && Math.random() < critChance) {
             damage *= 1.65;
             if (source === player) showToast("暴击");
           }
@@ -2501,23 +3088,39 @@
             damage *= source.guardTime > 0 ? 0.62 : 0.42;
           }
           if (unit.bulwarkTime > 0) damage *= 0.88;
+          if (unit === player) damage *= game.modifiers.damageTaken;
           if (unit.shield > 0) {
             const absorbed = Math.min(unit.shield, damage);
             unit.shield -= absorbed;
             damage -= absorbed;
           }
           if (damage <= 0) return;
+          if (
+            unit === player &&
+            damage >= unit.hp &&
+            game.lastStandCharges > 0
+          ) {
+            game.lastStandCharges -= 1;
+            damage = Math.max(0, unit.hp - 1);
+            unit.shield = Math.max(unit.shield || 0, 120 + unit.level * 24);
+            unit.shieldTime = 4;
+            floatingText(unit.x, unit.y - 42, "棱晶不屈", "#8de8d0");
+            showToast("棱晶壁垒抵挡致命伤");
+            playCue("objective");
+          }
           unit.hp -= damage;
           if (
             source === player &&
-            source.lifesteal > 0 &&
+            source.lifesteal + game.modifiers.lifesteal > 0 &&
             unit.team !== source.team
           ) {
             source.hp = Math.min(
               source.maxHp,
-              source.hp + damage * source.lifesteal,
+              source.hp +
+                damage * (source.lifesteal + game.modifiers.lifesteal),
             );
           }
+          if (source === player) game.damageDealt += damage;
           unit.hitFlash = 0.16;
           floatingText(
             unit.x,
@@ -2544,12 +3147,14 @@
           }
 
           if (unit.kind === "tower") {
+            if (source?.team === BLUE) game.towers += 1;
             pushFeed(unit.name + " 被摧毁");
             rewardPlayer(unit, source, 150, 110);
             return;
           }
 
           if (unit.kind === "objective") {
+            if (source?.team === BLUE) game.objectives += 1;
             unit.respawn = OBJECTIVE_RESPAWN;
             unit.aggroTarget = null;
             unit.aggroTime = 0;
@@ -2620,7 +3225,10 @@
           teamBuffs[source.team].duration = Math.max(
             teamBuffs[source.team].duration,
             OBJECTIVE_BUFF_DURATION +
-              (source.team === BLUE ? (career.tech.objective || 0) * 6 : 0),
+              (source.team === BLUE
+                ? (career.tech.objective || 0) * 6 +
+                  game.modifiers.objectiveBuffSeconds
+                : 0),
           );
           for (const hero of entities.heroes) {
             if (hero.team !== source.team || !hero.alive) continue;
@@ -2633,6 +3241,7 @@
             teamName[source.team] + " 击败 " + unit.name + "，获得晶潮推进",
           );
           if (source.team === BLUE) showToast("晶潮推进已激活");
+          if (source.team === BLUE) playCue("objective");
         }
 
         function rewardPlayer(unit, source, gold, xp) {
@@ -2652,10 +3261,26 @@
                   : major
                     ? 0.65
                     : 0.42;
-            const gainedGold = Math.max(1, Math.round(gold * share));
+            const gainedGold = Math.max(
+              1,
+              Math.round(gold * share * game.modifiers.goldGain),
+            );
             const gainedXp = Math.max(1, Math.round(xp * share));
             player.gold += gainedGold;
             player.xp += gainedXp;
+            if (major && (source === player || nearby)) {
+              if (game.modifiers.killHeal > 0)
+                player.hp = Math.min(
+                  player.maxHp,
+                  player.hp + player.maxHp * game.modifiers.killHeal,
+                );
+              if (game.modifiers.killRefund > 0)
+                for (const key of Object.keys(player.cooldowns))
+                  player.cooldowns[key] = Math.max(
+                    0,
+                    player.cooldowns[key] - game.modifiers.killRefund,
+                  );
+            }
             floatingText(
               player.x,
               player.y - 34,
@@ -2677,7 +3302,9 @@
             player.damage += 7;
             abilityRenderKey = "";
             showToast("等级提升 " + player.level);
+            playCue("level");
             burst(player.x, player.y, "#67d784", 24);
+            queueAugmentDraft(player.level);
           }
         }
 
@@ -2708,6 +3335,15 @@
           );
         }
 
+        function abilityCost(hero, key) {
+          const def = abilityDefs[key];
+          if (!def) return 0;
+          return Math.max(
+            1,
+            Math.round(def.cost * (hero?.isPlayer ? game.modifiers.manaCost : 1)),
+          );
+        }
+
         function queueAbility(key) {
           if (!game.started || game.paused || game.over || !player.alive)
             return;
@@ -2722,7 +3358,7 @@
             showToast(def.name + " 冷却中");
             return;
           }
-          if (player.mana < def.cost) {
+          if (player.mana < abilityCost(player, key)) {
             showToast("能量不足");
             return;
           }
@@ -2743,11 +3379,12 @@
             return;
           }
           if (player.cooldowns[key] > 0) return;
-          if (player.mana < def.cost) {
+          const cost = abilityCost(player, key);
+          if (player.mana < cost) {
             showToast("能量不足");
             return;
           }
-          player.mana -= def.cost;
+          player.mana -= cost;
           player.cooldowns[key] = def.cd;
           queuedAbility = null;
           abilityRenderKey = "";
@@ -2756,6 +3393,14 @@
           if (key === "w") castDash(player, pointer);
           if (key === "e") castAoe(player, pointer, key);
           if (key === "r") castMeteor(player, pointer);
+          if (game.modifiers.shieldOnCast > 0) {
+            player.shield = Math.max(
+              player.shield || 0,
+              game.modifiers.shieldOnCast + player.level * 8,
+            );
+            player.shieldTime = Math.max(player.shieldTime || 0, 3.5);
+          }
+          playCue("skill");
           updateUI();
         }
 
@@ -2820,7 +3465,10 @@
           entities.aoes.push({
             x,
             y,
-            r: 88 * (caster.aoeScale || 1),
+            r:
+              88 *
+              (caster.aoeScale || 1) *
+              (caster.isPlayer ? game.modifiers.aoeRadius : 1),
             team: caster.team,
             source: caster,
             damage: caster.isPlayer
@@ -2849,7 +3497,10 @@
           entities.aoes.push({
             x,
             y,
-            r: 124 * (caster.aoeScale || 1),
+            r:
+              124 *
+              (caster.aoeScale || 1) *
+              (caster.isPlayer ? game.modifiers.aoeRadius : 1),
             team: caster.team,
             source: caster,
             damage: (84 + caster.level * 15) * (caster.skillPower || 1),
@@ -2916,6 +3567,43 @@
           if (redCore && !redCore.alive) endGame(BLUE);
         }
 
+        function matchGrade(won) {
+          const score =
+            (won ? 45 : 12) +
+            Math.min(20, game.kills * 4) +
+            Math.min(18, game.towers * 6) +
+            Math.min(16, game.objectives * 8) +
+            game.augmentPicks.length * 3 -
+            Math.min(20, game.deaths * 5);
+          if (score >= 78) return "S";
+          if (score >= 60) return "A";
+          if (score >= 42) return "B";
+          return "C";
+        }
+
+        function betterGrade(current, candidate) {
+          const order = ["-", "C", "B", "A", "S"];
+          return order.indexOf(candidate) > order.indexOf(current || "-")
+            ? candidate
+            : current || "-";
+        }
+
+        function unlockSeasonMedals(summary) {
+          const unlocked = [];
+          let bonus = 0;
+          for (const [key, medal] of Object.entries(SEASON_MEDALS)) {
+            if (career.medals[key] || !medal.test(summary, career)) continue;
+            career.medals[key] = {
+              earnedAt: Date.now(),
+              champion: selectedChampion,
+              rule: selectedRule,
+            };
+            bonus += medal.reward;
+            unlocked.push(medal.name);
+          }
+          return { bonus, unlocked };
+        }
+
         function endGame(winner) {
           if (game.over) return;
           game.over = true;
@@ -2923,7 +3611,7 @@
           queuedAbility = null;
           const won = winner === BLUE;
           const rule = MATCH_RULES[game.rule || selectedRule];
-          const shards = Math.max(
+          let shards = Math.max(
             3,
             Math.floor(
               (game.kills * 1.5 + game.waveNumber + (won ? 16 : 0)) *
@@ -2934,6 +3622,14 @@
           career.shards += shards;
           career.games += 1;
           career.wins += won ? 1 : 0;
+          const grade = matchGrade(won);
+          career.bestGrade = betterGrade(career.bestGrade, grade);
+          if (won) {
+            career.championWins[selectedChampion] =
+              (career.championWins[selectedChampion] || 0) + 1;
+            for (const key of game.augmentPicks)
+              career.augmentWins[key] = (career.augmentWins[key] || 0) + 1;
+          }
           const previousStreak = career.streak || 0;
           const rankDelta = won
             ? Math.round(15 * rule.reward + Math.min(10, previousStreak * 2))
@@ -2959,13 +3655,29 @@
                 ? Math.round(game.time)
                 : record.bestTime;
           career.records[selectedRule] = record;
+          const summary = {
+            won,
+            kills: game.kills,
+            deaths: game.deaths,
+            towers: game.towers,
+            objectives: game.objectives,
+            augments: game.augmentPicks.length,
+            grade,
+          };
+          const medalResult = unlockSeasonMedals(summary);
+          career.shards += medalResult.bonus;
+          shards += medalResult.bonus;
           storeCareer();
           renderDeployment();
-          resultTitle.textContent = won ? "胜利" : "失败";
-          resultCopy.textContent = `${CHAMPIONS[selectedChampion].name} · ${rule.name} · 用时 ${formatTime(game.time)} · 击败 ${game.kills} · 阵亡 ${game.deaths} · 第 ${game.waveNumber} 波 · 获得 ${shards} 晶屑 · 天梯 ${rankDelta >= 0 ? "+" : ""}${rankDelta}`;
+          resultTitle.textContent = `${won ? "胜利" : "失败"} · ${grade} 评价`;
+          const medalCopy = medalResult.unlocked.length
+            ? ` · 新勋章 ${medalResult.unlocked.join("、")}`
+            : "";
+          resultCopy.textContent = `${CHAMPIONS[selectedChampion].name} · ${rule.name} · 用时 ${formatTime(game.time)} · 击败 ${game.kills} / 阵亡 ${game.deaths} · 破塔 ${game.towers} / 晶兽 ${game.objectives} · 星契 ${game.augmentPicks.length} · 获得 ${shards} 晶屑 · 天梯 ${rankDelta >= 0 ? "+" : ""}${rankDelta}${medalCopy}`;
           resultModal.classList.add("show");
           pushFeed(won ? "赤晶核被摧毁" : "蓝晶核被摧毁");
           showToast(won ? "胜利" : "失败");
+          playCue(won ? "victory" : "defeat");
         }
 
         function cleanupEntities() {
@@ -3074,7 +3786,24 @@
           buySustain.disabled = player.gold < 150;
           buyWard.disabled = player.gold < 160;
           buyMomentum.disabled = player.gold < 175;
+          pauseBtn.disabled = game.draftOpen;
+          renderAugmentSummary();
           renderAbilities();
+        }
+
+        function renderAugmentSummary() {
+          const nextKey = `${game.augmentPicks.join(",")}|${game.lastStandCharges}|${game.draftOpen}`;
+          if (nextKey === augmentRenderKey) return;
+          augmentRenderKey = nextKey;
+          augmentProgress.textContent = `${game.augmentPicks.length} / ${AUGMENT_DRAFT_LEVELS.length}`;
+          augmentSlots.innerHTML = AUGMENT_DRAFT_LEVELS.map((_, index) => {
+            const key = game.augmentPicks[index];
+            if (!key)
+              return `<div class="augment-chip">等级 ${AUGMENT_DRAFT_LEVELS[index]}</div>`;
+            const augment = AUGMENTS[key];
+            const charge = key === "prismBastion" ? ` · 不屈 ${game.lastStandCharges}` : "";
+            return `<div class="augment-chip filled" style="--augment-color:${augment.color}" title="${augment.desc}">${augment.icon} ${augment.name}${charge}</div>`;
+          }).join("");
         }
 
         function renderObjectivePanel() {
@@ -3185,13 +3914,15 @@
           const nextKey = ["q", "w", "e", "r"]
             .map((key) => {
               const def = activeAbilityDef(key);
+              const cost = abilityCost(player, key);
               const locked = key === "r" && player.level < 3;
               return [
                 key,
                 queuedAbility === key ? 1 : 0,
                 locked ? 1 : 0,
                 Math.ceil(player.cooldowns[key] * 10),
-                player.mana >= def.cost ? 1 : 0,
+                player.mana >= cost ? 1 : 0,
+                cost,
                 player.alive ? 1 : 0,
                 game.paused ? 1 : 0,
                 game.over ? 1 : 0,
@@ -3203,6 +3934,7 @@
           abilityGrid.innerHTML = "";
           for (const key of ["q", "w", "e", "r"]) {
             const def = activeAbilityDef(key);
+            const cost = abilityCost(player, key);
             const cd = player.cooldowns[key];
             const locked = key === "r" && player.level < 3;
             const button = document.createElement("button");
@@ -3211,11 +3943,11 @@
             button.disabled =
               locked ||
               cd > 0 ||
-              player.mana < def.cost ||
+              player.mana < cost ||
               !player.alive ||
               game.paused ||
               game.over;
-            button.innerHTML = `<strong>${def.key} ${def.name}</strong><span>${locked ? "3 级解锁" : cd > 0 ? cd.toFixed(1) + "s" : def.cost + " 能量"}</span>`;
+            button.innerHTML = `<strong>${def.key} ${def.name}</strong><span>${locked ? "3 级解锁" : cd > 0 ? cd.toFixed(1) + "s" : cost + " 能量"}</span>`;
             button.addEventListener("click", () => queueAbility(key));
             abilityGrid.appendChild(button);
           }
@@ -4488,7 +5220,7 @@
         }
 
         function togglePause() {
-          if (!game.started || game.over) return;
+          if (!game.started || game.over || game.draftOpen) return;
           game.paused = !game.paused;
           pauseBtn.textContent = game.paused ? "▶" : "Ⅱ";
           showToast(game.paused ? "暂停" : "继续");
@@ -4536,10 +5268,16 @@
         window.addEventListener("keyup", (event) => keys.delete(event.code));
         window.addEventListener("resize", resize);
 
-        startBtn.addEventListener("click", startGame);
-        againBtn.addEventListener("click", startGame);
-        restartBtn.addEventListener("click", startGame);
+        startBtn.addEventListener("click", () => startGame());
+        againBtn.addEventListener("click", () => startGame());
+        restartBtn.addEventListener("click", () => startGame());
         pauseBtn.addEventListener("click", togglePause);
+        soundBtn.addEventListener("click", () => {
+          soundEnabled = !soundEnabled;
+          localStorage.setItem("crystalFrontSound", soundEnabled ? "on" : "off");
+          renderSoundButton();
+          if (soundEnabled) playCue("tap");
+        });
         buyAttack.addEventListener("click", () => buyUpgrade("attack"));
         buyHealth.addEventListener("click", () => buyUpgrade("health"));
         buyHaste.addEventListener("click", () => buyUpgrade("haste"));
@@ -4564,8 +5302,135 @@
           }
         });
 
+        if (new URLSearchParams(window.location.search).has("debug")) {
+          const debugSnapshot = () => ({
+            game: {
+              started: game.started,
+              paused: game.paused,
+              over: game.over,
+              winner: game.winner,
+              time: Math.round(game.time * 10) / 10,
+              waveNumber: game.waveNumber,
+              kills: game.kills,
+              deaths: game.deaths,
+              towers: game.towers,
+              objectives: game.objectives,
+              damageDealt: Math.round(game.damageDealt),
+              augmentPicks: [...game.augmentPicks],
+              draftOptions: [...game.draftOptions],
+              draftOpen: game.draftOpen,
+              modifiers: { ...game.modifiers },
+              lastStandCharges: game.lastStandCharges,
+              seed: game.seed,
+            },
+            player: player
+              ? {
+                  level: player.level,
+                  alive: player.alive,
+                  xp: player.xp,
+                  hp: Math.round(player.hp),
+                  maxHp: Math.round(player.maxHp),
+                  mana: Math.round(player.mana),
+                  maxMana: Math.round(player.maxMana),
+                  gold: Math.round(player.gold),
+                  shield: Math.round(player.shield || 0),
+                  cooldowns: { ...player.cooldowns },
+                }
+              : null,
+            career: JSON.parse(JSON.stringify(career)),
+            selectedChampion,
+            selectedRule,
+            augmentCount: Object.keys(AUGMENTS).length,
+            medalCount: Object.keys(SEASON_MEDALS).length,
+            savePrefix: encodeCareer().split(".")[0],
+          });
+          window.__crystalFrontDebug = {
+            snapshot: debugSnapshot,
+            catalog() {
+              return {
+                augments: Object.fromEntries(
+                  Object.entries(AUGMENTS).map(([key, augment]) => [
+                    key,
+                    {
+                      name: augment.name,
+                      school: augment.school,
+                      color: augment.color,
+                      desc: augment.desc,
+                      effects: { ...augment.effects },
+                    },
+                  ]),
+                ),
+                modifierDefaults: { ...MODIFIER_DEFAULTS },
+                multiplicativeModifiers: [...MULTIPLICATIVE_MODIFIERS],
+                draftLevels: [...AUGMENT_DRAFT_LEVELS],
+                medals: Object.fromEntries(
+                  Object.entries(SEASON_MEDALS).map(([key, medal]) => [
+                    key,
+                    { name: medal.name, desc: medal.desc, reward: medal.reward },
+                  ]),
+                ),
+              };
+            },
+            start(options = {}) {
+              startGame(options);
+              return debugSnapshot();
+            },
+            openDraft(level = 2, forcedKeys) {
+              if (!game.started) startGame({ seed: 396 });
+              queueAugmentDraft(level, forcedKeys);
+              return debugSnapshot();
+            },
+            pickAugment(key) {
+              return { picked: chooseAugment(key), snapshot: debugSnapshot() };
+            },
+            compileModifiers(keys) {
+              return compileModifiers(keys);
+            },
+            grantXp(amount = 1200) {
+              if (!game.started) startGame({ seed: 396 });
+              player.xp += Math.max(0, Number(amount) || 0);
+              checkLevelUp();
+              updateUI();
+              return debugSnapshot();
+            },
+            lastStandCheck() {
+              if (!game.started) startGame({ seed: 396 });
+              game.augmentPicks = ["prismBastion"];
+              game.modifiers = compileModifiers(game.augmentPicks);
+              game.lastStandCharges = 1;
+              player.hp = 100;
+              player.shield = 0;
+              damageUnit(player, 1000, enemyHero, "调试重击");
+              updateUI();
+              return debugSnapshot();
+            },
+            forceOutcome(won = true, metrics = {}) {
+              if (!game.started) startGame({ seed: 396 });
+              game.kills = Number(metrics.kills ?? 6);
+              game.deaths = Number(metrics.deaths ?? 0);
+              game.towers = Number(metrics.towers ?? 3);
+              game.objectives = Number(metrics.objectives ?? 2);
+              game.waveNumber = Number(metrics.waveNumber ?? 12);
+              game.time = Number(metrics.time ?? 420);
+              if (Array.isArray(metrics.augments)) {
+                game.augmentPicks = metrics.augments.filter((key) => AUGMENTS[key]);
+                game.modifiers = compileModifiers(game.augmentPicks);
+              }
+              endGame(won ? BLUE : RED);
+              return debugSnapshot();
+            },
+            encodeCareer,
+            importCareer(code) {
+              importCareer(code);
+              return debugSnapshot();
+            },
+          };
+        }
+
         resize();
         renderDeployment();
+        renderSoundButton();
+        renderAugmentSummary();
         if (
           new URLSearchParams(window.location.search).get("autostart") === "1"
         )

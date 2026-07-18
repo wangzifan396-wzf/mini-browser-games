@@ -16,7 +16,8 @@
     "article:performance:images": "python scripts/create-browser-performance-article-images.py",
     "verify": "node scripts/verify.mjs",
     "check:slingstorm": "node scripts/check-slingstorm.mjs",
-    "check:shan-hai": "node scripts/check-shan-hai.mjs"
+    "check:shan-hai": "node scripts/check-shan-hai.mjs",
+    "check:moba-frontier": "node scripts/check-moba-frontier.mjs"
   },
   "dependencies": {
     "ffprobe-static": "3.1.0",
