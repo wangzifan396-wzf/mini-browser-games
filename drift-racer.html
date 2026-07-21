@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>漂移赛道</title>
+<title>巅峰漂移巡回赛</title>
 <style>
   :root {
     color-scheme: dark;
@@ -299,6 +299,263 @@
     font-size: 16px;
   }
 
+  .modal-card.tour-card {
+    width: min(920px, calc(100% - 28px));
+    max-height: min(820px, calc(100% - 28px));
+    overflow: auto;
+  }
+
+  .tour-head,
+  .tour-actions,
+  .result-actions,
+  .archive-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .tour-head {
+    align-items: flex-start;
+    margin-bottom: 14px;
+  }
+
+  .tour-head p {
+    margin-bottom: 0;
+  }
+
+  .career-strip {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(72px, 1fr));
+    gap: 8px;
+    min-width: 270px;
+  }
+
+  .career-stat,
+  .event-card,
+  .vehicle-card,
+  .module-card,
+  .archive-box,
+  .objective-box {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: rgba(16, 24, 23, 0.82);
+  }
+
+  .career-stat {
+    padding: 8px 10px;
+  }
+
+  .career-stat small,
+  .section-title small,
+  .event-card small,
+  .vehicle-card small,
+  .module-card small,
+  .objective-box small {
+    display: block;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 800;
+  }
+
+  .career-stat strong {
+    display: block;
+    margin-top: 2px;
+    font-size: 18px;
+  }
+
+  .tabs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+
+  .tab-btn,
+  .choice-btn,
+  .secondary-btn {
+    min-height: 40px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: rgba(18, 29, 28, 0.86);
+    color: var(--text);
+    font: inherit;
+    font-weight: 900;
+    cursor: pointer;
+  }
+
+  .tab-btn.active,
+  .choice-btn.selected {
+    border-color: var(--amber);
+    background: rgba(64, 58, 29, 0.72);
+  }
+
+  .tab-panel {
+    display: none;
+  }
+
+  .tab-panel.active {
+    display: block;
+  }
+
+  .section-title {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 4px 0 9px;
+  }
+
+  .section-title h3 {
+    margin: 0;
+    font-size: 16px;
+  }
+
+  .event-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .event-card,
+  .vehicle-card,
+  .module-card {
+    min-height: 108px;
+    padding: 11px;
+    color: var(--text);
+    text-align: left;
+    font: inherit;
+    cursor: pointer;
+  }
+
+  .event-card strong,
+  .vehicle-card strong,
+  .module-card strong {
+    display: block;
+    margin: 4px 0;
+    font-size: 14px;
+  }
+
+  .event-card.selected,
+  .vehicle-card.selected,
+  .module-card.selected {
+    border-color: var(--amber);
+    box-shadow: inset 0 0 0 1px rgba(246, 199, 94, 0.36);
+  }
+
+  .event-card.locked,
+  .vehicle-card.locked,
+  .module-card.locked {
+    opacity: 0.48;
+    cursor: not-allowed;
+  }
+
+  .event-meta,
+  .stat-dots,
+  .medal-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 7px;
+  }
+
+  .event-meta span,
+  .stat-dots span,
+  .medal {
+    border: 1px solid rgba(232, 244, 231, 0.14);
+    border-radius: 4px;
+    padding: 3px 5px;
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 900;
+  }
+
+  .stars {
+    color: var(--amber);
+    letter-spacing: 0;
+  }
+
+  .garage-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .module-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .module-card {
+    min-height: 92px;
+  }
+
+  .archive-box,
+  .objective-box {
+    padding: 12px;
+  }
+
+  .archive-box textarea {
+    width: 100%;
+    min-height: 90px;
+    resize: vertical;
+    margin: 9px 0;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 9px;
+    background: rgba(4, 8, 8, 0.72);
+    color: var(--text);
+    font: 12px/1.5 ui-monospace, Consolas, monospace;
+  }
+
+  .archive-actions > *,
+  .result-actions > * {
+    flex: 1;
+  }
+
+  .secondary-btn {
+    padding: 0 14px;
+  }
+
+  .result-grade {
+    margin: 10px 0 14px;
+    color: var(--amber);
+    font-size: 28px;
+    font-weight: 900;
+  }
+
+  .objective-box {
+    margin-top: 10px;
+  }
+
+  .objective-row {
+    display: grid;
+    grid-template-columns: 18px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+    min-height: 28px;
+    border-top: 1px solid rgba(232, 244, 231, 0.08);
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  .objective-row:first-child {
+    border-top: 0;
+  }
+
+  .objective-row.done {
+    color: var(--mint);
+  }
+
+  .rail-label {
+    margin: 0 0 8px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 900;
+  }
+
   .touch-controls {
     position: absolute;
     inset: auto 16px 16px 16px;
@@ -387,6 +644,34 @@
     .touch-controls {
       display: flex;
     }
+
+    .modal {
+      align-items: flex-start;
+      overflow: auto;
+      padding: 10px 0;
+    }
+
+    .modal-card.tour-card {
+      max-height: none;
+    }
+
+    .tour-head {
+      display: block;
+    }
+
+    .career-strip {
+      min-width: 0;
+      margin-top: 12px;
+    }
+
+    .event-grid,
+    .garage-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .module-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
 </style>
 </head>
@@ -396,8 +681,8 @@
     <canvas id="gameCanvas" aria-label="漂移赛车画布"></canvas>
     <div class="hud">
       <div class="brand">
-        <h1>漂移赛道</h1>
-        <div class="subline"><span id="statusText">待命</span> · <span id="lapText">第 1/3 圈</span></div>
+        <h1>巅峰漂移</h1>
+        <div class="subline"><span id="eventNameText">海港排位</span> · <span id="statusText">待命</span> · <span id="lapText">第 1/2 圈</span></div>
       </div>
       <div class="race-strip" aria-label="比赛状态">
         <div class="race-stat"><span>速度</span><strong id="speedText">0</strong></div>
@@ -405,6 +690,8 @@
         <div class="race-stat"><span>圈速</span><strong id="timeText">00:00.00</strong></div>
       </div>
       <div class="hud-actions">
+        <button class="icon-btn" id="audioBtn" title="切换音效" aria-label="切换音效">♫</button>
+        <button class="icon-btn" id="garageBtn" title="返回巡回赛" aria-label="返回巡回赛">⚑</button>
         <button class="icon-btn" id="pauseBtn" title="暂停" aria-label="暂停">Ⅱ</button>
         <button class="icon-btn" id="restartBtn" title="重新开始" aria-label="重新开始">↻</button>
       </div>
@@ -422,17 +709,60 @@
       </div>
     </div>
     <div class="modal show" id="startModal">
-      <div class="modal-card">
-        <h2>漂移赛道</h2>
-        <p>3 圈竞速，漂移补充氮气，越稳越快。</p>
-        <button class="primary-btn" id="startBtn">开始比赛</button>
+      <div class="modal-card tour-card">
+        <div class="tour-head">
+          <div>
+            <h2>巅峰漂移巡回赛</h2>
+            <p>赢取赛事星章，解锁赛车与调校模块。</p>
+          </div>
+          <div class="career-strip" aria-label="生涯进度">
+            <div class="career-stat"><small>星章</small><strong id="careerStars">0/27</strong></div>
+            <div class="career-stat"><small>车币</small><strong id="careerCredits">0</strong></div>
+            <div class="career-stat"><small>冠军</small><strong id="careerWins">0</strong></div>
+          </div>
+        </div>
+        <div class="tabs" role="tablist" aria-label="巡回赛页面">
+          <button class="tab-btn active" data-tab="tour" role="tab">巡回赛</button>
+          <button class="tab-btn" data-tab="garage" role="tab">车库</button>
+          <button class="tab-btn" data-tab="archive" role="tab">档案</button>
+        </div>
+        <section class="tab-panel active" data-panel="tour">
+          <div class="section-title"><h3>九站赛历</h3><small id="tourHint">完成目标可获得三星</small></div>
+          <div class="event-grid" id="eventGrid"></div>
+        </section>
+        <section class="tab-panel" data-panel="garage">
+          <div class="section-title"><h3>赛车</h3><small>不同车辆会改变速度、抓地与热管理</small></div>
+          <div class="garage-grid" id="vehicleGrid"></div>
+          <div class="section-title"><h3>调校模块</h3><small id="moduleHint">最多安装 2 件</small></div>
+          <div class="module-grid" id="moduleGrid"></div>
+        </section>
+        <section class="tab-panel" data-panel="archive">
+          <div class="section-title"><h3>生涯档案</h3><small>跨设备码不包含本机幽灵轨迹</small></div>
+          <div class="archive-box">
+            <div class="medal-grid" id="medalGrid"></div>
+            <textarea id="archiveCode" aria-label="跨设备存档码" placeholder="导出后在这里获得存档码，或粘贴另一台设备的 DRIFT2 存档码"></textarea>
+            <div class="archive-actions">
+              <button class="secondary-btn" id="exportBtn">导出档案</button>
+              <button class="secondary-btn" id="importBtn">导入档案</button>
+              <button class="secondary-btn" id="soundBtn">音效：开</button>
+            </div>
+          </div>
+        </section>
+        <div class="tour-actions" style="margin-top:14px">
+          <button class="primary-btn" id="startBtn">出赛</button>
+        </div>
       </div>
     </div>
     <div class="modal" id="resultModal">
       <div class="modal-card">
         <h2 id="resultTitle">完赛</h2>
         <p id="resultCopy">总用时 00:00.00</p>
-        <button class="primary-btn" id="againBtn">再跑一场</button>
+        <div class="result-grade" id="resultGrade">☆☆☆</div>
+        <div class="objective-box" id="resultObjectives"></div>
+        <div class="result-actions" style="margin-top:14px">
+          <button class="secondary-btn" id="lobbyBtn">返回赛历</button>
+          <button class="primary-btn" id="againBtn">再跑一场</button>
+        </div>
       </div>
     </div>
   </section>
@@ -469,6 +799,11 @@
       <div class="split-row"><span>最佳</span><strong id="bestLapText">--:--.--</strong><em></em></div>
       <div class="split-row"><span>总计</span><strong id="totalText">00:00.00</strong><em></em></div>
     </section>
+    <section class="objective-box">
+      <p class="rail-label" id="conditionText">晴天 · 2 圈</p>
+      <div id="objectiveList"></div>
+      <div class="objective-row"><span>◇</span><span>最佳幽灵</span><strong id="ghostText">暂无</strong></div>
+    </section>
   </aside>
 </main>
 
@@ -478,6 +813,7 @@
 
   const canvas = document.getElementById("gameCanvas");
   const ctx = canvas.getContext("2d");
+  const eventNameText = document.getElementById("eventNameText");
   const statusText = document.getElementById("statusText");
   const lapText = document.getElementById("lapText");
   const speedText = document.getElementById("speedText");
@@ -503,50 +839,121 @@
   const againBtn = document.getElementById("againBtn");
   const pauseBtn = document.getElementById("pauseBtn");
   const restartBtn = document.getElementById("restartBtn");
+  const audioBtn = document.getElementById("audioBtn");
+  const garageBtn = document.getElementById("garageBtn");
   const toast = document.getElementById("toast");
+  const careerStars = document.getElementById("careerStars");
+  const careerCredits = document.getElementById("careerCredits");
+  const careerWins = document.getElementById("careerWins");
+  const eventGrid = document.getElementById("eventGrid");
+  const vehicleGrid = document.getElementById("vehicleGrid");
+  const moduleGrid = document.getElementById("moduleGrid");
+  const moduleHint = document.getElementById("moduleHint");
+  const medalGrid = document.getElementById("medalGrid");
+  const archiveCode = document.getElementById("archiveCode");
+  const exportBtn = document.getElementById("exportBtn");
+  const importBtn = document.getElementById("importBtn");
+  const soundBtn = document.getElementById("soundBtn");
+  const lobbyBtn = document.getElementById("lobbyBtn");
+  const resultGrade = document.getElementById("resultGrade");
+  const resultObjectives = document.getElementById("resultObjectives");
+  const conditionText = document.getElementById("conditionText");
+  const objectiveList = document.getElementById("objectiveList");
+  const ghostText = document.getElementById("ghostText");
 
   const WORLD_W = 2200;
   const WORLD_H = 1600;
-  const ROAD_W = 250;
-  const HALF_ROAD = ROAD_W / 2;
-  const TOTAL_LAPS = 3;
-  const MAX_SPEED = 560;
-  const track = [
-    { x: 520, y: 1230 },
-    { x: 760, y: 1380 },
-    { x: 1180, y: 1320 },
-    { x: 1510, y: 1120 },
-    { x: 1710, y: 820 },
-    { x: 1605, y: 535 },
-    { x: 1300, y: 360 },
-    { x: 940, y: 300 },
-    { x: 600, y: 420 },
-    { x: 380, y: 690 },
-    { x: 330, y: 970 }
+  const SAVE_KEY = "driftTourCareerV2";
+  const LEGACY_KEY = "driftTourCareerV1";
+  const SAVE_PREFIX = "DRIFT2.";
+  const tracks = {
+    harbor: {
+      name: "潮汐港环",
+      width: 250,
+      theme: ["#173b2b", "#1e4b31", "#23381d"],
+      points: [
+        [520, 1230], [760, 1380], [1180, 1320], [1510, 1120], [1710, 820], [1605, 535],
+        [1300, 360], [940, 300], [600, 420], [380, 690], [330, 970]
+      ],
+      checkpointIndexes: [3, 6, 8, 0],
+      pads: [[1040, 1350, -0.15, 145], [1650, 680, -1.25, 138], [720, 360, -0.3, 132]],
+      clips: [[1448, 1042], [1502, 470], [635, 480], [405, 885]]
+    },
+    alpine: {
+      name: "云岭折线",
+      width: 224,
+      theme: ["#253c3d", "#31504d", "#263b34"],
+      points: [
+        [470, 1240], [760, 1390], [1110, 1350], [1450, 1260], [1710, 1040], [1760, 735],
+        [1580, 430], [1250, 275], [930, 340], [710, 600], [455, 650], [285, 910]
+      ],
+      checkpointIndexes: [3, 6, 9, 0],
+      pads: [[1260, 1310, -0.18, 132], [1690, 575, -1.1, 126], [570, 625, 0.08, 118]],
+      clips: [[1545, 1195], [1665, 500], [835, 415], [350, 835], [650, 1325]]
+    },
+    foundry: {
+      name: "熔炉工业环",
+      width: 238,
+      theme: ["#3b3029", "#49372d", "#2f332a"],
+      points: [
+        [490, 1260], [825, 1390], [1270, 1330], [1625, 1110], [1740, 780], [1580, 500],
+        [1260, 455], [1080, 720], [845, 875], [590, 610], [330, 785], [295, 1090]
+      ],
+      checkpointIndexes: [2, 5, 9, 0],
+      pads: [[1045, 1360, -0.12, 150], [1665, 930, -1.15, 132], [1060, 675, 2.2, 120], [430, 690, 0.75, 118]],
+      clips: [[1535, 1150], [1640, 545], [1150, 580], [720, 760], [325, 1010]]
+    }
+  };
+  const events = [
+    { id: "harbor-qualifier", name: "海港排位", track: "harbor", condition: "clear", laps: 2, unlock: 0, ai: 0.76, reward: 120, objectives: [["place", 3], ["drift", 800], ["time", 50]] },
+    { id: "alpine-rain", name: "云岭雨线", track: "alpine", condition: "rain", laps: 2, unlock: 1, ai: 0.81, reward: 150, objectives: [["place", 3], ["clips", 4], ["drift", 1200]] },
+    { id: "foundry-heat", name: "熔炉热圈", track: "foundry", condition: "heat", laps: 2, unlock: 3, ai: 0.86, reward: 180, objectives: [["place", 2], ["drift", 1600], ["time", 54]] },
+    { id: "harbor-night", name: "港湾夜战", track: "harbor", condition: "night", laps: 3, unlock: 6, ai: 0.9, reward: 220, objectives: [["place", 2], ["clips", 8], ["drift", 2400]] },
+    { id: "alpine-pure", name: "云岭纯走", track: "alpine", condition: "clear", laps: 3, unlock: 9, ai: 0.94, reward: 260, objectives: [["place", 2], ["clean", 10], ["drift", 2800]] },
+    { id: "foundry-rain", name: "熔炉骤雨", track: "foundry", condition: "rain", laps: 3, unlock: 12, ai: 0.98, reward: 300, objectives: [["place", 1], ["time", 76], ["clips", 9]] },
+    { id: "harbor-heat", name: "红线海港", track: "harbor", condition: "heat", laps: 3, unlock: 15, ai: 1, reward: 360, objectives: [["place", 1], ["drift", 4200], ["time", 70]] },
+    { id: "alpine-midnight", name: "午夜云岭", track: "alpine", condition: "night", laps: 3, unlock: 18, ai: 1.03, reward: 420, objectives: [["place", 1], ["clean", 6], ["clips", 10]] },
+    { id: "apex-final", name: "巅峰风暴", track: "foundry", condition: "storm", laps: 4, unlock: 21, ai: 1.06, reward: 600, objectives: [["place", 1], ["drift", 5600], ["time", 98]] }
   ];
-  const checkpoints = [
-    { x: 1510, y: 1120, r: 170 },
-    { x: 1300, y: 360, r: 170 },
-    { x: 600, y: 420, r: 170 },
-    { x: 520, y: 1230, r: 170 }
+  const vehicles = [
+    { id: "pulse", name: "脉冲 S1", unlock: 0, price: 0, color: "#f1f7ed", accent: "#55d8a5", speed: 1, accel: 1, grip: 1, cooling: 1, nitro: 1, trait: "均衡底盘，易于连续漂移" },
+    { id: "comet", name: "彗星 R", unlock: 6, price: 520, color: "#66c9ff", accent: "#f6c75e", speed: 1.09, accel: 0.97, grip: 0.92, cooling: 0.94, nitro: 1.12, trait: "极速与氮气更强，弯中更活跃" },
+    { id: "ember", name: "赤炉 GT", unlock: 12, price: 980, color: "#ff6d5f", accent: "#ffd166", speed: 1.03, accel: 1.08, grip: 1.06, cooling: 0.84, nitro: 0.96, trait: "出弯加速凶猛，需要管理胎温" },
+    { id: "zenith", name: "天穹 X", unlock: 20, price: 1600, color: "#d8c7ff", accent: "#66c9ff", speed: 1.06, accel: 1.04, grip: 1.1, cooling: 1.08, nitro: 1.04, trait: "终局全能赛车，雨夜稳定" }
   ];
-  const boostPads = [
-    { x: 1040, y: 1350, angle: -0.15, w: 145, h: 48 },
-    { x: 1650, y: 680, angle: -1.25, w: 138, h: 48 },
-    { x: 720, y: 360, angle: -0.3, w: 132, h: 48 }
+  const modules = [
+    { id: "overdrive", name: "高转涡轮", unlock: 0, price: 0, text: "极速 +7%，抓地 -4%", speed: 1.07, grip: 0.96 },
+    { id: "streetTires", name: "街道胎", unlock: 2, price: 180, text: "抓地 +10%", grip: 1.1 },
+    { id: "coolant", name: "冷却风道", unlock: 4, price: 260, text: "散热 +22%", cooling: 1.22 },
+    { id: "boostTank", name: "增压储罐", unlock: 6, price: 380, text: "氮气效率 +18%", nitro: 1.18 },
+    { id: "driftKit", name: "漂移舵角", unlock: 8, price: 520, text: "漂移得分 +22%", drift: 1.22 },
+    { id: "lightFrame", name: "轻量车架", unlock: 11, price: 680, text: "加速 +9%，碰撞更敏感", accel: 1.09, mass: 0.82 },
+    { id: "rainTires", name: "雨战配方", unlock: 14, price: 760, text: "削弱雨地抓地损失", rain: 1.18 },
+    { id: "clipSensor", name: "弯心雷达", unlock: 17, price: 900, text: "弯心奖励 +30%", clip: 1.3 }
   ];
-  const clippingZones = [
-    { x: 1448, y: 1042, r: 58 },
-    { x: 1502, y: 470, r: 58 },
-    { x: 635, y: 480, r: 58 },
-    { x: 405, y: 885, r: 58 }
+  const rivals = [
+    { name: "岚", color: "#66c9ff", accent: "#f6c75e", style: "late" },
+    { name: "焰", color: "#ff6d5f", accent: "#ffd166", style: "attack" },
+    { name: "律", color: "#b48cff", accent: "#66c9ff", style: "clean" }
   ];
-  const carPalette = [
-    { name: "星焰", color: "#f1f7ed", accent: "#55d8a5" },
-    { name: "霓虹", color: "#66c9ff", accent: "#f6c75e" },
-    { name: "赤锋", color: "#ff6d5f", accent: "#ffd166" },
-    { name: "紫电", color: "#b48cff", accent: "#66c9ff" }
-  ];
+  const conditions = {
+    clear: { name: "晴天", grip: 1, cooling: 1 },
+    rain: { name: "雨战", grip: 0.76, cooling: 1.12 },
+    heat: { name: "热浪", grip: 0.95, cooling: 0.7 },
+    night: { name: "夜赛", grip: 0.98, cooling: 1 },
+    storm: { name: "风暴夜", grip: 0.72, cooling: 1.08 }
+  };
+
+  let ROAD_W = tracks.harbor.width;
+  let HALF_ROAD = ROAD_W / 2;
+  let TOTAL_LAPS = 2;
+  let MAX_SPEED = 560;
+  let currentEvent = events[0];
+  let currentTrack = tracks.harbor;
+  let track = currentTrack.points.map(([x, y]) => ({ x, y }));
+  let checkpoints = [];
+  let boostPads = [];
+  let clippingZones = [];
 
   const keys = new Set();
   const held = { accel: false, brake: false, left: false, right: false, nitro: false };
@@ -563,6 +970,14 @@
   let toastTimer = 0;
   let raceTime = 0;
   let leaderboardKey = "";
+  let objectiveKey = "";
+  let career = loadCareer();
+  let activeGhost = [];
+  let ghostSamples = [];
+  let ghostSampleAt = 0;
+  let audioCtx = null;
+  let engineOsc = null;
+  let engineGain = null;
 
   function resize() {
     const rect = canvas.getBoundingClientRect();
@@ -605,14 +1020,343 @@
     return `${minutes}:${seconds}.${hundred}`;
   }
 
-  function startRace() {
+  function defaultCareer() {
+    return {
+      version: 2,
+      credits: 0,
+      wins: 0,
+      eventStars: {},
+      bestTimes: {},
+      bestLaps: {},
+      selectedEvent: events[0].id,
+      selectedCar: vehicles[0].id,
+      ownedCars: [vehicles[0].id],
+      ownedModules: [modules[0].id],
+      modules: [],
+      ghosts: {},
+      sound: true
+    };
+  }
+
+  function sanitizeCareer(raw, keepGhosts = true) {
+    const base = defaultCareer();
+    if (!raw || typeof raw !== "object") return base;
+    const validEvents = new Set(events.map(item => item.id));
+    const validCars = new Set(vehicles.map(item => item.id));
+    const validModules = new Set(modules.map(item => item.id));
+    const eventStars = {};
+    for (const [id, value] of Object.entries(raw.eventStars || {})) {
+      if (validEvents.has(id)) eventStars[id] = clamp(Math.round(Number(value) || 0), 0, 3);
+    }
+    const bestTimes = {};
+    const bestLaps = {};
+    for (const [id, value] of Object.entries(raw.bestTimes || {})) {
+      if (validEvents.has(id) && Number(value) > 0) bestTimes[id] = Number(value);
+    }
+    for (const [id, value] of Object.entries(raw.bestLaps || {})) {
+      if (validEvents.has(id) && Number(value) > 0) bestLaps[id] = Number(value);
+    }
+    const ownedCars = [...new Set([vehicles[0].id, ...(Array.isArray(raw.ownedCars) ? raw.ownedCars : []), ...(!Array.isArray(raw.ownedCars) && validCars.has(raw.selectedCar) ? [raw.selectedCar] : [])])]
+      .filter(id => validCars.has(id));
+    const ownedModules = [...new Set([modules[0].id, ...(Array.isArray(raw.ownedModules) ? raw.ownedModules : []), ...(!Array.isArray(raw.ownedModules) && Array.isArray(raw.modules) ? raw.modules : [])])]
+      .filter(id => validModules.has(id));
+    const cleanModules = [...new Set(Array.isArray(raw.modules) ? raw.modules : [])]
+      .filter(id => validModules.has(id))
+      .slice(0, 2);
+    const ghosts = {};
+    if (keepGhosts && raw.ghosts && typeof raw.ghosts === "object") {
+      for (const [id, samples] of Object.entries(raw.ghosts)) {
+        if (!validEvents.has(id) || !Array.isArray(samples)) continue;
+        ghosts[id] = samples.slice(0, 2600).filter(sample => Array.isArray(sample) && sample.length >= 4 && sample.slice(0, 4).every(Number.isFinite)).map(sample => sample.slice(0, 4));
+      }
+    }
+    const clean = {
+      version: 2,
+      credits: clamp(Math.round(Number(raw.credits) || 0), 0, 9999999),
+      wins: clamp(Math.round(Number(raw.wins) || 0), 0, 999999),
+      eventStars,
+      bestTimes,
+      bestLaps,
+      selectedEvent: validEvents.has(raw.selectedEvent) ? raw.selectedEvent : base.selectedEvent,
+      selectedCar: validCars.has(raw.selectedCar) ? raw.selectedCar : base.selectedCar,
+      ownedCars,
+      ownedModules,
+      modules: cleanModules,
+      ghosts,
+      sound: raw.sound !== false
+    };
+    const stars = getTotalStars(clean);
+    const car = vehicles.find(item => item.id === clean.selectedCar);
+    if (!car || car.unlock > stars || !clean.ownedCars.includes(car.id)) clean.selectedCar = vehicles[0].id;
+    clean.modules = clean.modules.filter(id => clean.ownedModules.includes(id) && (modules.find(item => item.id === id)?.unlock || 0) <= stars);
+    const event = events.find(item => item.id === clean.selectedEvent);
+    if (!event || event.unlock > stars) clean.selectedEvent = events.filter(item => item.unlock <= stars).at(-1)?.id || events[0].id;
+    return clean;
+  }
+
+  function loadCareer() {
+    try {
+      const stored = JSON.parse(localStorage.getItem(SAVE_KEY) || "null");
+      if (stored) return sanitizeCareer(stored);
+      const legacy = JSON.parse(localStorage.getItem(LEGACY_KEY) || "null");
+      if (legacy) {
+        const migrated = sanitizeCareer({
+          ...legacy,
+          version: 2,
+          eventStars: legacy.stars || legacy.eventStars,
+          selectedEvent: legacy.selectedEvent || events[0].id
+        });
+        localStorage.setItem(SAVE_KEY, JSON.stringify(migrated));
+        return migrated;
+      }
+    } catch {
+      // Corrupt local data falls back to a clean career.
+    }
+    return defaultCareer();
+  }
+
+  function saveCareer() {
+    try {
+      localStorage.setItem(SAVE_KEY, JSON.stringify(career));
+    } catch {
+      showToast("档案空间不足，幽灵未保存");
+      career.ghosts = {};
+      localStorage.setItem(SAVE_KEY, JSON.stringify(career));
+    }
+  }
+
+  function getTotalStars(source = career) {
+    return Object.values(source.eventStars || {}).reduce((sum, value) => sum + clamp(Number(value) || 0, 0, 3), 0);
+  }
+
+  function encodeCareer() {
+    const portable = { ...career, ghosts: {} };
+    const bytes = new TextEncoder().encode(JSON.stringify(portable));
+    let binary = "";
+    for (const byte of bytes) binary += String.fromCharCode(byte);
+    return SAVE_PREFIX + btoa(binary);
+  }
+
+  function importCareer(code) {
+    if (!String(code).trim().startsWith(SAVE_PREFIX)) throw new Error("存档码前缀不正确");
+    const binary = atob(String(code).trim().slice(SAVE_PREFIX.length));
+    const bytes = Uint8Array.from(binary, char => char.charCodeAt(0));
+    const incoming = JSON.parse(new TextDecoder().decode(bytes));
+    if (incoming.version !== 2) throw new Error("存档版本不兼容");
+    const localGhosts = career.ghosts;
+    career = sanitizeCareer(incoming, false);
+    career.ghosts = localGhosts;
+    saveCareer();
+    renderLobby();
+    return career;
+  }
+
+  function configureEvent(event) {
+    currentEvent = event;
+    currentTrack = tracks[event.track];
+    ROAD_W = currentTrack.width;
+    HALF_ROAD = ROAD_W / 2;
+    TOTAL_LAPS = event.laps;
+    track = currentTrack.points.map(([x, y]) => ({ x, y }));
+    checkpoints = currentTrack.checkpointIndexes.map(index => ({ ...track[index], r: Math.max(142, ROAD_W * 0.66) }));
+    boostPads = currentTrack.pads.map(([x, y, angle, width]) => ({ x, y, angle, w: width, h: 48 }));
+    clippingZones = currentTrack.clips.map(([x, y]) => ({ x, y, r: 56 }));
+    eventNameText.textContent = event.name;
+    conditionText.textContent = `${conditions[event.condition].name} · ${currentTrack.name} · ${event.laps} 圈`;
+    activeGhost = Array.isArray(career.ghosts[event.id]) ? career.ghosts[event.id] : [];
+    ghostText.textContent = career.bestTimes[event.id] ? formatTime(career.bestTimes[event.id]) : "暂无";
+  }
+
+  function getVehicleStats(vehicleId = career.selectedCar) {
+    const vehicle = vehicles.find(item => item.id === vehicleId) || vehicles[0];
+    const stats = { speed: vehicle.speed, accel: vehicle.accel, grip: vehicle.grip, cooling: vehicle.cooling, nitro: vehicle.nitro, drift: 1, mass: 1, rain: 1, clip: 1 };
+    for (const id of career.modules) {
+      const module = modules.find(item => item.id === id);
+      if (!module) continue;
+      for (const key of Object.keys(stats)) stats[key] *= module[key] || 1;
+    }
+    return stats;
+  }
+
+  function objectiveLabel(objective) {
+    const [kind, target] = objective;
+    if (kind === "place") return `以第 ${target} 名或更高完赛`;
+    if (kind === "drift") return `漂移得分达到 ${target}`;
+    if (kind === "time") return `总用时不超过 ${formatTime(target)}`;
+    if (kind === "clips") return `命中 ${target} 个弯心`;
+    return `草地时间不超过 ${target.toFixed(0)} 秒`;
+  }
+
+  function objectiveProgress(objective, stats) {
+    const [kind, target] = objective;
+    if (kind === "place") return `${stats.place || "-"}/${target}`;
+    if (kind === "drift") return `${Math.round(stats.driftScore || 0)}/${target}`;
+    if (kind === "time") return formatTime(stats.time || raceTime);
+    if (kind === "clips") return `${stats.clips || 0}/${target}`;
+    return `${(stats.offroadTime || 0).toFixed(1)}/${target}s`;
+  }
+
+  function objectiveDone(objective, stats) {
+    const [kind, target] = objective;
+    if (kind === "place") return stats.place > 0 && stats.place <= target;
+    if (kind === "drift") return stats.driftScore >= target;
+    if (kind === "time") return stats.time > 0 && stats.time <= target;
+    if (kind === "clips") return stats.clips >= target;
+    return stats.offroadTime <= target;
+  }
+
+  function currentRaceStats(place = 0) {
+    return {
+      place,
+      driftScore: player?.driftScore || 0,
+      clips: player?.clipCount || 0,
+      offroadTime: player?.offroadTime || 0,
+      time: player?.finishTime || raceTime,
+      bestLap: player?.bestLap || Infinity
+    };
+  }
+
+  function renderObjectives(target, stats, final = false) {
+    target.innerHTML = currentEvent.objectives.map(objective => {
+      const done = objectiveDone(objective, stats);
+      return `<div class="objective-row ${done ? "done" : ""}"><span>${done ? "●" : "○"}</span><span>${objectiveLabel(objective)}</span><strong>${objectiveProgress(objective, stats)}</strong></div>`;
+    }).join("");
+    if (final) target.setAttribute("aria-label", "赛事目标结算");
+  }
+
+  function medalState() {
+    const stars = getTotalStars();
+    const playedTracks = new Set(events.filter(item => career.eventStars[item.id]).map(item => item.track));
+    return [
+      ["初次完赛", Object.keys(career.eventStars).length > 0],
+      ["六星车手", stars >= 6],
+      ["调校专家", stars >= 12],
+      ["三环巡礼", playedTracks.size === 3],
+      ["黄金车手", stars >= 18],
+      ["巅峰冠军", Boolean(career.eventStars["apex-final"])]
+    ];
+  }
+
+  function renderLobby() {
+    const stars = getTotalStars();
+    careerStars.textContent = `${stars}/27`;
+    careerCredits.textContent = career.credits;
+    careerWins.textContent = career.wins;
+    soundBtn.textContent = `音效：${career.sound ? "开" : "关"}`;
+    audioBtn.style.opacity = career.sound ? "1" : "0.45";
+    eventGrid.innerHTML = events.map((event, index) => {
+      const locked = stars < event.unlock;
+      const earned = career.eventStars[event.id] || 0;
+      const selected = career.selectedEvent === event.id;
+      return `<button class="event-card ${locked ? "locked" : ""} ${selected ? "selected" : ""}" data-event="${event.id}" ${locked ? "disabled" : ""}>
+        <small>${String(index + 1).padStart(2, "0")} · ${tracks[event.track].name}</small><strong>${event.name}</strong>
+        <div class="stars">${"★".repeat(earned)}${"☆".repeat(3 - earned)}</div>
+        <div class="event-meta"><span>${conditions[event.condition].name}</span><span>${event.laps} 圈</span><span>${locked ? `${event.unlock} 星解锁` : `${event.reward} 车币`}</span></div>
+      </button>`;
+    }).join("");
+    vehicleGrid.innerHTML = vehicles.map(vehicle => {
+      const locked = stars < vehicle.unlock;
+      const owned = career.ownedCars.includes(vehicle.id);
+      return `<button class="vehicle-card ${locked ? "locked" : ""} ${career.selectedCar === vehicle.id ? "selected" : ""}" data-vehicle="${vehicle.id}" ${locked ? "disabled" : ""}>
+        <small>${locked ? `${vehicle.unlock} 星解锁` : owned ? career.selectedCar === vehicle.id ? "当前赛车" : "已拥有" : `${vehicle.price} 车币购置`}</small><strong>${vehicle.name}</strong><span>${vehicle.trait}</span>
+        <div class="stat-dots"><span>速 ${Math.round(vehicle.speed * 100)}</span><span>控 ${Math.round(vehicle.grip * 100)}</span><span>冷 ${Math.round(vehicle.cooling * 100)}</span><span>氮 ${Math.round(vehicle.nitro * 100)}</span>${!owned && !locked ? `<span>${vehicle.price} 车币</span>` : ""}</div>
+      </button>`;
+    }).join("");
+    moduleGrid.innerHTML = modules.map(module => {
+      const locked = stars < module.unlock;
+      const owned = career.ownedModules.includes(module.id);
+      const selected = career.modules.includes(module.id);
+      return `<button class="module-card ${locked ? "locked" : ""} ${selected ? "selected" : ""}" data-module="${module.id}" ${locked ? "disabled" : ""}>
+        <small>${locked ? `${module.unlock} 星解锁` : !owned ? `${module.price} 车币购置` : selected ? "已安装" : "可安装"}</small><strong>${module.name}</strong><span>${module.text}</span>
+      </button>`;
+    }).join("");
+    moduleHint.textContent = `已安装 ${career.modules.length}/2`;
+    medalGrid.innerHTML = medalState().map(([name, done]) => `<span class="medal" style="opacity:${done ? 1 : 0.38}">${done ? "◆" : "◇"} ${name}</span>`).join("");
+    const event = events.find(item => item.id === career.selectedEvent) || events[0];
+    configureEvent(event);
+    renderObjectives(objectiveList, currentRaceStats(), false);
+  }
+
+  function selectTab(id) {
+    document.querySelectorAll(".tab-btn").forEach(button => button.classList.toggle("active", button.dataset.tab === id));
+    document.querySelectorAll(".tab-panel").forEach(panel => panel.classList.toggle("active", panel.dataset.panel === id));
+  }
+
+  function openLobby() {
+    if (started && !finished) paused = true;
+    stopEngine();
+    resultModal.classList.remove("show");
+    startModal.classList.add("show");
+    selectTab("tour");
+    renderLobby();
+  }
+
+  function ensureAudio() {
+    if (!career.sound) return null;
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === "suspended") audioCtx.resume();
+    return audioCtx;
+  }
+
+  function tone(freq = 440, duration = 0.08, gain = 0.04, type = "square") {
+    const audio = ensureAudio();
+    if (!audio) return;
+    const osc = audio.createOscillator();
+    const amp = audio.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, audio.currentTime);
+    amp.gain.setValueAtTime(gain, audio.currentTime);
+    amp.gain.exponentialRampToValueAtTime(0.0001, audio.currentTime + duration);
+    osc.connect(amp).connect(audio.destination);
+    osc.start();
+    osc.stop(audio.currentTime + duration);
+  }
+
+  function startEngine() {
+    const audio = ensureAudio();
+    if (!audio || engineOsc) return;
+    engineOsc = audio.createOscillator();
+    engineGain = audio.createGain();
+    engineOsc.type = "sawtooth";
+    engineGain.gain.value = 0.008;
+    engineOsc.connect(engineGain).connect(audio.destination);
+    engineOsc.start();
+  }
+
+  function updateEngine() {
+    if (!engineOsc || !player || !audioCtx) return;
+    const speed = Math.hypot(player.vx, player.vy);
+    engineOsc.frequency.setTargetAtTime(55 + speed * 0.32, audioCtx.currentTime, 0.04);
+    engineGain.gain.setTargetAtTime(paused || finished ? 0.001 : 0.006 + speed / 80000, audioCtx.currentTime, 0.06);
+  }
+
+  function stopEngine() {
+    if (engineOsc) {
+      try { engineOsc.stop(); } catch {}
+    }
+    engineOsc = null;
+    engineGain = null;
+  }
+
+  function startRace(eventId = career.selectedEvent) {
+    const event = events.find(item => item.id === eventId) || events[0];
+    if (event.unlock > getTotalStars()) {
+      showToast(`需要 ${event.unlock} 枚星章`);
+      return;
+    }
+    career.selectedEvent = event.id;
+    configureEvent(event);
+    saveCareer();
     started = true;
     paused = false;
     finished = false;
     raceTime = 0;
+    ghostSampleAt = 0;
+    ghostSamples = [];
     particles.length = 0;
     skidMarks.length = 0;
     leaderboardKey = "";
+    objectiveKey = "";
     resultModal.classList.remove("show");
     startModal.classList.remove("show");
     pauseBtn.textContent = "Ⅱ";
@@ -624,8 +1368,9 @@
     const side = { x: -Math.sin(dir), y: Math.cos(dir) };
     const back = { x: -Math.cos(dir), y: -Math.sin(dir) };
     const lanes = [-54, 18, 90, 162];
+    const selectedVehicle = vehicles.find(item => item.id === career.selectedCar) || vehicles[0];
     for (let i = 0; i < 4; i += 1) {
-      const palette = carPalette[i];
+      const palette = i === 0 ? selectedVehicle : rivals[i - 1];
       const car = makeCar({
         id: i,
         name: palette.name,
@@ -634,7 +1379,10 @@
         accent: palette.accent,
         x: spawn.x + side.x * lanes[i] + back.x * (i * 34),
         y: spawn.y + side.y * lanes[i] + back.y * (i * 34),
-        angle: dir
+        angle: dir,
+        stats: i === 0 ? getVehicleStats() : { speed: 0.96 + currentEvent.ai * 0.055 + i * 0.008, accel: 0.98 + i * 0.015, grip: 1, cooling: 1, nitro: 1, drift: 1, mass: 1, rain: 1, clip: 1 },
+        aiSkill: currentEvent.ai + (i - 2) * 0.025,
+        style: palette.style || "player"
       });
       cars.push(car);
       if (car.isPlayer) player = car;
@@ -642,7 +1390,10 @@
     camera.x = player.x;
     camera.y = player.y;
     camera.zoom = 1;
-    showToast("比赛开始");
+    startEngine();
+    tone(330, 0.08, 0.035);
+    setTimeout(() => tone(520, 0.12, 0.04), 90);
+    showToast(`${currentEvent.name} · 发车`);
     updateUI();
   }
 
@@ -668,8 +1419,12 @@
       finished: false,
       finishTime: 0,
       offroad: false,
+      offroadTime: 0,
+      clipCount: 0,
       rankScore: 0,
-      aiSkill: 0.9 + options.id * 0.05
+      aiSkill: options.aiSkill,
+      stats: options.stats,
+      style: options.style
     };
   }
 
@@ -687,7 +1442,7 @@
   function updateCamera(dt, snap = false) {
     if (!canvas.width || !canvas.height) return;
     const base = Math.min(canvas.width / 1180, canvas.height / 820);
-    camera.targetZoom = view.cssW < 760 ? 0.82 : 1;
+    camera.targetZoom = view.cssW < 760 ? Math.max(1.2, canvas.height / WORLD_H / base) : 1;
     camera.zoom = snap ? camera.targetZoom : lerp(camera.zoom, camera.targetZoom, Math.min(1, dt * 3));
     if (player) {
       const lead = normalize(player.vx, player.vy);
@@ -699,8 +1454,8 @@
     view.scale = base * camera.zoom;
     const visibleW = canvas.width / view.scale;
     const visibleH = canvas.height / view.scale;
-    camera.x = clamp(camera.x, visibleW / 2, WORLD_W - visibleW / 2);
-    camera.y = clamp(camera.y, visibleH / 2, WORLD_H - visibleH / 2);
+    camera.x = visibleW >= WORLD_W ? WORLD_W / 2 : clamp(camera.x, visibleW / 2, WORLD_W - visibleW / 2);
+    camera.y = visibleH >= WORLD_H ? WORLD_H / 2 : clamp(camera.y, visibleH / 2, WORLD_H - visibleH / 2);
     view.ox = canvas.width / 2 - camera.x * view.scale;
     view.oy = canvas.height / 2 - camera.y * view.scale;
   }
@@ -727,6 +1482,11 @@
     separateCars();
     updateParticles(dt);
     updateCamera(dt);
+    if (player && raceTime >= ghostSampleAt) {
+      ghostSamples.push([Number(raceTime.toFixed(2)), Math.round(player.x), Math.round(player.y), Number(player.angle.toFixed(3))]);
+      ghostSampleAt += 0.12;
+    }
+    updateEngine();
     checkFinish();
     updateUI();
   }
@@ -746,10 +1506,13 @@
     if (diff < -Math.PI) diff += Math.PI * 2;
     const info = nearestTrackInfo(car.x, car.y);
     const off = info.distance > HALF_ROAD - 28;
-    const throttle = Math.abs(diff) > 1.1 || off ? 0.54 : 0.9 + car.aiSkill * 0.08;
-    const brake = Math.abs(diff) > 1.45 ? 0.35 : 0;
-    const steer = clamp(diff * 1.35, -1, 1);
-    const nitro = car.nitro > 24 && Math.abs(diff) < 0.28 && !off && Math.hypot(car.vx, car.vy) > 330;
+    const caution = car.style === "clean" ? 0.06 : 0;
+    const aggression = car.style === "attack" ? 0.08 : 0;
+    const throttle = Math.abs(diff) > 1.1 || off ? 0.52 : clamp(0.84 + car.aiSkill * 0.11 + aggression - caution, 0.78, 1);
+    const brake = Math.abs(diff) > 1.4 - caution ? 0.32 + caution : 0;
+    const steer = clamp(diff * (1.32 + aggression), -1, 1);
+    const lateBoost = car.style !== "late" || car.lap >= Math.max(2, TOTAL_LAPS - 1);
+    const nitro = lateBoost && car.nitro > 24 && Math.abs(diff) < 0.28 && !off && Math.hypot(car.vx, car.vy) > 320;
     driveCar(car, { throttle, brake, steer, nitro }, dt);
   }
 
@@ -760,27 +1523,33 @@
     let vf = car.vx * forward.x + car.vy * forward.y;
     let vl = car.vx * right.x + car.vy * right.y;
     const info = nearestTrackInfo(car.x, car.y);
+    const weather = conditions[currentEvent.condition];
+    const rainRecovery = Math.max(1, car.stats.rain || 1);
+    const weatherGrip = weather.grip >= 1 ? weather.grip : clamp(weather.grip + (rainRecovery - 1) * 0.72, weather.grip, 0.96);
     car.padCooldown = Math.max(0, car.padCooldown - dt);
     car.offroad = info.distance > HALF_ROAD - 8;
+    if (car.offroad) car.offroadTime += dt;
     const hardOffroad = info.distance > HALF_ROAD + 42;
     const driftIntent = Math.abs(input.steer) > 0.45 && speed > 190 && (input.brake || input.nitro || Math.abs(vl) > 58);
-    const heatChange = (driftIntent ? 28 : -13) + (input.nitro ? 14 : 0) + (car.offroad ? -6 : 0);
+    const cooling = car.stats.cooling * weather.cooling;
+    const heatChange = (driftIntent ? 28 : -13 * cooling) + (input.nitro ? 14 : 0) + (car.offroad ? -6 : 0) + (currentEvent.condition === "heat" ? 4 : 0);
     car.heat = clamp(car.heat + heatChange * dt, 0, 112);
     const overheated = car.heat > 88;
     const heatGrip = overheated ? 0.72 : car.heat > 72 ? 0.86 : 1;
-    const lateralGrip = (driftIntent ? 1.9 : 7.4) * heatGrip;
-    const roadGrip = (car.offroad ? 0.72 : 1) * (overheated ? 0.9 : 1);
+    const lateralGrip = (driftIntent ? 1.9 : 7.4) * heatGrip * car.stats.grip * weatherGrip;
+    const roadGrip = (car.offroad ? 0.72 : weatherGrip) * (overheated ? 0.9 : 1);
     const nitroOn = input.nitro && car.nitro > 0 && input.throttle > 0.2 && !hardOffroad;
-    const accel = (input.throttle * (nitroOn ? 690 : 455) - input.brake * 480) * roadGrip;
+    const nitroPower = 690 + (car.stats.nitro - 1) * 240;
+    const accel = (input.throttle * (nitroOn ? nitroPower : 455) - input.brake * 480) * roadGrip * car.stats.accel;
 
     vf += accel * dt;
     vf *= Math.max(0, 1 - (car.offroad ? 0.75 : 0.28) * dt);
     vl *= Math.exp(-lateralGrip * dt);
 
-    const turnPower = (0.9 + Math.min(1, Math.abs(vf) / MAX_SPEED) * 2.4) * (driftIntent ? 1.18 : 0.92);
+    const turnPower = (0.9 + Math.min(1, Math.abs(vf) / MAX_SPEED) * 2.4) * (driftIntent ? 1.18 : 0.92) * Math.sqrt(car.stats.grip);
     car.angle += input.steer * turnPower * dt * Math.sign(vf || 1);
 
-    const max = (car.offroad ? MAX_SPEED * 0.62 : MAX_SPEED) + (nitroOn ? 95 : 0) - (overheated ? 55 : 0);
+    const max = (car.offroad ? MAX_SPEED * 0.62 : MAX_SPEED * car.stats.speed) + (nitroOn ? 95 * car.stats.nitro : 0) - (overheated ? 55 : 0);
     vf = clamp(vf, -160, max);
     car.vx = forward.x * vf + right.x * vl;
     car.vy = forward.y * vf + right.y * vl;
@@ -805,15 +1574,15 @@
     }
 
     if (nitroOn) {
-      car.nitro = Math.max(0, car.nitro - 32 * dt);
+      car.nitro = Math.max(0, car.nitro - 32 / car.stats.nitro * dt);
       spawnNitro(car);
     } else {
-      car.nitro = Math.min(100, car.nitro + (car.offroad ? 2 : 4.5) * dt);
+      car.nitro = Math.min(100, car.nitro + (car.offroad ? 2 : 4.5) * car.stats.nitro * dt);
     }
 
     const lateralSlip = Math.abs(car.vx * right.x + car.vy * right.y);
     if (driftIntent && lateralSlip > 34 && !car.offroad) {
-      const gain = lateralSlip * dt * 0.55;
+      const gain = lateralSlip * dt * 0.55 * car.stats.drift;
       car.driftMultiplier = Math.min(4, car.driftMultiplier + dt * (0.34 + Math.min(1.1, lateralSlip / 260)));
       car.driftScore += gain * car.driftMultiplier;
       car.driftChain = Math.min(100, car.driftChain + gain * 0.42);
@@ -864,13 +1633,15 @@
       const key = `${car.lap}:${i}`;
       if (car.clipHits.has(key) || distance(car, zone) > zone.r) continue;
       car.clipHits.add(key);
-      const bonus = 120 + Math.round(Math.min(240, lateralSlip * 0.85) * car.driftMultiplier);
+      const bonus = Math.round((120 + Math.min(240, lateralSlip * 0.85) * car.driftMultiplier) * car.stats.clip);
       car.driftScore += bonus;
+      car.clipCount += 1;
       car.driftChain = 100;
       car.driftMultiplier = Math.min(4, car.driftMultiplier + 0.45);
       car.nitro = Math.min(100, car.nitro + 24);
       spawnClipBurst(zone);
       showToast(`弯心 +${bonus}`);
+      tone(680 + Math.min(260, bonus * 0.3), 0.07, 0.025, "triangle");
     }
   }
 
@@ -889,7 +1660,10 @@
           car.lap += 1;
         }
         car.checkpoint = 0;
-        if (car.isPlayer && !car.finished) showToast(`第 ${car.lap} 圈`);
+        if (car.isPlayer && !car.finished) {
+          showToast(`第 ${car.lap} 圈`);
+          tone(540 + car.lap * 70, 0.1, 0.03, "triangle");
+        }
       } else {
         car.checkpoint += 1;
       }
@@ -911,10 +1685,12 @@
         const nx = dx / d;
         const ny = dy / d;
         const push = (minD - d) * 0.5;
-        a.x -= nx * push;
-        a.y -= ny * push;
-        b.x += nx * push;
-        b.y += ny * push;
+        const pushA = push / clamp(a.stats.mass || 1, 0.72, 1.25);
+        const pushB = push / clamp(b.stats.mass || 1, 0.72, 1.25);
+        a.x -= nx * pushA;
+        a.y -= ny * pushA;
+        b.x += nx * pushB;
+        b.y += ny * pushB;
         const impulse = 0.22;
         a.vx -= nx * push * impulse;
         a.vy -= ny * push * impulse;
@@ -927,13 +1703,49 @@
 
   function checkFinish() {
     if (!player.finished) return;
-    finished = true;
     const ranks = sortedCars();
     const place = ranks.findIndex(car => car === player) + 1;
-    resultTitle.textContent = place === 1 ? "冠军" : `第 ${place} 名`;
-    resultCopy.textContent = `总用时 ${formatTime(player.finishTime)} · 最佳 ${formatTime(player.bestLap)} · 漂移 ${Math.round(player.driftScore)} · 倍率 x${player.driftMultiplier.toFixed(1)}`;
+    completeRace(place);
+  }
+
+  function completeRace(place, forcedStats = null) {
+    if (finished) return;
+    finished = true;
+    stopEngine();
+    const stats = forcedStats || currentRaceStats(place);
+    stats.place = place;
+    const passed = currentEvent.objectives.map(objective => objectiveDone(objective, stats));
+    const stars = passed.filter(Boolean).length;
+    const previousStars = career.eventStars[currentEvent.id] || 0;
+    const previousTotal = getTotalStars();
+    const previousBest = career.bestTimes[currentEvent.id] || Infinity;
+    career.eventStars[currentEvent.id] = Math.max(previousStars, stars);
+    const improved = stats.time > 0 && stats.time < previousBest;
+    if (improved) {
+      career.bestTimes[currentEvent.id] = stats.time;
+      if (!forcedStats && ghostSamples.length > 8) career.ghosts[currentEvent.id] = ghostSamples.slice(0, 2600);
+    }
+    if (Number.isFinite(stats.bestLap) && stats.bestLap > 0) {
+      career.bestLaps[currentEvent.id] = Math.min(career.bestLaps[currentEvent.id] || Infinity, stats.bestLap);
+    }
+    if (place === 1) career.wins += 1;
+    const newStars = Math.max(0, stars - previousStars);
+    const placeFactor = [0, 1, 0.78, 0.62, 0.48][place] || 0.4;
+    const credits = Math.round(currentEvent.reward * (0.28 + placeFactor * 0.42 + stars * 0.1) + newStars * 40);
+    career.credits += credits;
+    const total = getTotalStars();
+    const newlyUnlocked = events.filter(event => event.unlock > previousTotal && event.unlock <= total).map(event => event.name);
+    saveCareer();
+    resultTitle.textContent = place === 1 ? `${currentEvent.name} · 冠军` : `${currentEvent.name} · 第 ${place} 名`;
+    resultCopy.textContent = `总用时 ${formatTime(stats.time)} · 最佳圈 ${Number.isFinite(stats.bestLap) ? formatTime(stats.bestLap) : "--:--.--"} · 漂移 ${Math.round(stats.driftScore)} · +${credits} 车币${improved ? " · 新幽灵" : ""}`;
+    resultGrade.textContent = `${"★".repeat(stars)}${"☆".repeat(3 - stars)}`;
+    renderObjectives(resultObjectives, stats, true);
     resultModal.classList.add("show");
-    showToast("完赛");
+    renderLobby();
+    if (newlyUnlocked.length) showToast(`解锁 ${newlyUnlocked.join("、")}`);
+    else showToast(stars === 3 ? "三星达成" : "赛事结算");
+    tone(place === 1 ? 760 : 520, 0.18, 0.045, "triangle");
+    setTimeout(() => tone(place === 1 ? 980 : 650, 0.24, 0.04, "triangle"), 150);
   }
 
   function spawnSmoke(car, right, slip) {
@@ -1065,7 +1877,8 @@
     const speed = Math.round(Math.hypot(player.vx, player.vy) * 0.23);
     const ranks = sortedCars();
     const place = ranks.findIndex(car => car === player) + 1;
-    statusText.textContent = finished ? "完赛" : paused ? "暂停" : player.heat > 88 ? "胎热" : player.offroad ? "草地" : player.driftChain > 18 ? "漂移" : "竞速";
+    eventNameText.textContent = currentEvent.name;
+    statusText.textContent = finished ? "完赛" : paused ? "暂停" : player.heat > 88 ? "胎热" : player.offroad ? "草地" : player.driftChain > 18 ? "漂移" : conditions[currentEvent.condition].name;
     lapText.textContent = `第 ${Math.min(TOTAL_LAPS, player.lap)}/${TOTAL_LAPS} 圈`;
     speedText.textContent = speed;
     positionText.textContent = `${place}/${cars.length}`;
@@ -1081,6 +1894,13 @@
     currentLapText.textContent = formatTime(raceTime - player.lapStart);
     bestLapText.textContent = Number.isFinite(player.bestLap) ? formatTime(player.bestLap) : "--:--.--";
     totalText.textContent = formatTime(raceTime);
+
+    const stats = currentRaceStats(place);
+    const nextObjectiveKey = `${place}:${Math.round(stats.driftScore / 40)}:${stats.clips}:${Math.round(stats.offroadTime)}:${Math.round(raceTime)}`;
+    if (nextObjectiveKey !== objectiveKey) {
+      objectiveKey = nextObjectiveKey;
+      renderObjectives(objectiveList, stats, false);
+    }
 
     const key = ranks.map(car => `${car.id}:${car.lap}:${car.checkpoint}:${Math.round(car.rankScore * 10)}:${car.finished ? 1 : 0}`).join("|");
     if (key !== leaderboardKey) {
@@ -1120,20 +1940,22 @@
 
   function drawWorld() {
     drawGrass();
+    drawEnvironment();
     drawTrack();
     drawBoostPads();
     drawClipZones();
     drawCheckpoints();
     drawSkids();
+    drawGhost();
     for (const car of sortedCars().reverse()) drawCar(car);
     drawParticles();
   }
 
   function drawGrass() {
     const grad = ctx.createLinearGradient(0, 0, WORLD_W, WORLD_H);
-    grad.addColorStop(0, "#173b2b");
-    grad.addColorStop(0.45, "#1e4b31");
-    grad.addColorStop(1, "#23381d");
+    grad.addColorStop(0, currentTrack.theme[0]);
+    grad.addColorStop(0.45, currentTrack.theme[1]);
+    grad.addColorStop(1, currentTrack.theme[2]);
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, WORLD_W, WORLD_H);
 
@@ -1158,12 +1980,47 @@
     }
   }
 
+  function drawEnvironment() {
+    ctx.save();
+    if (currentEvent.track === "harbor") {
+      ctx.fillStyle = "rgba(34, 103, 124, 0.34)";
+      ctx.fillRect(40, 80, 390, 430);
+      ctx.fillStyle = "rgba(185, 220, 214, 0.12)";
+      for (let y = 110; y < 500; y += 42) ctx.fillRect(60, y, 340, 3);
+      ctx.fillStyle = "rgba(18, 28, 28, 0.5)";
+      for (let i = 0; i < 8; i += 1) ctx.fillRect(1790 + (i % 2) * 92, 180 + i * 118, 72, 48);
+    } else if (currentEvent.track === "alpine") {
+      ctx.fillStyle = "rgba(222, 238, 232, 0.18)";
+      for (let i = 0; i < 22; i += 1) {
+        const x = 90 + (i * 331) % 2020;
+        const y = 80 + (i * 217) % 1390;
+        ctx.beginPath();
+        ctx.moveTo(x - 45, y + 38);
+        ctx.lineTo(x, y - 46);
+        ctx.lineTo(x + 48, y + 38);
+        ctx.closePath();
+        ctx.fill();
+      }
+    } else {
+      ctx.fillStyle = "rgba(14, 16, 15, 0.48)";
+      for (let i = 0; i < 18; i += 1) {
+        const x = 85 + (i * 307) % 2030;
+        const y = 75 + (i * 193) % 1440;
+        ctx.fillRect(x, y, 78 + (i % 3) * 24, 58);
+        ctx.fillStyle = "rgba(246, 153, 70, 0.18)";
+        ctx.fillRect(x + 12, y + 14, 12, 18);
+        ctx.fillStyle = "rgba(14, 16, 15, 0.48)";
+      }
+    }
+    ctx.restore();
+  }
+
   function drawTrack() {
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
-    drawTrackStroke(ROAD_W + 28, "#111515");
-    drawTrackStroke(ROAD_W, "#313633");
-    drawTrackStroke(ROAD_W - 30, "#3d413d");
+    drawTrackStroke(ROAD_W + 28, currentEvent.condition === "night" || currentEvent.condition === "storm" ? "#080b0c" : "#111515");
+    drawTrackStroke(ROAD_W, currentEvent.condition === "rain" || currentEvent.condition === "storm" ? "#293537" : "#313633");
+    drawTrackStroke(ROAD_W - 30, currentEvent.condition === "heat" ? "#4a4039" : "#3d413d");
 
     ctx.save();
     ctx.setLineDash([36, 34]);
@@ -1306,6 +2163,31 @@
     ctx.restore();
   }
 
+  function drawGhost() {
+    if (!activeGhost.length || raceTime <= 0) return;
+    let index = Math.min(activeGhost.length - 1, Math.max(0, Math.floor(raceTime / 0.12)));
+    while (index < activeGhost.length - 1 && activeGhost[index + 1][0] < raceTime) index += 1;
+    while (index > 0 && activeGhost[index][0] > raceTime) index -= 1;
+    const a = activeGhost[index];
+    const b = activeGhost[Math.min(activeGhost.length - 1, index + 1)];
+    if (!a || raceTime > activeGhost.at(-1)[0] + 0.2) return;
+    const mix = b[0] === a[0] ? 0 : clamp((raceTime - a[0]) / (b[0] - a[0]), 0, 1);
+    const x = lerp(a[1], b[1], mix);
+    const y = lerp(a[2], b[2], mix);
+    const angle = angleLerp(a[3], b[3], mix);
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(angle + Math.PI / 2);
+    ctx.globalAlpha = 0.38;
+    ctx.strokeStyle = "#f6c75e";
+    ctx.fillStyle = "rgba(246, 199, 94, 0.28)";
+    ctx.lineWidth = 4;
+    roundRect(-18, -31, 36, 62, 8);
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+  }
+
   function drawCar(car) {
     ctx.save();
     ctx.translate(car.x, car.y);
@@ -1415,6 +2297,34 @@
     ctx.strokeRect(vx, vy, vw, vh);
     ctx.restore();
     ctx.restore();
+    drawWeatherOverlay();
+  }
+
+  function drawWeatherOverlay() {
+    const wet = currentEvent.condition === "rain" || currentEvent.condition === "storm";
+    const dark = currentEvent.condition === "night" || currentEvent.condition === "storm";
+    if (dark) {
+      const gradient = ctx.createRadialGradient(canvas.width * 0.5, canvas.height * 0.52, canvas.height * 0.18, canvas.width * 0.5, canvas.height * 0.52, canvas.height * 0.78);
+      gradient.addColorStop(0, "rgba(2, 5, 8, 0.02)");
+      gradient.addColorStop(1, currentEvent.condition === "storm" ? "rgba(1, 5, 8, 0.48)" : "rgba(2, 4, 8, 0.38)");
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+    if (wet) {
+      const d = view.dpr;
+      ctx.save();
+      ctx.strokeStyle = currentEvent.condition === "storm" ? "rgba(196, 228, 240, 0.34)" : "rgba(196, 228, 240, 0.24)";
+      ctx.lineWidth = Math.max(1, d);
+      for (let i = 0; i < 58; i += 1) {
+        const x = ((i * 193 + raceTime * 410 * d) % (canvas.width + 140 * d)) - 70 * d;
+        const y = (i * 137 + raceTime * 690 * d) % canvas.height;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x - 18 * d, y + 36 * d);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
   }
 
   function roundRect(x, y, w, h, r) {
@@ -1443,10 +2353,17 @@
   window.addEventListener("keydown", event => {
     if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"].includes(event.code)) event.preventDefault();
     if (event.code === "KeyP") togglePause();
+    if (event.code === "Escape" && started) openLobby();
     keys.add(event.code);
   });
   window.addEventListener("keyup", event => keys.delete(event.code));
   window.addEventListener("resize", resize);
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden && started && !finished) {
+      paused = true;
+      pauseBtn.textContent = "▶";
+    }
+  });
 
   for (const button of document.querySelectorAll(".control-btn")) {
     const control = button.dataset.control;
@@ -1467,12 +2384,170 @@
     button.addEventListener("pointerleave", () => set(false));
   }
 
-  startBtn.addEventListener("click", startRace);
-  againBtn.addEventListener("click", startRace);
+  document.querySelectorAll(".tab-btn").forEach(button => button.addEventListener("click", () => selectTab(button.dataset.tab)));
+  eventGrid.addEventListener("click", event => {
+    const button = event.target.closest("[data-event]");
+    if (!button || button.disabled) return;
+    career.selectedEvent = button.dataset.event;
+    saveCareer();
+    tone(420, 0.05, 0.02);
+    renderLobby();
+  });
+  vehicleGrid.addEventListener("click", event => {
+    const button = event.target.closest("[data-vehicle]");
+    if (!button || button.disabled) return;
+    const vehicle = vehicles.find(item => item.id === button.dataset.vehicle);
+    if (!career.ownedCars.includes(vehicle.id)) {
+      if (career.credits < vehicle.price) {
+        showToast(`还需要 ${vehicle.price - career.credits} 车币`);
+        return;
+      }
+      career.credits -= vehicle.price;
+      career.ownedCars.push(vehicle.id);
+      showToast(`已购置 ${vehicle.name}`);
+    }
+    career.selectedCar = vehicle.id;
+    saveCareer();
+    tone(520, 0.06, 0.025);
+    renderLobby();
+  });
+  moduleGrid.addEventListener("click", event => {
+    const button = event.target.closest("[data-module]");
+    if (!button || button.disabled) return;
+    const id = button.dataset.module;
+    const module = modules.find(item => item.id === id);
+    let purchased = false;
+    if (!career.ownedModules.includes(id)) {
+      if (career.credits < module.price) {
+        showToast(`还需要 ${module.price - career.credits} 车币`);
+        return;
+      }
+      career.credits -= module.price;
+      career.ownedModules.push(id);
+      purchased = true;
+    }
+    if (career.modules.includes(id)) career.modules = career.modules.filter(item => item !== id);
+    else if (career.modules.length < 2) career.modules.push(id);
+    else {
+      saveCareer();
+      renderLobby();
+      showToast(purchased ? "已购置，请先拆下一件模块" : "最多安装 2 件模块");
+      return;
+    }
+    saveCareer();
+    tone(610, 0.06, 0.025);
+    renderLobby();
+  });
+
+  function toggleSound() {
+    career.sound = !career.sound;
+    if (!career.sound) stopEngine();
+    else if (started && !finished && !paused) startEngine();
+    saveCareer();
+    renderLobby();
+    showToast(career.sound ? "音效已开启" : "音效已关闭");
+  }
+
+  exportBtn.addEventListener("click", async () => {
+    archiveCode.value = encodeCareer();
+    archiveCode.select();
+    try {
+      await navigator.clipboard.writeText(archiveCode.value);
+      showToast("档案码已复制");
+    } catch {
+      showToast("档案码已生成");
+    }
+  });
+  importBtn.addEventListener("click", () => {
+    try {
+      importCareer(archiveCode.value);
+      showToast("档案导入成功");
+    } catch (error) {
+      showToast(error.message || "档案码无效");
+    }
+  });
+  soundBtn.addEventListener("click", toggleSound);
+  audioBtn.addEventListener("click", toggleSound);
+  garageBtn.addEventListener("click", openLobby);
+  lobbyBtn.addEventListener("click", openLobby);
+  startBtn.addEventListener("click", () => startRace());
+  againBtn.addEventListener("click", () => startRace());
   restartBtn.addEventListener("click", restartRace);
   pauseBtn.addEventListener("click", togglePause);
 
+  if (new URLSearchParams(location.search).has("debug")) {
+    window.__driftTourDebug = {
+      snapshot() {
+        return {
+          career: JSON.parse(JSON.stringify(career)),
+          event: currentEvent.id,
+          track: currentEvent.track,
+          condition: currentEvent.condition,
+          trackPoints: track.length,
+          checkpoints: checkpoints.length,
+          pads: boostPads.length,
+          clips: clippingZones.length,
+          started,
+          paused,
+          finished,
+          raceTime,
+          player: player ? {
+            lap: player.lap,
+            speed: Math.hypot(player.vx, player.vy),
+            driftScore: player.driftScore,
+            clipCount: player.clipCount,
+            offroadTime: player.offroadTime,
+            stats: { ...player.stats }
+          } : null,
+          totalStars: getTotalStars(),
+          medals: medalState().filter(([, done]) => done).map(([name]) => name),
+          activeGhostSamples: activeGhost.length,
+          savePrefix: SAVE_PREFIX.slice(0, -1)
+        };
+      },
+      start(eventId = career.selectedEvent) {
+        const event = events.find(item => item.id === eventId);
+        if (event && event.unlock > getTotalStars()) {
+          career.eventStars = Object.fromEntries(events.map(item => [item.id, 3]));
+        }
+        career.selectedEvent = eventId;
+        startRace(eventId);
+        return this.snapshot();
+      },
+      forceFinish(payload = {}) {
+        if (!player) startRace(payload.eventId || career.selectedEvent);
+        const stats = {
+          place: clamp(Math.round(payload.place || 1), 1, 4),
+          time: Number(payload.time) || 42,
+          bestLap: Number(payload.bestLap) || 20,
+          driftScore: Number(payload.driftScore) || 3000,
+          clips: Number(payload.clips) || 12,
+          offroadTime: Number(payload.offroadTime) || 0
+        };
+        player.finishTime = stats.time;
+        player.bestLap = stats.bestLap;
+        player.driftScore = stats.driftScore;
+        player.clipCount = stats.clips;
+        player.offroadTime = stats.offroadTime;
+        player.finished = true;
+        completeRace(stats.place, payload.recordGhost ? null : stats);
+        return this.snapshot();
+      },
+      unlockAll() {
+        career.eventStars = Object.fromEntries(events.map(item => [item.id, 3]));
+        career.credits = Math.max(career.credits, 5000);
+        saveCareer();
+        renderLobby();
+        return this.snapshot();
+      },
+      encodeCareer,
+      importCareer,
+      data: { events, vehicles, modules, tracks }
+    };
+  }
+
   resize();
+  renderLobby();
   updateUI();
   requestAnimationFrame(loop);
 })();
