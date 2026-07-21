@@ -1,0 +1,28 @@
+{
+  "articleType": "原创",
+  "category": "游戏开发",
+  "backupCategories": [
+    "前端",
+    "JavaScript"
+  ],
+  "summary": "隐藏信息能制造紧张感，也很容易把游戏变成没有依据的猜谜。我用三个零依赖、单 HTML 浏览器游戏做了一轮真实升级：节奏游戏用暗拍制造时间不确定性，回合潜行用视锥制造空间不确定性，声呐战术用被动监听与主动探测制造身份不确定性。本文结合真实玩法和自动化回归，拆解线索、确认成本、反馈与撤回怎样让玩家看不全却始终能够推理。",
+  "tags": [
+    "HTML5 游戏",
+    "JavaScript",
+    "游戏设计",
+    "Canvas",
+    "Vibe Coding"
+  ],
+  "alternativeTitles": [
+    "隐藏信息不等于让玩家靠猜：三个浏览器小游戏的设计与验证",
+    "从暗拍、守卫视野到主动声呐：浏览器游戏如何设计可学习的未知",
+    "玩家看不全时，游戏怎样保持公平？三个单 HTML 项目的实战复盘"
+  ],
+  "cover": "docs/images/readable-uncertainty/cover.jpg",
+  "repositoryUrl": "https://github.com/wangzifan396-wzf/mini-browser-games",
+  "sourceCommit": "cb2386bbd5dc80778921523fc18e34c716adbcac",
+  "notes": [
+    "封面只设置为 CSDN 封面，不在正文首屏重复插入。",
+    "按正文顺序上传三张配图，并保留每张图片后的图注。"
+  ]
+}
