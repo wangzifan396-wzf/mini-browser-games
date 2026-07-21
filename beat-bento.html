@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>节拍饭团</title>
+    <title>节拍饭团：夜市巡演</title>
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23131a1c'/%3E%3Cpath d='M31 9c14 11 20 28 12 42H19C11 36 17 19 31 9Z' fill='%23f7f1df'/%3E%3Cpath d='M25 35h15v16H25z' fill='%23243d36'/%3E%3Ccircle cx='24' cy='28' r='3' fill='%23e65f58'/%3E%3Ccircle cx='38' cy='28' r='3' fill='%23e65f58'/%3E%3C/svg%3E">
     <style>
       :root {
@@ -262,7 +262,9 @@
       }
 
       .modal {
-        width: min(460px, 100%);
+        width: min(920px, 100%);
+        max-height: calc(100vh - 44px);
+        overflow: auto;
         padding: 22px;
         border: 1px solid #9fb4ac;
         border-radius: var(--radius);
@@ -285,12 +287,160 @@
         display: none;
       }
 
+      .tour-head,
+      .career-strip,
+      .archive-actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .tour-head {
+        align-items: flex-start;
+      }
+
+      .career-strip {
+        min-width: 250px;
+      }
+
+      .career-pill,
+      .show-card,
+      .chef-card,
+      .goal-box {
+        border: 1px solid #9ea99f;
+        border-radius: var(--radius);
+        background: #fff8e9;
+      }
+
+      .career-pill {
+        flex: 1;
+        padding: 8px 10px;
+      }
+
+      .career-pill small,
+      .show-card small,
+      .chef-card small {
+        display: block;
+        color: #65736e;
+        font-size: 11px;
+        font-weight: 900;
+      }
+
+      .career-pill strong {
+        display: block;
+        margin-top: 3px;
+        font-size: 18px;
+      }
+
+      .show-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+        margin: 14px 0;
+      }
+
+      .show-card,
+      .chef-card {
+        min-height: 96px;
+        padding: 10px;
+        color: var(--ink);
+        text-align: left;
+        font: inherit;
+        cursor: pointer;
+      }
+
+      .show-card strong,
+      .chef-card strong {
+        display: block;
+        margin: 4px 0;
+      }
+
+      .show-card.selected,
+      .chef-card.selected {
+        border-color: var(--gold);
+        box-shadow: inset 0 0 0 1px var(--gold);
+      }
+
+      .show-card:disabled,
+      .chef-card:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+
+      .show-meta,
+      .chef-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .show-meta span {
+        padding: 3px 5px;
+        border: 1px solid rgba(81, 100, 94, 0.25);
+        border-radius: 4px;
+        color: #53635f;
+        font-size: 10px;
+        font-weight: 900;
+      }
+
+      .chef-grid {
+        margin: 8px 0 14px;
+      }
+
+      .chef-card {
+        flex: 1 1 180px;
+      }
+
+      .stars {
+        color: #a66f0b;
+        font-weight: 900;
+      }
+
+      .archive-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 8px;
+        margin: 10px 0;
+      }
+
+      .archive-row input {
+        min-width: 0;
+        min-height: 40px;
+        border: 1px solid #8aa29a;
+        border-radius: var(--radius);
+        padding: 8px;
+        background: #fffdf6;
+        color: var(--ink);
+        font: 12px ui-monospace, Consolas, monospace;
+      }
+
+      .goal-box {
+        margin-top: 12px;
+        padding: 10px;
+      }
+
+      .goal-row {
+        display: grid;
+        grid-template-columns: 18px minmax(0, 1fr) auto;
+        gap: 6px;
+        align-items: center;
+        min-height: 27px;
+        color: #65736e;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .goal-row.done {
+        color: var(--teal);
+      }
+
       @media (max-width: 940px) {
         .layout {
           grid-template-columns: 1fr;
         }
 
-        .side {
+        .stage {
           order: -1;
         }
 
@@ -330,6 +480,33 @@
         .stage {
           min-height: 500px;
         }
+
+        .overlay {
+          align-items: start;
+          overflow: auto;
+          padding: 8px;
+        }
+
+        .modal {
+          max-height: none;
+        }
+
+        .tour-head {
+          display: block;
+        }
+
+        .career-strip {
+          min-width: 0;
+          margin-top: 10px;
+        }
+
+        .show-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .archive-row {
+          grid-template-columns: 1fr;
+        }
       }
     </style>
   </head>
@@ -338,10 +515,10 @@
       <header class="topbar">
         <div>
           <p class="eyebrow">RHYTHM COOKING</p>
-          <h1>节拍饭团</h1>
+          <h1>节拍饭团：夜市巡演</h1>
         </div>
         <div class="actions">
-          <button class="btn" id="startBtn">开始</button>
+          <button class="btn" id="startBtn">巡演</button>
           <button class="btn secondary" id="pauseBtn">暂停</button>
           <button class="btn secondary" id="resetBtn">重开</button>
         </div>
@@ -352,9 +529,34 @@
           <canvas id="gameCanvas" aria-label="节拍饭团游戏画面"></canvas>
           <div class="overlay" id="overlay">
             <div class="modal">
-              <h2 id="overlayTitle">开灶</h2>
-              <p id="overlayText">跟着下落节拍补齐饭团配方，连击越稳，饭团越香。</p>
-              <button class="btn" id="overlayBtn">开始营业</button>
+              <div id="lobbyView">
+                <div class="tour-head">
+                  <div><h2>夜市巡演</h2><p>跟着谱面完成配方，在十二场演出里赢取星章。</p></div>
+                  <div class="career-strip">
+                    <div class="career-pill"><small>星章</small><strong id="careerStars">0/36</strong></div>
+                    <div class="career-pill"><small>演出</small><strong id="careerShows">0</strong></div>
+                    <div class="career-pill"><small>勋章</small><strong id="careerMedals">0/6</strong></div>
+                  </div>
+                </div>
+                <div class="show-grid" id="showGrid"></div>
+                <h3>主厨</h3>
+                <div class="chef-grid" id="chefGrid"></div>
+                <div class="archive-row">
+                  <input id="archiveCode" aria-label="巡演存档码" placeholder="BENTO2 跨设备存档码">
+                  <div class="archive-actions">
+                    <button class="btn secondary" id="exportBtn">导出</button>
+                    <button class="btn secondary" id="importBtn">导入</button>
+                    <button class="btn secondary" id="soundBtn">音效：开</button>
+                  </div>
+                </div>
+                <button class="btn" id="overlayStartBtn">开始本场</button>
+              </div>
+              <div id="messageView" class="hidden">
+                <h2 id="overlayTitle">开灶</h2>
+                <p id="overlayText">跟着下落节拍补齐饭团配方，连击越稳，饭团越香。</p>
+                <div class="goal-box" id="resultGoals"></div>
+                <div class="archive-actions"><button class="btn secondary" id="lobbyBtn">返回巡演</button><button class="btn" id="overlayBtn">继续</button></div>
+              </div>
             </div>
           </div>
         </div>
@@ -375,6 +577,7 @@
             </div>
             <div class="ingredients" id="recipeList"></div>
           </div>
+          <div class="goal-box"><strong id="showName">码头试演</strong><div id="goalList"></div></div>
           <div class="stats">
             <div class="stat"><b id="scoreText">0</b><small>分数</small></div>
             <div class="stat"><b id="comboText">0</b><small>连击</small></div>
@@ -413,7 +616,25 @@
         const recipeName = document.getElementById("recipeName");
         const recipeBonus = document.getElementById("recipeBonus");
         const recipeList = document.getElementById("recipeList");
-        const storageKey = "miniBeatBentoRecords";
+        const lobbyView = document.getElementById("lobbyView");
+        const messageView = document.getElementById("messageView");
+        const showGrid = document.getElementById("showGrid");
+        const chefGrid = document.getElementById("chefGrid");
+        const careerStars = document.getElementById("careerStars");
+        const careerShows = document.getElementById("careerShows");
+        const careerMedals = document.getElementById("careerMedals");
+        const archiveCode = document.getElementById("archiveCode");
+        const exportBtn = document.getElementById("exportBtn");
+        const importBtn = document.getElementById("importBtn");
+        const soundBtn = document.getElementById("soundBtn");
+        const overlayStartBtn = document.getElementById("overlayStartBtn");
+        const lobbyBtn = document.getElementById("lobbyBtn");
+        const resultGoals = document.getElementById("resultGoals");
+        const showName = document.getElementById("showName");
+        const goalList = document.getElementById("goalList");
+        const SAVE_KEY = "beatBentoTourV2";
+        const LEGACY_KEY = "miniBeatBentoRecords";
+        const SAVE_PREFIX = "BENTO2.";
 
         const lanes = [
           { key: "KeyA", label: "A", icon: "米", color: "#f7f1df", dark: "#6b6a5d" },
@@ -430,6 +651,30 @@
           { name: "满月便当", seq: [0, 2, 1, 2, 3], value: 1160 }
         ];
 
+        const shows = [
+          { id: "dock", name: "码头试演", district: "潮港篇", unlock: 0, bpm: 96, duration: 32000, recipes: [0, 1], modifier: "steady", targets: { served: 4, score: 4800, combo: 16 } },
+          { id: "lantern", name: "灯笼横街", district: "潮港篇", unlock: 1, bpm: 104, duration: 34000, recipes: [0, 1, 2], modifier: "swing", targets: { served: 5, score: 6200, combo: 20 } },
+          { id: "ferry", name: "末班渡口", district: "潮港篇", unlock: 2, bpm: 112, duration: 36000, recipes: [1, 2], modifier: "double", targets: { served: 5, score: 7600, combo: 24 } },
+          { id: "harbor-fest", name: "潮港祭典", district: "潮港终演", unlock: 4, bpm: 118, duration: 40000, recipes: [0, 2, 3], modifier: "rush", targets: { served: 6, score: 9200, combo: 28 } },
+          { id: "alley", name: "烟火后巷", district: "霓城篇", unlock: 7, bpm: 122, duration: 36000, recipes: [1, 2, 3], modifier: "swing", targets: { served: 6, score: 9800, combo: 30 } },
+          { id: "arcade", name: "游戏厅前", district: "霓城篇", unlock: 10, bpm: 128, duration: 38000, recipes: [0, 3, 4], modifier: "double", targets: { served: 7, score: 11200, combo: 34 } },
+          { id: "rooftop", name: "天台夜风", district: "霓城篇", unlock: 13, bpm: 134, duration: 40000, recipes: [2, 3, 4], modifier: "hush", targets: { served: 7, score: 12600, combo: 38 } },
+          { id: "neon-fest", name: "霓城百摊", district: "霓城终演", unlock: 16, bpm: 140, duration: 42000, recipes: [0, 1, 3, 4], modifier: "rush", targets: { served: 8, score: 14600, combo: 42 } },
+          { id: "moon-gate", name: "月门长阶", district: "满月篇", unlock: 20, bpm: 144, duration: 40000, recipes: [2, 4], modifier: "hush", targets: { served: 8, score: 15200, combo: 44 } },
+          { id: "shrine", name: "神社回廊", district: "满月篇", unlock: 24, bpm: 150, duration: 42000, recipes: [1, 3, 4], modifier: "double", targets: { served: 9, score: 17400, combo: 48 } },
+          { id: "summit", name: "山顶朝市", district: "满月篇", unlock: 28, bpm: 156, duration: 44000, recipes: [0, 2, 3, 4], modifier: "swing", targets: { served: 9, score: 19200, combo: 52 } },
+          { id: "full-moon", name: "满月大巡演", district: "终章", unlock: 32, bpm: 162, duration: 48000, recipes: [0, 1, 2, 3, 4], modifier: "rush", targets: { served: 10, score: 22800, combo: 58 } }
+        ];
+
+        const chefs = [
+          { id: "nagi", name: "凪", unlock: 0, trait: "均衡判定与热度", window: 1, score: 1, fever: 1, patience: 1 },
+          { id: "mio", name: "澪", unlock: 8, trait: "判定窗口 +18%，得分 -6%", window: 1.18, score: 0.94, fever: 1, patience: 1.12 },
+          { id: "jin", name: "迅", unlock: 16, trait: "得分 +14%，判定更严格", window: 0.92, score: 1.14, fever: 1, patience: 0.94 },
+          { id: "tsuki", name: "月", unlock: 26, trait: "热度获取 +35%", window: 1, score: 1, fever: 1.35, patience: 1 }
+        ];
+
+        const modifierNames = { steady: "正拍", swing: "摇摆拍", double: "双押", rush: "加速段", hush: "暗拍" };
+
         let dpr = 1;
         let w = 900;
         let h = 620;
@@ -440,19 +685,84 @@
         let loopToken = 0;
         let laneFlash = [0, 0, 0, 0];
         let floating = [];
+        let career = loadCareer();
+        let currentShow = shows.find((item) => item.id === career.selectedShow) || shows[0];
 
-        function loadBest() {
-          try {
-            return JSON.parse(localStorage.getItem(storageKey) || "{}").best || 0;
-          } catch (error) {
-            return 0;
-          }
+        function defaultCareer() {
+          return { version: 2, selectedShow: shows[0].id, selectedChef: chefs[0].id, stageStars: {}, bestScores: {}, bestCombos: {}, clears: 0, sound: true };
         }
 
-        function saveBest(score) {
-          const best = Math.max(loadBest(), score);
-          localStorage.setItem(storageKey, JSON.stringify({ best }));
-          return best;
+        function totalStars(source = career) {
+          return Object.values(source.stageStars || {}).reduce((sum, value) => sum + Math.max(0, Math.min(3, Number(value) || 0)), 0);
+        }
+
+        function sanitizeCareer(raw) {
+          const base = defaultCareer();
+          if (!raw || typeof raw !== "object") return base;
+          const validShows = new Set(shows.map((item) => item.id));
+          const validChefs = new Set(chefs.map((item) => item.id));
+          const clean = {
+            version: 2,
+            selectedShow: validShows.has(raw.selectedShow) ? raw.selectedShow : base.selectedShow,
+            selectedChef: validChefs.has(raw.selectedChef) ? raw.selectedChef : base.selectedChef,
+            stageStars: {},
+            bestScores: {},
+            bestCombos: {},
+            clears: Math.max(0, Math.round(Number(raw.clears) || 0)),
+            sound: raw.sound !== false
+          };
+          for (const [id, value] of Object.entries(raw.stageStars || {})) if (validShows.has(id)) clean.stageStars[id] = Math.max(0, Math.min(3, Math.round(Number(value) || 0)));
+          for (const [id, value] of Object.entries(raw.bestScores || {})) if (validShows.has(id) && Number(value) >= 0) clean.bestScores[id] = Math.round(Number(value));
+          for (const [id, value] of Object.entries(raw.bestCombos || {})) if (validShows.has(id) && Number(value) >= 0) clean.bestCombos[id] = Math.round(Number(value));
+          const stars = totalStars(clean);
+          if ((shows.find((item) => item.id === clean.selectedShow)?.unlock || 0) > stars) clean.selectedShow = shows.filter((item) => item.unlock <= stars).at(-1)?.id || shows[0].id;
+          if ((chefs.find((item) => item.id === clean.selectedChef)?.unlock || 0) > stars) clean.selectedChef = chefs[0].id;
+          return clean;
+        }
+
+        function loadCareer() {
+          try {
+            const stored = JSON.parse(localStorage.getItem(SAVE_KEY) || "null");
+            if (stored) return sanitizeCareer(stored);
+            const legacy = JSON.parse(localStorage.getItem(LEGACY_KEY) || "null");
+            if (legacy?.best) {
+              const migrated = defaultCareer();
+              migrated.bestScores[shows[0].id] = Math.round(Number(legacy.best) || 0);
+              localStorage.setItem(SAVE_KEY, JSON.stringify(migrated));
+              return migrated;
+            }
+          } catch (error) {
+            // Invalid local data starts a clean tour.
+          }
+          return defaultCareer();
+        }
+
+        function saveCareer() {
+          localStorage.setItem(SAVE_KEY, JSON.stringify(career));
+        }
+
+        function encodeCareer() {
+          const bytes = new TextEncoder().encode(JSON.stringify(career));
+          let binary = "";
+          for (const byte of bytes) binary += String.fromCharCode(byte);
+          return SAVE_PREFIX + btoa(binary);
+        }
+
+        function importCareer(code) {
+          const text = String(code || "").trim();
+          if (!text.startsWith(SAVE_PREFIX)) throw new Error("存档码前缀不正确");
+          const binary = atob(text.slice(SAVE_PREFIX.length));
+          const value = JSON.parse(new TextDecoder().decode(Uint8Array.from(binary, (char) => char.charCodeAt(0))));
+          if (value.version !== 2) throw new Error("存档版本不兼容");
+          career = sanitizeCareer(value);
+          currentShow = shows.find((item) => item.id === career.selectedShow) || shows[0];
+          saveCareer();
+          renderLobby();
+          return career;
+        }
+
+        function loadBest() {
+          return Math.max(0, ...Object.values(career.bestScores || {}));
         }
 
         function initialState() {
@@ -460,7 +770,7 @@
             mode: "menu",
             startedAt: 0,
             elapsed: 0,
-            duration: 82000,
+            duration: currentShow.duration,
             score: 0,
             combo: 0,
             maxCombo: 0,
@@ -471,6 +781,10 @@
             notes: [],
             recipeIndex: 0,
             progress: 0,
+            noteCursor: 0,
+            spawnRecipeIndex: 0,
+            spawnRecipeProgress: 0,
+            misses: 0,
             best: loadBest(),
             message: "",
             ended: false
@@ -491,6 +805,7 @@
         }
 
         function ensureAudio() {
+          if (!career.sound) return;
           if (!audioCtx) {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
           }
@@ -500,7 +815,7 @@
         }
 
         function beep(freq, duration, gain) {
-          if (!audioCtx) return;
+          if (!career.sound || !audioCtx) return;
           const osc = audioCtx.createOscillator();
           const amp = audioCtx.createGain();
           osc.type = "triangle";
@@ -515,13 +830,78 @@
         }
 
         function currentRecipe() {
-          return recipes[state.recipeIndex % recipes.length];
+          const pool = currentShow.recipes;
+          return recipes[pool[state.recipeIndex % pool.length]];
+        }
+
+        function currentChef() {
+          return chefs.find((item) => item.id === career.selectedChef) || chefs[0];
+        }
+
+        function medalState() {
+          const stars = totalStars();
+          return [
+            ["初次开灶", career.clears > 0],
+            ["潮港九星", stars >= 9],
+            ["霓城节拍", stars >= 18],
+            ["四厨同台", stars >= 26],
+            ["三十星章", stars >= 30],
+            ["满月主厨", Boolean(career.stageStars["full-moon"])]
+          ];
+        }
+
+        function showStats() {
+          return { cleared: state.served >= currentShow.targets.served && state.patience > 0, served: state.served, score: state.score, combo: state.maxCombo };
+        }
+
+        function goalRows(stats = showStats()) {
+          const goals = [
+            [stats.cleared, `完成 ${currentShow.targets.served} 份配方`, `${stats.served}/${currentShow.targets.served}`],
+            [stats.score >= currentShow.targets.score, `得分达到 ${currentShow.targets.score}`, `${stats.score}/${currentShow.targets.score}`],
+            [stats.combo >= currentShow.targets.combo, `连击达到 ${currentShow.targets.combo}`, `${stats.combo}/${currentShow.targets.combo}`]
+          ];
+          return goals.map(([done, label, progress]) => `<div class="goal-row ${done ? "done" : ""}"><span>${done ? "●" : "○"}</span><span>${label}</span><strong>${progress}</strong></div>`).join("");
+        }
+
+        function renderLobby() {
+          const stars = totalStars();
+          careerStars.textContent = `${stars}/36`;
+          careerShows.textContent = Object.keys(career.stageStars).length;
+          careerMedals.textContent = `${medalState().filter(([, done]) => done).length}/6`;
+          soundBtn.textContent = `音效：${career.sound ? "开" : "关"}`;
+          showGrid.innerHTML = shows.map((show, index) => {
+            const locked = show.unlock > stars;
+            const earned = career.stageStars[show.id] || 0;
+            return `<button class="show-card ${career.selectedShow === show.id ? "selected" : ""}" data-show="${show.id}" ${locked ? "disabled" : ""}>
+              <small>${String(index + 1).padStart(2, "0")} · ${show.district}</small><strong>${show.name}</strong><div class="stars">${"★".repeat(earned)}${"☆".repeat(3 - earned)}</div>
+              <div class="show-meta"><span>${show.bpm} BPM</span><span>${modifierNames[show.modifier]}</span><span>${locked ? `${show.unlock} 星解锁` : `${Math.round(show.duration / 1000)} 秒`}</span></div>
+            </button>`;
+          }).join("");
+          chefGrid.innerHTML = chefs.map((chef) => {
+            const locked = chef.unlock > stars;
+            return `<button class="chef-card ${career.selectedChef === chef.id ? "selected" : ""}" data-chef="${chef.id}" ${locked ? "disabled" : ""}><small>${locked ? `${chef.unlock} 星解锁` : "可用主厨"}</small><strong>${chef.name}</strong><span>${chef.trait}</span></button>`;
+          }).join("");
+          currentShow = shows.find((item) => item.id === career.selectedShow) || shows[0];
+          showName.textContent = `${currentShow.name} · ${currentShow.bpm} BPM · ${modifierNames[currentShow.modifier]}`;
+          goalList.innerHTML = goalRows({ cleared: false, served: 0, score: 0, combo: 0 });
+        }
+
+        function openLobby() {
+          loopToken += 1;
+          state.mode = "menu";
+          lobbyView.classList.remove("hidden");
+          messageView.classList.add("hidden");
+          overlay.classList.remove("hidden");
+          renderLobby();
         }
 
         function setOverlay(title, text, button) {
           overlayTitle.textContent = title;
           overlayText.textContent = text;
           overlayBtn.textContent = button;
+          resultGoals.innerHTML = goalRows();
+          lobbyView.classList.add("hidden");
+          messageView.classList.remove("hidden");
           overlay.classList.remove("hidden");
         }
 
@@ -529,7 +909,12 @@
           overlay.classList.add("hidden");
         }
 
-        function startGame() {
+        function startGame(showId = career.selectedShow) {
+          const show = shows.find((item) => item.id === showId) || shows[0];
+          if (show.unlock > totalStars()) return;
+          currentShow = show;
+          career.selectedShow = show.id;
+          saveCareer();
           ensureAudio();
           loopToken += 1;
           state = initialState();
@@ -563,23 +948,47 @@
           if (state.ended) return;
           state.ended = true;
           state.mode = "over";
-          state.best = saveBest(state.score);
+          const stats = showStats();
+          const passed = [stats.cleared, stats.score >= currentShow.targets.score, stats.combo >= currentShow.targets.combo];
+          const stars = passed.filter(Boolean).length;
+          const previous = career.stageStars[currentShow.id] || 0;
+          career.stageStars[currentShow.id] = Math.max(previous, stars);
+          career.bestScores[currentShow.id] = Math.max(career.bestScores[currentShow.id] || 0, state.score);
+          career.bestCombos[currentShow.id] = Math.max(career.bestCombos[currentShow.id] || 0, state.maxCombo);
+          if (stats.cleared) career.clears += 1;
+          saveCareer();
+          state.best = loadBest();
           updateHud();
-          setOverlay("打烊", `完成 ${state.served} 份，最高连击 ${state.maxCombo}。`, "再来一局");
+          resultGoals.innerHTML = goalRows(stats);
+          setOverlay(stats.cleared ? `${currentShow.name} · ${"★".repeat(stars)}${"☆".repeat(3 - stars)}` : "观众散场", `完成 ${state.served} 份，得分 ${state.score}，最高连击 ${state.maxCombo}。`, "再演本场");
         }
 
         function spawnNotes(now) {
           while (nextBeat < now + 2300) {
-            const recipe = currentRecipe();
-            const lane = recipe.seq[state.notes.length % recipe.seq.length];
-            const swing = ((Math.floor(nextBeat / 600) % 7) === 3) ? 300 : 0;
+            const recipePool = currentShow.recipes;
+            const spawnRecipe = recipes[recipePool[state.spawnRecipeIndex % recipePool.length]];
+            const lane = spawnRecipe.seq[state.spawnRecipeProgress];
+            const baseInterval = 60000 / currentShow.bpm;
+            const rushing = currentShow.modifier === "rush" && nextBeat > state.duration * 0.62;
+            const interval = baseInterval / (rushing ? 1.2 : 1);
+            const swing = currentShow.modifier === "swing" && state.noteCursor % 4 === 2 ? interval * 0.42 : 0;
             state.notes.push({
               lane,
               hitAt: nextBeat + swing,
               judged: false,
-              id: Math.random()
+              id: Math.random(),
+              hush: currentShow.modifier === "hush"
             });
-            nextBeat += 600;
+            if (currentShow.modifier === "double" && state.noteCursor > 0 && state.noteCursor % 7 === 0) {
+              state.notes.push({ lane: (lane + 2) % 4, hitAt: nextBeat + swing, judged: false, id: Math.random(), bonusOnly: true });
+            }
+            state.noteCursor += 1;
+            state.spawnRecipeProgress += 1;
+            if (state.spawnRecipeProgress >= spawnRecipe.seq.length) {
+              state.spawnRecipeProgress = 0;
+              state.spawnRecipeIndex += 1;
+            }
+            nextBeat += interval;
           }
         }
 
@@ -590,6 +999,7 @@
         function hitLane(lane) {
           if (state.mode !== "running") return;
           laneFlash[lane] = 1;
+          const chef = currentChef();
           let best = null;
           let bestDiff = Infinity;
           for (const note of state.notes) {
@@ -601,9 +1011,10 @@
             }
           }
 
-          if (!best || bestDiff > 185) {
+          if (!best || bestDiff > 185 * chef.window) {
             state.combo = 0;
-            state.patience = Math.max(0, state.patience - 7);
+            state.misses += 1;
+            state.patience = Math.max(0, state.patience - 7 / chef.patience);
             addFloat("空拍", laneCenter(lane), targetY() - 36, "#b9453d");
             beep(120, 0.08, 0.035);
             if (state.patience <= 0) finishGame();
@@ -615,26 +1026,26 @@
           const feverActive = state.elapsed < state.feverUntil;
           let label = "OK";
           let base = 80;
-          if (bestDiff <= 65) {
+          if (bestDiff <= 65 * chef.window) {
             label = "极准";
             base = 160;
-          } else if (bestDiff <= 115) {
+          } else if (bestDiff <= 115 * chef.window) {
             label = "稳";
             base = 115;
           }
           state.combo += 1;
           state.maxCombo = Math.max(state.maxCombo, state.combo);
-          state.fever = Math.min(100, state.fever + (bestDiff <= 65 ? 7 : 4));
+          state.fever = Math.min(100, state.fever + (bestDiff <= 65 * chef.window ? 7 : 4) * chef.fever);
           if (state.fever >= 100 && !feverActive) {
             state.fever = 0;
             state.feverUntil = state.elapsed + 8000;
             addFloat("热度爆发", w * 0.5, targetY() - 86, "#d99f37");
           }
           const mult = feverActive ? 2 : 1;
-          state.score += Math.round((base + state.combo * 4) * mult);
+          state.score += Math.round((base + state.combo * 4) * mult * chef.score);
           state.patience = Math.min(100, state.patience + 1.8);
-          advanceRecipe(lane);
-          addFloat(label, laneCenter(lane), targetY() - 34, bestDiff <= 65 ? "#24766b" : "#6d597a");
+          if (!best.bonusOnly) advanceRecipe(lane);
+          addFloat(label, laneCenter(lane), targetY() - 34, bestDiff <= 65 * chef.window ? "#24766b" : "#6d597a");
           beep(260 + lane * 90 + Math.min(state.combo, 20) * 5, 0.08, 0.045);
           updateHud();
         }
@@ -668,9 +1079,10 @@
           }
           spawnNotes(state.elapsed);
           state.notes = state.notes.filter((note) => {
-            if (!note.judged && state.elapsed - note.hitAt > 210) {
+            if (!note.judged && state.elapsed - note.hitAt > 210 * currentChef().window) {
               note.judged = true;
               state.combo = 0;
+              state.misses += 1;
               state.patience = Math.max(0, state.patience - 4.5);
               addFloat("漏拍", laneCenter(note.lane), targetY() + 24, "#b9453d");
             }
@@ -746,9 +1158,11 @@
         function draw() {
           ctx.clearRect(0, 0, w, h);
           const grad = ctx.createLinearGradient(0, 0, 0, h);
-          grad.addColorStop(0, "#fff7e8");
-          grad.addColorStop(0.46, "#eff8ec");
-          grad.addColorStop(1, "#f4d7ad");
+          const chapter = shows.indexOf(currentShow) < 4 ? 0 : shows.indexOf(currentShow) < 8 ? 1 : 2;
+          const palettes = [["#fff7e8", "#eff8ec", "#f4d7ad"], ["#edf6f2", "#e8edf7", "#e6cee0"], ["#f5f0ff", "#eef3e5", "#f5d9a8"]];
+          grad.addColorStop(0, palettes[chapter][0]);
+          grad.addColorStop(0.46, palettes[chapter][1]);
+          grad.addColorStop(1, palettes[chapter][2]);
           ctx.fillStyle = grad;
           ctx.fillRect(0, 0, w, h);
 
@@ -782,7 +1196,11 @@
             if (note.judged) continue;
             const approach = 1850;
             const y = targetY() - (note.hitAt - state.elapsed) / approach * (targetY() - 64);
-            if (y > -60 && y < h + 60) drawNote(laneCenter(note.lane), y, note.lane);
+            if (y > -60 && y < h + 60) {
+              ctx.globalAlpha = note.hush && note.hitAt - state.elapsed > 720 ? 0.28 : 1;
+              drawNote(laneCenter(note.lane), y, note.lane);
+              ctx.globalAlpha = 1;
+            }
           }
 
           for (let i = 0; i < 4; i += 1) {
@@ -795,6 +1213,11 @@
           ctx.font = "900 24px system-ui, sans-serif";
           ctx.textAlign = "center";
           ctx.fillText(`${timeLeft}s`, w - 103, 53);
+
+          ctx.fillStyle = "#465d56";
+          ctx.font = "900 14px system-ui, sans-serif";
+          ctx.textAlign = "left";
+          ctx.fillText(`${currentShow.name} · ${currentChef().name} · ${modifierNames[currentShow.modifier]}`, 28, 32);
 
           if (state.elapsed < state.feverUntil) {
             ctx.fillStyle = "rgba(217, 159, 55, 0.18)";
@@ -836,6 +1259,8 @@
             chip.textContent = lanes[lane].icon;
             recipeList.appendChild(chip);
           });
+          showName.textContent = `${currentShow.name} · ${currentShow.bpm} BPM · ${modifierNames[currentShow.modifier]}`;
+          goalList.innerHTML = goalRows();
         }
 
         function laneFromPoint(event) {
@@ -845,12 +1270,43 @@
           return lane >= 0 && lane < 4 ? lane : -1;
         }
 
-        startBtn.addEventListener("click", startGame);
-        resetBtn.addEventListener("click", startGame);
+        startBtn.addEventListener("click", openLobby);
+        resetBtn.addEventListener("click", () => startGame());
         pauseBtn.addEventListener("click", togglePause);
+        overlayStartBtn.addEventListener("click", () => startGame());
+        lobbyBtn.addEventListener("click", openLobby);
         overlayBtn.addEventListener("click", () => {
           if (state.mode === "paused") togglePause();
           else startGame();
+        });
+        showGrid.addEventListener("click", (event) => {
+          const button = event.target.closest("[data-show]");
+          if (!button || button.disabled) return;
+          career.selectedShow = button.dataset.show;
+          currentShow = shows.find((item) => item.id === career.selectedShow) || shows[0];
+          saveCareer();
+          renderLobby();
+        });
+        chefGrid.addEventListener("click", (event) => {
+          const button = event.target.closest("[data-chef]");
+          if (!button || button.disabled) return;
+          career.selectedChef = button.dataset.chef;
+          saveCareer();
+          renderLobby();
+        });
+        exportBtn.addEventListener("click", async () => {
+          archiveCode.value = encodeCareer();
+          archiveCode.select();
+          try { await navigator.clipboard.writeText(archiveCode.value); } catch (error) {}
+        });
+        importBtn.addEventListener("click", () => {
+          try { importCareer(archiveCode.value); }
+          catch (error) { archiveCode.value = error.message || "存档码无效"; }
+        });
+        soundBtn.addEventListener("click", () => {
+          career.sound = !career.sound;
+          saveCareer();
+          renderLobby();
         });
         canvas.addEventListener("pointerdown", (event) => {
           ensureAudio();
@@ -866,7 +1322,7 @@
         });
         document.addEventListener("keydown", (event) => {
           if (event.repeat) return;
-          if (event.code === "Space") {
+          if (event.code === "Space" || event.code === "KeyP") {
             event.preventDefault();
             togglePause();
             return;
@@ -882,7 +1338,64 @@
           }
         });
         window.addEventListener("resize", resizeCanvas);
+        if (new URLSearchParams(location.search).has("debug")) {
+          window.__beatBentoDebug = {
+            snapshot() {
+              return {
+                career: JSON.parse(JSON.stringify(career)),
+                totalStars: totalStars(),
+                show: currentShow.id,
+                chef: currentChef().id,
+                mode: state.mode,
+                score: state.score,
+                combo: state.combo,
+                maxCombo: state.maxCombo,
+                served: state.served,
+                patience: state.patience,
+                notes: state.notes.length,
+                bpm: currentShow.bpm,
+                modifier: currentShow.modifier,
+                savePrefix: SAVE_PREFIX.slice(0, -1)
+              };
+            },
+            start(showId = career.selectedShow) {
+              const show = shows.find((item) => item.id === showId);
+              if (show && show.unlock > totalStars()) career.stageStars = Object.fromEntries(shows.map((item) => [item.id, 3]));
+              career.selectedShow = showId;
+              startGame(showId);
+              return this.snapshot();
+            },
+            injectNote(lane = 0, diff = 0) {
+              state.notes.push({ lane, hitAt: state.elapsed + diff, judged: false, id: Math.random() });
+              hitLane(lane);
+              return this.snapshot();
+            },
+            queueNote(lane = 0, diff = 0) {
+              state.notes.push({ lane, hitAt: state.elapsed + diff, judged: false, id: Math.random() });
+              return this.snapshot();
+            },
+            forceFinish(payload = {}) {
+              state.served = Number(payload.served) || currentShow.targets.served;
+              state.score = Number(payload.score) || currentShow.targets.score;
+              state.maxCombo = Number(payload.combo) || currentShow.targets.combo;
+              state.combo = state.maxCombo;
+              state.patience = payload.patience === undefined ? 100 : Number(payload.patience);
+              finishGame();
+              return this.snapshot();
+            },
+            unlockAll() {
+              career.stageStars = Object.fromEntries(shows.map((item) => [item.id, 3]));
+              saveCareer();
+              renderLobby();
+              return this.snapshot();
+            },
+            encodeCareer,
+            importCareer,
+            data: { shows, chefs, recipes }
+          };
+        }
         resizeCanvas();
+        renderLobby();
         updateHud();
         draw();
       })();

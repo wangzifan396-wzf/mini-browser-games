@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>影邮潜行</title>
+    <title>影邮潜行：十二夜</title>
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23131c22'/%3E%3Cpath d='M15 18h34v28H15z' fill='%23f3d36b'/%3E%3Cpath d='m15 18 17 15 17-15' fill='none' stroke='%23131c22' stroke-width='5' stroke-linejoin='round'/%3E%3Cpath d='M23 49c2-10 8-16 18-19 5 8 3 17-4 22-6 4-11 3-14-3Z' fill='%232a685c'/%3E%3C/svg%3E">
     <style>
       :root {
@@ -225,7 +225,9 @@
       }
 
       .modal {
-        width: min(480px, 100%);
+        width: min(920px, 100%);
+        max-height: calc(100vh - 44px);
+        overflow: auto;
         padding: 22px;
         border: 1px solid #a1b1aa;
         border-radius: var(--radius);
@@ -248,12 +250,144 @@
         display: none;
       }
 
+      .campaign-head,
+      .campaign-stats,
+      .archive-actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .campaign-head {
+        align-items: flex-start;
+      }
+
+      .campaign-stats {
+        min-width: 250px;
+      }
+
+      .campaign-stat,
+      .mission-card,
+      .goal-box {
+        border: 1px solid #9aa59d;
+        border-radius: var(--radius);
+        background: #fff7e4;
+      }
+
+      .campaign-stat {
+        flex: 1;
+        padding: 8px 10px;
+      }
+
+      .campaign-stat small,
+      .mission-card small {
+        display: block;
+        color: #5e6b68;
+        font-size: 11px;
+        font-weight: 900;
+      }
+
+      .campaign-stat strong {
+        display: block;
+        margin-top: 3px;
+        font-size: 18px;
+      }
+
+      .mission-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+        margin: 14px 0;
+      }
+
+      .mission-card {
+        min-height: 96px;
+        padding: 10px;
+        color: var(--ink);
+        text-align: left;
+        font: inherit;
+        cursor: pointer;
+      }
+
+      .mission-card strong {
+        display: block;
+        margin: 4px 0;
+      }
+
+      .mission-card.selected {
+        border-color: var(--gold);
+        box-shadow: inset 0 0 0 1px var(--gold);
+      }
+
+      .mission-card:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+
+      .mission-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin-top: 6px;
+      }
+
+      .mission-meta span {
+        padding: 3px 5px;
+        border: 1px solid rgba(94, 107, 104, 0.25);
+        border-radius: 4px;
+        color: #5e6b68;
+        font-size: 10px;
+        font-weight: 900;
+      }
+
+      .stars {
+        color: #9a6a12;
+        font-weight: 900;
+      }
+
+      .archive-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 8px;
+      }
+
+      .archive-row input {
+        min-width: 0;
+        min-height: 40px;
+        border: 1px solid #9aa59d;
+        border-radius: var(--radius);
+        padding: 8px;
+        background: #fffdf6;
+        font: 12px ui-monospace, Consolas, monospace;
+      }
+
+      .goal-box {
+        margin-top: 12px;
+        padding: 10px;
+      }
+
+      .goal-row {
+        min-height: 27px;
+        display: grid;
+        grid-template-columns: 18px minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 6px;
+        color: #5e6b68;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .goal-row.done {
+        color: var(--teal);
+      }
+
       @media (max-width: 940px) {
         .layout {
           grid-template-columns: 1fr;
         }
 
-        .side {
+        .stage {
           order: -1;
         }
 
@@ -293,6 +427,30 @@
         .stage {
           min-height: 500px;
         }
+
+        .overlay {
+          align-items: start;
+          overflow: auto;
+          padding: 8px;
+        }
+
+        .modal {
+          max-height: none;
+        }
+
+        .campaign-head {
+          display: block;
+        }
+
+        .campaign-stats {
+          min-width: 0;
+          margin-top: 10px;
+        }
+
+        .mission-grid,
+        .archive-row {
+          grid-template-columns: 1fr;
+        }
       }
     </style>
   </head>
@@ -301,10 +459,10 @@
       <header class="topbar">
         <div>
           <p class="eyebrow">TURN STEALTH</p>
-          <h1>影邮潜行</h1>
+          <h1>影邮潜行：十二夜</h1>
         </div>
         <div class="actions">
-          <button class="btn" id="startBtn">开始任务</button>
+          <button class="btn" id="startBtn">任务簿</button>
           <button class="btn secondary" id="undoBtn">撤回</button>
           <button class="btn secondary" id="resetBtn">重开</button>
         </div>
@@ -315,9 +473,28 @@
           <canvas id="gameCanvas" aria-label="影邮潜行棋盘"></canvas>
           <div class="overlay" id="overlay">
             <div class="modal">
-              <h2 id="overlayTitle">夜班派送</h2>
-              <p id="overlayText">规划路线，把信送进所有邮箱，再从出口离开。守卫每走一步就会转向或巡逻。</p>
-              <button class="btn" id="overlayBtn">开始潜行</button>
+              <div id="campaignView">
+                <div class="campaign-head">
+                  <div><h2>十二夜任务簿</h2><p>看清守卫规则，送完所有密信，再从出口撤离。</p></div>
+                  <div class="campaign-stats">
+                    <div class="campaign-stat"><small>星章</small><strong id="campaignStars">0/36</strong></div>
+                    <div class="campaign-stat"><small>完成</small><strong id="campaignClears">0/12</strong></div>
+                    <div class="campaign-stat"><small>勋章</small><strong id="campaignMedals">0/6</strong></div>
+                  </div>
+                </div>
+                <div class="mission-grid" id="missionGrid"></div>
+                <div class="archive-row">
+                  <input id="archiveCode" aria-label="影邮存档码" placeholder="SHADOW2 跨设备存档码">
+                  <div class="archive-actions"><button class="btn secondary" id="exportBtn">导出</button><button class="btn secondary" id="importBtn">导入</button><button class="btn secondary" id="soundBtn">音效：开</button></div>
+                </div>
+                <button class="btn" id="campaignStartBtn" style="width:100%;margin-top:12px">开始任务</button>
+              </div>
+              <div id="messageView" class="hidden">
+                <h2 id="overlayTitle">夜班派送</h2>
+                <p id="overlayText">规划路线，把信送进所有邮箱，再从出口离开。</p>
+                <div class="goal-box" id="resultGoals"></div>
+                <div class="archive-actions"><button class="btn secondary" id="campaignBtn">返回任务簿</button><button class="btn" id="overlayBtn">重试本关</button></div>
+              </div>
             </div>
           </div>
         </div>
@@ -338,7 +515,12 @@
               <span><b>等一拍</b><br><small>不移动，让巡逻换位</small></span>
               <button class="btn secondary" id="waitBtn">等待</button>
             </div>
+            <div class="tool">
+              <span><b>假信号</b><br><small>守卫转身并推进一回合</small></span>
+              <button class="btn secondary" id="decoyBtn">使用</button>
+            </div>
           </div>
+          <div class="goal-box"><strong id="missionName">后巷第一封</strong><div id="goalList"></div></div>
           <div class="pad">
             <button class="blank" aria-hidden="true"></button>
             <button data-dir="up">↑</button>
@@ -360,6 +542,7 @@
         const undoBtn = document.getElementById("undoBtn");
         const smokeBtn = document.getElementById("smokeBtn");
         const waitBtn = document.getElementById("waitBtn");
+        const decoyBtn = document.getElementById("decoyBtn");
         const overlay = document.getElementById("overlay");
         const overlayTitle = document.getElementById("overlayTitle");
         const overlayText = document.getElementById("overlayText");
@@ -369,7 +552,24 @@
         const mailText = document.getElementById("mailText");
         const bestText = document.getElementById("bestText");
         const briefText = document.getElementById("briefText");
-        const storageKey = "miniShadowPostRecords";
+        const campaignView = document.getElementById("campaignView");
+        const messageView = document.getElementById("messageView");
+        const missionGrid = document.getElementById("missionGrid");
+        const campaignStars = document.getElementById("campaignStars");
+        const campaignClears = document.getElementById("campaignClears");
+        const campaignMedals = document.getElementById("campaignMedals");
+        const archiveCode = document.getElementById("archiveCode");
+        const exportBtn = document.getElementById("exportBtn");
+        const importBtn = document.getElementById("importBtn");
+        const soundBtn = document.getElementById("soundBtn");
+        const campaignStartBtn = document.getElementById("campaignStartBtn");
+        const campaignBtn = document.getElementById("campaignBtn");
+        const resultGoals = document.getElementById("resultGoals");
+        const missionName = document.getElementById("missionName");
+        const goalList = document.getElementById("goalList");
+        const SAVE_KEY = "shadowPostCampaignV2";
+        const LEGACY_KEY = "miniShadowPostRecords";
+        const SAVE_PREFIX = "SHADOW2.";
 
         const levels = [
           {
@@ -438,8 +638,178 @@
             ],
             smoke: 2,
             par: 32
+          },
+          {
+            name: "钟楼逆光",
+            map: [
+              "###########",
+              "#S...#...E#",
+              "#.#..#.#..#",
+              "#M#....#M.#",
+              "#...##....#",
+              "#.........#",
+              "###########"
+            ],
+            guards: [
+              { x: 5, y: 5, dir: 3, type: "reverse" },
+              { x: 8, y: 2, dir: 2, type: "turn" }
+            ],
+            smoke: 1,
+            decoys: 1,
+            par: 27
+          },
+          {
+            name: "雨幕长廊",
+            map: [
+              "#############",
+              "#S....#....E#",
+              "#.##..#..##.#",
+              "#M.........M#",
+              "#..###.###..#",
+              "#..........##",
+              "#############"
+            ],
+            guards: [
+              { x: 4, y: 3, dir: 1, type: "patrol", route: [[4, 3], [5, 3], [6, 3], [7, 3]], step: 0 },
+              { x: 9, y: 5, dir: 3, type: "reverse" }
+            ],
+            smoke: 2,
+            decoys: 1,
+            par: 31
+          },
+          {
+            name: "六层瞭望",
+            map: [
+              "############",
+              "#S...#.....#",
+              "#.#..#.###.#",
+              "#M#......#E#",
+              "#...##.#...#",
+              "#M.........#",
+              "############"
+            ],
+            guards: [
+              { x: 6, y: 3, dir: 3, type: "sentry" },
+              { x: 8, y: 5, dir: 0, type: "turn" }
+            ],
+            smoke: 2,
+            decoys: 1,
+            par: 34
+          },
+          {
+            name: "中城封锁",
+            map: [
+              "##############",
+              "#S....#.....E#",
+              "#.###.#.###..#",
+              "#M....#....M.#",
+              "#..#.....#...#",
+              "#..###.###...#",
+              "#...........##",
+              "##############"
+            ],
+            guards: [
+              { x: 5, y: 3, dir: 1, type: "patrol", route: [[5, 3], [5, 4], [6, 4], [7, 4]], step: 0 },
+              { x: 9, y: 3, dir: 2, type: "reverse" },
+              { x: 10, y: 6, dir: 3, type: "sentry" }
+            ],
+            smoke: 2,
+            decoys: 2,
+            par: 39
+          },
+          {
+            name: "月桥双哨",
+            map: [
+              "#############",
+              "#S..........#",
+              "#.###.###.#.#",
+              "#M....#...#E#",
+              "#.#.#.#.#...#",
+              "#...#....M..#",
+              "#############"
+            ],
+            guards: [
+              { x: 5, y: 3, dir: 1, type: "sentry" },
+              { x: 8, y: 5, dir: 3, type: "sentry" }
+            ],
+            smoke: 1,
+            decoys: 2,
+            par: 35
+          },
+          {
+            name: "档案迷廊",
+            map: [
+              "#############",
+              "#S..#.......#",
+              "#.#.#.#####.#",
+              "#M#.....M...#",
+              "#...###.#.#.#",
+              "###.....#.#E#",
+              "#...........#",
+              "#############"
+            ],
+            guards: [
+              { x: 6, y: 3, dir: 1, type: "reverse" },
+              { x: 4, y: 6, dir: 1, type: "patrol", route: [[4, 6], [5, 6], [6, 6], [7, 6]], step: 0 },
+              { x: 10, y: 3, dir: 2, type: "turn" }
+            ],
+            smoke: 2,
+            decoys: 2,
+            par: 44
+          },
+          {
+            name: "无灯站台",
+            map: [
+              "###############",
+              "#S.....#.....E#",
+              "#.###..#.###..#",
+              "#M.....#....M.#",
+              "#..#......#...#",
+              "#..####.###...#",
+              "#............##",
+              "###############"
+            ],
+            guards: [
+              { x: 6, y: 3, dir: 3, type: "sentry" },
+              { x: 9, y: 4, dir: 2, type: "patrol", route: [[9, 4], [9, 5], [10, 5], [11, 5]], step: 0 },
+              { x: 3, y: 6, dir: 0, type: "reverse" }
+            ],
+            smoke: 2,
+            decoys: 2,
+            par: 46
+          },
+          {
+            name: "总局零时",
+            map: [
+              "##############",
+              "#S....#......#",
+              "#.#.#.#.####.#",
+              "#M#...#....#E#",
+              "#...#...##...#",
+              "#.###.#....#.#",
+              "#M....#...M..#",
+              "##############"
+            ],
+            guards: [
+              { x: 5, y: 3, dir: 2, type: "sentry" },
+              { x: 8, y: 4, dir: 1, type: "reverse" },
+              { x: 10, y: 6, dir: 3, type: "patrol", route: [[10, 6], [9, 6], [8, 6], [7, 6]], step: 0 },
+              { x: 3, y: 5, dir: 0, type: "turn" }
+            ],
+            smoke: 2,
+            decoys: 2,
+            par: 52
           }
         ];
+
+        const unlocks = [0, 1, 2, 4, 7, 10, 13, 16, 19, 22, 25, 28];
+        const chapterNames = ["后巷篇", "钟楼篇", "总局篇"];
+        levels.forEach((level, index) => {
+          level.id = `night-${index + 1}`;
+          level.unlock = unlocks[index];
+          level.chapter = chapterNames[Math.floor(index / 4)];
+          level.decoys = level.decoys || (index < 4 ? 1 : 0);
+        });
 
         const dirs = [
           { x: 0, y: -1 },
@@ -452,21 +822,92 @@
         let w = 900;
         let h = 640;
         let state;
+        let audioCtx = null;
+        let career = loadCareer();
 
-        function loadRecords() {
-          try {
-            return JSON.parse(localStorage.getItem(storageKey) || "{}");
-          } catch (error) {
-            return {};
-          }
+        function defaultCareer() {
+          return { version: 2, selectedLevel: levels[0].id, stageStars: {}, bestSteps: {}, clears: 0, sound: true };
         }
 
-        function saveRecord(level, steps) {
-          const records = loadRecords();
-          const key = `level${level}`;
-          if (!records[key] || steps < records[key]) records[key] = steps;
-          localStorage.setItem(storageKey, JSON.stringify(records));
-          return records[key];
+        function totalStars(source = career) {
+          return Object.values(source.stageStars || {}).reduce((sum, value) => sum + Math.max(0, Math.min(3, Number(value) || 0)), 0);
+        }
+
+        function sanitizeCareer(raw) {
+          const base = defaultCareer();
+          if (!raw || typeof raw !== "object") return base;
+          const valid = new Set(levels.map((level) => level.id));
+          const clean = { version: 2, selectedLevel: valid.has(raw.selectedLevel) ? raw.selectedLevel : base.selectedLevel, stageStars: {}, bestSteps: {}, clears: Math.max(0, Math.round(Number(raw.clears) || 0)), sound: raw.sound !== false };
+          for (const [id, value] of Object.entries(raw.stageStars || {})) if (valid.has(id)) clean.stageStars[id] = Math.max(0, Math.min(3, Math.round(Number(value) || 0)));
+          for (const [id, value] of Object.entries(raw.bestSteps || {})) if (valid.has(id) && Number(value) > 0) clean.bestSteps[id] = Math.round(Number(value));
+          if ((levels.find((level) => level.id === clean.selectedLevel)?.unlock || 0) > totalStars(clean)) clean.selectedLevel = levels.filter((level) => level.unlock <= totalStars(clean)).at(-1)?.id || levels[0].id;
+          return clean;
+        }
+
+        function loadCareer() {
+          try {
+            const stored = JSON.parse(localStorage.getItem(SAVE_KEY) || "null");
+            if (stored) return sanitizeCareer(stored);
+            const legacy = JSON.parse(localStorage.getItem(LEGACY_KEY) || "null");
+            if (legacy) {
+              const migrated = defaultCareer();
+              levels.slice(0, 4).forEach((level, index) => {
+                const best = Number(legacy[`level${index}`]);
+                if (!best) return;
+                migrated.bestSteps[level.id] = best;
+                migrated.stageStars[level.id] = best <= level.par ? 2 : 1;
+              });
+              localStorage.setItem(SAVE_KEY, JSON.stringify(migrated));
+              return migrated;
+            }
+          } catch (error) {
+            // Invalid local data starts a clean campaign.
+          }
+          return defaultCareer();
+        }
+
+        function saveCareer() {
+          localStorage.setItem(SAVE_KEY, JSON.stringify(career));
+        }
+
+        function encodeCareer() {
+          const bytes = new TextEncoder().encode(JSON.stringify(career));
+          let binary = "";
+          for (const byte of bytes) binary += String.fromCharCode(byte);
+          return SAVE_PREFIX + btoa(binary);
+        }
+
+        function importCareer(code) {
+          const text = String(code || "").trim();
+          if (!text.startsWith(SAVE_PREFIX)) throw new Error("存档码前缀不正确");
+          const binary = atob(text.slice(SAVE_PREFIX.length));
+          const value = JSON.parse(new TextDecoder().decode(Uint8Array.from(binary, (char) => char.charCodeAt(0))));
+          if (value.version !== 2) throw new Error("存档版本不兼容");
+          career = sanitizeCareer(value);
+          saveCareer();
+          renderCampaign();
+          return career;
+        }
+
+        function ensureAudio() {
+          if (!career.sound) return;
+          if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          if (audioCtx.state === "suspended") audioCtx.resume();
+        }
+
+        function tone(freq, duration = 0.08, gain = 0.035) {
+          if (!career.sound) return;
+          ensureAudio();
+          if (!audioCtx) return;
+          const osc = audioCtx.createOscillator();
+          const amp = audioCtx.createGain();
+          osc.type = "triangle";
+          osc.frequency.value = freq;
+          amp.gain.setValueAtTime(gain, audioCtx.currentTime);
+          amp.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+          osc.connect(amp).connect(audioCtx.destination);
+          osc.start();
+          osc.stop(audioCtx.currentTime + duration);
         }
 
         function clone(value) {
@@ -504,7 +945,9 @@
             mail,
             guards: clone(level.guards),
             smoke: level.smoke,
+            decoys: level.decoys,
             smokeArmed: false,
+            toolsUsed: 0,
             steps: 0,
             caught: false,
             won: false,
@@ -512,7 +955,7 @@
           };
         }
 
-        state = makeState(0);
+        state = makeState(Math.max(0, levels.findIndex((level) => level.id === career.selectedLevel)));
 
         function resizeCanvas() {
           const rect = canvas.getBoundingClientRect();
@@ -540,9 +983,63 @@
           };
         }
 
+        function medalState() {
+          const stars = totalStars();
+          return [
+            ["第一封信", Object.keys(career.stageStars).length > 0],
+            ["后巷全星", stars >= 9],
+            ["钟楼潜影", stars >= 18],
+            ["无道具派送", Object.values(career.stageStars).some((value) => value >= 3)],
+            ["二十八星", stars >= 28],
+            ["十二夜终局", Boolean(career.stageStars["night-12"])]
+          ];
+        }
+
+        function missionStats(completed = state.won) {
+          return { completed, steps: state.steps, toolsUsed: state.toolsUsed };
+        }
+
+        function goalRows(stats = missionStats(false)) {
+          const level = levels[state.levelIndex];
+          const goals = [
+            [stats.completed, "完成全部投递并撤离", stats.completed ? "完成" : "进行中"],
+            [stats.completed && stats.steps <= level.par, `不超过 ${level.par} 步`, `${stats.steps}/${level.par}`],
+            [stats.completed && stats.toolsUsed === 0, "不使用烟雾与假信号", `${stats.toolsUsed} 次`]
+          ];
+          return goals.map(([done, label, progress]) => `<div class="goal-row ${done ? "done" : ""}"><span>${done ? "●" : "○"}</span><span>${label}</span><strong>${progress}</strong></div>`).join("");
+        }
+
+        function renderCampaign() {
+          const stars = totalStars();
+          campaignStars.textContent = `${stars}/36`;
+          campaignClears.textContent = `${Object.keys(career.stageStars).length}/12`;
+          campaignMedals.textContent = `${medalState().filter(([, done]) => done).length}/6`;
+          soundBtn.textContent = `音效：${career.sound ? "开" : "关"}`;
+          missionGrid.innerHTML = levels.map((level, index) => {
+            const locked = level.unlock > stars;
+            const earned = career.stageStars[level.id] || 0;
+            const guardRules = [...new Set(level.guards.map((guard) => guard.type))].map((type) => ({ turn: "轮转", patrol: "巡逻", reverse: "逆转", sentry: "长哨" }[type])).join("+");
+            return `<button class="mission-card ${career.selectedLevel === level.id ? "selected" : ""}" data-level="${level.id}" ${locked ? "disabled" : ""}><small>${String(index + 1).padStart(2, "0")} · ${level.chapter}</small><strong>${level.name}</strong><div class="stars">${"★".repeat(earned)}${"☆".repeat(3 - earned)}</div><div class="mission-meta"><span>${guardRules}</span><span>${level.par} 步</span><span>${locked ? `${level.unlock} 星解锁` : `${level.smoke} 烟 / ${level.decoys} 饵`}</span></div></button>`;
+          }).join("");
+        }
+
+        function openCampaign() {
+          state.mode = "menu";
+          campaignView.classList.remove("hidden");
+          messageView.classList.add("hidden");
+          overlay.classList.remove("hidden");
+          renderCampaign();
+        }
+
         function startLevel(levelIndex = state.levelIndex) {
+          if (typeof levelIndex === "string") levelIndex = levels.findIndex((level) => level.id === levelIndex);
+          if (levelIndex < 0) levelIndex = 0;
+          if (levels[levelIndex].unlock > totalStars()) return;
+          career.selectedLevel = levels[levelIndex].id;
+          saveCareer();
           state = makeState(levelIndex);
           state.mode = "playing";
+          ensureAudio();
           overlay.classList.add("hidden");
           updateHud();
           draw();
@@ -552,6 +1049,9 @@
           overlayTitle.textContent = title;
           overlayText.textContent = text;
           overlayBtn.textContent = button;
+          campaignView.classList.add("hidden");
+          messageView.classList.remove("hidden");
+          resultGoals.innerHTML = goalRows();
           overlay.classList.remove("hidden");
         }
 
@@ -566,12 +1066,14 @@
         function canSee(guard, x, y) {
           if (guard.x === x && guard.y === y) return true;
           const dir = dirs[guard.dir];
-          for (let dist = 1; dist <= 4; dist += 1) {
+          const range = guard.type === "sentry" ? 6 : 4;
+          for (let dist = 1; dist <= range; dist += 1) {
             const tx = guard.x + dir.x * dist;
             const ty = guard.y + dir.y * dist;
             if (cell(tx, ty) === "#") return false;
             if (tx === x && ty === y) return true;
           }
+          if (guard.type === "sentry") return false;
           const sideA = (guard.dir + 1) % 4;
           const sideB = (guard.dir + 3) % 4;
           return [sideA, sideB].some((side) => {
@@ -591,7 +1093,9 @@
             guards: clone(state.guards),
             mail: clone(state.mail),
             smoke: state.smoke,
+            decoys: state.decoys,
             smokeArmed: state.smokeArmed,
+            toolsUsed: state.toolsUsed,
             steps: state.steps
           });
           if (state.history.length > 80) state.history.shift();
@@ -605,7 +1109,9 @@
           state.guards = last.guards;
           state.mail = last.mail;
           state.smoke = last.smoke;
+          state.decoys = last.decoys;
           state.smokeArmed = last.smokeArmed;
+          state.toolsUsed = last.toolsUsed;
           state.steps = last.steps;
           state.caught = false;
           state.won = false;
@@ -618,6 +1124,8 @@
           for (const guard of state.guards) {
             if (guard.type === "turn") {
               guard.dir = (guard.dir + 1) % 4;
+            } else if (guard.type === "reverse") {
+              guard.dir = (guard.dir + 3) % 4;
             } else if (guard.type === "patrol") {
               const nextStep = (guard.step + 1) % guard.route.length;
               const next = guard.route[nextStep];
@@ -638,6 +1146,7 @@
           for (const mail of state.mail) {
             if (!mail.done && mail.x === state.player.x && mail.y === state.player.y) {
               mail.done = true;
+              tone(620, 0.09, 0.035);
             }
           }
         }
@@ -674,17 +1183,28 @@
             state.caught = true;
             state.mode = "caught";
             setOverlay("被照到了", "守卫发现了脚步声。撤回一步或重新规划路线。", "重试本关");
+            tone(150, 0.18, 0.05);
           } else if (state.player.x === state.exit.x && state.player.y === state.exit.y && allMailDone()) {
             state.won = true;
-            const best = saveRecord(state.levelIndex, state.steps);
+            const level = levels[state.levelIndex];
+            const stats = missionStats(true);
+            const stars = [true, stats.steps <= level.par, stats.toolsUsed === 0].filter(Boolean).length;
+            const previous = career.stageStars[level.id] || 0;
+            career.stageStars[level.id] = Math.max(previous, stars);
+            career.bestSteps[level.id] = Math.min(career.bestSteps[level.id] || Infinity, state.steps);
+            career.clears += 1;
+            saveCareer();
+            const best = career.bestSteps[level.id];
             const next = state.levelIndex + 1;
             if (next >= levels.length) {
               state.mode = "done";
-              setOverlay("全部送达", `夜班完成，最后一关 ${state.steps} 步，最佳 ${best} 步。`, "从第一关开始");
+              setOverlay(`十二夜完成 · ${"★".repeat(stars)}${"☆".repeat(3 - stars)}`, `最后一关 ${state.steps} 步，最佳 ${best} 步。`, "重试终局");
             } else {
               state.mode = "won";
-              setOverlay("投递成功", `本关 ${state.steps} 步，目标 ${levels[state.levelIndex].par} 步。`, "下一关");
+              setOverlay(`投递成功 · ${"★".repeat(stars)}${"☆".repeat(3 - stars)}`, `本关 ${state.steps} 步，目标 ${level.par} 步，使用道具 ${state.toolsUsed} 次。`, "下一关");
             }
+            resultGoals.innerHTML = goalRows(stats);
+            tone(760, 0.12, 0.045);
           }
           updateHud();
           draw();
@@ -694,8 +1214,21 @@
           if (state.mode !== "playing" || state.smoke <= 0 || state.smokeArmed) return;
           state.smoke -= 1;
           state.smokeArmed = true;
+          state.toolsUsed += 1;
+          tone(360, 0.08, 0.03);
           updateHud();
           draw();
+        }
+
+        function useDecoy() {
+          if (state.mode !== "playing" || state.decoys <= 0) return;
+          pushHistory();
+          state.decoys -= 1;
+          state.toolsUsed += 1;
+          state.steps += 1;
+          for (const guard of state.guards) guard.dir = (guard.dir + 2) % 4;
+          tone(440, 0.1, 0.035);
+          resolveTurn();
         }
 
         function drawRoundRect(x, y, width, height, radius, fill, stroke) {
@@ -770,7 +1303,7 @@
           for (const guard of state.guards) {
             const gx = ox + guard.x * size + size / 2;
             const gy = oy + guard.y * size + size / 2;
-            ctx.fillStyle = "#314a5a";
+            ctx.fillStyle = guard.type === "sentry" ? "#6b4f72" : guard.type === "reverse" ? "#76513e" : "#314a5a";
             ctx.beginPath();
             ctx.arc(gx, gy, size * 0.27, 0, Math.PI * 2);
             ctx.fill();
@@ -791,12 +1324,12 @@
           ctx.font = `900 ${Math.max(16, size * 0.34)}px system-ui`;
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
-          ctx.fillText("邮", px, py + 1);
+            ctx.fillText("邮", px, py + 1);
 
           ctx.fillStyle = "#122127";
           ctx.font = "900 20px system-ui";
           ctx.textAlign = "left";
-          ctx.fillText(levels[state.levelIndex].name, 22, 34);
+          ctx.fillText(`${levels[state.levelIndex].chapter} · ${levels[state.levelIndex].name}`, 22, 34);
         }
 
         function drawVision(guard, ox, oy, size) {
@@ -809,31 +1342,38 @@
           };
           mark(guard.x, guard.y, 0.14);
           const dir = dirs[guard.dir];
-          for (let dist = 1; dist <= 4; dist += 1) {
+          const range = guard.type === "sentry" ? 6 : 4;
+          for (let dist = 1; dist <= range; dist += 1) {
             const x = guard.x + dir.x * dist;
             const y = guard.y + dir.y * dist;
             if (cell(x, y) === "#") break;
             mark(x, y, 0.32 - dist * 0.035);
           }
-          [1, 3].forEach((turn) => {
-            const side = dirs[(guard.dir + turn) % 4];
-            mark(guard.x + side.x, guard.y + side.y, 0.18);
-          });
+          if (guard.type !== "sentry") {
+            [1, 3].forEach((turn) => {
+              const side = dirs[(guard.dir + turn) % 4];
+              mark(guard.x + side.x, guard.y + side.y, 0.18);
+            });
+          }
         }
 
         function updateHud() {
           const done = state.mail.filter((mail) => mail.done).length;
-          const records = loadRecords();
-          const best = records[`level${state.levelIndex}`];
+          const level = levels[state.levelIndex];
+          const best = career.bestSteps[level.id];
           levelText.textContent = `${state.levelIndex + 1}/${levels.length}`;
           stepsText.textContent = state.steps.toString();
           mailText.textContent = `${done}/${state.mail.length}`;
           bestText.textContent = best ? best.toString() : "--";
           smokeBtn.textContent = state.smokeArmed ? "已就绪" : `${state.smoke} 枚`;
           smokeBtn.disabled = state.smoke <= 0 || state.smokeArmed || state.mode !== "playing";
+          decoyBtn.textContent = `${state.decoys} 枚`;
+          decoyBtn.disabled = state.decoys <= 0 || state.mode !== "playing";
+          missionName.textContent = `${level.chapter} · ${level.name}`;
+          goalList.innerHTML = goalRows();
           briefText.textContent = state.smokeArmed
             ? "烟雾弹已经就绪，下一步就算穿过灯光也不会被抓。"
-            : `本关目标 ${levels[state.levelIndex].par} 步，出口需要先送完所有邮件才会开启。`;
+            : `目标 ${level.par} 步；轮转守卫顺时针，逆转守卫逆时针，紫色长哨拥有六格直线视野。`;
         }
 
         function pointerToCell(event) {
@@ -844,15 +1384,39 @@
           return { x, y };
         }
 
-        startBtn.addEventListener("click", () => startLevel(0));
+        startBtn.addEventListener("click", openCampaign);
         resetBtn.addEventListener("click", () => startLevel(state.levelIndex));
         undoBtn.addEventListener("click", restoreHistory);
         smokeBtn.addEventListener("click", armSmoke);
         waitBtn.addEventListener("click", waitTurn);
+        decoyBtn.addEventListener("click", useDecoy);
+        campaignStartBtn.addEventListener("click", () => startLevel(career.selectedLevel));
+        campaignBtn.addEventListener("click", openCampaign);
         overlayBtn.addEventListener("click", () => {
           if (state.mode === "won") startLevel(state.levelIndex + 1);
-          else if (state.mode === "done") startLevel(0);
+          else if (state.mode === "done") startLevel(state.levelIndex);
           else startLevel(state.levelIndex);
+        });
+        missionGrid.addEventListener("click", (event) => {
+          const button = event.target.closest("[data-level]");
+          if (!button || button.disabled) return;
+          career.selectedLevel = button.dataset.level;
+          saveCareer();
+          renderCampaign();
+        });
+        exportBtn.addEventListener("click", async () => {
+          archiveCode.value = encodeCareer();
+          archiveCode.select();
+          try { await navigator.clipboard.writeText(archiveCode.value); } catch (error) {}
+        });
+        importBtn.addEventListener("click", () => {
+          try { importCareer(archiveCode.value); }
+          catch (error) { archiveCode.value = error.message || "存档码无效"; }
+        });
+        soundBtn.addEventListener("click", () => {
+          career.sound = !career.sound;
+          saveCareer();
+          renderCampaign();
         });
         document.querySelectorAll("[data-dir]").forEach((button) => {
           button.addEventListener("click", () => {
@@ -880,11 +1444,58 @@
             waitTurn();
           }
           if (event.code === "KeyQ") armSmoke();
+          if (event.code === "KeyE") useDecoy();
           if (event.code === "KeyZ") restoreHistory();
           if (event.code === "KeyR") startLevel(state.levelIndex);
         });
         window.addEventListener("resize", resizeCanvas);
+        if (new URLSearchParams(location.search).has("debug")) {
+          window.__shadowPostDebug = {
+            snapshot() {
+              return {
+                career: JSON.parse(JSON.stringify(career)),
+                totalStars: totalStars(),
+                level: levels[state.levelIndex].id,
+                levelIndex: state.levelIndex,
+                mode: state.mode,
+                steps: state.steps,
+                smoke: state.smoke,
+                decoys: state.decoys,
+                toolsUsed: state.toolsUsed,
+                guards: clone(state.guards),
+                mapRows: state.grid.length,
+                mapCols: state.grid[0].length,
+                savePrefix: SAVE_PREFIX.slice(0, -1)
+              };
+            },
+            start(levelId = career.selectedLevel) {
+              const level = levels.find((item) => item.id === levelId);
+              if (level && level.unlock > totalStars()) career.stageStars = Object.fromEntries(levels.map((item) => [item.id, 3]));
+              startLevel(levelId);
+              return this.snapshot();
+            },
+            forceComplete(payload = {}) {
+              state.steps = Number(payload.steps) || levels[state.levelIndex].par;
+              state.toolsUsed = Number(payload.toolsUsed) || 0;
+              state.mail.forEach((mail) => { mail.done = true; });
+              state.player = { ...state.exit };
+              state.smokeArmed = true;
+              resolveTurn();
+              return this.snapshot();
+            },
+            unlockAll() {
+              career.stageStars = Object.fromEntries(levels.map((item) => [item.id, 3]));
+              saveCareer();
+              renderCampaign();
+              return this.snapshot();
+            },
+            encodeCareer,
+            importCareer,
+            data: { levels }
+          };
+        }
         resizeCanvas();
+        renderCampaign();
         updateHud();
         draw();
       })();

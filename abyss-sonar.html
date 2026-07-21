@@ -1,274 +1,871 @@
 <!doctype html>
 <html lang="zh-CN">
-  <meta charset="utf-8" /><meta
-    name="viewport"
-    content="width=device-width,initial-scale=1"
-  /><title>深渊声呐</title
-  ><style>
-    * {
-      box-sizing: border-box;
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>深渊声呐：静默航线</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #020b10;
+      --panel: #081a22;
+      --panel-2: #0c252f;
+      --line: #315c68;
+      --text: #e2f5f2;
+      --muted: #9bb9b8;
+      --cyan: #56d4c1;
+      --amber: #f0c56a;
+      --red: #ef716b;
+      --blue: #69bde0;
+      --radius: 8px;
     }
+
+    * { box-sizing: border-box; }
+
     body {
       margin: 0;
-      background: #030d15;
-      color: #dff7ff;
-      font-family: ui-monospace, Consolas, "Microsoft YaHei", monospace;
-    }
-    .app {
       min-height: 100vh;
-      padding: 14px;
+      overflow-x: hidden;
+      background:
+        linear-gradient(rgba(86, 212, 193, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(86, 212, 193, 0.035) 1px, transparent 1px),
+        var(--bg);
+      background-size: 28px 28px;
+      color: var(--text);
+      font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+    }
+
+    button, input { font: inherit; }
+
+    .app {
+      width: min(1420px, calc(100vw - 28px));
+      margin: 14px auto;
+    }
+
+    .topbar,
+    .radar-panel,
+    .side-panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(8, 26, 34, 0.94);
+      box-shadow: 0 18px 46px rgba(0, 0, 0, 0.34);
+    }
+
+    .topbar {
+      min-height: 88px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 14px 18px;
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 5px; font-size: 34px; letter-spacing: 0; }
+    .eyebrow { margin: 0; color: var(--cyan); font-size: 12px; font-weight: 900; }
+    .subline { color: var(--muted); font-size: 13px; font-weight: 700; }
+
+    .top-actions,
+    .button-row,
+    .archive-actions,
+    .career-strip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      min-height: 42px;
+      border: 1px solid #40737d;
+      border-radius: var(--radius);
+      padding: 0 13px;
+      background: #123d49;
+      color: var(--text);
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .btn.primary { background: #176859; border-color: #43a28f; }
+    .btn.danger { background: #743c42; border-color: #ad5960; }
+    .btn.selected { border-color: var(--amber); box-shadow: inset 0 0 0 1px var(--amber); }
+    .btn:disabled { opacity: 0.42; cursor: not-allowed; }
+
+    .layout {
       display: grid;
-      place-items: center;
+      grid-template-columns: minmax(0, 1fr) 360px;
+      gap: 14px;
+      margin-top: 14px;
     }
-    .shell {
-      width: min(960px, 100%);
-      background: #092131;
-      border: 1px solid #31566b;
-      border-radius: 20px;
-      padding: 16px;
-    }
-    .top,
-    .row {
+
+    .radar-panel { position: relative; overflow: hidden; padding: 12px; }
+    canvas { display: block; width: 100%; height: 690px; border-radius: 6px; background: #031219; touch-action: none; }
+
+    .radar-hud {
+      position: absolute;
+      inset: 24px 24px auto 24px;
       display: flex;
       justify-content: space-between;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    .radar-label,
+    .message {
+      border: 1px solid rgba(86, 212, 193, 0.26);
+      border-radius: 6px;
+      padding: 8px 10px;
+      background: rgba(2, 12, 17, 0.76);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .message { color: var(--text); }
+    .side-panel { padding: 14px; }
+
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 8px;
+    }
+
+    .stat,
+    .section,
+    .contact,
+    .mission-card,
+    .module-card,
+    .career-pill {
+      border: 1px solid rgba(74, 112, 122, 0.72);
+      border-radius: var(--radius);
+      background: rgba(12, 37, 47, 0.82);
+    }
+
+    .stat { padding: 9px; }
+    .stat small, .career-pill small, .mission-card small, .module-card small { display: block; color: var(--muted); font-size: 11px; font-weight: 900; }
+    .stat strong, .career-pill strong { display: block; margin-top: 3px; font-size: 20px; }
+    .section { margin-top: 10px; padding: 10px; }
+    .section h3 { margin-bottom: 8px; font-size: 14px; }
+
+    .meter { height: 8px; overflow: hidden; border-radius: 5px; background: rgba(255, 255, 255, 0.09); margin-top: 7px; }
+    .meter i { display: block; height: 100%; width: 50%; background: linear-gradient(90deg, var(--cyan), var(--amber), var(--red)); }
+
+    .contacts { display: grid; gap: 6px; max-height: 190px; overflow: auto; }
+    .contact { width: 100%; min-height: 48px; padding: 7px 9px; color: var(--text); text-align: left; cursor: pointer; }
+    .contact.locked { border-color: var(--amber); }
+    .contact strong { display: flex; justify-content: space-between; gap: 8px; }
+    .contact span { color: var(--muted); font-size: 11px; }
+
+    .goal-row {
+      min-height: 27px;
+      display: grid;
+      grid-template-columns: 18px minmax(0, 1fr) auto;
       align-items: center;
-      flex-wrap: wrap;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
     }
-    canvas {
-      width: 100%;
-      aspect-ratio: 16/9;
-      background: #03141f;
-      border: 2px solid #31576b;
-      border-radius: 50%;
-      display: block;
-      margin: 12px 0;
-      touch-action: none;
+    .goal-row.done { color: var(--cyan); }
+
+    .modal-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      display: grid;
+      place-items: center;
+      padding: 14px;
+      overflow: auto;
+      background: rgba(1, 7, 10, 0.76);
+      backdrop-filter: blur(6px);
     }
-    .contacts {
-      display: flex;
-      gap: 7px;
-      flex-wrap: wrap;
+    .modal-layer.hidden { display: none; }
+
+    .modal {
+      width: min(920px, 100%);
+      max-height: calc(100vh - 28px);
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 18px;
+      background: #071920;
+      box-shadow: 0 28px 80px rgba(0, 0, 0, 0.48);
     }
-    .tag {
-      padding: 6px 9px;
-      border-radius: 15px;
-      background: #14394d;
+
+    .modal-head { display: flex; justify-content: space-between; gap: 14px; align-items: flex-start; }
+    .career-strip { min-width: 260px; }
+    .career-pill { flex: 1; padding: 8px 10px; }
+
+    .mission-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin: 14px 0; }
+    .mission-card, .module-card { padding: 10px; color: var(--text); text-align: left; font: inherit; cursor: pointer; }
+    .mission-card { min-height: 100px; }
+    .module-card { min-height: 86px; }
+    .mission-card strong, .module-card strong { display: block; margin: 4px 0; }
+    .mission-card.selected, .module-card.selected { border-color: var(--amber); box-shadow: inset 0 0 0 1px var(--amber); }
+    .mission-card:disabled, .module-card:disabled { opacity: 0.42; cursor: not-allowed; }
+    .stars { color: var(--amber); font-weight: 900; }
+    .meta { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+    .meta span { border: 1px solid rgba(155, 185, 184, 0.2); border-radius: 4px; padding: 3px 5px; color: var(--muted); font-size: 10px; font-weight: 900; }
+    .module-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 8px 0 14px; }
+
+    .archive-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+    .archive-row input { min-width: 0; min-height: 42px; border: 1px solid var(--line); border-radius: var(--radius); padding: 8px; background: #031219; color: var(--text); font: 12px ui-monospace, Consolas, monospace; }
+    .result-box { border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; margin: 12px 0; }
+
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+      .side-panel { order: -1; }
+      canvas { height: 580px; }
     }
-    button {
-      padding: 9px 11px;
-      border: 1px solid #477086;
-      border-radius: 8px;
-      background: #22516a;
-      color: white;
-      font-weight: bold;
-    }
-    .ping {
-      background: #28795d;
-    }
-    .fire {
-      background: #8c4749;
-    }
-    .help {
-      font-size: 13px;
-      color: #a9c8d6;
-    }
-    @media (max-width: 650px) {
-      .app {
-        place-items: start center;
-      }
+
+    @media (max-width: 620px) {
+      .app { width: min(100vw - 14px, 1420px); margin: 7px auto; }
+      .topbar { display: block; }
+      h1 { font-size: 28px; }
+      .top-actions { margin-top: 10px; }
+      .top-actions .btn { flex: 1; }
+      canvas { height: 500px; }
+      .radar-hud { inset: 18px 18px auto; display: block; }
+      .message { margin-top: 6px; }
+      .modal-layer { align-items: start; padding: 7px; }
+      .modal { max-height: none; }
+      .modal-head { display: block; }
+      .career-strip { min-width: 0; margin-top: 10px; }
+      .mission-grid, .module-grid, .archive-row { grid-template-columns: 1fr; }
+      .archive-actions .btn { flex: 1; }
     }
   </style>
+</head>
+<body>
   <main class="app">
-    <section class="shell">
-      <div class="top">
-        <div>
-          <h1 style="margin: 0">深渊声呐</h1>
-          <div class="help">
-            主动声呐会短暂暴露目标也会提高敌方警觉；判断方位与距离，调整航向后发射鱼雷。
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">TACTICAL SONAR COMMAND</p>
+        <h1>深渊声呐：静默航线</h1>
+        <div class="subline" id="missionLine">黑潮入口 · 等待下潜</div>
+      </div>
+      <div class="top-actions">
+        <button class="btn" id="patrolBtn">航线</button>
+        <button class="btn" id="pauseBtn">暂停</button>
+        <button class="btn" id="restartBtn">重启</button>
+      </div>
+    </header>
+
+    <section class="layout">
+      <div class="radar-panel">
+        <canvas id="sonar" aria-label="深渊声呐战术显示"></canvas>
+        <div class="radar-hud">
+          <div class="radar-label" id="modeLabel">被动监听 · 航向 000°</div>
+          <div class="message" id="message">选择航线后开始潜航。</div>
+        </div>
+      </div>
+
+      <aside class="side-panel">
+        <div class="status-grid">
+          <div class="stat"><small>艇体</small><strong id="hullText">100</strong><div class="meter"><i id="hullBar"></i></div></div>
+          <div class="stat"><small>噪声</small><strong id="noiseText">0</strong><div class="meter"><i id="noiseBar"></i></div></div>
+          <div class="stat"><small>鱼雷</small><strong id="torpedoText">0</strong></div>
+          <div class="stat"><small>诱饵</small><strong id="decoyText">0</strong></div>
+        </div>
+
+        <section class="section">
+          <h3>航向与声呐</h3>
+          <div class="button-row">
+            <button class="btn" data-turn="-15">左转</button>
+            <button class="btn" data-turn="15">右转</button>
+            <button class="btn primary" id="pingBtn">主动声呐</button>
           </div>
-        </div>
-        <div>
-          任务 <b id="mission"></b>/5　艇体 <b id="hull"></b>　静默
-          <b id="stealth"></b>　鱼雷 <b id="torps"></b>
-        </div>
-      </div>
-      <canvas id="c" width="960" height="540"></canvas>
-      <div class="row">
-        <div>
-          <button data-turn="-15">左转 −15°</button
-          ><button data-turn="15">右转 +15°</button
-          ><button class="ping" id="ping">主动声呐</button
-          ><button class="fire" id="fire">发射鱼雷</button
-          ><button id="silent">静默航行</button>
-        </div>
-        <button id="restart">新巡航</button><span id="msg"></span>
-      </div>
-      <div class="contacts" id="contacts"></div>
+          <div class="button-row" style="margin-top:8px">
+            <button class="btn danger" id="fireBtn">发射鱼雷</button>
+            <button class="btn" id="silentBtn">静默航行</button>
+            <button class="btn" id="decoyBtn">释放诱饵</button>
+          </div>
+        </section>
+
+        <section class="section">
+          <h3>可辨认接触</h3>
+          <div class="contacts" id="contactList"></div>
+        </section>
+
+        <section class="section">
+          <h3 id="objectiveTitle">任务目标</h3>
+          <div id="goalList"></div>
+        </section>
+      </aside>
     </section>
   </main>
+
+  <div class="modal-layer" id="modalLayer">
+    <div class="modal">
+      <div id="lobbyView">
+        <div class="modal-head">
+          <div><h2>静默航线</h2><p class="subline">八次潜航逐步解锁敌型、残骸扫描与双槽潜艇模块。</p></div>
+          <div class="career-strip">
+            <div class="career-pill"><small>星章</small><strong id="careerStars">0/24</strong></div>
+            <div class="career-pill"><small>完成</small><strong id="careerClears">0/8</strong></div>
+            <div class="career-pill"><small>勋章</small><strong id="careerMedals">0/6</strong></div>
+          </div>
+        </div>
+        <div class="mission-grid" id="missionGrid"></div>
+        <h3>潜艇模块 <span class="subline" id="moduleHint">已安装 0/2</span></h3>
+        <div class="module-grid" id="moduleGrid"></div>
+        <div class="archive-row">
+          <input id="archiveCode" aria-label="声呐存档码" placeholder="SONAR2 跨设备存档码">
+          <div class="archive-actions"><button class="btn" id="exportBtn">导出</button><button class="btn" id="importBtn">导入</button><button class="btn" id="soundBtn">音效：开</button></div>
+        </div>
+        <button class="btn primary" id="diveBtn" style="width:100%;margin-top:12px">开始下潜</button>
+      </div>
+      <div id="resultView" class="hidden">
+        <h2 id="resultTitle">任务完成</h2>
+        <p class="subline" id="resultText"></p>
+        <div class="result-box" id="resultGoals"></div>
+        <div class="archive-actions"><button class="btn" id="backBtn">返回航线</button><button class="btn primary" id="againBtn">再次下潜</button></div>
+      </div>
+    </div>
+  </div>
+
   <script>
-    const cv = document.getElementById("c"),
-      g = cv.getContext("2d");
-    let q,
-      last = 0;
-    const $ = (x) => document.getElementById(x);
-    function fresh() {
-      return {
-        mission: 1,
-        hull: 100,
-        stealth: 100,
-        torps: 8,
-        heading: 0,
-        ping: 0,
-        contacts: make(3),
-        over: false,
-        silent: false,
+    (() => {
+      "use strict";
+      const canvas = document.getElementById("sonar");
+      const ctx = canvas.getContext("2d");
+      const SAVE_KEY = "abyssSonarCareerV2";
+      const SAVE_PREFIX = "SONAR2.";
+      const missions = [
+        { id: "threshold", name: "黑潮入口", zone: "第一海沟", unlock: 0, hostiles: ["hunter", "hunter"], neutrals: ["whale"], wrecks: 0, hullGoal: 75, torpedoGoal: 3 },
+        { id: "whale-road", name: "鲸歌航道", zone: "第一海沟", unlock: 1, hostiles: ["hunter", "mine"], neutrals: ["whale", "whale"], wrecks: 1, hullGoal: 78, torpedoGoal: 3 },
+        { id: "broken-array", name: "失联阵列", zone: "回声荒原", unlock: 3, hostiles: ["hunter", "frigate"], neutrals: [], wrecks: 2, hullGoal: 72, torpedoGoal: 3 },
+        { id: "mine-bloom", name: "水雷花园", zone: "回声荒原", unlock: 5, hostiles: ["mine", "mine", "hunter"], neutrals: ["whale"], wrecks: 1, hullGoal: 70, torpedoGoal: 3 },
+        { id: "cold-convoy", name: "寒流护航", zone: "冰脊断层", unlock: 7, hostiles: ["frigate", "hunter", "hunter"], neutrals: ["whale"], wrecks: 1, hullGoal: 68, torpedoGoal: 3 },
+        { id: "silent-fleet", name: "静默舰群", zone: "冰脊断层", unlock: 9, hostiles: ["frigate", "frigate", "mine"], neutrals: [], wrecks: 2, hullGoal: 66, torpedoGoal: 3 },
+        { id: "leviathan", name: "利维坦阴影", zone: "无光层", unlock: 12, hostiles: ["hunter", "frigate", "hunter", "mine"], neutrals: ["whale"], wrecks: 2, hullGoal: 62, torpedoGoal: 3 },
+        { id: "abyss-core", name: "深渊核心", zone: "无光层", unlock: 15, hostiles: ["frigate", "frigate", "hunter", "mine", "mine"], neutrals: [], wrecks: 3, hullGoal: 58, torpedoGoal: 3 }
+      ];
+      const modules = [
+        { id: "hull", name: "复层耐压壳", unlock: 0, text: "初始艇体 +25", hull: 25 },
+        { id: "quiet", name: "静音推进器", unlock: 2, text: "噪声增长 -35%", noise: 0.65 },
+        { id: "array", name: "宽域阵列", unlock: 4, text: "回波持续 +2 秒", reveal: 2 },
+        { id: "seeker", name: "线导鱼雷", unlock: 7, text: "锁定容差 +6°", cone: 6 },
+        { id: "rack", name: "诱饵挂架", unlock: 10, text: "诱饵 +1", decoy: 1 },
+        { id: "magazine", name: "扩容弹舱", unlock: 13, text: "鱼雷 +2", torpedoes: 2 }
+      ];
+      const contactDefs = {
+        hunter: { name: "猎潜艇", hostile: true, hp: 1, speed: 9, noise: 0.65, damage: 9, color: "#ef716b" },
+        frigate: { name: "深水护卫", hostile: true, hp: 2, speed: 6, noise: 0.9, damage: 12, color: "#f0a36a" },
+        mine: { name: "锚定水雷", hostile: true, hp: 1, speed: 0, noise: 0.2, damage: 15, color: "#c56a91" },
+        whale: { name: "迁徙鲸群", hostile: false, hp: 1, speed: 3, noise: 0.75, damage: 0, color: "#69bde0" },
+        wreck: { name: "沉没残骸", hostile: false, hp: 1, speed: 0, noise: 0.12, damage: 0, color: "#56d4c1" }
       };
-    }
-    function make(n) {
-      return Array.from({ length: n }, (_, i) => ({
-        a: Math.random() * 360,
-        d: 130 + Math.random() * 280,
-        hp: i === n - 1 ? 2 : 1,
-        seen: 0,
-        hostile: Math.random() < 0.75,
-      }));
-    }
-    function tick(dt) {
-      if (q.over) return;
-      q.ping = Math.max(0, q.ping - dt);
-      q.stealth = Math.min(100, q.stealth + (q.silent ? 5 : 2) * dt);
-      for (const c of q.contacts) {
-        c.a = (c.a + (Math.random() - 0.5) * 8 * dt + 360) % 360;
-        c.d += Math.sin(performance.now() / 1400 + c.a) * 4 * dt;
-        c.seen = Math.max(0, c.seen - dt);
-        if (c.hostile && q.stealth < 45 && Math.random() < 0.006) {
-          q.hull -= 8;
-          q.stealth += 15;
-          msg.textContent = "敌方鱼雷命中，艇体受损！";
+
+      const ui = Object.fromEntries([
+        "missionLine", "patrolBtn", "pauseBtn", "restartBtn", "modeLabel", "message", "hullText", "hullBar", "noiseText", "noiseBar", "torpedoText", "decoyText", "pingBtn", "fireBtn", "silentBtn", "decoyBtn", "contactList", "objectiveTitle", "goalList", "modalLayer", "lobbyView", "careerStars", "careerClears", "careerMedals", "missionGrid", "moduleHint", "moduleGrid", "archiveCode", "exportBtn", "importBtn", "soundBtn", "diveBtn", "resultView", "resultTitle", "resultText", "resultGoals", "backBtn", "againBtn"
+      ].map((id) => [id, document.getElementById(id)]));
+
+      let dpr = 1;
+      let width = 900;
+      let height = 690;
+      let state;
+      let lastTime = 0;
+      let audioCtx = null;
+      let career = loadCareer();
+      let currentMission = missions.find((mission) => mission.id === career.selectedMission) || missions[0];
+
+      function clamp(value, min, max) { return Math.max(min, Math.min(max, value)); }
+      function angleDiff(a, b) { return ((a - b + 540) % 360) - 180; }
+      function formatBearing(value) { return `${String(Math.round((value + 360) % 360)).padStart(3, "0")}°`; }
+
+      function defaultCareer() {
+        return { version: 2, selectedMission: missions[0].id, stageStars: {}, bestHull: {}, bestTorpedoes: {}, modules: [], clears: 0, sound: true };
+      }
+
+      function totalStars(source = career) {
+        return Object.values(source.stageStars || {}).reduce((sum, value) => sum + clamp(Number(value) || 0, 0, 3), 0);
+      }
+
+      function sanitizeCareer(raw) {
+        const base = defaultCareer();
+        if (!raw || typeof raw !== "object") return base;
+        const validMissions = new Set(missions.map((item) => item.id));
+        const validModules = new Set(modules.map((item) => item.id));
+        const clean = {
+          version: 2,
+          selectedMission: validMissions.has(raw.selectedMission) ? raw.selectedMission : base.selectedMission,
+          stageStars: {}, bestHull: {}, bestTorpedoes: {},
+          modules: [...new Set(Array.isArray(raw.modules) ? raw.modules : [])].filter((id) => validModules.has(id)).slice(0, 2),
+          clears: Math.max(0, Math.round(Number(raw.clears) || 0)),
+          sound: raw.sound !== false
+        };
+        for (const [id, value] of Object.entries(raw.stageStars || {})) if (validMissions.has(id)) clean.stageStars[id] = clamp(Math.round(Number(value) || 0), 0, 3);
+        for (const [id, value] of Object.entries(raw.bestHull || {})) if (validMissions.has(id)) clean.bestHull[id] = clamp(Math.round(Number(value) || 0), 0, 125);
+        for (const [id, value] of Object.entries(raw.bestTorpedoes || {})) if (validMissions.has(id)) clean.bestTorpedoes[id] = Math.max(0, Math.round(Number(value) || 0));
+        const stars = totalStars(clean);
+        clean.modules = clean.modules.filter((id) => (modules.find((item) => item.id === id)?.unlock || 0) <= stars);
+        if ((missions.find((item) => item.id === clean.selectedMission)?.unlock || 0) > stars) clean.selectedMission = missions.filter((item) => item.unlock <= stars).at(-1)?.id || missions[0].id;
+        return clean;
+      }
+
+      function loadCareer() {
+        try { return sanitizeCareer(JSON.parse(localStorage.getItem(SAVE_KEY) || "null")); }
+        catch (error) { return defaultCareer(); }
+      }
+      function saveCareer() { localStorage.setItem(SAVE_KEY, JSON.stringify(career)); }
+
+      function encodeCareer() {
+        const bytes = new TextEncoder().encode(JSON.stringify(career));
+        let binary = "";
+        for (const byte of bytes) binary += String.fromCharCode(byte);
+        return SAVE_PREFIX + btoa(binary);
+      }
+
+      function importCareer(code) {
+        const text = String(code || "").trim();
+        if (!text.startsWith(SAVE_PREFIX)) throw new Error("存档码前缀不正确");
+        const binary = atob(text.slice(SAVE_PREFIX.length));
+        const value = JSON.parse(new TextDecoder().decode(Uint8Array.from(binary, (char) => char.charCodeAt(0))));
+        if (value.version !== 2) throw new Error("存档版本不兼容");
+        career = sanitizeCareer(value);
+        currentMission = missions.find((mission) => mission.id === career.selectedMission) || missions[0];
+        saveCareer();
+        renderLobby();
+        return career;
+      }
+
+      function moduleStats() {
+        const stats = { hull: 0, noise: 1, reveal: 0, cone: 0, decoy: 0, torpedoes: 0 };
+        for (const id of career.modules) {
+          const module = modules.find((item) => item.id === id);
+          if (!module) continue;
+          stats.hull += module.hull || 0;
+          stats.noise *= module.noise || 1;
+          stats.reveal += module.reveal || 0;
+          stats.cone += module.cone || 0;
+          stats.decoy += module.decoy || 0;
+          stats.torpedoes += module.torpedoes || 0;
         }
+        return stats;
       }
-      if (q.hull <= 0) {
-        q.over = true;
-        msg.textContent = "潜艇沉没，巡航失败。";
+
+      function seededRandom(seed) {
+        let value = seed >>> 0;
+        return () => {
+          value = (value * 1664525 + 1013904223) >>> 0;
+          return value / 4294967296;
+        };
       }
-      if (!q.contacts.some((c) => c.hostile)) {
-        if (q.mission >= 5) {
-          q.over = true;
-          msg.textContent = "五项深海任务全部完成！";
+
+      function makeContacts(mission) {
+        const rand = seededRandom(missions.indexOf(mission) * 997 + 41);
+        const kinds = [...mission.hostiles, ...mission.neutrals, ...Array.from({ length: mission.wrecks }, () => "wreck")];
+        return kinds.map((kind, index) => {
+          const def = contactDefs[kind];
+          return {
+            id: index + 1, kind, bearing: Math.round(rand() * 360), distance: 170 + Math.round(rand() * 250), hp: def.hp,
+            seen: 0, identified: false, scanned: false, alert: 0, attackCd: 3 + rand() * 4, destroyed: false
+          };
+        });
+      }
+
+      function makeState(mission) {
+        const stats = moduleStats();
+        return {
+          mode: "running", heading: 0, hull: 100 + stats.hull, maxHull: 100 + stats.hull, noise: 12,
+          torpedoes: 10 + stats.torpedoes, decoys: 2 + stats.decoy, silent: false, pingTime: 0, pingAge: 0,
+          contacts: makeContacts(mission), selectedId: null, scans: 0, elapsed: 0, message: "被动阵列上线，等待回波。", ended: false, stats
+        };
+      }
+
+      function medalState() {
+        const stars = totalStars();
+        return [
+          ["首次下潜", career.clears > 0], ["回声六星", stars >= 6], ["无伤返航", Object.values(career.bestHull).some((value) => value >= 100)],
+          ["双槽艇长", career.modules.length === 2], ["无光层", stars >= 15], ["深渊归航", Boolean(career.stageStars["abyss-core"])]
+        ];
+      }
+
+      function missionStats(completed = false) {
+        return { completed, hull: Math.round(state?.hull || 0), torpedoes: state?.torpedoes || 0, scans: state?.scans || 0 };
+      }
+
+      function goalRows(stats = missionStats(false)) {
+        const goals = [
+          [stats.completed, `清除威胁并扫描 ${currentMission.wrecks} 处残骸`, `${stats.scans}/${currentMission.wrecks}`],
+          [stats.completed && stats.hull >= currentMission.hullGoal, `艇体不少于 ${currentMission.hullGoal}`, `${stats.hull}`],
+          [stats.completed && stats.torpedoes >= currentMission.torpedoGoal, `保留 ${currentMission.torpedoGoal} 枚鱼雷`, `${stats.torpedoes}`]
+        ];
+        return goals.map(([done, label, progress]) => `<div class="goal-row ${done ? "done" : ""}"><span>${done ? "●" : "○"}</span><span>${label}</span><strong>${progress}</strong></div>`).join("");
+      }
+
+      function renderLobby() {
+        const stars = totalStars();
+        ui.careerStars.textContent = `${stars}/24`;
+        ui.careerClears.textContent = `${Object.keys(career.stageStars).length}/8`;
+        ui.careerMedals.textContent = `${medalState().filter(([, done]) => done).length}/6`;
+        ui.soundBtn.textContent = `音效：${career.sound ? "开" : "关"}`;
+        ui.missionGrid.innerHTML = missions.map((mission, index) => {
+          const locked = mission.unlock > stars;
+          const earned = career.stageStars[mission.id] || 0;
+          return `<button class="mission-card ${career.selectedMission === mission.id ? "selected" : ""}" data-mission="${mission.id}" ${locked ? "disabled" : ""}><small>${String(index + 1).padStart(2, "0")} · ${mission.zone}</small><strong>${mission.name}</strong><div class="stars">${"★".repeat(earned)}${"☆".repeat(3 - earned)}</div><div class="meta"><span>${mission.hostiles.length} 威胁</span><span>${mission.wrecks} 残骸</span><span>${locked ? `${mission.unlock} 星解锁` : `艇体 ${mission.hullGoal}`}</span></div></button>`;
+        }).join("");
+        ui.moduleGrid.innerHTML = modules.map((module) => {
+          const locked = module.unlock > stars;
+          const selected = career.modules.includes(module.id);
+          return `<button class="module-card ${selected ? "selected" : ""}" data-module="${module.id}" ${locked ? "disabled" : ""}><small>${locked ? `${module.unlock} 星解锁` : selected ? "已安装" : "可安装"}</small><strong>${module.name}</strong><span>${module.text}</span></button>`;
+        }).join("");
+        ui.moduleHint.textContent = `已安装 ${career.modules.length}/2`;
+        currentMission = missions.find((mission) => mission.id === career.selectedMission) || missions[0];
+      }
+
+      function openLobby() {
+        if (state && !state.ended) state.mode = "paused";
+        ui.lobbyView.classList.remove("hidden");
+        ui.resultView.classList.add("hidden");
+        ui.modalLayer.classList.remove("hidden");
+        renderLobby();
+      }
+
+      function startMission(id = career.selectedMission) {
+        const mission = missions.find((item) => item.id === id) || missions[0];
+        if (mission.unlock > totalStars()) return;
+        currentMission = mission;
+        career.selectedMission = mission.id;
+        saveCareer();
+        state = makeState(mission);
+        lastTime = performance.now();
+        ui.pauseBtn.textContent = "暂停";
+        ui.modalLayer.classList.add("hidden");
+        ensureAudio();
+        tone(220, 0.12, 0.035);
+        updateUI();
+      }
+
+      function ensureAudio() {
+        if (!career.sound) return;
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === "suspended") audioCtx.resume();
+      }
+
+      function tone(freq, duration = 0.1, gain = 0.035, type = "sine") {
+        if (!career.sound) return;
+        ensureAudio();
+        if (!audioCtx) return;
+        const osc = audioCtx.createOscillator();
+        const amp = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.value = freq;
+        amp.gain.setValueAtTime(gain, audioCtx.currentTime);
+        amp.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+        osc.connect(amp).connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      }
+
+      function resize() {
+        const rect = canvas.getBoundingClientRect();
+        dpr = clamp(window.devicePixelRatio || 1, 1, 2);
+        width = Math.max(320, rect.width);
+        height = Math.max(460, rect.height);
+        canvas.width = Math.floor(width * dpr);
+        canvas.height = Math.floor(height * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        draw();
+      }
+
+      function doPing() {
+        if (!state || state.mode !== "running") return;
+        state.pingTime = 4.2 + state.stats.reveal;
+        state.pingAge = 0;
+        state.noise = clamp(state.noise + 34 * state.stats.noise, 0, 100);
+        for (const contact of state.contacts) {
+          if (contact.destroyed) continue;
+          contact.seen = state.pingTime;
+          contact.identified = true;
+          contact.alert = contactDefs[contact.kind].hostile ? Math.max(contact.alert, 0.55) : contact.alert;
+          if (contact.kind === "wreck" && !contact.scanned) {
+            contact.scanned = true;
+            state.scans += 1;
+          }
+        }
+        state.message = "主动回波完成：敌方也听见了你。";
+        tone(160, 0.5, 0.05, "sine");
+        setTimeout(() => tone(320, 0.35, 0.025, "sine"), 130);
+        updateUI();
+      }
+
+      function fire() {
+        if (!state || state.mode !== "running" || state.torpedoes <= 0) return;
+        const target = state.contacts.find((contact) => contact.id === state.selectedId && !contact.destroyed);
+        if (!target || (!target.identified && target.seen <= 0)) {
+          state.message = "没有有效锁定。先用回波辨认接触。";
+          updateUI();
+          return;
+        }
+        state.torpedoes -= 1;
+        state.noise = clamp(state.noise + 12 * state.stats.noise, 0, 100);
+        const cone = 10 + state.stats.cone;
+        if (Math.abs(angleDiff(target.bearing, state.heading)) <= cone && target.distance <= 440) {
+          if (!contactDefs[target.kind].hostile) {
+            state.hull = Math.max(1, state.hull - 18);
+            state.message = "误击非敌对接触，任务评价受损。";
+          } else {
+            target.hp -= 1;
+            target.alert = 1;
+            state.message = `${contactDefs[target.kind].name} 被鱼雷命中。`;
+            if (target.hp <= 0) target.destroyed = true;
+          }
+          tone(520, 0.12, 0.045, "triangle");
         } else {
-          q.mission++;
-          q.contacts = make(2 + q.mission);
-          q.stealth = 100;
-          msg.textContent = "进入下一片深海区域。";
+          state.message = `线导丢失：需对准 ${formatBearing(target.bearing)}，当前 ${formatBearing(state.heading)}。`;
+          tone(120, 0.12, 0.035, "square");
         }
+        checkMission();
+        updateUI();
       }
-      drawUI();
-    }
-    function render(t) {
-      let dt = Math.min(0.05, (t - last) / 1000 || 0);
-      last = t;
-      tick(dt);
-      g.clearRect(0, 0, 960, 540);
-      g.strokeStyle = "#174257";
-      g.lineWidth = 2;
-      for (const r of [90, 180, 260]) {
-        g.beginPath();
-        g.arc(480, 270, r, 0, 7);
-        g.stroke();
+
+      function releaseDecoy() {
+        if (!state || state.mode !== "running" || state.decoys <= 0) return;
+        state.decoys -= 1;
+        state.noise = Math.max(0, state.noise - 38);
+        for (const contact of state.contacts) contact.alert *= 0.35;
+        state.message = "诱饵脱离，敌方解算暂时偏离。";
+        tone(380, 0.18, 0.035, "triangle");
+        updateUI();
       }
-      for (let a = 0; a < 360; a += 30) {
-        g.beginPath();
-        g.moveTo(480, 270);
-        g.lineTo(
-          480 + Math.cos((a * Math.PI) / 180) * 280,
-          270 + Math.sin((a * Math.PI) / 180) * 280,
-        );
-        g.stroke();
-      }
-      g.save();
-      g.translate(480, 270);
-      g.rotate((q.heading * Math.PI) / 180);
-      g.font = "32px serif";
-      g.textAlign = "center";
-      g.fillText("⬆️", 0, 10);
-      g.restore();
-      for (const c of q.contacts)
-        if (c.seen > 0 || q.ping > 0) {
-          let a = (c.a * Math.PI) / 180,
-            x = 480 + Math.cos(a) * c.d * 0.65,
-            y = 270 + Math.sin(a) * c.d * 0.65;
-          g.fillStyle = c.hostile ? "#ff6c6c" : "#64d8a0";
-          g.beginPath();
-          g.arc(x, y, 7 + (c.hp - 1) * 3, 0, 7);
-          g.fill();
+
+      function update(dt) {
+        if (!state || state.mode !== "running" || state.ended) return;
+        state.elapsed += dt;
+        state.pingTime = Math.max(0, state.pingTime - dt);
+        if (state.pingTime > 0) state.pingAge += dt;
+        const noiseRecovery = state.silent ? 9 : 3.2;
+        state.noise = clamp(state.noise - noiseRecovery * dt, 0, 100);
+        for (const contact of state.contacts) {
+          if (contact.destroyed) continue;
+          const def = contactDefs[contact.kind];
+          contact.seen = Math.max(0, contact.seen - dt);
+          contact.attackCd -= dt;
+          contact.bearing = (contact.bearing + Math.sin(state.elapsed * 0.4 + contact.id) * def.speed * 0.09 * dt + 360) % 360;
+          if (def.hostile) {
+            const heard = state.noise > 36 || contact.alert > 0.4;
+            if (heard) {
+              contact.alert = clamp(contact.alert + dt * 0.08, 0, 1);
+              contact.distance = Math.max(90, contact.distance - def.speed * dt * (state.silent ? 0.55 : 1));
+            } else contact.alert = Math.max(0, contact.alert - dt * 0.04);
+            if (contact.attackCd <= 0 && contact.alert > 0.72 && contact.distance < 330) {
+              state.hull = Math.max(0, state.hull - def.damage);
+              state.noise = clamp(state.noise + 12, 0, 100);
+              contact.attackCd = contact.kind === "frigate" ? 3.8 : 5.4;
+              state.message = `${def.name} 完成一次攻击解算，艇体受损。`;
+              tone(90, 0.22, 0.05, "square");
+            }
+          } else if (contact.kind !== "wreck") {
+            contact.distance = clamp(contact.distance + Math.sin(state.elapsed + contact.id) * dt * 2, 130, 450);
+          }
         }
-      requestAnimationFrame(render);
-    }
-    function doPing() {
-      if (q.over) return;
-      q.ping = 2.5;
-      q.stealth = Math.max(0, q.stealth - 35);
-      q.contacts.forEach((c) => (c.seen = 5));
-      msg.textContent = "PING——回波已标定。";
-    }
-    function shoot() {
-      if (q.torps <= 0 || q.over) return;
-      q.torps--;
-      let target = q.contacts
-        .filter((c) => c.hostile)
-        .sort(
-          (a, b) =>
-            Math.abs(diff(a.a, q.heading)) - Math.abs(diff(b.a, q.heading)),
-        )[0];
-      if (
-        target &&
-        Math.abs(diff(target.a, q.heading)) < 12 &&
-        target.d < 380
-      ) {
-        target.hp--;
-        msg.textContent = "鱼雷命中目标！";
-        if (target.hp <= 0) q.contacts = q.contacts.filter((x) => x !== target);
-      } else msg.textContent = "鱼雷失去目标。";
-    }
-    function diff(a, b) {
-      return ((a - b + 540) % 360) - 180;
-    }
-    function drawUI() {
-      mission.textContent = q.mission;
-      hull.textContent = q.hull;
-      stealth.textContent = Math.round(q.stealth);
-      torps.textContent = q.torps;
-      contacts.innerHTML =
-        q.contacts
-          .filter((c) => c.seen > 0)
-          .map(
-            (c) =>
-              `<span class="tag">${c.hostile ? "⚠️" : "🐋"} 方位${Math.round(c.a)}° · 距离${Math.round(c.d)}</span>`,
-          )
-          .join("") || '<span class="tag">暂无可见接触</span>';
-      silent.textContent = q.silent ? "恢复常速" : "静默航行";
-    }
-    document.querySelectorAll("[data-turn]").forEach(
-      (e) =>
-        (e.onclick = () => {
-          q.heading = (q.heading + +e.dataset.turn + 360) % 360;
-          drawUI();
-        }),
-    );
-    ping.onclick = doPing;
-    fire.onclick = shoot;
-    silent.onclick = () => {
-      q.silent = !q.silent;
-      drawUI();
-    };
-    restart.onclick = () => {
-      q = fresh();
-      drawUI();
-    };
-    q = fresh();
-    drawUI();
-    requestAnimationFrame(render);
+        if (state.hull <= 0) finishMission(false);
+        updateUI();
+      }
+
+      function checkMission() {
+        const threatsGone = state.contacts.filter((contact) => contactDefs[contact.kind].hostile).every((contact) => contact.destroyed);
+        if (threatsGone && state.scans >= currentMission.wrecks) finishMission(true);
+      }
+
+      function finishMission(completed) {
+        if (!state || state.ended) return;
+        state.ended = true;
+        state.mode = "over";
+        const stats = missionStats(completed);
+        const passed = [completed, completed && stats.hull >= currentMission.hullGoal, completed && stats.torpedoes >= currentMission.torpedoGoal];
+        const stars = passed.filter(Boolean).length;
+        if (completed) {
+          career.stageStars[currentMission.id] = Math.max(career.stageStars[currentMission.id] || 0, stars);
+          career.bestHull[currentMission.id] = Math.max(career.bestHull[currentMission.id] || 0, stats.hull);
+          career.bestTorpedoes[currentMission.id] = Math.max(career.bestTorpedoes[currentMission.id] || 0, stats.torpedoes);
+          career.clears += 1;
+          saveCareer();
+        }
+        ui.lobbyView.classList.add("hidden");
+        ui.resultView.classList.remove("hidden");
+        ui.resultTitle.textContent = completed ? `${currentMission.name} · ${"★".repeat(stars)}${"☆".repeat(3 - stars)}` : "潜艇失联";
+        ui.resultText.textContent = completed ? `艇体 ${stats.hull}，剩余鱼雷 ${stats.torpedoes}，扫描残骸 ${stats.scans}。` : "噪声管理和敌方攻击窗口需要重新规划。";
+        ui.resultGoals.innerHTML = goalRows(stats);
+        ui.modalLayer.classList.remove("hidden");
+        tone(completed ? 720 : 100, 0.28, 0.045, completed ? "triangle" : "square");
+      }
+
+      function updateUI() {
+        if (!state) return;
+        ui.missionLine.textContent = `${currentMission.zone} · ${currentMission.name}`;
+        ui.modeLabel.textContent = `${state.silent ? "静默推进" : state.pingTime > 0 ? "主动回波" : "被动监听"} · 航向 ${formatBearing(state.heading)}`;
+        ui.message.textContent = state.message;
+        ui.hullText.textContent = Math.round(state.hull);
+        ui.hullBar.style.width = `${state.hull / state.maxHull * 100}%`;
+        ui.noiseText.textContent = Math.round(state.noise);
+        ui.noiseBar.style.width = `${state.noise}%`;
+        ui.torpedoText.textContent = state.torpedoes;
+        ui.decoyText.textContent = state.decoys;
+        ui.silentBtn.textContent = state.silent ? "恢复常速" : "静默航行";
+        ui.silentBtn.classList.toggle("selected", state.silent);
+        ui.fireBtn.disabled = state.torpedoes <= 0 || !state.selectedId;
+        ui.decoyBtn.disabled = state.decoys <= 0;
+        const visible = state.contacts.filter((contact) => !contact.destroyed && (contact.seen > 0 || (contactDefs[contact.kind].noise > 0.6 && contact.distance < 360)));
+        ui.contactList.innerHTML = visible.length ? visible.map((contact) => {
+          const def = contactDefs[contact.kind];
+          const exact = contact.identified || contact.seen > 0;
+          return `<button class="contact ${state.selectedId === contact.id ? "locked" : ""}" data-contact="${contact.id}"><strong><span>${exact ? def.name : "宽带噪声"}</span><b>${exact ? formatBearing(contact.bearing) : `约 ${formatBearing(Math.round(contact.bearing / 15) * 15)}`}</b></strong><span>${exact ? `距离 ${Math.round(contact.distance)} · ${def.hostile ? `结构 ${contact.hp}` : contact.kind === "wreck" ? contact.scanned ? "已扫描" : "待扫描" : "非敌对"}` : "需主动声呐辨认"}</span></button>`;
+        }).join("") : '<div class="contact"><span>没有可辨认接触，保持监听或主动探测。</span></div>';
+        ui.objectiveTitle.textContent = `${currentMission.name} · 任务目标`;
+        ui.goalList.innerHTML = goalRows();
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, width, height);
+        const gradient = ctx.createRadialGradient(width / 2, height / 2, 20, width / 2, height / 2, Math.max(width, height) * 0.7);
+        gradient.addColorStop(0, "#0a2d38");
+        gradient.addColorStop(1, "#020b10");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, width, height);
+        const cx = width / 2;
+        const cy = height / 2 + 12;
+        const radius = Math.min(width * 0.43, height * 0.43);
+        ctx.save();
+        ctx.strokeStyle = "rgba(86, 212, 193, 0.18)";
+        ctx.lineWidth = 1.5;
+        for (let ring = 1; ring <= 4; ring += 1) {
+          ctx.beginPath();
+          ctx.arc(cx, cy, radius * ring / 4, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+        for (let bearing = 0; bearing < 360; bearing += 30) {
+          const angle = (bearing - 90) * Math.PI / 180;
+          ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + Math.cos(angle) * radius, cy + Math.sin(angle) * radius); ctx.stroke();
+          ctx.fillStyle = "rgba(155, 185, 184, 0.7)"; ctx.font = "700 11px ui-monospace"; ctx.textAlign = "center";
+          ctx.fillText(String(bearing).padStart(3, "0"), cx + Math.cos(angle) * (radius + 17), cy + Math.sin(angle) * (radius + 17) + 4);
+        }
+        if (state?.pingTime > 0) {
+          const pulse = (state.pingAge * 150) % radius;
+          ctx.strokeStyle = `rgba(86, 212, 193, ${0.75 * (1 - pulse / radius)})`;
+          ctx.lineWidth = 4;
+          ctx.beginPath(); ctx.arc(cx, cy, pulse, 0, Math.PI * 2); ctx.stroke();
+        }
+        if (state) {
+          for (const contact of state.contacts) {
+            if (contact.destroyed) continue;
+            const def = contactDefs[contact.kind];
+            const visible = contact.seen > 0 || (def.noise > 0.6 && contact.distance < 360);
+            if (!visible) continue;
+            const angle = (contact.bearing - 90) * Math.PI / 180;
+            const range = clamp(contact.distance / 470, 0.08, 1) * radius;
+            const x = cx + Math.cos(angle) * range;
+            const y = cy + Math.sin(angle) * range;
+            ctx.globalAlpha = contact.seen > 0 ? 1 : 0.36;
+            ctx.fillStyle = contact.identified ? def.color : "#9bb9b8";
+            ctx.beginPath(); ctx.arc(x, y, contact.kind === "frigate" ? 9 : 6, 0, Math.PI * 2); ctx.fill();
+            if (state.selectedId === contact.id) {
+              ctx.strokeStyle = "#f0c56a"; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, 14, 0, Math.PI * 2); ctx.stroke();
+            }
+            ctx.globalAlpha = 1;
+          }
+          const headingAngle = (state.heading - 90) * Math.PI / 180;
+          ctx.strokeStyle = "#f0c56a"; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + Math.cos(headingAngle) * 55, cy + Math.sin(headingAngle) * 55); ctx.stroke();
+        }
+        ctx.fillStyle = "#e2f5f2"; ctx.beginPath(); ctx.arc(cx, cy, 7, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+      }
+
+      function frame(time) {
+        const dt = Math.min(0.05, Math.max(0, (time - lastTime) / 1000 || 0));
+        lastTime = time;
+        update(dt);
+        draw();
+        requestAnimationFrame(frame);
+      }
+
+      document.querySelectorAll("[data-turn]").forEach((button) => button.addEventListener("click", () => {
+        if (!state || state.mode !== "running") return;
+        state.heading = (state.heading + Number(button.dataset.turn) + 360) % 360;
+        state.noise = clamp(state.noise + 3 * state.stats.noise, 0, 100);
+        updateUI();
+      }));
+      ui.pingBtn.addEventListener("click", doPing);
+      ui.fireBtn.addEventListener("click", fire);
+      ui.decoyBtn.addEventListener("click", releaseDecoy);
+      ui.silentBtn.addEventListener("click", () => { if (state?.mode === "running") { state.silent = !state.silent; updateUI(); } });
+      ui.contactList.addEventListener("click", (event) => { const button = event.target.closest("[data-contact]"); if (button) { state.selectedId = Number(button.dataset.contact); updateUI(); } });
+      ui.patrolBtn.addEventListener("click", openLobby);
+      ui.restartBtn.addEventListener("click", () => startMission());
+      ui.pauseBtn.addEventListener("click", () => {
+        if (!state || state.ended) return;
+        state.mode = state.mode === "paused" ? "running" : "paused";
+        ui.pauseBtn.textContent = state.mode === "paused" ? "继续" : "暂停";
+      });
+      ui.missionGrid.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-mission]");
+        if (!button || button.disabled) return;
+        career.selectedMission = button.dataset.mission;
+        saveCareer(); renderLobby();
+      });
+      ui.moduleGrid.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-module]");
+        if (!button || button.disabled) return;
+        const id = button.dataset.module;
+        if (career.modules.includes(id)) career.modules = career.modules.filter((item) => item !== id);
+        else if (career.modules.length < 2) career.modules.push(id);
+        else { ui.archiveCode.value = "最多安装 2 件模块"; return; }
+        saveCareer(); renderLobby();
+      });
+      ui.exportBtn.addEventListener("click", async () => { ui.archiveCode.value = encodeCareer(); ui.archiveCode.select(); try { await navigator.clipboard.writeText(ui.archiveCode.value); } catch (error) {} });
+      ui.importBtn.addEventListener("click", () => { try { importCareer(ui.archiveCode.value); } catch (error) { ui.archiveCode.value = error.message || "存档码无效"; } });
+      ui.soundBtn.addEventListener("click", () => { career.sound = !career.sound; saveCareer(); renderLobby(); });
+      ui.diveBtn.addEventListener("click", () => startMission());
+      ui.backBtn.addEventListener("click", openLobby);
+      ui.againBtn.addEventListener("click", () => startMission());
+      window.addEventListener("resize", resize);
+
+      if (new URLSearchParams(location.search).has("debug")) {
+        window.__abyssSonarDebug = {
+          snapshot() {
+            return {
+              career: JSON.parse(JSON.stringify(career)), totalStars: totalStars(), mission: currentMission.id,
+              mode: state?.mode || "lobby", hull: state?.hull || 0, noise: state?.noise || 0, torpedoes: state?.torpedoes || 0,
+              decoys: state?.decoys || 0, scans: state?.scans || 0, contacts: state ? JSON.parse(JSON.stringify(state.contacts)) : [],
+              modules: [...career.modules], savePrefix: SAVE_PREFIX.slice(0, -1)
+            };
+          },
+          start(id = career.selectedMission) {
+            const mission = missions.find((item) => item.id === id);
+            if (mission && mission.unlock > totalStars()) career.stageStars = Object.fromEntries(missions.map((item) => [item.id, 3]));
+            career.selectedMission = id; startMission(id); return this.snapshot();
+          },
+          revealAll() { doPing(); return this.snapshot(); },
+          aim(contactId) {
+            const target = state.contacts.find((contact) => contact.id === contactId);
+            if (target) {
+              state.selectedId = target.id;
+              state.heading = target.bearing;
+              updateUI();
+            }
+            return this.snapshot();
+          },
+          forceComplete(payload = {}) {
+            state.contacts.forEach((contact) => { if (contactDefs[contact.kind].hostile) contact.destroyed = true; if (contact.kind === "wreck") contact.scanned = true; });
+            state.scans = currentMission.wrecks;
+            state.hull = payload.hull === undefined ? state.maxHull : Number(payload.hull);
+            state.torpedoes = payload.torpedoes === undefined ? 5 : Number(payload.torpedoes);
+            checkMission(); return this.snapshot();
+          },
+          unlockAll() { career.stageStars = Object.fromEntries(missions.map((item) => [item.id, 3])); saveCareer(); renderLobby(); return this.snapshot(); },
+          encodeCareer, importCareer, data: { missions, modules, contactDefs }
+        };
+      }
+
+      state = makeState(currentMission);
+      state.mode = "paused";
+      resize();
+      renderLobby();
+      updateUI();
+      requestAnimationFrame(frame);
+    })();
   </script>
+</body>
 </html>
