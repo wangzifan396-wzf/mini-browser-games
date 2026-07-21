@@ -1,362 +1,708 @@
 <!doctype html>
 <html lang="zh-CN">
-  <meta charset="utf-8" /><meta
-    name="viewport"
-    content="width=device-width,initial-scale=1"
-  /><title>字节机器人</title
-  ><style>
-    * {
-      box-sizing: border-box;
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>字节机器人：指令远征</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #eef9f4;
+      --muted: #9fb9b1;
+      --page: #071416;
+      --surface: #102326;
+      --surface-2: #162e31;
+      --line: #31565a;
+      --mint: #58d6b3;
+      --gold: #f2c45f;
+      --coral: #ef7666;
+      --blue: #70aee8;
     }
-    body {
-      margin: 0;
-      background: #0b1720;
-      color: #ecfbff;
-      font-family: ui-monospace, Consolas, "Microsoft YaHei", monospace;
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; background: var(--page); color: var(--ink); }
+    body { font-family: Inter, system-ui, "Microsoft YaHei", sans-serif; }
+    button, textarea { font: inherit; }
+    button { min-height: 42px; border: 1px solid var(--line); border-radius: 7px; background: #1e4145; color: var(--ink); font-weight: 750; cursor: pointer; }
+    button:hover:not(:disabled) { border-color: var(--mint); }
+    button:disabled { cursor: not-allowed; opacity: .42; }
+    button:focus-visible, textarea:focus-visible { outline: 3px solid #f2c45f88; outline-offset: 2px; }
+    .app { width: min(1320px, 100%); margin: 0 auto; padding: 18px; }
+    header { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding-bottom: 15px; border-bottom: 1px solid var(--line); }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 3px; font-size: clamp(24px, 4vw, 42px); letter-spacing: 0; }
+    .eyebrow { color: var(--mint); font-size: 12px; font-weight: 850; text-transform: uppercase; }
+    .sub, .muted { color: var(--muted); }
+    .header-actions, .toolbar, .commands, .run-actions, .legend { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .header-actions button { width: 44px; padding: 0; font-size: 19px; }
+    .statusbar { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); margin: 14px 0; }
+    .metric { min-width: 0; background: var(--surface); padding: 10px 12px; }
+    .metric span { display: block; color: var(--muted); font-size: 12px; }
+    .metric b { display: block; overflow-wrap: anywhere; font-size: 19px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) 350px; gap: 14px; align-items: start; }
+    .stage { min-width: 0; }
+    .board-wrap { position: relative; border: 1px solid var(--line); background: #0a1c1f; padding: 10px; min-height: 430px; display: grid; place-items: center; }
+    canvas { display: block; width: 100%; max-height: 66vh; aspect-ratio: 16 / 10; touch-action: none; }
+    .legend { margin-top: 8px; color: var(--muted); font-size: 12px; }
+    aside { min-width: 0; border-left: 1px solid var(--line); padding-left: 14px; }
+    .section { padding: 13px 0; border-bottom: 1px solid var(--line); }
+    .section:first-child { padding-top: 0; }
+    .section h2 { margin-bottom: 5px; font-size: 18px; }
+    .mission-rule { color: var(--muted); line-height: 1.55; font-size: 13px; }
+    .commands { margin-top: 10px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .commands button { padding: 6px 3px; }
+    .commands button small { display: block; color: #c7d9d3; font-size: 10px; font-weight: 600; }
+    .program { min-height: 104px; display: flex; flex-wrap: wrap; align-content: flex-start; gap: 6px; padding: 9px; border: 1px dashed #477075; background: #091a1c; }
+    .token { width: 43px; height: 43px; display: grid; place-items: center; border: 1px solid #477075; background: #1a393d; font-weight: 900; }
+    .token.active { color: #071416; background: var(--gold); border-color: var(--gold); }
+    .empty { color: #718b85; font-size: 13px; align-self: center; }
+    .run-actions { margin-top: 8px; }
+    .run-actions button { flex: 1 1 90px; }
+    .primary { background: #237358; border-color: #45b994; }
+    .danger { background: #62302e; border-color: #a8554e; }
+    .log { min-height: 102px; max-height: 150px; overflow: auto; color: #b8cec7; font-family: ui-monospace, Consolas, monospace; font-size: 12px; line-height: 1.55; }
+    .log div { padding: 3px 0; border-bottom: 1px solid #ffffff0c; }
+    .missions { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
+    .chapter-head { display: flex; justify-content: space-between; gap: 12px; align-items: end; margin: 16px 0 8px; }
+    .chapter-head h2 { margin: 0; font-size: 19px; }
+    .mission-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+    .mission-card { min-height: 94px; padding: 10px; text-align: left; background: var(--surface); }
+    .mission-card.active { border-color: var(--gold); box-shadow: inset 0 0 0 1px var(--gold); }
+    .mission-card.locked { opacity: .48; }
+    .mission-card strong, .mission-card span { display: block; }
+    .mission-card span { margin-top: 5px; color: var(--muted); font-size: 12px; }
+    .stars { color: var(--gold) !important; letter-spacing: 0; }
+    dialog { width: min(720px, calc(100% - 24px)); max-height: 88vh; overflow: auto; border: 1px solid var(--line); border-radius: 8px; background: #102326; color: var(--ink); padding: 0; }
+    dialog::backdrop { background: #000a; }
+    .dialog-head { position: sticky; top: 0; z-index: 2; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--line); background: #102326; }
+    .dialog-head h2 { margin: 0; }
+    .dialog-head button { width: 42px; }
+    .dialog-body { padding: 16px; }
+    .medals { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .medal { padding: 11px; border: 1px solid var(--line); background: #0a1c1f; }
+    .medal.off { opacity: .48; }
+    .medal b, .medal span { display: block; }
+    .medal span { margin-top: 4px; color: var(--muted); font-size: 12px; }
+    textarea { width: 100%; min-height: 96px; resize: vertical; border: 1px solid var(--line); border-radius: 6px; padding: 9px; background: #081719; color: var(--ink); }
+    .archive-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .archive-actions button { flex: 1 1 130px; }
+    .toast { position: fixed; left: 50%; bottom: 20px; z-index: 10; transform: translateX(-50%) translateY(20px); padding: 10px 14px; border: 1px solid var(--mint); background: #0d2824; opacity: 0; pointer-events: none; transition: .2s; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    @media (max-width: 850px) {
+      .layout { grid-template-columns: minmax(0, 1fr); }
+      aside { border-left: 0; border-top: 1px solid var(--line); padding: 14px 0 0; }
+      .board-wrap { min-height: 0; }
+      canvas { max-height: none; }
     }
-    .app {
-      min-height: 100vh;
-      padding: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .shell {
-      width: 100%;
-      max-width: 940px;
-      min-width: 0;
-      background: #132a36;
-      border: 1px solid #3f7285;
-      border-radius: 20px;
-      padding: 16px;
-    }
-    .top,
-    .row {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .layout {
-      display: grid;
-      grid-template-columns: 1fr 300px;
-      gap: 12px;
-      margin-top: 12px;
-    }
-    .board {
-      display: grid;
-      gap: 3px;
-      background: #08171e;
-      padding: 7px;
-      border-radius: 11px;
-    }
-    .cell {
-      aspect-ratio: 1;
-      border: 1px solid #315667;
-      border-radius: 5px;
-      background: #1b3a48;
-      display: grid;
-      place-items: center;
-      font-size: 25px;
-    }
-    .wall {
-      background: #33434a;
-    }
-    .goal {
-      box-shadow: inset 0 0 0 4px #62df9b;
-    }
-    .panel {
-      background: #0d2029;
-      border: 1px solid #315767;
-      border-radius: 11px;
-      padding: 10px;
-      margin-bottom: 9px;
-    }
-    .program {
-      min-height: 75px;
-      display: flex;
-      gap: 5px;
-      flex-wrap: wrap;
-    }
-    .cmd {
-      padding: 7px;
-      background: #274c5b;
-      border-radius: 7px;
-    }
-    .cmd.active {
-      outline: 3px solid #ffe069;
-    }
-    .log {
-      height: 100px;
-      overflow: auto;
-      color: #acd0dc;
-      font-size: 13px;
-    }
-    button {
-      padding: 9px 11px;
-      border: 1px solid #4f7a8b;
-      border-radius: 8px;
-      background: #235064;
-      color: #fff;
-      font-weight: bold;
-    }
-    .run {
-      background: #337b59;
-    }
-    .help {
-      font-size: 13px;
-      color: #afd0da;
-    }
-    @media (max-width: 680px) {
-      .layout {
-        grid-template-columns: minmax(0, 1fr);
-      }
-      .layout > * {
-        min-width: 0;
-      }
-      .app {
-        align-items: flex-start;
-      }
+    @media (max-width: 600px) {
+      .app { padding: 10px; }
+      header { align-items: flex-start; }
+      .statusbar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .metric:last-child { grid-column: 1 / -1; }
+      .commands { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .mission-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .medals { grid-template-columns: minmax(0, 1fr); }
     }
   </style>
+</head>
+<body>
   <main class="app">
-    <section class="shell">
-      <div class="top">
-        <div>
-          <h1 style="margin: 0">字节机器人</h1>
-          <div class="help">
-            编排前进、转向和循环指令，让机器人收集全部芯片后抵达绿色终点。
-          </div>
-        </div>
-        <div>
-          关卡 <b id="level"></b>/8　预算 <b id="budget"></b>　步数
-          <b id="steps"></b>
-        </div>
+    <header>
+      <div>
+        <div class="eyebrow">Programmable Puzzle Expedition</div>
+        <h1>字节机器人：指令远征</h1>
+        <div class="sub">用有限指令收集芯片、破解机关并抵达传输门。</div>
       </div>
-      <div class="layout">
-        <div>
-          <div class="board" id="board"></div>
-          <div class="row" style="margin-top: 9px">
-            <button data-c="F">↑ 前进</button><button data-c="L">↶ 左转</button
-            ><button data-c="R">↷ 右转</button
-            ><button data-c="2">×2 循环</button><button id="undo">撤销</button
-            ><button class="run" id="run">运行程序</button
-            ><button id="reset">复位</button>
-          </div>
-        </div>
-        <aside>
-          <div class="panel">
-            <b>程序队列</b>
-            <div class="program" id="program"></div>
-          </div>
-          <div class="panel">
-            <b>任务</b>
-            <div id="mission"></div>
-          </div>
-          <div class="panel log" id="log"></div>
-        </aside>
+      <div class="header-actions">
+        <button id="soundBtn" title="切换音效" aria-label="切换音效">♪</button>
+        <button id="archiveBtn" title="远征档案" aria-label="远征档案">▣</button>
       </div>
+    </header>
+
+    <section class="statusbar" aria-label="任务状态">
+      <div class="metric"><span>当前任务</span><b id="levelMetric">01 / 12</b></div>
+      <div class="metric"><span>源码预算</span><b id="budgetMetric">0 / 4</b></div>
+      <div class="metric"><span>执行步数</span><b id="stepMetric">0 / 4</b></div>
+      <div class="metric"><span>剩余芯片</span><b id="chipMetric">1</b></div>
+      <div class="metric"><span>远征星章</span><b id="starMetric">0 / 36</b></div>
     </section>
+
+    <section class="layout">
+      <div class="stage">
+        <div class="board-wrap"><canvas id="board" width="960" height="600" aria-label="机器人任务地图"></canvas></div>
+        <div class="legend"><span>◆ 芯片</span><span>▣ 终点</span><span>● 开关</span><span>▥ 机关门</span><span>≈ 裂隙</span><span>◎ 传送环</span></div>
+      </div>
+
+      <aside>
+        <section class="section">
+          <div class="eyebrow" id="chapterLabel"></div>
+          <h2 id="missionTitle"></h2>
+          <div class="mission-rule" id="missionRule"></div>
+          <div class="commands" id="commands"></div>
+        </section>
+        <section class="section">
+          <h2>程序队列</h2>
+          <div class="program" id="program"></div>
+          <div class="run-actions">
+            <button id="undoBtn" title="撤销末条指令">↶ 撤销</button>
+            <button id="clearBtn" title="清空程序">⌫ 清空</button>
+            <button class="primary" id="runBtn">▶ 运行</button>
+            <button id="resetBtn">↺ 复位</button>
+          </div>
+        </section>
+        <section class="section">
+          <h2>执行记录</h2>
+          <div class="log" id="log"></div>
+        </section>
+      </aside>
+    </section>
+
+    <section class="missions" id="missions"></section>
   </main>
+
+  <dialog id="archiveDialog">
+    <div class="dialog-head"><h2>远征档案</h2><button id="closeArchive" aria-label="关闭">×</button></div>
+    <div class="dialog-body">
+      <h3>指令勋章</h3>
+      <div class="medals" id="medals"></div>
+      <h3 style="margin-top:18px">跨设备档案</h3>
+      <p class="muted">导出码只保存星章、最佳记录和勋章，不包含正在编辑的程序。</p>
+      <textarea id="archiveCode" spellcheck="false" placeholder="BYTE2. 开头的档案码"></textarea>
+      <div class="archive-actions">
+        <button id="exportBtn">导出档案</button>
+        <button id="copyBtn">复制</button>
+        <button id="importBtn">导入档案</button>
+      </div>
+    </div>
+  </dialog>
+  <div class="toast" id="toast"></div>
+
   <script>
     const LEVELS = [
-      ["#######", "#>..cG#", "#######"],
-      ["#######", "#>....#", "#.###c#", "#....G#", "#######"],
-      ["########", "#..c...#", "#.####.#", "#>....c#", "####.#G#", "########"],
-      ["########", "#>..#cG#", "#.#.#..#", "#.#....#", "#...c..#", "########"],
-      [
-        "#########",
-        "#>..c...#",
-        "###.###.#",
-        "#c......#",
-        "#.#####.#",
-        "#.....cG#",
-        "#########",
-      ],
-      [
-        "#########",
-        "#c..#..G#",
-        "#.#.#.#.#",
-        "#.#...#.#",
-        "#.#####.#",
-        "#>c.....#",
-        "#########",
-      ],
-      [
-        "##########",
-        "#>...#...#",
-        "#.##.#.cG#",
-        "#....#...#",
-        "####.###.#",
-        "#c.......#",
-        "##########",
-      ],
-      [
-        "##########",
-        "#>c......#",
-        "###.####.#",
-        "#...c....#",
-        "#.#####.##",
-        "#c.....cG#",
-        "##########",
-      ],
+      { chapter: "启动区", name: "直线校准", map: ["#######", "#>..cG#", "#######"], budget: 4, par: 4, commands: "FLR", solution: "FFFF", note: "先建立移动与芯片收集的基本模型。" },
+      { chapter: "启动区", name: "折返缓存", map: ["#######", "#>..c##", "####.##", "#..c.G#", "#######"], budget: 12, par: 12, commands: "FLR", solution: "FFFRFFRFRRFF", note: "转向只改变朝向，不会自动前进。" },
+      { chapter: "启动区", name: "压缩直线", map: ["##########", "#>.....cG#", "##########"], budget: 4, par: 7, commands: "FLR23", solution: "F333", note: "×2 和 ×3 会把前一条可执行指令再执行一或两次。" },
+      { chapter: "启动区", name: "双弯管线", map: ["########", "#>..c###", "####.###", "####...#", "######G#", "########"], budget: 10, par: 11, commands: "FLR23", solution: "F3RF2LF2RF", note: "源码更短不代表执行步数更少。" },
+
+      { chapter: "逻辑舱", name: "墙面传感", map: ["#######", "#>...##", "####.##", "####c##", "####G##", "#######"], budget: 4, par: 7, commands: "FLR23B", solution: "B333", note: "传感指令遇墙右转，否则前进一步。" },
+      { chapter: "逻辑舱", name: "门锁时序", map: ["########", "#>..S###", "####.###", "####D###", "####cG##", "########"], budget: 8, par: 9, commands: "FLR23B", solution: "F3RF3LF", note: "踩下开关后，地图中的机关门会保持开启。" },
+      { chapter: "逻辑舱", name: "裂隙跳线", map: ["##########", "#>..c~..G#", "##########"], budget: 5, par: 6, commands: "FLR23BJ", solution: "F3JFF", note: "跳跃只允许跨过一格裂隙，落点必须安全。" },
+      { chapter: "逻辑舱", name: "传送回环", map: ["#########", "#>..cO###", "#########", "###O..cG#", "#########"], budget: 6, par: 8, commands: "FLR23BJ", solution: "F3FF3F", note: "进入传送环后会从另一端出现，朝向保持不变。" },
+
+      { chapter: "核心层", name: "门前断层", map: ["############", "#>..S~..DcG#", "############"], budget: 7, par: 8, commands: "FLR23BJ", solution: "F3JFFFF", note: "先触发开关，再跨越裂隙并穿过机关门。" },
+      { chapter: "核心层", name: "自动走廊", map: ["#########", "#>..S####", "####.####", "####D####", "####c####", "####G####", "#########"], budget: 5, par: 8, commands: "FLR23BJ", solution: "B333B", note: "同一条传感程序可以同时处理直线与拐角。" },
+      { chapter: "核心层", name: "远端接驳", map: ["##########", "#>cO######", "##########", "##O....###", "######.###", "######cG##", "##########"], budget: 10, par: 11, commands: "FLR23BJ", solution: "FFF3FRFFLF", note: "传送后的坐标改变，但程序上下文不会重置。" },
+      { chapter: "核心层", name: "最终上传", map: ["############", "#>..S~.O####", "############", "####O..D.cG#", "############"], budget: 8, par: 11, commands: "FLR23BJ", solution: "F3JFF33F", note: "把循环、跳跃、传送和机关组合成最后一次上传。" }
     ];
-    let q,
-      timer = null;
-    const $ = (x) => document.getElementById(x);
-    function load(l = 0) {
-      let map = LEVELS[l],
-        walls = new Set(),
-        coins = new Set(),
-        p;
-      map.forEach((r, y) =>
-        [...r].forEach((v, x) => {
-          let k = x + "," + y;
-          if (v === "#") walls.add(k);
-          if (v === "c") coins.add(k);
-          if (v === ">") p = { x, y, d: 0 };
-          if (v === "G") qgoal = { x, y };
-        }),
-      );
-      q = {
-        lv: l,
-        map,
-        w: map[0].length,
-        h: map.length,
-        walls,
-        coins,
-        start: { ...p },
-        p,
-        goal: { ...qgoal },
-        prog: [],
-        steps: 0,
-        logs: ["添加指令并运行。"],
-        running: false,
-      };
-      draw();
-    }
-    let qgoal;
-    function expand(prog) {
-      let out = [];
-      for (let i = 0; i < prog.length; i++) {
-        if (prog[i] === "2" && out.length) {
-          let last = out.at(-1);
-          out.push(last);
-        } else out.push(prog[i]);
-      }
-      return out.filter((x) => x !== "2");
-    }
-    function execute() {
-      if (q.running || !q.prog.length) return;
-      let cmds = expand(q.prog);
-      q.p = { ...q.start };
-      q.coins = new Set();
-      LEVELS[q.lv].forEach((r, y) =>
-        [...r].forEach((v, x) => v === "c" && q.coins.add(x + "," + y)),
-      );
-      q.steps = 0;
-      q.running = true;
-      let i = 0;
-      timer = setInterval(() => {
-        if (i >= cmds.length) {
-          clearInterval(timer);
-          q.running = false;
-          return finish();
-        }
-        let c = cmds[i++];
-        program.children[
-          Math.min(i - 1, program.children.length - 1)
-        ]?.classList.add("active");
-        if (c === "L") q.p.d = (q.p.d + 3) % 4;
-        if (c === "R") q.p.d = (q.p.d + 1) % 4;
-        if (c === "F") {
-          let d = [
-              [1, 0],
-              [0, 1],
-              [-1, 0],
-              [0, -1],
-            ][q.p.d],
-            x = q.p.x + d[0],
-            y = q.p.y + d[1];
-          if (q.walls.has(x + "," + y)) {
-            q.logs.unshift("机器人撞到墙，程序中止。");
-            clearInterval(timer);
-            q.running = false;
-            draw();
-            return;
-          }
-          q.p.x = x;
-          q.p.y = y;
-          q.coins.delete(x + "," + y);
-        }
-        q.steps++;
-        draw();
-      }, 330);
-    }
-    function finish() {
-      let ok = q.p.x === q.goal.x && q.p.y === q.goal.y && !q.coins.size;
-      if (ok) {
-        q.logs.unshift("程序成功！芯片已收集，终点已到达。");
-        draw();
-        if (q.lv < LEVELS.length - 1) setTimeout(() => load(q.lv + 1), 700);
-        else setTimeout(() => alert("八项编程实验全部完成！"), 50);
-      } else {
-        q.logs.unshift(`程序结束：剩余 ${q.coins.size} 枚芯片，检查指令。`);
-        draw();
-      }
-    }
-    function draw() {
-      level.textContent = q.lv + 1;
-      budget.textContent = `${q.prog.length}/${8 + q.lv}`;
-      steps.textContent = q.steps;
-      board.style.gridTemplateColumns = `repeat(${q.w},minmax(0,1fr))`;
-      board.innerHTML = "";
-      for (let y = 0; y < q.h; y++)
-        for (let x = 0; x < q.w; x++) {
-          let k = x + "," + y,
-            e = document.createElement("div");
-          e.className =
-            "cell " +
-            (q.walls.has(k) ? "wall " : "") +
-            (x === q.goal.x && y === q.goal.y ? "goal" : "");
-          e.textContent = q.walls.has(k)
-            ? ""
-            : q.p.x === x && q.p.y === y
-              ? ["🤖→", "🤖↓", "←🤖", "↑🤖"][q.p.d]
-              : q.coins.has(k)
-                ? "💾"
-                : "";
-          board.append(e);
-        }
-      program.innerHTML = q.prog
-        .map(
-          (c, i) =>
-            `<span class="cmd">${{ F: "前进", L: "左转", R: "右转", 2: "重复" }[c]}</span>`,
-        )
-        .join("");
-      mission.innerHTML = `收集 ${[...LEVELS[q.lv].join("")].filter((x) => x === "c").length} 枚芯片并抵达终点。<br><span class="help">×2 会复制它前一条指令，不额外增加运行步骤。</span>`;
-      log.innerHTML = q.logs
-        .slice(0, 8)
-        .map((x) => `<div>• ${x}</div>`)
-        .join("");
-      run.disabled = q.running;
-    }
-    document.querySelectorAll("[data-c]").forEach(
-      (e) =>
-        (e.onclick = () => {
-          if (q.prog.length < 8 + q.lv) {
-            q.prog.push(e.dataset.c);
-            draw();
-          }
-        }),
-    );
-    undo.onclick = () => {
-      q.prog.pop();
-      draw();
+
+    const COMMANDS = {
+      F: { label: "↑", name: "前进" },
+      L: { label: "↶", name: "左转" },
+      R: { label: "↷", name: "右转" },
+      2: { label: "×2", name: "重复" },
+      3: { label: "×3", name: "重复" },
+      B: { label: "◇", name: "墙感" },
+      J: { label: "⇈", name: "跳跃" }
     };
-    run.onclick = execute;
-    reset.onclick = () => load(q.lv);
-    load();
+    const CHAPTERS = ["启动区", "逻辑舱", "核心层"];
+    const SAVE_KEY = "BYTEBOT2";
+    const DIRS = [[1, 0], [0, 1], [-1, 0], [0, -1]];
+    const $ = (id) => document.getElementById(id);
+    const board = $("board");
+    const ctx = board.getContext("2d");
+    let audioContext = null;
+    let timer = null;
+    let toastTimer = null;
+
+    const defaultProfile = () => ({
+      version: 2,
+      stars: Array(LEVELS.length).fill(0),
+      bestTokens: Array(LEVELS.length).fill(null),
+      bestSteps: Array(LEVELS.length).fill(null),
+      clears: 0,
+      usedLoop: false,
+      usedSensor: false,
+      usedJump: false,
+      sound: true
+    });
+
+    function cleanProfile(value) {
+      const base = defaultProfile();
+      if (!value || typeof value !== "object") return base;
+      base.stars = base.stars.map((_, i) => Math.max(0, Math.min(3, Number(value.stars?.[i]) || 0)));
+      base.bestTokens = base.bestTokens.map((_, i) => {
+        const record = value.bestTokens?.[i];
+        return record !== null && record !== undefined && Number.isFinite(Number(record)) ? Math.max(1, Number(record)) : null;
+      });
+      base.bestSteps = base.bestSteps.map((_, i) => {
+        const record = value.bestSteps?.[i];
+        return record !== null && record !== undefined && Number.isFinite(Number(record)) ? Math.max(1, Number(record)) : null;
+      });
+      base.clears = Math.max(0, Number(value.clears) || 0);
+      base.usedLoop = Boolean(value.usedLoop);
+      base.usedSensor = Boolean(value.usedSensor);
+      base.usedJump = Boolean(value.usedJump);
+      base.sound = value.sound !== false;
+      return base;
+    }
+
+    function loadProfile() {
+      try { return cleanProfile(JSON.parse(localStorage.getItem(SAVE_KEY))); }
+      catch { return defaultProfile(); }
+    }
+
+    let profile = loadProfile();
+    let game = null;
+
+    function saveProfile() {
+      localStorage.setItem(SAVE_KEY, JSON.stringify(profile));
+      renderMissionList();
+      renderMetrics();
+    }
+
+    function key(x, y) { return `${x},${y}`; }
+
+    function parseLevel(level) {
+      const width = level.map[0].length;
+      const walls = new Set();
+      const chips = new Set();
+      const doors = new Set();
+      const switches = new Set();
+      const gaps = new Set();
+      const portals = [];
+      let start = null;
+      let goal = null;
+      level.map.forEach((row, y) => [...row].forEach((cell, x) => {
+        if (cell === "#") walls.add(key(x, y));
+        if (cell === "c") chips.add(key(x, y));
+        if (cell === "D") doors.add(key(x, y));
+        if (cell === "S") switches.add(key(x, y));
+        if (cell === "~") gaps.add(key(x, y));
+        if (cell === "O") portals.push({ x, y });
+        if (cell === "G") goal = { x, y };
+        if (">^<v".includes(cell)) start = { x, y, d: ">v<^".indexOf(cell) };
+      }));
+      return { width, height: level.map.length, walls, chips, doors, switches, gaps, portals, start, goal };
+    }
+
+    function expandProgram(program) {
+      const output = [];
+      for (const token of program) {
+        if (token === "2" || token === "3") {
+          if (!output.length) return { ok: false, reason: "重复指令前没有可执行指令。", commands: [] };
+          const repeat = token === "2" ? 1 : 2;
+          const previous = output[output.length - 1];
+          for (let i = 0; i < repeat; i++) output.push(previous);
+        } else {
+          output.push(token);
+        }
+        if (output.length > 80) return { ok: false, reason: "展开后的程序超过 80 步。", commands: [] };
+      }
+      return { ok: true, commands: output };
+    }
+
+    function createRuntime(levelIndex) {
+      const parsed = parseLevel(LEVELS[levelIndex]);
+      return {
+        levelIndex,
+        ...parsed,
+        robot: { ...parsed.start },
+        chips: new Set(parsed.chips),
+        doorOpen: false,
+        steps: 0,
+        stopped: false,
+        won: false,
+        reason: ""
+      };
+    }
+
+    function blocked(runtime, x, y) {
+      const k = key(x, y);
+      return runtime.walls.has(k) || runtime.gaps.has(k) || (!runtime.doorOpen && runtime.doors.has(k));
+    }
+
+    function enterCell(runtime) {
+      const here = key(runtime.robot.x, runtime.robot.y);
+      runtime.chips.delete(here);
+      if (runtime.switches.has(here)) runtime.doorOpen = true;
+      const portalIndex = runtime.portals.findIndex((p) => p.x === runtime.robot.x && p.y === runtime.robot.y);
+      if (portalIndex >= 0 && runtime.portals.length === 2) {
+        const destination = runtime.portals[portalIndex === 0 ? 1 : 0];
+        runtime.robot.x = destination.x;
+        runtime.robot.y = destination.y;
+        runtime.chips.delete(key(destination.x, destination.y));
+      }
+    }
+
+    function executeCommand(runtime, token) {
+      if (runtime.stopped) return runtime;
+      const [dx, dy] = DIRS[runtime.robot.d];
+      if (token === "L") runtime.robot.d = (runtime.robot.d + 3) % 4;
+      else if (token === "R") runtime.robot.d = (runtime.robot.d + 1) % 4;
+      else if (token === "B") {
+        if (blocked(runtime, runtime.robot.x + dx, runtime.robot.y + dy)) runtime.robot.d = (runtime.robot.d + 1) % 4;
+        else { runtime.robot.x += dx; runtime.robot.y += dy; enterCell(runtime); }
+      } else if (token === "J") {
+        const middle = key(runtime.robot.x + dx, runtime.robot.y + dy);
+        const landingX = runtime.robot.x + dx * 2;
+        const landingY = runtime.robot.y + dy * 2;
+        if (!runtime.gaps.has(middle) || blocked(runtime, landingX, landingY)) {
+          runtime.stopped = true;
+          runtime.reason = "跳跃失败：前方不是可跨越的单格裂隙。";
+        } else {
+          runtime.robot.x = landingX;
+          runtime.robot.y = landingY;
+          enterCell(runtime);
+        }
+      } else if (token === "F") {
+        const x = runtime.robot.x + dx;
+        const y = runtime.robot.y + dy;
+        if (blocked(runtime, x, y)) {
+          runtime.stopped = true;
+          runtime.reason = "移动中止：机器人撞上了墙、裂隙或关闭的机关门。";
+        } else {
+          runtime.robot.x = x;
+          runtime.robot.y = y;
+          enterCell(runtime);
+        }
+      }
+      runtime.steps++;
+      runtime.won = runtime.robot.x === runtime.goal.x && runtime.robot.y === runtime.goal.y && runtime.chips.size === 0;
+      return runtime;
+    }
+
+    function simulate(levelIndex, program) {
+      const expanded = expandProgram(Array.isArray(program) ? program : [...program]);
+      const runtime = createRuntime(levelIndex);
+      if (!expanded.ok) return { ...runtime, reason: expanded.reason, expanded: [] };
+      for (const token of expanded.commands) {
+        executeCommand(runtime, token);
+        if (runtime.stopped || runtime.won) break;
+      }
+      if (!runtime.won && !runtime.reason) runtime.reason = `程序结束，仍有 ${runtime.chips.size} 枚芯片或尚未抵达终点。`;
+      return { ...runtime, expanded: expanded.commands };
+    }
+
+    function validateLevels() {
+      return LEVELS.map((level, index) => {
+        const errors = [];
+        const width = level.map[0]?.length || 0;
+        if (!width || level.map.some((row) => row.length !== width)) errors.push("地图行宽不一致");
+        const text = level.map.join("");
+        if ((text.match(/[>^<v]/g) || []).length !== 1) errors.push("起点数量必须为 1");
+        if ((text.match(/G/g) || []).length !== 1) errors.push("终点数量必须为 1");
+        if ((text.match(/O/g) || []).length % 2 !== 0) errors.push("传送环必须成对");
+        if (level.solution.length > level.budget) errors.push("参考程序超过源码预算");
+        const result = simulate(index, level.solution);
+        if (!result.won) errors.push(`参考程序不可解：${result.reason}`);
+        if (result.steps > level.par) errors.push("参考程序超过执行目标");
+        return { index, name: level.name, valid: errors.length === 0, errors, steps: result.steps };
+      });
+    }
+
+    function selectLevel(index) {
+      if (index > 0 && profile.stars[index - 1] === 0) return toast("先完成上一项任务");
+      stopRun();
+      game = {
+        levelIndex: index,
+        program: [],
+        runtime: createRuntime(index),
+        activeToken: -1,
+        running: false,
+        logs: ["控制台就绪：添加指令后运行程序。"]
+      };
+      renderAll();
+      scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function addCommand(token) {
+      const level = LEVELS[game.levelIndex];
+      if (game.running || game.program.length >= level.budget) return;
+      if ((token === "2" || token === "3") && !game.program.some((x) => x !== "2" && x !== "3")) return toast("先添加一条可执行指令");
+      game.program.push(token);
+      beep(360 + game.program.length * 18, .035);
+      renderProgram();
+      renderMetrics();
+    }
+
+    function stopRun() {
+      if (timer) clearTimeout(timer);
+      timer = null;
+      if (game) game.running = false;
+    }
+
+    function runProgram() {
+      if (game.running || !game.program.length) return;
+      const expanded = expandProgram(game.program);
+      if (!expanded.ok) return toast(expanded.reason);
+      game.runtime = createRuntime(game.levelIndex);
+      game.running = true;
+      game.activeToken = -1;
+      game.logs.unshift(`程序已展开为 ${expanded.commands.length} 个执行步。`);
+      let index = 0;
+      renderAll();
+      const tick = () => {
+        if (!game.running) return;
+        if (index >= expanded.commands.length || game.runtime.stopped || game.runtime.won) return finishRun();
+        game.activeToken = index;
+        executeCommand(game.runtime, expanded.commands[index]);
+        beep(expanded.commands[index] === "J" ? 620 : 280 + index * 9, .04);
+        index++;
+        renderRuntime();
+        timer = setTimeout(tick, 185);
+      };
+      timer = setTimeout(tick, 180);
+    }
+
+    function finishRun() {
+      stopRun();
+      game.activeToken = -1;
+      const runtime = game.runtime;
+      if (runtime.won) {
+        const level = LEVELS[game.levelIndex];
+        const earned = 1 + Number(game.program.length <= level.budget) + Number(runtime.steps <= level.par);
+        const previous = profile.stars[game.levelIndex];
+        profile.stars[game.levelIndex] = Math.max(previous, earned);
+        profile.bestTokens[game.levelIndex] = Math.min(profile.bestTokens[game.levelIndex] ?? Infinity, game.program.length);
+        profile.bestSteps[game.levelIndex] = Math.min(profile.bestSteps[game.levelIndex] ?? Infinity, runtime.steps);
+        profile.clears++;
+        profile.usedLoop ||= game.program.some((x) => x === "2" || x === "3");
+        profile.usedSensor ||= game.program.includes("B");
+        profile.usedJump ||= game.program.includes("J");
+        game.logs.unshift(`上传成功：获得 ${earned} 星，源码 ${game.program.length} 条，执行 ${runtime.steps} 步。`);
+        beep(820, .12);
+        saveProfile();
+        if (game.levelIndex === LEVELS.length - 1) toast("十二项任务全部可达，核心上传完成");
+        else toast(`任务完成，解锁 ${LEVELS[game.levelIndex + 1].name}`);
+      } else {
+        game.logs.unshift(runtime.reason);
+        beep(150, .12);
+      }
+      renderAll();
+    }
+
+    function resetRuntime() {
+      stopRun();
+      game.runtime = createRuntime(game.levelIndex);
+      game.activeToken = -1;
+      game.logs.unshift("机器人已回到任务起点。");
+      renderAll();
+    }
+
+    function renderBoard() {
+      const runtime = game.runtime;
+      const width = board.width;
+      const height = board.height;
+      ctx.clearRect(0, 0, width, height);
+      ctx.fillStyle = "#09191c";
+      ctx.fillRect(0, 0, width, height);
+      const gap = 5;
+      const cell = Math.min((width - 60) / runtime.width, (height - 60) / runtime.height);
+      const ox = (width - runtime.width * cell) / 2;
+      const oy = (height - runtime.height * cell) / 2;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      for (let y = 0; y < runtime.height; y++) {
+        for (let x = 0; x < runtime.width; x++) {
+          const k = key(x, y);
+          const px = ox + x * cell;
+          const py = oy + y * cell;
+          ctx.fillStyle = runtime.walls.has(k) ? "#1b2d30" : "#17383b";
+          ctx.fillRect(px + gap / 2, py + gap / 2, cell - gap, cell - gap);
+          if (runtime.gaps.has(k)) {
+            ctx.fillStyle = "#061013";
+            ctx.fillRect(px + gap / 2, py + gap / 2, cell - gap, cell - gap);
+            ctx.fillStyle = "#ef7666";
+            ctx.font = `${cell * .48}px sans-serif`;
+            ctx.fillText("≈", px + cell / 2, py + cell / 2);
+          }
+          if (runtime.switches.has(k)) {
+            ctx.fillStyle = runtime.doorOpen ? "#58d6b3" : "#f2c45f";
+            ctx.beginPath(); ctx.arc(px + cell / 2, py + cell / 2, cell * .15, 0, Math.PI * 2); ctx.fill();
+          }
+          if (runtime.doors.has(k)) {
+            ctx.strokeStyle = runtime.doorOpen ? "#58d6b3" : "#ef7666";
+            ctx.lineWidth = Math.max(3, cell * .07);
+            ctx.strokeRect(px + cell * .25, py + cell * .12, cell * .5, cell * .76);
+          }
+          if (runtime.portals.some((p) => p.x === x && p.y === y)) {
+            ctx.strokeStyle = "#70aee8";
+            ctx.lineWidth = Math.max(3, cell * .06);
+            ctx.beginPath(); ctx.arc(px + cell / 2, py + cell / 2, cell * .27, 0, Math.PI * 2); ctx.stroke();
+          }
+          if (runtime.goal.x === x && runtime.goal.y === y) {
+            ctx.strokeStyle = "#58d6b3";
+            ctx.lineWidth = Math.max(3, cell * .06);
+            ctx.strokeRect(px + cell * .19, py + cell * .19, cell * .62, cell * .62);
+          }
+          if (runtime.chips.has(k)) {
+            ctx.fillStyle = "#f2c45f";
+            ctx.save();
+            ctx.translate(px + cell / 2, py + cell / 2);
+            ctx.rotate(Math.PI / 4);
+            ctx.fillRect(-cell * .13, -cell * .13, cell * .26, cell * .26);
+            ctx.restore();
+          }
+        }
+      }
+      const rx = ox + runtime.robot.x * cell + cell / 2;
+      const ry = oy + runtime.robot.y * cell + cell / 2;
+      ctx.save();
+      ctx.translate(rx, ry);
+      ctx.rotate(runtime.robot.d * Math.PI / 2);
+      ctx.fillStyle = runtime.stopped ? "#ef7666" : "#eef9f4";
+      ctx.fillRect(-cell * .24, -cell * .22, cell * .43, cell * .44);
+      ctx.fillStyle = "#071416";
+      ctx.fillRect(-cell * .13, -cell * .1, cell * .07, cell * .07);
+      ctx.fillRect(cell * .03, -cell * .1, cell * .07, cell * .07);
+      ctx.fillStyle = "#58d6b3";
+      ctx.beginPath();
+      ctx.moveTo(cell * .32, 0); ctx.lineTo(cell * .18, -cell * .12); ctx.lineTo(cell * .18, cell * .12); ctx.closePath(); ctx.fill();
+      ctx.restore();
+    }
+
+    function renderMetrics() {
+      const level = LEVELS[game.levelIndex];
+      $("levelMetric").textContent = `${String(game.levelIndex + 1).padStart(2, "0")} / ${LEVELS.length}`;
+      $("budgetMetric").textContent = `${game.program.length} / ${level.budget}`;
+      $("stepMetric").textContent = `${game.runtime.steps} / ${level.par}`;
+      $("chipMetric").textContent = game.runtime.chips.size;
+      $("starMetric").textContent = `${profile.stars.reduce((a, b) => a + b, 0)} / ${LEVELS.length * 3}`;
+    }
+
+    function renderCommands() {
+      const level = LEVELS[game.levelIndex];
+      $("commands").innerHTML = [...level.commands].map((token) => `<button data-command="${token}" ${game.running ? "disabled" : ""}>${COMMANDS[token].label}<small>${COMMANDS[token].name}</small></button>`).join("");
+      $("commands").querySelectorAll("[data-command]").forEach((button) => button.onclick = () => addCommand(button.dataset.command));
+    }
+
+    function renderProgram() {
+      const expanded = expandProgram(game.program);
+      $("program").innerHTML = game.program.length ? game.program.map((token) => `<span class="token">${COMMANDS[token].label}</span>`).join("") : `<span class="empty">程序尚未编写</span>`;
+      if (game.running && expanded.ok) {
+        const execution = document.createElement("span");
+        execution.className = "empty";
+        execution.textContent = `执行 ${game.activeToken + 1}/${expanded.commands.length}`;
+        $("program").append(execution);
+      }
+      $("undoBtn").disabled = game.running || !game.program.length;
+      $("clearBtn").disabled = game.running || !game.program.length;
+      $("runBtn").disabled = game.running || !game.program.length;
+    }
+
+    function renderRuntime() {
+      renderBoard();
+      renderMetrics();
+      renderProgram();
+      $("log").innerHTML = game.logs.slice(0, 10).map((line) => `<div>› ${line}</div>`).join("");
+    }
+
+    function renderMissionList() {
+      $("missions").innerHTML = CHAPTERS.map((chapter, chapterIndex) => {
+        const list = LEVELS.map((level, index) => ({ level, index })).filter((x) => x.level.chapter === chapter);
+        const chapterStars = list.reduce((sum, x) => sum + profile.stars[x.index], 0);
+        return `<div class="chapter-head"><h2>${chapterIndex + 1}. ${chapter}</h2><span class="muted">${chapterStars} / ${list.length * 3} 星</span></div><div class="mission-grid">${list.map(({ level, index }) => {
+          const locked = index > 0 && profile.stars[index - 1] === 0;
+          return `<button class="mission-card ${index === game?.levelIndex ? "active" : ""} ${locked ? "locked" : ""}" data-level="${index}" ${locked ? "disabled" : ""}><strong>${String(index + 1).padStart(2, "0")} · ${level.name}</strong><span>预算 ${level.budget} / 目标 ${level.par} 步</span><span class="stars">${"★".repeat(profile.stars[index])}${"☆".repeat(3 - profile.stars[index])}</span></button>`;
+        }).join("")}</div>`;
+      }).join("");
+      $("missions").querySelectorAll("[data-level]").forEach((button) => button.onclick = () => selectLevel(+button.dataset.level));
+    }
+
+    function medalData() {
+      const total = profile.stars.reduce((a, b) => a + b, 0);
+      return [
+        [profile.stars.some(Boolean), "首次上传", "完成任意一项任务"],
+        [profile.stars.every(Boolean), "全线通达", "完成十二项任务"],
+        [total === 36, "零冗余", "取得全部 36 星"],
+        [profile.usedLoop, "压缩编码", "用循环指令完成任务"],
+        [profile.usedSensor, "条件分支", "用墙面传感完成任务"],
+        [profile.usedJump, "越过断层", "用跳跃指令完成任务"]
+      ];
+    }
+
+    function renderArchive() {
+      $("medals").innerHTML = medalData().map(([on, name, text]) => `<div class="medal ${on ? "" : "off"}"><b>${on ? "◆" : "◇"} ${name}</b><span>${text}</span></div>`).join("");
+    }
+
+    function renderAll() {
+      const level = LEVELS[game.levelIndex];
+      $("chapterLabel").textContent = `${level.chapter} · ${String(game.levelIndex + 1).padStart(2, "0")}`;
+      $("missionTitle").textContent = level.name;
+      $("missionRule").innerHTML = `${level.note}<br>星级：完成任务 / 不超过 ${level.budget} 条源码 / 不超过 ${level.par} 个执行步。`;
+      $("soundBtn").textContent = profile.sound ? "♪" : "♩";
+      renderCommands();
+      renderRuntime();
+      renderMissionList();
+      renderArchive();
+      $("resetBtn").disabled = game.running;
+    }
+
+    function encodeProfile() {
+      const payload = JSON.stringify(cleanProfile(profile));
+      return `BYTE2.${btoa(unescape(encodeURIComponent(payload)))}`;
+    }
+
+    function decodeProfile(code) {
+      const raw = code.trim();
+      if (!raw.startsWith("BYTE2.")) throw new Error("档案码前缀不正确");
+      return cleanProfile(JSON.parse(decodeURIComponent(escape(atob(raw.slice(6))))));
+    }
+
+    function toast(message) {
+      $("toast").textContent = message;
+      $("toast").classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => $("toast").classList.remove("show"), 1800);
+    }
+
+    function beep(frequency, duration) {
+      if (!profile.sound) return;
+      try {
+        audioContext ||= new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        oscillator.type = "square";
+        oscillator.frequency.value = frequency;
+        gain.gain.setValueAtTime(.035, audioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(.001, audioContext.currentTime + duration);
+        oscillator.connect(gain).connect(audioContext.destination);
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + duration);
+      } catch {}
+    }
+
+    $("undoBtn").onclick = () => { if (!game.running) { game.program.pop(); renderProgram(); renderMetrics(); } };
+    $("clearBtn").onclick = () => { if (!game.running) { game.program = []; renderProgram(); renderMetrics(); } };
+    $("runBtn").onclick = runProgram;
+    $("resetBtn").onclick = resetRuntime;
+    $("soundBtn").onclick = () => { profile.sound = !profile.sound; saveProfile(); renderAll(); beep(520, .05); };
+    $("archiveBtn").onclick = () => { renderArchive(); $("archiveDialog").showModal(); };
+    $("closeArchive").onclick = () => $("archiveDialog").close();
+    $("exportBtn").onclick = () => { $("archiveCode").value = encodeProfile(); toast("档案码已生成"); };
+    $("copyBtn").onclick = async () => {
+      if (!$("archiveCode").value) $("archiveCode").value = encodeProfile();
+      try { await navigator.clipboard.writeText($("archiveCode").value); toast("已复制档案码"); }
+      catch { $("archiveCode").select(); document.execCommand("copy"); toast("已复制档案码"); }
+    };
+    $("importBtn").onclick = () => {
+      try { profile = decodeProfile($("archiveCode").value); saveProfile(); renderAll(); toast("档案导入成功"); }
+      catch (error) { toast(`导入失败：${error.message}`); }
+    };
+    addEventListener("keydown", (event) => {
+      if (event.target.matches("textarea")) return;
+      const keyMap = { ArrowUp: "F", w: "F", W: "F", ArrowLeft: "L", a: "L", A: "L", ArrowRight: "R", d: "R", D: "R" };
+      if (keyMap[event.key] && LEVELS[game.levelIndex].commands.includes(keyMap[event.key])) { event.preventDefault(); addCommand(keyMap[event.key]); }
+      if (event.key === "Enter") runProgram();
+      if (event.key === "Backspace") { event.preventDefault(); $("undoBtn").click(); }
+      if (event.key === "Escape") { if ($("archiveDialog").open) $("archiveDialog").close(); else resetRuntime(); }
+    });
+
+    const validation = validateLevels();
+    const invalid = validation.filter((x) => !x.valid);
+    if (invalid.length) console.error("BYTEBOT_LEVEL_VALIDATION", invalid);
+    window.__bytebotTest = { levels: LEVELS, simulate, expandProgram, validateLevels, cleanProfile, encodeProfile, decodeProfile, getProfile: () => structuredClone(profile), selectLevel };
+    const firstIncomplete = profile.stars.findIndex((stars) => stars === 0);
+    selectLevel(firstIncomplete < 0 ? LEVELS.length - 1 : firstIncomplete);
   </script>
+</body>
 </html>

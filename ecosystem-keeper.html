@@ -1,323 +1,203 @@
 <!doctype html>
 <html lang="zh-CN">
-  <meta charset="utf-8" /><meta
-    name="viewport"
-    content="width=device-width,initial-scale=1"
-  /><title>生态方舟</title
-  ><style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      background: #10271f;
-      color: #f1f9e9;
-      font-family: system-ui, "Microsoft YaHei";
-    }
-    .app {
-      min-height: 100vh;
-      padding: 14px;
-      display: grid;
-      place-items: center;
-    }
-    .shell {
-      width: min(980px, 100%);
-      background: #214536;
-      border: 1px solid #668c70;
-      border-radius: 20px;
-      padding: 16px;
-    }
-    .top,
-    .row {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .world {
-      height: 360px;
-      margin: 12px 0;
-      border-radius: 14px;
-      background: linear-gradient(#85c9df 0 38%, #83a95f 38%);
-      position: relative;
-      overflow: hidden;
-    }
-    .creature {
-      position: absolute;
-      font-size: 28px;
-      transition: all 0.8s;
-    }
-    .sun {
-      position: absolute;
-      right: 7%;
-      top: 8%;
-      font-size: 50px;
-    }
-    .layout {
-      display: grid;
-      grid-template-columns: 1fr 300px;
-      gap: 12px;
-    }
-    .panel {
-      background: #17362a;
-      border: 1px solid #52765d;
-      border-radius: 11px;
-      padding: 10px;
-      margin-bottom: 9px;
-    }
-    .species {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 7px;
-    }
-    .stat {
-      display: flex;
-      justify-content: space-between;
-      padding: 5px;
-      border-bottom: 1px solid #ffffff18;
-    }
-    .log {
-      height: 110px;
-      overflow: auto;
-      color: #bdd2bd;
-      font-size: 13px;
-    }
-    button {
-      padding: 9px 11px;
-      border: 1px solid #78967c;
-      border-radius: 9px;
-      background: #3b6848;
-      color: white;
-      font-weight: bold;
-    }
-    button:disabled {
-      opacity: 0.45;
-    }
-    .next {
-      background: #8e7132;
-    }
-    .help {
-      font-size: 13px;
-      color: #bed2bd;
-    }
-    @media (max-width: 700px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
-      .world {
-        height: 300px;
-      }
-      .app {
-        place-items: start center;
-      }
-    }
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>生态方舟：群落演替</title>
+  <style>
+    :root { color-scheme:dark; --page:#091713; --surface:#142a22; --surface2:#1c382d; --line:#3f6653; --ink:#eef8ed; --muted:#a9c1ae; --mint:#64d69a; --gold:#eac465; --coral:#ed7868; --blue:#6ab5d8; }
+    * { box-sizing:border-box; }
+    html,body { margin:0; min-height:100%; background:var(--page); color:var(--ink); }
+    body { font-family:Inter,system-ui,"Microsoft YaHei",sans-serif; }
+    button,textarea { font:inherit; }
+    button { min-height:42px; padding:8px 10px; border:1px solid var(--line); border-radius:7px; background:#28523e; color:var(--ink); font-weight:800; cursor:pointer; }
+    button:hover:not(:disabled) { border-color:var(--gold); }
+    button:disabled { opacity:.42; cursor:not-allowed; }
+    button:focus-visible,textarea:focus-visible { outline:3px solid #eac46588; outline-offset:2px; }
+    .app { width:min(1380px,100%); margin:0 auto; padding:18px; }
+    header { display:flex; justify-content:space-between; align-items:center; gap:18px; padding-bottom:15px; border-bottom:1px solid var(--line); }
+    h1,h2,h3,p { margin-top:0; }
+    h1 { margin-bottom:3px; font-size:clamp(24px,4vw,42px); }
+    h2 { margin-bottom:6px; font-size:19px; }
+    .eyebrow { color:var(--mint); font-size:12px; font-weight:900; letter-spacing:.08em; text-transform:uppercase; }
+    .sub,.muted { color:var(--muted); }
+    .header-actions,.actions,.projects,.turn-actions { display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
+    .header-actions button { width:44px; padding:0; font-size:19px; }
+    .statusbar { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:1px; margin:14px 0; border:1px solid var(--line); background:var(--line); }
+    .metric { min-width:0; padding:10px 11px; background:var(--surface); }
+    .metric span { display:block; color:var(--muted); font-size:11px; }
+    .metric b { display:block; overflow-wrap:anywhere; font-size:18px; }
+    .layout { display:grid; grid-template-columns:minmax(0,1fr) 350px; gap:14px; align-items:start; }
+    .canvas-panel { border:1px solid var(--line); background:#0d211b; padding:10px; }
+    canvas { display:block; width:100%; }
+    #worldCanvas { aspect-ratio:16/9; }
+    #trendCanvas { aspect-ratio:16/4.4; margin-top:10px; border-top:1px solid var(--line); }
+    .controls { margin-top:10px; padding-top:10px; border-top:1px solid var(--line); }
+    .species-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:7px; }
+    .species-btn { min-height:58px; padding:6px; }
+    .species-btn strong,.species-btn span { display:block; }
+    .species-btn span { margin-top:3px; color:#c9ddd0; font-size:10px; }
+    aside { min-width:0; border-left:1px solid var(--line); padding-left:14px; }
+    .section { padding:13px 0; border-bottom:1px solid var(--line); }
+    .section:first-child { padding-top:0; }
+    .weather { display:flex; justify-content:space-between; gap:12px; align-items:center; padding:10px; background:var(--surface2); border-left:3px solid var(--gold); }
+    .weather-icon { font-size:34px; }
+    .target { padding:7px 0; border-bottom:1px solid #ffffff12; font-size:13px; line-height:1.4; }
+    .target b { float:right; }
+    .target.good b { color:var(--mint); }
+    .population { max-height:250px; overflow:auto; }
+    .population-row { display:grid; grid-template-columns:minmax(0,1fr) 58px 76px; gap:8px; align-items:center; padding:6px 0; border-bottom:1px solid #ffffff10; font-size:12px; }
+    .bar { height:7px; background:#07120f; }
+    .bar i { display:block; height:100%; background:var(--mint); }
+    .log { min-height:105px; max-height:160px; overflow:auto; color:var(--muted); font-family:ui-monospace,Consolas,monospace; font-size:12px; line-height:1.55; }
+    .log div { padding:3px 0; border-bottom:1px solid #ffffff0c; }
+    .turn-actions { margin-top:11px; }
+    .turn-actions button { flex:1 1 130px; }
+    .primary { background:#276a4c; border-color:#5ab987; }
+    .danger { background:#623832; border-color:#b46559; }
+    .scenarios { margin-top:18px; padding-top:15px; border-top:1px solid var(--line); }
+    .scenario-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+    .scenario-card { min-height:105px; padding:11px; text-align:left; background:var(--surface); }
+    .scenario-card strong,.scenario-card span { display:block; }
+    .scenario-card span { margin-top:5px; color:var(--muted); font-size:12px; }
+    .scenario-card.active { border-color:var(--gold); box-shadow:inset 0 0 0 1px var(--gold); }
+    .scenario-card.locked { opacity:.45; }
+    .stars { color:var(--gold)!important; letter-spacing:0; }
+    dialog { width:min(720px,calc(100% - 24px)); max-height:88vh; overflow:auto; padding:0; border:1px solid var(--line); border-radius:8px; background:#142a22; color:var(--ink); }
+    dialog::backdrop { background:#000b; }
+    .dialog-head { position:sticky; top:0; z-index:2; display:flex; justify-content:space-between; align-items:center; padding:14px 16px; background:#142a22; border-bottom:1px solid var(--line); }
+    .dialog-head h2 { margin:0; }
+    .dialog-head button { width:42px; }
+    .dialog-body { padding:16px; }
+    .medals { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+    .medal { padding:11px; border:1px solid var(--line); background:#0d211b; }
+    .medal.off { opacity:.45; }
+    .medal b,.medal span { display:block; }
+    .medal span { margin-top:4px; color:var(--muted); font-size:12px; }
+    textarea { width:100%; min-height:96px; resize:vertical; border:1px solid var(--line); border-radius:6px; padding:9px; background:#07130f; color:var(--ink); }
+    .archive-actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+    .archive-actions button { flex:1 1 130px; }
+    .toast { position:fixed; left:50%; bottom:20px; z-index:6; transform:translateX(-50%) translateY(20px); padding:10px 14px; border:1px solid var(--mint); background:#113b2c; opacity:0; pointer-events:none; transition:.2s; }
+    .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+    @media (max-width:920px) { .layout { grid-template-columns:minmax(0,1fr); } aside { border-left:0; border-top:1px solid var(--line); padding:14px 0 0; } }
+    @media (max-width:650px) { .app { padding:10px; } header { align-items:flex-start; } .statusbar { grid-template-columns:repeat(2,minmax(0,1fr)); } .metric:last-child { grid-column:1/-1; } .species-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } .scenario-grid { grid-template-columns:minmax(0,1fr); } .medals { grid-template-columns:minmax(0,1fr); } }
   </style>
+</head>
+<body>
   <main class="app">
-    <section class="shell">
-      <div class="top">
-        <div>
-          <h1 style="margin: 0">生态方舟</h1>
-          <div class="help">
-            建立稳定食物网：植物供养草食动物，捕食者控制种群，水源和气候影响承载力。
-          </div>
-        </div>
-        <div>
-          年份 <b id="year"></b>/20　生态点 <b id="points"></b>　多样性
-          <b id="diversity"></b>　稳定度 <b id="stability"></b>
-        </div>
+    <header><div><div class="eyebrow">Ecosystem Succession Lab</div><h1>生态方舟：群落演替</h1><div class="sub">在确定性气候序列中构建食物网，观察十五年真实演替。</div></div><div class="header-actions"><button id="soundBtn" title="切换音效" aria-label="切换音效">♪</button><button id="archiveBtn" title="方舟档案" aria-label="方舟档案">▣</button></div></header>
+    <section class="statusbar" aria-label="生态状态"><div class="metric"><span>生态区</span><b id="scenarioMetric"></b></div><div class="metric"><span>年份</span><b id="yearMetric"></b></div><div class="metric"><span>生态点</span><b id="pointMetric"></b></div><div class="metric"><span>水源</span><b id="waterMetric"></b></div><div class="metric"><span>土壤</span><b id="soilMetric"></b></div><div class="metric"><span>多样性</span><b id="diversityMetric"></b></div><div class="metric"><span>稳定度</span><b id="stabilityMetric"></b></div></section>
+
+    <section class="layout">
+      <div>
+        <div class="canvas-panel"><canvas id="worldCanvas" width="960" height="540" aria-label="生态区实时景观"></canvas><canvas id="trendCanvas" width="960" height="264" aria-label="种群趋势图"></canvas></div>
+        <div class="controls"><h2>引入物种</h2><div class="species-grid" id="speciesGrid"></div><h2 style="margin-top:13px">环境工程</h2><div class="actions"><button data-action="rain">水源补给 · 8</button><button data-action="soil">土壤修复 · 10</button><button data-action="reserve">扩建栖息地 · 16</button></div><h2 style="margin-top:13px">长期项目</h2><div class="projects"><button data-project="irrigation">滴灌网络 · 24</button><button data-project="nursery">种源苗圃 · 24</button><button data-project="corridor">迁徙廊道 · 26</button></div><div class="turn-actions"><button class="primary" id="nextYearBtn">推进一年 →</button><button id="restartBtn">↺ 重建本区</button></div></div>
       </div>
-      <div class="world" id="world"><div class="sun" id="sun"></div></div>
-      <div class="layout">
-        <div>
-          <div class="panel">
-            <b>引入物种与环境工程</b>
-            <div class="species" id="actions"></div>
-          </div>
-          <div class="row">
-            <button class="next" id="nextYear">推进一年</button
-            ><button id="rain">人工降雨（8）</button
-            ><button id="reserve">建立保护区（20）</button
-            ><button id="restart">重建方舟</button>
-          </div>
-        </div>
-        <aside>
-          <div class="panel">
-            <b>种群监测</b>
-            <div id="stats"></div>
-          </div>
-          <div class="panel">
-            <b>二十年目标</b>
-            <div id="goal"></div>
-          </div>
-          <div class="panel log" id="log"></div>
-        </aside>
-      </div>
+      <aside>
+        <section class="section"><div class="eyebrow" id="chapterLabel"></div><h2 id="scenarioTitle"></h2><div class="muted" id="scenarioBrief"></div></section>
+        <section class="section"><h2>下一年气候</h2><div class="weather"><div><b id="weatherName"></b><div class="muted" id="weatherEffect"></div></div><div class="weather-icon" id="weatherIcon"></div></div></section>
+        <section class="section"><h2>十五年目标</h2><div id="targets"></div></section>
+        <section class="section"><h2>种群监测</h2><div class="population" id="population"></div></section>
+        <section class="section"><h2>演替记录</h2><div class="log" id="log"></div></section>
+      </aside>
     </section>
+    <section class="scenarios" id="scenarios"></section>
   </main>
+
+  <dialog id="archiveDialog"><div class="dialog-head"><h2>方舟档案</h2><button id="closeArchive" aria-label="关闭">×</button></div><div class="dialog-body"><h3>群落勋章</h3><div class="medals" id="medals"></div><h3 style="margin-top:18px">跨设备档案</h3><p class="muted">档案码保存生态区星章、最高稳定度和勋章，不包含当前模拟状态。</p><textarea id="archiveCode" spellcheck="false" placeholder="ECO2. 开头的档案码"></textarea><div class="archive-actions"><button id="exportBtn">导出档案</button><button id="copyBtn">复制</button><button id="importBtn">导入档案</button></div></div></dialog>
+  <div class="toast" id="toast"></div>
+
   <script>
-    const S = [
-        ["草木", "🌿", "plant", 2],
-        ["花丛", "🌼", "plant", 3],
-        ["兔群", "🐇", "herb", 5],
-        ["鹿群", "🦌", "herb", 7],
-        ["狼群", "🐺", "pred", 10],
-        ["鹰群", "🦅", "pred", 9],
-      ],
-      weather = [
-        ["温和", "☀️", 1],
-        ["雨季", "🌧️", 1.25],
-        ["干旱", "🔥", 0.65],
-        ["寒潮", "❄️", 0.78],
-      ];
-    let q;
-    const $ = (x) => document.getElementById(x);
-    function fresh() {
-      return {
-        year: 1,
-        points: 25,
-        pop: [30, 15, 6, 3, 1, 1],
-        water: 70,
-        reserve: 0,
-        w: 0,
-        logs: ["生态方舟启动，初始食物网十分脆弱。"],
-        over: false,
-      };
-    }
-    function introduce(i) {
-      let cost = S[i][3];
-      if (q.points < cost) return;
-      q.points -= cost;
-      q.pop[i] += i < 2 ? 15 : i < 4 ? 4 : 2;
-      q.logs.unshift(`引入${S[i][0]}。`);
-      draw();
-    }
-    function next() {
-      if (q.over) return;
-      let w = weather[q.w],
-        plants = q.pop[0] + q.pop[1],
-        herbs = q.pop[2] + q.pop[3],
-        pred = q.pop[4] + q.pop[5],
-        cap = q.water * w[2] + q.reserve * 10;
-      q.pop[0] = Math.max(
-        0,
-        Math.round(q.pop[0] * (1.18 * w[2]) - herbs * 0.35),
-      );
-      q.pop[1] = Math.max(
-        0,
-        Math.round(q.pop[1] * (1.14 * w[2]) - herbs * 0.22),
-      );
-      q.pop[2] = Math.max(
-        0,
-        Math.round(
-          q.pop[2] +
-            Math.min(8, plants / 12) -
-            pred * 0.6 -
-            (q.pop[2] * q.pop[2]) / Math.max(30, cap),
-        ),
-      );
-      q.pop[3] = Math.max(
-        0,
-        Math.round(
-          q.pop[3] +
-            Math.min(5, plants / 20) -
-            pred * 0.7 -
-            (q.pop[3] * q.pop[3]) / Math.max(30, cap),
-        ),
-      );
-      q.pop[4] = Math.max(
-        0,
-        Math.round(q.pop[4] + herbs / 18 - q.pop[4] * 0.35),
-      );
-      q.pop[5] = Math.max(
-        0,
-        Math.round(q.pop[5] + herbs / 25 - q.pop[5] * 0.3),
-      );
-      q.water = Math.max(
-        15,
-        Math.min(100, q.water + (q.w === 1 ? 20 : q.w === 2 ? -18 : -3)),
-      );
-      q.points += 5 + q.reserve * 2;
-      q.year++;
-      q.w = Math.floor(Math.random() * weather.length);
-      q.logs.unshift(`${weather[q.w][0]}到来，种群完成年度演替。`);
-      if (q.year > 20) {
-        q.over = true;
-        q.logs.unshift(
-          calc().stable >= 70 && calc().div >= 5
-            ? "二十年生态稳定，方舟计划成功！"
-            : "生态周期结束，仍需改善食物网。",
-        );
-      }
-      draw();
-    }
-    function calc() {
-      let alive = q.pop.filter((x) => x > 0).length,
-        ratio = (q.pop[2] + q.pop[3] + 1) / (q.pop[4] + q.pop[5] + 1),
-        balance = Math.max(0, 100 - Math.abs(ratio - 5) * 12),
-        stable = Math.round(
-          Math.min(100, balance * 0.65 + q.water * 0.25 + q.reserve * 5),
-        );
-      return { div: alive, stable };
-    }
-    function draw() {
-      let c = calc();
-      year.textContent = Math.min(20, q.year);
-      points.textContent = q.points;
-      diversity.textContent = c.div;
-      stability.textContent = c.stable;
-      sun.textContent = weather[q.w][1];
-      world.querySelectorAll(".creature").forEach((e) => e.remove());
-      q.pop.forEach((n, i) => {
-        let count = Math.min(8, Math.ceil(n / 8));
-        for (let k = 0; k < count; k++) {
-          let e = document.createElement("span");
-          e.className = "creature";
-          e.textContent = S[i][1];
-          e.style.left = 5 + ((i * 17 + k * 11) % 88) + "%";
-          e.style.top = 44 + ((i * 23 + k * 19) % 45) + "%";
-          world.append(e);
-        }
+    const SPECIES = [
+      { id:"grass", name:"针叶草", icon:"🌿", role:"producer", cost:2, add:16, growth:1.18 },
+      { id:"flower", name:"蜜源花", icon:"🌼", role:"producer", cost:3, add:12, growth:1.14 },
+      { id:"reed", name:"湿地芦苇", icon:"🌾", role:"producer", cost:3, add:14, growth:1.13 },
+      { id:"algae", name:"浅水藻", icon:"🪸", role:"producer", cost:2, add:16, growth:1.2 },
+      { id:"rabbit", name:"原野兔", icon:"🐇", role:"herbivore", cost:5, add:5, growth:1.06 },
+      { id:"deer", name:"林缘鹿", icon:"🦌", role:"herbivore", cost:7, add:3, growth:1.03 },
+      { id:"insect", name:"传粉虫", icon:"🦋", role:"herbivore", cost:4, add:7, growth:1.09 },
+      { id:"fish", name:"银鳍鱼", icon:"🐟", role:"herbivore", cost:6, add:5, growth:1.07 },
+      { id:"wolf", name:"灰岭狼", icon:"🐺", role:"predator", cost:10, add:2, growth:1.01 },
+      { id:"eagle", name:"巡天鹰", icon:"🦅", role:"predator", cost:9, add:2, growth:1.02 },
+      { id:"otter", name:"河湾獭", icon:"🦦", role:"predator", cost:11, add:2, growth:1.02 },
+      { id:"fungi", name:"分解菌群", icon:"🍄", role:"decomposer", cost:5, add:7, growth:1.08 }
+    ];
+    const WEATHER = [
+      { name:"温和季", icon:"☀", water:-2, growth:1, stress:0, text:"标准生长，水源小幅蒸发" },
+      { name:"丰水季", icon:"☂", water:16, growth:1.12, stress:0, text:"水源增加，生产者生长加快" },
+      { name:"短期干旱", icon:"⌁", water:-18, growth:.76, stress:.08, text:"水源下降，种群承载力收缩" },
+      { name:"寒潮", icon:"❄", water:-5, growth:.84, stress:.06, text:"生长放缓，弱小种群承压" },
+      { name:"疫病年", icon:"✚", water:-3, growth:.92, stress:.12, text:"动物种群额外损耗" },
+      { name:"恢复季", icon:"◒", water:8, growth:1.08, stress:0, text:"水土恢复，分解循环增强" }
+    ];
+    const SCENARIOS = [
+      { name:"温带草原", chapter:"基础群落", brief:"用生产者、草食动物和捕食者建立第一张完整食物网。", active:["grass","flower","rabbit","deer","wolf","eagle","fungi"], initial:{grass:34,flower:16,rabbit:8,deer:4,wolf:2,eagle:1,fungi:5}, water:72, soil:68, habitat:60, target:{diversity:6,stability:68,minWater:35,predators:2}, weather:[0,1,0,2,0,5,3,0,1,4,0,5,2,0,1] },
+      { name:"河口湿地", chapter:"水陆边缘", brief:"水位波动同时影响藻类、鱼群、芦苇与河湾捕食者。", active:["reed","algae","insect","fish","eagle","otter","fungi"], initial:{reed:28,algae:30,insect:9,fish:8,eagle:1,otter:2,fungi:6}, water:82, soil:58, habitat:55, target:{diversity:7,stability:70,minWater:45,predators:3}, weather:[1,0,1,2,0,4,5,1,2,0,3,5,1,0,2] },
+      { name:"旱季台地", chapter:"压力适应", brief:"有限水源与连续干旱迫使玩家提前建设长期抗压项目。", active:["grass","flower","rabbit","insect","wolf","eagle","fungi"], initial:{grass:26,flower:12,rabbit:6,insect:7,wolf:1,eagle:1,fungi:4}, water:54, soil:64, habitat:52, target:{diversity:6,stability:72,minWater:28,predators:2}, weather:[0,2,0,2,5,3,0,2,4,5,0,2,1,0,2] },
+      { name:"山麓林缘", chapter:"迁徙网络", brief:"寒潮与栖息地破碎化会放大大型草食动物和捕食者的波动。", active:["grass","flower","reed","rabbit","deer","wolf","eagle","fungi"], initial:{grass:30,flower:14,reed:13,rabbit:7,deer:5,wolf:2,eagle:1,fungi:5}, water:66, soil:72, habitat:46, target:{diversity:7,stability:74,minWater:32,predators:3}, weather:[3,0,5,3,1,0,4,3,5,0,2,1,3,0,5] },
+      { name:"内海潟湖", chapter:"营养循环", brief:"水生生产者增长很快，但缺少分解与捕食会让系统失衡。", active:["reed","algae","insect","fish","eagle","otter","fungi"], initial:{reed:24,algae:38,insect:8,fish:10,eagle:1,otter:2,fungi:3}, water:88, soil:48, habitat:58, target:{diversity:7,stability:76,minWater:50,predators:3}, weather:[1,1,0,4,2,5,1,0,4,5,2,1,0,3,5] },
+      { name:"复合生物圈", chapter:"终局方舟", brief:"十二个物种共享有限承载力，任何单一营养层扩张都会传导到全系统。", active:SPECIES.map((item)=>item.id), initial:{grass:24,flower:12,reed:14,algae:18,rabbit:6,deer:3,insect:6,fish:5,wolf:1,eagle:1,otter:1,fungi:5}, water:70, soil:66, habitat:56, target:{diversity:10,stability:78,minWater:38,predators:4}, weather:[0,1,2,3,5,4,0,2,1,3,5,4,2,0,1] }
+    ];
+    const SAVE_KEY="ECOSYSTEM2";
+    const $=(id)=>document.getElementById(id);
+    const worldCanvas=$("worldCanvas"), worldCtx=worldCanvas.getContext("2d"), trendCanvas=$("trendCanvas"), trendCtx=trendCanvas.getContext("2d");
+    let audioContext=null,toastTimer=null;
+
+    const defaultProfile=()=>({version:2,stars:Array(6).fill(0),best:Array(6).fill(0),clears:0,projects:0,noExtinction:0,sound:true});
+    function cleanProfile(value){const base=defaultProfile();if(!value||typeof value!=="object")return base;base.stars=base.stars.map((_,i)=>Math.max(0,Math.min(3,Number(value.stars?.[i])||0)));base.best=base.best.map((_,i)=>Math.max(0,Math.min(100,Number(value.best?.[i])||0)));base.clears=Math.max(0,Number(value.clears)||0);base.projects=Math.max(0,Number(value.projects)||0);base.noExtinction=Math.max(0,Number(value.noExtinction)||0);base.sound=value.sound!==false;return base;}
+    function loadProfile(){try{return cleanProfile(JSON.parse(localStorage.getItem(SAVE_KEY)));}catch{return defaultProfile();}}
+    let profile=loadProfile();
+    let state=null;
+    function saveProfile(){localStorage.setItem(SAVE_KEY,JSON.stringify(profile));renderScenarios();renderMetrics();renderArchive();}
+    function clamp(value,min,max){return Math.max(min,Math.min(max,Number.isFinite(value)?value:min));}
+    function roleTotals(pop){const result={producer:0,herbivore:0,predator:0,decomposer:0};SPECIES.forEach((species,i)=>result[species.role]+=pop[i]);return result;}
+    function calculate(stateLike){const alive=stateLike.pop.filter((value)=>value>0).length;const totals=roleTotals(stateLike.pop);const foodRatio=(totals.producer+1)/(totals.herbivore+1);const huntRatio=(totals.herbivore+1)/(totals.predator+1);const foodBalance=Math.max(0,100-Math.abs(foodRatio-10)*4);const huntBalance=Math.max(0,100-Math.abs(huntRatio-7)*6);const environment=(stateLike.water+stateLike.soil+stateLike.habitat)/3;const stability=Math.round(clamp(foodBalance*.3+huntBalance*.25+environment*.3+Math.min(12,totals.decomposer),0,100));return{alive,totals,stability};}
+    function advanceYear(input,scenario,weatherIndex){
+      const weather=WEATHER[weatherIndex];const next={...input,pop:[...input.pop],projects:{...input.projects},extinctions:[...input.extinctions]};const before=[...input.pop];const totals=roleTotals(before);const producerTotal=Math.max(1,totals.producer);const herbTotal=Math.max(1,totals.herbivore);const predatorTotal=Math.max(1,totals.predator);const carrying=Math.max(24,(input.water*.72+input.habitat*.62)*(1-weather.stress));
+      SPECIES.forEach((species,index)=>{
+        const current=before[index];if(current<=0){next.pop[index]=0;return;}let value=current;
+        if(species.role==="producer"){const share=current/producerTotal;const grazing=totals.herbivore*.24*share;const nursery=input.projects.nursery?3.5:0;value=current*species.growth*weather.growth*(.72+input.soil/180)-grazing+nursery;}
+        if(species.role==="herbivore"){const share=current/herbTotal;const food=Math.min(8,totals.producer/Math.max(12,totals.herbivore*2.3));const hunted=totals.predator*.44*share;const crowd=current*current/Math.max(30,carrying);value=current+food-hunted-crowd-current*weather.stress;}
+        if(species.role==="predator"){const share=current/predatorTotal;const prey=Math.min(4,totals.herbivore/Math.max(18,totals.predator*8));const corridor=input.projects.corridor ? 0.35 : 0;value=current+prey-current*(.31+weather.stress-corridor)-share*.2;}
+        if(species.role==="decomposer"){value=current+Math.min(5,(totals.producer+totals.herbivore+totals.predator)/38)-current*.3+weather.stress*4;}
+        next.pop[index]=Math.round(clamp(value,0,999));
+        if(before[index]>0&&next.pop[index]===0&&!next.extinctions.includes(species.id))next.extinctions.push(species.id);
       });
-      actions.innerHTML = S.map(
-        (s, i) => `<button data-i="${i}">${s[1]}${s[0]} ${s[3]}</button>`,
-      ).join("");
-      actions
-        .querySelectorAll("[data-i]")
-        .forEach((e) => (e.onclick = () => introduce(+e.dataset.i)));
-      stats.innerHTML =
-        S.map(
-          (s, i) =>
-            `<div class="stat"><span>${s[1]}${s[0]}</span><b>${q.pop[i]}</b></div>`,
-        ).join("") +
-        `<div class="stat"><span>水源</span><b>${q.water}</b></div>`;
-      goal.innerHTML = `在第 20 年保持：<br>多样性 ≥ 5（${c.div}）<br>稳定度 ≥ 70（${c.stable}）<br><span class="help">草食动物约为捕食者的五倍时最稳定。</span>`;
-      log.innerHTML = q.logs
-        .slice(0, 9)
-        .map((x) => `<div>• ${x}</div>`)
-        .join("");
-      nextYear.disabled = q.over;
+      const irrigation=input.projects.irrigation?6:0;const decomposition=roleTotals(next.pop).decomposer;
+      next.water=Math.round(clamp(input.water+weather.water+irrigation-totals.herbivore*.08,10,100));
+      next.soil=Math.round(clamp(input.soil+decomposition*.22-totals.producer*.025+(weather.name==="恢复季"?4:0),10,100));
+      next.habitat=Math.round(clamp(input.habitat-weather.stress*12+(input.projects.corridor?1:0),10,100));
+      next.points=Math.round(clamp(input.points+5+calculate(next).alive+Math.floor(decomposition/5),0,9999));next.year=input.year+1;return next;
     }
-    nextYear.onclick = next;
-    rain.onclick = () => {
-      if (q.points >= 8) {
-        q.points -= 8;
-        q.water = Math.min(100, q.water + 25);
-        draw();
-      }
-    };
-    reserve.onclick = () => {
-      if (q.points >= 20) {
-        q.points -= 20;
-        q.reserve++;
-        draw();
-      }
-    };
-    restart.onclick = () => {
-      q = fresh();
-      draw();
-    };
-    q = fresh();
-    draw();
+    function fresh(scenarioIndex){const scenario=SCENARIOS[scenarioIndex];const pop=SPECIES.map((species)=>scenario.initial[species.id]||0);const base={scenarioIndex,year:0,points:28,pop,water:scenario.water,soil:scenario.soil,habitat:scenario.habitat,projects:{irrigation:false,nursery:false,corridor:false},extinctions:[],over:false,logs:["方舟隔离舱启动，年度演替模型已就绪。"],history:[]};base.history.push(snapshot(base));return base;}
+    function snapshot(value){const calc=calculate(value);return{year:value.year,water:value.water,soil:value.soil,producer:calc.totals.producer,herbivore:calc.totals.herbivore,predator:calc.totals.predator,decomposer:calc.totals.decomposer,stability:calc.stability};}
+    function targetStatus(value,scenario){const calc=calculate(value);return[{label:`多样性 ≥ ${scenario.target.diversity}`,value:calc.alive,good:calc.alive>=scenario.target.diversity},{label:`稳定度 ≥ ${scenario.target.stability}`,value:calc.stability,good:calc.stability>=scenario.target.stability},{label:`水源 ≥ ${scenario.target.minWater}`,value:value.water,good:value.water>=scenario.target.minWater},{label:`捕食者 ≥ ${scenario.target.predators}`,value:calc.totals.predator,good:calc.totals.predator>=scenario.target.predators}];}
+    function validateModel(){const errors=[];SCENARIOS.forEach((scenario,index)=>{let sample=fresh(index);for(let year=0;year<45;year++){sample=advanceYear(sample,scenario,scenario.weather[year%scenario.weather.length]);const values=[...sample.pop,sample.water,sample.soil,sample.habitat,sample.points];if(values.some((value)=>!Number.isFinite(value)))errors.push(`${scenario.name} 第 ${year+1} 年出现非数值`);if(sample.pop.some((value)=>value<0||value>999))errors.push(`${scenario.name} 种群越界`);if([sample.water,sample.soil,sample.habitat].some((value)=>value<0||value>100))errors.push(`${scenario.name} 环境越界`);} });return{valid:errors.length===0,errors,scenarios:SCENARIOS.length,simulatedYears:SCENARIOS.length*45};}
+
+    function selectScenario(index){if(index>0&&profile.stars[index-1]===0)return toast("先完成上一生态区");state=fresh(index);renderAll();scrollTo({top:0,behavior:"smooth"});}
+    function introduce(index){const species=SPECIES[index],scenario=SCENARIOS[state.scenarioIndex];if(state.over||!scenario.active.includes(species.id)||state.points<species.cost)return;state.points-=species.cost;state.pop[index]=Math.min(999,state.pop[index]+species.add);state.logs.unshift(`引入${species.name} ${species.add} 单位。`);beep(420+index*15,.04);renderAll();}
+    function action(type){if(state.over)return;const config={rain:{cost:8},soil:{cost:10},reserve:{cost:16}}[type];if(state.points<config.cost)return toast("生态点不足");state.points-=config.cost;if(type==="rain"){state.water=Math.min(100,state.water+22);state.logs.unshift("执行水源补给，当前水位上升。");}if(type==="soil"){state.soil=Math.min(100,state.soil+18);state.logs.unshift("补充有机质，土壤循环得到修复。");}if(type==="reserve"){state.habitat=Math.min(100,state.habitat+15);state.logs.unshift("扩建保护地，群落承载空间增加。");}beep(500,.06);renderAll();}
+    function buyProject(project){const costs={irrigation:24,nursery:24,corridor:26};const names={irrigation:"滴灌网络",nursery:"种源苗圃",corridor:"迁徙廊道"};if(state.over||state.projects[project])return;if(state.points<costs[project])return toast("生态点不足");state.points-=costs[project];state.projects[project]=true;profile.projects++;state.logs.unshift(`${names[project]}建成，将持续影响年度演替。`);beep(620,.08);renderAll();}
+    function nextYear(){if(state.over)return;const scenario=SCENARIOS[state.scenarioIndex];const weatherIndex=scenario.weather[state.year%scenario.weather.length];const oldLogs=state.logs;const advanced=advanceYear(state,scenario,weatherIndex);advanced.logs=oldLogs;advanced.history=[...state.history,snapshot(advanced)];advanced.over=false;advanced.logs.unshift(`第 ${advanced.year} 年：${WEATHER[weatherIndex].name}完成，系统进入下一轮。`);state=advanced;if(state.year>=15)finishScenario();beep(300+state.year*15,.05);renderAll();}
+    function finishScenario(){const scenario=SCENARIOS[state.scenarioIndex],targets=targetStatus(state,scenario);const met=targets.filter((target)=>target.good).length;const hasProject=Object.values(state.projects).some(Boolean);const stars=met===4&&state.extinctions.length===0&&hasProject?3:met>=3?2:met>=2?1:0;const stability=calculate(state).stability;profile.stars[state.scenarioIndex]=Math.max(profile.stars[state.scenarioIndex],stars);profile.best[state.scenarioIndex]=Math.max(profile.best[state.scenarioIndex],stability);profile.clears++;if(state.extinctions.length===0)profile.noExtinction++;state.over=true;state.logs.unshift(`十五年结算：满足 ${met}/4 项目标，获得 ${stars} 星。`);saveProfile();toast(stars?"生态区结算完成":"目标不足，可调整工程后重试");}
+
+    function renderMetrics(){const calc=calculate(state),scenario=SCENARIOS[state.scenarioIndex];$("scenarioMetric").textContent=scenario.name;$("yearMetric").textContent=`${state.year} / 15`;$("pointMetric").textContent=state.points;$("waterMetric").textContent=state.water;$("soilMetric").textContent=state.soil;$("diversityMetric").textContent=calc.alive;$("stabilityMetric").textContent=calc.stability;}
+    function renderWorld(){const w=worldCanvas.width,h=worldCanvas.height,scenario=SCENARIOS[state.scenarioIndex];worldCtx.clearRect(0,0,w,h);worldCtx.fillStyle=state.water>55?"#7cbcc9":"#b6a66b";worldCtx.fillRect(0,0,w,h*.38);worldCtx.fillStyle=state.soil>55?"#547b4e":"#7a6644";worldCtx.fillRect(0,h*.38,w,h*.62);worldCtx.fillStyle="#d7c65f";worldCtx.beginPath();worldCtx.arc(w*.86,h*.15,42,0,Math.PI*2);worldCtx.fill();if(scenario.name.includes("湿地")||scenario.name.includes("潟湖")){worldCtx.fillStyle="#397f8a";worldCtx.fillRect(0,h*.68,w,h*.32);}worldCtx.fillStyle="#ffffff22";for(let x=0;x<w;x+=48)worldCtx.fillRect(x,0,1,h);for(let y=0;y<h;y+=48)worldCtx.fillRect(0,y,w,1);
+      const active=SPECIES.map((species,index)=>({species,index,count:state.pop[index]})).filter((item)=>item.count>0);worldCtx.textAlign="center";worldCtx.textBaseline="middle";active.forEach((item,order)=>{const visible=Math.min(6,Math.ceil(item.count/10));for(let i=0;i<visible;i++){const x=65+((order*137+i*89)%830);const aquatic=["algae","fish","otter"].includes(item.species.id);const y=aquatic&&scenario.name.match(/湿地|潟湖/)?h*.76+((i*37+order*19)%90):h*.47+((i*51+order*41)%220);worldCtx.font=`${28+Math.min(12,item.count/8)}px "Segoe UI Emoji","Microsoft YaHei"`;worldCtx.fillText(item.species.icon,x,y);}});worldCtx.textAlign="left";worldCtx.font="700 20px Microsoft YaHei";worldCtx.fillStyle="#eef8ed";worldCtx.fillText(`${scenario.chapter} · ${scenario.name}`,24,34);worldCtx.font="14px Microsoft YaHei";worldCtx.fillStyle="#e7efe7";worldCtx.fillText(`栖息地 ${state.habitat} · 灭绝记录 ${state.extinctions.length}`,24,59);}
+    function renderTrend(){const data=state.history,w=trendCanvas.width,h=trendCanvas.height;trendCtx.clearRect(0,0,w,h);trendCtx.fillStyle="#0b1d18";trendCtx.fillRect(0,0,w,h);trendCtx.strokeStyle="#ffffff18";trendCtx.lineWidth=1;for(let i=0;i<=5;i++){const y=30+i*(h-55)/5;trendCtx.beginPath();trendCtx.moveTo(45,y);trendCtx.lineTo(w-18,y);trendCtx.stroke();}const series=[{key:"producer",color:"#64d69a",name:"生产者"},{key:"herbivore",color:"#eac465",name:"草食"},{key:"predator",color:"#ed7868",name:"捕食"},{key:"stability",color:"#6ab5d8",name:"稳定"}];const max=Math.max(100,...data.flatMap((point)=>series.map((item)=>point[item.key])));series.forEach((item,seriesIndex)=>{trendCtx.strokeStyle=item.color;trendCtx.lineWidth=3;trendCtx.beginPath();data.forEach((point,index)=>{const x=48+index*(w-75)/15;const y=h-25-point[item.key]/max*(h-62);if(index===0)trendCtx.moveTo(x,y);else trendCtx.lineTo(x,y);});trendCtx.stroke();trendCtx.fillStyle=item.color;trendCtx.font="12px Microsoft YaHei";trendCtx.fillText(item.name,55+seriesIndex*95,20);});}
+    function renderControls(){const scenario=SCENARIOS[state.scenarioIndex];$("speciesGrid").innerHTML=SPECIES.filter((species)=>scenario.active.includes(species.id)).map((species)=>{const index=SPECIES.indexOf(species);return`<button class="species-btn" data-species="${index}" ${state.over||state.points<species.cost?"disabled":""}><strong>${species.icon} ${species.name}</strong><span>${species.role} · ${species.cost} 点</span></button>`;}).join("");$("speciesGrid").querySelectorAll("[data-species]").forEach((button)=>button.onclick=()=>introduce(+button.dataset.species));document.querySelectorAll("[data-action]").forEach((button)=>button.disabled=state.over||state.points<{rain:8,soil:10,reserve:16}[button.dataset.action]);document.querySelectorAll("[data-project]").forEach((button)=>{const project=button.dataset.project;const names={irrigation:"滴灌网络",nursery:"种源苗圃",corridor:"迁徙廊道"},costs={irrigation:24,nursery:24,corridor:26};button.disabled=state.over||state.projects[project]||state.points<costs[project];button.textContent=state.projects[project]?`✓ ${names[project]}`:`${names[project]} · ${costs[project]}`;});$("nextYearBtn").disabled=state.over;}
+    function renderSidebar(){const scenario=SCENARIOS[state.scenarioIndex],weather=WEATHER[scenario.weather[state.year%scenario.weather.length]];$("chapterLabel").textContent=scenario.chapter;$("scenarioTitle").textContent=scenario.name;$("scenarioBrief").textContent=scenario.brief;$("weatherName").textContent=weather.name;$("weatherEffect").textContent=weather.text;$("weatherIcon").textContent=weather.icon;$("targets").innerHTML=targetStatus(state,scenario).map((target)=>`<div class="target ${target.good?"good":""}"><span>${target.label}</span><b>${target.value}</b></div>`).join("")+`<p class="muted" style="margin:9px 0 0;font-size:12px">三星：满足全部目标、建设至少一项长期工程，并保持零灭绝。</p>`;$("population").innerHTML=SPECIES.filter((species)=>scenario.active.includes(species.id)).map((species)=>{const index=SPECIES.indexOf(species),value=state.pop[index];return`<div class="population-row"><span>${species.icon} ${species.name}</span><div class="bar"><i style="width:${Math.min(100,value)}%"></i></div><b>${value}</b></div>`;}).join("");$("log").innerHTML=state.logs.slice(0,12).map((line)=>`<div>› ${line}</div>`).join("");}
+    function renderScenarios(){$("scenarios").innerHTML=`<div class="eyebrow">Scenario Archive</div><h2>生态区档案</h2><div class="scenario-grid">${SCENARIOS.map((scenario,index)=>`<button class="scenario-card ${index===state?.scenarioIndex?"active":""} ${index>0&&profile.stars[index-1]===0?"locked":""}" data-scenario="${index}" ${index>0&&profile.stars[index-1]===0?"disabled":""}><strong>${index+1}. ${scenario.name}</strong><span>${scenario.chapter} · ${scenario.active.length} 个可用物种</span><span class="stars">${"★".repeat(profile.stars[index])}${"☆".repeat(3-profile.stars[index])}</span></button>`).join("")}</div>`;$("scenarios").querySelectorAll("[data-scenario]").forEach((button)=>button.onclick=()=>selectScenario(+button.dataset.scenario));}
+    function medalData(){const total=profile.stars.reduce((a,b)=>a+b,0);return[[profile.clears>0,"首次演替","完成一个生态区"],[profile.stars.every(Boolean),"六区复育","完成六个生态区"],[total===18,"稳态方舟","取得全部 18 星"],[profile.projects>=6,"环境工程师","建设六个长期项目"],[profile.noExtinction>=2,"物种守护者","两次十五年无灭绝"],[profile.best.some((value)=>value>=85),"高稳态","结算稳定度达到 85"]];}
+    function renderArchive(){$("medals").innerHTML=medalData().map(([on,name,text])=>`<div class="medal ${on?"":"off"}"><b>${on?"◆":"◇"} ${name}</b><span>${text}</span></div>`).join("");}
+    function renderAll(){renderMetrics();renderWorld();renderTrend();renderControls();renderSidebar();renderScenarios();renderArchive();$("soundBtn").textContent=profile.sound?"♪":"♩";}
+    function encodeProfile(){return`ECO2.${btoa(unescape(encodeURIComponent(JSON.stringify(cleanProfile(profile)))))}`;}
+    function decodeProfile(code){const raw=code.trim();if(!raw.startsWith("ECO2."))throw new Error("档案码前缀不正确");return cleanProfile(JSON.parse(decodeURIComponent(escape(atob(raw.slice(5))))));}
+    function toast(message){$("toast").textContent=message;$("toast").classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>$("toast").classList.remove("show"),1800);}
+    function beep(frequency,duration){if(!profile.sound)return;try{audioContext||=new(window.AudioContext||window.webkitAudioContext)();const oscillator=audioContext.createOscillator(),gain=audioContext.createGain();oscillator.type="triangle";oscillator.frequency.value=frequency;gain.gain.setValueAtTime(.035,audioContext.currentTime);gain.gain.exponentialRampToValueAtTime(.001,audioContext.currentTime+duration);oscillator.connect(gain).connect(audioContext.destination);oscillator.start();oscillator.stop(audioContext.currentTime+duration);}catch{}}
+
+    document.querySelectorAll("[data-action]").forEach((button)=>button.onclick=()=>action(button.dataset.action));document.querySelectorAll("[data-project]").forEach((button)=>button.onclick=()=>buyProject(button.dataset.project));$("nextYearBtn").onclick=nextYear;$("restartBtn").onclick=()=>selectScenario(state.scenarioIndex);$("soundBtn").onclick=()=>{profile.sound=!profile.sound;saveProfile();renderAll();beep(520,.05);};$("archiveBtn").onclick=()=>{$("archiveDialog").showModal();renderArchive();};$("closeArchive").onclick=()=>$("archiveDialog").close();$("exportBtn").onclick=()=>{$("archiveCode").value=encodeProfile();toast("档案码已生成");};$("copyBtn").onclick=async()=>{if(!$("archiveCode").value)$("archiveCode").value=encodeProfile();try{await navigator.clipboard.writeText($("archiveCode").value);toast("已复制档案码");}catch{$("archiveCode").select();document.execCommand("copy");toast("已复制档案码");}};$("importBtn").onclick=()=>{try{profile=decodeProfile($("archiveCode").value);saveProfile();renderAll();toast("档案导入成功");}catch(error){toast(`导入失败：${error.message}`);}};addEventListener("keydown",(event)=>{if(event.target.matches("textarea"))return;if(event.key===" "||event.key==="Enter"){event.preventDefault();nextYear();}if(event.key==="Escape"&&$("archiveDialog").open)$("archiveDialog").close();});
+    const validation=validateModel();if(!validation.valid)console.error("ECOSYSTEM_MODEL_VALIDATION",validation.errors);window.__ecosystemTest={species:SPECIES,scenarios:SCENARIOS,weather:WEATHER,fresh,advanceYear,calculate,targetStatus,validateModel,cleanProfile,encodeProfile,decodeProfile,getProfile:()=>structuredClone(profile),selectScenario,getState:()=>structuredClone(state)};selectScenario(0);
   </script>
+</body>
 </html>

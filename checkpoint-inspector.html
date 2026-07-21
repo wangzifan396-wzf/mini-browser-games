@@ -1,306 +1,332 @@
 <!doctype html>
 <html lang="zh-CN">
-  <meta charset="utf-8" /><meta
-    name="viewport"
-    content="width=device-width,initial-scale=1"
-  /><title>边境值勤</title
-  ><style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      background: #24231f;
-      color: #f1ead8;
-      font-family: ui-monospace, Consolas, "Microsoft YaHei", monospace;
-    }
-    .app {
-      min-height: 100vh;
-      padding: 14px;
-      display: grid;
-      place-items: center;
-    }
-    .shell {
-      width: min(1000px, 100%);
-      background: #38362f;
-      border: 1px solid #777163;
-      border-radius: 16px;
-      padding: 16px;
-    }
-    .top,
-    .row {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .desk {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin: 12px 0;
-    }
-    .person {
-      background: #292823;
-      border: 1px solid #656055;
-      border-radius: 12px;
-      padding: 15px;
-      text-align: center;
-    }
-    .face {
-      font-size: 80px;
-    }
-    .docs {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 9px;
-    }
-    .doc {
-      background: #ddd2b6;
-      color: #27251f;
-      border: 1px solid #978d75;
-      border-radius: 8px;
-      padding: 11px;
-      min-height: 150px;
-    }
-    .rules {
-      background: #24231f;
-      border: 1px solid #625e55;
-      border-radius: 10px;
-      padding: 10px;
-    }
-    .rule {
-      padding: 5px;
-      border-bottom: 1px solid #ffffff18;
-    }
-    .actions button {
-      font-size: 18px;
-      min-width: 130px;
-    }
-    .approve {
-      background: #36704d;
-    }
-    .deny {
-      background: #8b4043;
-    }
-    .log {
-      height: 70px;
-      overflow: auto;
-      color: #c9c0ac;
-      font-size: 13px;
-    }
-    button {
-      padding: 10px 13px;
-      border: 1px solid #817b6d;
-      border-radius: 8px;
-      background: #514d43;
-      color: white;
-      font-weight: bold;
-    }
-    .help {
-      font-size: 13px;
-      color: #c9c1ae;
-    }
-    @media (max-width: 700px) {
-      .desk {
-        grid-template-columns: 1fr;
-      }
-      .docs {
-        grid-template-columns: 1fr;
-      }
-      .app {
-        place-items: start center;
-      }
-    }
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>边境值勤：审查档案</title>
+  <style>
+    :root { color-scheme: dark; --page:#171b1b; --surface:#252d2b; --surface2:#303b37; --paper:#e9e0c8; --ink:#f4efe2; --paperInk:#272a25; --muted:#b5c0b5; --line:#586b60; --gold:#edc568; --mint:#67d5ac; --coral:#ed786a; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; background: var(--page); color: var(--ink); }
+    body { font-family: Inter, system-ui, "Microsoft YaHei", sans-serif; }
+    button, textarea { font: inherit; }
+    button { min-height: 42px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 6px; background:#384a43; color:var(--ink); font-weight:800; cursor:pointer; }
+    button:hover:not(:disabled) { border-color:var(--gold); }
+    button:disabled { opacity:.45; cursor:not-allowed; }
+    button:focus-visible, textarea:focus-visible { outline:3px solid #edc56888; outline-offset:2px; }
+    .app { width:min(1360px,100%); margin:0 auto; padding:18px; }
+    header { display:flex; justify-content:space-between; align-items:center; gap:18px; padding-bottom:15px; border-bottom:1px solid var(--line); }
+    h1,h2,h3,p { margin-top:0; }
+    h1 { margin-bottom:3px; font-size:clamp(24px,4vw,42px); }
+    h2 { font-size:19px; margin-bottom:6px; }
+    .eyebrow { color:var(--gold); font-size:12px; font-weight:900; letter-spacing:.08em; text-transform:uppercase; }
+    .sub,.muted { color:var(--muted); }
+    .header-actions,.toolbar,.decision,.tool-actions { display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
+    .header-actions button { width:44px; padding:0; font-size:19px; }
+    .statusbar { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:1px; background:var(--line); border:1px solid var(--line); margin:14px 0; }
+    .metric { min-width:0; padding:10px 12px; background:var(--surface); }
+    .metric span { display:block; color:var(--muted); font-size:12px; }
+    .metric b { display:block; overflow-wrap:anywhere; font-size:18px; }
+    .layout { display:grid; grid-template-columns:320px minmax(0,1fr); gap:14px; align-items:start; }
+    .rules-panel,.case-panel,.history-panel { border:1px solid var(--line); background:var(--surface); }
+    .rules-panel { padding:14px; }
+    .day-tabs { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; margin:12px 0; }
+    .day-tab { min-height:54px; padding:5px; text-align:left; }
+    .day-tab strong,.day-tab span { display:block; }
+    .day-tab span { margin-top:3px; color:var(--muted); font-size:11px; }
+    .day-tab.active { border-color:var(--gold); box-shadow:inset 0 0 0 1px var(--gold); }
+    .day-tab.locked { opacity:.45; }
+    .rule-list { margin-top:12px; border-top:1px solid var(--line); }
+    .rule { display:flex; gap:7px; padding:9px 0; border-bottom:1px solid #ffffff12; line-height:1.42; font-size:13px; }
+    .rule b { color:var(--gold); }
+    .rule .mark { color:var(--mint); }
+    .case-panel { min-width:0; padding:14px; }
+    .case-head { display:flex; justify-content:space-between; align-items:start; gap:12px; }
+    .case-head h2 { margin:0; font-size:24px; }
+    .case-id { color:var(--muted); font-family:ui-monospace,Consolas,monospace; font-size:12px; }
+    .speech { margin:12px 0; padding:12px; border-left:3px solid var(--gold); background:#1a2422; color:#e3e7dc; line-height:1.55; }
+    .desk { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:10px; }
+    .paper { min-width:0; padding:13px; background:var(--paper); color:var(--paperInk); border:1px solid #a69c83; box-shadow:3px 3px 0 #0d1211; }
+    .paper h3 { display:flex; justify-content:space-between; gap:8px; margin-bottom:12px; color:#6c5f47; font-size:14px; }
+    .paper small { color:#82775f; }
+    .field { display:grid; grid-template-columns:82px minmax(0,1fr); gap:8px; align-items:start; padding:8px 6px; border-bottom:1px solid #bdb398; cursor:pointer; }
+    .field:hover,.field.focused { background:#d5c79f; }
+    .field b { font-size:12px; color:#71664e; }
+    .field span { min-width:0; overflow-wrap:anywhere; font-weight:750; }
+    .field.focused span { color:#8a3c32; }
+    .tool-actions { margin-top:11px; }
+    .tool-actions button { flex:1 1 150px; background:#475249; }
+    .decision { margin-top:13px; }
+    .decision button { flex:1 1 150px; min-height:50px; font-size:16px; }
+    .approve { background:#286b53; border-color:#5bc59d; }
+    .deny { background:#673a39; border-color:#c56e63; }
+    .next { background:#75602b; border-color:var(--gold); }
+    .result { min-height:54px; margin-top:10px; padding:11px; border:1px solid var(--line); background:#1a2422; line-height:1.5; }
+    .result.good { border-color:var(--mint); }
+    .result.bad { border-color:var(--coral); }
+    .history-panel { margin-top:14px; padding:13px; }
+    .history { max-height:156px; overflow:auto; color:var(--muted); font-family:ui-monospace,Consolas,monospace; font-size:12px; line-height:1.55; }
+    .history div { padding:3px 0; border-bottom:1px solid #ffffff0c; }
+    .week { margin-top:18px; padding-top:15px; border-top:1px solid var(--line); }
+    .week-grid { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:8px; }
+    .week-card { min-height:84px; padding:10px; text-align:left; background:var(--surface); }
+    .week-card strong,.week-card span { display:block; }
+    .week-card span { margin-top:5px; color:var(--muted); font-size:12px; }
+    .week-card.active { border-color:var(--gold); box-shadow:inset 0 0 0 1px var(--gold); }
+    .week-card.locked { opacity:.45; }
+    .stars { color:var(--gold) !important; letter-spacing:0; }
+    dialog { width:min(720px,calc(100% - 24px)); max-height:88vh; overflow:auto; padding:0; border:1px solid var(--line); border-radius:8px; background:#252d2b; color:var(--ink); }
+    dialog::backdrop { background:#000b; }
+    .dialog-head { position:sticky; top:0; z-index:2; display:flex; justify-content:space-between; align-items:center; padding:14px 16px; background:#252d2b; border-bottom:1px solid var(--line); }
+    .dialog-head h2 { margin:0; }
+    .dialog-head button { width:42px; }
+    .dialog-body { padding:16px; }
+    .medals { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+    .medal { padding:11px; border:1px solid var(--line); background:#1a2422; }
+    .medal.off { opacity:.45; }
+    .medal b,.medal span { display:block; }
+    .medal span { margin-top:4px; color:var(--muted); font-size:12px; }
+    textarea { width:100%; min-height:96px; resize:vertical; border:1px solid var(--line); border-radius:6px; padding:9px; background:#121a19; color:var(--ink); }
+    .archive-actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+    .archive-actions button { flex:1 1 130px; }
+    .toast { position:fixed; left:50%; bottom:20px; z-index:5; transform:translateX(-50%) translateY(20px); padding:10px 14px; border:1px solid var(--gold); background:#332b17; opacity:0; pointer-events:none; transition:.2s; }
+    .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+    @media (max-width:920px) { .layout { grid-template-columns:minmax(0,1fr); } .week-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+    @media (max-width:600px) { .app { padding:10px; } header { align-items:flex-start; } .statusbar { grid-template-columns:repeat(2,minmax(0,1fr)); } .desk { grid-template-columns:minmax(0,1fr); } .week-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .medals { grid-template-columns:minmax(0,1fr); } }
   </style>
+</head>
+<body>
   <main class="app">
-    <section class="shell">
-      <div class="top">
-        <div>
-          <h1 style="margin: 0">边境值勤</h1>
-          <div class="help">
-            逐项核对护照、通行证与当日规则；错误放行或错误拒绝都会收到警告。
-          </div>
-        </div>
-        <div>
-          第 <b id="day"></b> 天　旅客 <b id="traveler"></b>/15　工资
-          <b id="money"></b>　警告 <b id="strikes"></b>/3
-        </div>
-      </div>
-      <div class="rules">
-        <b>今日入境规则</b>
-        <div id="rules"></div>
-      </div>
-      <div class="desk">
-        <div class="person">
-          <div class="face" id="face"></div>
-          <h2 id="spokenName"></h2>
-          <div id="speech"></div>
-          <div
-            class="row actions"
-            style="justify-content: center; margin-top: 15px"
-          >
-            <button class="approve" id="approve">批准入境</button
-            ><button class="deny" id="deny">拒绝入境</button>
-          </div>
-        </div>
-        <div class="docs">
-          <div class="doc">
-            <b>联邦护照</b>
-            <div id="passport"></div>
-          </div>
-          <div class="doc">
-            <b>临时通行证</b>
-            <div id="permit"></div>
-          </div>
-        </div>
-      </div>
-      <div class="log" id="log"></div>
-      <button id="restart">重新值勤</button>
+    <header>
+      <div><div class="eyebrow">Deterministic Border Review</div><h1>边境值勤：审查档案</h1><div class="sub">六日、三十宗档案；规则会变，裁定必须可解释。</div></div>
+      <div class="header-actions"><button id="soundBtn" title="切换音效" aria-label="切换音效">♪</button><button id="archiveBtn" title="值勤档案" aria-label="值勤档案">▣</button></div>
+    </header>
+
+    <section class="statusbar" aria-label="值勤状态">
+      <div class="metric"><span>当前值勤日</span><b id="dayMetric">第 1 日</b></div>
+      <div class="metric"><span>当前档案</span><b id="caseMetric">01 / 05</b></div>
+      <div class="metric"><span>本日正确</span><b id="correctMetric">0 / 5</b></div>
+      <div class="metric"><span>工资</span><b id="moneyMetric">0</b></div>
+      <div class="metric"><span>警告</span><b id="strikeMetric">0 / 3</b></div>
+      <div class="metric"><span>总星章</span><b id="starMetric">0 / 18</b></div>
     </section>
+
+    <section class="layout">
+      <aside class="rules-panel">
+        <div class="eyebrow">Desk Briefing</div><h2 id="dayTitle"></h2><div class="muted" id="dayBrief"></div>
+        <div class="day-tabs" id="dayTabs"></div>
+        <h3>今日规则</h3><div class="rule-list" id="ruleList"></div>
+        <div class="tool-actions"><button id="compareBtn">⌕ 双证比对</button><button id="dateBtn">◷ 日期尺</button></div>
+        <p class="muted" style="margin:10px 0 0;font-size:12px">点击纸面字段可标记疑点。辅助工具会消耗本日专注次数，但不会直接给出裁定。</p>
+      </aside>
+
+      <section>
+        <div class="case-panel">
+          <div class="case-head"><div><div class="eyebrow" id="caseLabel"></div><h2 id="travelerName"></h2></div><div class="case-id" id="caseId"></div></div>
+          <div class="speech" id="speech"></div>
+          <div class="desk">
+            <article class="paper"><h3>联邦护照 <small>IDENTITY</small></h3><div id="passport"></div></article>
+            <article class="paper"><h3>临时通行证 <small>PERMIT</small></h3><div id="permit"></div></article>
+          </div>
+          <div class="decision"><button class="approve" id="approveBtn">✓ 批准入境</button><button class="deny" id="denyBtn">× 拒绝入境</button><button class="next" id="nextBtn" disabled>下一宗档案 →</button></div>
+          <div class="result" id="result">请对照左侧规则和两份证件做出裁定。</div>
+        </div>
+        <div class="history-panel"><h2>交接记录</h2><div class="history" id="history"></div></div>
+      </section>
+    </section>
+
+    <section class="week" id="week"></section>
   </main>
+
+  <dialog id="archiveDialog"><div class="dialog-head"><h2>值勤档案</h2><button id="closeArchive" aria-label="关闭">×</button></div><div class="dialog-body"><h3>值勤勋章</h3><div class="medals" id="medals"></div><h3 style="margin-top:18px">跨设备档案</h3><p class="muted">档案码保存日星章、最佳正确数和勋章，不包含当前旅客。</p><textarea id="archiveCode" spellcheck="false" placeholder="CHECK2. 开头的档案码"></textarea><div class="archive-actions"><button id="exportBtn">导出档案</button><button id="copyBtn">复制</button><button id="importBtn">导入档案</button></div></div></dialog>
+  <div class="toast" id="toast"></div>
+
   <script>
-    const nations = ["北港", "赤岭", "云州", "西礁"],
-      names = ["林安", "周岚", "叶川", "莫宁", "苏禾", "秦星", "罗伊", "米娅"],
-      faces = ["👨", "👩", "🧔", "👵", "👲", "🧕"],
-      purposes = ["探亲", "工作", "旅游", "医疗"];
-    let q, p;
-    const $ = (x) => document.getElementById(x);
-    function fresh() {
-      return {
-        day: 1,
-        n: 0,
-        money: 0,
-        strikes: 0,
-        logs: ["值勤开始，规则会每五名旅客更新。"],
-        over: false,
-      };
+    const DAY_RULES = [
+      { title:"第一日 · 基础证件", brief:"新任审查员，先掌握姓名、有效期和证件相互对应。", expiry:2031, banned:null, permit:false, workSeal:false, maxDuration:30, prefix:"A" },
+      { title:"第二日 · 临时通行", brief:"边境开始控制临时通行，通行证必须与护照同名。", expiry:2032, banned:"赤岭", permit:true, workSeal:false, maxDuration:30, prefix:"B" },
+      { title:"第三日 · 工作许可", brief:"工作目的旅客需要蓝色许可章，过期证件仍然无效。", expiry:2033, banned:"云州", permit:true, workSeal:true, maxDuration:28, prefix:"C" },
+      { title:"第四日 · 停留期限", brief:"旅游与探亲都受到停留期限约束，编码规则也开始变化。", expiry:2034, banned:"西礁", permit:true, workSeal:true, maxDuration:21, prefix:"D" },
+      { title:"第五日 · 编号核验", brief:"新版通行证启用，证件编号首字母必须匹配当日批次。", expiry:2035, banned:"北港", permit:true, workSeal:true, maxDuration:21, prefix:"E" },
+      { title:"第六日 · 终审班次", brief:"所有规则同时生效，连续稳定裁定才能拿满星章。", expiry:2036, banned:"赤岭", permit:true, workSeal:true, maxDuration:14, prefix:"F" }
+    ];
+    const NATIONS = ["北港", "赤岭", "云州", "西礁"];
+    const NAMES = ["林安", "周岚", "叶川", "莫宁", "苏禾", "秦星", "罗伊", "米娅", "沈澄", "顾野", "唐禾", "白屿"];
+    const PURPOSES = ["探亲", "工作", "旅游", "医疗"];
+    const FAULT_MATRIX = [
+      ["valid", "expiry", "valid", "code", "valid"],
+      ["valid", "banned", "permit", "valid", "expiry"],
+      ["valid", "seal", "expiry", "permit", "valid"],
+      ["valid", "duration", "code", "banned", "valid"],
+      ["valid", "code", "name", "duration", "valid"],
+      ["valid", "expiry", "seal", "code", "permit"]
+    ];
+    const SAVE_KEY = "CHECKPOINT2";
+    const $ = (id) => document.getElementById(id);
+    let audioContext = null;
+    let toastTimer = null;
+
+    const defaultProfile = () => ({ version:2, stars:Array(6).fill(0), best:Array(6).fill(0), days:Array(6).fill(0), tools:0, correct:0, noWarningDays:0, sound:true });
+    function cleanProfile(value) {
+      const base = defaultProfile();
+      if (!value || typeof value !== "object") return base;
+      base.stars = base.stars.map((_, i) => Math.max(0, Math.min(3, Number(value.stars?.[i]) || 0)));
+      base.best = base.best.map((_, i) => Math.max(0, Math.min(5, Number(value.best?.[i]) || 0)));
+      base.days = base.days.map((_, i) => Math.max(0, Math.min(5, Number(value.days?.[i]) || 0)));
+      base.tools = Math.max(0, Number(value.tools) || 0); base.correct = Math.max(0, Number(value.correct) || 0); base.noWarningDays = Math.max(0, Number(value.noWarningDays) || 0); base.sound = value.sound !== false; return base;
     }
-    function currentRules() {
-      return {
-        banned: q.day >= 2 ? nations[(q.day - 2) % nations.length] : null,
-        permit: q.day >= 2,
-        workSeal: q.day >= 3,
-        expiry: 2032 + q.day,
-      };
+    function loadProfile() { try { return cleanProfile(JSON.parse(localStorage.getItem(SAVE_KEY))); } catch { return defaultProfile(); } }
+    let profile = loadProfile();
+    let state = null;
+
+    function saveProfile() { localStorage.setItem(SAVE_KEY, JSON.stringify(profile)); renderWeek(); renderMetrics(); renderArchive(); }
+    function caseSeed(day, slot) { return day * 5 + slot; }
+    function makeCase(day, slot) {
+      const rule = DAY_RULES[day];
+      const seed = caseSeed(day, slot);
+      let name = NAMES[seed % NAMES.length];
+      let nation = NATIONS[(seed + day + 1) % NATIONS.length];
+      if (nation === rule.banned) nation = NATIONS[(NATIONS.indexOf(nation) + 1) % NATIONS.length];
+      let purpose = PURPOSES[(seed + 1) % PURPOSES.length];
+      const permitName = name;
+      const hasPermit = rule.permit;
+      const expiry = rule.expiry + 1;
+      const duration = Math.min(rule.maxDuration, 7 + (seed % 3) * 7);
+      const seal = true;
+      const code = `${rule.prefix}-${String(100 + seed).padStart(3, "0")}`;
+      let fault = FAULT_MATRIX[day][slot];
+      if (fault === "banned" && !rule.banned) fault = "expiry";
+      const data = { name, nation, purpose, permitName, hasPermit, expiry, duration, seal, code, id:`${rule.prefix}${String(7351 + seed).padStart(5, "0")}`, fault };
+      if (fault === "expiry") data.expiry = rule.expiry - 1;
+      if (fault === "banned") data.nation = rule.banned;
+      if (fault === "permit") data.hasPermit = false;
+      if (fault === "name") data.permitName = NAMES[(NAMES.indexOf(name) + 1) % NAMES.length];
+      if (fault === "seal") { data.purpose = "工作"; data.seal = false; }
+      if (fault === "duration") data.duration = rule.maxDuration + 7;
+      if (fault === "code") data.code = `X-${String(100 + seed).padStart(3, "0")}`;
+      const evaluated = evaluateCase(day, data);
+      return { ...data, allowed:evaluated.allowed, reasons:evaluated.reasons };
     }
-    function make() {
-      let r = currentRules(),
-        name = names[Math.floor(Math.random() * names.length)],
-        nation = nations[Math.floor(Math.random() * 4)],
-        purpose = purposes[Math.floor(Math.random() * 4)],
-        valid = Math.random() < 0.58,
-        docName = name,
-        permitName = name,
-        expiry = r.expiry + Math.floor(Math.random() * 3),
-        seal = true,
-        hasPermit = true;
-      if (!valid) {
-        let flaws = ["name", "expiry", "ban", "permit", "seal"],
-          f = flaws[Math.floor(Math.random() * flaws.length)];
-        if (f === "name")
-          permitName = names[(names.indexOf(name) + 1) % names.length];
-        if (f === "expiry") expiry = r.expiry - 1;
-        if (f === "ban") nation = r.banned || nation;
-        if (f === "permit") hasPermit = false;
-        if (f === "seal") {
-          purpose = "工作";
-          seal = false;
-        }
-      }
-      let allowed =
-        nation !== r.banned &&
-        expiry >= r.expiry &&
-        (!r.permit || (hasPermit && permitName === docName)) &&
-        (!r.workSeal || purpose !== "工作" || seal);
-      p = {
-        name,
-        nation,
-        purpose,
-        docName,
-        permitName,
-        expiry,
-        seal,
-        hasPermit,
-        allowed,
-        face: faces[Math.floor(Math.random() * faces.length)],
-        id: Math.floor(100000 + Math.random() * 899999),
-      };
-      draw();
+
+    function evaluateCase(day, data) {
+      const rule = DAY_RULES[day];
+      const reasons = [];
+      if (data.expiry < rule.expiry) reasons.push(`护照有效期早于 ${rule.expiry}`);
+      if (rule.banned && data.nation === rule.banned) reasons.push(`${rule.banned}公民暂停入境`);
+      if (rule.permit && (!data.hasPermit || data.permitName !== data.name)) reasons.push(data.hasPermit ? "通行证姓名与护照不符" : "缺少临时通行证");
+      if (rule.workSeal && data.purpose === "工作" && !data.seal) reasons.push("工作目的缺少蓝色许可章");
+      if (data.duration > rule.maxDuration) reasons.push(`停留 ${data.duration} 日超过 ${rule.maxDuration} 日上限`);
+      if (data.code[0] !== rule.prefix) reasons.push(`通行证编号必须以 ${rule.prefix} 开头`);
+      return { allowed: reasons.length === 0, reasons };
     }
-    function decide(ok) {
-      if (q.over) return;
-      let correct = ok === p.allowed;
-      if (correct) {
-        q.money += 12;
-        q.logs.unshift(`裁定正确：${ok ? "批准" : "拒绝"} ${p.name}。`);
-      } else {
-        q.strikes++;
-        q.logs.unshift(
-          `警告：错误${ok ? "放行" : "拒绝"}，档案存在${reason()}。`,
-        );
-      }
-      q.n++;
-      if (q.strikes >= 3) {
-        q.over = true;
-        q.logs.unshift("警告达到三次，你被暂停值勤。");
-      } else if (q.n >= 15) {
-        q.over = true;
-        q.logs.unshift(`本轮结束，最终工资 ${q.money}。`);
-      } else {
-        if (q.n % 5 === 0) q.day++;
-        make();
-      }
-      draw();
+
+    function validateCases() {
+      const errors = [];
+      DAY_RULES.forEach((rule, day) => {
+        const cases = Array.from({length:5}, (_, slot) => makeCase(day, slot));
+        if (cases.filter((item) => item.allowed).length === 0) errors.push(`第 ${day + 1} 日没有可批准档案`);
+        if (cases.filter((item) => !item.allowed).length === 0) errors.push(`第 ${day + 1} 日没有违规档案`);
+        cases.forEach((item, slot) => {
+          const again = makeCase(day, slot);
+          if (JSON.stringify(item) !== JSON.stringify(again)) errors.push(`第 ${day + 1} 日第 ${slot + 1} 宗不确定`);
+          if (item.allowed !== (item.reasons.length === 0)) errors.push(`第 ${day + 1} 日第 ${slot + 1} 宗裁定与原因不一致`);
+        });
+      });
+      return { valid:errors.length === 0, errors, days:DAY_RULES.length, cases:DAY_RULES.length * 5 };
     }
-    function reason() {
-      let r = currentRules();
-      if (p.nation === r.banned) return "国籍限制";
-      if (p.expiry < r.expiry) return "证件过期";
-      if (!p.hasPermit) return "缺少通行证";
-      if (p.permitName !== p.docName) return "姓名不符";
-      if (p.purpose === "工作" && !p.seal) return "工作许可缺章";
-      return "无拒绝理由";
+
+    function newShift(day = 0) {
+      state = { day, slot:0, correct:0, strikes:0, money:0, tools:0, caseTools:0, selected:new Set(), decided:false, current:makeCase(day,0), logs:["交接完成：请先阅读今日规则。"], over:false };
+      $("result").className = "result";
+      $("result").textContent = "请对照左侧规则和两份证件做出裁定。";
+      $("nextBtn").disabled = true;
+      renderAll();
     }
-    function draw() {
-      let r = currentRules();
-      day.textContent = q.day;
-      traveler.textContent = q.n + 1;
-      money.textContent = q.money;
-      strikes.textContent = q.strikes;
-      rules.innerHTML = [
-        `护照有效期不得早于 ${r.expiry}`,
-        r.banned ? `${r.banned}公民暂停入境` : "暂无国籍禁令",
-        r.permit ? "必须持有同名临时通行证" : "仅需护照",
-        r.workSeal ? "工作目的须有蓝色许可章" : "工作许可章暂不检查",
-      ]
-        .map((x) => `<div class="rule">• ${x}</div>`)
-        .join("");
-      face.textContent = p?.face || "";
-      spokenName.textContent = p?.name || "";
-      speech.textContent = p ? `“我来这里${p.purpose}，预计停留两周。”` : "";
-      passport.innerHTML = p
-        ? `姓名：${p.docName}<br>国籍：${p.nation}<br>编号：${p.id}<br>有效至：${p.expiry}`
-        : "";
-      permit.innerHTML = p
-        ? p.hasPermit
-          ? `姓名：${p.permitName}<br>目的：${p.purpose}<br>许可章：${p.seal ? "🔵 已盖章" : "— 无"}<br>停留：14 日`
-          : "❌ 未提交通行证"
-        : "";
-      log.innerHTML = q.logs
-        .slice(0, 8)
-        .map((x) => `<div>• ${x}</div>`)
-        .join("");
-      approve.disabled = deny.disabled = q.over;
+    function selectDay(day) {
+      if (day > 0 && profile.days[day - 1] < 3) return toast("先完成上一日的至少三宗正确裁定");
+      newShift(day); scrollTo({top:0, behavior:"smooth"});
     }
-    approve.onclick = () => decide(true);
-    deny.onclick = () => decide(false);
-    restart.onclick = () => {
-      q = fresh();
-      make();
-    };
-    q = fresh();
-    make();
+    function markField(field) {
+      if (state.decided) return;
+      if (state.selected.has(field)) state.selected.delete(field); else state.selected.add(field);
+      renderDocuments();
+    }
+    function useTool(type) {
+      if (state.decided || state.caseTools >= 2) return toast("本宗档案的专注次数已用完");
+      state.tools++; state.caseTools++; profile.tools++;
+      if (type === "compare") { if (state.current.permitName !== state.current.name) state.selected.add("permitName"); state.selected.add("name"); state.logs.unshift("双证比对：已标记姓名字段，请自行判断是否一致。"); }
+      if (type === "date") { state.selected.add("expiry"); state.selected.add("duration"); state.logs.unshift("日期尺：已标记有效期与停留字段，请对照今日上限。"); }
+      beep(420,.06); renderAll();
+    }
+    function decide(approve) {
+      if (state.decided || state.over) return;
+      state.decided = true;
+      const correct = approve === state.current.allowed;
+      if (correct) { state.correct++; state.money += 20; profile.correct++; state.logs.unshift(`裁定正确：${approve ? "批准" : "拒绝"} ${state.current.name}。`); }
+      else { state.strikes++; state.logs.unshift(`裁定错误：${approve ? "放行" : "拒绝"} ${state.current.name}。`); }
+      $("result").className = `result ${correct ? "good" : "bad"}`;
+      $("result").innerHTML = `<b>${correct ? "裁定正确" : "裁定错误"}</b>：${state.current.allowed ? "该旅客符合入境条件。" : `应拒绝，原因：${state.current.reasons.join("；")}。`}`;
+      $("nextBtn").disabled = false;
+      if (state.strikes >= 3) { state.over = true; $("result").innerHTML += "<br>警告达到 3 次，本日值勤终止。"; $("nextBtn").disabled = true; }
+      profile.sound && beep(correct ? 680 : 160,.1); renderMetrics(); renderDocuments(); renderHistory();
+    }
+    function nextCase() {
+      if (!state.decided || state.over) return;
+      if (state.slot >= 4) return finishDay();
+      state.slot++; state.current = makeCase(state.day,state.slot); state.selected = new Set(); state.decided = false; state.caseTools = 0; state.logs.unshift(`档案 ${state.slot + 1} 已送达。`); $("result").className="result"; $("result").textContent="请对照左侧规则和两份证件做出裁定。"; $("nextBtn").disabled=true; renderAll();
+    }
+    function finishDay() {
+      const stars = state.correct === 5 && state.strikes === 0 && state.tools === 0 ? 3 : state.correct >= 4 ? 2 : state.correct >= 3 ? 1 : 0;
+      profile.stars[state.day] = Math.max(profile.stars[state.day],stars); profile.best[state.day] = Math.max(profile.best[state.day],state.correct); profile.days[state.day] = Math.max(profile.days[state.day],state.correct); if (state.strikes === 0) profile.noWarningDays++;
+      state.over = true; state.logs.unshift(`第 ${state.day + 1} 日结束：${state.correct}/5 正确，获得 ${stars} 星。`); saveProfile(); renderAll(); toast(stars ? `第 ${state.day + 1} 日结算完成` : "本日未达解锁标准，可重新值勤");
+    }
+
+    function renderMetrics() {
+      $("dayMetric").textContent=`第 ${state.day + 1} 日`; $("caseMetric").textContent=`${String(state.slot + 1).padStart(2,"0")} / 05`; $("correctMetric").textContent=`${state.correct} / 5`; $("moneyMetric").textContent=state.money; $("strikeMetric").textContent=`${state.strikes} / 3`; $("starMetric").textContent=`${profile.stars.reduce((a,b)=>a+b,0)} / 18`;
+    }
+    function renderDayTabs() {
+      $("dayTabs").innerHTML=DAY_RULES.slice(0,6).map((rule,day)=>`<button class="day-tab ${day===state.day?"active":""} ${day>0&&profile.days[day-1]<3?"locked":""}" data-day="${day}" ${day>0&&profile.days[day-1]<3?"disabled":""}><strong>${day+1}. ${rule.title.split(" · ")[1]}</strong><span>${"★".repeat(profile.stars[day])}${"☆".repeat(3-profile.stars[day])}</span></button>`).join("");
+      $("dayTabs").querySelectorAll("[data-day]").forEach((button)=>button.onclick=()=>selectDay(+button.dataset.day));
+    }
+    function renderRules() {
+      const rule=DAY_RULES[state.day];
+      $("dayTitle").textContent=rule.title; $("dayBrief").textContent=rule.brief;
+      const lines=[`护照有效期不得早于 ${rule.expiry}`,rule.banned?`${rule.banned}公民暂停入境`:"暂无国籍禁令",rule.permit?"必须持有同名临时通行证":"仅需护照",rule.workSeal?"工作目的须有蓝色许可章":"工作许可章暂不检查",`单次停留不得超过 ${rule.maxDuration} 日`,`通行证编号以 ${rule.prefix} 开头`];
+      $("ruleList").innerHTML=lines.map((line,i)=>`<div class="rule"><b>${String(i+1).padStart(2,"0")}</b><span>${line}</span></div>`).join("");
+      $("compareBtn").disabled=state.decided||state.caseTools>=2; $("dateBtn").disabled=state.decided||state.caseTools>=2;
+    }
+    function field(label,value,key) { return `<div class="field ${state.selected.has(key)?"focused":""}" data-field="${key}"><b>${label}</b><span>${value}</span></div>`; }
+    function renderDocuments() {
+      const item=state.current;
+      $("passport").innerHTML=field("姓名",item.name,"name")+field("国籍",item.nation,"nation")+field("编号",item.id,"id")+field("有效至",item.expiry,"expiry")+field("编码",item.code,"code");
+      $("permit").innerHTML=item.hasPermit?field("姓名",item.permitName,"permitName")+field("目的",item.purpose,"purpose")+field("停留",`${item.duration} 日`,"duration")+field("许可章",item.seal?"🔵 已盖章":"— 无","seal"):field("通行证","未提交","permit");
+      document.querySelectorAll("[data-field]").forEach((node)=>node.onclick=()=>markField(node.dataset.field));
+      $("caseLabel").textContent=`第 ${state.day+1} 日 · 档案 ${String(state.slot+1).padStart(2,"0")}`; $("travelerName").textContent=item.name; $("caseId").textContent=`CASE-${item.id}`; $("speech").textContent=`“我来这里${item.purpose}，计划停留 ${item.duration} 天。”`;
+      $("approveBtn").disabled=state.decided||state.over; $("denyBtn").disabled=state.decided||state.over; $("nextBtn").disabled=state.over||!state.decided;
+    }
+    function renderHistory() { $("history").innerHTML=state.logs.slice(0,12).map((line)=>`<div>› ${line}</div>`).join(""); }
+    function renderWeek() {
+      $("week").innerHTML=`<div class="eyebrow">Six-day Review</div><h2>值勤日历</h2><div class="week-grid">${DAY_RULES.map((rule,day)=>`<button class="week-card ${day===state?.day?"active":""} ${day>0&&profile.days[day-1]<3?"locked":""}" data-week="${day}" ${day>0&&profile.days[day-1]<3?"disabled":""}><strong>第 ${day+1} 日</strong><span>${rule.title.split(" · ")[1]}</span><span class="stars">${"★".repeat(profile.stars[day])}${"☆".repeat(3-profile.stars[day])}</span></button>`).join("")}</div>`;
+      $("week").querySelectorAll("[data-week]").forEach((button)=>button.onclick=()=>selectDay(+button.dataset.week));
+    }
+    function medalData() { const total=profile.stars.reduce((a,b)=>a+b,0); return [[profile.correct>0,"首份裁定","完成第一宗档案"],[profile.days.every((n)=>n>=3),"六日结业","六日都达到三宗正确"],[total===18,"终审全对","取得 18 枚星章"],[profile.noWarningDays>=3,"稳定笔迹","三日零警告"],[profile.tools>=3,"善用工具","使用辅助工具三次"],[profile.correct>=20,"长期值勤","累计正确二十宗"]]; }
+    function renderArchive() { $("medals").innerHTML=medalData().map(([on,name,text])=>`<div class="medal ${on?"":"off"}"><b>${on?"◆":"◇"} ${name}</b><span>${text}</span></div>`).join(""); }
+    function renderAll() { renderMetrics(); renderDayTabs(); renderRules(); renderDocuments(); renderHistory(); renderWeek(); $("soundBtn").textContent=profile.sound?"♪":"♩"; renderArchive(); }
+    function encodeProfile() { return `CHECK2.${btoa(unescape(encodeURIComponent(JSON.stringify(cleanProfile(profile)))))}`; }
+    function decodeProfile(code) { const raw=code.trim(); if(!raw.startsWith("CHECK2.")) throw new Error("档案码前缀不正确"); return cleanProfile(JSON.parse(decodeURIComponent(escape(atob(raw.slice(7)))))); }
+    function toast(message) { $("toast").textContent=message; $("toast").classList.add("show"); clearTimeout(toastTimer); toastTimer=setTimeout(()=>$("toast").classList.remove("show"),1800); }
+    function beep(frequency,duration) { if(!profile.sound) return; try { audioContext ||= new (window.AudioContext||window.webkitAudioContext)(); const oscillator=audioContext.createOscillator(); const gain=audioContext.createGain(); oscillator.type="sine"; oscillator.frequency.value=frequency; gain.gain.setValueAtTime(.035,audioContext.currentTime); gain.gain.exponentialRampToValueAtTime(.001,audioContext.currentTime+duration); oscillator.connect(gain).connect(audioContext.destination); oscillator.start(); oscillator.stop(audioContext.currentTime+duration); } catch {} }
+
+    $("approveBtn").onclick=()=>decide(true); $("denyBtn").onclick=()=>decide(false); $("nextBtn").onclick=nextCase; $("compareBtn").onclick=()=>useTool("compare"); $("dateBtn").onclick=()=>useTool("date");
+    $("soundBtn").onclick=()=>{ profile.sound=!profile.sound; saveProfile(); renderAll(); beep(520,.05); };
+    $("archiveBtn").onclick=()=>{ renderArchive(); $("archiveDialog").showModal(); }; $("closeArchive").onclick=()=>$("archiveDialog").close();
+    $("exportBtn").onclick=()=>{ $("archiveCode").value=encodeProfile(); toast("档案码已生成"); }; $("copyBtn").onclick=async()=>{ if(!$("archiveCode").value) $("archiveCode").value=encodeProfile(); try{await navigator.clipboard.writeText($("archiveCode").value);toast("已复制档案码");}catch{$("archiveCode").select();document.execCommand("copy");toast("已复制档案码");} };
+    $("importBtn").onclick=()=>{ try{profile=decodeProfile($("archiveCode").value);saveProfile();renderAll();toast("档案导入成功");}catch(error){toast(`导入失败：${error.message}`);} };
+    addEventListener("keydown",(event)=>{ if(event.target.matches("textarea")) return; if(event.key==="a"||event.key==="A") $("denyBtn").click(); if(event.key==="d"||event.key==="D") $("approveBtn").click(); if(event.key==="Enter") $("nextBtn").click(); if(event.key==="Escape"&&$("archiveDialog").open) $("archiveDialog").close(); });
+
+    const validation=validateCases(); if(!validation.valid) console.error("CHECKPOINT_CASE_VALIDATION",validation.errors);
+    window.__checkpointTest={rules:DAY_RULES,makeCase,evaluateCase,validateCases,cleanProfile,encodeProfile,decodeProfile,getProfile:()=>structuredClone(profile),selectDay};
+    newShift(0);
   </script>
+</body>
 </html>

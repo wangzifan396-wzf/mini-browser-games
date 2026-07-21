@@ -1,0 +1,31 @@
+{
+  "title": "页面能打开，不代表规则正确",
+  "subtitle": "单 HTML 游戏的纯规则核心与不变量测试",
+  "metrics": {
+    "referencePrograms": 12,
+    "deterministicCases": 30,
+    "simulatedYears": 270,
+    "auditedPages": 200,
+    "browserErrors": 0,
+    "horizontalOverflows": 0
+  },
+  "testCommand": "node promo-video/scripts/check-rule-driven-games.mjs",
+  "auditCommand": "node promo-video/scripts/audit-games.mjs",
+  "sources": [
+    {
+      "file": "output/rule-driven-games/bytebot-desktop.png",
+      "label": "可执行关卡夹具",
+      "detail": "参考程序与玩家程序共用解释器"
+    },
+    {
+      "file": "output/rule-driven-games/checkpoint-desktop.png",
+      "label": "可解释裁定函数",
+      "detail": "allowed 与 reasons 同源生成"
+    },
+    {
+      "file": "output/rule-driven-games/ecosystem-desktop.png",
+      "label": "纯状态转移",
+      "detail": "270 个模拟年检查长期不变量"
+    }
+  ]
+}
