@@ -1,347 +1,109 @@
 <!doctype html>
 <html lang="zh-CN">
-  <meta charset="utf-8" /><meta
-    name="viewport"
-    content="width=device-width,initial-scale=1"
-  /><title>口袋伙伴</title
-  ><style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      background: #1b1730;
-      color: #f7f1ff;
-      font-family: system-ui, "Microsoft YaHei";
-    }
-    .app {
-      min-height: 100vh;
-      padding: 14px;
-      display: grid;
-      place-items: center;
-    }
-    .shell {
-      width: min(900px, 100%);
-      background: #30274d;
-      border: 1px solid #7668a0;
-      border-radius: 24px;
-      padding: 18px;
-    }
-    .top,
-    .row {
-      display: flex;
-      justify-content: space-between;
-      gap: 9px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .room {
-      min-height: 390px;
-      margin: 12px 0;
-      border-radius: 18px;
-      background: linear-gradient(#8cc8db 0 65%, #d7bb83 65%);
-      position: relative;
-      text-align: center;
-      padding-top: 70px;
-    }
-    .pet {
-      font-size: 110px;
-      display: inline-block;
-      transition: transform 0.3s;
-    }
-    .pet.happy {
-      animation: bounce 0.5s;
-    }
-    @keyframes bounce {
-      50% {
-        transform: translateY(-25px);
-      }
-    }
-    .bubble {
-      min-height: 30px;
-      font-size: 18px;
-    }
-    .bars {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-    }
-    .bar {
-      height: 10px;
-      background: #2b2142;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-    .bar i {
-      display: block;
-      height: 100%;
-      background: #73df9d;
-    }
-    .panel {
-      background: #251e3d;
-      border: 1px solid #625783;
-      border-radius: 11px;
-      padding: 10px;
-    }
-    .actions {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 8px;
-      margin-top: 10px;
-    }
-    .actions button {
-      min-height: 55px;
-    }
-    .memory {
-      display: none;
-      gap: 8px;
-      justify-content: center;
-    }
-    .memory.show {
-      display: flex;
-    }
-    .orb {
-      width: 60px;
-      height: 60px;
-      font-size: 25px;
-    }
-    .log {
-      height: 75px;
-      overflow: auto;
-      color: #c9bfdb;
-      font-size: 13px;
-    }
-    button {
-      padding: 9px 11px;
-      border: 1px solid #8273a9;
-      border-radius: 9px;
-      background: #4d3f70;
-      color: white;
-      font-weight: bold;
-    }
-    .help {
-      font-size: 13px;
-      color: #c9bfdd;
-    }
-    @media (max-width: 650px) {
-      .actions {
-        grid-template-columns: repeat(3, 1fr);
-      }
-      .bars {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      .app {
-        place-items: start center;
-      }
-    }
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>口袋伙伴：星愿谱系</title>
+  <style>
+    :root{--bg:#171329;--panel:#2b2243;--panel2:#211a36;--line:#6f6091;--ink:#fff7ff;--muted:#cbbfda;--pink:#ef86b8;--cyan:#76d5dd;--gold:#f1c261;--green:#78d89a}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 12% 0,#51306b 0,transparent 32%),radial-gradient(circle at 88% 8%,#225268 0,transparent 30%),linear-gradient(145deg,#100d20,#1b1730 65%,#121326);color:var(--ink);font-family:system-ui,"Microsoft YaHei",sans-serif}.app{width:min(1320px,calc(100% - 22px));margin:11px auto}.top,.panel{border:1px solid var(--line);border-radius:16px;background:rgba(43,34,67,.97);box-shadow:0 18px 48px rgba(0,0,0,.32)}.top{display:flex;justify-content:space-between;align-items:center;gap:15px;padding:15px 18px}.eyebrow{margin:0 0 4px;color:var(--cyan);font-size:12px;font-weight:950;letter-spacing:.15em}.top h1{margin:0;font-size:clamp(26px,4vw,43px);line-height:1}.sub{margin:7px 0 0;color:var(--muted);font-size:13px}.actions,.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}button,textarea{font:inherit}.btn{min-height:42px;padding:0 13px;border:1px solid #8170a3;border-radius:9px;background:#554476;color:white;font-weight:900;cursor:pointer}.btn.primary{border-color:#b45a86;background:#963f69}.btn.cyan{border-color:#468d96;background:#32707c}.btn.gold{border-color:#9f7632;background:#7b581e}.btn:disabled{opacity:.43;filter:saturate(.3);cursor:not-allowed}.layout{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:12px;margin-top:12px;align-items:start}.home{padding:13px;min-width:0}.side{padding:12px;display:grid;gap:10px;max-height:calc(100vh - 105px);overflow:auto}.dayline{display:grid;grid-template-columns:repeat(12,1fr);gap:5px;margin-bottom:10px}.daydot{display:grid;place-items:center;min-height:35px;border:1px solid #62547f;border-radius:8px;background:#211b36;color:#9186a7;font-size:11px;font-weight:900}.daydot.done{color:white;background:#4b3c6a}.daydot.now{outline:3px solid var(--cyan);color:white}.needs{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.need{padding:7px;border:1px solid #5c4e77;border-radius:8px;background:#211a36;font-size:11px}.need span{display:flex;justify-content:space-between}.bar{height:8px;margin-top:4px;border-radius:99px;overflow:hidden;background:#0f0c1b}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--pink),var(--gold))}.room{position:relative;min-height:400px;margin:10px 0;border:1px solid #8175a1;border-radius:15px;overflow:hidden;background:linear-gradient(#82c9dc 0 63%,#d9bd87 63%)}.room.night{background:linear-gradient(#283b69 0 63%,#8b7298 63%)}.room.rain::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(105deg,transparent 0 16px,rgba(255,255,255,.22) 17px 19px,transparent 20px 32px);pointer-events:none}.room-head{position:relative;z-index:1;display:flex;justify-content:space-between;gap:8px;padding:12px;color:#173347;font-weight:900;text-shadow:0 1px rgba(255,255,255,.5)}.speech{position:relative;z-index:1;width:min(530px,calc(100% - 28px));min-height:48px;margin:8px auto;padding:9px 12px;border:1px solid rgba(35,42,63,.4);border-radius:12px;background:rgba(255,255,255,.82);color:#27314a;text-align:center;font-weight:800}.pet-wrap{position:relative;z-index:1;display:grid;place-items:center;min-height:175px}.pet{font-size:108px;filter:drop-shadow(0 12px 10px rgba(0,0,0,.22));animation:idle 2.4s ease-in-out infinite}.pet.bounce{animation:bounce .5s}@keyframes idle{50%{transform:translateY(-7px)}}@keyframes bounce{50%{transform:translateY(-24px) scale(1.05)}}.choice{position:relative;z-index:2;display:none;justify-content:center;gap:8px;flex-wrap:wrap;padding:8px}.choice.show{display:flex}.choice button{min-height:45px}.activity{display:grid;grid-template-columns:repeat(6,1fr);gap:7px}.activity button{min-height:56px}.activity button small{display:block;color:#ddd0e9;font-size:10px}.diary{height:86px;overflow:auto;margin-top:9px;padding:9px;border:1px solid #5f517b;border-radius:9px;background:#1d1730;color:var(--muted);font-size:12px;line-height:1.5}.block{padding:11px;border:1px solid #5c4d77;border-radius:11px;background:#1d1730}.block h2,.block h3{margin:0 0 8px}.block h2{font-size:20px}.block h3{font-size:14px;color:var(--cyan)}.journeys{display:grid;gap:6px}.journey{padding:8px;border:1px solid #61517b;border-radius:8px;background:#28203e;color:white;text-align:left;cursor:pointer}.journey.active{outline:3px solid var(--pink)}.journey:disabled{opacity:.38}.journey b{display:flex;justify-content:space-between}.journey small{display:block;margin-top:3px;color:var(--muted);font-size:10px}.stars{color:var(--gold)}.traits{display:grid;grid-template-columns:1fr 1fr;gap:6px}.trait{padding:7px;border:1px solid #55486e;border-radius:8px;background:#26203a}.trait span{display:flex;justify-content:space-between;font-size:11px}.trait i{display:block;height:7px;margin-top:4px;border-radius:99px;background:linear-gradient(90deg,var(--cyan),var(--pink))}.career{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.career div{padding:7px;border:1px solid #55486d;border-radius:8px;text-align:center;background:#28213d}.career b{display:block;font-size:19px}.career small{font-size:10px;color:var(--muted)}.facilities{display:grid;grid-template-columns:1fr 1fr;gap:6px}.facility{padding:7px;border:1px solid #5d4f76;border-radius:8px;background:#28213d}.facility b,.facility small{display:block}.facility small{min-height:30px;color:var(--muted);font-size:10px}.facility button{width:100%;min-height:35px;margin-top:5px;padding:0 4px}.dex{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}.form{min-height:58px;padding:4px;border:1px solid #5b4e70;border-radius:8px;background:#211b34;color:#81768f;text-align:center;font-size:9px}.form.found{color:white;border-color:#5c9c8c;background:#253d3d}.form i{display:block;font-style:normal;font-size:24px}.tip{color:var(--muted);font-size:12px;line-height:1.5}.archive{position:fixed;inset:0;z-index:8;display:grid;place-items:center;padding:18px;background:rgba(6,4,14,.82)}.archive.hidden{display:none}.dialog{width:min(620px,100%);padding:18px;border:1px solid #746393;border-radius:15px;background:#2b2243}.dialog h2{margin:0 0 8px}.dialog textarea{width:100%;min-height:125px;padding:10px;border:1px solid #6d5e8a;border-radius:8px;background:#151124;color:white;resize:vertical}.dialog .row{justify-content:flex-end}.feedback{min-height:20px;margin-top:7px;color:var(--gold);font-size:12px;font-weight:850}
+    @media(max-width:960px){.layout{grid-template-columns:1fr}.side{max-height:none;grid-template-columns:repeat(2,minmax(0,1fr))}.side .wide{grid-column:1/-1}}
+    @media(max-width:650px){.app{width:min(100% - 10px,1320px);margin:5px auto}.top{display:block;padding:12px}.actions{margin-top:11px}.actions .btn{flex:1}.home,.side{padding:9px}.side{grid-template-columns:1fr}.side .wide{grid-column:auto}.activity{grid-template-columns:repeat(3,1fr)}.needs{grid-template-columns:1fr 1fr}.dayline{grid-template-columns:repeat(6,1fr)}.room{min-height:390px}.pet{font-size:92px}}
   </style>
-  <main class="app">
-    <section class="shell">
-      <div class="top">
-        <div>
-          <h1 style="margin: 0">口袋伙伴</h1>
-          <div class="help">
-            照顾、训练并陪伴宠物成长；性格和照料方式会决定第七天的进化形态。
-          </div>
-        </div>
-        <div>
-          第 <b id="day"></b> 天　年龄 <b id="age"></b>　羁绊
-          <b id="bond"></b>　图鉴 <b id="dex"></b>/4
-        </div>
-      </div>
-      <div class="bars">
-        <span
-          >饱食
-          <div class="bar"><i id="foodBar"></i></div></span
-        ><span
-          >快乐
-          <div class="bar"><i id="joyBar"></i></div></span
-        ><span
-          >清洁
-          <div class="bar"><i id="cleanBar"></i></div></span
-        ><span
-          >精力
-          <div class="bar"><i id="energyBar"></i></div
-        ></span>
-      </div>
-      <div class="room">
-        <div class="bubble" id="bubble"></div>
-        <div class="pet" id="pet"></div>
-        <div class="memory" id="memory"></div>
-      </div>
-      <div class="actions">
-        <button data-a="feed">🍖 喂食</button
-        ><button data-a="play">🧶 玩耍</button
-        ><button data-a="clean">🛁 清洁</button
-        ><button data-a="train">🎯 训练</button
-        ><button data-a="sleep">🌙 睡觉</button>
-      </div>
-      <div class="panel log" id="log"></div>
-      <div class="row">
-        <span id="trait"></span><button id="restart">领养新伙伴</button>
-      </div>
+</head>
+<body>
+<main class="app">
+  <header class="top"><div><p class="eyebrow">WISHLINE COMPANION V2</p><h1>口袋伙伴</h1><p class="sub">十二日、三阶段成长与八种终末形态。每天三次行动，让照料习惯真正写进性格谱系。</p></div><div class="actions"><button class="btn primary" id="endDayBtn">结束今天</button><button class="btn cyan" id="newCycleBtn">开启新周期</button><button class="btn" id="archiveBtn">伙伴档案</button></div></header>
+  <section class="layout">
+    <section class="panel home">
+      <div class="dayline" id="dayline"></div>
+      <div class="needs" id="needs"></div>
+      <div class="room" id="room"><div class="room-head"><span id="weatherText"></span><span>行动 <b id="actionText">3/3</b></span></div><div class="speech" id="speech"></div><div class="pet-wrap"><div class="pet" id="pet"></div></div><div class="choice" id="choice"></div></div>
+      <div class="activity" id="activity"></div>
+      <div class="diary" id="diary"></div>
     </section>
-  </main>
-  <script>
-    const forms = [
-      ["晨光兽", "🦁", "活力"],
-      ["月影兽", "🐺", "聪慧"],
-      ["花灵兽", "🦄", "亲和"],
-      ["云眠兽", "🐻‍❄️", "安稳"],
-    ];
-    let q,
-      sequence = [],
-      input = [],
-      training = false;
-    const $ = (x) => document.getElementById(x);
-    function fresh() {
-      return {
-        day: 1,
-        age: 0,
-        food: 75,
-        joy: 70,
-        clean: 75,
-        energy: 75,
-        bond: 0,
-        train: 0,
-        care: 0,
-        form: null,
-        logs: ["一枚小小的蛋在房间里摇晃……"],
-        dex: JSON.parse(localStorage.getItem("pet_dex") || "{}"),
-      };
-    }
-    function act(a) {
-      if (training || (q.form && q.day > 10)) return;
-      if (a === "feed") {
-        q.food = Math.min(100, q.food + 28);
-        q.care++;
-        say("伙伴吃得很香。");
-      }
-      if (a === "play") {
-        if (q.energy < 15) return say("伙伴太累了。");
-        q.joy = Math.min(100, q.joy + 25);
-        q.energy -= 15;
-        q.bond += 3;
-        say("一起玩耍，羁绊提升。");
-      }
-      if (a === "clean") {
-        q.clean = 100;
-        q.care++;
-        say("洗得干干净净！");
-      }
-      if (a === "train") return startTrain();
-      if (a === "sleep") nextDay();
-      bounce();
-      draw();
-    }
-    function nextDay() {
-      q.day++;
-      q.age++;
-      q.food -= 18;
-      q.joy -= 10;
-      q.clean -= 14;
-      q.energy = 100;
-      let low = [q.food, q.joy, q.clean].filter((x) => x < 25).length;
-      if (low) q.bond = Math.max(0, q.bond - low * 2);
-      else q.bond += 2;
-      if (q.day === 2) say("宠物蛋孵化了！");
-      if (q.day === 7 && !q.form) evolve();
-      else say("新的一天开始。");
-    }
-    function evolve() {
-      let idx = q.train >= 6 ? 1 : q.care >= 7 ? 2 : q.bond >= 15 ? 0 : 3;
-      q.form = idx;
-      q.dex[idx] = true;
-      localStorage.setItem("pet_dex", JSON.stringify(q.dex));
-      say(`伙伴进化为 ${forms[idx][1]}${forms[idx][0]}！`);
-    }
-    function startTrain() {
-      if (q.energy < 15) return say("精力不足。");
-      training = true;
-      sequence = Array.from(
-        { length: 3 + Math.min(3, Math.floor(q.train / 2)) },
-        () => Math.floor(Math.random() * 4),
-      );
-      input = [];
-      memory.classList.add("show");
-      memory.innerHTML = [0, 1, 2, 3]
-        .map(
-          (i) =>
-            `<button class="orb" data-i="${i}">${["🔴", "🔵", "🟢", "🟡"][i]}</button>`,
-        )
-        .join("");
-      memory
-        .querySelectorAll("[data-i]")
-        .forEach((e) => (e.onclick = () => press(+e.dataset.i)));
-      bubble.textContent =
-        "记住顺序：" +
-        sequence.map((i) => ["🔴", "🔵", "🟢", "🟡"][i]).join(" ");
-      setTimeout(() => (bubble.textContent = "现在按顺序点击颜色"), 1200);
-    }
-    function press(i) {
-      if (!training) return;
-      input.push(i);
-      if (input[input.length - 1] !== sequence[input.length - 1]) {
-        training = false;
-        q.energy -= 10;
-        memory.classList.remove("show");
-        return say("顺序错了，再休息一下重试。");
-      }
-      if (input.length === sequence.length) {
-        training = false;
-        q.train++;
-        q.bond += 4;
-        q.energy -= 15;
-        q.joy += 5;
-        memory.classList.remove("show");
-        say("训练成功，聪慧与羁绊提升！");
-      }
-      draw();
-    }
-    function say(s) {
-      q.logs.unshift(s);
-      q.logs = q.logs.slice(0, 9);
-      draw();
-    }
-    function bounce() {
-      pet.classList.remove("happy");
-      void pet.offsetWidth;
-      pet.classList.add("happy");
-    }
-    function draw() {
-      day.textContent = q.day;
-      age.textContent = q.age;
-      bond.textContent = q.bond;
-      dex.textContent = Object.keys(q.dex).length;
-      foodBar.style.width = Math.max(0, q.food) + "%";
-      joyBar.style.width = Math.max(0, q.joy) + "%";
-      cleanBar.style.width = Math.max(0, q.clean) + "%";
-      energyBar.style.width = Math.max(0, q.energy) + "%";
-      pet.textContent = q.day === 1 ? "🥚" : q.form ? forms[q.form][1] : "🐣";
-      trait.textContent = q.form
-        ? `${forms[q.form][0]} · ${forms[q.form][2]}型`
-        : `成长倾向：训练 ${q.train} · 照料 ${q.care}`;
-      log.innerHTML = q.logs.map((x) => `<div>• ${x}</div>`).join("");
-      if (!training)
-        bubble.textContent =
-          q.food < 25
-            ? "肚子饿了……"
-            : q.clean < 25
-              ? "想洗澡……"
-              : q.joy < 25
-                ? "陪我玩嘛！"
-                : "今天也要一起成长！";
-    }
-    document
-      .querySelectorAll("[data-a]")
-      .forEach((e) => (e.onclick = () => act(e.dataset.a)));
-    restart.onclick = () => {
-      if (confirm("领养一只新伙伴？图鉴会保留。")) {
-        q = fresh();
-        draw();
-      }
-    };
-    q = fresh();
-    draw();
-  </script>
+    <aside class="panel side">
+      <section class="block wide"><h3 id="journeyChapter"></h3><h2 id="journeyName"></h2><p class="tip" id="journeyBrief"></p><div class="traits" id="traits"></div></section>
+      <section class="block"><h3>谱系生涯</h3><div class="career"><div><b id="heartText">0</b><small>心愿</small></div><div><b id="starText">0</b><small>星章</small></div><div><b id="cycleText">0</b><small>周期</small></div></div></section>
+      <section class="block"><h3>成长旅程</h3><div class="journeys" id="journeys"></div></section>
+      <section class="block wide"><h3>房间设施</h3><div class="facilities" id="facilities"></div></section>
+      <section class="block wide"><h3>终末形态图鉴</h3><div class="dex" id="dex"></div></section>
+    </aside>
+  </section>
+</main>
+<div class="archive hidden" id="archiveModal"><div class="dialog"><h2>跨设备伙伴档案</h2><p class="tip">档案包含当前成长周期、旅程星级、心愿、设施和终末形态图鉴。</p><textarea id="archiveText" spellcheck="false"></textarea><div class="row"><button class="btn" id="closeArchiveBtn">关闭</button><button class="btn cyan" id="importBtn">导入</button><button class="btn gold" id="exportBtn">生成并复制</button></div><div class="feedback" id="archiveFeedback"></div></div></div>
+<script>
+(() => {
+  "use strict";
+  const KEY="miniPocketCompanionV2",$=id=>document.getElementById(id);
+  const TRAITS={brave:["勇气","🔥"],wisdom:["聪慧","✨"],empathy:["亲和","🌿"],calm:["安稳","🌙"]};
+  const JOURNEYS=[
+    {chapter:"第一程 · 晨风庭院",name:"第一次破壳",brief:"在稳定照料中培养勇气，学会面对陌生声音。",target:"brave",need:0,weather:["晴","晴","微风","晴","雨","晴","微风","晴","雨","晴","晴","星夜"]},
+    {chapter:"第二程 · 雾灯书房",name:"会发光的答案",brief:"训练观察与记忆，让聪慧成为成长主线。",target:"wisdom",need:2,weather:["雾","雨","晴","雾","星夜","雨","晴","雾","晴","雨","星夜","晴"]},
+    {chapter:"第三程 · 花信小径",name:"倾听花开的声音",brief:"通过陪伴与探索理解他者，积累亲和。",target:"empathy",need:5,weather:["晴","花雨","微风","晴","花雨","晴","雨","微风","晴","花雨","星夜","晴"]},
+    {chapter:"第四程 · 月眠山屋",name:"慢慢长大的夜",brief:"在天气变化中保持作息和安稳，完成最后一份成长记录。",target:"calm",need:8,weather:["星夜","雨","雾","晴","星夜","雨","微风","雾","晴","星夜","雨","星夜"]}
+  ];
+  const FORMS=[
+    {name:"焰鬃巡星兽",icon:"🦁",trait:"brave",variant:1},{name:"赤尾跃云兽",icon:"🦊",trait:"brave",variant:0},
+    {name:"月眸观星兽",icon:"🐺",trait:"wisdom",variant:1},{name:"晶耳寻迹兽",icon:"🐰",trait:"wisdom",variant:0},
+    {name:"花冠森语兽",icon:"🦄",trait:"empathy",variant:1},{name:"青芽绒翼兽",icon:"🦋",trait:"empathy",variant:0},
+    {name:"云眠守梦兽",icon:"🐻‍❄️",trait:"calm",variant:1},{name:"夜潮静心兽",icon:"🐋",trait:"calm",variant:0}
+  ];
+  const FACILITIES=[
+    {key:"kitchen",name:"星果餐台",desc:"喂食额外恢复 6",base:80},{key:"playroom",name:"软云游乐角",desc:"玩耍额外恢复 6",base:90},
+    {key:"bath",name:"月泡浴池",desc:"清洁额外恢复 8",base:100},{key:"observatory",name:"小小观星台",desc:"探索额外获得 1 羁绊",base:110}
+  ];
+  const ACTIVITIES=[
+    {key:"feed",label:"🍓 喂食",hint:"安稳 +1"},{key:"play",label:"🧶 玩耍",hint:"亲和 +2"},{key:"clean",label:"🛁 清洁",hint:"安稳 +1"},
+    {key:"train",label:"🎵 训练",hint:"聪慧 +2"},{key:"explore",label:"🧭 探索",hint:"勇气/亲和"},{key:"rest",label:"🌙 小憩",hint:"精力恢复"}
+  ];
+  const EXPLORE=[
+    [{text:"靠近风铃",trait:"brave",note:"伙伴鼓起勇气碰响了风铃。"},{text:"听它慢慢响",trait:"calm",note:"你们安静听完了一段风声。"}],
+    [{text:"解开纸条谜题",trait:"wisdom",note:"伙伴找到了纸条隐藏的规律。"},{text:"把纸条送回去",trait:"empathy",note:"失主收到了遗失的纸条。"}],
+    [{text:"帮助迷路甲虫",trait:"empathy",note:"伙伴把甲虫送回花丛。"},{text:"穿过高高草坡",trait:"brave",note:"伙伴第一次独自穿过草坡。"}],
+    [{text:"数完窗外星星",trait:"wisdom",note:"伙伴记住了星星出现的顺序。"},{text:"关灯听雨",trait:"calm",note:"雨声让呼吸慢慢平稳。"}]
+  ];
+  let career=load(),selected=Math.min(career.selected||0,3),run=career.run&&validRun(career.run)?career.run:fresh(selected),training=null,sequence=[],input=[],timer=0;
+  function defaults(){return {v:2,hearts:0,stars:[0,0,0,0],facilities:{kitchen:0,playroom:0,bath:0,observatory:0},dex:[],cycles:0,selected:0,run:null};}
+  function load(){try{const v=JSON.parse(localStorage.getItem(KEY)||"null");if(v&&v.v===2)return Object.assign(defaults(),v,{stars:Array.from({length:4},(_,i)=>v.stars?.[i]||0),facilities:Object.assign(defaults().facilities,v.facilities||{}),dex:Array.isArray(v.dex)?v.dex:[]});}catch(_){}return defaults();}
+  function validRun(r){return r&&Number.isInteger(r.day)&&r.day>=1&&r.day<=12&&r.traits&&Array.isArray(r.logs);}
+  function fresh(journey){return {journey,day:1,actions:3,food:78,joy:74,clean:80,energy:82,bond:0,traits:{brave:0,wisdom:0,empathy:0,calm:0},critical:0,stage:0,juvenile:null,form:null,complete:false,logs:["一枚带着微光的蛋住进了房间。"],choice:null};}
+  function totalStars(){return career.stars.reduce((a,b)=>a+b,0);}function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+  function persist(){career.selected=selected;career.run=run;localStorage.setItem(KEY,JSON.stringify(career));}
+  function weather(){return JOURNEYS[run.journey].weather[run.day-1];}
+  function say(text){run.logs.unshift(text);run.logs=run.logs.slice(0,14);speech.textContent=text;persist();}
+  function spend(){if(run.complete||run.actions<=0||training||run.choice)return false;run.actions--;return true;}
+  function act(key){if(!spend())return;const f=career.facilities;if(key==="feed"){run.food=clamp(run.food+24+f.kitchen*6,0,100);run.energy=clamp(run.energy+4,0,100);run.traits.calm++;say("星果吃得干干净净，肚子暖暖的。");}
+    if(key==="play"){if(run.energy<12){run.actions++;return say("现在太累了，先小憩一会儿吧。");}run.joy=clamp(run.joy+24+f.playroom*6,0,100);run.energy-=12;run.bond+=3;run.traits.empathy+=2;say("毛线团滚遍房间，你们笑成一团。");}
+    if(key==="clean"){run.clean=clamp(run.clean+32+f.bath*8,0,100);run.traits.calm++;run.bond++;say("泡泡洗掉了灰尘，也留下淡淡月光味。");}
+    if(key==="train")return startTraining();
+    if(key==="explore")return startExplore();
+    if(key==="rest"){run.energy=clamp(run.energy+32,0,100);run.food=clamp(run.food-4,0,100);run.traits.calm+=2;say("伙伴蜷成小小一团，醒来时精神好多了。");}
+    bounce();render();}
+  function startTraining(){training=true;sequence=Array.from({length:3+Math.min(3,Math.floor(run.day/4))},(_,i)=>(i*3+run.day+run.journey)%4);input=[];choice.classList.add('show');choice.innerHTML=[0,1,2,3].map(i=>`<button class="btn" data-tone="${i}">${['🔴','🔵','🟢','🟡'][i]}</button>`).join('');choice.querySelectorAll('[data-tone]').forEach(b=>b.onclick=()=>pressTone(+b.dataset.tone));speech.textContent=`记住：${sequence.map(i=>['🔴','🔵','🟢','🟡'][i]).join(' ')}`;clearTimeout(timer);timer=setTimeout(()=>{if(training)speech.textContent="按顺序点击颜色";},1100);render(false);}
+  function pressTone(i){if(!training)return;input.push(i);if(i!==sequence[input.length-1]){training=false;run.energy=clamp(run.energy-8,0,100);choice.classList.remove('show');say("顺序差了一点，但伙伴记住了错误发生的位置。");render();return;}if(input.length===sequence.length){training=false;run.energy=clamp(run.energy-12,0,100);run.traits.wisdom+=2;run.bond+=3;run.joy=clamp(run.joy+5,0,100);choice.classList.remove('show');say("音符顺序全部答对，聪慧与羁绊提升！");bounce();render();}}
+  function showExploreChoices(){choice.classList.add('show');choice.innerHTML=run.choice.map((o,i)=>`<button class="btn cyan" data-choice="${i}">${o.text}</button>`).join('');choice.querySelectorAll('[data-choice]').forEach(b=>b.onclick=()=>chooseExplore(+b.dataset.choice));speech.textContent="路边出现了一个小小事件，你想怎样陪它面对？";}
+  function startExplore(){const options=EXPLORE[(run.day+run.journey)%EXPLORE.length];run.choice=options;showExploreChoices();render(false);}
+  function chooseExplore(i){const o=run.choice[i];run.choice=null;run.traits[o.trait]+=3;run.bond+=2+career.facilities.observatory;run.energy=clamp(run.energy-10,0,100);choice.classList.remove('show');say(o.note);bounce();render();}
+  function nextDay(){if(run.complete||training||run.choice)return;if(run.actions>0&&!confirm(`今天还剩 ${run.actions} 次行动，仍要结束吗？`))return;const avg=(run.food+run.joy+run.clean)/3;if(avg<30){run.critical++;run.bond=Math.max(0,run.bond-3);}else if(avg>=65)run.bond+=2;run.day++;run.food=clamp(run.food-16-(weather()==='雨'?2:0),0,100);run.joy=clamp(run.joy-11,0,100);run.clean=clamp(run.clean-13,0,100);run.energy=90;run.actions=3;if(run.day===2){run.stage=1;say("蛋壳裂开了！一只星芽幼兽探出了脑袋。");}else if(run.day===5){evolveJuvenile();}else if(run.day===9){run.stage=2;say("伙伴的星纹完全亮起，终末进化已经很近了。");}else if(run.day===12){completeCycle();return;}else say(`第 ${run.day} 天开始，窗外是${weather()}。`);render();}
+  function dominant(){return Object.entries(run.traits).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]))[0][0];}
+  function evolveJuvenile(){const key=dominant(),map={brave:["焰尾幼兽","🦊"],wisdom:["月耳幼兽","🐰"],empathy:["芽翼幼兽","🦋"],calm:["云绒幼兽","🐻‍❄️"]};run.juvenile=key;run.stage=2;say(`成长倾向汇成星纹，伙伴进化为 ${map[key][0]}！`);}
+  function completeCycle(){run.day=12;run.complete=true;run.actions=0;const key=dominant(),radiant=run.bond>=28&&run.critical===0,index=FORMS.findIndex(f=>f.trait===key&&f.variant===(radiant?1:0));run.form=index;const journey=JOURNEYS[run.journey],targetValue=run.traits[journey.target];let stars=1;if(run.bond>=25&&run.critical<=1)stars=2;if(targetValue>=12&&run.bond>=32&&run.critical===0)stars=3;career.stars[run.journey]=Math.max(career.stars[run.journey],stars);career.hearts+=stars*55+(career.dex.includes(index)?0:90);if(!career.dex.includes(index))career.dex.push(index);career.cycles++;persist();say(`第十二天，伙伴进化为 ${FORMS[index].icon}${FORMS[index].name}！本周期获得 ${stars} 星。`);render();}
+  function startCycle(journey=selected){if(run&&!run.complete&&!confirm("当前成长尚未完成，确定开启新周期吗？"))return;selected=journey;run=fresh(journey);training=null;choice.classList.remove('show');persist();renderAll();}
+  function selectJourney(i){if(totalStars()<JOURNEYS[i].need||!run.complete)return;selected=i;startCycle(i);}
+  function petIcon(){if(run.day===1)return "🥚";if(run.form!==null)return FORMS[run.form].icon;if(run.juvenile){return {brave:"🦊",wisdom:"🐰",empathy:"🦋",calm:"🐻‍❄️"}[run.juvenile];}return "🐣";}
+  function bounce(){pet.classList.remove('bounce');void pet.offsetWidth;pet.classList.add('bounce');}
+  function render(keepSpeech=true){dayline.innerHTML=Array.from({length:12},(_,i)=>`<div class="daydot ${i+1<run.day?'done':''} ${i+1===run.day?'now':''}">${i+1}</div>`).join('');const needData=[["饱食",run.food],["快乐",run.joy],["清洁",run.clean],["精力",run.energy]];needs.innerHTML=needData.map(([n,v])=>`<div class="need"><span><b>${n}</b><em>${Math.round(v)}</em></span><div class="bar"><i style="width:${clamp(v,0,100)}%"></i></div></div>`).join('');weatherText.textContent=`第 ${run.day} 天 · ${weather()}`;actionText.textContent=`${run.actions}/3`;room.className=`room ${weather().includes('夜')?'night':''} ${weather().includes('雨')?'rain':''}`;pet.textContent=petIcon();if(run.choice)showExploreChoices();if(keepSpeech&&!training&&!run.choice)speech.textContent=run.complete?`${FORMS[run.form].name}会记得这十二天。`:run.food<25?"肚子咕咕叫了……":run.clean<25?"毛毛有点乱……":run.joy<25?"今天可以陪我玩吗？":"今天也想和你一起长大。";activity.innerHTML=ACTIVITIES.map(a=>`<button class="btn" data-act="${a.key}" ${run.complete||run.actions<=0||training||run.choice?'disabled':''}>${a.label}<small>${a.hint}</small></button>`).join('');activity.querySelectorAll('[data-act]').forEach(b=>b.onclick=()=>act(b.dataset.act));diary.innerHTML=run.logs.map(x=>`<div>• ${x}</div>`).join('');endDayBtn.disabled=run.complete||training||Boolean(run.choice);newCycleBtn.textContent=run.complete?'开启新周期':'放弃并重开';renderSide();}
+  function renderSide(){const j=JOURNEYS[run.journey];journeyChapter.textContent=j.chapter;journeyName.textContent=j.name;journeyBrief.textContent=`${j.brief} 三星目标：${TRAITS[j.target][0]}达到 12、羁绊达到 32，且没有一天进入危急状态。`;traits.innerHTML=Object.entries(TRAITS).map(([k,[n,icon]])=>`<div class="trait"><span><b>${icon} ${n}</b><em>${run.traits[k]}</em></span><i style="width:${Math.min(100,run.traits[k]*6)}%"></i></div>`).join('');heartText.textContent=career.hearts;starText.textContent=totalStars();cycleText.textContent=career.cycles;journeys.innerHTML=JOURNEYS.map((x,i)=>`<button class="journey ${i===run.journey?'active':''}" data-journey="${i}" ${totalStars()<x.need||!run.complete?'disabled':''}><b><span>${i+1}. ${x.name}</span><span class="stars">${'★'.repeat(career.stars[i])}${'☆'.repeat(3-career.stars[i])}</span></b><small>${totalStars()>=x.need?x.brief:`需要 ${x.need} 星（当前 ${totalStars()}）`}</small></button>`).join('');journeys.querySelectorAll('[data-journey]').forEach(b=>b.onclick=()=>selectJourney(+b.dataset.journey));facilities.innerHTML=FACILITIES.map(f=>{const lv=career.facilities[f.key],cost=Math.round(f.base*Math.pow(1.65,lv));return `<div class="facility"><b>${f.name} Lv.${lv}</b><small>${f.desc}</small><button class="btn" data-facility="${f.key}" ${career.hearts<cost||lv>=3||!run.complete?'disabled':''}>${lv>=3?'已满级':cost+' 心愿'}</button></div>`;}).join('');facilities.querySelectorAll('[data-facility]').forEach(b=>b.onclick=()=>upgrade(b.dataset.facility));dex.innerHTML=FORMS.map((f,i)=>`<div class="form ${career.dex.includes(i)?'found':''}"><i>${career.dex.includes(i)?f.icon:'?'}</i>${career.dex.includes(i)?f.name:'未知形态'}</div>`).join('');}
+  function renderAll(){render();}
+  function upgrade(key){const f=FACILITIES.find(x=>x.key===key),lv=career.facilities[key],cost=Math.round(f.base*Math.pow(1.65,lv));if(!run.complete||lv>=3||career.hearts<cost)return;career.hearts-=cost;career.facilities[key]++;persist();renderSide();}
+  function checksum(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return (h>>>0).toString(36).toUpperCase();}
+  function encode(){const p=btoa(unescape(encodeURIComponent(JSON.stringify({v:2,h:career.hearts,s:career.stars,f:career.facilities,d:career.dex,c:career.cycles,x:selected,r:run}))));return `PET2.${p}.${checksum(p)}`;}
+  function decode(code){const p=code.trim().split('.');if(p.length!==3||p[0]!=="PET2"||checksum(p[1])!==p[2])throw Error('伙伴档案校验失败');const v=JSON.parse(decodeURIComponent(escape(atob(p[1]))));if(v.v!==2||!Array.isArray(v.s)||!v.f)throw Error('档案版本不兼容');const parsed={v:2,hearts:Math.max(0,+v.h||0),stars:Array.from({length:4},(_,i)=>clamp(+v.s[i]||0,0,3)),facilities:Object.fromEntries(FACILITIES.map(f=>[f.key,clamp(+v.f[f.key]||0,0,3)])),dex:(v.d||[]).filter(i=>Number.isInteger(i)&&i>=0&&i<FORMS.length),cycles:Math.max(0,+v.c||0),selected:clamp(+v.x||0,0,3),run:validRun(v.r)?v.r:null};if(!parsed.run)parsed.run=fresh(parsed.selected);return parsed;}
+  endDayBtn.onclick=nextDay;newCycleBtn.onclick=()=>startCycle(selected);archiveBtn.onclick=()=>{archiveModal.classList.remove('hidden');archiveText.value=encode();archiveFeedback.textContent='';};closeArchiveBtn.onclick=()=>archiveModal.classList.add('hidden');exportBtn.onclick=async()=>{archiveText.value=encode();archiveText.select();try{await navigator.clipboard.writeText(archiveText.value);archiveFeedback.textContent='伙伴档案已复制。';}catch(_){archiveFeedback.textContent='档案已生成，请手动复制。';}};importBtn.onclick=()=>{try{career=decode(archiveText.value);selected=career.selected;run=career.run;persist();renderAll();archiveFeedback.textContent='导入成功。';}catch(e){archiveFeedback.textContent=e.message;}};
+  window.__pocketCompanion={JOURNEYS,FORMS,FACILITIES,career:()=>career,run:()=>run,act,nextDay,completeCycle,startCycle,encode,decode,dominant};
+  renderAll();
+})();
+</script>
+</body>
 </html>

@@ -1,269 +1,108 @@
 <!doctype html>
 <html lang="zh-CN">
-  <meta charset="utf-8" /><meta
-    name="viewport"
-    content="width=device-width,initial-scale=1"
-  /><title>交易风暴</title
-  ><style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      background: #0b1722;
-      color: #eef8ff;
-      font-family: system-ui, "Microsoft YaHei";
-    }
-    .app {
-      min-height: 100vh;
-      padding: 14px;
-      display: grid;
-      place-items: center;
-    }
-    .shell {
-      width: min(980px, 100%);
-      background: #152b3d;
-      border: 1px solid #4f7188;
-      border-radius: 20px;
-      padding: 16px;
-    }
-    .top,
-    .row {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .layout {
-      display: grid;
-      grid-template-columns: 1fr 300px;
-      gap: 12px;
-      margin-top: 12px;
-    }
-    .market {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 8px;
-    }
-    .stock {
-      border: 1px solid #456579;
-      border-radius: 10px;
-      background: #102334;
-      padding: 10px;
-    }
-    .stock.up {
-      box-shadow: inset 4px 0 #56d88b;
-    }
-    .stock.down {
-      box-shadow: inset 4px 0 #e05f66;
-    }
-    .price {
-      font-size: 23px;
-    }
-    .panel {
-      background: #0d202e;
-      border: 1px solid #3c5c70;
-      border-radius: 11px;
-      padding: 10px;
-      margin-bottom: 9px;
-    }
-    .holding {
-      display: flex;
-      justify-content: space-between;
-      padding: 5px;
-      border-bottom: 1px solid #ffffff18;
-    }
-    .news {
-      color: #ffe07b;
-    }
-    .log {
-      height: 90px;
-      overflow: auto;
-      color: #b7cad5;
-      font-size: 13px;
-    }
-    button {
-      padding: 8px 10px;
-      border: 1px solid #5d7d90;
-      border-radius: 8px;
-      background: #2b5168;
-      color: white;
-      font-weight: bold;
-    }
-    .sell {
-      background: #8d4248;
-    }
-    .help {
-      font-size: 13px;
-      color: #b9ccd6;
-    }
-    @media (max-width: 700px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
-      .market {
-        grid-template-columns: 1fr;
-      }
-      .app {
-        place-items: start center;
-      }
-    }
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>交易风暴：周期实验室</title>
+  <style>
+    :root{--bg:#08131c;--panel:#102638;--panel2:#0c1e2c;--line:#42647a;--ink:#ecf8ff;--muted:#adc3d0;--green:#55d68b;--red:#e56870;--gold:#f0c55e;--cyan:#66cde0}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 12% 0,#164e64 0,transparent 31%),radial-gradient(circle at 90% 5%,#403251 0,transparent 27%),linear-gradient(145deg,#07111a,#0c1c29 65%,#101322);color:var(--ink);font-family:system-ui,"Microsoft YaHei",sans-serif}.app{width:min(1450px,calc(100% - 22px));margin:11px auto}.top,.panel{border:1px solid var(--line);border-radius:15px;background:rgba(16,38,56,.97);box-shadow:0 18px 48px rgba(0,0,0,.34)}.top{display:flex;justify-content:space-between;align-items:center;gap:15px;padding:15px 18px}.eyebrow{margin:0 0 4px;color:var(--cyan);font-size:12px;font-weight:950;letter-spacing:.15em}.top h1{margin:0;font-size:clamp(26px,4vw,43px);line-height:1}.sub{margin:7px 0 0;color:var(--muted);font-size:13px}.actions,.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}button,textarea{font:inherit}.btn{min-height:42px;padding:0 13px;border:1px solid #5b7f95;border-radius:9px;background:#28586f;color:white;font-weight:900;cursor:pointer}.btn.gold{border-color:#9e7732;background:#77561f}.btn.red{border-color:#974650;background:#77363e}.btn.ghost{background:#20384d}.btn:disabled{opacity:.42;filter:saturate(.3);cursor:not-allowed}.headline{padding:11px 14px;margin-top:12px;border:1px solid #7d6d43;border-radius:11px;background:linear-gradient(90deg,#3b311b,#17283a);display:flex;justify-content:space-between;gap:10px;align-items:center}.headline b{color:#ffe08c}.layout{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:12px;margin-top:12px;align-items:start}.market-wrap{padding:12px;min-width:0}.side{padding:12px;display:grid;gap:10px;max-height:calc(100vh - 105px);overflow:auto}.summary{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:9px}.stat{padding:7px;border:1px solid #3f6075;border-radius:8px;background:#0b1d2b}.stat b{display:block;font-size:19px}.stat small{font-size:10px;color:var(--muted)}.market{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}.stock{padding:9px;border:1px solid #3f6075;border-radius:10px;background:#0b1c29;cursor:pointer}.stock.selected{outline:3px solid var(--cyan)}.stock.up{box-shadow:inset 4px 0 var(--green)}.stock.down{box-shadow:inset 4px 0 var(--red)}.stock-head{display:flex;justify-content:space-between;gap:7px}.stock small{color:var(--muted)}.price{margin:5px 0;font-size:22px;font-weight:950}.price .up{color:var(--green)}.price .down{color:var(--red)}.fund{display:flex;gap:6px;flex-wrap:wrap;color:#b8c9d2;font-size:10px}.orders{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:7px}.orders button{min-height:35px;padding:0 3px;border:1px solid #486b7e;border-radius:7px;background:#21485c;color:white;font-size:10px;font-weight:850}.orders button.sell{background:#63343d}.chartbox{margin-top:10px;padding:9px;border:1px solid #3f6075;border-radius:10px;background:#0a1a27}.chart-head{display:flex;justify-content:space-between;gap:8px;margin-bottom:5px}.chartbox canvas{display:block;width:100%;height:190px;touch-action:none}.block{padding:11px;border:1px solid #3d5c70;border-radius:11px;background:#0b1c29}.block h2,.block h3{margin:0 0 8px}.block h2{font-size:20px}.block h3{font-size:14px;color:var(--cyan)}.scenarios{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.scenario{min-height:49px;padding:4px;border:1px solid #3e6175;border-radius:8px;background:#173247;color:white;cursor:pointer}.scenario.active{outline:3px solid var(--gold)}.scenario:disabled{opacity:.38}.stars{color:var(--gold);font-size:10px}.goals{display:grid;gap:6px}.goal{display:flex;justify-content:space-between;gap:8px;padding:7px;border:1px solid #3b5b6e;border-radius:8px;color:var(--muted);font-size:11px}.goal.pass{border-color:#3e895e;background:#123224;color:#dff9e7}.portfolio{display:grid;gap:5px}.holding{display:flex;justify-content:space-between;gap:7px;padding:6px;border-bottom:1px solid #ffffff16;font-size:11px}.career{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.career div{padding:7px;border:1px solid #3c5b6d;border-radius:8px;background:#10283a;text-align:center}.career b{display:block;font-size:19px}.career small{font-size:10px;color:var(--muted)}.research{display:grid;grid-template-columns:1fr 1fr;gap:6px}.tool{padding:7px;border:1px solid #3d5f73;border-radius:8px;background:#112b3d}.tool b,.tool small{display:block}.tool small{min-height:31px;color:var(--muted);font-size:10px}.tool button{width:100%;min-height:35px;margin-top:5px;padding:0 3px}.calendar{display:grid;gap:5px}.calendar div{padding:6px;border-left:3px solid var(--gold);background:#13283a;color:var(--muted);font-size:11px}.log{max-height:110px;overflow:auto;color:var(--muted);font-size:11px;line-height:1.55}.tip{color:var(--muted);font-size:12px;line-height:1.5}.archive{position:fixed;inset:0;z-index:8;display:grid;place-items:center;padding:18px;background:rgba(2,9,14,.84)}.archive.hidden{display:none}.dialog{width:min(630px,100%);padding:18px;border:1px solid #52758b;border-radius:15px;background:#102638}.dialog h2{margin:0 0 8px}.dialog textarea{width:100%;min-height:125px;padding:10px;border:1px solid #4e7187;border-radius:8px;background:#071520;color:white;resize:vertical}.dialog .row{justify-content:flex-end}.feedback{min-height:20px;margin-top:7px;color:var(--gold);font-size:12px;font-weight:850}
+    @media(max-width:1000px){.layout{grid-template-columns:1fr}.side{max-height:none;grid-template-columns:repeat(2,minmax(0,1fr))}.side .wide{grid-column:1/-1}}
+    @media(max-width:680px){.app{width:min(100% - 10px,1450px);margin:5px auto}.top{display:block;padding:12px}.actions{margin-top:11px}.actions .btn{flex:1}.market-wrap,.side{padding:9px}.side{grid-template-columns:1fr}.side .wide{grid-column:auto}.summary{grid-template-columns:repeat(3,1fr)}.market{grid-template-columns:1fr}.headline{display:block}.headline span{display:block;margin-top:5px}.orders button{min-height:42px}.sub{line-height:1.45}}
   </style>
-  <main class="app">
-    <section class="shell">
-      <div class="top">
-        <div>
-          <h1 style="margin: 0">交易风暴</h1>
-          <div class="help">
-            阅读行业新闻、控制仓位并在三十个交易日内把初始十万资金尽量做大。
-          </div>
-        </div>
-        <div>
-          第 <b id="day"></b>/30 日　现金 <b id="cash"></b>　总资产
-          <b id="worth"></b>
-        </div>
-      </div>
-      <div class="news panel" id="news"></div>
-      <div class="layout">
-        <div>
-          <div class="market" id="market"></div>
-          <div class="row" style="margin-top: 9px">
-            <button id="nextDay">收盘 / 下一日</button
-            ><button id="restart">新账户</button>
-          </div>
-        </div>
-        <aside>
-          <div class="panel">
-            <b>持仓</b>
-            <div id="portfolio"></div>
-          </div>
-          <div class="panel">
-            <b>目标</b>
-            <div class="help">
-              三十日结束时总资产达到
-              150,000。新闻会显著影响对应行业一至三天，但仍包含随机波动。
-            </div>
-          </div>
-          <div class="panel log" id="log"></div>
-        </aside>
-      </div>
+</head>
+<body>
+<main class="app">
+  <header class="top"><div><p class="eyebrow">MARKET CYCLE LAB V2</p><h1>交易风暴</h1><p class="sub">六种确定性市场情景、八家公司基本面、持续新闻冲击与回撤约束。不是猜涨跌，而是管理证据和仓位。</p></div><div class="actions"><button class="btn gold" id="closeBtn">收盘 / 下一日</button><button class="btn" id="restartBtn">重开情景</button><button class="btn ghost" id="archiveBtn">研究档案</button></div></header>
+  <div class="headline" id="headline"><b id="newsTitle"></b><span id="newsDetail"></span></div>
+  <section class="layout">
+    <section class="panel market-wrap">
+      <div class="summary"><div class="stat"><b id="dayText">1/18</b><small>交易日</small></div><div class="stat"><b id="cashText">100000</b><small>现金</small></div><div class="stat"><b id="worthText">100000</b><small>总资产</small></div><div class="stat"><b id="returnText">0%</b><small>收益</small></div><div class="stat"><b id="drawdownText">0%</b><small>最大回撤</small></div><div class="stat"><b id="feeText">0</b><small>交易费</small></div></div>
+      <div class="market" id="market"></div>
+      <div class="chartbox"><div class="chart-head"><b id="chartTitle">公司价格历史</b><span class="tip" id="chartInfo"></span></div><canvas id="chart" width="720" height="190" aria-label="公司价格历史图"></canvas></div>
     </section>
-  </main>
-  <script>
-    const S = [
-        ["云芯科技", "科技", 120],
-        ["绿潮能源", "能源", 75],
-        ["北岸银行", "金融", 90],
-        ["星药生物", "医疗", 105],
-        ["远洋物流", "物流", 60],
-        ["金穗食品", "消费", 48],
-      ],
-      NEWS = [
-        ["科技", "芯片需求超预期", 0.14],
-        ["能源", "新能源补贴落地", 0.16],
-        ["金融", "利率压力上升", -0.13],
-        ["医疗", "新药试验成功", 0.18],
-        ["物流", "港口出现拥堵", -0.15],
-        ["消费", "节庆销售火热", 0.12],
-      ];
-    let q;
-    const $ = (x) => document.getElementById(x);
-    function fresh() {
-      return {
-        day: 1,
-        cash: 100000,
-        stocks: S.map((s, i) => ({ p: s[2], last: s[2], n: 0, avg: 0 })),
-        event: null,
-        logs: ["账户开立，等待第一条市场新闻。"],
-        over: false,
-      };
-    }
-    function event() {
-      q.event = NEWS[Math.floor(Math.random() * NEWS.length)];
-      q.logs.unshift(`新闻：${q.event[1]}。`);
-    }
-    function trade(i, buy) {
-      let s = q.stocks[i],
-        amount = 10,
-        cost = s.p * amount;
-      if (buy) {
-        if (q.cash < cost) return;
-        s.avg = (s.avg * s.n + cost) / (s.n + amount);
-        s.n += amount;
-        q.cash -= cost;
-      } else {
-        amount = Math.min(amount, s.n);
-        s.n -= amount;
-        q.cash += s.p * amount;
-      }
-      draw();
-    }
-    function next() {
-      if (q.over) return;
-      if (!q.event) event();
-      q.stocks.forEach((s, i) => {
-        s.last = s.p;
-        let impact =
-          S[i][1] === q.event[0]
-            ? q.event[2] * (0.65 + Math.random() * 0.7)
-            : 0;
-        s.p = Math.max(
-          5,
-          Math.round(s.p * (1 + impact + (Math.random() - 0.5) * 0.09) * 100) /
-            100,
-        );
-      });
-      q.day++;
-      event();
-      if (q.day > 30) {
-        q.over = true;
-        q.logs.unshift(`交易结束，总资产 ${Math.round(total())}。`);
-      }
-      draw();
-    }
-    function total() {
-      return q.cash + q.stocks.reduce((v, s) => v + s.p * s.n, 0);
-    }
-    function draw() {
-      day.textContent = Math.min(30, q.day);
-      cash.textContent = Math.round(q.cash);
-      worth.textContent = Math.round(total());
-      news.textContent = q.event
-        ? `${q.event[2] > 0 ? "利好" : "利空"} · ${q.event[0]}：${q.event[1]}`
-        : "开盘后将出现首条行业新闻";
-      market.innerHTML = q.stocks
-        .map(
-          (s, i) =>
-            `<div class="stock ${s.p >= s.last ? "up" : "down"}"><b>${S[i][0]}</b><small> · ${S[i][1]}</small><div class="price">${s.p.toFixed(2)} ${s.p >= s.last ? "▲" : "▼"}</div><button data-b="${i}">买入10</button><button class="sell" data-s="${i}" ${!s.n ? "disabled" : ""}>卖出10</button></div>`,
-        )
-        .join("");
-      market
-        .querySelectorAll("[data-b]")
-        .forEach((e) => (e.onclick = () => trade(+e.dataset.b, true)));
-      market
-        .querySelectorAll("[data-s]")
-        .forEach((e) => (e.onclick = () => trade(+e.dataset.s, false)));
-      portfolio.innerHTML =
-        q.stocks
-          .filter((s) => s.n)
-          .map((s, i) => {
-            let real = q.stocks.indexOf(s);
-            return `<div class="holding"><span>${S[real][0]} ×${s.n}</span><b>${Math.round(s.p * s.n)}</b></div>`;
-          })
-          .join("") || '<div class="help">暂无持仓</div>';
-      log.innerHTML = q.logs
-        .slice(0, 7)
-        .map((x) => `<div>• ${x}</div>`)
-        .join("");
-      nextDay.disabled = q.over;
-    }
-    nextDay.onclick = next;
-    restart.onclick = () => {
-      q = fresh();
-      draw();
-    };
-    q = fresh();
-    draw();
-  </script>
+    <aside class="panel side">
+      <section class="block wide"><h3 id="scenarioChapter"></h3><h2 id="scenarioName"></h2><p class="tip" id="scenarioBrief"></p><div class="goals" id="goals"></div></section>
+      <section class="block"><h3>周期生涯</h3><div class="career"><div><b id="careerStars">0</b><small>星章</small></div><div><b id="insightText">0</b><small>洞察</small></div><div><b id="cycleText">0</b><small>完成周期</small></div></div></section>
+      <section class="block"><h3>六种情景</h3><div class="scenarios" id="scenarios"></div></section>
+      <section class="block wide"><h3>持仓与风险</h3><div class="portfolio" id="portfolio"></div><p class="tip" id="riskText"></p></section>
+      <section class="block wide"><h3>研究终端</h3><div class="research" id="research"></div></section>
+      <section class="block wide"><h3>事件日历</h3><div class="calendar" id="calendar"></div></section>
+      <section class="block wide"><h3>账户日志</h3><div class="log" id="log"></div></section>
+    </aside>
+  </section>
+</main>
+<div class="archive hidden" id="archiveModal"><div class="dialog"><h2>跨设备市场研究档案</h2><p class="tip">档案包含情景星级、研究终端、洞察点和当前账户进度。</p><textarea id="archiveText" spellcheck="false"></textarea><div class="row"><button class="btn" id="closeArchiveBtn">关闭</button><button class="btn" id="importBtn">导入</button><button class="btn gold" id="exportBtn">生成并复制</button></div><div class="feedback" id="archiveFeedback"></div></div></div>
+<script>
+(() => {
+  "use strict";
+  const KEY="miniMarketPulseV2",DAYS=18,$=id=>document.getElementById(id),chart=$("chart"),g=chart.getContext("2d");
+  const COMPANIES=[
+    {name:"云芯科技",sector:"科技",price:120,growth:8,debt:3,moat:8,dividend:0,beta:1.35,color:"#6ad7e7"},{name:"星链软件",sector:"科技",price:84,growth:7,debt:2,moat:7,dividend:1,beta:1.2,color:"#8d9cf0"},
+    {name:"绿潮能源",sector:"能源",price:76,growth:6,debt:5,moat:6,dividend:2,beta:1.15,color:"#63d798"},{name:"远海石化",sector:"能源",price:68,growth:2,debt:6,moat:5,dividend:5,beta:1.05,color:"#d5a95d"},
+    {name:"北岸银行",sector:"金融",price:92,growth:4,debt:4,moat:7,dividend:4,beta:.9,color:"#e49375"},{name:"恒信保险",sector:"金融",price:63,growth:5,debt:3,moat:6,dividend:3,beta:.8,color:"#e56f92"},
+    {name:"星药生物",sector:"民生",price:108,growth:9,debt:5,moat:8,dividend:0,beta:1.4,color:"#c28ce8"},{name:"金穗食品",sector:"民生",price:49,growth:3,debt:2,moat:6,dividend:4,beta:.65,color:"#f0c65e"}
+  ];
+  const SCENARIOS=[
+    {chapter:"第一期 · 复苏交易",name:"风暴后的开盘",brief:"增长重新加速，但高波动公司会率先摇摆。",target:1.045,maxDD:.09,special:"sectors2",specialText:"收盘持有至少 2 个行业",need:0,bias:{科技:.002,能源:.001,金融:.001,民生:.0005}},
+    {chapter:"第二期 · 通胀迷雾",name:"成本与现金流",brief:"负债和估值承压，分红与低波动开始重要。",target:1.05,maxDD:.085,special:"cash20",specialText:"期末现金比例不少于 20%",need:2,bias:{科技:-.001,能源:.002,金融:.0005,民生:.001}},
+    {chapter:"第三期 · 绿色转轨",name:"旧能源与新电网",brief:"能源内部出现分化，不能把行业新闻等同于所有公司。",target:1.06,maxDD:.11,special:"green35",specialText:"绿潮能源期末权重达到 35%",need:5,bias:{科技:.001,能源:.002,金融:0,民生:.0005}},
+    {chapter:"第四期 · 信贷收缩",name:"资产负债表考试",brief:"高负债公司对坏消息更敏感，现金是一种选择权。",target:1.04,maxDD:.07,special:"concentration45",specialText:"任一公司权重不超过 45%",need:8,bias:{科技:-.0005,能源:-.001,金融:-.0015,民生:.001}},
+    {chapter:"第五期 · 创新浪潮",name:"增长与价格",brief:"高增长获得催化，但价格偏离价值后会逐步回归。",target:1.07,maxDD:.12,special:"dividend300",specialText:"累计分红达到 300",need:11,bias:{科技:.0025,能源:0,金融:.0005,民生:.002}},
+    {chapter:"第六期 · 全周期",name:"四象再平衡",brief:"复苏、通胀、收缩和创新交替出现，仓位纪律决定最终结果。",target:1.08,maxDD:.095,special:"sectors4",specialText:"期末同时持有四个行业",need:14,bias:{科技:.001,能源:.001,金融:.001,民生:.001}}
+  ];
+  const EVENTS=[
+    {sector:"科技",title:"算力订单超预期",effect:.09,days:3,detail:"科技公司未来三日获得订单推动，成长更高者弹性更大。"},{sector:"科技",title:"出口审核收紧",effect:-.075,days:2,detail:"科技行业订单延迟两日，高波动公司受影响更明显。"},
+    {sector:"能源",title:"电网投资加速",company:2,effect:.13,days:3,detail:"绿潮能源获得定向催化，并非所有能源公司同涨。"},{sector:"能源",title:"原料价格急升",effect:-.07,days:3,detail:"能源行业成本压力持续三日，高负债公司额外承压。"},
+    {sector:"金融",title:"净息差出现修复",effect:.075,days:3,detail:"银行与保险现金流改善，低波动属性同时生效。"},{sector:"金融",title:"信用风险暴露",effect:-.09,days:3,detail:"金融行业面临信用冲击，负债敏感度提高。"},
+    {sector:"民生",title:"集采规则明朗",company:6,effect:.12,days:2,detail:"星药生物确定新产品价格，短期催化集中于单家公司。"},{sector:"民生",title:"消费需求回暖",effect:.065,days:3,detail:"民生行业需求改善，护城河更高者受益更稳。"},
+    {sector:"科技",title:"估值过热警示",effect:-.06,days:2,detail:"价格偏离基本面后回归加快，谨防集中持仓。"},{sector:"能源",title:"传统能源供给受限",company:3,effect:.11,days:2,detail:"远海石化获得短期价格催化，绿色转轨趋势并未反转。"},
+    {sector:"金融",title:"险资长期资金入市",company:5,effect:.1,days:3,detail:"恒信保险资产端改善，事件持续三个收盘。"},{sector:"民生",title:"食品成本下降",company:7,effect:.08,days:3,detail:"金穗食品利润率改善，低波动并不意味着没有机会。"},
+    {sector:"科技",title:"软件订阅提价",company:1,effect:.095,days:3,detail:"星链软件获得定向收入提升。"},{sector:"能源",title:"补贴退坡传闻",company:2,effect:-.085,days:2,detail:"绿潮能源短期承压，事件两日后消退。"},
+    {sector:"金融",title:"利率曲线倒挂",effect:-.065,days:2,detail:"金融行业短期承压，分红仍会在第六日结算。"},{sector:"民生",title:"防御需求上升",effect:.055,days:3,detail:"资金偏好稳定现金流，民生行业波动下降。"}
+  ];
+  const TOOLS=[
+    {key:"calendar",name:"事件前瞻",cost:2,desc:"显示下一交易日的新闻标题"},{key:"valuation",name:"估值模型",cost:4,desc:"显示公司模型价值与折溢价"},
+    {key:"risk",name:"风险透视",cost:5,desc:"显示集中度和行业权重"},{key:"execution",name:"智能执行",cost:6,desc:"交易费率从 0.15% 降至 0.05%"},
+    {key:"dividend",name:"分红扫描",cost:7,desc:"公司卡显示每六日预期分红"},{key:"horizon",name:"冲击解码",cost:8,desc:"显示新闻剩余影响天数"}
+  ];
+  let career=load(),selected=Math.min(career.selected||0,5),q=career.run&&validRun(career.run)?career.run:fresh(selected),selectedCompany=0;
+  function defaults(){return {v:2,stars:Array(6).fill(0),insight:0,tools:[],cycles:0,unlocked:0,selected:0,run:null};}
+  function load(){try{const v=JSON.parse(localStorage.getItem(KEY)||"null");if(v&&v.v===2)return Object.assign(defaults(),v,{stars:Array.from({length:6},(_,i)=>v.stars?.[i]||0),tools:Array.isArray(v.tools)?v.tools:[]});}catch(_){}return defaults();}
+  function validRun(r){return r&&Number.isInteger(r.day)&&r.day>=1&&r.day<=DAYS+1&&Array.isArray(r.stocks)&&r.stocks.length===COMPANIES.length;}
+  function totalStars(){return career.stars.reduce((a,b)=>a+b,0);}function clamp(v,a,b){return Math.max(a,Math.min(b,v));}function has(k){return career.tools.includes(k);}
+  function eventFor(scenario,day){return EVENTS[(scenario*5+day*3+(day%4)*scenario)%EVENTS.length];}
+  function fairValue(c,scenario){const sc=SCENARIOS[scenario],quality=1+c.growth*.026+c.moat*.018-c.debt*.014,bias=1+(sc.bias[c.sector]||0)*28;return c.price*quality*bias;}
+  function noise(scenario,day,index){let x=(scenario+1)*0x9e3779b1^day*0x85ebca6b^index*0xc2b2ae35;x^=x>>>16;x=Math.imul(x,0x7feb352d);x^=x>>>15;return ((x>>>0)/4294967296-.5)*2;}
+  function fresh(scenario){return {scenario,day:1,cash:100000,stocks:COMPANIES.map(c=>({price:c.price,last:c.price,shares:0,avg:0,history:[c.price]})),active:[],fees:0,dividends:0,peak:100000,maxDD:0,logs:["研究账户开立，等待第一条确定性新闻。"],over:false,result:0};}
+  function persist(){career.selected=selected;career.run=q;localStorage.setItem(KEY,JSON.stringify(career));}
+  function total(run=q){return run.cash+run.stocks.reduce((sum,s)=>sum+s.price*s.shares,0);}
+  function feeRate(){return has("execution") ? 0.0005 : 0.0015;}
+  function advancePrices(stocks,scenario,day,active){return stocks.map((s,i)=>{const c=COMPANIES[i],fv=fairValue(c,scenario),sc=SCENARIOS[scenario];let impact=active.filter(e=>(e.company===undefined?e.sector===c.sector:e.company===i)).reduce((sum,e)=>sum+e.effect/e.days,0);if(active.some(e=>e.effect<0&&(e.company===i||e.sector===c.sector)))impact*=1+c.debt*.035;const fundamental=c.growth*.00018+c.moat*.00009-c.debt*.00008+(sc.bias[c.sector]||0),reversion=(fv-s.price)/Math.max(1,s.price)*.018,random=noise(scenario,day,i)*.012*c.beta,change=clamp(fundamental+reversion+impact+random,-.16,.16),price=Math.max(5,Math.round(s.price*(1+change)*100)/100);return {...s,last:s.price,price,history:[...s.history,price].slice(-24)};});}
+  function trade(i,side,fraction){if(q.over)return;const s=q.stocks[i],rate=feeRate();if(side==="buy"){const budget=q.cash*(fraction===1?.98:fraction),shares=Math.floor(budget/s.price);if(shares<=0)return;const gross=shares*s.price,fee=gross*rate;if(gross+fee>q.cash)return;s.avg=(s.avg*s.shares+gross)/(s.shares+shares);s.shares+=shares;q.cash-=gross+fee;q.fees+=fee;q.logs.unshift(`买入 ${COMPANIES[i].name} ${shares} 股，费用 ${fee.toFixed(0)}。`);}else{const shares=fraction===1?s.shares:Math.max(1,Math.floor(s.shares*fraction));if(shares<=0)return;const gross=shares*s.price,fee=gross*rate;s.shares-=shares;q.cash+=gross-fee;q.fees+=fee;q.logs.unshift(`卖出 ${COMPANIES[i].name} ${shares} 股，费用 ${fee.toFixed(0)}。`);}q.logs=q.logs.slice(0,16);persist();render();}
+  function closeDay(){if(q.over)return;const news=eventFor(q.scenario,q.day);q.active.push({...news,remaining:news.days});q.stocks=advancePrices(q.stocks,q.scenario,q.day,q.active);if(q.day%6===0){let income=0;q.stocks.forEach((s,i)=>income+=s.shares*COMPANIES[i].dividend*.12);income=Math.round(income);q.cash+=income;q.dividends+=income;if(income)q.logs.unshift(`第 ${q.day} 日分红入账 ${income}。`);}q.active=q.active.map(e=>({...e,remaining:e.remaining-1})).filter(e=>e.remaining>0);const worth=total();q.peak=Math.max(q.peak,worth);q.maxDD=Math.max(q.maxDD,(q.peak-worth)/q.peak);q.logs.unshift(`第 ${q.day} 日收盘，总资产 ${Math.round(worth)}。`);q.day++;if(q.day>DAYS)finishScenario();else q.logs.unshift(`新闻：${eventFor(q.scenario,q.day).title}。`);q.logs=q.logs.slice(0,16);persist();render();}
+  function sectorWeights(){const worth=total(),out={科技:0,能源:0,金融:0,民生:0};q.stocks.forEach((s,i)=>out[COMPANIES[i].sector]+=s.price*s.shares/worth);return out;}
+  function concentration(){const worth=total();return Math.max(0,...q.stocks.map(s=>s.price*s.shares/worth));}
+  function specialPass(){const sc=SCENARIOS[q.scenario],weights=sectorWeights(),held=Object.values(weights).filter(x=>x>.01).length;if(sc.special==="sectors2")return held>=2;if(sc.special==="cash20")return q.cash/total()>=.2;if(sc.special==="green35")return q.stocks[2].price*q.stocks[2].shares/total()>=.35;if(sc.special==="concentration45")return concentration()<=.45;if(sc.special==="dividend300")return q.dividends>=300;return held>=4;}
+  function resultStars(){const sc=SCENARIOS[q.scenario],worth=total();if(worth<100000*sc.target)return 0;let s=1;if(q.maxDD<=sc.maxDD)s=2;if(q.maxDD<=sc.maxDD&&specialPass())s=3;return s;}
+  function finishScenario(){q.over=true;q.result=resultStars();if(q.result){const prior=career.stars[q.scenario];career.stars[q.scenario]=Math.max(prior,q.result);career.insight+=Math.max(0,q.result-prior)*2;career.cycles++;career.unlocked=Math.max(career.unlocked,Math.min(5,q.scenario+1));q.logs.unshift(`周期结束：${q.result} 星，总资产 ${Math.round(total())}。`);}else q.logs.unshift(`周期结束：未达到一星资产目标，可复盘后重试。`);persist();}
+  function startScenario(i=selected){if(totalStars()<SCENARIOS[i].need)return;selected=i;q=fresh(i);selectedCompany=0;persist();renderAll();}
+  function selectScenario(i){if(!q.over||totalStars()<SCENARIOS[i].need)return;startScenario(i);}
+  function render(){const sc=SCENARIOS[q.scenario],worth=total(),ret=worth/100000-1,news=q.day<=DAYS?eventFor(q.scenario,q.day):EVENTS[0];newsTitle.textContent=q.over?`周期已经结束 · ${q.result} 星`:news.title;newsDetail.textContent=q.over?`最终资产 ${Math.round(worth)}，最大回撤 ${(q.maxDD*100).toFixed(1)}%。`:news.detail;dayText.textContent=`${Math.min(q.day,DAYS)}/${DAYS}`;cashText.textContent=Math.round(q.cash);worthText.textContent=Math.round(worth);returnText.textContent=`${ret>=0?'+':''}${(ret*100).toFixed(1)}%`;returnText.style.color=ret>=0?'var(--green)':'var(--red)';drawdownText.textContent=`${(q.maxDD*100).toFixed(1)}%`;feeText.textContent=Math.round(q.fees);closeBtn.disabled=q.over;restartBtn.textContent=q.over?'重开情景':'重开情景';
+    market.innerHTML=q.stocks.map((s,i)=>{const c=COMPANIES[i],change=(s.price/s.last-1)*100,fair=fairValue(c,q.scenario),valuation=has('valuation')?` · 模型 ${fair.toFixed(0)}（${s.price<=fair?'折价':'溢价'}）`:'';return `<div class="stock ${s.price>=s.last?'up':'down'} ${i===selectedCompany?'selected':''}" data-company="${i}"><div class="stock-head"><b>${c.name}</b><small>${c.sector} · 持仓 ${s.shares}</small></div><div class="price">${s.price.toFixed(2)} <span class="${change>=0?'up':'down'}">${change>=0?'▲':'▼'} ${Math.abs(change).toFixed(1)}%</span></div><div class="fund">成长 ${c.growth} · 负债 ${c.debt} · 壁垒 ${c.moat}${has('dividend')?` · 分红 ${c.dividend}`:''}${valuation}</div><div class="orders"><button data-buy=".1">买10%</button><button data-buy=".25">买25%</button><button class="sell" data-sell=".25" ${!s.shares?'disabled':''}>卖25%</button><button class="sell" data-sell="1" ${!s.shares?'disabled':''}>清仓</button></div></div>`;}).join('');market.querySelectorAll('[data-company]').forEach(card=>{card.onclick=e=>{selectedCompany=+card.dataset.company;if(e.target.closest('[data-buy]'))trade(selectedCompany,'buy',+e.target.closest('[data-buy]').dataset.buy);else if(e.target.closest('[data-sell]'))trade(selectedCompany,'sell',+e.target.closest('[data-sell]').dataset.sell);else{render();}};});renderSide();drawChart();}
+  function renderSide(){const sc=SCENARIOS[q.scenario],worth=total(),weights=sectorWeights(),held=Object.values(weights).filter(x=>x>.01).length;scenarioChapter.textContent=sc.chapter;scenarioName.textContent=sc.name;scenarioBrief.textContent=sc.brief;const goalData=[[`总资产达到 ${Math.round(100000*sc.target)}`,worth>=100000*sc.target],[`最大回撤不高于 ${(sc.maxDD*100).toFixed(1)}%`,q.maxDD<=sc.maxDD],[sc.specialText,specialPass()]];goals.innerHTML=goalData.map(([t,p])=>`<div class="goal ${p?'pass':''}"><span>${p?'✓':'○'} ${t}</span><b>${p?'满足':'未满足'}</b></div>`).join('');careerStars.textContent=totalStars();insightText.textContent=career.insight;cycleText.textContent=career.cycles;scenarios.innerHTML=SCENARIOS.map((x,i)=>`<button class="scenario ${i===q.scenario?'active':''}" data-scenario="${i}" ${totalStars()<x.need||!q.over?'disabled':''}><b>${i+1}</b><div class="stars">${'★'.repeat(career.stars[i])}${'☆'.repeat(3-career.stars[i])}</div></button>`).join('');scenarios.querySelectorAll('[data-scenario]').forEach(b=>b.onclick=()=>selectScenario(+b.dataset.scenario));portfolio.innerHTML=q.stocks.map((s,i)=>({s,i})).filter(x=>x.s.shares).map(({s,i})=>`<div class="holding"><span>${COMPANIES[i].name} ×${s.shares}</span><b>${Math.round(s.price*s.shares)}</b></div>`).join('')||'<div class="tip">暂无持仓，现金也是一种仓位。</div>';riskText.textContent=has('risk')?`现金 ${(q.cash/worth*100).toFixed(0)}% · 集中度 ${(concentration()*100).toFixed(0)}% · 行业 ${held}/4 · 分红 ${q.dividends}`:`安装“风险透视”后显示现金、集中度、行业数和分红。`;
+    research.innerHTML=TOOLS.map(t=>`<div class="tool"><b>${t.name}</b><small>${t.desc}</small><button class="btn" data-tool="${t.key}" ${has(t.key)||career.insight<t.cost||!q.over?'disabled':''}>${has(t.key)?'已安装':t.cost+' 洞察'}</button></div>`).join('');research.querySelectorAll('[data-tool]').forEach(b=>b.onclick=()=>buyTool(b.dataset.tool));const events=[{day:q.day,event:q.day<=DAYS?eventFor(q.scenario,q.day):null}];if(has('calendar')&&q.day<DAYS)events.push({day:q.day+1,event:eventFor(q.scenario,q.day+1)});calendar.innerHTML=events.filter(x=>x.event).map(x=>`<div>第 ${x.day} 日 · ${x.event.title}${has('horizon')?` · 持续 ${x.event.days} 日`:''}</div>`).join('');log.innerHTML=q.logs.map(x=>`<div>• ${x}</div>`).join('');}
+  function drawChart(){const s=q.stocks[selectedCompany],c=COMPANIES[selectedCompany],data=s.history,rect=chart.getBoundingClientRect(),dpr=Math.max(1,Math.min(2,devicePixelRatio||1)),W=Math.max(300,rect.width),H=190;chart.width=Math.floor(W*dpr);chart.height=Math.floor(H*dpr);g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,W,H);g.fillStyle='#081722';g.fillRect(0,0,W,H);g.strokeStyle='rgba(255,255,255,.08)';for(let y=25;y<H;y+=35){g.beginPath();g.moveTo(0,y);g.lineTo(W,y);g.stroke();}const min=Math.min(...data)*.97,max=Math.max(...data)*1.03,range=max-min||1;g.strokeStyle=c.color;g.lineWidth=3;g.beginPath();data.forEach((v,i)=>{const x=18+i*(W-36)/Math.max(1,data.length-1),y=H-18-(v-min)/range*(H-36);i?g.lineTo(x,y):g.moveTo(x,y);});g.stroke();g.fillStyle=c.color;g.font='900 12px system-ui';g.fillText(`${min.toFixed(1)} – ${max.toFixed(1)}`,12,18);chartTitle.textContent=`${c.name} · 价格历史`;chartInfo.textContent=`成长 ${c.growth} / 负债 ${c.debt} / 壁垒 ${c.moat}`;}
+  function buyTool(key){const t=TOOLS.find(x=>x.key===key);if(!q.over||has(key)||career.insight<t.cost)return;career.insight-=t.cost;career.tools.push(key);persist();render();}
+  function renderAll(){render();}
+  function validateModel(){const errors=[];for(let scenario=0;scenario<SCENARIOS.length;scenario++){let run=fresh(scenario),active=[];for(let day=1;day<=40;day++){const e=eventFor(scenario,((day-1)%DAYS)+1);active.push({...e,remaining:e.days});run.stocks=advancePrices(run.stocks,scenario,day,active);active=active.map(x=>({...x,remaining:x.remaining-1})).filter(x=>x.remaining>0);run.stocks.forEach((s,i)=>{if(!Number.isFinite(s.price)||s.price<5)errors.push(`${scenario}:${day}:${i}`);});}}return {valid:errors.length===0,errors,scenarios:SCENARIOS.length,simulatedDays:SCENARIOS.length*40};}
+  function checksum(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return (h>>>0).toString(36).toUpperCase();}
+  function encode(){const p=btoa(unescape(encodeURIComponent(JSON.stringify({v:2,s:career.stars,i:career.insight,t:career.tools,c:career.cycles,u:career.unlocked,x:selected,r:q}))));return `MARKET2.${p}.${checksum(p)}`;}
+  function decode(code){const p=code.trim().split('.');if(p.length!==3||p[0]!=="MARKET2"||checksum(p[1])!==p[2])throw Error('市场档案校验失败');const v=JSON.parse(decodeURIComponent(escape(atob(p[1]))));if(v.v!==2||!Array.isArray(v.s)||!Array.isArray(v.t))throw Error('档案版本不兼容');const parsed={v:2,stars:Array.from({length:6},(_,i)=>clamp(+v.s[i]||0,0,3)),insight:Math.max(0,+v.i||0),tools:v.t.filter(k=>TOOLS.some(t=>t.key===k)),cycles:Math.max(0,+v.c||0),unlocked:clamp(+v.u||0,0,5),selected:clamp(+v.x||0,0,5),run:validRun(v.r)?v.r:null};if(!parsed.run)parsed.run=fresh(parsed.selected);return parsed;}
+  closeBtn.onclick=closeDay;restartBtn.onclick=()=>{if(q.over||confirm('确定重置当前情景账户吗？'))startScenario(q.scenario);};archiveBtn.onclick=()=>{archiveModal.classList.remove('hidden');archiveText.value=encode();archiveFeedback.textContent='';};closeArchiveBtn.onclick=()=>archiveModal.classList.add('hidden');exportBtn.onclick=async()=>{archiveText.value=encode();archiveText.select();try{await navigator.clipboard.writeText(archiveText.value);archiveFeedback.textContent='市场档案已复制。';}catch(_){archiveFeedback.textContent='档案已生成，请手动复制。';}};importBtn.onclick=()=>{try{career=decode(archiveText.value);selected=career.selected;q=career.run;persist();renderAll();archiveFeedback.textContent='导入成功。';}catch(e){archiveFeedback.textContent=e.message;}};window.addEventListener('resize',drawChart);
+  window.__marketPulse={COMPANIES,SCENARIOS,EVENTS,career:()=>career,run:()=>q,total,trade,closeDay,finishScenario,startScenario,advancePrices,eventFor,fairValue,validateModel,resultStars,encode,decode};
+  persist();renderAll();
+})();
+</script>
+</body>
 </html>
