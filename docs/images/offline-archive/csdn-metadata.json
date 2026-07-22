@@ -1,0 +1,30 @@
+{
+  "title": "不接后端，Web 应用怎样跨设备迁移数据？版本、校验、兼容与安全边界实战",
+  "articleType": "原创",
+  "category": "前端",
+  "backupCategories": [
+    "JavaScript",
+    "软件工程"
+  ],
+  "summary": "纯前端 Web 应用使用 localStorage 后，数据通常被锁在当前浏览器和来源中。本文设计一套不依赖账号与服务器的便携档案协议：用显式字段白名单缩小状态，用 UTF-8 与 Base64url 编码中文，用版本读取器迁移旧数据，用校验码发现复制损坏，再在导入边界重新验证全部字段。配套 Node.js 脚本以固定种子完成 1000 次 Unicode 往返、1000 次损坏拦截、1 次旧版迁移和 5 项字段清洗断言，同时说明 Base64、校验码、加密、数字签名与真正多端同步之间不能混淆的安全边界。",
+  "tags": [
+    "JavaScript",
+    "localStorage",
+    "数据迁移",
+    "前端安全",
+    "离线应用"
+  ],
+  "alternativeTitles": [
+    "localStorage 只能留在本机？用离线档案码给 Web 应用做跨设备数据迁移",
+    "Base64 不是安全方案：离线数据导入导出的版本、校验与迁移设计",
+    "一个字符串搬走整个 Web 应用状态：可校验、可升级的便携档案怎么设计"
+  ],
+  "cover": "docs/images/offline-archive/cover.jpg",
+  "repositoryUrl": "https://github.com/wangzifan396-wzf/mini-browser-games",
+  "sourceCommit": "",
+  "notes": [
+    "封面只设置为 CSDN 封面，不在正文首屏重复插入。",
+    "正文三张图均为协议示意图或真实测试数据图，不作为产品运行截图。",
+    "FNV-1a 和 Base64url 的安全边界必须保留，不要把校验改写成防篡改或加密。"
+  ]
+}

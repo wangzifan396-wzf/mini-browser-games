@@ -1,0 +1,25 @@
+{
+  "title": "不接后端，Web 应用怎样跨设备迁移数据？",
+  "subtitle": "版本、校验、兼容与安全边界实战",
+  "protocol": "WAPP.1.<base64url>.<checksum>",
+  "seed": "0x20260723",
+  "metrics": {
+    "roundTrips": 1000,
+    "corruptionsRejected": 1000,
+    "legacyMigrations": 1,
+    "sanitizationAssertions": 5,
+    "jsonBytes": 112,
+    "archiveCharacters": 166
+  },
+  "exampleCode": "WAPP.1.eyJ0aGVtZSI6ImRhcmsiLCJmb250U2NhbGUiOjEuMSwicGFuZWxzIjpbInRhc2tzIiwiY2FsZW5kYXIiLCJub3RlcyJdLCJub3RlIjoi5ZGo5LqU5YmN5pW055CG56a757q_6LWE5paZIPCfmoAifQ.d9eaf825",
+  "testCommand": "node promo-video/scripts/check-portable-archive-code.mjs",
+  "environment": {
+    "os": "Windows",
+    "node": "v24.18.0"
+  },
+  "limitations": [
+    "FNV-1a 只用于发现意外损坏，不提供真实性",
+    "Base64url 是编码，不是加密",
+    "示例不处理多用户同步和冲突合并"
+  ]
+}
