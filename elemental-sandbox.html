@@ -1,12 +1,123 @@
-<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>元素落沙实验室</title><style>
-*{box-sizing:border-box}body{margin:0;background:#17191e;color:#f2f4f7;font-family:system-ui,"Microsoft YaHei"}.app{min-height:100vh;padding:14px;display:grid;place-items:center}.shell{width:min(980px,100%);background:#272b32;border:1px solid #646b75;border-radius:20px;padding:16px}.top,.row,.tools{display:flex;justify-content:space-between;gap:7px;align-items:center;flex-wrap:wrap}canvas{width:100%;aspect-ratio:16/9;background:#0e1115;border:2px solid #555d67;border-radius:12px;display:block;margin:12px 0;image-rendering:pixelated;touch-action:none}.tools{justify-content:flex-start}.tools button.active{outline:3px solid white}button{padding:9px 11px;border:1px solid #747b85;border-radius:8px;background:#424852;color:white;font-weight:bold}.help{font-size:13px;color:#c3c7cd}@media(max-width:650px){.app{place-items:start center}}
-</style><main class="app"><section class="shell"><div class="top"><div><h1 style="margin:0">元素落沙实验室</h1><div class="help">绘制沙、水、火、植物、油、冰与墙体，观察重力、燃烧、蒸发和生长形成的连锁反应。</div></div><div>实验 <b id="challenge"></b>/5　完成度 <b id="score"></b>%</div></div><div class="tools" id="tools"></div><canvas id="c" width="160" height="90"></canvas><div class="row"><span id="mission"></span><button id="clear">清空</button><button id="next">下一实验</button><button id="pause">暂停</button></div></section></main><script>
-const cv=document.getElementById('c'),g=cv.getContext('2d'),W=160,H=90,M=[['沙','#d7ba62'],['水','#3e8bd8'],['墙','#777b82'],['火','#ff653a'],['植物','#4bb65f'],['油','#6b4a2e'],['冰','#a8e5f2']],missions=['让沙堆积到画面底部','让水覆盖至少 15% 空间','用火点燃一片植物','让油与火发生连锁燃烧','自由创造并使用五种元素'];let grid=new Uint8Array(W*H),mat=1,down=false,paused=false,level=0;const $=x=>document.getElementById(x),idx=(x,y)=>y*W+x;
-function swap(a,b){let t=grid[a];grid[a]=grid[b];grid[b]=t}
-function tick(){if(paused)return;for(let y=H-2;y>=0;y--)for(let x=1;x<W-1;x++){let i=idx(x,y),v=grid[i],below=idx(x,y+1);if(v===1){if(!grid[below]||grid[below]===2)swap(i,below);else{let d=Math.random()<.5?-1:1,j=idx(x+d,y+1);if(!grid[j]||grid[j]===2)swap(i,j)}}if(v===2){if(!grid[below])swap(i,below);else{let d=Math.random()<.5?-1:1,j=idx(x+d,y);if(!grid[j])swap(i,j)}}if(v===4){if(Math.random()<.12&&y>0)swap(i,idx(x,y-1));for(const j of[i-1,i+1,i-W,i+W])if(grid[j]===5||grid[j]===6){grid[j]=4;if(Math.random()<.08)grid[i]=0}if(Math.random()<.03)grid[i]=0}if(v===6&&!grid[below])swap(i,below);if(v===7&&Math.random()<.001)grid[i]=2}}
-function render(){tick();let im=g.createImageData(W,H);for(let i=0;i<grid.length;i++){let c=grid[i]?M[grid[i]-1][1]:'#0e1115',n=parseInt(c.slice(1),16);im.data[i*4]=n>>16;im.data[i*4+1]=n>>8&255;im.data[i*4+2]=n&255;im.data[i*4+3]=255}g.putImageData(im,0,0);drawUI();requestAnimationFrame(render)}
-function paint(e){if(!down)return;let r=cv.getBoundingClientRect(),p=e.touches?.[0]||e,x=Math.floor((p.clientX-r.left)*W/r.width),y=Math.floor((p.clientY-r.top)*H/r.height);for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++)if(x+dx>=0&&x+dx<W&&y+dy>=0&&y+dy<H&&Math.random()<.7)grid[idx(x+dx,y+dy)]=mat}
-function calc(){let count=[0,0,0,0,0,0,0];grid.forEach(v=>v&&count[v-1]++);if(level===0)return Math.min(100,count[0]/8);if(level===1)return Math.min(100,count[1]/24);if(level===2)return Math.min(100,count[3]/2+count[4]/12);if(level===3)return Math.min(100,count[3]+count[5]/15);return Math.min(100,count.filter(x=>x>0).length*20)}
-function drawUI(){challenge.textContent=level+1;score.textContent=Math.floor(calc());mission.textContent=missions[level];tools.innerHTML=M.map((m,i)=>`<button data-i="${i+1}" class="${mat===i+1?'active':''}" style="background:${m[1]}">${m[0]}</button>`).join('');tools.querySelectorAll('[data-i]').forEach(e=>e.onclick=()=>mat=+e.dataset.i);next.disabled=calc()<80}
-cv.onpointerdown=e=>{down=true;paint(e)};cv.onpointermove=paint;addEventListener('pointerup',()=>down=false);clear.onclick=()=>grid.fill(0);next.onclick=()=>{if(calc()>=80){level=Math.min(4,level+1);grid.fill(0)}};pause.onclick=()=>{paused=!paused;pause.textContent=paused?'继续':'暂停'};drawUI();render();
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>元素落沙实验室：反应档案</title>
+  <style>
+    :root{--bg:#10141b;--panel:#1c2430;--panel2:#242f3d;--line:#526274;--ink:#f4f7fa;--muted:#aebdca;--cyan:#5ed3dc;--gold:#f3bd5d;--good:#75d28c;--bad:#ff7b72}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 20% 0,#243447 0,transparent 35%),linear-gradient(145deg,#0b1016,#17202b 60%,#10141b);color:var(--ink);font-family:system-ui,"Microsoft YaHei",sans-serif}.app{width:min(1380px,calc(100% - 24px));margin:12px auto}.top,.card{border:1px solid var(--line);border-radius:16px;background:rgba(28,36,48,.96);box-shadow:0 18px 50px rgba(0,0,0,.24)}.top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 18px}.eyebrow{margin:0 0 4px;color:var(--cyan);font-size:12px;font-weight:900;letter-spacing:.15em}.top h1{margin:0;font-size:clamp(25px,4vw,42px);line-height:1.05}.sub{margin:7px 0 0;color:var(--muted);font-size:13px}.actions,.row,.tools,.mission-list{display:flex;align-items:center;gap:8px;flex-wrap:wrap}button,input,textarea{font:inherit}.btn,.tool,.mission{min-height:42px;border:1px solid #718398;border-radius:10px;background:#2d3b4c;color:var(--ink);font-weight:850;cursor:pointer}.btn{padding:0 13px}.btn.primary{border-color:#3c9097;background:#246e75}.btn.gold{border-color:#987435;background:#75531f}.btn:disabled{cursor:not-allowed;filter:saturate(.2);opacity:.5}.layout{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:12px;margin-top:12px}.lab{padding:14px;min-width:0}.side{padding:14px;display:grid;gap:12px;align-content:start}.mission-list{margin-bottom:12px}.mission{position:relative;min-width:48px;padding:6px 10px}.mission.active{outline:3px solid var(--cyan);background:#31475a}.mission.locked{opacity:.45}.stars{color:var(--gold);font-size:12px;white-space:nowrap}.canvas-wrap{position:relative;overflow:hidden;border:1px solid #607083;border-radius:12px;background:#090d12}canvas{display:block;width:100%;aspect-ratio:16/9;image-rendering:pixelated;touch-action:none}.badge{position:absolute;top:10px;left:10px;padding:6px 9px;border:1px solid rgba(255,255,255,.22);border-radius:8px;background:rgba(8,12,16,.76);font-size:12px;font-weight:800}.tools{margin-top:10px}.tool{display:flex;align-items:center;gap:7px;padding:0 10px}.tool i{width:14px;height:14px;border-radius:4px;border:1px solid rgba(255,255,255,.45)}.tool.active{outline:3px solid var(--cyan);background:#35495e}.labbar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px;flex-wrap:wrap}.brush{display:flex;gap:7px;align-items:center;color:var(--muted);font-size:13px}.brush input{width:110px}.block{padding:12px;border:1px solid #445466;border-radius:12px;background:#151c25}.block h2,.block h3{margin:0 0 7px}.block h2{font-size:20px}.block h3{font-size:14px;color:var(--cyan)}.brief,.tip{color:var(--muted);font-size:13px;line-height:1.55}.progress{height:13px;overflow:hidden;border:1px solid #5f7082;border-radius:99px;background:#0e151d}.progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,#2e99a3,#75d28c);transition:width .2s}.metric{display:flex;justify-content:space-between;margin:7px 0 6px;font-size:13px}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.metricbox{padding:8px;border:1px solid #445466;border-radius:9px;background:#202a36;text-align:center}.metricbox b{display:block;font-size:18px}.metricbox small{color:var(--muted)}.discoveries{display:grid;grid-template-columns:1fr 1fr;gap:6px}.discovery{padding:7px;border:1px solid #435264;border-radius:8px;color:#718092;background:#151b23;font-size:12px}.discovery.on{color:#eafdf2;border-color:#4b9360;background:#1d3828}.toast{min-height:22px;margin-top:8px;color:var(--gold);font-weight:800;font-size:13px}.modal{position:fixed;inset:0;z-index:5;display:grid;place-items:center;padding:18px;background:rgba(3,8,12,.76)}.modal.hidden{display:none}.dialog{width:min(590px,100%);padding:18px;border:1px solid #6d8297;border-radius:16px;background:#1c2632}.dialog h2{margin:0 0 8px}.dialog textarea{width:100%;min-height:125px;margin:8px 0;padding:10px;border:1px solid #617286;border-radius:9px;background:#0e151d;color:white;resize:vertical}.dialog .row{justify-content:flex-end}.complete{color:var(--good)}
+    @media(max-width:980px){.layout{grid-template-columns:1fr}.side{grid-template-columns:repeat(2,minmax(0,1fr))}.side .wide{grid-column:1/-1}}
+    @media(max-width:640px){.app{width:min(100% - 12px,1380px);margin:6px auto}.top{align-items:flex-start;display:block}.actions{margin-top:12px}.actions .btn{flex:1}.lab,.side{padding:10px}.side{grid-template-columns:1fr}.side .wide{grid-column:auto}.tool{min-height:46px}.sub{line-height:1.5}.metrics{grid-template-columns:repeat(3,1fr)}}
+  </style>
+</head>
+<body>
+<main class="app">
+  <header class="top">
+    <div><p class="eyebrow">REACTION ARCHIVE V2</p><h1>元素落沙实验室</h1><p class="sub">绘制材料、观察真实传播链，并用反应记录完成九项研究。所有内容离线运行。</p></div>
+    <div class="actions"><button class="btn" id="archiveBtn">实验档案</button><button class="btn" id="resetCareerBtn">重置进度</button></div>
+  </header>
+  <section class="layout">
+    <div class="card lab">
+      <div class="mission-list" id="missionList"></div>
+      <div class="canvas-wrap"><canvas id="labCanvas" width="192" height="108" aria-label="元素落沙实验区"></canvas><span class="badge" id="simBadge">模拟运行中</span></div>
+      <div class="tools" id="tools"></div>
+      <div class="labbar">
+        <div class="brush"><span>笔刷</span><input id="brush" type="range" min="1" max="6" value="3"><b id="brushValue">3</b></div>
+        <div class="row"><button class="btn" id="clearBtn">清空实验区</button><button class="btn" id="pauseBtn">暂停</button><button class="btn primary" id="claimBtn" disabled>提交研究</button></div>
+      </div>
+    </div>
+    <aside class="card side">
+      <section class="block wide"><h3 id="chapterText">第一章</h3><h2 id="missionName"></h2><div class="brief" id="missionBrief"></div><div class="metric"><span id="goalText">研究进度</span><b id="progressText">0%</b></div><div class="progress"><i id="progressBar"></i></div><div class="toast" id="toast"></div></section>
+      <section class="block"><h3>实验记录</h3><div class="metrics"><div class="metricbox"><b id="timeText">0:00</b><small>用时</small></div><div class="metricbox"><b id="strokeText">0</b><small>绘制</small></div><div class="metricbox"><b id="starText">☆☆☆</b><small>预估</small></div></div><p class="tip" id="parText"></p></section>
+      <section class="block"><h3>反应发现</h3><div class="discoveries" id="discoveries"></div></section>
+      <section class="block wide"><h3>研究提示</h3><div class="tip" id="tipText"></div></section>
+    </aside>
+  </section>
+</main>
+<div class="modal hidden" id="archiveModal"><div class="dialog"><h2>跨设备实验档案</h2><p class="brief">复制档案码可在另一台设备恢复章节星级、反应图鉴与累计研究数据。</p><textarea id="archiveText" spellcheck="false" aria-label="实验档案码"></textarea><div class="row"><button class="btn" id="closeArchiveBtn">关闭</button><button class="btn" id="importBtn">导入</button><button class="btn gold" id="exportBtn">生成并复制</button></div><div class="toast" id="archiveFeedback"></div></div></div>
+<script>
+(() => {
+  "use strict";
+  const W=192,H=108,SIZE=W*H,KEY="miniElementLabV2";
+  const MATERIALS=[
+    {id:0,name:"橡皮",color:"#0a0e13",unlock:0},
+    {id:1,name:"沙",color:"#d7b85c",unlock:0},{id:2,name:"水",color:"#368bd3",unlock:0},{id:3,name:"墙",color:"#77808b",unlock:0},
+    {id:4,name:"火",color:"#ff7048",unlock:1},{id:5,name:"植物",color:"#4ec36a",unlock:1},{id:6,name:"油",color:"#755131",unlock:1},{id:7,name:"冰",color:"#a8e5f2",unlock:1},
+    {id:10,name:"酸",color:"#b7d94b",unlock:2},{id:11,name:"金属",color:"#a8adb8",unlock:2},{id:12,name:"电弧",color:"#f4f27a",unlock:2},{id:13,name:"盐",color:"#eee9dd",unlock:2}
+  ];
+  const COLORS=["#0a0e13","#d7b85c","#368bd3","#77808b","#ff7048","#4ec36a","#755131","#a8e5f2","#8ad0dd","#c6eff3","#b7d94b","#a8adb8","#f4f27a","#eee9dd","#6ce5f1"];
+  const REACTIONS=[
+    ["steam","蒸汽生成"],["glass","熔砂成玻璃"],["growth","水培生长"],["ignite","油火连燃"],
+    ["extinguish","水冷灭火"],["melt","冰相融化"],["corrosion","酸蚀金属"],["neutralize","盐析中和"],["charge","水体导电"]
+  ];
+  const MISSIONS=[
+    {chapter:"第一章 · 重力",name:"沉降标本",brief:"让沙粒穿过空气并在实验区最底部形成连续沉积。",goal:"底层沉积 90 格",tip:"在上方横向铺沙，让它自行下落；墙体可以塑造漏斗。",par:[55,110],test:s=>bottomCount(s.grid,1)/90},
+    {chapter:"第一章 · 重力",name:"静水围堰",brief:"用墙体围出容器，让足够多的水稳定留在实验区下半部。",goal:"下半区蓄水 260 格",tip:"先画 U 形墙，再从上方注水。封闭容器比堆满屏幕更省笔画。",par:[70,145],test:s=>regionCount(s.grid,2,H/2,H)/260},
+    {chapter:"第一章 · 重力",name:"热压回路",brief:"让水与火接触，累计生成蒸汽并观察它上浮。",goal:"生成 70 份蒸汽",tip:"用墙围住水池，在水面持续补火；蒸汽会上升并缓慢凝结。",par:[75,160],test:s=>s.events.steam/70},
+    {chapter:"第二章 · 相变",name:"晶化窑炉",brief:"高温会把沙熔成玻璃，完成一批稳定晶化样本。",goal:"熔制 55 格玻璃",tip:"先铺沙，再让火沿沙层传播；玻璃会保持为固体。",par:[85,175],test:s=>s.events.glass/55},
+    {chapter:"第二章 · 相变",name:"温室复苏",brief:"让水滋养植物，新生组织会在湿润边界扩张。",goal:"培育 65 格新植物",tip:"植物与水相邻时会向附近空气生长，狭长水渠很有效。",par:[90,185],test:s=>s.events.growth/65},
+    {chapter:"第二章 · 相变",name:"可控燃烧",brief:"先让油形成燃烧链，再用水或冰抑制火势。",goal:"连燃 55，灭火 18",tip:"油在低处聚集；完成连燃后，从上方浇水或铺冰。",par:[105,220],test:s=>Math.min(s.events.ignite/55,s.events.extinguish/18)},
+    {chapter:"第三章 · 催化",name:"腐蚀窗口",brief:"用酸处理金属，并保留足够的金属作为反应边界。",goal:"完成 45 次酸蚀",tip:"把金属画成薄片，再让酸从上方流过，接触面积决定速度。",par:[90,190],test:s=>s.events.corrosion/45},
+    {chapter:"第三章 · 催化",name:"盐析缓冲",brief:"用盐中和酸液，避免残余酸继续扩散。",goal:"完成 60 次中和",tip:"先用墙围住酸，再从液面撒盐；盐会下沉并逐步消耗酸。",par:[90,190],test:s=>s.events.neutralize/60},
+    {chapter:"第三章 · 催化",name:"综合穹顶",brief:"在同一实验中记录至少七类不同反应，建立综合反应档案。",goal:"本次发现 7 类反应",tip:"合理分区：水火、沙火、油火、冰火、植物水、酸金属、盐酸、电弧水都可计入。",par:[190,360],test:s=>s.runDiscoveries.size/7}
+  ];
+  const $=id=>document.getElementById(id),canvas=$("labCanvas"),ctx=canvas.getContext("2d"),grid=new Uint8Array(SIZE);
+  let selected=1,down=false,paused=false,last=performance.now(),acc=0,state=load(),run=makeRun(),toastTimer=0;
+  function defaults(){return {v:2,unlocked:0,stars:Array(9).fill(0),discoveries:[],totalReactions:0,totalRuns:0};}
+  function load(){try{const v=JSON.parse(localStorage.getItem(KEY)||"null");if(v&&v.v===2)return Object.assign(defaults(),v,{stars:Array.from({length:9},(_,i)=>v.stars?.[i]||0),discoveries:Array.isArray(v.discoveries)?v.discoveries:[]});}catch(_){}return defaults();}
+  function save(){localStorage.setItem(KEY,JSON.stringify(state));}
+  function makeRun(){return {mission:Math.min(state?.unlocked||0,8),elapsed:0,strokes:0,events:Object.fromEntries(REACTIONS.map(([k])=>[k,0])),runDiscoveries:new Set(),complete:false};}
+  const idx=(x,y)=>y*W+x,inside=(x,y)=>x>=0&&x<W&&y>=0&&y<H;
+  function bottomCount(g,id){let n=0;for(let y=H-7;y<H;y++)for(let x=0;x<W;x++)if(g[idx(x,y)]===id)n++;return n;}
+  function regionCount(g,id,y0,y1){let n=0;for(let y=y0|0;y<y1;y++)for(let x=0;x<W;x++)if(g[idx(x,y)]===id)n++;return n;}
+  function swap(a,b){const t=grid[a];grid[a]=grid[b];grid[b]=t;}
+  function note(kind,amount=1){run.events[kind]=(run.events[kind]||0)+amount;state.totalReactions+=amount;if(!run.runDiscoveries.has(kind)){run.runDiscoveries.add(kind);if(!state.discoveries.includes(kind))state.discoveries.push(kind);const name=REACTIONS.find(r=>r[0]===kind)?.[1]||kind;showToast(`新反应：${name}`);save();}}
+  function neighbor(x,y){const dirs=[[0,1],[-1,0],[1,0],[0,-1]],d=dirs[(Math.random()*dirs.length)|0];return [x+d[0],y+d[1]];}
+  function reactions(i,x,y){const v=grid[i];if(!v)return;const [nx,ny]=neighbor(x,y);if(!inside(nx,ny))return;const j=idx(nx,ny),n=grid[j];
+    if((v===4&&n===2)||(v===2&&n===4)){grid[i]=9;grid[j]=9;note("steam",2);note("extinguish");return;}
+    if((v===4&&n===1)||(v===1&&n===4)){if(Math.random()<.32){grid[v===1?i:j]=8;note("glass");}return;}
+    if((v===5&&n===2)||(v===2&&n===5)){if(Math.random()<.18){const pi=v===5?i:j,px=pi%W,py=(pi/W)|0;for(let t=0;t<4;t++){const [gx,gy]=neighbor(px,py);if(inside(gx,gy)&&grid[idx(gx,gy)]===0){grid[idx(gx,gy)]=5;note("growth");break;}}}return;}
+    if((v===4&&(n===6||n===5))||(n===4&&(v===6||v===5))){if(Math.random()<.55){grid[v===4?j:i]=4;note("ignite");}return;}
+    if((v===2&&n===4)||(v===4&&n===2)||(v===7&&n===4)||(v===4&&n===7)){grid[v===4?i:j]=0;if(v===7||n===7){grid[v===7?i:j]=2;note("melt");}note("extinguish");return;}
+    if((v===7&&n===4)||(v===4&&n===7)){grid[v===7?i:j]=2;note("melt");return;}
+    if((v===10&&n===11)||(v===11&&n===10)){if(Math.random()<.5){grid[i]=0;grid[j]=0;note("corrosion",2);}return;}
+    if((v===10&&n===13)||(v===13&&n===10)){grid[i]=2;grid[j]=0;note("neutralize",2);return;}
+    if((v===12&&(n===2||n===14))||(n===12&&(v===2||v===14))){grid[v===12?j:i]=14;note("charge");return;}
+  }
+  function simStep(){
+    for(let y=H-2;y>=1;y--){const reverse=Math.random()<.5;for(let q=1;q<W-1;q++){const x=reverse?W-1-q:q,i=idx(x,y),v=grid[i];if(!v)continue;reactions(i,x,y);const now=grid[i];if(now===1||now===13){const b=idx(x,y+1);if(grid[b]===0||grid[b]===2||grid[b]===10)swap(i,b);else{const d=Math.random()<.5?-1:1,j=idx(x+d,y+1);if(grid[j]===0||grid[j]===2||grid[j]===10)swap(i,j);}}
+      else if(now===2||now===6||now===10||now===14){const b=idx(x,y+1);if(grid[b]===0)swap(i,b);else{const d=Math.random()<.5?-1:1,j=idx(x+d,y);if(grid[j]===0)swap(i,j);}if(now===14&&Math.random()<.002)grid[i]=2;}
+      else if(now===4||now===9||now===12){const u=idx(x,y-1);if(grid[u]===0&&Math.random()<.72)swap(i,u);else if(now===4&&Math.random()<.018)grid[i]=0;else if(now===9&&Math.random()<.0035)grid[i]=2;else if(now===12&&Math.random()<.055)grid[i]=0;}
+      else if(now===7&&Math.random()<.0007){grid[i]=2;note("melt");}
+    }}
+  }
+  function renderCanvas(){const im=ctx.createImageData(W,H),d=im.data;for(let i=0;i<SIZE;i++){const hex=COLORS[grid[i]]||COLORS[0],n=parseInt(hex.slice(1),16),j=i*4;d[j]=n>>16;d[j+1]=n>>8&255;d[j+2]=n&255;d[j+3]=255;}ctx.putImageData(im,0,0);}
+  function frame(now){const dt=Math.min(.05,(now-last)/1000);last=now;if(!paused){run.elapsed+=dt;acc+=dt;while(acc>.022){simStep();acc-=.022;}}renderCanvas();updateHud();requestAnimationFrame(frame);}
+  function paint(e){if(!down)return;const r=canvas.getBoundingClientRect(),x=Math.floor((e.clientX-r.left)*W/r.width),y=Math.floor((e.clientY-r.top)*H/r.height),rad=+$('brush').value;for(let dy=-rad;dy<=rad;dy++)for(let dx=-rad;dx<=rad;dx++){const px=x+dx,py=y+dy;if(inside(px,py)&&dx*dx+dy*dy<=rad*rad&&Math.random()<.84)grid[idx(px,py)]=selected;} }
+  function startStroke(e){down=true;run.strokes++;paint(e);}
+  function missionProgress(){return Math.max(0,Math.min(1,MISSIONS[run.mission].test({...run,grid})));}
+  function estimateStars(){const m=MISSIONS[run.mission],p=missionProgress();if(p<1)return 0;if(run.elapsed<=m.par[0]&&run.strokes<=m.par[1])return 3;if(run.elapsed<=m.par[0]*1.65&&run.strokes<=m.par[1]*1.7)return 2;return 1;}
+  function chooseMission(i){if(i>state.unlocked)return;run=makeRun();run.mission=i;grid.fill(0);paused=false;renderAll();}
+  function renderMissions(){missionList.innerHTML=MISSIONS.map((m,i)=>`<button class="mission ${i===run.mission?'active':''} ${i>state.unlocked?'locked':''}" data-m="${i}" ${i>state.unlocked?'disabled':''}><b>${i+1}</b><span class="stars">${'★'.repeat(state.stars[i])}${'☆'.repeat(3-state.stars[i])}</span></button>`).join('');missionList.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>chooseMission(+b.dataset.m));}
+  function renderTools(){const chapter=(run.mission/3)|0;tools.innerHTML=MATERIALS.filter(m=>m.unlock<=chapter).map(m=>`<button class="tool ${m.id===selected?'active':''}" data-tool="${m.id}"><i style="background:${m.color}"></i>${m.name}</button>`).join('');tools.querySelectorAll('[data-tool]').forEach(b=>b.onclick=()=>{selected=+b.dataset.tool;renderTools();});if(!MATERIALS.some(m=>m.id===selected&&m.unlock<=chapter))selected=0;}
+  function renderDiscoveries(){discoveries.innerHTML=REACTIONS.map(([k,n])=>`<div class="discovery ${state.discoveries.includes(k)?'on':''}">${state.discoveries.includes(k)?'✓':'?'} ${n}</div>`).join('');}
+  function renderAll(){const m=MISSIONS[run.mission];chapterText.textContent=m.chapter;missionName.textContent=`${run.mission+1}. ${m.name}`;missionBrief.textContent=m.brief;goalText.textContent=m.goal;tipText.textContent=m.tip;parText.textContent=`三星参考：${m.par[0]} 秒内、${m.par[1]} 次绘制内。重玩可刷新最高星级。`;renderMissions();renderTools();renderDiscoveries();updateHud();}
+  function updateHud(){const p=missionProgress(),stars=estimateStars();progressText.textContent=`${Math.floor(p*100)}%`;progressBar.style.width=`${p*100}%`;timeText.textContent=`${Math.floor(run.elapsed/60)}:${String(Math.floor(run.elapsed%60)).padStart(2,'0')}`;strokeText.textContent=run.strokes;starText.textContent='★'.repeat(stars)+'☆'.repeat(3-stars);claimBtn.disabled=p<1||run.complete;simBadge.textContent=paused?'模拟已暂停':'模拟运行中';simBadge.style.color=paused?'#f3bd5d':'#75d28c';}
+  function claim(){const stars=estimateStars();if(!stars||run.complete)return;run.complete=true;state.stars[run.mission]=Math.max(state.stars[run.mission],stars);state.unlocked=Math.max(state.unlocked,Math.min(8,run.mission+1));state.totalRuns++;save();renderAll();showToast(`研究提交成功：${'★'.repeat(stars)}${run.mission<8?'，下一实验已解锁':'，全部档案完成'}`);}
+  function clearLab(){grid.fill(0);run.events=Object.fromEntries(REACTIONS.map(([k])=>[k,0]));run.runDiscoveries.clear();run.elapsed=0;run.strokes=0;run.complete=false;showToast('实验区与本次计数已清空');}
+  function showToast(text){toast.textContent=text;clearTimeout(toastTimer);toastTimer=setTimeout(()=>{toast.textContent='';},4200);}
+  function checksum(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return (h>>>0).toString(36).toUpperCase();}
+  function encode(){const payload=btoa(unescape(encodeURIComponent(JSON.stringify({v:2,u:state.unlocked,s:state.stars,d:state.discoveries,r:state.totalReactions,n:state.totalRuns}))));return `ELEM2.${payload}.${checksum(payload)}`;}
+  function decode(code){const parts=code.trim().split('.');if(parts.length!==3||parts[0]!=="ELEM2"||checksum(parts[1])!==parts[2])throw Error('档案码格式或校验不正确');const v=JSON.parse(decodeURIComponent(escape(atob(parts[1]))));if(v.v!==2||!Array.isArray(v.s)||!Array.isArray(v.d))throw Error('档案版本不兼容');return {v:2,unlocked:Math.max(0,Math.min(8,+v.u||0)),stars:Array.from({length:9},(_,i)=>Math.max(0,Math.min(3,+v.s[i]||0))),discoveries:v.d.filter(k=>REACTIONS.some(r=>r[0]===k)),totalReactions:Math.max(0,+v.r||0),totalRuns:Math.max(0,+v.n||0)};}
+  archiveBtn.onclick=()=>{archiveModal.classList.remove('hidden');archiveText.value=encode();archiveFeedback.textContent='';};closeArchiveBtn.onclick=()=>archiveModal.classList.add('hidden');exportBtn.onclick=async()=>{archiveText.value=encode();archiveText.select();try{await navigator.clipboard.writeText(archiveText.value);archiveFeedback.textContent='档案码已生成并复制。';}catch(_){archiveFeedback.textContent='档案码已生成，请手动复制。';}};importBtn.onclick=()=>{try{state=decode(archiveText.value);save();run=makeRun();grid.fill(0);renderAll();archiveFeedback.textContent='导入成功，研究进度已恢复。';}catch(e){archiveFeedback.textContent=e.message;}};
+  resetCareerBtn.onclick=()=>{if(confirm('确定清除全部实验星级与反应图鉴吗？')){state=defaults();save();run=makeRun();grid.fill(0);renderAll();}};
+  clearBtn.onclick=clearLab;pauseBtn.onclick=()=>{paused=!paused;pauseBtn.textContent=paused?'继续':'暂停';};claimBtn.onclick=claim;brush.oninput=()=>brushValue.textContent=brush.value;
+  canvas.addEventListener('pointerdown',e=>{canvas.setPointerCapture?.(e.pointerId);startStroke(e);});canvas.addEventListener('pointermove',paint);canvas.addEventListener('pointerup',()=>down=false);canvas.addEventListener('pointercancel',()=>down=false);
+  document.addEventListener('keydown',e=>{if(e.code==='Space'&&e.target.tagName!=='TEXTAREA'){e.preventDefault();paused=!paused;pauseBtn.textContent=paused?'继续':'暂停';}});
+  window.__elementLab={MISSIONS,REACTIONS,grid,state:()=>state,run:()=>run,chooseMission,progress:missionProgress,encode,decode,note};
+  renderAll();requestAnimationFrame(frame);
+})();
 </script>
+</body>
+</html>

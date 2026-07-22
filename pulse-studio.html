@@ -1,277 +1,96 @@
 <!doctype html>
 <html lang="zh-CN">
-  <meta charset="utf-8" /><meta
-    name="viewport"
-    content="width=device-width,initial-scale=1"
-  /><title>脉冲音乐室</title
-  ><style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      background: #0e0c1b;
-      color: #f3efff;
-      font-family: system-ui, "Microsoft YaHei";
-    }
-    .app {
-      min-height: 100vh;
-      padding: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .shell {
-      width: 100%;
-      max-width: 1000px;
-      min-width: 0;
-      background: #1c1733;
-      border: 1px solid #5d527f;
-      border-radius: 20px;
-      padding: 16px;
-    }
-    .top,
-    .row {
-      display: flex;
-      justify-content: space-between;
-      gap: 9px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .seq {
-      overflow-x: auto;
-      margin: 14px 0;
-    }
-    .track {
-      display: grid;
-      grid-template-columns: 95px repeat(16, 1fr);
-      gap: 4px;
-      margin-bottom: 6px;
-      min-width: 780px;
-    }
-    .label {
-      display: grid;
-      place-items: center;
-      border-radius: 8px;
-      background: #2b2450;
-    }
-    .step {
-      aspect-ratio: 1;
-      border: 1px solid #4e4770;
-      border-radius: 6px;
-      background: #25203e;
-      padding: 0;
-    }
-    .step.on {
-      background: #b257d5;
-      box-shadow: 0 0 12px #b257d5;
-    }
-    .track:nth-child(2) .step.on {
-      background: #4dc5e8;
-      box-shadow: 0 0 12px #4dc5e8;
-    }
-    .track:nth-child(3) .step.on {
-      background: #e5ad45;
-      box-shadow: 0 0 12px #e5ad45;
-    }
-    .track:nth-child(4) .step.on {
-      background: #61d47f;
-      box-shadow: 0 0 12px #61d47f;
-    }
-    .step.now {
-      outline: 3px solid white;
-    }
-    .panel {
-      background: #141126;
-      border: 1px solid #4a4267;
-      border-radius: 11px;
-      padding: 10px;
-    }
-    .challenge {
-      color: #ffdf78;
-    }
-    button,
-    input {
-      padding: 9px 11px;
-      border: 1px solid #6d6291;
-      border-radius: 9px;
-      background: #393064;
-      color: white;
-      font-weight: bold;
-    }
-    .play {
-      background: #8c3daa;
-    }
-    .help {
-      font-size: 13px;
-      color: #bcb4d3;
-    }
-    @media (max-width: 650px) {
-      .app {
-        align-items: flex-start;
-      }
-    }
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>脉冲音乐室：霓虹巡演</title>
+  <style>
+    :root{--bg:#0b0b18;--panel:#19172c;--panel2:#24203c;--line:#574e7b;--ink:#f7f3ff;--muted:#bcb3d4;--pink:#d35ee7;--cyan:#54cde7;--gold:#efbd55;--green:#70da92;--red:#ee6d7f}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 12% 0,#392058 0,transparent 29%),radial-gradient(circle at 92% 10%,#123c5c 0,transparent 27%),linear-gradient(145deg,#090814,#111022 62%,#090814);color:var(--ink);font-family:system-ui,"Microsoft YaHei",sans-serif}.app{width:min(1450px,calc(100% - 22px));margin:11px auto}.top,.panel{border:1px solid var(--line);border-radius:16px;background:rgba(25,23,44,.97);box-shadow:0 20px 55px rgba(0,0,0,.35)}.top{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:15px 18px}.eyebrow{margin:0 0 4px;color:var(--cyan);font-size:12px;font-weight:950;letter-spacing:.16em}.top h1{margin:0;font-size:clamp(26px,4vw,43px);line-height:1}.sub{margin:7px 0 0;color:var(--muted);font-size:13px}.actions,.row,.transport{display:flex;align-items:center;gap:8px;flex-wrap:wrap}button,input,select,textarea{font:inherit}.btn{min-height:42px;padding:0 13px;border:1px solid #736893;border-radius:9px;background:#3a315f;color:white;font-weight:900;cursor:pointer}.btn.primary{border-color:#a843bd;background:#8e3eaa}.btn.cyan{border-color:#32869a;background:#236b7a}.btn.gold{border-color:#98702e;background:#76521e}.btn:disabled{opacity:.45;cursor:not-allowed;filter:saturate(.3)}.layout{display:grid;grid-template-columns:minmax(0,1fr) 355px;gap:12px;margin-top:12px;align-items:start}.studio{padding:13px;min-width:0}.side{padding:12px;display:grid;gap:10px;align-content:start;max-height:calc(100vh - 105px);overflow:auto}.timeline{display:grid;grid-template-columns:88px repeat(16,44px);gap:5px;min-width:860px;margin-bottom:6px}.seq{overflow-x:auto;padding:5px 3px 10px;scrollbar-color:#5f5680 #151327}.track-label{display:flex;align-items:center;justify-content:space-between;gap:4px;padding:0 7px;border:1px solid #4c456b;border-radius:8px;background:#272342;font-size:12px;font-weight:850}.track-label button{width:25px;height:25px;padding:0;border:1px solid #635a83;border-radius:6px;background:#342e54;color:#ddd;cursor:pointer}.track-label button.muted{background:#632f43;color:#ffadbb}.beat-head{display:grid;place-items:center;height:24px;color:#8f86aa;font-size:10px}.step{position:relative;width:44px;height:44px;padding:0;border:1px solid #4d4668;border-radius:7px;background:#211e36;cursor:pointer}.step::after{content:"";position:absolute;inset:12px;border-radius:50%;background:#3a3453}.step.lv1::after{inset:11px;background:#806d9b}.step.lv2{border-color:var(--track);box-shadow:inset 0 0 10px color-mix(in srgb,var(--track) 20%,transparent)}.step.lv2::after{inset:8px;background:var(--track);box-shadow:0 0 11px var(--track)}.step.lv3{border-color:white}.step.lv3::after{inset:4px;background:white;box-shadow:0 0 14px var(--track)}.step.now{outline:3px solid #fff;outline-offset:1px}.step.bar{border-left-color:#9388b0}.legend{display:flex;gap:10px;align-items:center;flex-wrap:wrap;color:var(--muted);font-size:12px}.legend span{display:flex;align-items:center;gap:5px}.dot{width:13px;height:13px;border-radius:50%;background:#3a3453}.dot.soft{background:#806d9b}.dot.hit{background:var(--cyan)}.dot.accent{background:white;box-shadow:0 0 8px var(--pink)}.transport{justify-content:space-between;margin-top:9px;padding:10px;border:1px solid #4e476d;border-radius:11px;background:#121121}.group{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.group label{color:var(--muted);font-size:12px;font-weight:800}.group input[type=range]{width:130px}.group select{min-height:40px;padding:0 8px;border:1px solid #685e89;border-radius:8px;background:#2d284a;color:white;font-weight:800}.block{padding:11px;border:1px solid #4c4569;border-radius:11px;background:#141221}.block h2,.block h3{margin:0 0 8px}.block h2{font-size:20px}.block h3{font-size:14px;color:var(--cyan)}.career{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.career div{padding:7px;border:1px solid #4b4565;border-radius:8px;background:#211e36;text-align:center}.career b{display:block;font-size:19px}.career small{color:var(--muted);font-size:10px}.tour{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}.gig{min-height:47px;padding:4px;border:1px solid #504869;border-radius:8px;background:#24203b;color:white;cursor:pointer}.gig.active{outline:3px solid var(--pink)}.gig.locked{opacity:.4}.gig b{display:block}.stars{color:var(--gold);font-size:10px}.brief,.tip{color:var(--muted);font-size:12px;line-height:1.55}.goals{display:grid;gap:6px;margin-top:8px}.goal{display:flex;justify-content:space-between;gap:8px;padding:7px;border:1px solid #4b4564;border-radius:8px;color:#a69dbb;background:#1f1c33;font-size:12px}.goal.pass{border-color:#4d9064;color:#dff8e6;background:#1c3427}.goal.bonus{border-style:dashed}.scoreline{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:8px}.scoreline div{padding:7px;border:1px solid #4c4667;border-radius:8px;text-align:center}.scoreline b{display:block;font-size:18px}.scoreline small{color:var(--muted);font-size:10px}.feedback{min-height:21px;margin-top:8px;color:var(--gold);font-weight:850;font-size:12px}.kits{display:grid;grid-template-columns:1fr 1fr;gap:6px}.kit{min-height:39px;padding:5px;border:1px solid #564e73;border-radius:8px;background:#27233e;color:white;font-size:11px;font-weight:850;cursor:pointer}.kit.active{outline:3px solid var(--cyan)}.kit:disabled{opacity:.4}.archive{position:fixed;inset:0;z-index:8;display:grid;place-items:center;padding:18px;background:rgba(4,3,12,.8)}.archive.hidden{display:none}.dialog{width:min(620px,100%);padding:18px;border:1px solid #685f89;border-radius:15px;background:#19172c}.dialog h2{margin:0 0 8px}.dialog textarea{width:100%;min-height:125px;padding:10px;border:1px solid #665c88;border-radius:8px;background:#0e0d1b;color:white;resize:vertical}.dialog .row{justify-content:flex-end}.notice{min-height:20px;margin-top:7px;color:var(--gold);font-size:12px;font-weight:800}
+    @media(max-width:1000px){.layout{grid-template-columns:1fr}.side{max-height:none;grid-template-columns:repeat(2,minmax(0,1fr))}.side .wide{grid-column:1/-1}}
+    @media(max-width:650px){.app{width:min(100% - 10px,1450px);margin:5px auto}.top{display:block;padding:12px}.actions{margin-top:11px}.actions .btn{flex:1}.studio,.side{padding:9px}.side{grid-template-columns:1fr}.side .wide{grid-column:auto}.transport{align-items:stretch}.transport>.group{width:100%}.transport .btn{flex:1}.step{width:44px;height:44px}.sub{line-height:1.45}}
   </style>
-  <main class="app">
-    <section class="shell">
-      <div class="top">
-        <div>
-          <h1 style="margin: 0">脉冲音乐室</h1>
-          <div class="help">
-            四轨 16
-            步音序器：点亮节拍，调整速度并完成制作委托。首次播放需要点击按钮授权声音。
-          </div>
-        </div>
-        <div>作品 <b id="songs"></b>　评分 <b id="score"></b></div>
-      </div>
+</head>
+<body>
+<main class="app">
+  <header class="top"><div><p class="eyebrow">NEON TOUR V2</p><h1>脉冲音乐室</h1><p class="sub">六轨强弱拍音序器与十二场巡演委托。点按格子循环切换空拍、轻拍、正拍和重音。</p></div><div class="actions"><button class="btn primary" id="playBtn">▶ 播放</button><button class="btn cyan" id="submitBtn">提交现场</button><button class="btn" id="archiveBtn">巡演档案</button></div></header>
+  <section class="layout">
+    <section class="panel studio">
       <div class="seq" id="seq"></div>
-      <div class="row">
-        <button class="play" id="play">▶ 播放</button
-        ><label
-          >BPM <input id="bpm" type="range" min="70" max="180" value="110" /><b
-            id="bpmVal"
-            >110</b
-          ></label
-        ><button id="random">灵感随机</button><button id="clearBtn">清空</button
-        ><button id="save">保存作品</button>
-      </div>
-      <div class="panel" style="margin-top: 12px">
-        <b>制作委托</b>
-        <div class="challenge" id="challenge"></div>
-        <div id="feedback" class="help"></div>
+      <div class="legend"><span><i class="dot"></i>空拍</span><span><i class="dot soft"></i>轻拍</span><span><i class="dot hit"></i>正拍</span><span><i class="dot accent"></i>重音</span><span>每 4 格为一拍组，格子亮框表示当前播放位置</span></div>
+      <div class="transport">
+        <div class="group"><button class="btn" id="clearBtn">清空</button><button class="btn" id="inspireBtn">风格灵感</button><button class="btn" id="undoBtn">撤销</button></div>
+        <div class="group"><label>BPM <b id="bpmText">112</b></label><input id="bpm" type="range" min="72" max="176" value="112"><label>音色</label><select id="kitSelect"></select></div>
+        <div class="group"><label>作品槽</label><select id="slotSelect"><option value="0">槽位 1</option><option value="1">槽位 2</option><option value="2">槽位 3</option></select><button class="btn" id="saveSlotBtn">保存</button><button class="btn" id="loadSlotBtn">载入</button></div>
       </div>
     </section>
-  </main>
-  <script>
-    const names = ["底鼓", "军鼓", "低音", "旋律"],
-      icons = ["🥁", "👏", "🎸", "🎹"],
-      quests = [
-        [
-          "四拍舞曲",
-          "每个四拍至少一个底鼓，加入 4 个军鼓",
-          (p) =>
-            [0, 4, 8, 12].every((i) => p[0][i]) &&
-            p[1].filter(Boolean).length >= 4,
-        ],
-        [
-          "切分律动",
-          "低音至少 6 拍，且包含三个相邻空拍后的重音",
-          (p) =>
-            p[2].filter(Boolean).length >= 6 &&
-            p[0].some((v, i) => i > 2 && v && !p[0][i - 1] && !p[0][i - 2]),
-        ],
-        [
-          "霓虹旋律",
-          "旋律达到 8 拍，四条轨道都参与",
-          (p) =>
-            p[3].filter(Boolean).length >= 8 && p.every((t) => t.some(Boolean)),
-        ],
-        [
-          "极简主义",
-          "总音符不超过 16，但每轨至少 2 拍",
-          (p) =>
-            p.flat().filter(Boolean).length <= 16 &&
-            p.every((t) => t.filter(Boolean).length >= 2),
-        ],
-      ];
-    let pattern = Array.from({ length: 4 }, () => Array(16).fill(false)),
-      playing = false,
-      pos = 0,
-      timer = null,
-      audio = null,
-      q = { songs: 0, score: 0, quest: 0 };
-    const $ = (x) => document.getElementById(x);
-    function render() {
-      seq.innerHTML = pattern
-        .map(
-          (t, r) =>
-            `<div class="track"><div class="label">${icons[r]} ${names[r]}</div>${t.map((v, i) => `<button class="step ${v ? "on" : ""} ${playing && i === pos ? "now" : ""}" data-r="${r}" data-i="${i}"></button>`).join("")}</div>`,
-        )
-        .join("");
-      seq.querySelectorAll("[data-r]").forEach(
-        (e) =>
-          (e.onclick = () => {
-            pattern[+e.dataset.r][+e.dataset.i] =
-              !pattern[+e.dataset.r][+e.dataset.i];
-            render();
-          }),
-      );
-      songs.textContent = q.songs;
-      score.textContent = q.score;
-      challenge.textContent = `${quests[q.quest][0]}：${quests[q.quest][1]}`;
-    }
-    function sound(track) {
-      audio = audio || new (window.AudioContext || window.webkitAudioContext)();
-      let t = audio.currentTime;
-      if (track < 2) {
-        let o = audio.createOscillator(),
-          g = audio.createGain();
-        o.frequency.setValueAtTime(track ? 180 : 70, t);
-        o.frequency.exponentialRampToValueAtTime(track ? 90 : 35, t + 0.12);
-        g.gain.setValueAtTime(0.25, t);
-        g.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
-        o.connect(g).connect(audio.destination);
-        o.start();
-        o.stop(t + 0.15);
-      } else {
-        let o = audio.createOscillator(),
-          g = audio.createGain();
-        o.type = track === 2 ? "sawtooth" : "sine";
-        o.frequency.value =
-          (track === 2 ? 110 : 330) * [1, 1.122, 1.26, 1.498][pos % 4];
-        g.gain.setValueAtTime(0.12, t);
-        g.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
-        o.connect(g).connect(audio.destination);
-        o.start();
-        o.stop(t + 0.2);
-      }
-    }
-    function tick() {
-      for (let r = 0; r < 4; r++) if (pattern[r][pos]) sound(r);
-      render();
-      pos = (pos + 1) % 16;
-      timer = setTimeout(tick, 60000 / (+bpm.value * 4));
-    }
-    function toggle() {
-      playing = !playing;
-      play.textContent = playing ? "■ 停止" : "▶ 播放";
-      if (playing) {
-        pos = 0;
-        tick();
-      } else {
-        clearTimeout(timer);
-        render();
-      }
-    }
-    play.onclick = toggle;
-    bpm.oninput = () => (bpmVal.textContent = bpm.value);
-    random.onclick = () => {
-      pattern = pattern.map((t, r) =>
-        t.map(
-          (_, i) => Math.random() < (r === 0 ? 0.3 : r === 3 ? 0.22 : 0.18),
-        ),
-      );
-      render();
-    };
-    clearBtn.onclick = () => {
-      pattern = pattern.map((t) => t.map(() => false));
-      render();
-    };
-    save.onclick = () => {
-      let active = pattern.flat().filter(Boolean).length;
-      if (active < 8)
-        return (feedback.textContent = "作品太空，需要至少 8 个音符。");
-      q.songs++;
-      if (quests[q.quest][2](pattern)) {
-        q.score += 100;
-        feedback.textContent = "委托完成！获得 100 评分，已接到下一份委托。";
-        q.quest = (q.quest + 1) % quests.length;
-      } else {
-        q.score += 20;
-        feedback.textContent = "作品已保存，未满足当前委托条件，获得 20 评分。";
-      }
-      render();
-    };
-    render();
-  </script>
+    <aside class="panel side">
+      <section class="block wide"><h3 id="venueText">地下排练厅</h3><h2 id="gigName"></h2><div class="brief" id="gigBrief"></div><div class="goals" id="goals"></div><div class="scoreline"><div><b id="editText">0</b><small>编辑次数</small></div><div><b id="trackText">0/6</b><small>参与轨道</small></div><div><b id="previewStars">☆☆☆</b><small>当前评价</small></div></div><div class="feedback" id="feedback"></div></section>
+      <section class="block"><h3>巡演生涯</h3><div class="career"><div><b id="fanText">0</b><small>听众</small></div><div><b id="careerStarText">0</b><small>星章</small></div><div><b id="showText">0</b><small>演出</small></div></div><p class="tip">完成三项必要条件获得一星；附加目标和精简编辑可继续提升评价。</p></section>
+      <section class="block"><h3>音色收藏</h3><div class="kits" id="kits"></div></section>
+      <section class="block wide"><h3>十二场巡演</h3><div class="tour" id="tour"></div></section>
+    </aside>
+  </section>
+</main>
+<div class="archive hidden" id="archiveModal"><div class="dialog"><h2>跨设备巡演档案</h2><p class="brief">包含场次星级、听众、音色选择与三个作品槽。首次播放仍需点击授权声音。</p><textarea id="archiveText" spellcheck="false"></textarea><div class="row"><button class="btn" id="closeArchiveBtn">关闭</button><button class="btn cyan" id="importBtn">导入</button><button class="btn gold" id="exportBtn">生成并复制</button></div><div class="notice" id="archiveFeedback"></div></div></div>
+<script>
+(() => {
+  "use strict";
+  const KEY="miniPulseStudioV2",$=id=>document.getElementById(id),TRACKS=[
+    {name:"底鼓",icon:"●",color:"#d35ee7"},{name:"军鼓",icon:"◆",color:"#54cde7"},{name:"踩镲",icon:"✦",color:"#efbd55"},
+    {name:"低音",icon:"▰",color:"#70da92"},{name:"和弦",icon:"⬡",color:"#ee7c9e"},{name:"主奏",icon:"▲",color:"#8d8cf2"}
+  ];
+  const KITS=[{name:"霓虹脉冲",need:0},{name:"模拟暖流",need:7},{name:"街机晶片",need:16},{name:"极光空间",need:27}];
+  const GIGS=[
+    {venue:"地下排练厅",name:"第一束脉冲",brief:"用稳定四拍和军鼓反拍建立最基础的舞池骨架。",goals:[["anchors",4],["backbeat",2],["totalMin",10]],bonus:[["tracks",3],["accents",3]],par:26},
+    {venue:"地下排练厅",name:"开镲练习",brief:"让踩镲填入弱拍，同时保持至少三条轨道参与。",goals:[["hatOdd",6],["tracks",3],["totalRange",[14,28]]],bonus:[["emptyRun",2],["accents",4]],par:38},
+    {venue:"地下排练厅",name:"低音咬合",brief:"让低音与底鼓在关键位置咬合，但不要把每一格塞满。",goals:[["bassLock",3],["anchors",3],["totalRange",[16,30]]],bonus:[["variation",6],["maxColumn",4]],par:42},
+    {venue:"屋顶电台",name:"两拍留白",brief:"主动留出连续空拍，并用重音把听众带回节奏。",goals:[["emptyRun",2],["accents",4],["tracks",4]],bonus:[["oddHits",8],["totalMax",26]],par:43},
+    {venue:"屋顶电台",name:"问答旋律",brief:"前半段用和弦提问，后半段让主奏作答。",goals:[["chordFirst",3],["leadSecond",3],["variation",7]],bonus:[["tracks",5],["accents",5]],par:48},
+    {venue:"屋顶电台",name:"错位霓虹",brief:"把足够多的音符放在奇数格，制造向前倾斜的切分感。",goals:[["oddHits",12],["tracks",5],["maxColumn",4]],bonus:[["hatOdd",6],["emptyRun",1]],par:56},
+    {venue:"旧城俱乐部",name:"极简宣言",brief:"限制音符总量，让四条以上轨道各自承担清晰职责。",goals:[["totalRange",[12,22]],["tracks",4],["accents",4]],bonus:[["emptyRun",3],["variation",8]],par:38},
+    {venue:"旧城俱乐部",name:"能量上坡",brief:"后八格的总强度必须明显高于前八格，形成一次渐强。",goals:[["crescendo",8],["lateAccents",4],["tracks",5]],bonus:[["anchors",3],["maxColumn",4]],par:58},
+    {venue:"旧城俱乐部",name:"交错机器",brief:"让低音避开部分底鼓，结合踩镲弱拍形成机械交错。",goals:[["bassOffbeat",4],["hatOdd",6],["variation",9]],bonus:[["tracks",6],["totalMax",34]],par:62},
+    {venue:"极光主舞台",name:"满场声压",brief:"六轨全部加入，四拍底鼓与军鼓反拍仍必须清晰。",goals:[["tracks",6],["anchors",4],["backbeat",2],["totalMin",30]],bonus:[["accents",7],["maxColumn",4]],par:72},
+    {venue:"极光主舞台",name:"精密切片",brief:"复杂并不等于拥挤：制造强变化，同时限制同格叠层。",goals:[["variation",11],["maxColumn",4],["accents",6]],bonus:[["oddHits",13],["emptyRun",1]],par:70},
+    {venue:"极光主舞台",name:"终场协议",brief:"整合巡演中学到的稳定、切分、留白、重音与六轨编排。",goals:[["tracks",6],["anchors",3],["backbeat",2],["oddHits",12],["accents",7]],bonus:[["totalRange",[26,42]],["variation",12]],par:82}
+  ];
+  const LABELS={anchors:"四拍底鼓",backbeat:"军鼓反拍",totalMin:"音符下限",totalMax:"音符上限",totalRange:"音符区间",hatOdd:"弱拍踩镲",tracks:"参与轨道",accents:"重音数量",emptyRun:"连续留白",bassLock:"低鼓咬合",variation:"前后变化",maxColumn:"单格叠层",chordFirst:"前段和弦",leadSecond:"后段主奏",oddHits:"奇数格音符",crescendo:"后段增幅",lateAccents:"后段重音",bassOffbeat:"错位低音"};
+  let career=load(),gig=Math.min(career.unlocked,11),pattern=blank(),history=[],edits=0,mutes=Array(6).fill(false),playing=false,pos=0,timer=null,audio=null,master=null;
+  function blank(){return Array.from({length:6},()=>Array(16).fill(0));}
+  function clone(p){return p.map(r=>r.slice());}
+  function defaults(){return {v:2,unlocked:0,stars:Array(12).fill(0),fans:0,shows:0,kit:0,slots:[null,null,null]};}
+  function load(){try{const v=JSON.parse(localStorage.getItem(KEY)||"null");if(v&&v.v===2)return Object.assign(defaults(),v,{stars:Array.from({length:12},(_,i)=>v.stars?.[i]||0),slots:Array.from({length:3},(_,i)=>validPattern(v.slots?.[i])?v.slots[i]:null)});}catch(_){}return defaults();}
+  function save(){localStorage.setItem(KEY,JSON.stringify(career));}
+  function validPattern(p){return Array.isArray(p)&&p.length===6&&p.every(r=>Array.isArray(r)&&r.length===16&&r.every(v=>Number.isInteger(v)&&v>=0&&v<=3));}
+  function totalStars(){return career.stars.reduce((a,b)=>a+b,0);}
+  function metrics(){const hits=pattern.map(r=>r.filter(Boolean).length),total=hits.reduce((a,b)=>a+b,0),tracks=hits.filter(Boolean).length,accents=pattern.flat().filter(v=>v===3).length,columns=Array.from({length:16},(_,i)=>pattern.reduce((n,r)=>n+(r[i]>0),0)),energy=Array.from({length:16},(_,i)=>pattern.reduce((n,r)=>n+r[i],0));let empty=0,bestEmpty=0;for(const n of columns){empty=n===0?empty+1:0;bestEmpty=Math.max(bestEmpty,empty);}let variation=0;for(let r=0;r<6;r++)for(let i=0;i<8;i++)if(pattern[r][i]!==pattern[r][i+8])variation++;return {hits,total,tracks,accents,columns,energy,emptyRun:bestEmpty,anchors:[0,4,8,12].filter(i=>pattern[0][i]>0).length,backbeat:[4,12].filter(i=>pattern[1][i]>0).length,hatOdd:[1,3,5,7,9,11,13,15].filter(i=>pattern[2][i]>0).length,bassLock:Array.from({length:16},(_,i)=>pattern[0][i]&&pattern[3][i]).filter(Boolean).length,bassOffbeat:[1,3,5,7,9,11,13,15].filter(i=>pattern[3][i]>0&&pattern[0][i]===0).length,chordFirst:pattern[4].slice(0,8).filter(Boolean).length,leadSecond:pattern[5].slice(8).filter(Boolean).length,oddHits:pattern.reduce((n,r)=>n+r.filter((v,i)=>v&&i%2===1).length,0),variation,maxColumn:Math.max(...columns),crescendo:energy.slice(8).reduce((a,b)=>a+b,0)-energy.slice(0,8).reduce((a,b)=>a+b,0),lateAccents:pattern.reduce((n,r)=>n+r.slice(8).filter(v=>v===3).length,0)};}
+  function evaluate([key,target],m=metrics()){let value=key.startsWith("total")?m.total:m[key],pass=false,text="";if(key==="totalRange"){pass=value>=target[0]&&value<=target[1];text=`${value}/${target[0]}–${target[1]}`;}else if(key==="totalMax"||key==="maxColumn"){pass=value<=target;pass=pass&&(key!=="totalMax"||value>0);text=`${value}/${target} 以下`;}else{pass=value>=target;text=`${value}/${target}`;}return {pass,text,label:LABELS[key]};}
+  function rating(){const m=metrics(),g=GIGS[gig],required=g.goals.map(x=>evaluate(x,m)),bonus=g.bonus.map(x=>evaluate(x,m));if(!required.every(x=>x.pass))return {stars:0,required,bonus,m};let stars=1;if(bonus[0].pass)stars=2;if(bonus.every(x=>x.pass)&&edits<=g.par)stars=3;return {stars,required,bonus,m};}
+  function pushHistory(){history.push(clone(pattern));if(history.length>30)history.shift();}
+  function setCell(r,i,value){pushHistory();pattern[r][i]=value;edits++;renderGrid();renderMission();}
+  function renderGrid(){let html=`<div class="timeline"><div></div>${Array.from({length:16},(_,i)=>`<div class="beat-head">${i+1}</div>`).join('')}</div>`;html+=pattern.map((row,r)=>`<div class="timeline"><div class="track-label"><span>${TRACKS[r].icon} ${TRACKS[r].name}</span><button data-mute="${r}" class="${mutes[r]?'muted':''}" title="静音">${mutes[r]?'×':'♪'}</button></div>${row.map((v,i)=>`<button class="step lv${v} ${i%4===0?'bar':''} ${playing&&i===pos?'now':''}" style="--track:${TRACKS[r].color}" data-r="${r}" data-i="${i}" aria-label="${TRACKS[r].name} 第${i+1}格 强度${v}"></button>`).join('')}</div>`).join('');seq.innerHTML=html;seq.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>setCell(+b.dataset.r,+b.dataset.i,(pattern[+b.dataset.r][+b.dataset.i]+1)%4));seq.querySelectorAll('[data-mute]').forEach(b=>b.onclick=()=>{mutes[+b.dataset.mute]=!mutes[+b.dataset.mute];renderGrid();});}
+  function renderMission(){const g=GIGS[gig],r=rating();venueText.textContent=g.venue;gigName.textContent=`${gig+1}. ${g.name}`;gigBrief.textContent=g.brief;goals.innerHTML=[...r.required.map(x=>({...x,bonus:false})),...r.bonus.map(x=>({...x,bonus:true}))].map(x=>`<div class="goal ${x.pass?'pass':''} ${x.bonus?'bonus':''}"><span>${x.pass?'✓':'○'} ${x.bonus?'附加：':''}${x.label}</span><b>${x.text}</b></div>`).join('');editText.textContent=`${edits}/${g.par}`;trackText.textContent=`${r.m.tracks}/6`;previewStars.textContent='★'.repeat(r.stars)+'☆'.repeat(3-r.stars);submitBtn.disabled=!r.stars;}
+  function renderCareer(){fanText.textContent=career.fans;careerStarText.textContent=totalStars();showText.textContent=career.shows;tour.innerHTML=GIGS.map((g,i)=>`<button class="gig ${i===gig?'active':''} ${i>career.unlocked?'locked':''}" data-gig="${i}" ${i>career.unlocked?'disabled':''}><b>${i+1}</b><span class="stars">${'★'.repeat(career.stars[i])}${'☆'.repeat(3-career.stars[i])}</span></button>`).join('');tour.querySelectorAll('[data-gig]').forEach(b=>b.onclick=()=>chooseGig(+b.dataset.gig));kits.innerHTML=KITS.map((k,i)=>`<button class="kit ${career.kit===i?'active':''}" data-kit="${i}" ${totalStars()<k.need?'disabled':''}>${k.name}<br><small>${totalStars()>=k.need?'已解锁':k.need+' 星解锁'}</small></button>`).join('');kits.querySelectorAll('[data-kit]').forEach(b=>b.onclick=()=>{career.kit=+b.dataset.kit;kitSelect.value=career.kit;save();renderCareer();});kitSelect.innerHTML=KITS.map((k,i)=>`<option value="${i}" ${totalStars()<k.need?'disabled':''}>${k.name}${totalStars()<k.need?`（${k.need}星）`:''}</option>`).join('');kitSelect.value=career.kit;}
+  function chooseGig(i){if(i>career.unlocked)return;gig=i;pattern=blank();history=[];edits=0;feedback.textContent='';if(playing)togglePlay();renderGrid();renderMission();renderCareer();}
+  function submit(){const r=rating();if(!r.stars)return;const prior=career.stars[gig];career.stars[gig]=Math.max(prior,r.stars);career.unlocked=Math.max(career.unlocked,Math.min(11,gig+1));career.fans+=Math.max(20,(r.stars-prior)*120+(gig+1)*15);career.shows++;save();feedback.textContent=`现场通过：${'★'.repeat(r.stars)}，${gig<11?'下一场已解锁':'霓虹巡演全部完成'}。`;renderCareer();renderMission();}
+  function inspire(){pushHistory();const g=GIGS[gig];pattern=blank();const chance=gig<3?.18:gig<7?.24:.29;for(let r=0;r<6;r++)for(let i=0;i<16;i++)if(Math.random()<chance)pattern[r][i]=Math.random()<.2?3:Math.random()<.3?1:2;for(const i of[0,4,8,12])if(gig!==6)pattern[0][i]=2;pattern[1][4]=pattern[1][12]=2;edits+=12;renderGrid();renderMission();}
+  function ensureAudio(){if(audio)return;audio=new (window.AudioContext||window.webkitAudioContext)();master=audio.createGain();master.gain.value=.52;const comp=audio.createDynamicsCompressor();comp.threshold.value=-15;comp.ratio.value=6;master.connect(comp).connect(audio.destination);}
+  function tone(type,freq,t,duration,gain,detune=0){const o=audio.createOscillator(),g=audio.createGain();o.type=type;o.frequency.setValueAtTime(freq,t);o.detune.value=detune;g.gain.setValueAtTime(gain,t);g.gain.exponentialRampToValueAtTime(.001,t+duration);o.connect(g).connect(master);o.start(t);o.stop(t+duration+.02);return o;}
+  function noise(t,duration,gain,filterFreq){const len=Math.ceil(audio.sampleRate*duration),buffer=audio.createBuffer(1,len,audio.sampleRate),data=buffer.getChannelData(0);for(let i=0;i<len;i++)data[i]=Math.random()*2-1;const src=audio.createBufferSource(),filter=audio.createBiquadFilter(),g=audio.createGain();src.buffer=buffer;filter.type="highpass";filter.frequency.value=filterFreq;g.gain.setValueAtTime(gain,t);g.gain.exponentialRampToValueAtTime(.001,t+duration);src.connect(filter).connect(g).connect(master);src.start(t);src.stop(t+duration+.02);}
+  function sound(track,level,step){if(mutes[track]||!level)return;ensureAudio();const t=audio.currentTime+.01,amp=[0,.05,.11,.18][level],kit=career.kit,scale=[0,2,3,5,7,10,12,14],root=[98,82,110,73][kit];if(track===0){const o=tone(kit===2?'square':'sine',kit===3?74:62,t,.22,amp*1.5);o.frequency.exponentialRampToValueAtTime(34,t+.2);}else if(track===1){noise(t,.13,amp,kit===1?900:1400);tone('triangle',170,t,.09,amp*.4);}else if(track===2){noise(t,level===3?.1:.055,amp*.75,kit===3?6500:4300);}else if(track===3){tone(kit===1?'sawtooth':'square',root*Math.pow(2,scale[step%8]/12),t,.2,amp*.7);}else if(track===4){const f=root*2*Math.pow(2,scale[(step/2|0)%8]/12);[1,1.26,1.5].forEach((n,i)=>tone(kit===3?'sine':'triangle',f*n,t,.28,amp*.22,i*3));}else{tone(kit===2?'square':'sine',root*4*Math.pow(2,scale[step%8]/12),t,.16,amp*.55);}}
+  function tick(){for(let r=0;r<6;r++)sound(r,pattern[r][pos],pos);seq.querySelectorAll('.step.now').forEach(b=>b.classList.remove('now'));seq.querySelectorAll(`[data-i="${pos}"]`).forEach(b=>b.classList.add('now'));pos=(pos+1)%16;}
+  function restartTimer(){clearInterval(timer);timer=setInterval(tick,60000/(+bpm.value*4));}
+  function togglePlay(){playing=!playing;playBtn.textContent=playing?'■ 停止':'▶ 播放';if(playing){ensureAudio();audio.resume?.();pos=0;tick();restartTimer();}else{clearInterval(timer);pos=0;renderGrid();}}
+  function checksum(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return (h>>>0).toString(36).toUpperCase();}
+  function encode(){const p=btoa(unescape(encodeURIComponent(JSON.stringify({v:2,u:career.unlocked,s:career.stars,f:career.fans,n:career.shows,k:career.kit,l:career.slots}))));return `PULSE2.${p}.${checksum(p)}`;}
+  function decode(code){const p=code.trim().split('.');if(p.length!==3||p[0]!=="PULSE2"||checksum(p[1])!==p[2])throw Error('巡演档案校验失败');const v=JSON.parse(decodeURIComponent(escape(atob(p[1]))));if(v.v!==2||!Array.isArray(v.s))throw Error('档案版本不兼容');return {v:2,unlocked:Math.max(0,Math.min(11,+v.u||0)),stars:Array.from({length:12},(_,i)=>Math.max(0,Math.min(3,+v.s[i]||0))),fans:Math.max(0,+v.f||0),shows:Math.max(0,+v.n||0),kit:Math.max(0,Math.min(3,+v.k||0)),slots:Array.from({length:3},(_,i)=>validPattern(v.l?.[i])?v.l[i]:null)};}
+  playBtn.onclick=togglePlay;submitBtn.onclick=submit;clearBtn.onclick=()=>{pushHistory();pattern=blank();edits++;renderGrid();renderMission();};inspireBtn.onclick=inspire;undoBtn.onclick=()=>{if(history.length){pattern=history.pop();edits++;renderGrid();renderMission();}};bpm.oninput=()=>{bpmText.textContent=bpm.value;if(playing)restartTimer();};kitSelect.onchange=()=>{const i=+kitSelect.value;if(totalStars()>=KITS[i].need){career.kit=i;save();renderCareer();}};saveSlotBtn.onclick=()=>{career.slots[+slotSelect.value]=clone(pattern);save();feedback.textContent=`作品已保存到槽位 ${+slotSelect.value+1}。`;};loadSlotBtn.onclick=()=>{const p=career.slots[+slotSelect.value];if(!p)return feedback.textContent='这个槽位还没有作品。';pushHistory();pattern=clone(p);edits=0;renderGrid();renderMission();feedback.textContent='作品已载入。';};
+  archiveBtn.onclick=()=>{archiveModal.classList.remove('hidden');archiveText.value=encode();archiveFeedback.textContent='';};closeArchiveBtn.onclick=()=>archiveModal.classList.add('hidden');exportBtn.onclick=async()=>{archiveText.value=encode();archiveText.select();try{await navigator.clipboard.writeText(archiveText.value);archiveFeedback.textContent='巡演档案已复制。';}catch(_){archiveFeedback.textContent='档案已生成，请手动复制。';}};importBtn.onclick=()=>{try{career=decode(archiveText.value);save();gig=Math.min(career.unlocked,11);pattern=blank();edits=0;renderGrid();renderMission();renderCareer();archiveFeedback.textContent='导入成功。';}catch(e){archiveFeedback.textContent=e.message;}};
+  document.addEventListener('keydown',e=>{if(e.code==='Space'&&e.target.tagName!=='TEXTAREA'&&e.target.tagName!=='BUTTON'){e.preventDefault();togglePlay();}});
+  window.__pulseStudio={TRACKS,GIGS,career:()=>career,pattern:()=>pattern,metrics,rating,chooseGig,setCell,encode,decode};
+  renderGrid();renderMission();renderCareer();
+})();
+</script>
+</body>
 </html>

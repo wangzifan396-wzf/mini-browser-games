@@ -1,116 +1,108 @@
 <!doctype html>
 <html lang="zh-CN">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>潮汐拾荒</title>
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23111d24'/%3E%3Cpath d='M11 40c7-8 14-8 21 0s14 8 21 0v12H11Z' fill='%23356f91'/%3E%3Ccircle cx='31' cy='26' r='11' fill='%23f0d16f'/%3E%3Cpath d='M21 26h20M31 16v20' stroke='%23111d24' stroke-width='4'/%3E%3C/svg%3E">
-    <style>
-      :root { --ink:#10191f; --panel:#fffdf4; --line:#87989e; --teal:#287569; --gold:#d6a33d; --red:#bd5148; --blue:#326f91; --shadow:rgba(5,12,16,.28); --radius:8px; }
-      * { box-sizing:border-box; }
-      body { margin:0; min-height:100vh; color:var(--ink); font-family:"Microsoft YaHei","PingFang SC","Noto Sans SC",system-ui,sans-serif; background:linear-gradient(rgba(255,255,245,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,245,.06) 1px,transparent 1px),linear-gradient(135deg,#0f2026,#16384a 47%,#3e3b56); background-size:30px 30px,30px 30px,auto; }
-      button { font:inherit; }
-      .app { width:min(1380px,calc(100vw - 28px)); margin:14px auto; }
-      .topbar,.panel { border:1px solid var(--line); border-radius:var(--radius); background:rgba(255,253,244,.97); box-shadow:0 16px 36px var(--shadow); }
-      .topbar { display:flex; justify-content:space-between; align-items:center; gap:14px; padding:16px 20px; }
-      .eyebrow { margin:0 0 5px; color:#856219; font-size:12px; font-weight:900; }
-      h1 { margin:0; font-size:clamp(26px,4vw,44px); line-height:1; }
-      .actions { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:10px; }
-      .btn { min-height:42px; padding:0 14px; border:1px solid #24544d; border-radius:var(--radius); color:#fffdf6; background:var(--teal); font-weight:900; cursor:pointer; }
-      .btn.secondary { color:var(--ink); background:#f0d17b; border-color:#9c7621; }
-      .layout { display:grid; grid-template-columns:minmax(0,1fr) 312px; gap:14px; margin-top:14px; align-items:start; }
-      .stage { position:relative; overflow:hidden; min-height:620px; }
-      canvas { display:block; width:100%; height:620px; touch-action:none; }
-      .side { padding:16px; }
-      .stats { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
-      .stat { padding:10px; border:1px solid #9da69e; border-radius:var(--radius); background:#f9f7eb; }
-      .stat b { display:block; font-size:24px; line-height:1.1; }
-      .stat small { color:#5e6d67; font-weight:800; }
-      .meter { margin:0 0 13px; }
-      .meter span { display:flex; justify-content:space-between; margin-bottom:6px; color:#5e6d67; font-weight:900; }
-      .bar { height:13px; border:1px solid #84968f; border-radius:999px; overflow:hidden; background:#e9eadc; }
-      .bar i { display:block; width:100%; height:100%; background:linear-gradient(90deg,var(--blue),#8bd0bb); }
-      .pad { display:grid; grid-template-columns:repeat(3,60px); justify-content:center; gap:8px; margin-top:14px; }
-      .pad button { width:60px; height:52px; border:1px solid #758780; border-radius:var(--radius); background:#fff8e6; color:var(--ink); font-size:20px; font-weight:900; cursor:pointer; }
-      .pad .blank { visibility:hidden; }
-      .hint { margin:14px 0 0; color:#566861; line-height:1.55; font-weight:700; }
-      .overlay { position:absolute; inset:0; display:grid; place-items:center; padding:24px; background:rgba(16,28,31,.52); }
-      .modal { width:min(460px,100%); padding:22px; border:1px solid #a4b4ad; border-radius:var(--radius); background:#fffdf6; box-shadow:0 24px 52px rgba(0,0,0,.32); }
-      .modal h2 { margin:0 0 10px; font-size:28px; }
-      .modal p { margin:0 0 16px; color:#53635f; line-height:1.6; }
-      .hidden { display:none; }
-      @media (max-width:940px){ .layout{grid-template-columns:1fr;} .side{order:-1;} .stage{min-height:540px;} canvas{height:540px;} }
-      @media (max-width:620px){ .app{width:min(100vw - 16px,1380px); margin-top:8px;} .topbar{display:block;padding:14px;} .actions{margin-top:12px;justify-content:stretch;} .btn{flex:1 1 auto;} .stage{min-height:500px;} canvas{height:500px;} }
-    </style>
-  </head>
-  <body>
-    <main class="app">
-      <header class="topbar">
-        <div><p class="eyebrow">OXYGEN EXPLORATION</p><h1>潮汐拾荒</h1></div>
-        <div class="actions"><button class="btn" id="startBtn">下潜</button><button class="btn secondary" id="dashBtn">冲刺</button><button class="btn secondary" id="resetBtn">重开</button></div>
-      </header>
-      <section class="layout">
-        <div class="panel stage">
-          <canvas id="gameCanvas" aria-label="潮汐拾荒游戏画面"></canvas>
-          <div class="overlay" id="overlay"><div class="modal"><h2 id="overlayTitle">准备下潜</h2><p id="overlayText">收集海底遗物，躲开水母和暗流。氧气不足就回到水面补给。</p><button class="btn" id="overlayBtn">开始下潜</button></div></div>
-        </div>
-        <aside class="panel side">
-          <div class="stats"><div class="stat"><b id="scoreText">0</b><small>估值</small></div><div class="stat"><b id="cargoText">0</b><small>货物</small></div><div class="stat"><b id="depthText">0</b><small>深度</small></div><div class="stat"><b id="bestText">0</b><small>最佳</small></div></div>
-          <div class="meter"><span><b>氧气</b><em id="oxygenText">100%</em></span><div class="bar"><i id="oxygenBar"></i></div></div>
-          <div class="meter"><span><b>船舱</b><em id="cargoMeterText">0/8</em></span><div class="bar"><i id="cargoBar"></i></div></div>
-          <div class="pad">
-            <button class="blank"></button><button data-dir="up">↑</button><button class="blank"></button>
-            <button data-dir="left">←</button><button data-dir="down">↓</button><button data-dir="right">→</button>
-          </div>
-          <p class="hint">方向键 / WASD 移动，Shift 冲刺。到水面会自动卖出货物并补满氧气。</p>
-        </aside>
-      </section>
-    </main>
-    <script>
-      (() => {
-        const canvas = document.getElementById("gameCanvas"), ctx = canvas.getContext("2d");
-        const overlay = document.getElementById("overlay"), overlayTitle = document.getElementById("overlayTitle"), overlayText = document.getElementById("overlayText"), overlayBtn = document.getElementById("overlayBtn");
-        const startBtn = document.getElementById("startBtn"), resetBtn = document.getElementById("resetBtn"), dashBtn = document.getElementById("dashBtn");
-        const scoreText = document.getElementById("scoreText"), cargoText = document.getElementById("cargoText"), depthText = document.getElementById("depthText"), bestText = document.getElementById("bestText"), oxygenText = document.getElementById("oxygenText"), oxygenBar = document.getElementById("oxygenBar"), cargoMeterText = document.getElementById("cargoMeterText"), cargoBar = document.getElementById("cargoBar");
-        const storageKey = "miniTideSalvageRecords";
-        let w=900,h=620,dpr=1,lastFrame=0,loopToken=0;
-        const keys = new Set();
-        let pointer = null;
-        let state = makeState();
-
-        function loadBest(){try{return JSON.parse(localStorage.getItem(storageKey)||"{}").best||0;}catch(e){return 0;}}
-        function saveBest(score){const best=Math.max(loadBest(),score);localStorage.setItem(storageKey,JSON.stringify({best}));return best;}
-        function makeState(){
-          return {mode:"menu",time:0,score:0,cargo:0,best:loadBest(),player:{x:160,y:86,vx:0,vy:0},oxygen:100,capacity:8,items:[],hazards:[],particles:[],dash:0};
-        }
-        function resizeCanvas(){const rect=canvas.getBoundingClientRect();dpr=Math.max(1,Math.min(2,window.devicePixelRatio||1));w=Math.max(320,rect.width);h=Math.max(480,rect.height);canvas.width=Math.floor(w*dpr);canvas.height=Math.floor(h*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);draw();}
-        function startGame(){loopToken+=1;state=makeState();seedWorld();state.mode="running";overlay.classList.add("hidden");lastFrame=performance.now();updateHud();requestAnimationFrame(t=>loop(t,loopToken));}
-        function seedWorld(){state.items=[];state.hazards=[];for(let i=0;i<28;i++){state.items.push({x:70+Math.random()*(w-140),y:150+Math.random()*(h-190),value:20+Math.floor(Math.random()*55),r:11});}for(let i=0;i<10;i++){state.hazards.push({x:80+Math.random()*(w-160),y:155+Math.random()*(h-200),vx:(Math.random()-.5)*34,vy:(Math.random()-.5)*22,r:18+Math.random()*12,phase:Math.random()*6});}}
-        function finish(){if(state.mode==="over")return;state.mode="over";state.best=saveBest(state.score);overlayTitle.textContent="返航";overlayText.textContent=`本次打捞估值 ${state.score}，带回 ${state.cargo} 件未售货物。`;overlayBtn.textContent="再次下潜";overlay.classList.remove("hidden");updateHud();}
-        function moveInput(){let ax=0,ay=0;if(keys.has("ArrowLeft")||keys.has("KeyA"))ax-=1;if(keys.has("ArrowRight")||keys.has("KeyD"))ax+=1;if(keys.has("ArrowUp")||keys.has("KeyW"))ay-=1;if(keys.has("ArrowDown")||keys.has("KeyS"))ay+=1;if(pointer){ax=(pointer.x-state.player.x)/80;ay=(pointer.y-state.player.y)/80;}const len=Math.hypot(ax,ay)||1;return {x:ax/len,y:ay/len,active:Math.hypot(ax,ay)>0.05};}
-        function dash(){if(state.mode==="running"&&state.dash<=0&&state.oxygen>12){state.dash=.22;state.oxygen-=7;}}
-        function update(dt){state.time+=dt;const input=moveInput();const speed=state.dash>0?250:142;if(input.active){state.player.vx+=input.x*speed*dt*4;state.player.vy+=input.y*speed*dt*4;}state.player.vx*=Math.pow(.16,dt);state.player.vy*=Math.pow(.16,dt);state.player.x+=state.player.vx*dt;state.player.y+=state.player.vy*dt;state.player.x=Math.max(32,Math.min(w-32,state.player.x));state.player.y=Math.max(52,Math.min(h-32,state.player.y));if(state.dash>0)state.dash-=dt;
-          if(state.player.y>104)state.oxygen-=dt*(5.5+state.player.y/h*3.4);else{state.oxygen=Math.min(100,state.oxygen+dt*34);if(state.cargo>0){state.score+=state.cargo*35;pop(state.player.x,state.player.y,"售出","#d6a33d");state.cargo=0;}}
-          for(let i=state.items.length-1;i>=0;i--){const item=state.items[i];if(Math.hypot(item.x-state.player.x,item.y-state.player.y)<item.r+18&&state.cargo<state.capacity){state.items.splice(i,1);state.cargo+=1;state.score+=item.value;pop(item.x,item.y,`+${item.value}`,"#d6a33d");}}
-          for(const hz of state.hazards){hz.phase+=dt;hz.x+=hz.vx*dt;hz.y+=hz.vy*dt;if(hz.x<hz.r||hz.x>w-hz.r)hz.vx*=-1;if(hz.y<130||hz.y>h-hz.r)hz.vy*=-1;if(Math.hypot(hz.x-state.player.x,hz.y-state.player.y)<hz.r+16){state.oxygen-=dt*34;state.player.vx+=(state.player.x-hz.x)*dt*7;state.player.vy+=(state.player.y-hz.y)*dt*7;}}
-          if(state.oxygen<=0)finish();if(state.items.length<18&&Math.random()<dt*.6)state.items.push({x:70+Math.random()*(w-140),y:160+Math.random()*(h-200),value:25+Math.floor(Math.random()*70),r:11});
-          state.particles=state.particles.filter(p=>{p.y-=dt*38;p.life-=dt*.8;return p.life>0;});updateHud();}
-        function loop(now,token){if(token!==loopToken||state.mode!=="running")return;const dt=Math.min(.05,(now-lastFrame)/1000||.016);lastFrame=now;update(dt);draw();if(state.mode==="running")requestAnimationFrame(t=>loop(t,token));}
-        function pop(x,y,text,color){state.particles.push({x,y,text,color,life:1});}
-        function rr(x,y,width,height,r,fill,stroke){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+width,y,x+width,y+height,r);ctx.arcTo(x+width,y+height,x,y+height,r);ctx.arcTo(x,y+height,x,y,r);ctx.arcTo(x,y,x+width,y,r);if(fill){ctx.fillStyle=fill;ctx.fill();}if(stroke){ctx.strokeStyle=stroke;ctx.stroke();}}
-        function draw(){ctx.clearRect(0,0,w,h);const g=ctx.createLinearGradient(0,0,0,h);g.addColorStop(0,"#cce9ee");g.addColorStop(.2,"#67a9bb");g.addColorStop(1,"#102f45");ctx.fillStyle=g;ctx.fillRect(0,0,w,h);ctx.fillStyle="#f5e0b5";ctx.fillRect(0,0,w,86);ctx.fillStyle="rgba(255,255,255,.28)";for(let x=-80;x<w+80;x+=120){ctx.beginPath();ctx.arc(x+Math.sin(state.time*1.5)*18,96,62,0,Math.PI);ctx.fill();}
-          for(const item of state.items){ctx.fillStyle="#f0d16f";ctx.beginPath();ctx.arc(item.x,item.y,item.r,0,Math.PI*2);ctx.fill();ctx.fillStyle="#7a5c18";ctx.fillRect(item.x-2,item.y-7,4,14);}
-          for(const hz of state.hazards){ctx.fillStyle="rgba(189,81,72,.82)";ctx.beginPath();ctx.arc(hz.x,hz.y,hz.r,0,Math.PI*2);ctx.fill();ctx.strokeStyle="rgba(255,253,244,.75)";ctx.lineWidth=2;for(let i=0;i<5;i++){const a=hz.phase+i*1.25;ctx.beginPath();ctx.moveTo(hz.x+Math.cos(a)*hz.r*.6,hz.y+Math.sin(a)*hz.r*.6);ctx.lineTo(hz.x+Math.cos(a)*(hz.r+10),hz.y+Math.sin(a)*(hz.r+10));ctx.stroke();}}
-          ctx.save();ctx.translate(state.player.x,state.player.y);ctx.fillStyle="#f0d16f";ctx.beginPath();ctx.arc(0,0,18,0,Math.PI*2);ctx.fill();ctx.fillStyle="#326f91";rr(-20,-4,40,18,7,"#326f91","#10242f");ctx.fillStyle="#fffdf4";ctx.beginPath();ctx.arc(7,-2,5,0,Math.PI*2);ctx.fill();ctx.restore();
-          for(const p of state.particles){ctx.globalAlpha=p.life;ctx.fillStyle=p.color;ctx.font="900 22px system-ui";ctx.textAlign="center";ctx.fillText(p.text,p.x,p.y);ctx.globalAlpha=1;}
-        }
-        function updateHud(){scoreText.textContent=state.score.toString();cargoText.textContent=state.cargo.toString();depthText.textContent=Math.max(0,Math.round((state.player.y-86)/4)).toString();bestText.textContent=Math.max(state.best,state.score).toString();oxygenText.textContent=`${Math.max(0,Math.round(state.oxygen))}%`;oxygenBar.style.width=`${Math.max(0,state.oxygen)}%`;oxygenBar.style.background=state.oxygen<25?"linear-gradient(90deg,#bd5148,#d6a33d)":"linear-gradient(90deg,var(--blue),#8bd0bb)";cargoMeterText.textContent=`${state.cargo}/${state.capacity}`;cargoBar.style.width=`${state.cargo/state.capacity*100}%`;dashBtn.textContent=state.dash>0?"冲刺中":"冲刺";}
-        startBtn.addEventListener("click",startGame);resetBtn.addEventListener("click",startGame);overlayBtn.addEventListener("click",startGame);dashBtn.addEventListener("click",dash);
-        document.querySelectorAll("[data-dir]").forEach(btn=>{btn.addEventListener("pointerdown",()=>keys.add(btn.dataset.dir==="up"?"ArrowUp":btn.dataset.dir==="down"?"ArrowDown":btn.dataset.dir==="left"?"ArrowLeft":"ArrowRight"));btn.addEventListener("pointerup",()=>keys.clear());btn.addEventListener("pointerleave",()=>keys.clear());});
-        canvas.addEventListener("pointerdown",e=>{const r=canvas.getBoundingClientRect();pointer={x:e.clientX-r.left,y:e.clientY-r.top};});canvas.addEventListener("pointermove",e=>{if(pointer){const r=canvas.getBoundingClientRect();pointer={x:e.clientX-r.left,y:e.clientY-r.top};}});canvas.addEventListener("pointerup",()=>pointer=null);canvas.addEventListener("pointercancel",()=>pointer=null);
-        document.addEventListener("keydown",e=>{keys.add(e.code);if(e.code==="ShiftLeft"||e.code==="ShiftRight")dash();if(e.code==="KeyR")startGame();});document.addEventListener("keyup",e=>keys.delete(e.code));
-        window.addEventListener("resize",resizeCanvas);resizeCanvas();updateHud();draw();
-      })();
-    </script>
-  </body>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>潮汐拾荒：深蓝远征</title>
+  <style>
+    :root{--ink:#10212a;--paper:#fffaf0;--paper2:#f3ead7;--line:#718991;--sea:#176b76;--deep:#16364e;--gold:#c88b2d;--red:#b74f48;--green:#3f8c72;--shadow:rgba(3,15,22,.3)}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;color:var(--ink);font-family:system-ui,"Microsoft YaHei",sans-serif;background:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(135deg,#0b1e27,#123e4d 55%,#272b4b);background-size:28px 28px,28px 28px,auto}.app{width:min(1460px,calc(100% - 22px));margin:11px auto}.top,.panel{border:1px solid var(--line);border-radius:14px;background:rgba(255,250,240,.97);box-shadow:0 18px 48px var(--shadow)}.top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:15px 18px}.eyebrow{margin:0 0 4px;color:#467379;font-size:12px;font-weight:950;letter-spacing:.14em}.top h1{margin:0;font-size:clamp(26px,4vw,42px);line-height:1}.sub{margin:7px 0 0;color:#586b70;font-size:13px}.actions,.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}button,textarea{font:inherit}.btn{min-height:42px;padding:0 13px;border:1px solid #38636a;border-radius:9px;background:var(--sea);color:white;font-weight:900;cursor:pointer}.btn.alt{border-color:#916a26;background:#e1b85e;color:#2a251b}.btn.ghost{border-color:#809297;background:#fff8e9;color:#23343a}.btn.danger{border-color:#883c37;background:var(--red)}.btn:disabled{cursor:not-allowed;opacity:.45;filter:saturate(.25)}.layout{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:12px;margin-top:12px;align-items:start}.stage{position:relative;overflow:hidden;min-height:650px}.stage canvas{display:block;width:100%;height:650px;touch-action:none}.side{padding:12px;display:grid;gap:10px;max-height:calc(100vh - 105px);overflow:auto}.hud{position:absolute;top:10px;left:10px;right:10px;display:grid;grid-template-columns:repeat(6,minmax(72px,1fr));gap:7px;pointer-events:none}.stat{padding:7px 9px;border:1px solid rgba(255,255,255,.35);border-radius:9px;background:rgba(8,25,34,.8);color:white;text-shadow:0 1px #000}.stat b{display:block;font-size:20px;line-height:1.05}.stat small{color:#cbe2e4;font-size:11px;font-weight:800}.meters{position:absolute;left:12px;right:12px;bottom:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;pointer-events:none}.meter{padding:7px;border:1px solid rgba(255,255,255,.32);border-radius:9px;background:rgba(8,25,34,.82);color:white;font-size:11px;font-weight:850}.bar{height:9px;margin-top:4px;overflow:hidden;border-radius:99px;background:rgba(255,255,255,.2)}.bar i{display:block;height:100%;background:linear-gradient(90deg,#46b7c5,#9de2d2)}.bar.hull i{background:linear-gradient(90deg,#b9544c,#e0b357)}.bar.cargo i{background:linear-gradient(90deg,#c48a2d,#f1dc8a)}.overlay{position:absolute;inset:0;display:grid;place-items:center;padding:20px;background:rgba(5,21,29,.58)}.overlay.hidden{display:none}.modal-card{width:min(520px,100%);padding:20px;border:1px solid #83989b;border-radius:14px;background:#fffaf0;box-shadow:0 24px 56px rgba(0,0,0,.35)}.modal-card h2{margin:0 0 8px;font-size:28px}.modal-card p{color:#526469;line-height:1.55}.event{position:absolute;top:93px;left:50%;transform:translateX(-50%);padding:8px 12px;border:1px solid rgba(255,255,255,.4);border-radius:99px;background:rgba(152,59,52,.88);color:white;font-weight:900;opacity:0;transition:opacity .25s;pointer-events:none}.event.on{opacity:1}.block{padding:11px;border:1px solid #9ca9a7;border-radius:11px;background:#f8f2e5}.block h2,.block h3{margin:0 0 8px}.block h2{font-size:20px}.block h3{font-size:14px;color:#3e6d72}.routes{display:grid;gap:7px}.route{width:100%;padding:9px;border:1px solid #9a9f96;border-radius:9px;background:#fffaf0;text-align:left;color:var(--ink);cursor:pointer}.route.active{outline:3px solid #2b7c85;background:#e8f4ef}.route.locked{opacity:.5}.route b{display:flex;justify-content:space-between}.route small{display:block;margin-top:4px;color:#5f6c6c;line-height:1.35}.stars{color:var(--gold)}.upgrades{display:grid;grid-template-columns:1fr 1fr;gap:7px}.upgrade{padding:8px;border:1px solid #9b9e92;border-radius:9px;background:#fffaf0}.upgrade b,.upgrade small{display:block}.upgrade small{min-height:34px;color:#60706d;font-size:11px;margin:3px 0}.upgrade button{width:100%;min-height:34px;padding:0 4px}.collection{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}.relic{min-height:45px;padding:4px;border:1px solid #a5aaa0;border-radius:7px;background:#e9e4d8;color:#9a9b94;text-align:center;font-size:10px}.relic.found{color:#233c41;border-color:#5c8e87;background:#e5f2e9}.relic i{display:block;font-style:normal;font-size:18px}.pad{display:grid;grid-template-columns:repeat(3,58px);gap:6px;justify-content:center}.pad button{width:58px;height:46px;border:1px solid #7b8d8d;border-radius:8px;background:#fffaf0;color:#183038;font-size:18px;font-weight:900}.pad .blank{visibility:hidden}.tip{margin:7px 0 0;color:#596b6c;font-size:12px;line-height:1.5}.archive{position:fixed;inset:0;z-index:8;display:grid;place-items:center;padding:18px;background:rgba(2,13,19,.76)}.archive.hidden{display:none}.archive .modal-card{width:min(610px,100%)}textarea{width:100%;min-height:125px;padding:10px;border:1px solid #71888a;border-radius:8px;background:#f3ecdf;resize:vertical}.feedback{min-height:20px;margin-top:7px;color:#8b641f;font-weight:800}.career{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.career div{padding:7px;border:1px solid #a7aaa1;border-radius:8px;text-align:center;background:#fffaf0}.career b{display:block;font-size:18px}.career small{font-size:10px;color:#66716e}
+    @media(max-width:1000px){.layout{grid-template-columns:1fr}.side{max-height:none;grid-template-columns:repeat(2,minmax(0,1fr))}.side .wide{grid-column:1/-1}.stage,.stage canvas{height:590px;min-height:590px}}
+    @media(max-width:650px){.app{width:min(100% - 10px,1460px);margin:5px auto}.top{display:block;padding:12px}.actions{margin-top:11px}.actions .btn{flex:1}.stage,.stage canvas{height:540px;min-height:540px}.hud{grid-template-columns:repeat(3,1fr)}.event{top:133px;max-width:90%;text-align:center}.meters{grid-template-columns:1fr;gap:4px}.side{grid-template-columns:1fr}.side .wide{grid-column:auto}.upgrades{grid-template-columns:1fr 1fr}}
+  </style>
+</head>
+<body>
+<main class="app">
+  <header class="top"><div><p class="eyebrow">DEEP BLUE EXPEDITION V2</p><h1>潮汐拾荒</h1><p class="sub">五片海域、十六件遗物、潮汐事件与可持续升级。捞得越深，返航判断越重要。</p></div><div class="actions"><button class="btn" id="diveBtn">开始下潜</button><button class="btn alt" id="sonarBtn">声呐扫描</button><button class="btn danger" id="retreatBtn">结束航次</button><button class="btn ghost" id="archiveBtn">航海档案</button></div></header>
+  <section class="layout">
+    <div class="panel stage"><canvas id="gameCanvas" aria-label="潮汐拾荒深海远征画面"></canvas>
+      <div class="hud"><div class="stat"><b id="timeText">0:00</b><small>潮窗</small></div><div class="stat"><b id="bankText">0</b><small>已入账</small></div><div class="stat"><b id="cargoText">0/0</b><small>船舱载重</small></div><div class="stat"><b id="depthText">0m</b><small>深度</small></div><div class="stat"><b id="targetText">0</b><small>一星目标</small></div><div class="stat"><b id="sonarText">就绪</b><small>声呐</small></div></div>
+      <div class="event" id="eventText"></div>
+      <div class="meters"><div class="meter">氧气 <span id="oxygenText"></span><div class="bar"><i id="oxygenBar"></i></div></div><div class="meter">艇体 <span id="hullText"></span><div class="bar hull"><i id="hullBar"></i></div></div><div class="meter">载重 <span id="weightText"></span><div class="bar cargo"><i id="weightBar"></i></div></div></div>
+      <div class="overlay" id="overlay"><div class="modal-card"><h2 id="overlayTitle">准备远征</h2><p id="overlayBody">选择右侧海域。下潜拾取遗物，回到水面才会结算船舱；氧气耗尽或艇体破损会失去未入账货物。</p><button class="btn" id="overlayBtn">开始下潜</button></div></div>
+    </div>
+    <aside class="panel side">
+      <section class="block wide"><h3>航线海图</h3><div class="routes" id="routeList"></div></section>
+      <section class="block"><h3>港口生涯</h3><div class="career"><div><b id="creditText">0</b><small>港币</small></div><div><b id="starCareerText">0</b><small>航线星</small></div><div><b id="diveCareerText">0</b><small>远征</small></div></div><p class="tip" id="contractText"></p></section>
+      <section class="block"><h3>潜水操纵</h3><div class="pad"><button class="blank"></button><button data-dir="up">↑</button><button class="blank"></button><button data-dir="left">←</button><button data-dir="down">↓</button><button data-dir="right">→</button></div><p class="tip">WASD / 方向键或拖动画面移动；Shift / 声呐按钮扫描。水面自动卸货并补氧。</p></section>
+      <section class="block wide"><h3>深潜工坊</h3><div class="upgrades" id="upgradeList"></div></section>
+      <section class="block wide"><h3>遗物图鉴</h3><div class="collection" id="collection"></div></section>
+    </aside>
+  </section>
+</main>
+<div class="archive hidden" id="archiveModal"><div class="modal-card"><h2>跨设备航海档案</h2><p>档案包含海域星级、港币、装备等级、遗物图鉴与远征次数。</p><textarea id="archiveText" spellcheck="false"></textarea><div class="row" style="justify-content:flex-end"><button class="btn ghost" id="closeArchiveBtn">关闭</button><button class="btn" id="importBtn">导入</button><button class="btn alt" id="exportBtn">生成并复制</button></div><div class="feedback" id="archiveFeedback"></div></div></div>
+<script>
+(() => {
+  "use strict";
+  const KEY="miniTideSalvageV2",$=id=>document.getElementById(id),canvas=$("gameCanvas"),ctx=canvas.getContext("2d");
+  const ROUTES=[
+    {name:"月牙浅湾",desc:"平缓洋流与少量水母，适合熟悉返航节奏。",time:80,target:600,unlock:0,contract:"带回任意 4 类遗物",color:["#8cd1d5","#225d78"]},
+    {name:"沉钟海沟",desc:"旧港遗迹密集，水雷开始封锁高价值区。",time:90,target:950,unlock:2,contract:"单次入账达到 950",color:["#69a9bd","#173e62"]},
+    {name:"红藻断层",desc:"缺氧红潮周期出现，稀有生物样本价值更高。",time:95,target:1300,unlock:5,contract:"发现一件紫色稀有遗物",color:["#5298a4","#3d264f"]},
+    {name:"极夜矿井",desc:"能见度极低，电鳗与矿井水雷考验声呐管理。",time:105,target:1750,unlock:8,contract:"艇体不低于 55% 并达成一星",color:["#3e788d","#141c3d"]},
+    {name:"星落深渊",desc:"强流、热泉和最高价值的失落观测站残骸。",time:115,target:2300,unlock:11,contract:"识别至少 7 类遗物并安全返航",color:["#326c83","#160f2f"]}
+  ];
+  const RELICS=[
+    {name:"铜舵轮",icon:"◉",zone:0,value:80,weight:1,rarity:0},{name:"漂流瓶",icon:"◇",zone:0,value:65,weight:1,rarity:0},{name:"旧罗盘",icon:"✥",zone:0,value:110,weight:1,rarity:1},{name:"珍珠匣",icon:"●",zone:0,value:140,weight:2,rarity:1},
+    {name:"沉钟铭牌",icon:"▣",zone:1,value:185,weight:2,rarity:1},{name:"船长怀表",icon:"◷",zone:1,value:230,weight:1,rarity:2},{name:"青瓷货签",icon:"⬟",zone:1,value:260,weight:2,rarity:2},
+    {name:"红藻琥珀",icon:"◆",zone:2,value:330,weight:2,rarity:2},{name:"发光珊瑚",icon:"✦",zone:2,value:390,weight:2,rarity:2},{name:"海兽齿化石",icon:"▲",zone:2,value:470,weight:3,rarity:3},
+    {name:"矿脉电芯",icon:"⚡",zone:3,value:540,weight:2,rarity:3},{name:"极夜航灯",icon:"✺",zone:3,value:620,weight:3,rarity:3},{name:"观测站密钥",icon:"⌘",zone:3,value:760,weight:1,rarity:3},
+    {name:"星落陨片",icon:"✧",zone:4,value:880,weight:3,rarity:3},{name:"深渊黑匣",icon:"⬢",zone:4,value:1050,weight:3,rarity:3},{name:"潮汐核心",icon:"◎",zone:4,value:1380,weight:4,rarity:3}
+  ];
+  const UPGRADES=[
+    {key:"oxygen",name:"高压气瓶",desc:"氧气上限 +18",base:260,max:4},{key:"cargo",name:"模块船舱",desc:"载重上限 +3",base:300,max:4},
+    {key:"sonar",name:"相控声呐",desc:"冷却 -2 秒",base:340,max:4},{key:"hull",name:"复合艇壳",desc:"碰撞伤害 -12%",base:380,max:4},
+    {key:"engine",name:"静流推进",desc:"航速 +9%",base:420,max:4},{key:"value",name:"修复工台",desc:"遗物估值 +8%",base:460,max:4}
+  ];
+  const rarityColors=["#e8c76a","#79d0b1","#73b9eb","#bf83e8"];
+  let career=load(),selected=Math.min(career.unlocked,4),w=900,h=650,dpr=1,last=0,token=0,pointer=null,keys=new Set(),dive=makeDive(),eventTimer=0;
+  function defaults(){return {v:2,credits:0,unlocked:0,stars:[0,0,0,0,0],best:[0,0,0,0,0],upgrades:{oxygen:0,cargo:0,sonar:0,hull:0,engine:0,value:0},found:[],dives:0,contracts:[]};}
+  function load(){try{const v=JSON.parse(localStorage.getItem(KEY)||"null");if(v&&v.v===2)return Object.assign(defaults(),v,{stars:Array.from({length:5},(_,i)=>v.stars?.[i]||0),best:Array.from({length:5},(_,i)=>v.best?.[i]||0),upgrades:Object.assign(defaults().upgrades,v.upgrades||{}),found:Array.isArray(v.found)?v.found:[],contracts:Array.isArray(v.contracts)?v.contracts:[]});}catch(_){}return defaults();}
+  function save(){localStorage.setItem(KEY,JSON.stringify(career));}
+  function totalStars(){return career.stars.reduce((a,b)=>a+b,0);}
+  function maxOxygen(){return 100+career.upgrades.oxygen*18;}function maxWeight(){return 7+career.upgrades.cargo*3;}
+  function makeDive(){return {mode:"menu",area:selected||0,time:0,left:ROUTES[selected||0]?.time||80,player:{x:130,y:86,vx:0,vy:0},oxygen:maxOxygen?.()||100,hull:100,cargo:[],banked:0,items:[],hazards:[],particles:[],sonar:0,sonarPulse:0,event:null,nextEvent:16,hits:0,seen:new Set(),rare:false};}
+  function rand(a,b){return a+Math.random()*(b-a);}function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+  function resize(){const r=canvas.getBoundingClientRect();w=Math.max(320,r.width);h=Math.max(520,r.height);dpr=Math.max(1,Math.min(2,devicePixelRatio||1));canvas.width=Math.floor(w*dpr);canvas.height=Math.floor(h*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);if(dive.mode!=="running")draw();}
+  function seed(){dive.items=[];dive.hazards=[];for(let i=0;i<24+dive.area*4;i++)spawnItem();for(let i=0;i<5+dive.area*2;i++)spawnHazard(i);}
+  function spawnItem(forceRare=false){const pool=RELICS.map((r,i)=>({...r,id:i})).filter(r=>r.zone<=dive.area&&(!forceRare||r.rarity>=2));let weighted=[];for(const r of pool){const repeats=Math.max(1,7-r.rarity*2-(r.zone<dive.area?1:0));for(let i=0;i<repeats;i++)weighted.push(r);}const proto=weighted[(Math.random()*weighted.length)|0]||pool[0],depthBias=.32+.68*Math.random();dive.items.push({...proto,x:rand(45,w-45),y:150+depthBias*(h-205),r:10+proto.weight*2,reveal:0,phase:rand(0,6.3)});}
+  function spawnHazard(i){const types=dive.area===0?["jelly","current"]:dive.area<3?["jelly","current","mine"]:["jelly","current","mine","eel"],type=types[i%types.length];dive.hazards.push({type,x:rand(55,w-55),y:rand(175,h-55),r:type==="current"?55:type==="mine"?18:22,vx:rand(-32,32),vy:rand(-18,18),phase:rand(0,6.3),cool:0});}
+  function startDive(){if(selected>career.unlocked)return;token++;dive=makeDive();dive.area=selected;dive.left=ROUTES[selected].time;dive.oxygen=maxOxygen();seed();dive.mode="running";overlay.classList.add("hidden");last=performance.now();renderSide();requestAnimationFrame(t=>loop(t,token));}
+  function finish(reason="潮窗关闭"){if(dive.mode!=="running")return;dive.mode="over";token++;const lost=dive.cargo.length;dive.cargo=[];const route=ROUTES[dive.area],ratio=dive.banked/route.target,stars=ratio>=1.75?3:ratio>=1.3?2:ratio>=1?1:0;career.stars[dive.area]=Math.max(career.stars[dive.area],stars);career.best[dive.area]=Math.max(career.best[dive.area],Math.round(dive.banked));career.dives++;career.unlocked=0;for(let i=1;i<ROUTES.length;i++)if(totalStars()>=ROUTES[i].unlock)career.unlocked=i;const contractDone=contractSatisfied(dive.area,stars);if(contractDone&&!career.contracts.includes(dive.area)){career.contracts.push(dive.area);career.credits+=250+150*dive.area;}save();overlayTitle.textContent=stars?`${'★'.repeat(stars)} 航次完成`:"远征记录已归档";overlayBody.innerHTML=`${reason}。本次入账 <b>${Math.round(dive.banked)}</b> 港币，识别 ${dive.seen.size} 类遗物，艇体 ${Math.max(0,Math.round(dive.hull))}%。${lost?` 未返至水面的 ${lost} 件货物未结算。`:''}${contractDone?'<br>航线委托完成，奖励已经发放。':''}`;overlayBtn.textContent="再次下潜";overlay.classList.remove("hidden");selected=Math.min(career.unlocked,selected);renderSide();updateHud();}
+  function contractSatisfied(area,stars){if(area===0)return dive.seen.size>=4;if(area===1)return dive.banked>=950;if(area===2)return dive.rare;if(area===3)return stars>0&&dive.hull>=55;return dive.seen.size>=7&&dive.hull>0;}
+  function input(){let x=0,y=0;if(keys.has("ArrowLeft")||keys.has("KeyA"))x--;if(keys.has("ArrowRight")||keys.has("KeyD"))x++;if(keys.has("ArrowUp")||keys.has("KeyW"))y--;if(keys.has("ArrowDown")||keys.has("KeyS"))y++;if(pointer){x=(pointer.x-dive.player.x)/70;y=(pointer.y-dive.player.y)/70;}const len=Math.hypot(x,y)||1;return {x:x/len,y:y/len,on:Math.hypot(x,y)>.05};}
+  function useSonar(){if(dive.mode!=="running"||dive.sonar>0)return;dive.sonar=12-career.upgrades.sonar*2;dive.sonarPulse=1;for(const item of dive.items)item.reveal=6;pop(dive.player.x,dive.player.y,"声呐展开","#b8f5ee");}
+  function bankCargo(){if(!dive.cargo.length)return;let value=dive.cargo.reduce((s,r)=>s+r.value,0)*(1+career.upgrades.value*.08);value=Math.round(value);career.credits+=value;dive.banked+=value;for(const r of dive.cargo){dive.seen.add(r.id);if(!career.found.includes(r.id))career.found.push(r.id);if(r.rarity>=3)dive.rare=true;}dive.cargo=[];save();pop(dive.player.x,dive.player.y,`入账 ${value}`,"#ffe78c");renderSide();}
+  function cargoWeight(){return dive.cargo.reduce((s,r)=>s+r.weight,0);}
+  function triggerEvent(){const pool=dive.area<2?["顺潮","浮游潮"]:["顺潮","浮游潮","缺氧红潮","深层乱流"],type=pool[(Math.random()*pool.length)|0];dive.event={type,left:9};if(type==="浮游潮")for(let i=0;i<4;i++)spawnItem(true);eventText.textContent=type==="顺潮"?"顺潮窗口：推进速度提升":type==="浮游潮"?"浮游潮：稀有信号涌现":type==="缺氧红潮"?"缺氧红潮：耗氧增加":"深层乱流：海水持续推移";eventText.classList.add("on");clearTimeout(eventTimer);eventTimer=setTimeout(()=>eventText.classList.remove("on"),3500);}
+  function hit(hz,dt){if(hz.cool>0)return;hz.cool=1.15;dive.hits++;const reduction=1-career.upgrades.hull*.12;if(hz.type==="mine"){dive.hull-=22*reduction;dive.oxygen-=10;hz.r=0;pop(hz.x,hz.y,"水雷!","#ff9c8e");}else if(hz.type==="eel"){dive.hull-=12*reduction;dive.sonar=Math.max(dive.sonar,5);pop(hz.x,hz.y,"电击","#fbef7a");}else{dive.oxygen-=12;pop(hz.x,hz.y,"漏气","#ffb99b");}dive.player.vx+=(dive.player.x-hz.x)*2;dive.player.vy+=(dive.player.y-hz.y)*2;}
+  function update(dt){dive.time+=dt;dive.left-=dt;if(dive.left<=0)return finish("潮窗关闭");const control=input(),speed=150*(1+career.upgrades.engine*.09)*(dive.event?.type==="顺潮"?1.18:1);if(control.on){dive.player.vx+=control.x*speed*dt*4;dive.player.vy+=control.y*speed*dt*4;}dive.player.vx*=Math.pow(.13,dt);dive.player.vy*=Math.pow(.13,dt);if(dive.event?.type==="深层乱流")dive.player.vx+=Math.sin(dive.time*1.7)*45*dt;dive.player.x=clamp(dive.player.x+dive.player.vx*dt,25,w-25);dive.player.y=clamp(dive.player.y+dive.player.vy*dt,72,h-28);
+    if(dive.player.y<112){dive.oxygen=Math.min(maxOxygen(),dive.oxygen+dt*38);bankCargo();}else dive.oxygen-=dt*(4.2+dive.player.y/h*3.1)*(dive.event?.type==="缺氧红潮"?1.55:1);
+    dive.sonar=Math.max(0,dive.sonar-dt);dive.sonarPulse=Math.max(0,dive.sonarPulse-dt*1.15);if(dive.time>=dive.nextEvent){triggerEvent();dive.nextEvent+=18+Math.random()*8;}if(dive.event){dive.event.left-=dt;if(dive.event.left<=0)dive.event=null;}
+    for(let i=dive.items.length-1;i>=0;i--){const item=dive.items[i];item.phase+=dt;item.reveal=Math.max(0,item.reveal-dt);if(Math.hypot(item.x-dive.player.x,item.y-dive.player.y)<item.r+17){if(cargoWeight()+item.weight<=maxWeight()){dive.items.splice(i,1);dive.cargo.push(item);pop(item.x,item.y,`+ ${item.name}`,rarityColors[item.rarity]);}else pop(item.x,item.y,"船舱已满","#ffcf70");}}
+    for(const hz of dive.hazards){hz.phase+=dt;hz.cool=Math.max(0,hz.cool-dt);if(hz.r<=0)continue;if(hz.type==="current"){if(Math.hypot(hz.x-dive.player.x,hz.y-dive.player.y)<hz.r){dive.player.vx+=Math.cos(hz.phase*.35)*65*dt;dive.player.vy+=Math.sin(hz.phase*.35)*30*dt;}continue;}if(hz.type!=="mine"){hz.x+=hz.vx*dt;hz.y+=hz.vy*dt;if(hz.x<30||hz.x>w-30)hz.vx*=-1;if(hz.y<145||hz.y>h-30)hz.vy*=-1;}if(Math.hypot(hz.x-dive.player.x,hz.y-dive.player.y)<hz.r+16)hit(hz,dt);}
+    while(dive.items.length<18+dive.area*3)spawnItem();dive.particles=dive.particles.filter(p=>(p.y-=dt*30,p.life-=dt*.7,p.life>0));if(dive.oxygen<=0)finish("氧气耗尽，未入账货物遗失");else if(dive.hull<=0)finish("艇体破损，未入账货物遗失");updateHud();}
+  function loop(now,id){if(id!==token||dive.mode!=="running")return;const dt=Math.min(.045,(now-last)/1000||.016);last=now;update(dt);draw();if(dive.mode==="running")requestAnimationFrame(t=>loop(t,id));}
+  function pop(x,y,text,color){dive.particles.push({x,y,text,color,life:1});}
+  function rr(x,y,ww,hh,r,fill,stroke){ctx.beginPath();ctx.roundRect?ctx.roundRect(x,y,ww,hh,r):(ctx.rect(x,y,ww,hh));if(fill){ctx.fillStyle=fill;ctx.fill();}if(stroke){ctx.strokeStyle=stroke;ctx.stroke();}}
+  function draw(){const route=ROUTES[dive.area]||ROUTES[0],grad=ctx.createLinearGradient(0,0,0,h);grad.addColorStop(0,route.color[0]);grad.addColorStop(.22,"#397e91");grad.addColorStop(1,route.color[1]);ctx.fillStyle=grad;ctx.fillRect(0,0,w,h);ctx.fillStyle="#e7d5aa";ctx.fillRect(0,0,w,72);ctx.fillStyle="rgba(255,255,255,.3)";for(let x=-70;x<w+80;x+=110){ctx.beginPath();ctx.arc(x+Math.sin(dive.time*1.4)*15,82,55,0,Math.PI);ctx.fill();}
+    const visibility=dive.area>=3&&dive.sonarPulse<=0?.58:1;ctx.save();ctx.globalAlpha=visibility;for(const hz of dive.hazards){if(hz.r<=0)continue;if(hz.type==="current"){ctx.fillStyle="rgba(130,220,222,.09)";ctx.beginPath();ctx.arc(hz.x,hz.y,hz.r,0,Math.PI*2);ctx.fill();ctx.strokeStyle="rgba(190,244,240,.35)";for(let n=-1;n<=1;n++){ctx.beginPath();ctx.moveTo(hz.x-25,hz.y+n*14);ctx.lineTo(hz.x+22,hz.y+n*14+Math.sin(hz.phase)*5);ctx.stroke();}}else if(hz.type==="mine"){ctx.fillStyle="#6d2930";ctx.beginPath();ctx.arc(hz.x,hz.y,hz.r,0,Math.PI*2);ctx.fill();ctx.strokeStyle="#e88779";for(let a=0;a<6;a++){ctx.beginPath();ctx.moveTo(hz.x+Math.cos(a)*hz.r,hz.y+Math.sin(a)*hz.r);ctx.lineTo(hz.x+Math.cos(a)*(hz.r+8),hz.y+Math.sin(a)*(hz.r+8));ctx.stroke();}}else{ctx.fillStyle=hz.type==="eel"?"#e4d25a":"rgba(213,106,125,.82)";ctx.beginPath();ctx.ellipse(hz.x,hz.y,hz.r,hz.r*.65,Math.sin(hz.phase)*.2,0,Math.PI*2);ctx.fill();}}
+    for(const item of dive.items){const reveal=item.reveal>0||item.rarity<2;ctx.globalAlpha=reveal?1:.43;ctx.fillStyle=rarityColors[item.rarity];ctx.beginPath();ctx.arc(item.x,item.y,item.r+(item.reveal>0?Math.sin(item.phase*4)*2:0),0,Math.PI*2);ctx.fill();ctx.fillStyle="#17313a";ctx.font=`900 ${12+item.weight}px system-ui`;ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(item.icon,item.x,item.y);if(item.reveal>0){ctx.strokeStyle="rgba(210,255,249,.6)";ctx.beginPath();ctx.arc(item.x,item.y,item.r+8,0,Math.PI*2);ctx.stroke();}}
+    ctx.restore();if(dive.sonarPulse>0){ctx.strokeStyle=`rgba(190,255,244,${dive.sonarPulse})`;ctx.lineWidth=3;ctx.beginPath();ctx.arc(dive.player.x,dive.player.y,(1-dive.sonarPulse)*Math.max(w,h),0,Math.PI*2);ctx.stroke();}
+    ctx.save();ctx.translate(dive.player.x,dive.player.y);ctx.fillStyle="#e4b64f";ctx.beginPath();ctx.arc(-8,-2,16,0,Math.PI*2);ctx.fill();rr(-5,-9,41,24,9,"#286b84","#0e3445");ctx.fillStyle="#e9fcf7";ctx.beginPath();ctx.arc(22,-1,6,0,Math.PI*2);ctx.fill();ctx.restore();for(const p of dive.particles){ctx.globalAlpha=p.life;ctx.fillStyle=p.color;ctx.font="900 17px system-ui";ctx.textAlign="center";ctx.fillText(p.text,p.x,p.y);ctx.globalAlpha=1;}}
+  function updateHud(){timeText.textContent=`${Math.max(0,Math.floor(dive.left/60))}:${String(Math.max(0,Math.floor(dive.left%60))).padStart(2,'0')}`;bankText.textContent=Math.round(dive.banked);cargoText.textContent=`${dive.cargo.length} 件`;depthText.textContent=`${Math.max(0,Math.round((dive.player.y-72)*1.7))}m`;targetText.textContent=ROUTES[dive.area]?.target||0;sonarText.textContent=dive.sonar>0?`${dive.sonar.toFixed(1)}s`:"就绪";oxygenText.textContent=`${Math.max(0,Math.round(dive.oxygen))}/${maxOxygen()}`;hullText.textContent=`${Math.max(0,Math.round(dive.hull))}%`;weightText.textContent=`${cargoWeight()}/${maxWeight()}`;oxygenBar.style.width=`${clamp(dive.oxygen/maxOxygen()*100,0,100)}%`;hullBar.style.width=`${clamp(dive.hull,0,100)}%`;weightBar.style.width=`${clamp(cargoWeight()/maxWeight()*100,0,100)}%`;diveBtn.disabled=dive.mode==="running";sonarBtn.disabled=dive.mode!=="running"||dive.sonar>0;retreatBtn.disabled=dive.mode!=="running";}
+  function selectRoute(i){if(i>career.unlocked||dive.mode==="running")return;selected=i;dive=makeDive();dive.area=i;dive.left=ROUTES[i].time;renderSide();draw();updateHud();overlayTitle.textContent=ROUTES[i].name;overlayBody.textContent=`${ROUTES[i].desc} 一星目标 ${ROUTES[i].target}，潮窗 ${ROUTES[i].time} 秒。${ROUTES[i].contract}`;overlayBtn.textContent="开始下潜";overlay.classList.remove("hidden");}
+  function renderSide(){routeList.innerHTML=ROUTES.map((r,i)=>`<button class="route ${i===selected?'active':''} ${i>career.unlocked?'locked':''}" data-route="${i}" ${i>career.unlocked||dive.mode==='running'?'disabled':''}><b><span>${i+1}. ${r.name}</span><span class="stars">${'★'.repeat(career.stars[i])}${'☆'.repeat(3-career.stars[i])}</span></b><small>${i>career.unlocked?`需累计 ${r.unlock} 星（当前 ${totalStars()}）`:r.desc}</small></button>`).join('');routeList.querySelectorAll('[data-route]').forEach(b=>b.onclick=()=>selectRoute(+b.dataset.route));creditText.textContent=career.credits;starCareerText.textContent=totalStars();diveCareerText.textContent=career.dives;contractText.textContent=`当前委托：${ROUTES[selected].contract}${career.contracts.includes(selected)?'（已完成）':''}`;
+    upgradeList.innerHTML=UPGRADES.map(u=>{const lv=career.upgrades[u.key],cost=Math.round(u.base*Math.pow(1.65,lv));return `<div class="upgrade"><b>${u.name} Lv.${lv}</b><small>${u.desc}</small><button class="btn ghost" data-upgrade="${u.key}" ${lv>=u.max||career.credits<cost||dive.mode==='running'?'disabled':''}>${lv>=u.max?'已满级':cost+' 港币'}</button></div>`;}).join('');upgradeList.querySelectorAll('[data-upgrade]').forEach(b=>b.onclick=()=>buyUpgrade(b.dataset.upgrade));collection.innerHTML=RELICS.map((r,i)=>`<div class="relic ${career.found.includes(i)?'found':''}" title="${career.found.includes(i)?r.name:'尚未发现'}"><i>${career.found.includes(i)?r.icon:'?'}</i>${career.found.includes(i)?r.name:'未知'}</div>`).join('');updateHud();}
+  function buyUpgrade(key){const u=UPGRADES.find(x=>x.key===key),lv=career.upgrades[key],cost=Math.round(u.base*Math.pow(1.65,lv));if(dive.mode==='running'||lv>=u.max||career.credits<cost)return;career.credits-=cost;career.upgrades[key]++;save();dive.oxygen=maxOxygen();renderSide();}
+  function checksum(s){let h=0x811c9dc5;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);}return (h>>>0).toString(36).toUpperCase();}
+  function encode(){const p=btoa(unescape(encodeURIComponent(JSON.stringify({v:2,c:career.credits,u:career.unlocked,s:career.stars,b:career.best,g:career.upgrades,f:career.found,d:career.dives,k:career.contracts}))));return `TIDE2.${p}.${checksum(p)}`;}
+  function decode(code){const p=code.trim().split('.');if(p.length!==3||p[0]!=="TIDE2"||checksum(p[1])!==p[2])throw Error('航海档案校验失败');const v=JSON.parse(decodeURIComponent(escape(atob(p[1]))));if(v.v!==2||!Array.isArray(v.s)||!v.g)throw Error('档案版本不兼容');return {v:2,credits:Math.max(0,+v.c||0),unlocked:clamp(+v.u||0,0,4),stars:Array.from({length:5},(_,i)=>clamp(+v.s[i]||0,0,3)),best:Array.from({length:5},(_,i)=>Math.max(0,+v.b?.[i]||0)),upgrades:Object.fromEntries(UPGRADES.map(u=>[u.key,clamp(+v.g[u.key]||0,0,u.max)])),found:(v.f||[]).filter(i=>Number.isInteger(i)&&i>=0&&i<RELICS.length),dives:Math.max(0,+v.d||0),contracts:(v.k||[]).filter(i=>Number.isInteger(i)&&i>=0&&i<5)};}
+  diveBtn.onclick=startDive;overlayBtn.onclick=startDive;sonarBtn.onclick=useSonar;retreatBtn.onclick=()=>finish("主动结束航次");archiveBtn.onclick=()=>{archiveModal.classList.remove('hidden');archiveText.value=encode();archiveFeedback.textContent='';};closeArchiveBtn.onclick=()=>archiveModal.classList.add('hidden');exportBtn.onclick=async()=>{archiveText.value=encode();archiveText.select();try{await navigator.clipboard.writeText(archiveText.value);archiveFeedback.textContent='航海档案已复制。';}catch(_){archiveFeedback.textContent='档案已生成，请手动复制。';}};importBtn.onclick=()=>{try{career=decode(archiveText.value);save();selected=Math.min(career.unlocked,4);dive=makeDive();renderSide();archiveFeedback.textContent='导入成功。';}catch(e){archiveFeedback.textContent=e.message;}};
+  document.querySelectorAll('[data-dir]').forEach(b=>{const code={up:'ArrowUp',down:'ArrowDown',left:'ArrowLeft',right:'ArrowRight'}[b.dataset.dir];b.onpointerdown=e=>{e.preventDefault();keys.add(code);};b.onpointerup=b.onpointercancel=b.onpointerleave=()=>keys.delete(code);});canvas.onpointerdown=e=>{const r=canvas.getBoundingClientRect();pointer={x:e.clientX-r.left,y:e.clientY-r.top};canvas.setPointerCapture?.(e.pointerId);};canvas.onpointermove=e=>{if(pointer){const r=canvas.getBoundingClientRect();pointer={x:e.clientX-r.left,y:e.clientY-r.top};}};canvas.onpointerup=canvas.onpointercancel=()=>pointer=null;document.addEventListener('keydown',e=>{keys.add(e.code);if(e.code==='ShiftLeft'||e.code==='ShiftRight')useSonar();});document.addEventListener('keyup',e=>keys.delete(e.code));window.addEventListener('resize',resize);
+  window.__tideSalvage={ROUTES,RELICS,career:()=>career,dive:()=>dive,selectRoute,startDive,finish,encode,decode,contractSatisfied};
+  resize();renderSide();selectRoute(selected);draw();
+})();
+</script>
+</body>
 </html>
