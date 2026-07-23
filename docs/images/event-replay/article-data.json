@@ -1,0 +1,22 @@
+{
+  "title": "把前端状态机做成可回放系统",
+  "subtitle": "命令日志、确定性重放与回归测试",
+  "metrics": {
+    "replayPages": 3,
+    "archiveRoundTrips": 3,
+    "referenceStrategies": 4,
+    "auditedPages": 200,
+    "loadFailures": 0,
+    "javascriptErrors": 0,
+    "consoleErrors": 0,
+    "horizontalOverflows": 0
+  },
+  "testCommand": "node promo-video/scripts/check-event-replay-scenarios.mjs",
+  "auditCommand": "node promo-video/scripts/audit-games.mjs",
+  "archivePrefixes": [
+    "AUCTION2",
+    "ISLAND2",
+    "PATH2"
+  ],
+  "referenceCycles": [12, 12, 18, 22]
+}

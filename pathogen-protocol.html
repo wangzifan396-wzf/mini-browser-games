@@ -1,310 +1,45 @@
 <!doctype html>
 <html lang="zh-CN">
-  <meta charset="utf-8" /><meta
-    name="viewport"
-    content="width=device-width,initial-scale=1"
-  /><title>微境协议</title
-  ><style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      background: #071716;
-      color: #ecfff7;
-      font-family: system-ui, "Microsoft YaHei";
-    }
-    .app {
-      min-height: 100vh;
-      padding: 14px;
-      display: grid;
-      place-items: center;
-    }
-    .shell {
-      width: min(1000px, 100%);
-      background: #0e302c;
-      border: 1px solid #3e7569;
-      border-radius: 20px;
-      padding: 16px;
-    }
-    .top,
-    .row {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .world {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-      margin: 12px 0;
-    }
-    .region {
-      min-height: 125px;
-      border: 1px solid #397064;
-      border-radius: 12px;
-      background: #16483f;
-      padding: 10px;
-      position: relative;
-    }
-    .region.hot {
-      box-shadow: inset 0 0 30px #9f3c3c;
-    }
-    .region b {
-      font-size: 18px;
-    }
-    .bar {
-      height: 7px;
-      background: #09241f;
-      border-radius: 7px;
-      overflow: hidden;
-      margin-top: 6px;
-    }
-    .bar i {
-      display: block;
-      height: 100%;
-      background: #e26161;
-    }
-    .cure i {
-      background: #5ba9df;
-    }
-    .layout {
-      display: grid;
-      grid-template-columns: 1fr 310px;
-      gap: 12px;
-    }
-    .panel {
-      background: #09241f;
-      border: 1px solid #35665c;
-      border-radius: 11px;
-      padding: 10px;
-      margin-bottom: 9px;
-    }
-    .evolve {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 7px;
-    }
-    .upgrade {
-      min-height: 62px;
-    }
-    .log {
-      height: 105px;
-      overflow: auto;
-      color: #b5d4cb;
-      font-size: 13px;
-    }
-    button {
-      padding: 9px 11px;
-      border: 1px solid #4d7f73;
-      border-radius: 9px;
-      background: #286458;
-      color: white;
-      font-weight: bold;
-    }
-    .run {
-      background: #85552c;
-    }
-    .danger {
-      color: #ff7b7b;
-    }
-    .help {
-      font-size: 13px;
-      color: #b8d2ca;
-    }
-    @media (max-width: 700px) {
-      .world {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      .layout {
-        grid-template-columns: 1fr;
-      }
-      .app {
-        place-items: start center;
-      }
-    }
-  </style>
-  <main class="app">
-    <section class="shell">
-      <div class="top">
-        <div>
-          <h1 style="margin: 0">微境协议</h1>
-          <div class="help">
-            演化传播、环境抗性与症状，在全球完成感染前控制致死率和解药研发。
-          </div>
-        </div>
-        <div>
-          DNA <b id="dna"></b>　感染 <b id="infected"></b>%　解药
-          <b id="cure"></b>%　年份 <b id="year"></b>
-        </div>
-      </div>
-      <div class="world" id="world"></div>
-      <div class="layout">
-        <div>
-          <div class="panel">
-            <b>基因演化</b>
-            <div class="evolve" id="evolve"></div>
-          </div>
-          <div class="row">
-            <button class="run" id="run">▶ 开始传播</button
-            ><button id="speed">速度 ×1</button
-            ><button id="restart">重新模拟</button><span id="msg"></span>
-          </div>
-        </div>
-        <aside>
-          <div class="panel">
-            <b>病原参数</b>
-            <div id="stats"></div>
-          </div>
-          <div class="panel">
-            <b>胜利条件</b>
-            <div class="help">
-              让八个地区全部感染且全球感染率达到
-              95%。症状越明显，解药研究越快；致死过高会让传播链断裂。
-            </div>
-          </div>
-          <div class="panel log" id="log"></div>
-        </aside>
-      </div>
-    </section>
-  </main>
-  <script>
-    const R = [
-        ["北境", 0.7, 0.8],
-        ["东陆", 1.2, 1.1],
-        ["群岛", 1, 0.7],
-        ["沙海", 1.5, 0.9],
-        ["雨林", 1.3, 1.3],
-        ["都市圈", 1.1, 1.5],
-        ["高原", 0.65, 0.75],
-        ["南港", 1.15, 1.2],
-      ],
-      U = [
-        ["飞沫传播", "trans", 1, 8],
-        ["水源传播", "trans", 1, 8],
-        ["耐寒基因", "cold", 1, 10],
-        ["耐热基因", "heat", 1, 10],
-        ["潜伏适应", "stealth", 1, 12],
-        ["轻度症状", "severity", 1, 9],
-        ["器官侵袭", "severity", 2, 16],
-        ["基因重组", "resist", 1, 14],
-      ];
-    let q,
-      timer = null,
-      speed = 1;
-    const $ = (x) => document.getElementById(x);
-    function fresh() {
-      return {
-        dna: 15,
-        year: 1,
-        cure: 0,
-        up: { trans: 1, cold: 0, heat: 0, stealth: 1, severity: 0, resist: 0 },
-        regions: R.map((r, i) => ({ inf: i === 1 ? 2 : 0, dead: 0 })),
-        logs: ["病原体在东陆出现首例。"],
-        over: false,
-      };
-    }
-    function buy(i) {
-      let u = U[i],
-        level = q.up[u[1]],
-        cost = u[3] + level * 4;
-      if (q.dna < cost) return;
-      q.dna -= cost;
-      q.up[u[1]] += u[2];
-      q.logs.unshift(`完成演化：${u[0]}。`);
-      draw();
-    }
-    function tick() {
-      if (q.over) return;
-      let global = q.regions.reduce((s, r) => s + r.inf, 0) / 8;
-      for (let i = 0; i < 8; i++) {
-        let reg = q.regions[i],
-          climate = R[i][1],
-          density = R[i][2],
-          resist = climate < 0.8 ? q.up.cold : climate > 1.35 ? q.up.heat : 1,
-          growth =
-            q.up.trans * density * (0.35 + resist * 0.15) * (1 - reg.inf / 100);
-        if (reg.inf > 0) reg.inf = Math.min(100, reg.inf + growth);
-        if (reg.inf > 8) {
-          for (const j of [(i + 1) % 8, (i + 7) % 8])
-            if (Math.random() < 0.05 * q.up.trans)
-              q.regions[j].inf = Math.max(q.regions[j].inf, 0.4);
-        }
-        if (q.up.severity > 2 && reg.inf > 30)
-          reg.dead = Math.min(reg.inf, reg.dead + q.up.severity * 0.015);
-      }
-      q.dna += global > 20 ? 0.35 : 0.15;
-      q.cure +=
-        Math.max(0, q.up.severity - q.up.stealth) *
-        0.018 *
-        (1 - q.up.resist * 0.1);
-      q.year += 0.015 * speed;
-      let all = q.regions.every((r) => r.inf > 1),
-        avg = q.regions.reduce((s, r) => s + r.inf, 0) / 8;
-      if (all && avg >= 95) {
-        q.over = true;
-        q.logs.unshift("全球感染完成，病原演化取得胜利。");
-      }
-      if (q.cure >= 100) {
-        q.over = true;
-        q.logs.unshift("解药研发完成，传播被终止。");
-      }
-      draw();
-    }
-    function draw() {
-      let avg = q.regions.reduce((s, r) => s + r.inf, 0) / 8;
-      dna.textContent = Math.floor(q.dna);
-      infected.textContent = Math.floor(avg);
-      cure.textContent = Math.floor(q.cure);
-      year.textContent = q.year.toFixed(1);
-      world.innerHTML = q.regions
-        .map(
-          (r, i) =>
-            `<div class="region ${r.inf > 40 ? "hot" : ""}"><b>${R[i][0]}</b><div>感染 ${r.inf.toFixed(1)}%</div><div class="bar"><i style="width:${r.inf}%"></i></div><small>气候 ${R[i][1] < 0.8 ? "寒冷" : R[i][1] > 1.35 ? "炎热" : "温和"} · 人口密度 ${R[i][2]}</small></div>`,
-        )
-        .join("");
-      evolve.innerHTML = U.map((u, i) => {
-        let lv = q.up[u[1]],
-          cost = u[3] + lv * 4;
-        return `<button class="upgrade" data-i="${i}" ${q.dna < cost ? "disabled" : ""}>${u[0]}<br><small>Lv.${lv} · ${cost} DNA</small></button>`;
-      }).join("");
-      evolve
-        .querySelectorAll("[data-i]")
-        .forEach((e) => (e.onclick = () => buy(+e.dataset.i)));
-      stats.innerHTML = `传播 ${q.up.trans}<br>耐寒 ${q.up.cold}<br>耐热 ${q.up.heat}<br>隐蔽 ${q.up.stealth}<br>症状 ${q.up.severity}<br>抗药 ${q.up.resist}`;
-      log.innerHTML = q.logs
-        .slice(0, 8)
-        .map((x) => `<div>• ${x}</div>`)
-        .join("");
-      run.textContent = timer ? "■ 暂停" : "▶ 开始传播";
-      run.disabled = q.over;
-    }
-    run.onclick = () => {
-      if (timer) {
-        clearInterval(timer);
-        timer = null;
-      } else timer = setInterval(tick, 180 / speed);
-      draw();
-    };
-    speed.onclick = () => {
-      speed = speed === 1 ? 2 : speed === 2 ? 4 : 1;
-      if (timer) {
-        clearInterval(timer);
-        timer = setInterval(tick, 180 / speed);
-      }
-      speed.textContent = `速度 ×${speed}`;
-    };
-    restart.onclick = () => {
-      if (timer) {
-        clearInterval(timer);
-        timer = null;
-      }
-      q = fresh();
-      draw();
-    };
-    q = fresh();
-    draw();
-  </script>
-</html>
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>微境协议：四域演算</title>
+<style>
+:root{--bg:#061512;--panel:#0d302a;--panel2:#08231f;--line:#3f786a;--ink:#edfff8;--muted:#aed0c7;--red:#df6868;--blue:#62a9dc;--green:#6fd39a;--gold:#e8c36b}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 9% 0,#174f45 0,transparent 30%),radial-gradient(circle at 92% 4%,#303c50 0,transparent 27%),linear-gradient(145deg,#04100e,#09251f 65%,#111c23);color:var(--ink);font-family:system-ui,"Microsoft YaHei",sans-serif}.app{width:min(1440px,calc(100% - 22px));margin:11px auto}.top,.panel{border:1px solid var(--line);border-radius:14px;background:rgba(13,48,42,.97);box-shadow:0 18px 48px rgba(0,0,0,.34)}.top{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:15px 18px}.eyebrow{margin:0 0 4px;color:#70d6c2;font-size:12px;font-weight:950;letter-spacing:.14em}.top h1{margin:0;font-size:clamp(26px,4vw,42px);line-height:1}.sub{margin:7px 0 0;color:var(--muted);font-size:13px}.actions,.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}button,textarea{font:inherit}.btn{min-height:42px;padding:0 13px;border:1px solid #54887d;border-radius:8px;background:#286458;color:white;font-weight:900;cursor:pointer}.btn.gold{border-color:#9e8043;background:#755c28}.btn.red{border-color:#9d4b4e;background:#71363b}.btn:disabled{opacity:.4;cursor:not-allowed}.layout{display:grid;grid-template-columns:minmax(0,1fr) 395px;gap:12px;margin-top:12px;align-items:start}.lab{padding:13px;min-width:0}.lab-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.lab-head h2{margin:0 0 5px}.lab-head p{margin:0;color:var(--muted);font-size:12px}.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;min-width:460px}.stat{padding:6px;border:1px solid #3f7166;border-radius:7px;background:#071e1a;text-align:center}.stat b{display:block;font-size:18px}.stat small{font-size:9px;color:var(--muted)}.world{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}.region{min-height:142px;padding:10px;border:1px solid #3b7164;border-radius:10px;background:#13483e}.region.hot{box-shadow:inset 0 0 28px #9e3f3f}.region b{font-size:16px}.region small{display:block;margin-top:4px;color:var(--muted);font-size:9px;line-height:1.35}.bar{height:7px;margin-top:7px;border-radius:8px;background:#061b17;overflow:hidden}.bar i{display:block;height:100%;background:var(--red)}.bar.cure i{background:var(--blue)}.genes{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.gene{min-height:72px;padding:6px;border:1px solid #41766a;border-radius:8px;background:#164c42;color:white;text-align:left;cursor:pointer}.gene b,.gene small{display:block}.gene small{font-size:9px;color:var(--muted);margin-top:4px;line-height:1.3}.gene.max{border-color:#609f75;background:#1f5947}.forecast{margin-top:9px;padding:9px;border:1px solid #506f67;border-radius:8px;background:#142e2a;color:#c5ded7;font-size:11px;line-height:1.5}.run-actions{justify-content:center;margin-top:10px}.message{min-height:40px;margin-top:8px;padding:8px;border:1px solid #3f7065;border-radius:8px;background:#081f1b;color:#bad8d0;font-size:12px}.side{padding:12px;display:grid;gap:10px;max-height:calc(100vh - 105px);overflow:auto}.block{padding:11px;border:1px solid #386b60;border-radius:10px;background:var(--panel2)}.block h2,.block h3{margin:0 0 8px}.block h2{font-size:20px}.block h3{font-size:14px;color:var(--gold)}.scenarios{display:grid;grid-template-columns:repeat(2,1fr);gap:5px}.scenario{min-height:62px;padding:6px;border:1px solid #3e7166;border-radius:8px;background:#15463e;color:white;cursor:pointer}.scenario.active{outline:3px solid var(--gold)}.scenario:disabled{opacity:.36}.scenario b,.scenario small{display:block}.scenario small{font-size:9px;color:var(--muted);margin-top:3px}.stars{color:var(--gold);font-size:10px}.strains{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.strain{min-height:70px;padding:5px;border:1px solid #3f7166;border-radius:8px;background:#15463d;color:white;cursor:pointer}.strain.active{outline:3px solid #6bc7d0}.strain b,.strain small{display:block}.strain small{font-size:9px;color:var(--muted);margin-top:3px;line-height:1.25}.goal{padding:7px;border:1px solid #3e6e63;border-radius:7px;color:var(--muted);font-size:11px}.goal.pass{border-color:#4e956d;background:#16392d;color:#def5e6}.goals{display:grid;gap:5px}.protocol{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.protocol div{padding:6px;border:1px solid #3a685f;border-radius:7px;background:#123f37;text-align:center}.protocol b{display:block;font-size:17px}.protocol small{font-size:9px;color:var(--muted)}.log{height:145px;overflow:auto;color:#acd0c6;font-size:11px;line-height:1.5}.career{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.career div{padding:7px;border:1px solid #3c6d62;border-radius:8px;background:#123e36;text-align:center}.career b{display:block;font-size:19px}.career small{font-size:9px;color:var(--muted)}.tip{color:var(--muted);font-size:12px;line-height:1.5}.archive{position:fixed;inset:0;z-index:9;display:grid;place-items:center;padding:18px;background:#010c0add}.archive.hidden{display:none}.dialog{width:min(620px,100%);padding:18px;border:1px solid #4a8175;border-radius:14px;background:#0d302a}.dialog h2{margin:0 0 8px}.dialog textarea{width:100%;min-height:125px;padding:10px;border:1px solid #47796e;border-radius:8px;background:#061b17;color:white;resize:vertical}.feedback{min-height:20px;margin-top:7px;color:var(--gold);font-size:12px;font-weight:850}@media(max-width:960px){.layout{grid-template-columns:1fr}.side{max-height:none}.top{align-items:flex-start}.lab-head{display:grid}.stats{min-width:0;width:100%}}@media(max-width:650px){.app{width:min(100% - 12px,1440px);margin:6px auto}.top{display:grid;padding:12px}.top h1{font-size:26px}.lab{padding:8px}.stats{grid-template-columns:repeat(3,1fr)}.world{grid-template-columns:repeat(2,1fr);gap:5px}.region{min-height:122px;padding:7px}.genes{grid-template-columns:repeat(2,1fr)}.side{padding:8px}}
+</style>
+</head>
+<body>
+<main class="app"><header class="top"><div><p class="eyebrow">DETERMINISTIC NETWORK SIMULATION</p><h1>微境协议：四域演算</h1><p class="sub">四种传播情景 · 八地区网络 · 三套初始协议 · 十二项演化 · 可预读政策事件与回放日志</p></div><div class="actions"><button class="btn red" id="restartBtn">重开情景</button><button class="btn gold" id="archiveBtn">演算档案</button></div></header>
+<section class="layout"><section class="panel lab"><div class="lab-head"><div><h2 id="scenarioTitle"></h2><p id="scenarioDesc"></p></div><div class="stats"><div class="stat"><b id="cycleStat">0</b><small>周期</small></div><div class="stat"><b id="dnaStat">0</b><small>DNA</small></div><div class="stat"><b id="infectedStat">0%</b><small>平均传播</small></div><div class="stat"><b id="cureStat">0%</b><small>应对研究</small></div><div class="stat"><b id="deadStat">0%</b><small>系统损耗</small></div></div></div><div class="world" id="world"></div><div class="genes" id="genes"></div><div class="forecast" id="forecast"></div><div class="row run-actions"><button class="btn" id="stepBtn">推进一轮</button><button class="btn gold" id="autoBtn">自动演算</button></div><div class="message" id="message">选择初始协议并阅读首个政策预告，再开始演算。</div></section>
+<aside class="panel side"><section class="block"><h3>四域情景</h3><div class="scenarios" id="scenarioList"></div></section><section class="block"><h2>初始协议</h2><div class="strains" id="strainList"></div></section><section class="block"><h3>情景目标</h3><div class="goals" id="goals"></div><p class="tip">完成主传播目标获得一星；应对研究和系统损耗分别满足额外阈值再增加一星。</p></section><section class="block"><h3>当前参数</h3><div class="protocol" id="protocol"></div></section><section class="block"><h3>演算事件</h3><div class="log" id="log"></div></section><section class="block"><h3>研究生涯</h3><div class="career"><div><b id="totalStars">0</b><small>总星章</small></div><div><b id="clears">0</b><small>完成情景</small></div><div><b id="bestCycle">0</b><small>最快周期</small></div></div></section></aside></section></main>
+<div class="archive hidden" id="archiveModal"><div class="dialog"><h2>跨设备演算档案</h2><p class="tip">档案包含四情景星级、最佳周期、解锁进度和研究纪录。</p><textarea id="archiveText" spellcheck="false"></textarea><div class="row" style="justify-content:flex-end;margin-top:8px"><button class="btn" id="closeArchiveBtn">关闭</button><button class="btn" id="importBtn">导入</button><button class="btn gold" id="exportBtn">生成并复制</button></div><div class="feedback" id="archiveFeedback"></div></div></div>
+<script>
+(() => {
+  const REGIONS=[{name:"北境",climate:"cold",density:.8,neighbors:[1,6]},{name:"东陆",climate:"mild",density:1.25,neighbors:[0,2,5]},{name:"群岛",climate:"mild",density:.72,neighbors:[1,3,7]},{name:"沙海",climate:"hot",density:.83,neighbors:[2,4]},{name:"雨林",climate:"hot",density:1.18,neighbors:[3,5]},{name:"都市圈",climate:"mild",density:1.55,neighbors:[1,4,6]},{name:"高原",climate:"cold",density:.68,neighbors:[0,5,7]},{name:"南港",climate:"mild",density:1.12,neighbors:[2,6]}];
+  const STRAINS={whisper:{name:"静默协议",text:"高隐蔽，研究增长慢",up:{trans:1,cold:0,heat:0,stealth:2,severity:0,resist:0,route:0,harvest:0}},nomad:{name:"迁徙协议",text:"冷热适应，跨区更稳",up:{trans:1,cold:1,heat:1,stealth:1,severity:0,resist:0,route:1,harvest:0}},ember:{name:"炽烈协议",text:"传播快，但更易触发研究",up:{trans:2,cold:0,heat:1,stealth:0,severity:1,resist:0,route:0,harvest:0}}};
+  const GENES=[{id:"air",name:"气溶扩散",key:"trans",inc:1,cost:7,max:3,text:"提高所有地区增长"},{id:"route",name:"航路附着",key:"route",inc:1,cost:8,max:3,text:"提高邻区播种与跨区流量"},{id:"cold",name:"低温折叠",key:"cold",inc:1,cost:7,max:2,text:"减弱寒冷地区阻力"},{id:"heat",name:"耐热外壳",key:"heat",inc:1,cost:7,max:2,text:"减弱炎热地区阻力"},{id:"veil",name:"低信号表达",key:"stealth",inc:1,cost:9,max:3,text:"降低应对研究速度"},{id:"mild",name:"温和表型",key:"severity",inc:-1,cost:8,max:2,text:"降低系统损耗和可见度"},{id:"flare",name:"快速表达",key:"severity",inc:1,cost:6,max:3,text:"增加 DNA，但加快研究"},{id:"resist",name:"抗性重组",key:"resist",inc:1,cost:10,max:3,text:"降低政策研究增幅"},{id:"harvest",name:"片段回收",key:"harvest",inc:1,cost:10,max:2,text:"每轮获得更多 DNA"},{id:"cold2",name:"冰层通道",key:"cold",inc:1,cost:12,max:2,text:"进一步适应北境与高原"},{id:"heat2",name:"蒸腾通道",key:"heat",inc:1,cost:12,max:2,text:"进一步适应沙海与雨林"},{id:"route2",name:"多点迁跃",key:"route",inc:1,cost:13,max:3,text:"进一步强化网络播种"}];
+  const events=(a,b,c,d,e,f)=>[{cycle:3,name:a.name,effect:a.effect},{cycle:6,name:b.name,effect:b.effect},{cycle:9,name:c.name,effect:c.effect},{cycle:12,name:d.name,effect:d.effect},{cycle:16,name:e.name,effect:e.effect},{cycle:20,name:f.name,effect:f.effect}];
+  const SCENARIOS=[
+    {name:"寒潮孤链",desc:"寒区节点阻断传播，需要在边境收紧前建立跨区链。",start:1,max:26,targetAvg:72,targetRegions:8,cureLimit:82,starCure:58,deathLimit:6,starDeath:2.5,cureBase:1.25,reference:{strain:"nomad",plan:["air","route","air","cold","route","veil","resist"]},events:events({name:"北境寒潮：寒区系数降低",effect:{spread:.94}},{name:"铁路复运：东陆向都市圈播种",effect:{seed:[5,8]}},{name:"边境筛查：应对研究加速",effect:{cure:1.18}},{name:"冷链缺口：北境出现新点",effect:{seed:[0,12]}},{name:"冬季封锁：整体流量下降",effect:{spread:.9}},{name:"研究疲劳：应对增速回落",effect:{cure:.9}})},
+    {name:"群岛封锁",desc:"岛链密度低且连接有限，需要航路能力绕过隔离。",start:2,max:27,targetAvg:68,targetRegions:7,cureLimit:84,starCure:60,deathLimit:6,starDeath:2.4,cureBase:1.35,reference:{strain:"nomad",plan:["route","route","air","heat","veil","route2","resist"]},events:events({name:"港口停航：网络流量降低",effect:{spread:.9}},{name:"渔船靠港：南港出现新点",effect:{seed:[7,10]}},{name:"岛际监测：应对研究加速",effect:{cure:1.16}},{name:"季风航路：群岛播种雨林",effect:{seed:[4,9]}},{name:"临时通航：整体流量恢复",effect:{spread:1.12}},{name:"样本短缺：应对速度回落",effect:{cure:.88}})},
+    {name:"都市追踪",desc:"都市增长很快，但可见信号会迅速推动应对研究。",start:5,max:24,targetAvg:78,targetRegions:8,cureLimit:78,starCure:52,deathLimit:5,starDeath:1.8,cureBase:1.75,reference:{strain:"whisper",plan:["air","veil","route","air","resist","heat","cold"]},events:events({name:"通勤高峰：都市圈向邻区播种",effect:{seed:[1,10]}},{name:"公开监测：应对研究加速",effect:{cure:1.25}},{name:"社区静默期：传播流量降低",effect:{spread:.92}},{name:"匿名样本缺口：研究速度下降",effect:{cure:.82}},{name:"跨城列车恢复：整体流量增加",effect:{spread:1.12}},{name:"快速筛查：研究再次加速",effect:{cure:1.12}})},
+    {name:"终局·抗体风暴",desc:"强应对与冷热边界同时存在，需要平衡隐蔽、抗性和覆盖速度。",start:4,max:28,targetAvg:82,targetRegions:8,cureLimit:76,starCure:48,deathLimit:4,starDeath:1.5,cureBase:1.95,reference:{strain:"whisper",plan:["air","route","resist","veil","heat","cold","air","route2","resist"]},events:events({name:"联合实验室启动：研究增速上升",effect:{cure:1.28}},{name:"热浪北移：雨林向都市圈播种",effect:{seed:[5,11]}},{name:"交通降频：整体流量下降",effect:{spread:.88}},{name:"样本批次失效：研究短暂回落",effect:{cure:.78}},{name:"双港复航：南港向群岛播种",effect:{seed:[2,12]}},{name:"终局筛查：研究重新加速",effect:{cure:1.18}})}
+  ];
+  const KEY="mini_pathogen_scenarios_v2",$=id=>document.getElementById(id),els={scenarioList:$("scenarioList"),scenarioTitle:$("scenarioTitle"),scenarioDesc:$("scenarioDesc"),strainList:$("strainList"),world:$("world"),genes:$("genes"),forecast:$("forecast"),goals:$("goals"),protocol:$("protocol"),log:$("log"),message:$("message"),cycle:$("cycleStat"),dna:$("dnaStat"),infected:$("infectedStat"),cure:$("cureStat"),dead:$("deadStat"),step:$("stepBtn"),auto:$("autoBtn"),totalStars:$("totalStars"),clears:$("clears"),bestCycle:$("bestCycle"),archive:$("archiveModal"),archiveText:$("archiveText"),archiveFeedback:$("archiveFeedback")};const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  function defaults(){return{v:2,unlocked:0,stars:[0,0,0,0],bestCycle:[0,0,0,0],clears:0};}function load(){try{const v=JSON.parse(localStorage.getItem(KEY)||"null");if(v&&v.v===2)return{...defaults(),...v,stars:Array.from({length:4},(_,i)=>clamp(+v.stars?.[i]||0,0,3)),bestCycle:Array.from({length:4},(_,i)=>Math.max(0,+v.bestCycle?.[i]||0))};}catch(_){}return defaults();}
+  let profile=load(),scenarioIndex=Math.min(profile.unlocked,3),strainId="nomad",state=makeState(),timer=null;function scenario(){return SCENARIOS[scenarioIndex];}function save(){localStorage.setItem(KEY,JSON.stringify(profile));}function totalStars(){return profile.stars.reduce((a,b)=>a+b,0);}function makeState(){const s=scenario(),base=JSON.parse(JSON.stringify(STRAINS[strainId].up));return{mode:"ready",cycle:0,dna:24,cure:0,deaths:0,up:base,levels:{},regions:REGIONS.map((_,i)=>({inf:i===s.start?4:0})),mods:{spread:1,cure:1},events:[{seq:1,type:"START",detail:`${s.name} 从 ${REGIONS[s.start].name} 开始。`}],history:[],result:"",replaying:false};}
+  function avg(){return state.regions.reduce((n,r)=>n+r.inf,0)/8;}function reached(){return state.regions.filter(r=>r.inf>=1).length;}function record(type,detail,payload={}){state.events.push({seq:state.events.length+1,type,detail,...payload});state.events=state.events.slice(-40);}function message(s){state.result=s;els.message.textContent=s;}
+  function geneLevel(g){return state.levels[g.id]||0;}function geneCost(g){return g.cost+geneLevel(g)*4;}function buyGene(id){if(!["ready","running"].includes(state.mode))return false;const g=GENES.find(x=>x.id===id),level=geneLevel(g),cost=geneCost(g);if(level>=g.max||state.dna<cost)return false;state.dna-=cost;state.levels[id]=level+1;state.up[g.key]=Math.max(0,(state.up[g.key]||0)+g.inc);record("EVOLVE",`${g.name}提升至 Lv.${level+1}。`,{id,level:level+1});renderAll();return true;}
+  function applyScenarioEvent(){const e=scenario().events.find(x=>x.cycle===state.cycle);if(!e)return;if(e.effect.spread)state.mods.spread*=e.effect.spread;if(e.effect.cure)state.mods.cure*=e.effect.cure;if(e.effect.seed){const [i,n]=e.effect.seed;state.regions[i].inf=Math.max(state.regions[i].inf,n);}record("POLICY",e.name,{cycle:state.cycle});}
+  function stepModel(){if(["result","failed"].includes(state.mode))return false;state.mode="running";state.cycle++;applyScenarioEvent();const before=state.regions.map(r=>r.inf),next=before.slice();let gained=0;for(let i=0;i<8;i++){const region=REGIONS[i],r=state.regions[i],neighbors=region.neighbors.map(j=>before[j]),neighborAvg=neighbors.reduce((a,b)=>a+b,0)/neighbors.length;const adapt=region.climate==="cold"?(.58+state.up.cold*.22):region.climate==="hot"?(.58+state.up.heat*.22):1;const local=(1.25+state.up.trans*.72+state.up.route*.3+neighborAvg*.055)*region.density*adapt*state.mods.spread*(1-r.inf/100);const seed=neighborAvg>8?(state.up.route*1.2+state.up.trans*.45)*state.mods.spread:0;next[i]=clamp(r.inf+local+seed,0,100);gained+=Math.max(0,next[i]-r.inf);}state.regions.forEach((r,i)=>r.inf=next[i]);state.dna+=1+state.up.harvest*.6+gained*.035;const visible=Math.max(.2,scenario().cureBase+state.up.severity*.75-state.up.stealth*.42-state.up.resist*.32);state.cure=clamp(state.cure+visible*state.mods.cure,0,100);state.deaths=clamp(state.deaths+avg()*Math.max(0,state.up.severity)*.0016,0,100);record("STEP",`周期 ${state.cycle}：平均传播 ${avg().toFixed(1)}%，研究 ${state.cure.toFixed(1)}%。`,{cycle:state.cycle});return checkOutcome();}
+  function checkOutcome(){const s=scenario(),main=reached()>=s.targetRegions&&avg()>=s.targetAvg;if(main)return finish();if(state.cure>=100)return fail("应对研究达到 100%。");if(state.deaths>s.deathLimit)return fail("系统损耗超过情景上限。");if(state.cycle>=s.max)return fail(`超过 ${s.max} 个周期。`);renderAll();return false;}
+  function finish(){const s=scenario(),stars=1+(state.cure<=s.starCure?1:0)+(state.deaths<=s.starDeath?1:0);state.mode="result";state.result=`演算完成：${"★".repeat(stars)}${"☆".repeat(3-stars)}，周期 ${state.cycle}，研究 ${state.cure.toFixed(1)}%，损耗 ${state.deaths.toFixed(2)}%。`;if(!state.replaying){profile.stars[scenarioIndex]=Math.max(profile.stars[scenarioIndex],stars);profile.bestCycle[scenarioIndex]=profile.bestCycle[scenarioIndex]?Math.min(profile.bestCycle[scenarioIndex],state.cycle):state.cycle;profile.unlocked=Math.max(profile.unlocked,Math.min(3,scenarioIndex+1));profile.clears++;save();}record("END",state.result,{stars});stopAuto();message(state.result);renderAll();return stars;}function fail(reason){state.mode="failed";state.result=`演算失败：${reason}`;record("FAIL",state.result);stopAuto();message(state.result);renderAll();return 0;}
+  function dispatch(command,recordCommand=true){if(recordCommand)state.history.push({...command});if(command.type==="BUY")buyGene(command.id);else if(command.type==="STEP")stepModel();}function setScenario(i){if(i>profile.unlocked||timer)return;scenarioIndex=i;state=makeState();renderAll();}function setStrain(id){if(timer||state.cycle>0)return;strainId=id;state=makeState();renderAll();}function stopAuto(){if(timer){clearInterval(timer);timer=null;}}
+  function digest(s){return JSON.stringify({mode:s.mode,cycle:s.cycle,dna:+s.dna.toFixed(4),cure:+s.cure.toFixed(4),deaths:+s.deaths.toFixed(4),up:s.up,levels:s.levels,regions:s.regions.map(r=>+r.inf.toFixed(4)),mods:s.mods});}function replay(commands,index=scenarioIndex,strain=strainId){const oldIndex=scenarioIndex,oldStrain=strainId,live=state;scenarioIndex=index;strainId=strain;state=makeState();state.replaying=true;for(const c of commands)dispatch(c,false);const out=digest(state);state=live;scenarioIndex=oldIndex;strainId=oldStrain;renderAll();return out;}
+  function simulateReference(index){const oldIndex=scenarioIndex,oldStrain=strainId,live=state;scenarioIndex=index;strainId=SCENARIOS[index].reference.strain;state=makeState();state.replaying=true;let p=0;while(state.cycle<SCENARIOS[index].max&&!["result","failed"].includes(state.mode)){const id=SCENARIOS[index].reference.plan[p];if(id&&buyGene(id))p++;stepModel();}const out={mode:state.mode,cycle:state.cycle,avg:+avg().toFixed(2),reached:reached(),cure:+state.cure.toFixed(2),deaths:+state.deaths.toFixed(3),planUsed:p};state=live;scenarioIndex=oldIndex;strainId=oldStrain;renderAll();return out;}
+  function nextEvent(){return scenario().events.find(e=>e.cycle>state.cycle);}function renderAll(){const s=scenario(),a=avg();els.scenarioTitle.textContent=`${scenarioIndex+1}. ${s.name}`;els.scenarioDesc.textContent=s.desc;els.cycle.textContent=`${state.cycle}/${s.max}`;els.dna.textContent=Math.floor(state.dna);els.infected.textContent=`${a.toFixed(1)}%`;els.cure.textContent=`${state.cure.toFixed(1)}%`;els.dead.textContent=`${state.deaths.toFixed(2)}%`;els.world.innerHTML=state.regions.map((r,i)=>`<div class="region ${r.inf>45?"hot":""}"><b>${REGIONS[i].name}</b><div>传播 ${r.inf.toFixed(1)}%</div><div class="bar"><i style="width:${r.inf}%"></i></div><small>${REGIONS[i].climate==="cold"?"寒冷":REGIONS[i].climate==="hot"?"炎热":"温和"} · 密度 ${REGIONS[i].density}<br>连接 ${REGIONS[i].neighbors.map(j=>REGIONS[j].name).join(" / ")}</small></div>`).join("");els.genes.innerHTML=GENES.map(g=>{const lv=geneLevel(g),cost=geneCost(g);return`<button class="gene ${lv>=g.max?"max":""}" data-gene="${g.id}" ${state.dna<cost||lv>=g.max||!["ready","running"].includes(state.mode)?"disabled":""}><b>${g.name} · ${cost} DNA</b><small>Lv.${lv}/${g.max} · ${g.text}</small></button>`}).join("");els.genes.querySelectorAll("[data-gene]").forEach(b=>b.onclick=()=>dispatch({type:"BUY",id:b.dataset.gene}));const next=nextEvent();els.forecast.innerHTML=next?`<b>政策预告 · 周期 ${next.cycle}</b><br>${next.name}`:"<b>政策序列已结束</b><br>剩余变化只来自当前参数和地区网络。";els.goals.innerHTML=`<div class="goal ${reached()>=s.targetRegions&&a>=s.targetAvg?"pass":""}">主目标：${reached()}/${s.targetRegions} 地区 · 平均 ${a.toFixed(1)}/${s.targetAvg}%</div><div class="goal ${state.cure<=s.starCure?"pass":""}">研究阈值：${state.cure.toFixed(1)}/${s.starCure}%</div><div class="goal ${state.deaths<=s.starDeath?"pass":""}">损耗阈值：${state.deaths.toFixed(2)}/${s.starDeath}%</div>`;els.protocol.innerHTML=[["传播",state.up.trans],["航路",state.up.route],["耐寒",state.up.cold],["耐热",state.up.heat],["隐蔽",state.up.stealth],["表达",state.up.severity],["抗性",state.up.resist],["回收",state.up.harvest],["覆盖",reached()+"/8"]].map(x=>`<div><b>${x[1]}</b><small>${x[0]}</small></div>`).join("");els.log.innerHTML=state.events.slice().reverse().map(e=>`<div>• [${e.type}] ${e.detail}</div>`).join("");els.scenarioList.innerHTML=SCENARIOS.map((x,i)=>`<button class="scenario ${i===scenarioIndex?"active":""}" data-scenario="${i}" ${i>profile.unlocked||timer?"disabled":""}><b>${i+1}. ${x.name}</b><small>${x.targetRegions} 区 · ${x.targetAvg}%</small><span class="stars">${"★".repeat(profile.stars[i])}${"☆".repeat(3-profile.stars[i])}</span></button>`).join("");els.scenarioList.querySelectorAll("[data-scenario]").forEach(b=>b.onclick=()=>setScenario(+b.dataset.scenario));els.strainList.innerHTML=Object.entries(STRAINS).map(([id,x])=>`<button class="strain ${id===strainId?"active":""}" data-strain="${id}" ${state.cycle>0||timer?"disabled":""}><b>${x.name}</b><small>${x.text}</small></button>`).join("");els.strainList.querySelectorAll("[data-strain]").forEach(b=>b.onclick=()=>setStrain(b.dataset.strain));els.step.disabled=["result","failed"].includes(state.mode)||Boolean(timer);els.auto.disabled=["result","failed"].includes(state.mode);els.auto.textContent=timer?"暂停演算":"自动演算";els.totalStars.textContent=totalStars();els.clears.textContent=profile.clears;els.bestCycle.textContent=Math.min(...profile.bestCycle.filter(Boolean).concat([0]))||0;}
+  els.step.onclick=()=>dispatch({type:"STEP"});els.auto.onclick=()=>{if(timer)stopAuto();else timer=setInterval(()=>dispatch({type:"STEP"}),260);renderAll();};$("restartBtn").onclick=()=>{stopAuto();state=makeState();renderAll();};
+  function checksum(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return(h>>>0).toString(36);}function encode(){const p=btoa(unescape(encodeURIComponent(JSON.stringify({v:2,u:profile.unlocked,s:profile.stars,b:profile.bestCycle,c:profile.clears}))));return`PATH2.${p}.${checksum(p)}`;}function decode(code){const p=code.trim().split(".");if(p.length!==3||p[0]!=="PATH2"||checksum(p[1])!==p[2])throw Error("演算档案校验失败");const v=JSON.parse(decodeURIComponent(escape(atob(p[1]))));if(v.v!==2||!Array.isArray(v.s))throw Error("档案版本不兼容");return{v:2,unlocked:clamp(+v.u||0,0,3),stars:Array.from({length:4},(_,i)=>clamp(+v.s[i]||0,0,3)),bestCycle:Array.from({length:4},(_,i)=>Math.max(0,+v.b?.[i]||0)),clears:Math.max(0,+v.c||0)};}
+  $("archiveBtn").onclick=()=>{els.archive.classList.remove("hidden");els.archiveText.value=encode();els.archiveFeedback.textContent="";};$("closeArchiveBtn").onclick=()=>els.archive.classList.add("hidden");$("exportBtn").onclick=async()=>{els.archiveText.value=encode();els.archiveText.select();try{await navigator.clipboard.writeText(els.archiveText.value);els.archiveFeedback.textContent="演算档案已复制。";}catch(_){els.archiveFeedback.textContent="档案已生成，请手动复制。";}};$("importBtn").onclick=()=>{try{profile=decode(els.archiveText.value);save();scenarioIndex=Math.min(profile.unlocked,3);state=makeState();renderAll();els.archiveFeedback.textContent="导入成功。";}catch(e){els.archiveFeedback.textContent=e.message;}};
+  function validateContent(){const errors=[];if(SCENARIOS.length!==4)errors.push("scenario count");if(REGIONS.length!==8)errors.push("region count");if(GENES.length!==12)errors.push("gene count");if(SCENARIOS.some(s=>s.events.length!==6))errors.push("event count");if(REGIONS.some((r,i)=>r.neighbors.some(n=>!REGIONS[n].neighbors.includes(i))))errors.push("asymmetric network");return{valid:!errors.length,errors,scenarios:SCENARIOS.length,regions:REGIONS.length,genes:GENES.length,events:SCENARIOS.reduce((n,s)=>n+s.events.length,0),strains:Object.keys(STRAINS).length};}
+  window.__pathogenProtocol={REGIONS,STRAINS,GENES,SCENARIOS,profile:()=>profile,state:()=>state,dispatch,replay,digest,simulateReference,finish,setScenario,setStrain,encode,decode,validateContent,renderAll};renderAll();
+})();
+</script></body></html>

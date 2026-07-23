@@ -1,384 +1,1245 @@
 <!doctype html>
 <html lang="zh-CN">
-  <meta charset="utf-8" /><meta
-    name="viewport"
-    content="width=device-width,initial-scale=1"
-  /><title>孤岛十日</title
-  ><style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      background: #08333c;
-      color: #f3fff1;
-      font-family: system-ui, "Microsoft YaHei";
-    }
-    .app {
-      min-height: 100vh;
-      padding: 14px;
-      display: grid;
-      place-items: center;
-    }
-    .shell {
-      width: min(940px, 100%);
-      background: #0c4b52;
-      border: 1px solid #59a6a1;
-      border-radius: 20px;
-      padding: 16px;
-    }
-    .top,
-    .row {
-      display: flex;
-      justify-content: space-between;
-      gap: 9px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .bars {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-    .bar {
-      width: 115px;
-      height: 9px;
-      background: #153d40;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-    .bar i {
-      display: block;
-      height: 100%;
-      background: #7de39d;
-    }
-    .layout {
-      display: grid;
-      grid-template-columns: 1fr 290px;
-      gap: 12px;
-      margin-top: 12px;
-    }
-    .island {
-      min-height: 470px;
-      border-radius: 14px;
-      background: linear-gradient(#69c9e1 0 25%, #e3d183 25% 43%, #46965d 43%);
-      position: relative;
-      overflow: hidden;
-      border: 1px solid #86cfbd;
-    }
-    .camp {
-      position: absolute;
-      left: 40%;
-      top: 48%;
-      font-size: 80px;
-    }
-    .weather {
-      position: absolute;
-      right: 8%;
-      top: 8%;
-      font-size: 55px;
-    }
-    .actions {
-      position: absolute;
-      left: 5%;
-      right: 5%;
-      bottom: 25px;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-    }
-    .actions button {
-      min-height: 58px;
-    }
-    .panel {
-      background: #083b40;
-      border: 1px solid #458d8b;
-      border-radius: 12px;
-      padding: 11px;
-      margin-bottom: 9px;
-    }
-    .item {
-      display: flex;
-      justify-content: space-between;
-      padding: 5px;
-      border-bottom: 1px solid #ffffff18;
-    }
-    .log {
-      height: 135px;
-      overflow: auto;
-      color: #bce0dc;
-      font-size: 13px;
-    }
-    button {
-      padding: 9px 11px;
-      border: 1px solid #75b8ad;
-      border-radius: 9px;
-      background: #17666a;
-      color: #fff;
-      font-weight: bold;
-    }
-    button:disabled {
-      opacity: 0.45;
-    }
-    .craft {
-      background: #7d6330;
-    }
-    .goal {
-      color: #ffe27d;
-    }
-    .bad i {
-      background: #e46b6b;
-    }
-    @media (max-width: 700px) {
-      .layout {
-        grid-template-columns: 1fr;
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>孤岛十日：潮痕求生</title>
+    <style>
+      :root {
+        --bg: #062c32;
+        --panel: #0d4a50;
+        --panel2: #08363d;
+        --line: #5ba7a0;
+        --ink: #effff8;
+        --muted: #b8dcd6;
+        --gold: #f2d16e;
+        --red: #e77878;
+        --green: #7fe0a4;
+        --cyan: #78d9e3;
       }
-      .island {
-        min-height: 420px;
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at 9% 0, #1d6f79 0, transparent 30%),
+          radial-gradient(circle at 92% 5%, #345663 0, transparent 27%),
+          linear-gradient(145deg, #05242b, #0b4449 64%, #152f37);
+        color: var(--ink);
+        font-family: system-ui, "Microsoft YaHei", sans-serif;
       }
       .app {
-        place-items: start center;
+        width: min(1420px, calc(100% - 22px));
+        margin: 11px auto;
       }
-    }
-  </style>
-  <main class="app">
-    <section class="shell">
-      <div class="top">
+      .top,
+      .panel {
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: rgba(13, 74, 80, 0.97);
+        box-shadow: 0 18px 48px rgba(0, 0, 0, 0.3);
+      }
+      .top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 14px;
+        padding: 15px 18px;
+      }
+      .eyebrow {
+        margin: 0 0 4px;
+        color: var(--cyan);
+        font-size: 12px;
+        font-weight: 950;
+        letter-spacing: 0.14em;
+      }
+      .top h1 {
+        margin: 0;
+        font-size: clamp(26px, 4vw, 42px);
+        line-height: 1;
+      }
+      .sub {
+        margin: 7px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .actions,
+      .row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      button,
+      textarea {
+        font: inherit;
+      }
+      .btn {
+        min-height: 42px;
+        padding: 0 13px;
+        border: 1px solid #76b9b0;
+        border-radius: 8px;
+        background: #1d6970;
+        color: white;
+        font-weight: 900;
+        cursor: pointer;
+      }
+      .btn.gold {
+        border-color: #aa8c43;
+        background: #80652a;
+      }
+      .btn.red {
+        border-color: #a84f53;
+        background: #7b373e;
+      }
+      .btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 390px;
+        gap: 12px;
+        margin-top: 12px;
+        align-items: start;
+      }
+      .island {
+        position: relative;
+        min-height: 700px;
+        overflow: hidden;
+        background: linear-gradient(
+          #67c9e1 0 24%,
+          #ddcf87 24% 43%,
+          #3e9661 43%
+        );
+        border-radius: 14px;
+      }
+      .island:before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(circle at 18% 55%, #2b7c4e 0 8%, transparent 8.5%),
+          radial-gradient(circle at 72% 49%, #2e8050 0 11%, transparent 11.5%),
+          radial-gradient(circle at 88% 73%, #266f4b 0 8%, transparent 8.5%);
+        opacity: 0.75;
+      }
+      .weather {
+        position: absolute;
+        right: 7%;
+        top: 7%;
+        font-size: 56px;
+        z-index: 1;
+      }
+      .camp {
+        position: absolute;
+        left: 43%;
+        top: 43%;
+        font-size: 80px;
+        z-index: 1;
+        filter: drop-shadow(0 4px 2px #214c3b);
+      }
+      .island-label {
+        position: absolute;
+        left: 7%;
+        top: 8%;
+        z-index: 1;
+        padding: 8px 10px;
+        border: 1px solid #ffffff66;
+        border-radius: 8px;
+        background: #06434bb8;
+        font-size: 12px;
+      }
+      .island-actions {
+        position: absolute;
+        left: 5%;
+        right: 5%;
+        bottom: 18px;
+        z-index: 2;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+      }
+      .action {
+        min-height: 58px;
+        background: #17666c;
+        border-color: #7bbcb3;
+      }
+      .action.eat {
+        background: #6a5a28;
+        border-color: #c0a34d;
+      }
+      .event {
+        position: absolute;
+        inset: 20% 10% 26%;
+        z-index: 3;
+        padding: 20px;
+        border: 1px solid #9bd7c7;
+        border-radius: 13px;
+        background: #073f46ee;
+        box-shadow: 0 20px 50px #00202799;
+      }
+      .event.hidden {
+        display: none;
+      }
+      .event h2 {
+        margin: 0 0 8px;
+      }
+      .event p {
+        color: #cae8e0;
+        line-height: 1.55;
+      }
+      .event-choices {
+        display: grid;
+        gap: 8px;
+        margin-top: 14px;
+      }
+      .event-choices button {
+        text-align: left;
+        min-height: 48px;
+      }
+      .bars {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        padding: 9px 11px;
+        background: #063239;
+        border: 1px solid #4b918c;
+        border-radius: 9px;
+      }
+      .bar {
+        min-width: 110px;
+        flex: 1;
+      }
+      .bar small {
+        display: flex;
+        justify-content: space-between;
+        color: var(--muted);
+        font-size: 10px;
+      }
+      .track {
+        height: 9px;
+        margin-top: 3px;
+        border-radius: 9px;
+        background: #153d40;
+        overflow: hidden;
+      }
+      .track i {
+        display: block;
+        height: 100%;
+        background: var(--green);
+      }
+      .track.bad i {
+        background: var(--red);
+      }
+      .side {
+        padding: 12px;
+        display: grid;
+        gap: 10px;
+        max-height: calc(100vh - 105px);
+        overflow: auto;
+      }
+      .block {
+        padding: 11px;
+        border: 1px solid #4d938d;
+        border-radius: 10px;
+        background: var(--panel2);
+      }
+      .block h2,
+      .block h3 {
+        margin: 0 0 8px;
+      }
+      .block h2 {
+        font-size: 20px;
+      }
+      .block h3 {
+        font-size: 14px;
+        color: var(--gold);
+      }
+      .routes {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 5px;
+      }
+      .route {
+        min-height: 58px;
+        padding: 5px;
+        border: 1px solid #5e9d96;
+        border-radius: 8px;
+        background: #14545a;
+        color: white;
+        cursor: pointer;
+      }
+      .route.active {
+        outline: 3px solid var(--gold);
+      }
+      .route:disabled {
+        opacity: 0.38;
+      }
+      .route b,
+      .route small {
+        display: block;
+      }
+      .route small {
+        font-size: 9px;
+        color: var(--muted);
+        margin-top: 3px;
+      }
+      .stars {
+        color: var(--gold);
+        font-size: 10px;
+      }
+      .bag {
+        display: grid;
+        gap: 4px;
+      }
+      .item {
+        display: flex;
+        justify-content: space-between;
+        padding: 5px;
+        border-bottom: 1px solid #ffffff17;
+        font-size: 11px;
+      }
+      .crafts {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 6px;
+      }
+      .craft {
+        min-height: 45px;
+        padding: 6px;
+        background: #725c2a;
+        border-color: #b49953;
+      }
+      .goals {
+        display: grid;
+        gap: 5px;
+      }
+      .goal {
+        padding: 7px;
+        border: 1px solid #508981;
+        border-radius: 7px;
+        color: var(--muted);
+        font-size: 11px;
+      }
+      .goal.pass {
+        border-color: #4f9d70;
+        background: #173e31;
+        color: #ddf5e5;
+      }
+      .log {
+        height: 145px;
+        overflow: auto;
+        color: #b9d9d3;
+        font-size: 11px;
+        line-height: 1.5;
+      }
+      .career {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+      }
+      .career div {
+        padding: 7px;
+        border: 1px solid #4d8d88;
+        border-radius: 8px;
+        background: #12484e;
+        text-align: center;
+      }
+      .career b {
+        display: block;
+        font-size: 19px;
+      }
+      .career small {
+        font-size: 9px;
+        color: var(--muted);
+      }
+      .tip {
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.5;
+      }
+      .archive {
+        position: fixed;
+        inset: 0;
+        z-index: 9;
+        display: grid;
+        place-items: center;
+        padding: 18px;
+        background: #021316dd;
+      }
+      .archive.hidden {
+        display: none;
+      }
+      .dialog {
+        width: min(620px, 100%);
+        padding: 18px;
+        border: 1px solid #64a69d;
+        border-radius: 14px;
+        background: #0d4850;
+      }
+      .dialog h2 {
+        margin: 0 0 8px;
+      }
+      .dialog textarea {
+        width: 100%;
+        min-height: 125px;
+        padding: 10px;
+        border: 1px solid #5b9b94;
+        border-radius: 8px;
+        background: #052b31;
+        color: white;
+        resize: vertical;
+      }
+      .feedback {
+        min-height: 20px;
+        margin-top: 7px;
+        color: var(--gold);
+        font-size: 12px;
+        font-weight: 850;
+      }
+      @media (max-width: 920px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+        .side {
+          max-height: none;
+        }
+        .top {
+          align-items: flex-start;
+        }
+      }
+      @media (max-width: 560px) {
+        .app {
+          width: min(100% - 12px, 1420px);
+          margin: 6px auto;
+        }
+        .top {
+          display: grid;
+          padding: 12px;
+        }
+        .top h1 {
+          font-size: 26px;
+        }
+        .island {
+          min-height: 610px;
+        }
+        .event {
+          inset: 17% 5% 30%;
+          padding: 14px;
+        }
+        .island-actions {
+          left: 4%;
+          right: 4%;
+          bottom: 12px;
+          gap: 5px;
+        }
+        .action {
+          min-height: 52px;
+          padding: 5px 4px;
+          font-size: 12px;
+        }
+        .side {
+          padding: 8px;
+        }
+        .bars {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <header class="top">
         <div>
-          <h1 style="margin: 0">孤岛十日</h1>
-          <div class="goal" id="goal"></div>
+          <p class="eyebrow">DETERMINISTIC SURVIVAL ROUTES</p>
+          <h1>孤岛十日：潮痕求生</h1>
+          <p class="sub">
+            三条路线 · 30 个日程事件 · 固定天气与资源 · 制作与事件选择 ·
+            `ISLAND2` 档案
+          </p>
         </div>
-        <div>
-          第 <b id="day"></b>/10 天　行动 <b id="ap"></b>/4　天气
-          <b id="weatherName"></b>
+        <div class="actions">
+          <button class="btn red" id="restartBtn">重开路线</button
+          ><button class="btn gold" id="archiveBtn">求生档案</button>
         </div>
-      </div>
-      <div class="bars">
-        <span
-          >生命
-          <div class="bar"><i id="hp"></i></div></span
-        ><span
-          >饥饿
-          <div class="bar bad"><i id="hunger"></i></div></span
-        ><span
-          >口渴
-          <div class="bar bad"><i id="thirst"></i></div></span
-        ><span
-          >信号
-          <div class="bar"><i id="signal"></i></div
-        ></span>
-      </div>
-      <div class="layout">
-        <div class="island">
-          <div class="weather" id="weatherIcon"></div>
-          <div class="camp" id="camp">🏕️</div>
-          <div class="actions">
-            <button data-a="wood">🪵 收集木材</button
-            ><button data-a="food">🥥 寻找食物</button
-            ><button data-a="water">💧 寻找淡水</button
-            ><button data-a="explore">🧭 探索海岸</button
-            ><button data-a="eat">🍲 进食饮水</button
-            ><button id="sleep">🌙 结束一天</button>
-          </div>
-        </div>
-        <aside>
-          <div class="panel">
-            <b>背包</b>
-            <div id="bag"></div>
-          </div>
-          <div class="panel">
-            <b>制作</b>
-            <div class="row">
-              <button class="craft" data-c="shelter">升级庇护所</button
-              ><button class="craft" data-c="filter">制作滤水器</button
-              ><button class="craft" data-c="fire">点燃信号火</button
-              ><button class="craft" data-c="radio">修好无线电</button>
+      </header>
+      <section class="layout">
+        <section class="panel">
+          <div class="bars">
+            <div class="bar">
+              <small><span>生命</span><b id="hpText"></b></small>
+              <div class="track"><i id="hpBar"></i></div>
+            </div>
+            <div class="bar">
+              <small><span>饥饿</span><b id="hungerText"></b></small>
+              <div class="track bad"><i id="hungerBar"></i></div>
+            </div>
+            <div class="bar">
+              <small><span>口渴</span><b id="thirstText"></b></small>
+              <div class="track bad"><i id="thirstBar"></i></div>
+            </div>
+            <div class="bar">
+              <small><span>信号</span><b id="signalText"></b></small>
+              <div class="track"><i id="signalBar"></i></div>
             </div>
           </div>
-          <div class="panel log" id="log"></div>
-          <button id="restart">重新流落荒岛</button>
+          <div class="island">
+            <div class="island-label">
+              <b id="routeTitle"></b><br /><span
+                >第 <b id="day"></b>/10 天 · 行动 <b id="ap"></b>/4 ·
+                <span id="weatherName"></span
+              ></span>
+            </div>
+            <div class="weather" id="weatherIcon"></div>
+            <div class="camp" id="camp">🏕️</div>
+            <div class="island-actions">
+              <button class="action" data-action="wood">🪵 收集木材</button
+              ><button class="action" data-action="food">🥥 寻找食物</button
+              ><button class="action" data-action="water">💧 寻找淡水</button
+              ><button class="action" data-action="explore">🧭 探索海岸</button
+              ><button class="action eat" data-action="eat">🍲 进食饮水</button
+              ><button class="action" id="sleepBtn">🌙 结束一天</button>
+            </div>
+            <div class="event hidden" id="eventPanel">
+              <h2 id="eventTitle"></h2>
+              <p id="eventText"></p>
+              <div class="event-choices" id="eventChoices"></div>
+            </div>
+          </div>
+          <div class="feedback" id="message">
+            选择路线后开始第一天。固定资源与天气让每次重试都能复盘上一轮决策。
+          </div>
+        </section>
+        <aside class="panel side">
+          <section class="block">
+            <h3>三条路线</h3>
+            <div class="routes" id="routeList"></div>
+          </section>
+          <section class="block">
+            <h2 id="goalTitle"></h2>
+            <p class="tip" id="goalText"></p>
+            <div class="goals" id="goals"></div>
+          </section>
+          <section class="block">
+            <h3>背包</h3>
+            <div class="bag" id="bag"></div>
+          </section>
+          <section class="block">
+            <h3>制作与设施</h3>
+            <div class="crafts">
+              <button class="craft" data-craft="shelter">升级庇护所</button
+              ><button class="craft" data-craft="filter">制作滤水器</button
+              ><button class="craft" data-craft="fire">点燃信号火</button
+              ><button class="craft" data-craft="radio">修好无线电</button>
+            </div>
+          </section>
+          <section class="block">
+            <h3>求生记录</h3>
+            <div class="log" id="log"></div>
+          </section>
+          <section class="block">
+            <h3>生涯统计</h3>
+            <div class="career">
+              <div><b id="totalStars">0</b><small>总星章</small></div>
+              <div><b id="clears">0</b><small>完成路线</small></div>
+              <div><b id="bestHealth">0</b><small>最佳生命</small></div>
+            </div>
+          </section>
         </aside>
+      </section>
+    </main>
+    <div class="archive hidden" id="archiveModal">
+      <div class="dialog">
+        <h2>跨设备求生档案</h2>
+        <p class="tip">档案包含三条路线星级、最佳生命、解锁进度和生涯纪录。</p>
+        <textarea id="archiveText" spellcheck="false"></textarea>
+        <div class="row" style="justify-content: flex-end; margin-top: 8px">
+          <button class="btn" id="closeArchiveBtn">关闭</button
+          ><button class="btn" id="importBtn">导入</button
+          ><button class="btn gold" id="exportBtn">生成并复制</button>
+        </div>
+        <div class="feedback" id="archiveFeedback"></div>
       </div>
-    </section>
-  </main>
-  <script>
-    let q;
-    const $ = (x) => document.getElementById(x);
-    function fresh() {
-      return {
-        day: 1,
-        ap: 4,
-        hp: 100,
-        hunger: 15,
-        thirst: 15,
-        signal: 0,
-        wood: 1,
-        food: 2,
-        water: 2,
-        scrap: 0,
-        shelter: 0,
-        filter: 0,
-        radio: 0,
-        weather: 0,
-        log: ["海浪把你送上孤岛。十天后救援船会经过。"],
-        over: false,
-      };
-    }
-    function say(s) {
-      q.log.unshift(s);
-      q.log = q.log.slice(0, 12);
-    }
-    function act(a) {
-      if (q.over || q.ap <= 0) return (say("今天已经没有行动力了。"), draw());
-      q.ap--;
-      let bonus = q.weather === 1 && a === "water" ? 1 : 0;
-      if (a === "wood") {
-        let n = 1 + Math.floor(Math.random() * 3);
-        q.wood += n;
-        say(`收集到 ${n} 份木材。`);
-      }
-      if (a === "food") {
-        let n = 1 + +(Math.random() < 0.35);
-        q.food += n;
-        say(`找到 ${n} 份椰果和贝类。`);
-      }
-      if (a === "water") {
-        let n = 1 + q.filter + bonus;
-        q.water += n;
-        say(`获得 ${n} 份淡水。`);
-      }
-      if (a === "explore") {
-        if (Math.random() < 0.55) {
-          q.scrap++;
-          say("在海岸残骸中找到 1 份零件。");
-        } else {
-          q.food++;
-          say("探索途中捡到可食用的海藻。");
+    </div>
+    <script>
+      (() => {
+        const WEATHER = [
+          ["晴朗", "☀️"],
+          ["阵雨", "🌦️"],
+          ["风暴", "⛈️"],
+          ["炎热", "🔥"],
+          ["大潮", "🌊"],
+        ];
+        const ROUTES = [
+          {
+            name: "珊瑚浅湾",
+            subtitle: "淡水容易找到，但风暴会摧毁未升级的庇护所。",
+            target: 70,
+            events: Array.from(
+              { length: 10 },
+              (_, i) =>
+                [
+                  {
+                    title: "潮线漂来的木箱",
+                    text: "木箱卡在礁石间，里面可能有零件，也可能被潮水冲走。",
+                    choices: [
+                      [
+                        "冒险撬开（获得零件，损失 5 生命）",
+                        { scrap: 1, hp: -5 },
+                      ],
+                      [
+                        "用木材固定（消耗 1 木材，获得 2 食物）",
+                        { wood: -1, food: 2 },
+                      ],
+                    ],
+                  },
+                  {
+                    title: "远处的渔火",
+                    text: "夜色里有一盏渔火，回应它会暴露营地位置。",
+                    choices: [
+                      ["点火回应（信号 +12）", { signal: 12, eventsHelped: 1 }],
+                      ["保持隐蔽（生命 +4）", { hp: 4 }],
+                    ],
+                  },
+                  {
+                    title: "淡水滴落声",
+                    text: "洞穴深处传来滴水声，但入口附近有松动岩石。",
+                    choices: [
+                      [
+                        "进入洞穴（淡水 +3，损失 4 生命）",
+                        { water: 3, hp: -4 },
+                      ],
+                      ["在外面收集露水（淡水 +1）", { water: 1 }],
+                    ],
+                  },
+                ][i % 3],
+            ),
+          },
+          {
+            name: "红树林迷途",
+            subtitle: "食物充足但蚊潮频繁，探索与治疗需要更谨慎。",
+            target: 76,
+            events: Array.from(
+              { length: 10 },
+              (_, i) =>
+                [
+                  {
+                    title: "红树林涨潮",
+                    text: "水道很快就会淹没，退路只够带走一件物资。",
+                    choices: [
+                      [
+                        "背走零件（零件 +2，行动力 -1）",
+                        { scrap: 2, ap: -1, eventsHelped: 1 },
+                      ],
+                      ["背走食物（食物 +3）", { food: 3 }],
+                    ],
+                  },
+                  {
+                    title: "发热的脚踝",
+                    text: "长途跋涉让脚踝肿胀，今晚需要决定是否休息。",
+                    choices: [
+                      ["包扎休息（生命 +12，信号 -4）", { hp: 12, signal: -4 }],
+                      ["继续赶路（信号 +8，生命 -8）", { signal: 8, hp: -8 }],
+                    ],
+                  },
+                  {
+                    title: "树上的黑匣子",
+                    text: "黑匣子可能仍在发送微弱定位，但需要零件接线。",
+                    choices: [
+                      [
+                        "接线修复（零件 -1，信号 +22）",
+                        { scrap: -1, signal: 22, eventsHelped: 1 },
+                      ],
+                      [
+                        "拆下电池（零件 +1，信号 -3）",
+                        { scrap: 1, signal: -3 },
+                      ],
+                    ],
+                  },
+                ][i % 3],
+            ),
+          },
+          {
+            name: "火山背风坡",
+            subtitle: "木材稀少却有强烈地热，正确利用天气能快速提升信号。",
+            target: 82,
+            events: Array.from(
+              { length: 10 },
+              (_, i) =>
+                [
+                  {
+                    title: "地热蒸汽",
+                    text: "裂缝冒出热汽，可以用来净化水，也可能灼伤背包。",
+                    choices: [
+                      [
+                        "架锅取水（淡水 +3，消耗 1 木材）",
+                        { water: 3, wood: -1 },
+                      ],
+                      ["绕路避开（行动力 +1）", { ap: 1 }],
+                    ],
+                  },
+                  {
+                    title: "火山灰幕",
+                    text: "火山灰遮住太阳，信号火的烟柱会更醒目。",
+                    choices: [
+                      [
+                        "趁灰点火（信号 +18，生命 -5）",
+                        { signal: 18, hp: -5, eventsHelped: 1 },
+                      ],
+                      ["保存燃料（木材 +1）", { wood: 1 }],
+                    ],
+                  },
+                  {
+                    title: "冷却的熔岩管",
+                    text: "熔岩管内有金属残片，但地面仍然很热。",
+                    choices: [
+                      ["搜索残片（零件 +2，生命 -7）", { scrap: 2, hp: -7 }],
+                      ["观察出口（信号 +5）", { signal: 5 }],
+                    ],
+                  },
+                ][i % 3],
+            ),
+          },
+        ];
+        const ACTION_NAMES = {
+          wood: "收集木材",
+          food: "寻找食物",
+          water: "寻找淡水",
+          explore: "探索海岸",
+          eat: "进食饮水",
+        };
+        const KEY = "mini_island_routes_v2",
+          $ = (id) => document.getElementById(id),
+          els = {
+            routeList: $("routeList"),
+            routeTitle: $("routeTitle"),
+            goalTitle: $("goalTitle"),
+            goalText: $("goalText"),
+            goals: $("goals"),
+            day: $("day"),
+            ap: $("ap"),
+            weather: $("weatherName"),
+            weatherIcon: $("weatherIcon"),
+            camp: $("camp"),
+            hpText: $("hpText"),
+            hungerText: $("hungerText"),
+            thirstText: $("thirstText"),
+            signalText: $("signalText"),
+            hpBar: $("hpBar"),
+            hungerBar: $("hungerBar"),
+            thirstBar: $("thirstBar"),
+            signalBar: $("signalBar"),
+            bag: $("bag"),
+            log: $("log"),
+            message: $("message"),
+            event: $("eventPanel"),
+            eventTitle: $("eventTitle"),
+            eventText: $("eventText"),
+            eventChoices: $("eventChoices"),
+            sleep: $("sleepBtn"),
+            totalStars: $("totalStars"),
+            clears: $("clears"),
+            bestHealth: $("bestHealth"),
+            archive: $("archiveModal"),
+            archiveText: $("archiveText"),
+            archiveFeedback: $("archiveFeedback"),
+          };
+        const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+        function defaults() {
+          return {
+            v: 2,
+            unlocked: 0,
+            stars: [0, 0, 0],
+            bestHealth: [0, 0, 0],
+            clears: 0,
+          };
         }
-      }
-      if (a === "eat") {
-        if (q.food > 0) {
-          q.food--;
-          q.hunger = Math.max(0, q.hunger - 32);
+        function load() {
+          try {
+            const v = JSON.parse(localStorage.getItem(KEY) || "null");
+            if (v && v.v === 2)
+              return {
+                ...defaults(),
+                ...v,
+                stars: Array.from({ length: 3 }, (_, i) =>
+                  clamp(+v.stars?.[i] || 0, 0, 3),
+                ),
+                bestHealth: Array.from({ length: 3 }, (_, i) =>
+                  Math.max(0, +v.bestHealth?.[i] || 0),
+                ),
+              };
+          } catch (_) {}
+          return defaults();
         }
-        if (q.water > 0) {
-          q.water--;
-          q.thirst = Math.max(0, q.thirst - 38);
+        let profile = load(),
+          routeIndex = Math.min(profile.unlocked, 2),
+          state = makeState();
+        function route() {
+          return ROUTES[routeIndex];
         }
-        say("补充了食物和淡水。");
-      }
-      draw();
-    }
-    function craft(k) {
-      if (q.over) return;
-      if (k === "shelter") {
-        let cost = 3 + q.shelter * 2;
-        if (q.wood < cost || q.shelter >= 2)
-          return (say("木材不足或庇护所已满级。"), draw());
-        q.wood -= cost;
-        q.shelter++;
-        say("庇护所升级，夜间伤害降低。");
-      }
-      if (k === "filter") {
-        if (q.wood < 3 || q.scrap < 1 || q.filter)
-          return (say("需要 3 木材和 1 零件。"), draw());
-        q.wood -= 3;
-        q.scrap--;
-        q.filter = 1;
-        say("滤水器完成，取水量增加。");
-      }
-      if (k === "fire") {
-        if (q.wood < 5) return (say("信号火需要 5 木材。"), draw());
-        q.wood -= 5;
-        q.signal += 25;
-        say("信号火照亮夜空，救援概率提升。");
-      }
-      if (k === "radio") {
-        if (q.scrap < 3 || q.radio)
-          return (say("无线电需要 3 份零件。"), draw());
-        q.scrap -= 3;
-        q.radio = 1;
-        q.signal += 35;
-        say("无线电发出求救信号！");
-      }
-      draw();
-    }
-    function next() {
-      if (q.over) return;
-      q.day++;
-      q.ap = 4;
-      q.hunger += 18;
-      q.thirst += 24;
-      q.weather = Math.floor(Math.random() * 4);
-      if (q.weather === 2 && q.shelter < 2) {
-        let d = 12 - q.shelter * 5;
-        q.hp -= d;
-        say(`暴风雨侵袭，损失 ${d} 生命。`);
-      }
-      if (q.hunger >= 100) q.hp -= 15;
-      if (q.thirst >= 100) q.hp -= 24;
-      if (q.radio) q.signal += 6;
-      if (q.day > 10) {
-        q.over = true;
-        if (q.signal >= 70 || q.radio) {
-          say("救援船看到了信号，你成功离开孤岛！");
-          setTimeout(() => alert("生存成功！救援船接你回家。"), 50);
-        } else say("救援船从远处驶过，没有发现微弱的信号……");
-      }
-      if (q.hp <= 0) {
-        q.over = true;
-        say("你没能撑过恶劣环境。");
-      }
-      draw();
-    }
-    function draw() {
-      day.textContent = Math.min(q.day, 10);
-      ap.textContent = q.ap;
-      let W = [
-        ["晴朗", "☀️"],
-        ["阵雨", "🌦️"],
-        ["风暴", "⛈️"],
-        ["炎热", "🔥"],
-      ][q.weather];
-      weatherName.textContent = W[0];
-      weatherIcon.textContent = W[1];
-      hp.style.width = Math.max(0, q.hp) + "%";
-      hunger.style.width = Math.min(100, q.hunger) + "%";
-      thirst.style.width = Math.min(100, q.thirst) + "%";
-      signal.style.width = Math.min(100, q.signal) + "%";
-      goal.textContent = `目标：十天内将求救信号提升至 70（当前 ${q.signal}）`;
-      camp.textContent = ["🏕️", "🛖", "🏠"][q.shelter];
-      bag.innerHTML = [
-        ["木材", q.wood],
-        ["食物", q.food],
-        ["淡水", q.water],
-        ["零件", q.scrap],
-        ["滤水器", q.filter ? "完成" : "未制作"],
-        ["无线电", q.radio ? "已修好" : "损坏"],
-      ]
-        .map(
-          (x) => `<div class="item"><span>${x[0]}</span><b>${x[1]}</b></div>`,
-        )
-        .join("");
-      log.innerHTML = q.log.map((s) => `<div>• ${s}</div>`).join("");
-      document
-        .querySelectorAll(".actions button")
-        .forEach((b) => (b.disabled = q.over));
-    }
-    document
-      .querySelectorAll("[data-a]")
-      .forEach((e) => (e.onclick = () => act(e.dataset.a)));
-    document
-      .querySelectorAll("[data-c]")
-      .forEach((e) => (e.onclick = () => craft(e.dataset.c)));
-    sleep.onclick = next;
-    restart.onclick = () => {
-      if (confirm("重新开始十日生存？")) {
-        q = fresh();
-        draw();
-      }
-    };
-    q = fresh();
-    draw();
-  </script>
+        function totalStars() {
+          return profile.stars.reduce((a, b) => a + b, 0);
+        }
+        function save() {
+          localStorage.setItem(KEY, JSON.stringify(profile));
+        }
+        function makeState() {
+          const first = route().events[0];
+          return {
+            mode: "event",
+            day: 1,
+            ap: 4,
+            hp: 100,
+            hunger: 15,
+            thirst: 15,
+            signal: 0,
+            wood: 1,
+            food: 2,
+            water: 2,
+            scrap: 0,
+            shelter: 0,
+            filter: 0,
+            radio: 0,
+            fire: 0,
+            weather: routeWeather(1),
+            event: first,
+            eventIndex: 0,
+            eventsHelped: 0,
+            history: [],
+            events: [
+              {
+                seq: 1,
+                type: "START",
+                detail: "海浪把你送上孤岛。固定路线会记录每次选择。",
+              },
+            ],
+            logs: ["海浪把你送上孤岛。固定路线会记录每次选择。"],
+            result: "",
+            replaying: false,
+          };
+        }
+        function record(type, detail, payload = {}) {
+          state.events.push({
+            seq: state.events.length + 1,
+            type,
+            detail,
+            ...payload,
+          });
+          state.logs.unshift(`[${type}] ${detail}`);
+          state.logs = state.logs.slice(0, 16);
+        }
+        function message(s) {
+          state.result = s;
+          els.message.textContent = s;
+        }
+        function routeWeather(day) {
+          return [
+            [0, 1, 2, 0, 4, 1, 3, 2, 0, 4],
+            [1, 4, 1, 3, 2, 0, 4, 1, 2, 3],
+            [3, 0, 4, 3, 2, 0, 3, 4, 2, 1],
+          ][routeIndex][(day - 1) % 10];
+        }
+        function apply(delta) {
+          for (const [k, v] of Object.entries(delta)) {
+            if (k in state && typeof state[k] === "number") state[k] += v;
+          }
+          state.hp = clamp(state.hp, 0, 100);
+          state.hunger = clamp(state.hunger, 0, 120);
+          state.thirst = clamp(state.thirst, 0, 120);
+          state.signal = clamp(state.signal, 0, 100);
+          state.ap = Math.max(0, state.ap);
+        }
+        function action(kind) {
+          if (state.mode !== "play" || state.ap <= 0) return;
+          const base = {
+            wood: 1 + ((routeIndex + state.day) % 3),
+            food: 1 + (state.day % 2),
+            water: 1 + (state.weather === 1 ? 2 : 0) + (state.filter ? 1 : 0),
+            explore: state.day % 2 ? { scrap: 1, food: 1 } : { scrap: 2 },
+            eat: { food: -1, water: -1, hunger: -34, thirst: -42 },
+          }[kind];
+          if (kind === "eat" && (state.food < 1 || state.water < 1)) {
+            message("食物或淡水不足，不能进食饮水。");
+            return;
+          }
+          state.ap--;
+          apply(typeof base === "number" ? { [kind]: base } : base);
+          record("ACTION", `${ACTION_NAMES[kind]}完成。`, {
+            kind,
+            day: state.day,
+          });
+          message(`${ACTION_NAMES[kind]}完成，剩余行动 ${state.ap}。`);
+          renderAll();
+        }
+        function craft(kind) {
+          if (state.mode !== "play") return;
+          const costs = {
+            shelter: { wood: -(3 + state.shelter * 2), shelter: 1 },
+            filter: { wood: -3, scrap: -1, filter: 1 },
+            fire: { wood: -5, signal: 25, fire: 1 },
+            radio: { scrap: -3, signal: 35, radio: 1 },
+          };
+          const d = costs[kind];
+          if (kind === "shelter" && state.shelter >= 2)
+            return message("庇护所已满级。");
+          if (kind === "filter" && state.filter)
+            return message("滤水器已经制作。");
+          if (kind === "radio" && state.radio)
+            return message("无线电已经修好。");
+          if (
+            (d.wood < 0 && state.wood < Math.abs(d.wood)) ||
+            (d.scrap < 0 && state.scrap < Math.abs(d.scrap))
+          )
+            return message("材料不足，先安排采集或探索。");
+          apply(d);
+          record(
+            "CRAFT",
+            `完成${kind === "shelter" ? "庇护所升级" : kind === "filter" ? "滤水器" : kind === "fire" ? "信号火" : "无线电"}。`,
+            { kind },
+          );
+          renderAll();
+        }
+        function endDay() {
+          if (state.mode !== "play") return;
+          state.ap = 0;
+          state.day++;
+          state.hunger += 18;
+          state.thirst += 24;
+          if (state.hunger >= 100) state.hp -= 15;
+          if (state.thirst >= 100) state.hp -= 24;
+          state.weather = routeWeather(state.day);
+          if (state.weather === 2 && state.shelter < 2)
+            state.hp -= 12 - state.shelter * 4;
+          if (state.radio) state.signal += 6;
+          record(
+            "NIGHT",
+            `第 ${state.day - 1} 天结束，天气变为${WEATHER[state.weather][0]}。`,
+            { day: state.day },
+          );
+          if (state.hp <= 0) return lose("生命耗尽。");
+          if (state.day > 10) return finish();
+          state.ap = 4;
+          state.eventIndex = state.day - 1;
+          state.event = route().events[state.eventIndex];
+          state.mode = "event";
+          renderAll();
+        }
+        function chooseEvent(index) {
+          if (state.mode !== "event") return;
+          const choice = state.event.choices[index],
+            delta = { ...choice[1] };
+          for (const key of ["wood", "food", "water", "scrap"]) {
+            if ((delta[key] || 0) < 0 && state[key] < Math.abs(delta[key])) {
+              message(`资源不足，无法选择“${choice[0]}”。`);
+              return;
+            }
+          }
+          if (delta.eventsHelped) state.eventsHelped += delta.eventsHelped;
+          apply(delta);
+          record("EVENT", `${state.event.title}：${choice[0]}`, {
+            event: state.eventIndex,
+            choice: index,
+          });
+          state.event = null;
+          state.mode = "play";
+          message(`事件处理完成，回到第 ${state.day} 天。`);
+          renderAll();
+        }
+        function finish() {
+          state.mode = "result";
+          const r = route(),
+            stars =
+              state.signal >= r.target
+                ? 1 +
+                  (state.hp >= 65 ? 1 : 0) +
+                  (state.eventsHelped >= 3 ? 1 : 0)
+                : 0;
+          if (stars && !state.replaying) {
+            profile.stars[routeIndex] = Math.max(
+              profile.stars[routeIndex],
+              stars,
+            );
+            profile.bestHealth[routeIndex] = Math.max(
+              profile.bestHealth[routeIndex],
+              state.hp,
+            );
+            profile.unlocked = Math.max(
+              profile.unlocked,
+              Math.min(2, routeIndex + 1),
+            );
+            profile.clears++;
+            save();
+          }
+          state.result = stars
+            ? `成功获救：${"★".repeat(stars)}${"☆".repeat(3 - stars)}，生命 ${state.hp}，信号 ${state.signal}。`
+            : `救援失败：信号 ${state.signal}/${r.target}，未达到路线目标。`;
+          record("END", state.result, { stars });
+          message(state.result);
+          renderAll();
+          return stars;
+        }
+        function lose(s) {
+          state.mode = "failed";
+          state.result = `求生失败：${s}`;
+          record("FAIL", state.result);
+          message(state.result);
+          renderAll();
+          return 0;
+        }
+        function selectRoute(i) {
+          if (i > profile.unlocked) return;
+          routeIndex = i;
+          state = makeState();
+          renderAll();
+        }
+        function dispatch(command, recordCommand = true) {
+          if (recordCommand) state.history.push({ ...command });
+          if (command.type === "ACTION") action(command.kind);
+          else if (command.type === "CRAFT") craft(command.kind);
+          else if (command.type === "END_DAY") endDay();
+          else if (command.type === "EVENT") chooseEvent(command.choice);
+        }
+        function digest(s) {
+          return JSON.stringify({
+            mode: s.mode,
+            day: s.day,
+            ap: s.ap,
+            hp: s.hp,
+            hunger: s.hunger,
+            thirst: s.thirst,
+            signal: s.signal,
+            wood: s.wood,
+            food: s.food,
+            water: s.water,
+            scrap: s.scrap,
+            shelter: s.shelter,
+            filter: s.filter,
+            radio: s.radio,
+            fire: s.fire,
+            eventIndex: s.eventIndex,
+            eventsHelped: s.eventsHelped,
+          });
+        }
+        function replay(commands, index = routeIndex) {
+          const old = routeIndex,
+            live = state;
+          routeIndex = index;
+          state = makeState();
+          state.replaying = true;
+          for (const c of commands) dispatch(c, false);
+          const out = digest(state);
+          state = live;
+          routeIndex = old;
+          renderAll();
+          return out;
+        }
+        function renderAll() {
+          const r = route(),
+            w = WEATHER[state.weather];
+          els.routeTitle.textContent = r.name;
+          els.goalTitle.textContent = `${r.name} · 第 ${state.day > 10 ? 10 : state.day}/10 天`;
+          els.goalText.textContent = r.subtitle;
+          els.day.textContent = Math.min(10, state.day);
+          els.ap.textContent = state.ap;
+          els.weather.textContent = w[0];
+          els.weatherIcon.textContent = w[1];
+          els.camp.textContent = ["🏕️", "🛖", "🏠"][state.shelter];
+          for (const [x, v] of [
+            [els.hpText, state.hp],
+            [els.hungerText, state.hunger],
+            [els.thirstText, state.thirst],
+            [els.signalText, state.signal],
+          ])
+            x.textContent = `${Math.round(v)}%`;
+          for (const [x, v] of [
+            [els.hpBar, state.hp],
+            [els.hungerBar, state.hunger],
+            [els.thirstBar, state.thirst],
+            [els.signalBar, state.signal],
+          ])
+            x.style.width = `${clamp(v, 0, 100)}%`;
+          els.bag.innerHTML = [
+            ["木材", state.wood],
+            ["食物", state.food],
+            ["淡水", state.water],
+            ["零件", state.scrap],
+            ["庇护所", `${state.shelter}/2`],
+            ["滤水器", state.filter ? "完成" : "未制作"],
+            ["信号火", state.fire ? "已点燃" : "未点燃"],
+            ["无线电", state.radio ? "已修好" : "损坏"],
+          ]
+            .map(
+              (x) =>
+                `<div class="item"><span>${x[0]}</span><b>${x[1]}</b></div>`,
+            )
+            .join("");
+          els.goals.innerHTML = `<div class="goal ${state.signal >= r.target ? "pass" : ""}">信号目标：${state.signal}/${r.target}</div><div class="goal ${state.hp >= 65 ? "pass" : ""}">健康阈值：${state.hp}/65</div><div class="goal ${state.eventsHelped >= 3 ? "pass" : ""}">有利事件选择：${state.eventsHelped}/3</div>`;
+          els.log.innerHTML = state.logs
+            .map((x) => `<div>• ${x}</div>`)
+            .join("");
+          els.routeList.innerHTML = ROUTES.map(
+            (x, i) =>
+              `<button class="route ${i === routeIndex ? "active" : ""}" data-route="${i}" ${i > profile.unlocked ? "disabled" : ""}><b>${i + 1}. ${x.name}</b><small>信号目标 ${x.target}</small><span class="stars">${"★".repeat(profile.stars[i])}${"☆".repeat(3 - profile.stars[i])}</span></button>`,
+          ).join("");
+          els.routeList
+            .querySelectorAll("[data-route]")
+            .forEach((b) => (b.onclick = () => selectRoute(+b.dataset.route)));
+          els.event.classList.toggle("hidden", state.mode !== "event");
+          if (state.mode === "event" && state.event) {
+            els.eventTitle.textContent = state.event.title;
+            els.eventText.textContent = state.event.text;
+            els.eventChoices.innerHTML = state.event.choices
+              .map(
+                (c, i) =>
+                  `<button class="btn" data-choice="${i}">${c[0]}</button>`,
+              )
+              .join("");
+            els.eventChoices
+              .querySelectorAll("[data-choice]")
+              .forEach(
+                (b) =>
+                  (b.onclick = () =>
+                    dispatch({ type: "EVENT", choice: +b.dataset.choice })),
+              );
+          }
+          document
+            .querySelectorAll("[data-action]")
+            .forEach(
+              (b) => (b.disabled = state.mode !== "play" || state.ap <= 0),
+            );
+          document
+            .querySelectorAll("[data-craft]")
+            .forEach((b) => (b.disabled = state.mode !== "play"));
+          els.sleep.disabled = state.mode !== "play";
+          els.totalStars.textContent = totalStars();
+          els.clears.textContent = profile.clears;
+          els.bestHealth.textContent = Math.max(...profile.bestHealth);
+        }
+        document
+          .querySelectorAll("[data-action]")
+          .forEach(
+            (b) =>
+              (b.onclick = () =>
+                dispatch({ type: "ACTION", kind: b.dataset.action })),
+          );
+        document
+          .querySelectorAll("[data-craft]")
+          .forEach(
+            (b) =>
+              (b.onclick = () =>
+                dispatch({ type: "CRAFT", kind: b.dataset.craft })),
+          );
+        els.sleep.onclick = () => dispatch({ type: "END_DAY" });
+        $("restartBtn").onclick = () => {
+          state = makeState();
+          renderAll();
+        };
+        function checksum(s) {
+          let h = 2166136261;
+          for (let i = 0; i < s.length; i++) {
+            h ^= s.charCodeAt(i);
+            h = Math.imul(h, 16777619);
+          }
+          return (h >>> 0).toString(36);
+        }
+        function encode() {
+          const p = btoa(
+            unescape(
+              encodeURIComponent(
+                JSON.stringify({
+                  v: 2,
+                  u: profile.unlocked,
+                  s: profile.stars,
+                  b: profile.bestHealth,
+                  c: profile.clears,
+                }),
+              ),
+            ),
+          );
+          return `ISLAND2.${p}.${checksum(p)}`;
+        }
+        function decode(code) {
+          const p = code.trim().split(".");
+          if (p.length !== 3 || p[0] !== "ISLAND2" || checksum(p[1]) !== p[2])
+            throw Error("求生档案校验失败");
+          const v = JSON.parse(decodeURIComponent(escape(atob(p[1]))));
+          if (v.v !== 2 || !Array.isArray(v.s)) throw Error("档案版本不兼容");
+          return {
+            v: 2,
+            unlocked: clamp(+v.u || 0, 0, 2),
+            stars: Array.from({ length: 3 }, (_, i) =>
+              clamp(+v.s[i] || 0, 0, 3),
+            ),
+            bestHealth: Array.from({ length: 3 }, (_, i) =>
+              Math.max(0, +v.b?.[i] || 0),
+            ),
+            clears: Math.max(0, +v.c || 0),
+          };
+        }
+        $("archiveBtn").onclick = () => {
+          els.archive.classList.remove("hidden");
+          els.archiveText.value = encode();
+          els.archiveFeedback.textContent = "";
+        };
+        $("closeArchiveBtn").onclick = () =>
+          els.archive.classList.add("hidden");
+        $("exportBtn").onclick = async () => {
+          els.archiveText.value = encode();
+          els.archiveText.select();
+          try {
+            await navigator.clipboard.writeText(els.archiveText.value);
+            els.archiveFeedback.textContent = "求生档案已复制。";
+          } catch (_) {
+            els.archiveFeedback.textContent = "档案已生成，请手动复制。";
+          }
+        };
+        $("importBtn").onclick = () => {
+          try {
+            profile = decode(els.archiveText.value);
+            save();
+            routeIndex = Math.min(profile.unlocked, 2);
+            state = makeState();
+            renderAll();
+            els.archiveFeedback.textContent = "导入成功。";
+          } catch (e) {
+            els.archiveFeedback.textContent = e.message;
+          }
+        };
+        function validateContent() {
+          const errors = [];
+          if (ROUTES.length !== 3) errors.push("route count");
+          if (ROUTES.some((r) => r.events.length !== 10))
+            errors.push("event count");
+          if (ROUTES.some((r) => r.target < 60)) errors.push("target");
+          return {
+            valid: !errors.length,
+            errors,
+            routes: ROUTES.length,
+            events: ROUTES.reduce((n, r) => n + r.events.length, 0),
+            actions: Object.keys(ACTION_NAMES).length,
+          };
+        }
+        window.__islandSurvival = {
+          ROUTES,
+          WEATHER,
+          profile: () => profile,
+          state: () => state,
+          dispatch,
+          replay,
+          digest,
+          finish,
+          selectRoute,
+          encode,
+          decode,
+          validateContent,
+          renderAll,
+        };
+        renderAll();
+      })();
+    </script>
+  </body>
 </html>

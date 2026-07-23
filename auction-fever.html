@@ -1,353 +1,48 @@
 <!doctype html>
 <html lang="zh-CN">
-  <meta charset="utf-8" /><meta
-    name="viewport"
-    content="width=device-width,initial-scale=1"
-  /><title>拍卖风云</title
-  ><style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      background: #201510;
-      color: #fff3dc;
-      font-family: system-ui, "Microsoft YaHei";
-    }
-    .app {
-      min-height: 100vh;
-      padding: 14px;
-      display: grid;
-      place-items: center;
-    }
-    .shell {
-      width: min(940px, 100%);
-      background: #35241b;
-      border: 1px solid #8d6d4d;
-      border-radius: 20px;
-      padding: 16px;
-    }
-    .top,
-    .row {
-      display: flex;
-      justify-content: space-between;
-      gap: 9px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .layout {
-      display: grid;
-      grid-template-columns: 1fr 280px;
-      gap: 12px;
-      margin-top: 12px;
-    }
-    .stage {
-      min-height: 430px;
-      background: radial-gradient(circle, #6b472d, #2d1d16 70%);
-      border: 1px solid #896443;
-      border-radius: 14px;
-      padding: 20px;
-      text-align: center;
-    }
-    .itemIcon {
-      font-size: 95px;
-      margin: 25px;
-    }
-    .price {
-      font-size: 32px;
-      color: #ffd673;
-    }
-    .panel {
-      background: #281a14;
-      border: 1px solid #705138;
-      border-radius: 12px;
-      padding: 11px;
-      margin-bottom: 9px;
-    }
-    .collection {
-      max-height: 250px;
-      overflow: auto;
-    }
-    .lot {
-      display: flex;
-      justify-content: space-between;
-      padding: 6px;
-      border-bottom: 1px solid #ffffff18;
-    }
-    .trait {
-      display: inline-block;
-      padding: 4px 8px;
-      background: #4c3325;
-      border-radius: 15px;
-      margin: 3px;
-    }
-    .good {
-      color: #7fe5a4;
-    }
-    .bad {
-      color: #ff8c8c;
-    }
-    button {
-      padding: 10px 13px;
-      border: 1px solid #9a744e;
-      border-radius: 9px;
-      background: #5b3d28;
-      color: #fff;
-      font-weight: bold;
-    }
-    .bid {
-      background: #a85f24;
-      font-size: 18px;
-    }
-    .help {
-      font-size: 13px;
-      color: #d2b99b;
-    }
-    @media (max-width: 680px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
-      .stage {
-        min-height: 350px;
-      }
-      .app {
-        place-items: start center;
-      }
-    }
-  </style>
-  <main class="app">
-    <section class="shell">
-      <div class="top">
-        <div>
-          <h1 style="margin: 0">拍卖风云</h1>
-          <div class="help">
-            评估藏品、与三名对手竞价，再在最佳行情中出售；撑过 12
-            场并尽量扩大资产。
-          </div>
-        </div>
-        <div>
-          场次 <b id="day"></b>/12　资金 <b id="money"></b>　声望
-          <b id="rep"></b>
-        </div>
-      </div>
-      <div class="layout">
-        <div class="stage">
-          <div id="category"></div>
-          <div class="itemIcon" id="icon"></div>
-          <h2 id="name"></h2>
-          <div id="traits"></div>
-          <div>当前价 <b class="price" id="price"></b></div>
-          <div id="leader"></div>
-          <div class="row" style="justify-content: center; margin-top: 16px">
-            <button class="bid" id="bid">举牌加价</button
-            ><button id="pass">放弃本件</button
-            ><button id="appraise">专家鉴定（20）</button>
-          </div>
-          <div id="msg" class="help"></div>
-        </div>
-        <aside>
-          <div class="panel">
-            <b>市场行情</b>
-            <div id="market"></div>
-          </div>
-          <div class="panel collection">
-            <b>我的藏品</b>
-            <div id="bag"></div>
-          </div>
-          <button id="sellBest">出售选中藏品</button
-          ><button id="restart">新赛季</button>
-        </aside>
-      </div>
-    </section>
-  </main>
-  <script>
-    const BASE = [
-        ["青花瓷", "🏺", "瓷器", 80],
-        ["机械表", "⌚", "钟表", 110],
-        ["风景油画", "🖼️", "绘画", 95],
-        ["古金币", "🪙", "古物", 65],
-        ["红宝石", "💎", "珠宝", 140],
-        ["首版书", "📕", "文献", 75],
-        ["爵士唱片", "💿", "文献", 55],
-        ["青铜剑", "🗡️", "古物", 125],
-      ],
-      TR = [
-        ["名家款", 1.55],
-        ["保存完好", 1.3],
-        ["稀有年代", 1.4],
-        ["修复痕迹", 0.72],
-        ["来源存疑", 0.58],
-        ["热门题材", 1.2],
-      ];
-    let q,
-      lot,
-      timer = null;
-    const $ = (x) => document.getElementById(x);
-    function fresh() {
-      return {
-        day: 1,
-        money: 500,
-        rep: 0,
-        bag: [],
-        market: { 瓷器: 1, 钟表: 1, 绘画: 1, 古物: 1, 珠宝: 1, 文献: 1 },
-        selected: 0,
-        over: false,
-      };
-    }
-    function makeLot() {
-      let b = BASE[Math.floor(Math.random() * BASE.length)],
-        traits = [
-          TR[Math.floor(Math.random() * TR.length)],
-          TR[Math.floor(Math.random() * TR.length)],
-        ],
-        real = Math.round(
-          b[3] *
-            traits.reduce((v, t) => v * t[1], 1) *
-            (0.85 + Math.random() * 0.3),
-        );
-      lot = {
-        b,
-        traits,
-        real,
-        price: Math.round(b[3] * 0.35),
-        leader: "无人",
-        revealed: false,
-        passed: false,
-      };
-      draw();
-    }
-    function bidUp() {
-      if (q.over || lot.passed) return;
-      let step = Math.max(10, Math.round(lot.price * 0.12));
-      if (lot.price + step > q.money) return note("资金不足，无法继续举牌。");
-      lot.price += step;
-      lot.leader = "你";
-      draw();
-      setTimeout(rivals, 280);
-    }
-    function rivals() {
-      let ceiling = lot.real * (0.75 + Math.random() * 0.45);
-      if (lot.price < ceiling && Math.random() < 0.72) {
-        lot.price += Math.max(8, Math.round(lot.price * 0.1));
-        lot.leader = ["红帽收藏家", "银镜商人", "旧城馆长"][
-          Math.floor(Math.random() * 3)
-        ];
-        note(`${lot.leader} 跟价了。`);
-      } else if (lot.leader === "你") return settle();
-      draw();
-    }
-    function settle() {
-      if (lot.leader === "你") {
-        q.money -= lot.price;
-        q.bag.push({
-          n: lot.b[0],
-          ic: lot.b[1],
-          cat: lot.b[2],
-          real: lot.real,
-          cost: lot.price,
-        });
-        q.rep += lot.price < lot.real ? 2 : 0;
-        note(
-          `成交！${lot.price < lot.real ? "可能捡漏了。" : "谨慎观察后续行情。"}`,
-        );
-      }
-      next();
-    }
-    function next() {
-      q.day++;
-      for (const k in q.market)
-        q.market[k] = Math.max(
-          0.65,
-          Math.min(1.5, q.market[k] + (Math.random() - 0.5) * 0.25),
-        );
-      if (q.day > 12) {
-        q.over = true;
-        let assets =
-          q.money + q.bag.reduce((s, a) => s + a.real * q.market[a.cat], 0);
-        note(`赛季结束，总资产估值 ${Math.round(assets)}。`);
-        draw();
-        return;
-      }
-      setTimeout(makeLot, 350);
-    }
-    function note(s) {
-      msg.textContent = s;
-    }
-    function draw() {
-      day.textContent = Math.min(12, q.day);
-      money.textContent = Math.round(q.money);
-      rep.textContent = q.rep;
-      category.textContent = lot ? `本场：${lot.b[2]}` : "";
-      icon.textContent = lot?.b[1] || "";
-      name.textContent = lot?.b[0] || "";
-      price.textContent = lot ? lot.price : "";
-      leader.textContent = lot ? `领先：${lot.leader}` : "";
-      traits.innerHTML = lot
-        ? lot.traits
-            .map(
-              (t) =>
-                `<span class="trait ${lot.revealed ? (t[1] >= 1 ? "good" : "bad") : ""}">${lot.revealed ? t[0] : "待鉴定特征"}</span>`,
-            )
-            .join("")
-        : "";
-      market.innerHTML = Object.entries(q.market)
-        .map(
-          ([k, v]) =>
-            `<div class="lot"><span>${k}</span><b class="${v >= 1 ? "good" : "bad"}">${v >= 1 ? "↑" : "↓"} ${v.toFixed(2)}</b></div>`,
-        )
-        .join("");
-      bag.innerHTML =
-        q.bag
-          .map(
-            (a, i) =>
-              `<button class="lot" data-i="${i}" style="width:100%;outline:${q.selected === i ? "2px solid #ffd673" : "none"}"><span>${a.ic}${a.n}</span><b>估值 ${Math.round(a.real * q.market[a.cat])}</b></button>`,
-          )
-          .join("") || '<div class="help">尚无藏品</div>';
-      bag.querySelectorAll("[data-i]").forEach(
-        (e) =>
-          (e.onclick = () => {
-            q.selected = +e.dataset.i;
-            draw();
-          }),
-      );
-      bid.disabled = q.over || lot?.passed;
-      pass.disabled = q.over;
-      appraise.disabled = q.money < 20 || lot?.revealed;
-    }
-    bid.onclick = bidUp;
-    pass.onclick = () => {
-      if (q.over) return;
-      lot.passed = true;
-      if (lot.leader === "你") settle();
-      else next();
-    };
-    appraise.onclick = () => {
-      if (q.money < 20 || lot.revealed) return;
-      q.money -= 20;
-      lot.revealed = true;
-      note(
-        `专家估价区间：${Math.round(lot.real * 0.85)}–${Math.round(lot.real * 1.15)}`,
-      );
-      draw();
-    };
-    sellBest.onclick = () => {
-      let a = q.bag[q.selected];
-      if (!a) return note("没有可出售的藏品。");
-      let v = Math.round(a.real * q.market[a.cat]);
-      q.money += v;
-      q.bag.splice(q.selected, 1);
-      q.selected = Math.max(0, q.selected - 1);
-      q.rep += v > a.cost ? 1 : 0;
-      note(`藏品售出，到账 ${v}。`);
-      draw();
-    };
-    restart.onclick = () => {
-      if (confirm("开始新的 12 场赛季？")) {
-        q = fresh();
-        makeLot();
-      }
-    };
-    q = fresh();
-    makeLot();
-  </script>
-</html>
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>拍卖风云：三席竞局</title>
+<style>
+:root{--bg:#19110d;--panel:#302019;--panel2:#241810;--line:#866547;--ink:#fff4df;--muted:#d2b89b;--gold:#f5c96d;--green:#7fe0a2;--red:#ed8181}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 10% 0,#68442b 0,transparent 29%),radial-gradient(circle at 92% 4%,#4b3037 0,transparent 27%),linear-gradient(145deg,#17100d,#2a1b14 62%,#1b1419);color:var(--ink);font-family:system-ui,"Microsoft YaHei",sans-serif}.app{width:min(1420px,calc(100% - 22px));margin:11px auto}.top,.panel{border:1px solid var(--line);border-radius:14px;background:rgba(48,32,25,.97);box-shadow:0 18px 46px rgba(0,0,0,.34)}.top{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px 18px}.eyebrow{margin:0 0 4px;color:var(--gold);font-size:12px;font-weight:950;letter-spacing:.14em}.top h1{margin:0;font-size:clamp(26px,4vw,42px);line-height:1}.sub{margin:7px 0 0;color:var(--muted);font-size:13px}.actions,.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}button,textarea{font:inherit}.btn{min-height:42px;padding:0 13px;border:1px solid #a17b56;border-radius:8px;background:#61422c;color:white;font-weight:900;cursor:pointer}.btn.gold{border-color:#b18a42;background:#805d25}.btn.red{border-color:#ae5251;background:#7d3939}.btn:disabled{opacity:.4;cursor:not-allowed}.layout{display:grid;grid-template-columns:minmax(0,1fr) 385px;gap:12px;margin-top:12px;align-items:start}.stage{min-height:710px;padding:18px;display:grid;align-content:start;background:radial-gradient(circle at 50% 38%,#765035,#2c1c16 67%);overflow:hidden}.stage-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.stage-head h2{margin:0 0 5px}.stage-head p{margin:0;color:var(--muted);font-size:12px}.auction-number{color:var(--gold);font-weight:900}.artifact{text-align:center;padding:22px 10px 15px}.icon{font-size:92px;line-height:1}.artifact h2{margin:10px 0 4px}.artifact small{color:var(--muted)}.traits{display:flex;justify-content:center;gap:7px;flex-wrap:wrap;margin:10px 0}.trait{padding:5px 9px;border:1px solid #a07b59;border-radius:14px;background:#4e3527;font-size:11px}.trait.good{border-color:#5eaa79;color:#bff2cd}.trait.bad{border-color:#aa5d5d;color:#ffc0b7}.price{font-size:34px;color:var(--gold);font-weight:950}.leader{margin:5px 0;color:#f3d6ab}.auction-actions{justify-content:center;margin-top:13px}.bid{min-height:52px;background:#ad6023;border-color:#d88a3d;font-size:18px}.hint{min-height:40px;margin-top:12px;padding:8px;border:1px solid #896a4c;border-radius:8px;background:#281a14;color:#e1c4a1;font-size:12px;line-height:1.45}.side{padding:12px;display:grid;gap:10px;max-height:calc(100vh - 105px);overflow:auto}.block{padding:11px;border:1px solid #75563e;border-radius:10px;background:var(--panel2)}.block h2,.block h3{margin:0 0 8px}.block h2{font-size:20px}.block h3{font-size:14px;color:var(--gold)}.tours{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.tour{min-height:58px;padding:5px;border:1px solid #825f43;border-radius:8px;background:#3e291e;color:white;cursor:pointer}.tour.active{outline:3px solid var(--gold)}.tour:disabled{opacity:.38}.tour b,.tour small{display:block}.tour small{font-size:9px;color:var(--muted);margin-top:3px}.stars{color:var(--gold);font-size:10px}.market{display:grid;gap:4px}.market-line{display:flex;justify-content:space-between;gap:8px;padding:5px;border-bottom:1px solid #ffffff17;font-size:11px}.market-line span{color:var(--muted)}.up{color:var(--green)}.down{color:var(--red)}.collection{display:grid;gap:5px;max-height:190px;overflow:auto}.lot{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:7px;border:1px solid #704f38;border-radius:7px;background:#352319;color:white;text-align:left;cursor:pointer}.lot.selected{outline:3px solid var(--gold)}.lot b{font-size:11px}.lot small{display:block;color:var(--muted);font-size:9px}.goal{padding:7px;border:1px solid #76583f;border-radius:7px;color:var(--muted);font-size:11px}.goal.pass{border-color:#4e956d;background:#1d392a;color:#dff6e6}.goals{display:grid;gap:5px}.log{height:135px;overflow:auto;color:#cbb59c;font-size:11px;line-height:1.55}.career{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.career div{padding:7px;border:1px solid #76583f;border-radius:8px;background:#38261c;text-align:center}.career b{display:block;font-size:19px}.career small{font-size:9px;color:var(--muted)}.archive{position:fixed;inset:0;z-index:9;display:grid;place-items:center;padding:18px;background:rgba(16,9,6,.87)}.archive.hidden{display:none}.dialog{width:min(620px,100%);padding:18px;border:1px solid #946f4e;border-radius:14px;background:#342219}.dialog h2{margin:0 0 8px}.dialog textarea{width:100%;min-height:125px;padding:10px;border:1px solid #896649;border-radius:8px;background:#1d120d;color:white;resize:vertical}.feedback{min-height:20px;margin-top:7px;color:var(--gold);font-size:12px;font-weight:850}.tip{color:var(--muted);font-size:12px;line-height:1.5}@media(max-width:900px){.layout{grid-template-columns:1fr}.side{max-height:none}.top{align-items:flex-start}}@media(max-width:560px){.app{width:min(100% - 12px,1420px);margin:6px auto}.top{display:grid;padding:12px}.top h1{font-size:26px}.stage{min-height:620px;padding:11px}.stage-head{display:grid}.artifact{padding-top:18px}.icon{font-size:74px}.side{padding:8px}.btn{min-height:40px}}
+</style>
+</head>
+<body>
+<main class="app"><header class="top"><div><p class="eyebrow">DETERMINISTIC AUCTION CIRCUIT</p><h1>拍卖风云：三席竞局</h1><p class="sub">三座拍卖行 · 十二件固定拍品 · 行情事件 · 三种对手性格 · 可重放竞价日志</p></div><div class="actions"><button class="btn red" id="restartBtn">重开拍卖行</button><button class="btn gold" id="archiveBtn">藏家档案</button></div></header>
+<section class="layout"><section class="panel stage"><div class="stage-head"><div><h2 id="tourTitle"></h2><p id="tourSubtitle"></p></div><div class="auction-number">第 <b id="lotNo"></b>/4 场</div></div><div class="artifact"><div class="icon" id="lotIcon"></div><h2 id="lotName"></h2><small id="lotHint"></small><div class="traits" id="traits"></div><div class="price" id="price"></div><div class="leader" id="leader"></div></div><div class="row auction-actions"><button class="btn bid" id="bidBtn">举牌加价</button><button class="btn" id="passBtn">放弃本件</button><button class="btn gold" id="appraiseBtn">专家鉴定（20）</button></div><div class="hint" id="message">先鉴定或观察市场，再决定是否跟价。</div></section>
+<aside class="panel side"><section class="block"><h3>三座拍卖行</h3><div class="tours" id="tourList"></div></section><section class="block"><h2>行情事件</h2><div class="market" id="market"></div></section><section class="block"><h3>藏品库</h3><div class="collection" id="collection"></div><button class="btn" id="sellBtn" style="width:100%;margin-top:7px">出售选中藏品</button></section><section class="block"><h3>本席目标</h3><div class="goals" id="goals"></div><p class="tip">通关获得一星；至少完成一次盈利出售、鉴定不超过两次各增加一星。资产目标按拍卖行难度递增。</p></section><section class="block"><h3>竞价记录</h3><div class="log" id="log"></div></section><section class="block"><h3>藏家生涯</h3><div class="career"><div><b id="totalStars">0</b><small>总星章</small></div><div><b id="clears">0</b><small>完成席位</small></div><div><b id="profits">0</b><small>盈利出售</small></div></div></section></aside></section></main>
+<div class="archive hidden" id="archiveModal"><div class="dialog"><h2>跨设备藏家档案</h2><p class="tip">档案包含三座拍卖行星级、最佳资产、解锁进度与生涯统计。</p><textarea id="archiveText" spellcheck="false"></textarea><div class="row" style="justify-content:flex-end;margin-top:8px"><button class="btn" id="closeArchiveBtn">关闭</button><button class="btn" id="importBtn">导入</button><button class="btn gold" id="exportBtn">生成并复制</button></div><div class="feedback" id="archiveFeedback"></div></div></div>
+<script>
+(() => {
+  const RIVALS=[{name:"红帽收藏家",limit:.76,style:"谨慎"},{name:"银镜商人",limit:.94,style:"追热"},{name:"旧城馆长",limit:.84,style:"保守"}];
+  const TOURS=[
+    {name:"旧城藏馆",subtitle:"熟悉的类别，适合建立第一套估值习惯。",target:520,lots:[
+      ["青花瓷","🏺","瓷器",86,[["名家款",1.45],["修复痕迹",.76]],0],["机械表","⌚","钟表",118,[["保存完好",1.3],["热门题材",1.18]],1],["首版书","📕","文献",78,[["稀有年代",1.36],["来源存疑",.6]],2],["古金币","🪙","古物",72,[["保存完好",1.28],["热门题材",1.18]],0]],events:[["瓷器",.18,"博物馆临时借展，瓷器行情升温。"],["钟表",-.12,"维修零件短缺，钟表买家变得谨慎。"],["文献",.2,"城市档案展公布，文献需求上升。"],["古物",.08,"旧城修复计划带动古物关注。"]]},
+    {name:"海港专场",subtitle:"国际买家涌入，行情变化更快，追热需要纪律。",target:650,lots:[
+      ["风景油画","🖼️","绘画",112,[["保存完好",1.32],["热门题材",1.22]],1],["红宝石","💎","珠宝",154,[["名家款",1.5],["来源存疑",.58]],2],["爵士唱片","💿","文献",64,[["稀有年代",1.38],["修复痕迹",.72]],0],["青铜剑","🗡️","古物",132,[["名家款",1.46],["保存完好",1.28]],1]],events:[["绘画",.22,"海外画廊发布联展名单，绘画指数上行。"],["珠宝",-.16,"海关抽检加强，来源存疑的珠宝折价。"],["文献",.16,"唱片节公布，文献买家集中入场。"],["古物",.24,"港口历史展延期，古物供给突然收紧。"]]},
+    {name:"终局交易厅",subtitle:"信息互相冲突，低买高卖与风险控制同时重要。",target:790,lots:[
+      ["航海图","🗺️","文献",145,[["稀有年代",1.5],["名家款",1.42]],2],["陨石戒","💍","珠宝",188,[["保存完好",1.28],["来源存疑",.56]],1],["自动人偶","🤖","钟表",174,[["名家款",1.52],["修复痕迹",.7]],0],["祭礼面具","🎭","古物",165,[["稀有年代",1.4],["热门题材",1.25]],2]],events:[["文献",-.18,"鉴定机构对旧航海图年代提出争议。"],["珠宝",.3,"私人基金宣布收购彩色宝石。"],["钟表",.2,"机械艺术展公布，复杂钟表受到追捧。"],["古物",-.1,"来源审查新闻让古物买家降低报价。"]]}
+  ];
+  const KEY="mini_auction_circuit_v2",$=id=>document.getElementById(id),els={tourList:$("tourList"),tourTitle:$("tourTitle"),tourSubtitle:$("tourSubtitle"),lotNo:$("lotNo"),icon:$("lotIcon"),name:$("lotName"),hint:$("lotHint"),traits:$("traits"),price:$("price"),leader:$("leader"),market:$("market"),collection:$("collection"),goals:$("goals"),log:$("log"),message:$("message"),bid:$("bidBtn"),pass:$("passBtn"),appraise:$("appraiseBtn"),sell:$("sellBtn"),totalStars:$("totalStars"),clears:$("clears"),profits:$("profits"),archive:$("archiveModal"),archiveText:$("archiveText"),archiveFeedback:$("archiveFeedback")};
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));function defaults(){return {v:2,unlocked:0,stars:[0,0,0],bestAssets:[0,0,0],clears:0,profits:0};}function load(){try{const v=JSON.parse(localStorage.getItem(KEY)||"null");if(v&&v.v===2)return {...defaults(),...v,stars:Array.from({length:3},(_,i)=>clamp(+v.stars?.[i]||0,0,3)),bestAssets:Array.from({length:3},(_,i)=>Math.max(0,+v.bestAssets?.[i]||0))};}catch(_){}return defaults();}
+  let profile=load(),tourIndex=Math.min(profile.unlocked,2),state=makeState();
+  function tour(){return TOURS[tourIndex];}function freshLot(index){const a=tour().lots[index];const real=Math.round(a[3]*a[4].reduce((n,t)=>n*t[1],1));return {index,name:a[0],icon:a[1],cat:a[2],base:a[3],traits:a[4],real,price:Math.round(a[3]*.35),leader:"无人",revealed:false,passed:false};}
+  function makeState(){const t=tour(),market={瓷器:1,钟表:1,绘画:1,古物:1,珠宝:1,文献:1},first=t.events[0];market[first[0]]=clamp(market[first[0]]+first[1],.55,1.65);return {mode:"auction",lotIndex:0,lot:freshLot(0),money:420,rep:0,market,bag:[],selected:0,appraisals:0,profitableSales:0,history:[],events:[{seq:1,type:"MARKET",detail:first[2],cat:first[0],delta:first[1]}],result:"",replaying:false};}
+  function save(){localStorage.setItem(KEY,JSON.stringify(profile));}function totalStars(){return profile.stars.reduce((a,b)=>a+b,0);}function record(type,detail,payload={}){state.events.push({seq:state.events.length+1,type,detail,...payload});state.events=state.events.slice(-30);}
+  function applyEvent(){const e=tour().events[state.lotIndex];state.market[e[0]]=clamp((state.market[e[0]]||1)+e[1],.55,1.65);record("MARKET",e[2],{cat:e[0],delta:e[1]});}
+  function message(s){state.result=s;els.message.textContent=s;}function nextLot(){if(state.lotIndex>=3)return finishTour();state.lotIndex++;state.lot=freshLot(state.lotIndex);applyEvent();message(`行情更新：${tour().events[state.lotIndex][2]}`);renderAll();}
+  function bid(){if(state.mode!=="auction"||state.lot.passed)return;const step=Math.max(10,Math.round(state.lot.price*.12));if(state.lot.price+step>state.money){message("现金不足，无法继续举牌。" );return;}state.lot.price+=step;state.lot.leader="你";record("BID",`你将 ${state.lot.name} 抬到 ${state.lot.price}。`,{amount:state.lot.price});const rival=RIVALS[state.lot.index%3],ceiling=state.lot.real*state.market[state.lot.cat]*rival.limit*(rival.style==="追热"&&state.market[state.lot.cat]>1.05?1.12:1);if(state.lot.price<ceiling){state.lot.price+=Math.max(8,Math.round(state.lot.price*.1));state.lot.leader=rival.name;record("RIVAL_BID",`${rival.name}（${rival.style}）跟价到 ${state.lot.price}。`,{rival:rival.name});message(`${rival.name}（${rival.style}）跟价了。`);}else settle();renderAll();}
+  function settle(){if(state.lot.leader==="你"){state.money-=state.lot.price;state.bag.push({name:state.lot.name,icon:state.lot.icon,cat:state.lot.cat,real:state.lot.real,cost:state.lot.price});record("BUY",`你以 ${state.lot.price} 买下 ${state.lot.name}。`,{amount:state.lot.price});message(state.lot.price<state.lot.real?"成交，低于基础估值，保留现金准备出售。":"成交，但溢价较高，行情决定能否翻盘。");}else record("PASS_RIVAL",`${state.lot.name} 被 ${state.lot.leader} 拿下。`);nextLot();}
+  function pass(){if(state.mode!=="auction")return;state.lot.passed=true;record("PASS",state.lot.leader==="你"?"你放弃跟价，藏品流入对手手中。":"你没有加入竞价。");if(state.lot.leader==="你")state.lot.leader="无人";nextLot();}
+  function appraise(){if(state.mode!=="auction"||state.lot.revealed)return;if(state.money<20){message("鉴定需要 20 现金。" );return;}state.money-=20;state.lot.revealed=true;state.appraisals++;record("APPRAISE",`专家公开 ${state.lot.name} 的特征。`);message(`估值区间：${Math.round(state.lot.real*.92)}–${Math.round(state.lot.real*1.08)}。`);renderAll();}
+  function sell(){const a=state.bag[state.selected];if(!a){message("先在藏品库选择一件藏品。" );return;}const value=Math.round(a.real*state.market[a.cat]);state.money+=value;state.bag.splice(state.selected,1);if(value>a.cost)state.profitableSales++;state.rep+=value>a.cost?1:0;record("SELL",`出售 ${a.name}，按 ${state.market[a.cat].toFixed(2)} 行情到账 ${value}。`,{value});state.selected=clamp(state.selected-1,0,Math.max(0,state.bag.length-1));message(value>a.cost?"盈利出售，声望增加。":"低于买入价出售，先回收现金。" );renderAll();}
+  function finishTour(){state.mode="result";const assets=state.money+state.bag.reduce((n,a)=>n+Math.round(a.real*state.market[a.cat]),0),t=tour();const stars=assets>=t.target?1+(state.profitableSales>=1?1:0)+(state.appraisals<=2?1:0):0;if(!state.replaying){profile.stars[tourIndex]=Math.max(profile.stars[tourIndex],stars);profile.bestAssets[tourIndex]=Math.max(profile.bestAssets[tourIndex],assets);if(stars){profile.unlocked=Math.max(profile.unlocked,Math.min(2,tourIndex+1));profile.clears++;profile.profits+=state.profitableSales;save();}}state.result=stars?`席位完成：${"★".repeat(stars)}${"☆".repeat(3-stars)}，结算资产 ${assets}。`:`资产不足，只有 ${assets}；目标为 ${t.target}。`;record("END",state.result,{assets,stars});els.message.textContent=state.result;renderAll();return stars;}
+  function selectTour(i){if(i>profile.unlocked)return;tourIndex=i;state=makeState();renderAll();}function replay(commands,index=tourIndex){const oldTour=tourIndex,liveState=state;tourIndex=index;state=makeState();state.replaying=true;for(const command of commands)dispatch(command,false);const result=digest(state);state=liveState;tourIndex=oldTour;renderAll();return result;}function digest(s){return JSON.stringify({mode:s.mode,lotIndex:s.lotIndex,money:s.money,market:s.market,lot:{name:s.lot.name,price:s.lot.price,leader:s.lot.leader,revealed:s.lot.revealed},bag:s.bag,appraisals:s.appraisals,profitableSales:s.profitableSales});}
+  function dispatch(command,recordCommand=true){if(recordCommand)state.history.push({...command});if(command.type==="APPRAISE")appraise();else if(command.type==="BID")bid();else if(command.type==="PASS")pass();else if(command.type==="SELL")sell();}
+  function renderAll(){const t=tour(),l=state.lot;els.tourTitle.textContent=`${t.name} · ${state.mode==="result"?"结算":"行情席"}`;els.tourSubtitle.textContent=t.subtitle;els.lotNo.textContent=Math.min(4,state.lotIndex+1);els.icon.textContent=l?.icon||"";els.name.textContent=l?.name||"";els.hint.textContent=l?`类别：${l.cat} · 参考底价 ${l.base} · 对手：${RIVALS[l.index%3].name}（${RIVALS[l.index%3].style}）`:"";els.traits.innerHTML=l?l.traits.map(x=>`<span class="trait ${l.revealed?(x[1]>=1?"good":"bad"):""}">${l.revealed?x[0]:"待鉴定特征"}</span>`).join(""):"";els.price.textContent=l?`当前价 ${l.price}`:"";els.leader.textContent=l?`领先：${l.leader}`:"";els.market.innerHTML=Object.entries(state.market).map(([k,v])=>`<div class="market-line"><span>${k}</span><b class="${v>=1?"up":"down"}">${v>=1?"↑":"↓"} ${v.toFixed(2)}</b></div>`).join("");els.collection.innerHTML=state.bag.length?state.bag.map((a,i)=>`<button class="lot ${state.selected===i?"selected":""}" data-bag="${i}"><span>${a.icon} ${a.name}<small>买入 ${a.cost} · ${a.cat}</small></span><b>${Math.round(a.real*state.market[a.cat])}</b></button>`).join(""):"<div class='tip'>尚无藏品，先在拍卖台做一次理性决策。</div>";els.collection.querySelectorAll("[data-bag]").forEach(b=>b.onclick=()=>{state.selected=+b.dataset.bag;renderAll();});els.goals.innerHTML=`<div class="goal ${state.mode==="result"?"pass":""}">资产目标：${t.target} · 当前 ${state.mode==="result"?state.result.match(/资产 (\d+)/)?.[1]||"结算":state.money}</div><div class="goal ${state.profitableSales>=1?"pass":""}">盈利出售：${state.profitableSales}</div><div class="goal ${state.appraisals<=2?"pass":""}">鉴定控制：${state.appraisals}/2</div>`;els.log.innerHTML=state.events.slice().reverse().map(e=>`<div>• [${e.type}] ${e.detail}</div>`).join("");els.tourList.innerHTML=TOURS.map((x,i)=>`<button class="tour ${i===tourIndex?"active":""}" data-tour="${i}" ${i>profile.unlocked?"disabled":""}><b>${i+1}. ${x.name}</b><small>资产目标 ${x.target}</small><span class="stars">${"★".repeat(profile.stars[i])}${"☆".repeat(3-profile.stars[i])}</span></button>`).join("");els.tourList.querySelectorAll("[data-tour]").forEach(b=>b.onclick=()=>selectTour(+b.dataset.tour));els.bid.disabled=state.mode!=="auction"||l?.passed;els.pass.disabled=state.mode!=="auction";els.appraise.disabled=state.mode!=="auction"||l?.revealed||state.money<20;els.sell.disabled=!state.bag.length;els.totalStars.textContent=totalStars();els.clears.textContent=profile.clears;els.profits.textContent=profile.profits;}
+  els.bid.onclick=()=>dispatch({type:"BID"});els.pass.onclick=()=>dispatch({type:"PASS"});els.appraise.onclick=()=>dispatch({type:"APPRAISE"});els.sell.onclick=()=>dispatch({type:"SELL"});$("restartBtn").onclick=()=>{state=makeState();renderAll();};
+  function checksum(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return(h>>>0).toString(36);}function encode(){const p=btoa(unescape(encodeURIComponent(JSON.stringify({v:2,u:profile.unlocked,s:profile.stars,b:profile.bestAssets,c:profile.clears,p:profile.profits}))));return`AUCTION2.${p}.${checksum(p)}`;}function decode(code){const p=code.trim().split(".");if(p.length!==3||p[0]!=="AUCTION2"||checksum(p[1])!==p[2])throw Error("藏家档案校验失败");const v=JSON.parse(decodeURIComponent(escape(atob(p[1]))));if(v.v!==2||!Array.isArray(v.s))throw Error("档案版本不兼容");return{v:2,unlocked:clamp(+v.u||0,0,2),stars:Array.from({length:3},(_,i)=>clamp(+v.s[i]||0,0,3)),bestAssets:Array.from({length:3},(_,i)=>Math.max(0,+v.b?.[i]||0)),clears:Math.max(0,+v.c||0),profits:Math.max(0,+v.p||0)};}
+  $("archiveBtn").onclick=()=>{els.archive.classList.remove("hidden");els.archiveText.value=encode();els.archiveFeedback.textContent="";};$("closeArchiveBtn").onclick=()=>els.archive.classList.add("hidden");$("exportBtn").onclick=async()=>{els.archiveText.value=encode();els.archiveText.select();try{await navigator.clipboard.writeText(els.archiveText.value);els.archiveFeedback.textContent="藏家档案已复制。";}catch(_){els.archiveFeedback.textContent="档案已生成，请手动复制。";}};$("importBtn").onclick=()=>{try{profile=decode(els.archiveText.value);save();tourIndex=Math.min(profile.unlocked,2);state=makeState();renderAll();els.archiveFeedback.textContent="导入成功。";}catch(e){els.archiveFeedback.textContent=e.message;}};
+  function validateContent(){const errors=[];if(TOURS.length!==3)errors.push("tour count");const lots=TOURS.flatMap(t=>t.lots);if(lots.length!==12)errors.push("lot count");if(new Set(lots.map(l=>l[2])).size<5)errors.push("category variety");if(RIVALS.length!==3)errors.push("rival count");if(TOURS.some(t=>t.events.length!==4))errors.push("event count");return{valid:!errors.length,errors,tours:TOURS.length,lots:lots.length,rivals:RIVALS.length,events:TOURS.reduce((n,t)=>n+t.events.length,0)};}
+  window.__auctionFever={TOURS,RIVALS,profile:()=>profile,state:()=>state,dispatch,replay,digest,finishTour,encode,decode,validateContent,renderAll};renderAll();
+})();
+</script></body></html>
