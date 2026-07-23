@@ -1,335 +1,102 @@
 <!doctype html>
 <html lang="zh-CN">
-  <meta charset="utf-8" /><meta
-    name="viewport"
-    content="width=device-width,initial-scale=1"
-  /><title>塔台指挥官</title
-  ><style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      background: #08131d;
-      color: #eaf5ff;
-      font-family: system-ui, "Microsoft YaHei";
-    }
-    .app {
-      min-height: 100vh;
-      padding: 14px;
-      display: grid;
-      place-items: center;
-    }
-    .shell {
-      width: min(1000px, 100%);
-      background: #10283a;
-      border: 1px solid #41677e;
-      border-radius: 20px;
-      padding: 16px;
-    }
-    .top,
-    .row {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .stage {
-      position: relative;
-      margin: 12px 0;
-    }
-    canvas {
-      width: 100%;
-      aspect-ratio: 16/9;
-      background: #091b28;
-      border: 1px solid #446579;
-      border-radius: 13px;
-      display: block;
-      touch-action: none;
-    }
-    .panel {
-      background: #0a1c29;
-      border: 1px solid #38596c;
-      border-radius: 11px;
-      padding: 10px;
-    }
-    .controls button {
-      min-width: 70px;
-    }
-    .selected {
-      color: #ffe07a;
-    }
-    button {
-      padding: 9px 11px;
-      border: 1px solid #527589;
-      border-radius: 9px;
-      background: #244b62;
-      color: white;
-      font-weight: bold;
-    }
-    .land {
-      background: #9a6230;
-    }
-    .danger {
-      color: #ff7474;
-    }
-    .help {
-      font-size: 13px;
-      color: #a8c6d6;
-    }
-    @media (max-width: 650px) {
-      .app {
-        place-items: start center;
-      }
-      .controls button {
-        min-width: 58px;
-        padding: 8px;
-      }
-    }
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>塔台指挥官：三港联调</title>
+  <style>
+    :root{--bg:#07131c;--panel:#102636;--panel2:#0a1b27;--line:#41687b;--ink:#edf8ff;--muted:#a8c5d3;--cyan:#72d8de;--gold:#f0c766;--red:#ed7777;--green:#72d59d}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 8% 0,#17445a 0,transparent 30%),radial-gradient(circle at 94% 4%,#453d59 0,transparent 27%),linear-gradient(145deg,#061019,#0b1c28 62%,#171827);color:var(--ink);font-family:system-ui,"Microsoft YaHei",sans-serif}.app{width:min(1450px,calc(100% - 22px));margin:11px auto}.top,.panel{border:1px solid var(--line);border-radius:14px;background:rgba(16,38,54,.97);box-shadow:0 18px 46px rgba(0,0,0,.32)}.top{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:15px 18px}.eyebrow{margin:0 0 4px;color:var(--cyan);font-size:12px;font-weight:950;letter-spacing:.14em}.top h1{margin:0;font-size:clamp(26px,4vw,42px);line-height:1}.sub{margin:7px 0 0;color:var(--muted);font-size:13px}.actions,.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}button,textarea{font:inherit}.btn{min-height:42px;padding:0 13px;border:1px solid #588196;border-radius:8px;background:#28546b;color:white;font-weight:900;cursor:pointer}.btn.gold{border-color:#9d7a34;background:#7b5b22}.btn.red{border-color:#9b4a4a;background:#7a363b}.btn:disabled{opacity:.4;cursor:not-allowed}.layout{display:grid;grid-template-columns:minmax(0,1fr) 385px;gap:12px;margin-top:12px;align-items:start}.radar{position:relative;overflow:hidden;min-height:650px}.radar canvas{display:block;width:100%;height:650px;touch-action:none;background:#071925}.hud{position:absolute;left:10px;right:10px;top:10px;display:grid;grid-template-columns:repeat(6,1fr);gap:6px;pointer-events:none}.stat{padding:7px;border:1px solid rgba(255,255,255,.28);border-radius:8px;background:rgba(5,22,31,.82);text-shadow:0 1px #000}.stat b{display:block;font-size:19px}.stat small{font-size:10px;color:#cce0e6}.notice{position:absolute;left:10px;right:10px;bottom:10px;min-height:39px;padding:9px;border:1px solid rgba(255,255,255,.25);border-radius:8px;background:rgba(5,22,31,.86);color:#dcecf0;font-size:12px}.side{padding:12px;display:grid;gap:10px;max-height:calc(100vh - 105px);overflow:auto}.block{padding:11px;border:1px solid #3d6275;border-radius:10px;background:var(--panel2)}.block h2,.block h3{margin:0 0 8px}.block h2{font-size:20px}.block h3{font-size:14px;color:var(--cyan)}.shifts{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.shift{min-height:55px;padding:5px;border:1px solid #456d81;border-radius:8px;background:#173447;color:white;cursor:pointer}.shift.active{outline:3px solid var(--cyan)}.shift:disabled{opacity:.36}.shift b,.shift small{display:block}.shift small{font-size:9px;color:var(--muted);margin-top:3px}.stars{color:var(--gold)}.brief{display:grid;gap:6px}.brief div{display:flex;justify-content:space-between;gap:8px;padding:6px;border-bottom:1px solid #ffffff17;font-size:11px}.brief span{color:var(--muted)}.selected{min-height:64px;padding:8px;border:1px solid #477084;border-radius:8px;background:#123044}.selected b,.selected small{display:block}.selected small{margin-top:4px;color:var(--muted);line-height:1.4}.controls{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:7px}.controls .wide{grid-column:span 3}.control{min-height:45px;padding:4px;border:1px solid #52788a;border-radius:8px;background:#244b61;color:white;font-weight:850;cursor:pointer}.control.land{background:#7d5527;border-color:#9e783c}.control.warn{background:#73383e;border-color:#9b5357}.goals{display:grid;gap:5px}.goal{padding:7px;border:1px solid #47687a;border-radius:7px;color:var(--muted);font-size:11px}.goal.pass{border-color:#4e8b69;background:#143529;color:#dff7ea}.career{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.career div{padding:7px;border:1px solid #416578;border-radius:8px;background:#123044;text-align:center}.career b{display:block;font-size:19px}.career small{font-size:9px;color:var(--muted)}.archive{position:fixed;inset:0;z-index:9;display:grid;place-items:center;padding:18px;background:rgba(2,10,15,.86)}.archive.hidden{display:none}.dialog{width:min(620px,100%);padding:18px;border:1px solid #50788d;border-radius:14px;background:#102839}.dialog h2{margin:0 0 8px}.dialog textarea{width:100%;min-height:125px;padding:10px;border:1px solid #527487;border-radius:8px;background:#071923;color:white;resize:vertical}.feedback{min-height:20px;margin-top:7px;color:var(--gold);font-size:12px;font-weight:850}.tip{color:var(--muted);font-size:12px;line-height:1.5}
+    @media(max-width:900px){.layout{grid-template-columns:1fr}.side{max-height:none}.radar,.radar canvas{min-height:520px;height:520px}.top{align-items:flex-start}.hud{grid-template-columns:repeat(3,1fr)}}
+    @media(max-width:520px){.app{width:min(100% - 12px,1450px);margin:6px auto}.top{padding:12px;display:grid}.top h1{font-size:26px}.radar,.radar canvas{min-height:440px;height:440px}.hud{left:6px;right:6px;top:6px;gap:3px}.stat{padding:4px}.stat b{font-size:15px}.stat small{font-size:8px}.notice{left:6px;right:6px;bottom:6px}.side{padding:8px}.controls{grid-template-columns:repeat(2,1fr)}.controls .wide{grid-column:span 2}.btn{min-height:40px}}
   </style>
-  <main class="app">
-    <section class="shell">
-      <div class="top">
-        <div>
-          <h1 style="margin: 0">塔台指挥官</h1>
-          <div class="help">
-            点击航班选中；调整航向、高度并分配跑道。低空对准跑道方向后许可降落。
-          </div>
-        </div>
-        <div>
-          班次 <b id="score"></b>　安全 <b id="lives"></b>/3　等级
-          <b id="level"></b>　流量 <b id="traffic"></b>
-        </div>
+</head>
+<body>
+<main class="app">
+  <header class="top">
+    <div><p class="eyebrow">DETERMINISTIC AIRSPACE CAMPAIGN</p><h1>塔台指挥官：三港联调</h1><p class="sub">九个固定班次 · 机型尾流 · 天气漂移 · 限制空域 · 跨设备执照档案</p></div>
+    <div class="actions"><button class="btn" id="pauseBtn">暂停</button><button class="btn" id="speedBtn">速度 ×1</button><button class="btn gold" id="archiveBtn">执照档案</button></div>
+  </header>
+  <section class="layout">
+    <div class="panel radar">
+      <canvas id="radarCanvas" width="960" height="650"></canvas>
+      <div class="hud">
+        <div class="stat"><b id="landedStat">0</b><small>安全落地</small></div><div class="stat"><b id="incidentStat">0</b><small>事件</small></div><div class="stat"><b id="trafficStat">0</b><small>空中航班</small></div><div class="stat"><b id="clockStat">00:00</b><small>班次时间</small></div><div class="stat"><b id="weatherStat">晴</b><small>天气</small></div><div class="stat"><b id="priorityStat">0/0</b><small>优先航班</small></div>
       </div>
-      <div class="stage"><canvas id="c" width="960" height="540"></canvas></div>
-      <div class="panel">
-        <div class="row">
-          <div id="selectedInfo" class="selected">请选择航班</div>
-          <div class="controls row">
-            <button data-turn="-20">↶ 左转</button
-            ><button data-turn="20">右转 ↷</button
-            ><button data-alt="1">爬升</button
-            ><button data-alt="-1">下降</button
-            ><button data-rw="A">跑道 A</button
-            ><button data-rw="B">跑道 B</button
-            ><button class="land" id="land">许可降落</button
-            ><button id="pause">暂停</button
-            ><button id="restart">新班次</button>
-          </div>
-        </div>
-        <div id="msg" class="help"></div>
-      </div>
-    </section>
-  </main>
-  <script>
-    const cv = document.getElementById("c"),
-      g = cv.getContext("2d"),
-      R = {
-        A: { x: 480, y: 215, heading: 0 },
-        B: { x: 480, y: 330, heading: 180 },
-      };
-    let q,
-      last = 0,
-      selected = null;
-    const $ = (x) => document.getElementById(x);
-    function fresh() {
-      return {
-        planes: [],
-        score: 0,
-        lives: 3,
-        level: 1,
-        spawn: 0,
-        clock: 0,
-        paused: false,
-        over: false,
-      };
-    }
-    function plane() {
-      let side = Math.floor(Math.random() * 4),
-        x = side === 1 ? 940 : side === 3 ? 20 : Math.random() * 900 + 30,
-        y = side === 0 ? 20 : side === 2 ? 520 : Math.random() * 480 + 30,
-        h = side === 0 ? 90 : side === 1 ? 180 : side === 2 ? 270 : 0;
-      return {
-        id: Math.random().toString(36).slice(2, 5).toUpperCase(),
-        x,
-        y,
-        h,
-        alt: 3,
-        runway: null,
-        cleared: false,
-        speed: 38 + q.level * 2,
-      };
-    }
-    function angleDiff(a, b) {
-      return ((a - b + 540) % 360) - 180;
-    }
-    function update(dt) {
-      if (q.paused || q.over) return;
-      q.clock += dt;
-      q.spawn -= dt;
-      if (q.spawn <= 0 && q.planes.length < 4 + q.level) {
-        q.planes.push(plane());
-        q.spawn = Math.max(2.8, 7 - q.level * 0.55);
-      }
-      for (const p of q.planes) {
-        let a = (p.h * Math.PI) / 180;
-        p.x += Math.cos(a) * p.speed * dt;
-        p.y += Math.sin(a) * p.speed * dt;
-        if (p.cleared && p.runway) {
-          let r = R[p.runway],
-            d = Math.hypot(p.x - r.x, p.y - r.y),
-            need = p.runway === "A" ? 0 : 180;
-          if (d < 58 && Math.abs(angleDiff(p.h, need)) < 24 && p.alt === 1) {
-            q.score++;
-            q.planes = q.planes.filter((x) => x !== p);
-            if (selected === p) selected = null;
-            note(`${p.id} 安全降落 ${p.runway} 跑道。`);
-            if (q.score % 5 === 0) q.level++;
-          }
-        }
-        if (p.x < -30 || p.x > 990 || p.y < -30 || p.y > 570) {
-          q.planes = q.planes.filter((x) => x !== p);
-          q.lives--;
-          note(`${p.id} 离开管制空域，安全度下降。`);
-        }
-      }
-      for (let i = 0; i < q.planes.length; i++)
-        for (let j = i + 1; j < q.planes.length; j++) {
-          let a = q.planes[i],
-            b = q.planes[j];
-          if (
-            Math.hypot(a.x - b.x, a.y - b.y) < 25 &&
-            Math.abs(a.alt - b.alt) < 1
-          ) {
-            q.planes = q.planes.filter((x) => x !== a && x !== b);
-            q.lives--;
-            note("航班间隔失守，发生危险接近！");
-          }
-        }
-      if (q.lives <= 0) {
-        q.over = true;
-        note("空域关闭，请重新开始。");
-      }
-      drawUI();
-    }
-    function render() {
-      g.clearRect(0, 0, 960, 540);
-      g.strokeStyle = "#23485e";
-      g.lineWidth = 1;
-      for (let x = 60; x < 960; x += 80) {
-        g.beginPath();
-        g.moveTo(x, 0);
-        g.lineTo(x, 540);
-        g.stroke();
-      }
-      for (let y = 60; y < 540; y += 80) {
-        g.beginPath();
-        g.moveTo(0, y);
-        g.lineTo(960, y);
-        g.stroke();
-      }
-      for (const [k, r] of Object.entries(R)) {
-        g.save();
-        g.translate(r.x, r.y);
-        g.rotate((r.heading * Math.PI) / 180);
-        g.fillStyle = "#8b9295";
-        g.fillRect(-100, -13, 200, 26);
-        g.fillStyle = "white";
-        g.font = "18px sans-serif";
-        g.textAlign = "center";
-        g.fillText(k, 0, 7);
-        g.restore();
-      }
-      for (const p of q.planes) {
-        g.save();
-        g.translate(p.x, p.y);
-        g.rotate((p.h * Math.PI) / 180);
-        g.fillStyle =
-          p === selected ? "#ffe36b" : p.cleared ? "#70e0a0" : "#fff";
-        g.font = "27px sans-serif";
-        g.textAlign = "center";
-        g.fillText("✈", 0, 8);
-        g.restore();
-        g.fillStyle = "#d8eafa";
-        g.font = "12px sans-serif";
-        g.fillText(`${p.id} FL${p.alt} ${p.runway || "-"}`, p.x + 15, p.y - 13);
-      }
-      if (q.over) {
-        g.fillStyle = "#07121dcc";
-        g.fillRect(0, 0, 960, 540);
-        g.fillStyle = "white";
-        g.font = "bold 38px sans-serif";
-        g.textAlign = "center";
-        g.fillText("空域关闭", 480, 270);
-      }
-    }
-    function drawUI() {
-      score.textContent = q.score;
-      lives.textContent = q.lives;
-      level.textContent = q.level;
-      traffic.textContent = q.planes.length;
-      selectedInfo.textContent = selected
-        ? `${selected.id} · 航向 ${Math.round(selected.h)}° · 高度 FL${selected.alt} · ${selected.runway ? "跑道 " + selected.runway : "未分配"}`
-        : "请选择航班";
-    }
-    function note(s) {
-      msg.textContent = s;
-    }
-    function loop(t) {
-      let dt = Math.min(0.04, (t - last) / 1000 || 0);
-      last = t;
-      update(dt);
-      render();
-      requestAnimationFrame(loop);
-    }
-    cv.onclick = (e) => {
-      let r = cv.getBoundingClientRect(),
-        x = ((e.clientX - r.left) * 960) / r.width,
-        y = ((e.clientY - r.top) * 540) / r.height;
-      selected =
-        q.planes.sort(
-          (a, b) => Math.hypot(a.x - x, a.y - y) - Math.hypot(b.x - x, b.y - y),
-        )[0] || null;
-      drawUI();
-    };
-    document.querySelectorAll("[data-turn]").forEach(
-      (e) =>
-        (e.onclick = () => {
-          if (selected) selected.h = (selected.h + +e.dataset.turn + 360) % 360;
-        }),
-    );
-    document.querySelectorAll("[data-alt]").forEach(
-      (e) =>
-        (e.onclick = () => {
-          if (selected)
-            selected.alt = Math.max(
-              1,
-              Math.min(5, selected.alt + +e.dataset.alt),
-            );
-        }),
-    );
-    document.querySelectorAll("[data-rw]").forEach(
-      (e) =>
-        (e.onclick = () => {
-          if (selected) selected.runway = e.dataset.rw;
-        }),
-    );
-    land.onclick = () => {
-      if (!selected || !selected.runway) return note("先选择航班并分配跑道。");
-      selected.cleared = true;
-      note(`${selected.id} 已获得降落许可。`);
-    };
-    pause.onclick = () => {
-      q.paused = !q.paused;
-      pause.textContent = q.paused ? "继续" : "暂停";
-    };
-    restart.onclick = () => {
-      q = fresh();
-      selected = null;
-      drawUI();
-    };
-    q = fresh();
-    loop(0);
-  </script>
+      <div class="notice" id="notice">选择一个已解锁班次开始调度。</div>
+    </div>
+    <aside class="panel side">
+      <section class="block"><h3>三港轮值</h3><div class="shifts" id="shiftList"></div></section>
+      <section class="block"><h2 id="shiftTitle">海湾空港 · 晨潮</h2><div class="brief" id="brief"></div><div class="goals" id="goals"></div><div class="row" style="margin-top:8px"><button class="btn gold" id="startBtn">开始班次</button><button class="btn red" id="endBtn">结算班次</button></div></section>
+      <section class="block"><h3>雷达指令</h3><div class="selected" id="selectedInfo"><b>未选择航班</b><small>点击雷达上的航班标记。</small></div><div class="controls"><button class="control" data-turn="-15">左转 15°</button><button class="control" data-turn="15">右转 15°</button><button class="control" data-alt="1">爬升</button><button class="control" data-alt="-1">下降</button><button class="control" data-rw="A">分配 A</button><button class="control" data-rw="B">分配 B</button><button class="control land wide" id="clearBtn">许可进近</button><button class="control warn wide" id="vectorBtn">一次引导：自动对准跑道</button></div></section>
+      <section class="block"><h3>执照生涯</h3><div class="career"><div><b id="totalStars">0</b><small>总星章</small></div><div><b id="clears">0</b><small>完成班次</small></div><div><b id="perfects">0</b><small>无事件班次</small></div></div><p class="tip">每班至少完成目标落地获得一星；无事件、全部优先航班安全落地各增加一星。</p></section>
+    </aside>
+  </section>
+</main>
+<div class="archive hidden" id="archiveModal"><div class="dialog"><h2>跨设备塔台执照</h2><p class="tip">档案包含九班星级、最佳事件数、解锁进度和累计执勤纪录。</p><textarea id="archiveText" spellcheck="false"></textarea><div class="row" style="justify-content:flex-end;margin-top:8px"><button class="btn" id="closeArchiveBtn">关闭</button><button class="btn" id="importBtn">导入</button><button class="btn gold" id="exportBtn">生成并复制</button></div><div class="feedback" id="archiveFeedback"></div></div></div>
+<script>
+(() => {
+  const TYPES={jet:{name:"客机",mark:"J",speed:44,wake:2,color:"#f5f8ff"},cargo:{name:"货机",mark:"C",speed:36,wake:3,color:"#f1c76a"},med:{name:"医疗",mark:"M",speed:48,wake:1,color:"#72e3a8",priority:true},prop:{name:"支线",mark:"P",speed:31,wake:1,color:"#79d9ea"}};
+  const AIRPORTS=[
+    {id:"bay",name:"海湾空港",runways:{A:{x:430,y:250,h:0},B:{x:655,y:390,h:270}},zones:[],theme:["#071b28","#28556b"]},
+    {id:"valley",name:"山谷枢纽",runways:{A:{x:430,y:280,h:25},B:{x:650,y:365,h:155}},zones:[{x:220,y:320,r:72,label:"山脊",maxAlt:2},{x:780,y:235,r:64,label:"观测区",maxAlt:3}],theme:["#101b21","#506454"]},
+    {id:"polar",name:"极昼机场",runways:{A:{x:430,y:260,h:0},B:{x:570,y:405,h:180}},zones:[{x:745,y:355,r:58,label:"科考站",maxAlt:4}],theme:["#10212b","#6f8790"]}
+  ];
+  const patterns=[
+    [[0,"jet",3],[5,"prop",0],[10,"med",1],[16,"cargo",2],[23,"jet",3]],
+    [[0,"cargo",1],[4,"jet",3],[8,"prop",0],[13,"med",2],[18,"jet",1],[24,"cargo",3]],
+    [[0,"jet",0],[3,"jet",2],[7,"cargo",1],[11,"med",3],[16,"prop",0],[20,"jet",2],[26,"cargo",1]],
+    [[0,"prop",0],[5,"jet",3],[9,"cargo",1],[14,"med",2],[19,"prop",0]],
+    [[0,"cargo",3],[4,"prop",0],[8,"jet",2],[12,"med",1],[17,"jet",3],[23,"cargo",0]],
+    [[0,"jet",1],[3,"cargo",3],[7,"med",0],[10,"prop",2],[14,"jet",1],[19,"cargo",3],[25,"med",0]],
+    [[0,"prop",2],[5,"cargo",0],[10,"med",3],[15,"jet",1],[21,"prop",2]],
+    [[0,"jet",3],[4,"cargo",1],[8,"med",0],[13,"jet",2],[18,"cargo",3],[24,"prop",1]],
+    [[0,"cargo",0],[3,"jet",2],[6,"med",1],[10,"prop",3],[14,"jet",0],[18,"cargo",2],[22,"med",1],[27,"jet",3]]
+  ];
+  const shiftNames=["晨潮","侧风","雷雨交接","雾谷","窄域会车","山风急援","白夜","冰跑道","极光总调"];
+  const weather=["晴","侧风","雷雨","薄雾","阵风","山风","飘雪","冻雾","极光雪"];
+  const SHIFTS=patterns.map((flights,i)=>({id:i,airport:Math.floor(i/3),name:shiftNames[i],weather:weather[i],wind:[0,4,-5,1,5,-4,2,-2,4][i],target:[4,5,6,4,5,6,4,5,7][i],duration:[48,54,60,50,56,62,50,58,68][i],closed:i===2?"B":i===7?"A":null,flights:flights.map((f,n)=>({at:f[0],type:f[1],side:f[2],code:`${["BH","VG","PL"][Math.floor(i/3)]}${i+1}${n+1}`}))}));
+  const KEY="mini_atc_campaign_v2";const $=id=>document.getElementById(id);const els={canvas:$("radarCanvas"),shiftList:$("shiftList"),shiftTitle:$("shiftTitle"),brief:$("brief"),goals:$("goals"),selectedInfo:$("selectedInfo"),notice:$("notice"),start:$("startBtn"),end:$("endBtn"),pause:$("pauseBtn"),speed:$("speedBtn"),clear:$("clearBtn"),vector:$("vectorBtn"),landed:$("landedStat"),incident:$("incidentStat"),traffic:$("trafficStat"),clock:$("clockStat"),weather:$("weatherStat"),priority:$("priorityStat"),totalStars:$("totalStars"),clears:$("clears"),perfects:$("perfects"),archive:$("archiveModal"),archiveText:$("archiveText"),archiveFeedback:$("archiveFeedback")};const g=els.canvas.getContext("2d");
+  function defaults(){return {v:2,unlocked:0,stars:Array(9).fill(0),bestIncidents:Array(9).fill(null),clears:0,perfects:0};}
+  function load(){try{const v=JSON.parse(localStorage.getItem(KEY)||"null");if(v&&v.v===2)return {...defaults(),...v,stars:Array.from({length:9},(_,i)=>clamp(+v.stars?.[i]||0,0,3)),bestIncidents:Array.from({length:9},(_,i)=>Number.isInteger(v.bestIncidents?.[i])?Math.max(0,v.bestIncidents[i]):null)};}catch(_){}return defaults();}
+  let profile=load(),selectedShift=Math.min(profile.unlocked,8),state=makeState(),selected=null,last=0,speed=1;
+  function clamp(v,a,b){return Math.max(a,Math.min(b,v));}function totalStars(){return profile.stars.reduce((a,b)=>a+b,0);}function save(){localStorage.setItem(KEY,JSON.stringify(profile));}
+  function makeState(){return {mode:"brief",clock:0,next:0,planes:[],landed:0,incidents:0,priorityLanded:0,priorityTotal:SHIFTS[selectedShift].flights.filter(f=>TYPES[f.type].priority).length,vectorUsed:false,near:new Set(),zoneHits:new Set()};}
+  function current(){return SHIFTS[selectedShift];}function airport(){return AIRPORTS[current().airport];}
+  function entry(side){return [{x:25,y:115,h:5},{x:925,y:145,h:180},{x:890,y:610,h:225},{x:35,y:575,h:320}][side];}
+  function spawnPlane(spec){const e=entry(spec.side);const t=TYPES[spec.type];const p={...e,id:spec.code,type:spec.type,alt:spec.type==="cargo"?4:3,runway:null,cleared:false,speed:t.speed,active:true};state.planes.push(p);return p;}
+  function start(){state=makeState();selected=null;state.mode="playing";els.notice.textContent="班次开始：选择航班，建立高度间隔并分配开放跑道。";renderAll();}
+  function issue(text){state.incidents++;els.notice.textContent=text;}
+  function angleDiff(a,b){return ((a-b+540)%360)-180;}function dist(a,b){return Math.hypot(a.x-b.x,a.y-b.y);}
+  function step(rawDt){if(state.mode!=="playing")return;const dt=rawDt*speed;const s=current(),ap=airport();state.clock+=dt;while(state.next<s.flights.length&&s.flights[state.next].at<=state.clock)spawnPlane(s.flights[state.next++]);
+    for(const p of [...state.planes]){p.h=(p.h+s.wind*dt*.12+360)%360;const a=p.h*Math.PI/180;p.x+=Math.cos(a)*p.speed*dt;p.y+=Math.sin(a)*p.speed*dt;
+      for(const z of ap.zones){const key=p.id+z.label;if(Math.hypot(p.x-z.x,p.y-z.y)<z.r&&p.alt<=z.maxAlt&&!state.zoneHits.has(key)){state.zoneHits.add(key);issue(`${p.id} 低高度进入${z.label}限制空域。`);}}
+      if(p.cleared&&p.runway){const r=ap.runways[p.runway];if(dist(p,r)<54&&Math.abs(angleDiff(p.h,r.h))<22&&p.alt===1){state.landed++;if(TYPES[p.type].priority)state.priorityLanded++;state.planes=state.planes.filter(x=>x!==p);if(selected===p)selected=null;els.notice.textContent=`${p.id} 在 ${p.runway} 跑道安全落地。`;continue;}}
+      if(p.x<-45||p.x>1005||p.y<-45||p.y>695){state.planes=state.planes.filter(x=>x!==p);if(selected===p)selected=null;issue(`${p.id} 未完成移交便离开空域。`);}}
+    for(let i=0;i<state.planes.length;i++)for(let j=i+1;j<state.planes.length;j++){const a=state.planes[i],b=state.planes[j],key=[a.id,b.id].sort().join(":");const need=30+(TYPES[a.type].wake+TYPES[b.type].wake)*4;if(dist(a,b)<need&&Math.abs(a.alt-b.alt)<1&&!state.near.has(key)){state.near.add(key);issue(`${a.id} 与 ${b.id} 间隔不足。`);}if(dist(a,b)>need*1.8)state.near.delete(key);}
+    if(state.next===s.flights.length&&!state.planes.length&&state.clock>=s.flights.at(-1).at+4)finishShift();renderAll();}
+  function grade(){if(state.landed<current().target)return 0;return 1+(state.incidents===0?1:0)+(state.priorityLanded===state.priorityTotal?1:0);}
+  function finishShift(force=false){if(state.mode!=="playing")return grade();if(!force&&state.next<current().flights.length)return 0;state.mode="result";const stars=grade();if(stars){profile.stars[selectedShift]=Math.max(profile.stars[selectedShift],stars);profile.bestIncidents[selectedShift]=profile.bestIncidents[selectedShift]===null?state.incidents:Math.min(profile.bestIncidents[selectedShift],state.incidents);profile.unlocked=Math.max(profile.unlocked,Math.min(8,selectedShift+1));profile.clears++;if(state.incidents===0)profile.perfects++;save();els.notice.textContent=`班次完成：${"★".repeat(stars)}${"☆".repeat(3-stars)}，安全落地 ${state.landed} 架。`;}else els.notice.textContent=`班次未达标：需要至少 ${current().target} 架安全落地。`;renderAll();return stars;}
+  function selectShift(i){if(i>profile.unlocked||state.mode==="playing")return;selectedShift=i;state=makeState();selected=null;renderAll();}
+  function renderSide(){const s=current(),ap=airport();els.shiftList.innerHTML=SHIFTS.map((x,i)=>`<button class="shift ${i===selectedShift?"active":""}" data-shift="${i}" ${i>profile.unlocked||state.mode==="playing"?"disabled":""}><b>${i+1}. ${x.name}</b><small>${AIRPORTS[x.airport].name}</small><span class="stars">${"★".repeat(profile.stars[i])}${"☆".repeat(3-profile.stars[i])}</span></button>`).join("");els.shiftList.querySelectorAll("[data-shift]").forEach(b=>b.onclick=()=>selectShift(+b.dataset.shift));els.shiftTitle.textContent=`${ap.name} · ${s.name}`;els.brief.innerHTML=`<div><span>天气</span><b>${s.weather}${s.wind?` · 漂移 ${s.wind>0?"+":""}${s.wind}`:""}</b></div><div><span>航班计划</span><b>${s.flights.length} 架 / ${s.duration} 秒</b></div><div><span>跑道</span><b>${s.closed?`${s.closed} 临时关闭`:"A / B 均开放"}</b></div><div><span>限制区</span><b>${ap.zones.length?ap.zones.map(z=>z.label).join("、"):"无"}</b></div>`;els.goals.innerHTML=`<div class="goal ${state.landed>=s.target?"pass":""}">目标落地：${state.landed}/${s.target}</div><div class="goal ${state.incidents===0?"pass":""}">无间隔、限制区或移交事件：${state.incidents}</div><div class="goal ${state.priorityLanded===state.priorityTotal?"pass":""}">优先航班全部落地：${state.priorityLanded}/${state.priorityTotal}</div>`;els.start.disabled=state.mode==="playing";els.end.disabled=state.mode!=="playing";els.end.textContent=state.mode==="result"?"已结算":"提前结算";els.selectedInfo.innerHTML=selected?`<b>${selected.id} · ${TYPES[selected.type].name}</b><small>航向 ${Math.round(selected.h)}° · FL${selected.alt} · ${selected.runway?`跑道 ${selected.runway}`:"未分配跑道"}${selected.cleared?" · 已许可进近":""}</small>`:`<b>未选择航班</b><small>点击雷达上的航班标记。</small>`;els.vector.disabled=!selected||state.vectorUsed;els.clear.disabled=!selected;els.totalStars.textContent=totalStars();els.clears.textContent=profile.clears;els.perfects.textContent=profile.perfects;}
+  function renderHud(){const s=current();els.landed.textContent=state.landed;els.incident.textContent=state.incidents;els.traffic.textContent=state.planes.length;els.clock.textContent=`${String(Math.floor(state.clock/60)).padStart(2,"0")}:${String(Math.floor(state.clock%60)).padStart(2,"0")}`;els.weather.textContent=s.weather;els.priority.textContent=`${state.priorityLanded}/${state.priorityTotal}`;els.pause.textContent=state.mode==="paused"?"继续":"暂停";els.speed.textContent=`速度 ×${speed}`;}
+  function draw(){const ap=airport(),s=current();const bg=g.createLinearGradient(0,0,960,650);bg.addColorStop(0,ap.theme[0]);bg.addColorStop(1,ap.theme[1]);g.fillStyle=bg;g.fillRect(0,0,960,650);g.strokeStyle="#ffffff16";g.lineWidth=1;for(let x=40;x<960;x+=60){g.beginPath();g.moveTo(x,0);g.lineTo(x,650);g.stroke()}for(let y=40;y<650;y+=60){g.beginPath();g.moveTo(0,y);g.lineTo(960,y);g.stroke()}g.strokeStyle="#92c8d344";for(const r of [90,180,270]){g.beginPath();g.arc(480,325,r,0,Math.PI*2);g.stroke()}
+    for(const z of ap.zones){g.fillStyle="#d9665b25";g.strokeStyle="#e88a7b";g.beginPath();g.arc(z.x,z.y,z.r,0,Math.PI*2);g.fill();g.stroke();g.fillStyle="#ffd3cc";g.font="12px sans-serif";g.textAlign="center";g.fillText(`${z.label} FL${z.maxAlt}↓禁入`,z.x,z.y+4)}
+    for(const [id,r] of Object.entries(ap.runways)){g.save();g.translate(r.x,r.y);g.rotate(r.h*Math.PI/180);g.fillStyle=s.closed===id?"#65424a":"#839198";g.fillRect(-92,-12,184,24);g.fillStyle="white";for(let x=-70;x<=70;x+=28)g.fillRect(x,-1,14,2);g.font="bold 14px sans-serif";g.textAlign="center";g.fillText(s.closed===id?`${id} ×`:id,0,5);g.restore()}
+    for(const p of state.planes){const t=TYPES[p.type];g.save();g.translate(p.x,p.y);g.rotate(p.h*Math.PI/180);g.fillStyle=p===selected?"#ffe46d":p.cleared?"#75e4a8":t.color;g.beginPath();g.moveTo(17,0);g.lineTo(-12,-9);g.lineTo(-5,0);g.lineTo(-12,9);g.closePath();g.fill();g.restore();g.fillStyle="#eef8ff";g.font="11px sans-serif";g.textAlign="left";g.fillText(`${p.id} ${t.mark} FL${p.alt}${p.runway||"-"}`,p.x+13,p.y-12)}
+    if(state.mode!=="playing"&&state.mode!=="paused"){g.fillStyle="#031018bb";g.fillRect(0,0,960,650);g.fillStyle="white";g.textAlign="center";g.font="bold 34px sans-serif";g.fillText(state.mode==="result"?"班次已结算":`${ap.name} · ${s.name}`,480,305);g.font="15px sans-serif";g.fillStyle="#c7dce4";g.fillText(state.mode==="result"?els.notice.textContent:"查看右侧简报后开始班次",480,340)}}
+  function renderAll(){renderSide();renderHud();draw();}
+  els.canvas.addEventListener("pointerdown",e=>{if(state.mode!=="playing")return;const r=els.canvas.getBoundingClientRect(),x=(e.clientX-r.left)*960/r.width,y=(e.clientY-r.top)*650/r.height;selected=state.planes.slice().sort((a,b)=>Math.hypot(a.x-x,a.y-y)-Math.hypot(b.x-x,b.y-y))[0]||null;if(selected&&Math.hypot(selected.x-x,selected.y-y)>75)selected=null;renderSide();draw();});
+  document.querySelectorAll("[data-turn]").forEach(b=>b.onclick=()=>{if(selected){selected.h=(selected.h+ +b.dataset.turn+360)%360;renderAll();}});document.querySelectorAll("[data-alt]").forEach(b=>b.onclick=()=>{if(selected){selected.alt=clamp(selected.alt+ +b.dataset.alt,1,5);renderAll();}});document.querySelectorAll("[data-rw]").forEach(b=>b.onclick=()=>{if(!selected)return;const id=b.dataset.rw;if(current().closed===id){els.notice.textContent=`${id} 跑道当前关闭。`;return;}selected.runway=id;renderAll();});
+  els.clear.onclick=()=>{if(!selected||!selected.runway){els.notice.textContent="先选择航班并分配开放跑道。";return;}selected.cleared=true;els.notice.textContent=`${selected.id} 已获准进近 ${selected.runway} 跑道。`;renderAll();};els.vector.onclick=()=>{if(!selected||state.vectorUsed)return;const r=airport().runways[selected.runway||Object.keys(airport().runways).find(id=>id!==current().closed)];selected.runway=Object.entries(airport().runways).find(([,x])=>x===r)[0];selected.h=r.h;selected.alt=1;selected.cleared=true;state.vectorUsed=true;els.notice.textContent=`引导已将 ${selected.id} 对准 ${selected.runway} 跑道。`;renderAll();};els.start.onclick=start;els.end.onclick=()=>finishShift(true);els.pause.onclick=()=>{if(state.mode==="playing")state.mode="paused";else if(state.mode==="paused")state.mode="playing";renderAll();};els.speed.onclick=()=>{speed=speed===1?2:speed===2?4:1;renderHud();};
+  function checksum(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return (h>>>0).toString(36);}
+  function encode(){const p=btoa(unescape(encodeURIComponent(JSON.stringify({v:2,u:profile.unlocked,s:profile.stars,b:profile.bestIncidents,c:profile.clears,p:profile.perfects}))));return `ATC2.${p}.${checksum(p)}`;}
+  function decode(code){const p=code.trim().split(".");if(p.length!==3||p[0]!=="ATC2"||checksum(p[1])!==p[2])throw Error("塔台档案校验失败");const v=JSON.parse(decodeURIComponent(escape(atob(p[1]))));if(v.v!==2||!Array.isArray(v.s))throw Error("档案版本不兼容");return {v:2,unlocked:clamp(+v.u||0,0,8),stars:Array.from({length:9},(_,i)=>clamp(+v.s[i]||0,0,3)),bestIncidents:Array.from({length:9},(_,i)=>Number.isInteger(v.b?.[i])?Math.max(0,v.b[i]):null),clears:Math.max(0,+v.c||0),perfects:Math.max(0,+v.p||0)};}
+  $("archiveBtn").onclick=()=>{els.archive.classList.remove("hidden");els.archiveText.value=encode();els.archiveFeedback.textContent="";};$("closeArchiveBtn").onclick=()=>els.archive.classList.add("hidden");$("exportBtn").onclick=async()=>{els.archiveText.value=encode();els.archiveText.select();try{await navigator.clipboard.writeText(els.archiveText.value);els.archiveFeedback.textContent="塔台档案已复制。";}catch(_){els.archiveFeedback.textContent="档案已生成，请手动复制。";}};$("importBtn").onclick=()=>{try{profile=decode(els.archiveText.value);save();selectedShift=Math.min(profile.unlocked,8);state=makeState();selected=null;renderAll();els.archiveFeedback.textContent="导入成功。";}catch(e){els.archiveFeedback.textContent=e.message;}};
+  function validateContent(){const errors=[];if(AIRPORTS.length!==3)errors.push("airport count");if(SHIFTS.length!==9)errors.push("shift count");if(SHIFTS.some(s=>s.flights.length<5||s.target<4))errors.push("thin shift");if(SHIFTS.some(s=>s.closed&&!AIRPORTS[s.airport].runways[s.closed]))errors.push("closed runway");return {valid:!errors.length,errors,airports:AIRPORTS.length,shifts:SHIFTS.length,flights:SHIFTS.reduce((n,s)=>n+s.flights.length,0),types:Object.keys(TYPES).length};}
+  window.__airTraffic={AIRPORTS,SHIFTS,TYPES,profile:()=>profile,state:()=>state,spawnPlane,step,finishShift,encode,decode,validateContent,renderAll,selectShift};
+  function loop(t){const dt=Math.min(.05,(t-last)/1000||0);last=t;step(dt);if(state.mode!=="playing")draw();requestAnimationFrame(loop)}renderAll();requestAnimationFrame(loop);
+})();
+</script>
+</body>
 </html>

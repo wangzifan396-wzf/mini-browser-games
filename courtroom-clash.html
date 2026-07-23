@@ -1,310 +1,86 @@
 <!doctype html>
 <html lang="zh-CN">
-  <meta charset="utf-8" /><meta
-    name="viewport"
-    content="width=device-width,initial-scale=1"
-  /><title>逆转法庭</title
-  ><style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      background: #171a27;
-      color: #f6f1e5;
-      font-family: system-ui, "Microsoft YaHei";
-    }
-    .app {
-      min-height: 100vh;
-      padding: 14px;
-      display: grid;
-      place-items: center;
-    }
-    .shell {
-      width: min(980px, 100%);
-      background: #252b40;
-      border: 1px solid #636c8d;
-      border-radius: 20px;
-      padding: 16px;
-    }
-    .top,
-    .row {
-      display: flex;
-      justify-content: space-between;
-      gap: 9px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .court {
-      min-height: 440px;
-      margin: 12px 0;
-      border-radius: 14px;
-      background: linear-gradient(#4b3a2c 0 58%, #7a5533 58%);
-      padding: 20px;
-      text-align: center;
-    }
-    .witness {
-      font-size: 80px;
-    }
-    .statement {
-      min-height: 105px;
-      background: #171b2ccc;
-      border: 1px solid #727b99;
-      border-radius: 12px;
-      padding: 18px;
-      font-size: 19px;
-      display: grid;
-      place-items: center;
-    }
-    .evidence {
-      display: flex;
-      gap: 7px;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin: 12px;
-    }
-    .ev.sel {
-      outline: 3px solid #ffe16d;
-    }
-    .penalty {
-      display: flex;
-      gap: 5px;
-    }
-    .penalty i {
-      width: 35px;
-      height: 9px;
-      background: #61dc8c;
-      border-radius: 8px;
-    }
-    .penalty i.off {
-      background: #3b3f4c;
-    }
-    .log {
-      height: 75px;
-      overflow: auto;
-      color: #c2c8da;
-      font-size: 13px;
-    }
-    button {
-      padding: 9px 12px;
-      border: 1px solid #737c9c;
-      border-radius: 9px;
-      background: #394466;
-      color: white;
-      font-weight: bold;
-    }
-    .object {
-      background: #a3484d;
-      font-size: 18px;
-    }
-    .press {
-      background: #9b762f;
-    }
-    .help {
-      font-size: 13px;
-      color: #c3c9db;
-    }
-    @media (max-width: 650px) {
-      .court {
-        padding: 10px;
-      }
-      .statement {
-        font-size: 16px;
-      }
-      .app {
-        place-items: start center;
-      }
-    }
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>逆转法庭：六案终审</title>
+  <style>
+    :root{--bg:#171823;--panel:#27293a;--panel2:#1a1c2b;--line:#686b82;--ink:#f7f2e8;--muted:#bfc0cf;--gold:#f0c96a;--red:#d85d62;--green:#68cf8f;--blue:#657bb0}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 10% 0,#523a38 0,transparent 30%),radial-gradient(circle at 90% 5%,#343b61 0,transparent 28%),linear-gradient(145deg,#13131b,#1d1d2b 65%,#271d24);color:var(--ink);font-family:system-ui,"Microsoft YaHei",sans-serif}.app{width:min(1420px,calc(100% - 22px));margin:11px auto}.top,.panel{border:1px solid var(--line);border-radius:14px;background:rgba(39,41,58,.97);box-shadow:0 18px 48px rgba(0,0,0,.34)}.top{display:flex;justify-content:space-between;align-items:center;gap:15px;padding:15px 18px}.eyebrow{margin:0 0 4px;color:var(--gold);font-size:12px;font-weight:950;letter-spacing:.14em}.top h1{margin:0;font-size:clamp(26px,4vw,42px);line-height:1}.sub{margin:7px 0 0;color:var(--muted);font-size:13px}.actions,.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}button,select,textarea{font:inherit}.btn{min-height:42px;padding:0 13px;border:1px solid #777b97;border-radius:8px;background:#414866;color:white;font-weight:900;cursor:pointer}.btn.gold{border-color:#a08142;background:#7d622e}.btn.red{border-color:#a64c52;background:#803a40}.btn:disabled{opacity:.4;cursor:not-allowed}.layout{display:grid;grid-template-columns:minmax(0,1fr) 375px;gap:12px;margin-top:12px;align-items:start}.court{min-height:720px;padding:16px;background:linear-gradient(180deg,rgba(36,39,58,.98) 0 61%,rgba(81,55,38,.98) 61%);overflow:hidden}.case-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.case-head h2{margin:0 0 5px}.case-head p{margin:0;color:var(--muted);font-size:12px}.credibility{display:flex;gap:5px}.credibility i{width:31px;height:9px;border-radius:9px;background:var(--green)}.credibility i.off{background:#4b4b59}.phase-track{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:12px 0}.phase{padding:7px;border:1px solid #77788c;border-radius:7px;background:#242638;color:#aeb0c0;text-align:center;font-size:11px}.phase.now{outline:3px solid var(--gold);color:white}.phase.done{border-color:#4c956b;background:#213d31;color:#daf3e4}.witness{text-align:center}.avatar{font-size:58px;line-height:1}.witness h3{margin:5px 0}.statement{min-height:116px;padding:17px;border:1px solid #74768c;border-radius:11px;background:#151725dd;display:grid;place-items:center;text-align:center;font-size:18px;line-height:1.55}.statement-index{margin:8px 0;color:var(--muted);font-size:12px;text-align:center}.evidence{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin:12px 0}.ev{min-height:92px;padding:6px;border:1px solid #72758b;border-radius:8px;background:#292c41;color:white;cursor:pointer}.ev.sel{outline:3px solid var(--gold);background:#3f3c45}.ev.locked{filter:grayscale(1);opacity:.43}.ev b,.ev small,.ev span{display:block}.ev b{font-size:12px}.ev small{font-size:19px;margin:3px}.ev span{font-size:9px;color:var(--muted);line-height:1.3}.exam-actions{justify-content:center}.object{min-height:48px;background:#963f45;border-color:#c46367;font-size:17px}.press{background:#846326;border-color:#aa8439}.feedback{min-height:46px;margin-top:9px;padding:8px;border:1px solid #686b82;border-radius:8px;background:#1d1f31;color:#d1d1dc;font-size:12px;line-height:1.45}.closing{display:grid;gap:12px;max-width:650px;margin:54px auto 0;padding:20px;border:1px solid #8b7e6d;border-radius:12px;background:#f3eadc;color:#2c2930}.closing.hidden,.exam.hidden{display:none}.closing h2{margin:0}.closing p{margin:0;color:#625a5d}.closing label{display:grid;gap:5px;font-size:12px;font-weight:850}.closing select{min-height:43px;padding:0 8px;border:1px solid #8c8177;border-radius:8px;background:white;color:#29272c}.side{padding:12px;display:grid;gap:10px;max-height:calc(100vh - 105px);overflow:auto}.block{padding:11px;border:1px solid #626579;border-radius:10px;background:var(--panel2)}.block h2,.block h3{margin:0 0 8px}.block h2{font-size:20px}.block h3{font-size:14px;color:var(--gold)}.cases{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.case-btn{min-height:58px;padding:5px;border:1px solid #696c83;border-radius:8px;background:#303349;color:white;cursor:pointer}.case-btn.active{outline:3px solid var(--gold)}.case-btn:disabled{opacity:.36}.case-btn b,.case-btn small{display:block}.case-btn small{font-size:9px;color:var(--muted);margin-top:3px}.stars{color:var(--gold);font-size:10px}.goals{display:grid;gap:5px}.goal{padding:7px;border:1px solid #64677a;border-radius:7px;color:var(--muted);font-size:11px}.goal.pass{border-color:#4d9168;background:#20382d;color:#dcf3e4}.log{height:145px;overflow:auto;color:#bec0ce;font-size:11px;line-height:1.55}.career{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.career div{padding:7px;border:1px solid #616478;border-radius:8px;background:#282b40;text-align:center}.career b{display:block;font-size:19px}.career small{font-size:9px;color:var(--muted)}.tip{color:var(--muted);font-size:12px;line-height:1.5}.archive{position:fixed;inset:0;z-index:9;display:grid;place-items:center;padding:18px;background:rgba(10,9,14,.87)}.archive.hidden{display:none}.dialog{width:min(620px,100%);padding:18px;border:1px solid #777a91;border-radius:14px;background:#292b3f}.dialog h2{margin:0 0 8px}.dialog textarea{width:100%;min-height:125px;padding:10px;border:1px solid #74778d;border-radius:8px;background:#171927;color:white;resize:vertical}.archive-feedback{min-height:20px;margin-top:7px;color:var(--gold);font-size:12px;font-weight:850}
+    @media(max-width:900px){.layout{grid-template-columns:1fr}.side{max-height:none}.court{min-height:650px}.top{align-items:flex-start}}
+    @media(max-width:560px){.app{width:min(100% - 12px,1420px);margin:6px auto}.top{display:grid;padding:12px}.top h1{font-size:26px}.court{padding:9px;min-height:650px}.statement{font-size:15px;min-height:102px;padding:11px}.evidence{grid-template-columns:repeat(2,1fr)}.ev:last-child{grid-column:1/-1}.phase{padding:5px;font-size:9px}.side{padding:8px}.closing{margin-top:25px;padding:14px}}
   </style>
-  <main class="app">
-    <section class="shell">
-      <div class="top">
-        <div>
-          <h1 style="margin: 0">逆转法庭</h1>
-          <div id="trialTitle" class="help"></div>
-        </div>
-        <div>
-          审理 <b id="trialNo"></b>/4　可信度
-          <span class="penalty" id="penalty"></span>　评分 <b id="score"></b>
-        </div>
+</head>
+<body>
+<main class="app">
+  <header class="top"><div><p class="eyebrow">CROSS-EXAMINATION CAMPAIGN</p><h1>逆转法庭：六案终审</h1><p class="sub">六案十八段证词 · 逐句追问 · 隐藏证物 · 连续异议 · 结案论证</p></div><div class="actions"><button class="btn red" id="restartBtn">重开本案</button><button class="btn gold" id="archiveBtn">律师档案</button></div></header>
+  <section class="layout">
+    <section class="panel court">
+      <div class="case-head"><div><h2 id="caseTitle"></h2><p id="caseSubtitle"></p></div><div><small>法庭可信度</small><div class="credibility" id="credibility"></div></div></div>
+      <div class="phase-track" id="phaseTrack"></div>
+      <div class="exam" id="examView">
+        <div class="witness"><div class="avatar" id="avatar"></div><h3 id="witnessName"></h3></div>
+        <div class="statement" id="statement"></div><div class="statement-index"><button class="btn" id="prevBtn">←</button>　证词 <b id="lineNo"></b>　<button class="btn" id="nextBtn">→</button></div>
+        <div class="evidence" id="evidenceList"></div>
+        <div class="row exam-actions"><button class="btn press" id="pressBtn">追问当前证词</button><button class="btn object" id="objectBtn">异议！提交证物</button></div>
+        <div class="feedback" id="feedback">先阅读证词；追问能得到细节，有些证物只会在追问后公开。</div>
       </div>
-      <div class="court">
-        <div class="witness" id="witness"></div>
-        <h3 id="witnessName"></h3>
-        <div class="statement" id="statement"></div>
-        <div class="row" style="justify-content: center">
-          <button id="prev">← 上一句</button
-          ><span>证词 <b id="lineNo"></b></span
-          ><button id="next">下一句 →</button>
-        </div>
-        <div class="evidence" id="evidence"></div>
-        <div class="row" style="justify-content: center">
-          <button class="press" id="press">追问证词</button
-          ><button class="object" id="object">异议！提交证物</button>
-        </div>
-        <div id="feedback"></div>
-      </div>
-      <div class="log" id="log"></div>
-      <button id="restart">重新开庭</button>
+      <div class="closing hidden" id="closingView"><h2>结案论证</h2><p>三段证词已被击破。现在把证物链还原成唯一结论。</p><label>责任人<select id="culpritSelect"></select></label><label>实施方式<select id="methodSelect"></select></label><button class="btn red" id="closeCaseBtn">提交最终论证</button><div class="feedback" id="closingFeedback"></div></div>
     </section>
-  </main>
-  <script>
-    const TRIALS = [
-      {
-        t: "消失的甜点",
-        w: ["厨师阿麦", "👨‍🍳"],
-        lines: [
-          "我在晚上九点锁好厨房。",
-          "之后绝对没有人进入厨房。",
-          "蛋糕应该是从窗户被偷走的。",
-        ],
-        ev: [
-          ["门禁记录", "💳"],
-          ["雨水照片", "🌧️"],
-          ["蛋糕刀", "🔪"],
-        ],
-        correct: [1, 0],
-        explain: "门禁记录显示九点十分厨师再次刷卡，他说“无人进入”是谎言。",
-      },
-      {
-        t: "停电的珠宝店",
-        w: ["保安罗伊", "🧔"],
-        lines: [
-          "停电时店里一片漆黑。",
-          "我凭手电看到窃贼逃向北门。",
-          "我的手电电池是刚换的。",
-        ],
-        ev: [
-          ["空电池", "🔋"],
-          ["北门雪迹", "👣"],
-          ["珠宝盒", "💍"],
-        ],
-        correct: [1, 0],
-        explain: "手电里装的是耗尽的电池，保安不可能看清逃跑方向。",
-      },
-      {
-        t: "凌晨的快车",
-        w: ["乘务员莉娜", "👩‍✈️"],
-        lines: [
-          "列车凌晨一点准时经过青石站。",
-          "我一直在餐车清点库存。",
-          "那只箱子在到站前就不见了。",
-        ],
-        ev: [
-          ["延误通知", "📱"],
-          ["餐车清单", "📋"],
-          ["断裂封条", "🧷"],
-        ],
-        correct: [0, 0],
-        explain: "延误通知证明列车一点二十分才到站，第一句时间证词不成立。",
-      },
-      {
-        t: "终审：镜面剧院",
-        w: ["魔术师零", "🎩"],
-        lines: [
-          "演出时我从未离开舞台。",
-          "镜柜只有观众正面能够打开。",
-          "失窃钻石不可能藏在道具里。",
-          "后台录像一定是真实的。",
-        ],
-        ev: [
-          ["镜柜机关图", "📐"],
-          ["循环录像报告", "📹"],
-          ["道具重量表", "⚖️"],
-        ],
-        correct: [3, 1],
-        explain: "录像报告证明后台画面循环播放，所谓不在场证明完全失效。",
-      },
-    ];
-    let q = { trial: 0, line: 0, selected: null, hp: 5, score: 0, logs: [] };
-    const $ = (x) => document.getElementById(x);
-    function cur() {
-      return TRIALS[q.trial];
-    }
-    function submit() {
-      if (q.selected === null) return note("先选择一件证物。");
-      let c = cur();
-      if (q.line === c.correct[0] && q.selected === c.correct[1]) {
-        q.score += 100;
-        q.logs.unshift(`异议成立：${c.explain}`);
-        if (q.trial === TRIALS.length - 1) {
-          draw();
-          setTimeout(() => alert(`四案无罪判决！法庭评分 ${q.score}`), 50);
-        } else {
-          q.trial++;
-          q.line = 0;
-          q.selected = null;
-          q.hp = Math.min(5, q.hp + 1);
-          draw();
-        }
-      } else {
-        q.hp--;
-        q.score = Math.max(0, q.score - 15);
-        q.logs.unshift("证物与这句证词没有直接矛盾。");
-        if (q.hp <= 0) {
-          q.logs.unshift("可信度耗尽，但可重新开庭继续挑战。");
-          object.disabled = true;
-        }
-        draw();
-      }
-    }
-    function note(s) {
-      feedback.textContent = s;
-    }
-    function draw() {
-      let c = cur();
-      trialNo.textContent = q.trial + 1;
-      trialTitle.textContent = c.t;
-      score.textContent = q.score;
-      witness.textContent = c.w[1];
-      witnessName.textContent = c.w[0];
-      statement.textContent = "“" + c.lines[q.line] + "”";
-      lineNo.textContent = `${q.line + 1}/${c.lines.length}`;
-      evidence.innerHTML = c.ev
-        .map(
-          (e, i) =>
-            `<button class="ev ${q.selected === i ? "sel" : ""}" data-i="${i}">${e[1]} ${e[0]}</button>`,
-        )
-        .join("");
-      evidence.querySelectorAll("[data-i]").forEach(
-        (e) =>
-          (e.onclick = () => {
-            q.selected = +e.dataset.i;
-            draw();
-          }),
-      );
-      penalty.innerHTML = Array.from(
-        { length: 5 },
-        (_, i) => `<i class="${i >= q.hp ? "off" : ""}"></i>`,
-      ).join("");
-      log.innerHTML = q.logs.map((x) => `<div>• ${x}</div>`).join("");
-      prev.disabled = q.line === 0;
-      next.disabled = q.line === c.lines.length - 1;
-      object.disabled = q.hp <= 0;
-    }
-    prev.onclick = () => {
-      q.line--;
-      q.selected = null;
-      draw();
-    };
-    next.onclick = () => {
-      q.line++;
-      q.selected = null;
-      draw();
-    };
-    press.onclick = () =>
-      note(
-        [
-          "时间和地点是否准确？",
-          "这句话能被物证支持吗？",
-          "证人为何如此肯定？",
-        ][q.line % 3],
-      );
-    object.onclick = submit;
-    restart.onclick = () => {
-      q = { trial: 0, line: 0, selected: null, hp: 5, score: 0, logs: [] };
-      draw();
-    };
-    draw();
-  </script>
+    <aside class="panel side">
+      <section class="block"><h3>案件卷宗</h3><div class="cases" id="caseList"></div></section>
+      <section class="block"><h2>本案评价</h2><div class="goals" id="goals"></div><p class="tip">结案获得一星；全程零错误、追问不超过四次分别增加一星。必要追问不会破坏三星。</p></section>
+      <section class="block"><h3>庭审记录</h3><div class="log" id="log"></div></section>
+      <section class="block"><h3>律师生涯</h3><div class="career"><div><b id="totalStars">0</b><small>总星章</small></div><div><b id="solvedCases">0</b><small>结案件数</small></div><div><b id="perfectCases">0</b><small>无误案件</small></div></div></section>
+    </aside>
+  </section>
+</main>
+<div class="archive hidden" id="archiveModal"><div class="dialog"><h2>跨设备律师档案</h2><p class="tip">档案包含六案星级、最佳错误数、解锁进度和结案纪录。</p><textarea id="archiveText" spellcheck="false"></textarea><div class="row" style="justify-content:flex-end;margin-top:8px"><button class="btn" id="closeArchiveBtn">关闭</button><button class="btn" id="importBtn">导入</button><button class="btn gold" id="exportBtn">生成并复制</button></div><div class="archive-feedback" id="archiveFeedback"></div></div></div>
+<script>
+(() => {
+  const CASES=[
+    {title:"零点钟声",subtitle:"古董钟在闭馆后消失，但馆内所有时钟都慢了七分钟。",evidence:[["access","门禁记录","▣","22:07 有二次刷卡"],["clock","校时报告","◷","主钟被人为拨慢七分钟",1],["mud","河泥鞋印","⌁","后门鞋印来自河岸"],["receipt","修复收据","￥","店主欠下高额修复款"],["fiber","蓝色纤维","≋","包装毡上的制服纤维"]],phases:[
+      {name:"闭馆口供",w:["修复师林岩","♟"],lines:[["我在二十二点整锁门后就离开了。","你用哪张卡锁门？"],["锁门以后，绝没有人再次进入展厅。","门禁系统是否会记录二次刷卡？"],["钟是在午夜前后被搬走的。","你凭什么判断具体时间？"],["后门一直由保安看守。","你亲眼见到保安了吗？"]],answer:[1,"access"],explain:"22:07 的二次刷卡直接否定了“无人再次进入”。"},
+      {name:"时间误差",w:["钟表工程师苏荻","♜"],lines:[["主钟每天都会自动校准。","我重新读取了隐藏的校时日志。","clock"],["所有监控时间都以主钟为准。","监控并没有独立授时。"],["画面显示货车二十二点整离开。","画面时间跟着主钟一起慢了七分钟。"],["七分钟误差不影响嫌疑判断。","七分钟足够完成一次刷卡和交接。"]],answer:[2,"clock"],explain:"校时报告证明画面时间整体偏移，货车实际在二十二点零七分离开。"},
+      {name:"利益归属",w:["馆主许舟","♛"],lines:[["失窃只会让我蒙受损失。","保险是否覆盖高额修复欠款？"],["我从未批准夜间运输。","谁持有承运合同？"],["修复费用已经全部付清。","账款结清日期是什么时候？"],["河岸仓库与我无关。","仓库租约登记在谁名下？"]],answer:[2,"receipt"],explain:"修复收据仍标记巨额欠款，失窃保险恰好能填补缺口。"}],close:{culprits:["修复师林岩","馆主许舟","保安周齐"],methods:["从窗户吊运","拨慢主钟后伪造离场时间","复制展柜藏品"],answer:[1,1]}},
+    {title:"雨幕仓库",subtitle:"暴雨夜的冷链仓失火，报警器却在起火前被静音。",evidence:[["alarm","报警日志","!","21:18 被管理员静音"],["boots","防滑靴印","⌁","44 码仓内工作靴"],["sensor","温控曲线","∿","冷库曾升温十二分钟",1],["policy","保险批单","￥","货损险当日生效"],["key","备用钥匙","⌑","封条来自财务室"]],phases:[
+      {name:"值守记录",w:["夜班主管邵文","♞"],lines:[["报警器是在起火后才失灵的。","静音需要管理员权限吗？"],["我整夜都在装卸区值守。","装卸区摄像头拍到你了吗？"],["没有任何人触碰控制台。","控制台会留下操作账号。"],["暴雨造成线路短路。","线路检测有烧蚀痕迹吗？"]],answer:[0,"alarm"],explain:"报警日志明确记录起火前十二分钟的人工静音。"},
+      {name:"冷链空窗",w:["设备员何露","♝"],lines:[["冷库温度整晚稳定。","我导出了传感器原始曲线。","sensor"],["货物没有被提前转移。","升温时段为何正好十二分钟？"],["传感器在火灾中损坏了。","云端副本仍然完整。"],["仓门开启不会影响温度。","大门开启会形成明显温升。"]],answer:[0,"sensor"],explain:"温控曲线证明起火前冷库曾开门，货物有转移窗口。"},
+      {name:"赔付动机",w:["财务顾言","♛"],lines:[["公司一直购买完整货损险。","旧保单为何上月到期？"],["新批单与火灾日期无关。","批单具体几点生效？"],["备用钥匙从未离开保险柜。","封条编号能对应财务室。"],["理赔款无法覆盖库存亏空。","本次申报金额是多少？"]],answer:[1,"policy"],explain:"保险批单在火灾当天临时生效，时间与转移货物高度吻合。"}],close:{culprits:["夜班主管邵文","设备员何露","财务顾言"],methods:["雷击引燃","提前转货并静音报警后纵火","伪造温控曲线"],answer:[2,1]}},
+    {title:"无人列车",subtitle:"货运列车自行越过红灯，调度员声称控制台从未发出指令。",evidence:[["signal","信号日志","⌁","红灯前收到放行码"],["token","登录令牌","◇","令牌属于调度长"],["brake","制动报告","▤","制动系统工作正常"],["radio","无线录音","≋","录音存在九秒剪接",1],["manifest","货运清单","▥","第三车厢登记为空"]],phases:[
+      {name:"失控说法",w:["司机段羽","♟"],lines:[["列车制动在下坡时完全失效。","你何时第一次制动？"],["我看到绿灯才继续前进。","驾驶屏会保存信号状态吗？"],["控制台没有给我任何放行码。","车载机会记录接收码。"],["第三车厢只是空车。","你核验过封签吗？"]],answer:[0,"brake"],explain:"制动报告没有故障，司机的“完全失效”说法不成立。"},
+      {name:"九秒空白",w:["录音员穆青","♜"],lines:[["无线录音从未中断。","原始波形有一段异常接缝。","radio"],["九秒静音只是隧道遮挡。","遮挡不会改变文件时间戳。"],["录音里没有调度长的声音。","剪接段正位于放行前。"],["备份文件与公开版一致。","备份哈希为何不同？"]],answer:[0,"radio"],explain:"无线录音有人工剪接，正好遮掉放行指令。"},
+      {name:"权限来源",w:["调度长傅桥","♚"],lines:[["我的令牌整晚锁在抽屉。","控制台登录是否需要令牌？"],["放行码可能由系统自动生成。","系统自动码有固定前缀。"],["事故前我没有登录控制台。","登录审计记录了令牌序列。"],["货运清单与信号无关。","空车为何需要绕过检查？"]],answer:[2,"token"],explain:"登录令牌序列证明调度长在事故前进入控制台。"}],close:{culprits:["司机段羽","录音员穆青","调度长傅桥"],methods:["破坏制动","剪掉无线指令并用令牌放行","篡改车载绿灯"] ,answer:[2,1]}},
+    {title:"失真的直播",subtitle:"主播在数万人观看下“不在现场”，后台素材却出现重复帧。",evidence:[["frames","重复帧报告","▦","直播循环了四十七秒"],["badge","后台门卡","▣","19:42 开启道具间"],["invoice","设备租单","￥","租用便携延时器"],["dust","银粉样本","✦","来自失窃奖杯底座"],["cache","推流缓存","▤","保存原始时间轴",1]],phases:[
+      {name:"实时不在场",w:["主播黎沫","♛"],lines:[["直播全程都是实时画面。","平台是否允许本地延时？"],["我一秒也没有离开镜头。","画面为何出现重复动作？"],["后台门卡一直在助理手中。","门卡记录能区分持有人吗？"],["奖杯在直播结束后才失踪。","最后一次完整画面几点？"]],answer:[1,"frames"],explain:"重复帧报告证明直播存在四十七秒循环窗口。"},
+      {name:"原始时间轴",w:["平台工程师罗简","♜"],lines:[["平台只保存最终直播画面。","边缘节点还保留了原始推流缓存。","cache"],["循环片段来自网络重传。","重传不会重置动作时间码。"],["缓存时间与门卡时间不重合。","请按原始时间轴重新对齐。"],["延时器无法插入循环画面。","该型号支持本地缓冲替换。"]],answer:[2,"cache"],explain:"原始推流时间轴与门卡开启道具间的时间完全重合。"},
+      {name:"现场痕迹",w:["助理闻辛","♝"],lines:[["我替主播保管门卡，从未使用。","19:42 的开启记录是谁操作？"],["银粉是舞台化妆材料。","奖杯底座使用哪种涂层？"],["延时设备是平台提供的。","租单上的付款账户是谁？"],["主播没有碰过奖杯。","她的手套是否送检？"]],answer:[1,"dust"],explain:"银粉成分只来自奖杯底座，不是普通舞台化妆材料。"}],close:{culprits:["主播黎沫","助理闻辛","平台工程师罗简"],methods:["剪断网络","用直播循环制造四十七秒空窗","复制奖杯影像"],answer:[0,1]}},
+    {title:"白塔药库",subtitle:"急救药被替换成生理盐水，封签和库存数字却完全一致。",evidence:[["seal","封签显微图","⌘","封签经历二次热压"],["weight","箱体称重","⚖","重量少了 1.8 千克"],["route","配送轨迹","⌁","车辆绕行白塔诊所",1],["batch","批号照片","▥","照片早于入库三日"],["debt","债务通知","￥","采购员存在紧急债务"]],phases:[
+      {name:"完整封签",w:["库管叶澄","♟"],lines:[["药箱入库后封签从未破损。","你用肉眼检查还是仪器？"],["显微图上的压纹完全正常。","正常封签会有两层热压纹吗？"],["库存重量与系统一致。","系统记录的是箱数还是重量？"],["批号照片拍于入库当天。","照片元数据是否保留？"]],answer:[1,"seal"],explain:"二次热压纹说明封签被揭开后重新封合。"},
+      {name:"异常绕行",w:["配送员高驰","♞"],lines:[["我按最短路线直接到达药库。","车载轨迹还有离线缓存。","route"],["白塔诊所只是地图定位误差。","绕行持续了十一分钟。"],["运输途中没有停车。","速度曲线出现完整静止段。"],["药箱始终在上锁车厢。","谁持有备用车厢钥匙？"]],answer:[0,"route"],explain:"配送轨迹证明车辆曾在白塔诊所停留十一分钟。"},
+      {name:"数字伪装",w:["采购员温岚","♛"],lines:[["称重差异只是包装误差。","同批空箱误差是多少？"],["照片证明批号始终一致。","照片为何早于入库三日？"],["我没有接触配送路线。","你是否审批临时绕行？"],["债务与药品采购毫无关系。","债务到期日是哪一天？"]],answer:[1,"batch"],explain:"提前三天拍摄的批号照片被拿来伪装实际入库状态。"}],close:{culprits:["库管叶澄","配送员高驰","采购员温岚"],methods:["系统误差","绕行换药并重新热压封签","伪造整批药品"],answer:[2,1]}},
+    {title:"终审·双重航线",subtitle:"两份互相矛盾的飞行记录，把六案资金都指向同一条离岸航线。",evidence:[["ledger","离岸账本","￥","六笔赔付汇入同一账户"],["route2","双份航迹","⌁","同一编号同时出现在两地"],["stamp","海关印模","◈","印模来自退役窗口"],["voice","调度声纹","≋","指令由合成声生成",1],["contract","代理合同","▤","终审顾问拥有账户权限"]],phases:[
+      {name:"唯一航迹",w:["航务代理程策","♞"],lines:[["每架货机只有一份合法航迹。","编号重复会触发何种告警？"],["两地记录只是时区换算问题。","两条航迹为何重叠二十分钟？"],["海关印章证明两次起降都真实。","印模是否仍在服役？"],["代理系统无法复制航班编号。","谁有批量导入权限？"]],answer:[1,"route2"],explain:"同一编号在两地同时飞行，至少一份航迹是人为伪造。"},
+      {name:"合成指令",w:["声纹专家乔霁","♜"],lines:[["调度录音是真人连续说话。","频谱里有重复的呼吸模板。","voice"],["合成声无法通过旧式电台。","模拟电台只传输最终波形。"],["六案录音来自不同说话人。","共同底噪能否定位生成设备？"],["声纹误差在正常范围内。","辅音边界为何完全相同？"]],answer:[0,"voice"],explain:"重复呼吸模板证明调度指令由同一套合成系统生成。"},
+      {name:"资金终点",w:["终审顾问白砚","♚"],lines:[["六案赔付款互不相关。","离岸账户的入账备注为何连续？"],["我只提供法律意见，没有账户权限。","代理合同列出的权限是什么？"],["退役海关印模任何人都可能取得。","最后领用记录属于谁？"],["双重航线没有带来经济收益。","账户余额来自哪些赔付款？"]],answer:[1,"contract"],explain:"代理合同明确授予顾问离岸账户操作权限。"}],close:{culprits:["航务代理程策","声纹专家乔霁","终审顾问白砚"],methods:["重复盖章","伪造航迹与合成调度指令转移赔付款","劫持真实货机"],answer:[2,1]}}
+  ];
+  const KEY="mini_court_campaign_v2",$=id=>document.getElementById(id),els={caseList:$("caseList"),caseTitle:$("caseTitle"),caseSubtitle:$("caseSubtitle"),credibility:$("credibility"),phaseTrack:$("phaseTrack"),exam:$("examView"),closing:$("closingView"),avatar:$("avatar"),witness:$("witnessName"),statement:$("statement"),lineNo:$("lineNo"),evidence:$("evidenceList"),feedback:$("feedback"),goals:$("goals"),log:$("log"),culprit:$("culpritSelect"),method:$("methodSelect"),closingFeedback:$("closingFeedback"),totalStars:$("totalStars"),solved:$("solvedCases"),perfect:$("perfectCases"),archive:$("archiveModal"),archiveText:$("archiveText"),archiveFeedback:$("archiveFeedback")};
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));function defaults(){return {v:2,unlocked:0,stars:Array(6).fill(0),bestErrors:Array(6).fill(null),solved:0,perfect:0};}function load(){try{const v=JSON.parse(localStorage.getItem(KEY)||"null");if(v&&v.v===2)return {...defaults(),...v,stars:Array.from({length:6},(_,i)=>clamp(+v.stars?.[i]||0,0,3)),bestErrors:Array.from({length:6},(_,i)=>Number.isInteger(v.bestErrors?.[i])?Math.max(0,v.bestErrors[i]):null)};}catch(_){}return defaults();}
+  let profile=load(),selectedCase=Math.min(profile.unlocked,5),run=fresh();function current(){return CASES[selectedCase];}function totalStars(){return profile.stars.reduce((a,b)=>a+b,0);}function save(){localStorage.setItem(KEY,JSON.stringify(profile));}
+  function fresh(){const c=CASES[selectedCase];return {mode:"exam",phase:0,line:0,selected:null,hp:5,errors:0,presses:0,pressed:[],unlocked:c.evidence.filter(e=>!e[4]).map(e=>e[0]),logs:["法庭开庭：先找出第一段证词的直接矛盾。"],feedback:"先阅读证词；追问能得到细节，有些证物只会在追问后公开。",closingFeedback:"",result:""};}
+  function say(s){run.logs.unshift(s);run.logs=run.logs.slice(0,16);}function phase(){return current().phases[run.phase];}function evidence(id){return current().evidence.find(e=>e[0]===id);}
+  function pressLine(){if(run.mode!=="exam")return;const key=`${run.phase}:${run.line}`,line=phase().lines[run.line];if(!run.pressed.includes(key)){run.pressed.push(key);run.presses++;}run.feedback=line[1];if(line[2]&&!run.unlocked.includes(line[2])){run.unlocked.push(line[2]);const ev=evidence(line[2]);say(`追问公开新证物：${ev[1]}。`);run.feedback+=` 新证物“${ev[1]}”已加入法庭记录。`;}renderAll();}
+  function object(){if(run.mode!=="exam")return;if(!run.selected){run.feedback="先选择一件已经公开的证物。";renderAll();return;}const p=phase();if(run.line===p.answer[0]&&run.selected===p.answer[1]){say(`异议成立：${p.explain}`);run.feedback=p.explain;run.selected=null;if(run.phase===2){run.mode="closing";run.closingFeedback="";}else{run.phase++;run.line=0;}renderAll();return true;}run.errors++;run.hp--;say("异议被驳回：当前证物与这句证词没有直接矛盾。");run.feedback="证物与当前证词不能形成直接矛盾。";if(run.hp<=0){run.result="可信度耗尽，请重开本案。";run.mode="failed";}renderAll();return false;}
+  function closeCase(){if(run.mode!=="closing")return 0;const c=current();if(+els.culprit.value!==c.close.answer[0]||+els.method.value!==c.close.answer[1]){run.errors++;run.hp--;run.closingFeedback="结论无法同时解释三段证词，请重新组合责任人与实施方式。";say("最终论证被法官要求重组。");if(run.hp<=0){run.mode="failed";run.result="可信度耗尽，请重开本案。";}renderAll();return 0;}const stars=1+(run.errors===0?1:0)+(run.presses<=4?1:0);profile.stars[selectedCase]=Math.max(profile.stars[selectedCase],stars);profile.bestErrors[selectedCase]=profile.bestErrors[selectedCase]===null?run.errors:Math.min(profile.bestErrors[selectedCase],run.errors);profile.unlocked=Math.max(profile.unlocked,Math.min(5,selectedCase+1));profile.solved++;if(run.errors===0)profile.perfect++;save();run.mode="result";run.result=`结案成立：${"★".repeat(stars)}${"☆".repeat(3-stars)}。${c.close.culprits[c.close.answer[0]]}通过“${c.close.methods[c.close.answer[1]]}”完成案件。`;say(run.result);renderAll();return stars;}
+  function selectCase(i){if(i>profile.unlocked)return;selectedCase=i;run=fresh();renderAll();}
+  function renderExam(){const c=current(),p=phase();els.exam.classList.toggle("hidden",run.mode!=="exam"&&run.mode!=="failed"&&run.mode!=="result");els.closing.classList.toggle("hidden",run.mode!=="closing");if(run.mode==="closing"){els.culprit.innerHTML=c.close.culprits.map((x,i)=>`<option value="${i}">${x}</option>`).join("");els.method.innerHTML=c.close.methods.map((x,i)=>`<option value="${i}">${x}</option>`).join("");els.closingFeedback.textContent=run.closingFeedback;return;}els.avatar.textContent=p.w[1];els.witness.textContent=`${p.name} · ${p.w[0]}`;els.statement.textContent=`“${p.lines[run.line][0]}”`;els.lineNo.textContent=`${run.line+1}/${p.lines.length}`;$("prevBtn").disabled=run.line===0||run.mode!=="exam";$("nextBtn").disabled=run.line===p.lines.length-1||run.mode!=="exam";$("pressBtn").disabled=run.mode!=="exam";$("objectBtn").disabled=run.mode!=="exam";els.evidence.innerHTML=c.evidence.map(e=>{const locked=!run.unlocked.includes(e[0]);return `<button class="ev ${run.selected===e[0]?"sel":""} ${locked?"locked":""}" data-evidence="${e[0]}" ${locked||run.mode!=="exam"?"disabled":""}><b>${locked?"未公开":e[1]}</b><small>${locked?"?":e[2]}</small><span>${locked?"需要从证词中追问":e[3]}</span></button>`}).join("");els.evidence.querySelectorAll("[data-evidence]").forEach(b=>b.onclick=()=>{run.selected=b.dataset.evidence;renderAll();});els.feedback.textContent=run.mode==="failed"||run.mode==="result"?run.result:run.feedback;}
+  function renderAll(){const c=current();els.caseTitle.textContent=`第 ${selectedCase+1} 案 · ${c.title}`;els.caseSubtitle.textContent=c.subtitle;els.caseList.innerHTML=CASES.map((x,i)=>`<button class="case-btn ${i===selectedCase?"active":""}" data-case="${i}" ${i>profile.unlocked?"disabled":""}><b>${i+1}. ${x.title}</b><small>${i<=profile.unlocked?"可审理":"未解锁"}</small><span class="stars">${"★".repeat(profile.stars[i])}${"☆".repeat(3-profile.stars[i])}</span></button>`).join("");els.caseList.querySelectorAll("[data-case]").forEach(b=>b.onclick=()=>selectCase(+b.dataset.case));els.credibility.innerHTML=Array.from({length:5},(_,i)=>`<i class="${i>=run.hp?"off":""}"></i>`).join("");els.phaseTrack.innerHTML=c.phases.map((p,i)=>`<div class="phase ${i<run.phase||run.mode==="closing"||run.mode==="result"?"done":""} ${i===run.phase&&run.mode==="exam"?"now":""}">${i+1}. ${p.name}</div>`).join("");els.goals.innerHTML=`<div class="goal ${run.mode==="result"?"pass":""}">完成三段异议与结案论证</div><div class="goal ${run.errors===0?"pass":""}">错误异议：${run.errors}</div><div class="goal ${run.presses<=4?"pass":""}">有效追问控制在四次内：${run.presses}</div>`;els.log.innerHTML=run.logs.map(x=>`<div>• ${x}</div>`).join("");els.totalStars.textContent=totalStars();els.solved.textContent=profile.solved;els.perfect.textContent=profile.perfect;renderExam();}
+  $("prevBtn").onclick=()=>{run.line--;run.selected=null;renderAll();};$("nextBtn").onclick=()=>{run.line++;run.selected=null;renderAll();};$("pressBtn").onclick=pressLine;$("objectBtn").onclick=object;$("closeCaseBtn").onclick=closeCase;$("restartBtn").onclick=()=>{run=fresh();renderAll();};
+  function checksum(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return (h>>>0).toString(36);}function encode(){const p=btoa(unescape(encodeURIComponent(JSON.stringify({v:2,u:profile.unlocked,s:profile.stars,b:profile.bestErrors,n:profile.solved,p:profile.perfect}))));return `COURT2.${p}.${checksum(p)}`;}function decode(code){const p=code.trim().split(".");if(p.length!==3||p[0]!=="COURT2"||checksum(p[1])!==p[2])throw Error("律师档案校验失败");const v=JSON.parse(decodeURIComponent(escape(atob(p[1]))));if(v.v!==2||!Array.isArray(v.s))throw Error("档案版本不兼容");return {v:2,unlocked:clamp(+v.u||0,0,5),stars:Array.from({length:6},(_,i)=>clamp(+v.s[i]||0,0,3)),bestErrors:Array.from({length:6},(_,i)=>Number.isInteger(v.b?.[i])?Math.max(0,v.b[i]):null),solved:Math.max(0,+v.n||0),perfect:Math.max(0,+v.p||0)};}
+  $("archiveBtn").onclick=()=>{els.archive.classList.remove("hidden");els.archiveText.value=encode();els.archiveFeedback.textContent="";};$("closeArchiveBtn").onclick=()=>els.archive.classList.add("hidden");$("exportBtn").onclick=async()=>{els.archiveText.value=encode();els.archiveText.select();try{await navigator.clipboard.writeText(els.archiveText.value);els.archiveFeedback.textContent="律师档案已复制。";}catch(_){els.archiveFeedback.textContent="档案已生成，请手动复制。";}};$("importBtn").onclick=()=>{try{profile=decode(els.archiveText.value);save();selectedCase=Math.min(profile.unlocked,5);run=fresh();renderAll();els.archiveFeedback.textContent="导入成功。";}catch(e){els.archiveFeedback.textContent=e.message;}};
+  function validateCases(){const errors=[];for(const [ci,c] of CASES.entries()){const ids=new Set(c.evidence.map(e=>e[0]));if(ids.size!==5)errors.push(`case ${ci} evidence`);if(c.phases.length!==3)errors.push(`case ${ci} phases`);for(const [pi,p] of c.phases.entries()){if(p.lines.length!==4||p.answer[0]<0||p.answer[0]>=p.lines.length||!ids.has(p.answer[1]))errors.push(`case ${ci} phase ${pi} answer`);const ev=evidenceFor(c,p.answer[1]);if(ev?.[4]&&!c.phases.some(x=>x.lines.some(line=>line[2]===p.answer[1])))errors.push(`case ${ci} hidden ${p.answer[1]}`);}if(c.close.answer.some((v,i)=>v<0||v>=[c.close.culprits,c.close.methods][i].length))errors.push(`case ${ci} closing`);}return {valid:!errors.length,errors,cases:CASES.length,phases:CASES.reduce((n,c)=>n+c.phases.length,0),statements:CASES.reduce((n,c)=>n+c.phases.reduce((m,p)=>m+p.lines.length,0),0),evidence:CASES.reduce((n,c)=>n+c.evidence.length,0)};}function evidenceFor(c,id){return c.evidence.find(e=>e[0]===id);}
+  window.__courtroom={CASES,profile:()=>profile,run:()=>run,selectCase,pressLine,object,closeCase,encode,decode,validateCases,renderAll};renderAll();
+})();
+</script>
+</body>
 </html>

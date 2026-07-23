@@ -1,361 +1,86 @@
 <!doctype html>
 <html lang="zh-CN">
-  <meta charset="utf-8" /><meta
-    name="viewport"
-    content="width=device-width,initial-scale=1"
-  /><title>余烬战棋</title
-  ><style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      background: #111723;
-      color: #eef3ff;
-      font-family: system-ui, "Microsoft YaHei";
-    }
-    .app {
-      min-height: 100vh;
-      padding: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .shell {
-      width: 100%;
-      max-width: 920px;
-      min-width: 0;
-      background: #1b2638;
-      border: 1px solid #536781;
-      border-radius: 20px;
-      padding: 16px;
-    }
-    .top,
-    .row {
-      display: flex;
-      justify-content: space-between;
-      gap: 9px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-    .layout {
-      display: grid;
-      grid-template-columns: 1fr 250px;
-      gap: 12px;
-      margin-top: 12px;
-    }
-    .board {
-      display: grid;
-      grid-template-columns: repeat(8, minmax(0, 1fr));
-      gap: 3px;
-      background: #0d1420;
-      padding: 7px;
-      border-radius: 12px;
-    }
-    .cell {
-      aspect-ratio: 1;
-      border: 1px solid #37475c;
-      border-radius: 6px;
-      background: #25354a;
-      display: grid;
-      place-items: center;
-      position: relative;
-      font-size: 27px;
-      cursor: pointer;
-    }
-    .cell:nth-child(3n) {
-      background: #293b4b;
-    }
-    .cell.move {
-      box-shadow: inset 0 0 0 3px #5be1a3;
-    }
-    .cell.attack {
-      box-shadow: inset 0 0 0 3px #ff6b70;
-    }
-    .cell.sel {
-      outline: 3px solid #ffd96c;
-    }
-    .cell small {
-      position: absolute;
-      bottom: 1px;
-      font-size: 10px;
-    }
-    .hp {
-      position: absolute;
-      left: 8%;
-      right: 8%;
-      top: 2px;
-      height: 4px;
-      background: #402831;
-    }
-    .hp i {
-      display: block;
-      height: 100%;
-      background: #68e49c;
-    }
-    .panel {
-      background: #121c2b;
-      border: 1px solid #41546d;
-      border-radius: 12px;
-      padding: 11px;
-      margin-bottom: 9px;
-    }
-    .unitrow {
-      padding: 6px;
-      border-bottom: 1px solid #ffffff18;
-    }
-    .log {
-      height: 130px;
-      overflow: auto;
-      color: #b8c8dd;
-      font-size: 13px;
-    }
-    button {
-      padding: 9px 11px;
-      border: 1px solid #607792;
-      border-radius: 9px;
-      background: #304c6c;
-      color: #fff;
-      font-weight: bold;
-    }
-    .end {
-      background: #8f454d;
-    }
-    @media (max-width: 680px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
-      .cell {
-        font-size: 20px;
-      }
-      .app {
-        align-items: flex-start;
-      }
-    }
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>余烬战棋：九境远征</title>
+  <style>
+    :root{--bg:#11151d;--panel:#202938;--panel2:#151d29;--line:#52657b;--ink:#eff5ff;--muted:#afbed0;--gold:#efc66b;--red:#db686a;--green:#6ed39b;--cyan:#6acbd5}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 10% 0,#4d2e2c 0,transparent 31%),radial-gradient(circle at 92% 5%,#2e4658 0,transparent 28%),linear-gradient(145deg,#0d1118,#171e29 65%,#211b22);color:var(--ink);font-family:system-ui,"Microsoft YaHei",sans-serif}.app{width:min(1450px,calc(100% - 22px));margin:11px auto}.top,.panel{border:1px solid var(--line);border-radius:14px;background:rgba(32,41,56,.97);box-shadow:0 18px 48px rgba(0,0,0,.34)}.top{display:flex;justify-content:space-between;align-items:center;gap:15px;padding:15px 18px}.eyebrow{margin:0 0 4px;color:var(--gold);font-size:12px;font-weight:950;letter-spacing:.14em}.top h1{margin:0;font-size:clamp(26px,4vw,42px);line-height:1}.sub{margin:7px 0 0;color:var(--muted);font-size:13px}.actions,.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}button,textarea{font:inherit}.btn{min-height:42px;padding:0 13px;border:1px solid #687e97;border-radius:8px;background:#365473;color:white;font-weight:900;cursor:pointer}.btn.gold{border-color:#a17b38;background:#7b5b25}.btn.red{border-color:#a44c52;background:#7d373e}.btn:disabled{opacity:.4;cursor:not-allowed}.layout{display:grid;grid-template-columns:minmax(0,1fr) 405px;gap:12px;margin-top:12px;align-items:start}.battle{padding:12px;min-width:0}.battle-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.battle-head h2{margin:0 0 5px}.battle-head p{margin:0;color:var(--muted);font-size:12px}.battle-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;min-width:245px}.stat{padding:6px;border:1px solid #52667d;border-radius:7px;background:#131c28;text-align:center}.stat b{display:block;font-size:18px}.stat small{font-size:9px;color:var(--muted)}.board-wrap{display:grid;place-items:center;margin:10px 0}.board{width:min(100%,720px);display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:3px;padding:7px;border:1px solid #50637a;border-radius:11px;background:#0d141e}.cell{position:relative;aspect-ratio:1;min-width:0;padding:0;border:1px solid #3c5064;border-radius:5px;background:#26374a;color:white;display:grid;place-items:center;font-size:clamp(17px,3.4vw,30px);cursor:pointer}.cell.alt{background:#2b3d49}.cell.wall{background:#111720;border-color:#242d39;cursor:default}.cell.cover{background:#304d48}.cell.flame{background:#5b332d}.cell.objective{box-shadow:inset 0 0 0 3px var(--gold)}.cell.exit{box-shadow:inset 0 0 0 3px var(--cyan)}.cell.move{box-shadow:inset 0 0 0 3px var(--green)}.cell.attack{box-shadow:inset 0 0 0 3px var(--red)}.cell.skill-target{box-shadow:inset 0 0 0 3px #b47fe0}.cell.sel{outline:3px solid var(--gold);z-index:2}.cell .hp{position:absolute;left:6%;right:6%;top:3px;height:4px;border-radius:5px;background:#4d2930;overflow:hidden}.cell .hp i{display:block;height:100%;background:var(--green)}.cell small{position:absolute;left:1px;right:1px;bottom:1px;font-size:8px;text-align:center;text-shadow:0 1px 2px #000}.cell .terrain{position:absolute;right:2px;top:6px;font-size:9px;color:#e7e0bc}.battle-actions{justify-content:center}.message{min-height:41px;margin-top:8px;padding:8px;border:1px solid #52657a;border-radius:8px;background:#141d29;color:#c3d0dd;font-size:12px;line-height:1.45}.side{padding:12px;display:grid;gap:10px;max-height:calc(100vh - 105px);overflow:auto}.block{padding:11px;border:1px solid #4d6077;border-radius:10px;background:var(--panel2)}.block h2,.block h3{margin:0 0 8px}.block h2{font-size:20px}.block h3{font-size:14px;color:var(--gold)}.missions{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.mission{min-height:57px;padding:5px;border:1px solid #53677d;border-radius:8px;background:#26364a;color:white;cursor:pointer}.mission.active{outline:3px solid var(--gold)}.mission:disabled{opacity:.35}.mission b,.mission small{display:block}.mission small{font-size:9px;color:var(--muted);margin-top:3px}.stars{color:var(--gold);font-size:10px}.heroes{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.hero{min-height:75px;padding:5px;border:1px solid #52677d;border-radius:8px;background:#243448;color:white;cursor:pointer}.hero.active{outline:3px solid var(--cyan)}.hero.locked{opacity:.36}.hero b,.hero small{display:block}.hero small{font-size:9px;color:var(--muted);margin-top:3px;line-height:1.3}.sigils{display:grid;grid-template-columns:repeat(2,1fr);gap:5px}.sigil{min-height:64px;padding:6px;border:1px solid #52657a;border-radius:8px;background:#253247;color:white;text-align:left;cursor:pointer}.sigil.active{outline:3px solid #b383db}.sigil.locked{opacity:.36}.sigil b,.sigil small{display:block}.sigil small{font-size:9px;color:var(--muted);margin-top:3px;line-height:1.35}.squad{display:grid;gap:5px}.unit-row{padding:7px;border:1px solid #4d6075;border-radius:7px;background:#233144;font-size:11px}.unit-row b{display:flex;justify-content:space-between}.unit-row span{color:var(--muted)}.goals{display:grid;gap:5px}.goal{padding:7px;border:1px solid #4d6075;border-radius:7px;color:var(--muted);font-size:11px}.goal.pass{border-color:#4c8c68;background:#183227;color:#ddf5e6}.log{height:120px;overflow:auto;color:#afbed0;font-size:11px;line-height:1.5}.career{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.career div{padding:7px;border:1px solid #4e6278;border-radius:8px;background:#223145;text-align:center}.career b{display:block;font-size:19px}.career small{font-size:9px;color:var(--muted)}.tip{color:var(--muted);font-size:12px;line-height:1.5}.archive{position:fixed;inset:0;z-index:9;display:grid;place-items:center;padding:18px;background:rgba(5,8,12,.87)}.archive.hidden{display:none}.dialog{width:min(620px,100%);padding:18px;border:1px solid #5b7087;border-radius:14px;background:#202b3b}.dialog h2{margin:0 0 8px}.dialog textarea{width:100%;min-height:125px;padding:10px;border:1px solid #5d7085;border-radius:8px;background:#101722;color:white;resize:vertical}.feedback{min-height:20px;margin-top:7px;color:var(--gold);font-size:12px;font-weight:850}
+    @media(max-width:940px){.layout{grid-template-columns:1fr}.side{max-height:none}.top{align-items:flex-start}}
+    @media(max-width:560px){.app{width:min(100% - 12px,1450px);margin:6px auto}.top{display:grid;padding:12px}.top h1{font-size:26px}.battle{padding:7px}.battle-head{display:grid}.battle-stats{width:100%;min-width:0}.board{gap:2px;padding:4px}.cell{font-size:20px;border-radius:3px}.side{padding:8px}.battle-actions .btn{min-height:40px;padding:0 9px}}
   </style>
-  <main class="app">
-    <section class="shell">
-      <div class="top">
-        <div>
-          <h1 style="margin: 0">余烬战棋</h1>
-          <div id="objective" style="color: #b7c9dd"></div>
-        </div>
-        <div>
-          任务 <b id="mission"></b>/6　回合 <b id="turn"></b>　⭐
-          <b id="stars"></b>
-        </div>
-      </div>
-      <div class="layout">
-        <div>
-          <div class="board" id="board"></div>
-          <div class="row" style="margin-top: 9px">
-            <button class="end" id="endTurn">结束回合</button
-            ><button id="skill">使用战术：治疗（2⭐）</button
-            ><button id="restart">重开任务</button><span id="msg"></span>
-          </div>
-        </div>
-        <aside>
-          <div class="panel">
-            <b>小队状态</b>
-            <div id="squad"></div>
-          </div>
-          <div class="panel">
-            <b>规则</b>
-            <div style="font-size: 13px; color: #b8c8dd">
-              点击己方单位，再点击绿色格移动或红色敌人攻击。每名单位每回合可行动一次；清除敌军后进入下一任务并获得强化。
-            </div>
-          </div>
-          <div class="panel log" id="log"></div>
-        </aside>
-      </div>
+</head>
+<body>
+<main class="app">
+  <header class="top"><div><p class="eyebrow">TACTICAL CAMPAIGN</p><h1>余烬战棋：九境远征</h1><p class="sub">三章九任务 · 六名职业英雄 · 八枚规则徽记 · 地形与差异目标 · 跨设备战团档案</p></div><div class="actions"><button class="btn red" id="restartBtn">重开任务</button><button class="btn gold" id="archiveBtn">战团档案</button></div></header>
+  <section class="layout">
+    <section class="panel battle">
+      <div class="battle-head"><div><h2 id="missionTitle"></h2><p id="objectiveText"></p></div><div class="battle-stats"><div class="stat"><b id="turnStat">1</b><small>回合</small></div><div class="stat"><b id="crestStat">2</b><small>战术星火</small></div><div class="stat"><b id="enemyStat">0</b><small>敌军</small></div></div></div>
+      <div class="board-wrap"><div class="board" id="board"></div></div>
+      <div class="row battle-actions"><button class="btn" id="skillBtn">职业技能</button><button class="btn" id="endTurnBtn">结束回合</button><button class="btn gold" id="startBtn">开始任务</button></div>
+      <div class="message" id="message">在右侧选择三名英雄与至多两枚徽记，然后开始任务。</div>
     </section>
-  </main>
-  <script>
-    const T = {
-      knight: { n: "烬骑", ic: "🗡️", hp: 48, atk: 16, move: 3, range: 1 },
-      archer: { n: "弦手", ic: "🏹", hp: 34, atk: 13, move: 2, range: 3 },
-      mage: { n: "星术师", ic: "🔮", hp: 30, atk: 18, move: 2, range: 2 },
-      grunt: { n: "劫掠兵", ic: "👺", hp: 28, atk: 10, move: 2, range: 1 },
-      bow: { n: "弩手", ic: "💀", hp: 23, atk: 9, move: 2, range: 3 },
-      brute: { n: "蛮将", ic: "👹", hp: 60, atk: 15, move: 2, range: 1 },
-    };
-    let q,
-      sel = null;
-    const $ = (x) => document.getElementById(x),
-      xy = (i) => [i % 8, Math.floor(i / 8)],
-      dist = (a, b) => {
-        let A = xy(a),
-          B = xy(b);
-        return Math.abs(A[0] - B[0]) + Math.abs(A[1] - B[1]);
-      };
-    function fresh(m = 1) {
-      let heroes = [unit("knight", 56), unit("archer", 57), unit("mage", 48)],
-        en = [];
-      let n = 2 + m;
-      for (let i = 0; i < n; i++)
-        en.push(
-          unit(m === 6 && i === 0 ? "brute" : i % 3 === 1 ? "bow" : "grunt", i),
-        );
-      return {
-        mission: m,
-        turn: 1,
-        stars: 3,
-        heroes,
-        en,
-        log: ["选择一名队员开始行动。"],
-        buff: +localStorage.getItem("tactics_buff") || 0,
-      };
-    }
-    function unit(type, pos) {
-      let t = T[type];
-      return { type, pos, hp: t.hp, max: t.hp, done: false };
-    }
-    function load(m = 1) {
-      q = fresh(m);
-      sel = null;
-      draw();
-    }
-    function say(s) {
-      q.log.unshift(s);
-      q.log = q.log.slice(0, 12);
-    }
-    function occupied(pos) {
-      return [...q.heroes, ...q.en].find((u) => u.hp > 0 && u.pos === pos);
-    }
-    function clickCell(pos) {
-      let h = q.heroes.find((u) => u.pos === pos && u.hp > 0),
-        e = q.en.find((u) => u.pos === pos && u.hp > 0);
-      if (h && !h.done) {
-        sel = h;
-        return draw();
-      }
-      if (!sel) return;
-      if (e && dist(sel.pos, e.pos) <= T[sel.type].range) return attack(sel, e);
-      if (!occupied(pos) && dist(sel.pos, pos) <= T[sel.type].move) {
-        sel.pos = pos;
-        sel.done = true;
-        say(`${T[sel.type].n} 完成移动。`);
-        sel = null;
-        draw();
-      }
-    }
-    function attack(a, b) {
-      let dmg = T[a.type].atk + q.buff * 2 + Math.floor(Math.random() * 5);
-      b.hp -= dmg;
-      a.done = true;
-      say(`${T[a.type].n} 对 ${T[b.type].n} 造成 ${dmg} 伤害。`);
-      if (b.hp <= 0) {
-        q.stars++;
-        say(`${T[b.type].n} 被击败，获得 1 星。`);
-      }
-      sel = null;
-      q.en = q.en.filter((x) => x.hp > 0);
-      if (!q.en.length) return win();
-      draw();
-    }
-    function enemyTurn() {
-      endTurn.disabled = true;
-      let i = 0;
-      function act() {
-        if (i >= q.en.length) {
-          q.heroes = q.heroes.filter((x) => x.hp > 0);
-          if (!q.heroes.length) return lose();
-          q.heroes.forEach((x) => (x.done = false));
-          q.turn++;
-          endTurn.disabled = false;
-          draw();
-          return;
-        }
-        let e = q.en[i++],
-          targets = q.heroes
-            .filter((x) => x.hp > 0)
-            .sort((a, b) => dist(e.pos, a.pos) - dist(e.pos, b.pos)),
-          t = targets[0],
-          d = dist(e.pos, t.pos);
-        if (d <= T[e.type].range) {
-          let dmg = T[e.type].atk + Math.floor(q.mission / 2);
-          t.hp -= dmg;
-          say(`${T[e.type].n} 反击 ${T[t.type].n}，造成 ${dmg} 伤害。`);
-        } else {
-          let [ex, ey] = xy(e.pos),
-            [tx, ty] = xy(t.pos),
-            opts = [
-              [ex + Math.sign(tx - ex), ey],
-              [ex, ey + Math.sign(ty - ey)],
-            ].filter(
-              (a) =>
-                a[0] >= 0 &&
-                a[0] < 8 &&
-                a[1] >= 0 &&
-                a[1] < 8 &&
-                !occupied(a[1] * 8 + a[0]),
-            );
-          if (opts[0]) e.pos = opts[0][1] * 8 + opts[0][0];
-        }
-        setTimeout(act, 250);
-      }
-      act();
-    }
-    function win() {
-      say("任务完成！小队恢复并获得永久战力。");
-      q.buff++;
-      localStorage.setItem("tactics_buff", q.buff);
-      if (q.mission >= 6) {
-        draw();
-        setTimeout(() => alert("六项边境任务全部完成！"), 50);
-      } else setTimeout(() => load(q.mission + 1), 700);
-    }
-    function lose() {
-      say("小队全灭，任务失败。");
-      draw();
-    }
-    function draw() {
-      mission.textContent = q.mission;
-      turn.textContent = q.turn;
-      stars.textContent = q.stars;
-      objective.textContent =
-        q.mission === 6
-          ? "最终任务：击败蛮将与残余敌军"
-          : "目标：清除地图上的全部敌军";
-      board.innerHTML = "";
-      for (let i = 0; i < 64; i++) {
-        let c = document.createElement("button");
-        c.className = "cell";
-        let u = occupied(i);
-        if (sel) {
-          if (!u && dist(sel.pos, i) <= T[sel.type].move)
-            c.classList.add("move");
-          if (q.en.includes(u) && dist(sel.pos, i) <= T[sel.type].range)
-            c.classList.add("attack");
-        }
-        if (u) {
-          let t = T[u.type];
-          c.innerHTML = `<span class="hp"><i style="width:${Math.max(0, (u.hp / u.max) * 100)}%"></i></span>${t.ic}<small>${u.hp}/${u.max}${u.done ? " · 已动" : ""}</small>`;
-          if (u === sel) c.classList.add("sel");
-        }
-        c.onclick = () => clickCell(i);
-        board.append(c);
-      }
-      squad.innerHTML = q.heroes
-        .map(
-          (u) =>
-            `<div class="unitrow">${T[u.type].ic}${T[u.type].n}　${Math.max(0, u.hp)}/${u.max} ${u.done ? "✓" : ""}</div>`,
-        )
-        .join("");
-      log.innerHTML = q.log.map((s) => `<div>• ${s}</div>`).join("");
-      msg.textContent = q.heroes.every((x) => x.done)
-        ? "全员已行动，可结束回合。"
-        : "";
-    }
-    endTurn.onclick = enemyTurn;
-    skill.onclick = () => {
-      if (q.stars < 2) return say("星数不足。");
-      q.stars -= 2;
-      q.heroes.forEach((x) => (x.hp = Math.min(x.max, x.hp + 15)));
-      say("战术治疗：全队恢复 15 生命。");
-      draw();
-    };
-    restart.onclick = () => load(q.mission);
-    load();
-  </script>
+    <aside class="panel side">
+      <section class="block"><h3>九境战图</h3><div class="missions" id="missionList"></div></section>
+      <section class="block"><h2>出征小队</h2><div class="heroes" id="heroList"></div><p class="tip">非战斗时点击英雄调整三人小队。总星章会解锁守卫、医师与影刃。</p></section>
+      <section class="block"><h3>余烬徽记（最多两枚）</h3><div class="sigils" id="sigilList"></div></section>
+      <section class="block"><h3>战场状态</h3><div class="squad" id="squad"></div><div class="goals" id="goals" style="margin-top:7px"></div></section>
+      <section class="block"><h3>战报</h3><div class="log" id="log"></div></section>
+      <section class="block"><h3>战团生涯</h3><div class="career"><div><b id="totalStars">0</b><small>总星章</small></div><div><b id="clears">0</b><small>完成任务</small></div><div><b id="perfects">0</b><small>全员生还</small></div></div></section>
+    </aside>
+  </section>
+</main>
+<div class="archive hidden" id="archiveModal"><div class="dialog"><h2>跨设备战团档案</h2><p class="tip">档案包含九任务星级、英雄编组、徽记配置、解锁进度和战团纪录。</p><textarea id="archiveText" spellcheck="false"></textarea><div class="row" style="justify-content:flex-end;margin-top:8px"><button class="btn" id="closeArchiveBtn">关闭</button><button class="btn" id="importBtn">导入</button><button class="btn gold" id="exportBtn">生成并复制</button></div><div class="feedback" id="archiveFeedback"></div></div></div>
+<script>
+(() => {
+  const HEROES={knight:{name:"烬骑",icon:"♞",hp:52,atk:15,move:3,range:1,skill:"裂阵：攻击相邻全部敌人"},archer:{name:"弦手",icon:"➶",hp:36,atk:13,move:2,range:4,skill:"贯星：五格强力射击"},mage:{name:"星术师",icon:"✦",hp:32,atk:17,move:2,range:3,skill:"星爆：目标周围范围伤害"},warden:{name:"守卫",icon:"⬟",hp:60,atk:11,move:2,range:1,skill:"壁垒：全队获得护盾"},medic:{name:"医师",icon:"✚",hp:40,atk:9,move:3,range:2,skill:"复燃：远程恢复生命"},rogue:{name:"影刃",icon:"◆",hp:35,atk:16,move:4,range:1,skill:"闪袭：四格突进并重击"}};
+  const ENEMIES={raider:{name:"劫掠兵",icon:"♟",hp:26,atk:9,move:2,range:1},bow:{name:"灰弩手",icon:"♙",hp:22,atk:8,move:1,range:4},brute:{name:"熔甲兽",icon:"♜",hp:48,atk:14,move:2,range:1},shaman:{name:"烬祭师",icon:"♝",hp:30,atk:11,move:2,range:3},boss:{name:"灰烬君王",icon:"♚",hp:92,atk:17,move:2,range:2}};
+  const SIGILS=[{id:"ember",name:"炽刃",need:0,text:"所有英雄攻击 +2"},{id:"stride",name:"疾行",need:2,text:"所有英雄移动 +1"},{id:"aegis",name:"坚壁",need:4,text:"英雄受到伤害 -2"},{id:"spring",name:"回春",need:6,text:"每回合开始全队恢复 2"},{id:"focus",name:"专注",need:8,text:"职业技能伤害/治疗 +4"},{id:"bounty",name:"猎火",need:10,text:"击败敌人额外获得 1 星火"},{id:"reserve",name:"后备",need:12,text:"任务开始额外获得 2 星火"},{id:"phoenix",name:"余命",need:15,text:"首名倒下英雄以 12 生命复燃"}];
+  const M=[
+    {name:"碎桥清剿",chapter:"灰原",type:"eliminate",objective:"清除桥面上的全部劫掠兵。",par:5,limit:9,walls:[19,27,35,43],cover:[34,37],flame:[],objectives:[],enemies:[["raider",8],["raider",11],["bow",5]]},
+    {name:"双印封锁",chapter:"灰原",type:"seal",objective:"让英雄踏上两座裂隙并完成封印。",par:6,limit:10,walls:[18,21,26,29,34,37],cover:[42,45],flame:[20,28],objectives:[9,14],enemies:[["raider",10],["raider",13],["bow",6],["bow",15]]},
+    {name:"火种守夜",chapter:"灰原",type:"defend",objective:"保护中央火种，坚持三个敌军回合。",par:4,limit:6,walls:[25,30,33,38],cover:[26,29,34,37],flame:[],objectives:[27],rounds:3,enemies:[["raider",2],["raider",5],["bow",8],["brute",15]]},
+    {name:"峡谷撤离",chapter:"赤峡",type:"escape",objective:"让至少两名英雄抵达北侧撤离点。",par:7,limit:10,walls:[17,18,21,22,25,30,33,38,41,46],cover:[20,27,36,43],flame:[28,35],objectives:[1,6],enemies:[["raider",16],["bow",23],["brute",10],["raider",13]]},
+    {name:"熔流追猎",chapter:"赤峡",type:"eliminate",objective:"利用掩体穿过熔流，清除祭师小队。",par:7,limit:11,walls:[18,26,37,45],cover:[34,35,42,43],flame:[19,20,27,28,29,36,44],objectives:[],enemies:[["shaman",9],["shaman",14],["raider",17],["bow",6],["brute",12]]},
+    {name:"铁兽断首",chapter:"赤峡",type:"boss",objective:"击败熔甲统领及其护卫。",par:8,limit:12,walls:[21,22,29,34,41,42],cover:[27,28,35,36],flame:[18,25,38,45],objectives:[],enemies:[["brute",10],["brute",13],["shaman",5],["bow",8],["raider",15]]},
+    {name:"三塔点火",chapter:"烬都",type:"seal",objective:"在烬都封印三座失控火塔。",par:8,limit:12,walls:[17,22,25,30,33,38,41,46],cover:[20,27,36,43],flame:[18,21,26,29,34,37],objectives:[2,7,12],enemies:[["raider",9],["bow",6],["shaman",14],["brute",11],["raider",15]]},
+    {name:"王庭壁垒",chapter:"烬都",type:"defend",objective:"保护王庭信标，坚持四个敌军回合。",par:6,limit:8,walls:[19,20,21,26,29,34,37,42,43,44],cover:[27,28,35,36],flame:[10,13],objectives:[31],rounds:4,enemies:[["raider",0],["raider",7],["bow",8],["bow",15],["brute",3],["shaman",12]]},
+    {name:"灰烬王座",chapter:"烬都",type:"boss",objective:"击败灰烬君王，结束九境远征。",par:10,limit:15,walls:[17,22,25,30,33,38,41,46],cover:[19,20,27,28,35,36,43,44],flame:[18,21,26,29,34,37,42,45],objectives:[],enemies:[["boss",11],["brute",8],["brute",15],["shaman",5],["shaman",14],["bow",2]]}
+  ];
+  const KEY="mini_ember_campaign_v2",$=id=>document.getElementById(id),els={missionList:$("missionList"),missionTitle:$("missionTitle"),objective:$("objectiveText"),turn:$("turnStat"),crest:$("crestStat"),enemy:$("enemyStat"),board:$("board"),message:$("message"),heroList:$("heroList"),sigilList:$("sigilList"),squad:$("squad"),goals:$("goals"),log:$("log"),start:$("startBtn"),skill:$("skillBtn"),end:$("endTurnBtn"),totalStars:$("totalStars"),clears:$("clears"),perfects:$("perfects"),archive:$("archiveModal"),archiveText:$("archiveText"),archiveFeedback:$("archiveFeedback")};const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),xy=i=>[i%8,Math.floor(i/8)],dist=(a,b)=>{const A=xy(a),B=xy(b);return Math.abs(A[0]-B[0])+Math.abs(A[1]-B[1]);};
+  function defaults(){return {v:2,unlocked:0,stars:Array(9).fill(0),squad:["knight","archer","mage"],sigils:["ember"],clears:0,perfects:0};}function load(){try{const v=JSON.parse(localStorage.getItem(KEY)||"null");if(v&&v.v===2)return {...defaults(),...v,stars:Array.from({length:9},(_,i)=>clamp(+v.stars?.[i]||0,0,3)),squad:(v.squad||[]).filter(x=>HEROES[x]).slice(0,3),sigils:(v.sigils||[]).filter(x=>SIGILS.some(s=>s.id===x)).slice(0,2)};}catch(_){}return defaults();}
+  let profile=load(),selectedMission=Math.min(profile.unlocked,8),state=makeState();function totalStars(){return profile.stars.reduce((a,b)=>a+b,0);}function hasSigil(id){return profile.sigils.includes(id);}function save(){localStorage.setItem(KEY,JSON.stringify(profile));}
+  function heroUnlocked(id){return totalStars()>={knight:0,archer:0,mage:0,warden:3,medic:6,rogue:10}[id];}
+  function makeUnit(type,pos,side){const t=side==="hero"?HEROES[type]:ENEMIES[type];return {type,pos,side,hp:t.hp,max:t.hp,done:false,skillUsed:false,shield:0};}
+  function makeState(){return {mode:"brief",turn:1,crests:2+(hasSigil("reserve")?2:0),heroes:[],enemies:[],selected:null,action:"normal",logs:["选择三名英雄和徽记后开始任务。"],sealed:[],escaped:0,beacon:null,lost:0,phoenixUsed:false,result:""};}
+  function mission(){return M[selectedMission];}function start(){const m=mission();state=makeState();const spawns=[56,59,62];state.heroes=profile.squad.map((x,i)=>makeUnit(x,spawns[i],"hero"));state.enemies=m.enemies.map(x=>makeUnit(x[0],x[1],"enemy"));if(m.type==="defend")state.beacon={pos:m.objectives[0],hp:45,max:45};state.mode="playing";state.logs=[`任务开始：${m.objective}`];renderAll();}
+  function say(s){state.logs.unshift(s);state.logs=state.logs.slice(0,16);els.message.textContent=s;}function occupied(pos){return [...state.heroes,...state.enemies].find(u=>u.hp>0&&u.pos===pos)||(state.beacon?.hp>0&&state.beacon.pos===pos?state.beacon:null);}function blocked(pos){return mission().walls.includes(pos)||Boolean(occupied(pos));}
+  function reachable(unit){const max=HEROES[unit.type].move+(hasSigil("stride")?1:0),seen=new Set([unit.pos]),queue=[[unit.pos,0]];while(queue.length){const [p,d]=queue.shift();if(d===max)continue;const [x,y]=xy(p);for(const [nx,ny] of [[x+1,y],[x-1,y],[x,y+1],[x,y-1]]){const n=ny*8+nx;if(nx<0||nx>7||ny<0||ny>7||seen.has(n)||mission().walls.includes(n)||(occupied(n)&&n!==unit.pos))continue;seen.add(n);queue.push([n,d+1]);}}seen.delete(unit.pos);return seen;}
+  function damage(attacker,target,amount,skill=false){let value=amount+(attacker.side==="hero"&&hasSigil("ember")?2:0)+(skill&&hasSigil("focus")?4:0);if(target.side==="hero"){if(mission().cover.includes(target.pos))value-=3;if(hasSigil("aegis"))value-=2;if(target.shield){const used=Math.min(target.shield,value);target.shield-=used;value-=used;}}value=Math.max(1,value);target.hp-=value;say(`${nameOf(attacker)} 对 ${nameOf(target)} 造成 ${value} 伤害。`);if(target.hp<=0)defeat(target,attacker);return value;}
+  function nameOf(u){if(u===state.beacon)return "王庭信标";return (u.side==="hero"?HEROES:ENEMIES)[u.type].name;}
+  function defeat(unit,attacker){if(unit.side==="enemy"){state.enemies=state.enemies.filter(x=>x!==unit);state.crests+=1+(hasSigil("bounty")?1:0);say(`${nameOf(unit)} 被击败，星火增加。`);}else{if(hasSigil("phoenix")&&!state.phoenixUsed){state.phoenixUsed=true;unit.hp=12;unit.done=true;say(`${nameOf(unit)} 触发余命徽记，以 12 生命复燃。`);return;}state.heroes=state.heroes.filter(x=>x!==unit);state.lost++;say(`${nameOf(unit)} 退出战场。`);}}
+  function normalAction(unit,pos){const enemy=state.enemies.find(e=>e.pos===pos);const t=HEROES[unit.type];if(enemy&&dist(unit.pos,pos)<=t.range){damage(unit,enemy,t.atk);unit.done=true;state.selected=null;checkOutcome();return true;}if(!occupied(pos)&&reachable(unit).has(pos)){unit.pos=pos;unit.done=true;state.selected=null;if(mission().type==="seal"&&mission().objectives.includes(pos)&&!state.sealed.includes(pos)){state.sealed.push(pos);say(`${nameOf(unit)} 封印了一座火塔。`);}if(mission().type==="escape"&&mission().objectives.includes(pos)){state.escaped++;state.heroes=state.heroes.filter(x=>x!==unit);say(`${nameOf(unit)} 已撤离战场。`);}checkOutcome();return true;}return false;}
+  function useSkill(unit,pos){if(state.crests<2||unit.skillUsed)return false;const t=HEROES[unit.type];let used=false;if(unit.type==="knight"){const targets=state.enemies.filter(e=>dist(unit.pos,e.pos)<=1);if(targets.length){targets.slice().forEach(e=>damage(unit,e,t.atk-2,true));used=true;}}else if(unit.type==="warden"){state.heroes.forEach(h=>h.shield+=8+(hasSigil("focus")?4:0));say("守卫展开壁垒，全队获得护盾。");used=true;}else if(unit.type==="archer"){const e=state.enemies.find(x=>x.pos===pos);if(e&&dist(unit.pos,pos)<=5){damage(unit,e,t.atk+7,true);used=true;}}else if(unit.type==="mage"){if(dist(unit.pos,pos)<=3){state.enemies.filter(e=>dist(e.pos,pos)<=1).slice().forEach(e=>damage(unit,e,t.atk-3,true));used=true;}}else if(unit.type==="medic"){const h=state.heroes.find(x=>x.pos===pos);if(h&&dist(unit.pos,pos)<=3){const heal=18+(hasSigil("focus")?4:0);h.hp=Math.min(h.max,h.hp+heal);say(`医师为 ${nameOf(h)} 恢复 ${heal} 生命。`);used=true;}}else if(unit.type==="rogue"){const e=state.enemies.find(x=>x.pos===pos);if(e&&dist(unit.pos,pos)<=4){unit.pos=nearestFree(e.pos,unit.pos);damage(unit,e,t.atk+8,true);used=true;}}
+    if(used){state.crests-=2;unit.skillUsed=true;unit.done=true;state.selected=null;state.action="normal";checkOutcome();}return used;}
+  function nearestFree(target,fallback){const [x,y]=xy(target);for(const [nx,ny] of [[x,y+1],[x-1,y],[x+1,y],[x,y-1]]){const p=ny*8+nx;if(nx>=0&&nx<8&&ny>=0&&ny<8&&!blocked(p))return p;}return fallback;}
+  function clickCell(pos){if(state.mode!=="playing")return;const hero=state.heroes.find(h=>h.pos===pos);if(hero&&!hero.done){state.selected=hero;state.action="normal";say(`已选择 ${nameOf(hero)}。`);renderAll();return;}if(!state.selected)return;if(state.action==="skill"){if(!useSkill(state.selected,pos))say("该位置不是当前职业技能的有效目标。");}else if(!normalAction(state.selected,pos))say("该格不在可移动或可攻击范围内。");renderAll();}
+  function enemyTurn(){if(state.mode!=="playing")return;for(const e of [...state.enemies]){if(e.hp<=0)continue;const t=ENEMIES[e.type];const candidates=[...state.heroes];if(state.beacon?.hp>0)candidates.push(state.beacon);if(!candidates.length)break;const target=candidates.sort((a,b)=>dist(e.pos,a.pos)-dist(e.pos,b.pos))[0];if(dist(e.pos,target.pos)<=t.range){if(target===state.beacon){state.beacon.hp-=t.atk;say(`${t.name} 攻击信标，造成 ${t.atk} 伤害。`);}else damage(e,target,t.atk);}else{const [ex,ey]=xy(e.pos),[tx,ty]=xy(target.pos);const opts=[[ex+Math.sign(tx-ex),ey],[ex,ey+Math.sign(ty-ey)],[ex-Math.sign(tx-ex),ey],[ex,ey-Math.sign(ty-ey)]].map(([x,y])=>y*8+x).filter((p,i)=>{const [x,y]=xy(p);return x>=0&&x<8&&y>=0&&y<8&&!blocked(p)&&i<2;});if(opts[0]!==undefined)e.pos=opts[0];}}
+    for(const u of [...state.heroes,...state.enemies])if(mission().flame.includes(u.pos)){u.hp-=4;say(`${nameOf(u)} 被熔流灼伤 4 点。`);if(u.hp<=0)defeat(u,null);}if(state.beacon&&state.beacon.hp<=0){lose("王庭信标被摧毁。");return;}state.turn++;if(hasSigil("spring"))state.heroes.forEach(h=>h.hp=Math.min(h.max,h.hp+2));state.heroes.forEach(h=>h.done=false);state.selected=null;state.action="normal";checkOutcome();renderAll();}
+  function checkOutcome(){if(state.mode!=="playing")return false;const m=mission();if((m.type==="eliminate"||m.type==="boss")&&!state.enemies.length)return finish(true);if(m.type==="seal"&&state.sealed.length===m.objectives.length)return finish(true);if(m.type==="escape"&&state.escaped>=2)return finish(true);if(m.type==="defend"&&state.turn>m.rounds&&state.beacon?.hp>0)return finish(true);if(!state.heroes.length&&!(m.type==="escape"&&state.escaped>=2))return lose("小队失去继续作战能力。");if(state.turn>m.limit)return lose("任务超过回合上限。");return false;}
+  function finish(win){if(!win||state.mode!=="playing")return 0;const stars=1+(state.lost===0?1:0)+(state.turn<=mission().par?1:0);profile.stars[selectedMission]=Math.max(profile.stars[selectedMission],stars);profile.unlocked=Math.max(profile.unlocked,Math.min(8,selectedMission+1));profile.clears++;if(state.lost===0)profile.perfects++;save();state.mode="result";state.result=`任务完成：${"★".repeat(stars)}${"☆".repeat(3-stars)}，用时 ${state.turn} 回合。`;say(state.result);renderAll();return stars;}function lose(reason){state.mode="failed";state.result=`任务失败：${reason}`;say(state.result);renderAll();return 0;}
+  function selectMission(i){if(i>profile.unlocked||state.mode==="playing")return;selectedMission=i;state=makeState();renderAll();}
+  function toggleHero(id){if(state.mode==="playing"||!heroUnlocked(id))return;const i=profile.squad.indexOf(id);if(i>=0){if(profile.squad.length<=3){profile.squad.splice(i,1);if(profile.squad.length<3){const add=Object.keys(HEROES).find(x=>heroUnlocked(x)&&!profile.squad.includes(x));if(add)profile.squad.push(add);}}}else{if(profile.squad.length>=3)profile.squad.shift();profile.squad.push(id);}save();state=makeState();renderAll();}
+  function toggleSigil(id){if(state.mode==="playing"){say("战斗中不能更换徽记。");return;}const s=SIGILS.find(x=>x.id===id);if(totalStars()<s.need)return;const i=profile.sigils.indexOf(id);if(i>=0)profile.sigils.splice(i,1);else{if(profile.sigils.length>=2)profile.sigils.shift();profile.sigils.push(id);}save();state=makeState();renderAll();}
+  function highlight(pos,unit){if(!unit)return "";const enemy=state.enemies.some(e=>e.pos===pos);if(state.action==="skill"){if(unit.type==="archer"&&enemy&&dist(unit.pos,pos)<=5)return "skill-target";if(unit.type==="mage"&&dist(unit.pos,pos)<=3)return "skill-target";if(unit.type==="medic"&&state.heroes.some(h=>h.pos===pos)&&dist(unit.pos,pos)<=3)return "skill-target";if(unit.type==="rogue"&&enemy&&dist(unit.pos,pos)<=4)return "skill-target";return "";}if(enemy&&dist(unit.pos,pos)<=HEROES[unit.type].range)return "attack";if(!occupied(pos)&&reachable(unit).has(pos))return "move";return "";}
+  function renderBoard(){const m=mission();els.board.innerHTML="";for(let i=0;i<64;i++){const c=document.createElement("button"),u=occupied(i);c.className=`cell ${i%3===0?"alt":""} ${m.walls.includes(i)?"wall":""} ${m.cover.includes(i)?"cover":""} ${m.flame.includes(i)?"flame":""} ${m.objectives.includes(i)?(m.type==="escape"?"exit":"objective"):""} ${highlight(i,state.selected)} ${u&&u===state.selected?"sel":""}`;c.disabled=m.walls.includes(i);let terrain=m.walls.includes(i)?"■":m.flame.includes(i)?"火":m.cover.includes(i)?"掩":m.objectives.includes(i)?(m.type==="escape"?"撤":"印"):"";if(u){if(u===state.beacon)c.innerHTML=`<span class="hp"><i style="width:${Math.max(0,u.hp/u.max*100)}%"></i></span>◉<small>${u.hp}/${u.max}</small>`;else{const t=u.side==="hero"?HEROES[u.type]:ENEMIES[u.type];c.innerHTML=`<span class="hp"><i style="width:${Math.max(0,u.hp/u.max*100)}%"></i></span>${t.icon}<small>${u.hp}/${u.max}${u.done?" · 已动":""}</small>`;}}if(terrain)c.insertAdjacentHTML("beforeend",`<span class="terrain">${terrain}</span>`);c.dataset.cell=i;c.onclick=()=>clickCell(i);els.board.append(c);}}
+  function renderAll(){const m=mission();els.missionTitle.textContent=`${m.chapter} ${selectedMission%3+1} · ${m.name}`;els.objective.textContent=`${m.objective} 建议 ${m.par} 回合，最迟 ${m.limit} 回合。`;els.turn.textContent=state.turn;els.crest.textContent=state.crests;els.enemy.textContent=state.enemies.length;els.missionList.innerHTML=M.map((x,i)=>`<button class="mission ${i===selectedMission?"active":""}" data-mission="${i}" ${i>profile.unlocked||state.mode==="playing"?"disabled":""}><b>${i+1}. ${x.name}</b><small>${x.chapter} · ${x.type==="eliminate"?"清剿":x.type==="seal"?"封印":x.type==="defend"?"守卫":x.type==="escape"?"撤离":"首领"}</small><span class="stars">${"★".repeat(profile.stars[i])}${"☆".repeat(3-profile.stars[i])}</span></button>`).join("");els.missionList.querySelectorAll("[data-mission]").forEach(b=>b.onclick=()=>selectMission(+b.dataset.mission));els.heroList.innerHTML=Object.entries(HEROES).map(([id,h])=>{const unlocked=heroUnlocked(id);return `<button class="hero ${profile.squad.includes(id)?"active":""} ${unlocked?"":"locked"}" data-hero="${id}" ${!unlocked||state.mode==="playing"?"disabled":""}><b>${h.icon} ${h.name}</b><small>HP ${h.hp} · 攻 ${h.atk} · 移 ${h.move} · 射 ${h.range}<br>${unlocked?h.skill:`需 ${ {warden:3,medic:6,rogue:10}[id]} 星`}</small></button>`}).join("");els.heroList.querySelectorAll("[data-hero]").forEach(b=>b.onclick=()=>toggleHero(b.dataset.hero));els.sigilList.innerHTML=SIGILS.map(s=>`<button class="sigil ${profile.sigils.includes(s.id)?"active":""} ${totalStars()>=s.need?"":"locked"}" data-sigil="${s.id}" ${totalStars()<s.need||state.mode==="playing"?"disabled":""}><b>${s.name} · ${s.need}★</b><small>${s.text}</small></button>`).join("");els.sigilList.querySelectorAll("[data-sigil]").forEach(b=>b.onclick=()=>toggleSigil(b.dataset.sigil));els.squad.innerHTML=(state.mode==="brief"?profile.squad.map(id=>({type:id,hp:HEROES[id].hp,max:HEROES[id].hp,done:false,shield:0})):state.heroes).map(u=>`<div class="unit-row"><b><span>${HEROES[u.type].icon} ${HEROES[u.type].name}</span><span>${Math.max(0,u.hp)}/${u.max}</span></b><span>${u.shield?`护盾 ${u.shield} · `:""}${u.done?"本回合已行动":HEROES[u.type].skill}</span></div>`).join("")+(state.escaped?`<div class="unit-row">已撤离英雄：${state.escaped}</div>`:"");const progress=m.type==="seal"?`${state.sealed.length}/${m.objectives.length}`:m.type==="escape"?`${state.escaped}/2`:m.type==="defend"?`${Math.min(state.turn-1,m.rounds)}/${m.rounds}`:`剩余敌军 ${state.enemies.length}`;els.goals.innerHTML=`<div class="goal ${state.mode==="result"?"pass":""}">任务进度：${progress}</div><div class="goal ${state.lost===0?"pass":""}">全员生还：损失 ${state.lost}</div><div class="goal ${state.turn<=m.par?"pass":""}">建议回合：${state.turn}/${m.par}</div>`;els.log.innerHTML=state.logs.map(x=>`<div>• ${x}</div>`).join("");els.start.disabled=state.mode==="playing";els.start.textContent=state.mode==="result"?"重新出征":"开始任务";els.end.disabled=state.mode!=="playing";els.skill.disabled=state.mode!=="playing"||!state.selected||state.selected.skillUsed||state.crests<2;els.skill.textContent=state.selected?`技能：${HEROES[state.selected.type].skill.split("：")[0]}（2）`:"先选择英雄";els.totalStars.textContent=totalStars();els.clears.textContent=profile.clears;els.perfects.textContent=profile.perfects;if(state.result)els.message.textContent=state.result;renderBoard();}
+  els.start.onclick=start;els.end.onclick=enemyTurn;els.skill.onclick=()=>{if(!state.selected)return;if(["knight","warden"].includes(state.selected.type)){if(!useSkill(state.selected,state.selected.pos))say("附近没有有效目标或星火不足。");}else{state.action="skill";say(`选择 ${HEROES[state.selected.type].skill.split("：")[0]} 的目标。`);}renderAll();};$("restartBtn").onclick=()=>{state=makeState();renderAll();};
+  function checksum(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return (h>>>0).toString(36);}function encode(){const p=btoa(unescape(encodeURIComponent(JSON.stringify({v:2,u:profile.unlocked,s:profile.stars,q:profile.squad,g:profile.sigils,c:profile.clears,p:profile.perfects}))));return `EMBER2.${p}.${checksum(p)}`;}function decode(code){const p=code.trim().split(".");if(p.length!==3||p[0]!=="EMBER2"||checksum(p[1])!==p[2])throw Error("战团档案校验失败");const v=JSON.parse(decodeURIComponent(escape(atob(p[1]))));if(v.v!==2||!Array.isArray(v.s))throw Error("档案版本不兼容");const squad=(v.q||[]).filter(x=>HEROES[x]).slice(0,3);for(const id of ["knight","archer","mage"])if(squad.length<3&&!squad.includes(id))squad.push(id);return {v:2,unlocked:clamp(+v.u||0,0,8),stars:Array.from({length:9},(_,i)=>clamp(+v.s[i]||0,0,3)),squad,sigils:(v.g||[]).filter(x=>SIGILS.some(s=>s.id===x)).slice(0,2),clears:Math.max(0,+v.c||0),perfects:Math.max(0,+v.p||0)};}
+  $("archiveBtn").onclick=()=>{els.archive.classList.remove("hidden");els.archiveText.value=encode();els.archiveFeedback.textContent="";};$("closeArchiveBtn").onclick=()=>els.archive.classList.add("hidden");$("exportBtn").onclick=async()=>{els.archiveText.value=encode();els.archiveText.select();try{await navigator.clipboard.writeText(els.archiveText.value);els.archiveFeedback.textContent="战团档案已复制。";}catch(_){els.archiveFeedback.textContent="档案已生成，请手动复制。";}};$("importBtn").onclick=()=>{try{profile=decode(els.archiveText.value);save();selectedMission=Math.min(profile.unlocked,8);state=makeState();renderAll();els.archiveFeedback.textContent="导入成功。";}catch(e){els.archiveFeedback.textContent=e.message;}};
+  function validateContent(){const errors=[];if(M.length!==9)errors.push("mission count");if(Object.keys(HEROES).length!==6)errors.push("hero count");if(SIGILS.length!==8)errors.push("sigil count");for(const [i,m] of M.entries()){const cells=[...m.walls,...m.cover,...m.flame,...m.objectives,...m.enemies.map(e=>e[1])];if(cells.some(x=>x<0||x>63))errors.push(`mission ${i} cell`);if(m.enemies.some(e=>!ENEMIES[e[0]]))errors.push(`mission ${i} enemy`);if(!["eliminate","seal","defend","escape","boss"].includes(m.type))errors.push(`mission ${i} type`);}return {valid:!errors.length,errors,missions:M.length,heroes:Object.keys(HEROES).length,sigils:SIGILS.length,objectiveTypes:new Set(M.map(m=>m.type)).size};}
+  window.__emberTactics={HEROES,ENEMIES,SIGILS,MISSIONS:M,profile:()=>profile,state:()=>state,start,clickCell,enemyTurn,checkOutcome,finish,selectMission,encode,decode,validateContent,renderAll};renderAll();
+})();
+</script>
+</body>
 </html>
