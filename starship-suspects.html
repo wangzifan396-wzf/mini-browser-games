@@ -1,329 +1,86 @@
 <!doctype html>
 <html lang="zh-CN">
-  <meta charset="utf-8" /><meta
-    name="viewport"
-    content="width=device-width,initial-scale=1"
-  /><title>星舰疑云</title
-  ><style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      background: #080d1a;
-      color: #edf4ff;
-      font-family: system-ui, "Microsoft YaHei";
-    }
-    .app {
-      min-height: 100vh;
-      padding: 14px;
-      display: grid;
-      place-items: center;
-    }
-    .shell {
-      width: min(980px, 100%);
-      background: #131d35;
-      border: 1px solid #40567b;
-      border-radius: 20px;
-      padding: 16px;
-    }
-    .top,
-    .row {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .ship {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 9px;
-      margin: 12px 0;
-    }
-    .room {
-      min-height: 120px;
-      border: 1px solid #405676;
-      border-radius: 12px;
-      background: #1b2a47;
-      padding: 10px;
-    }
-    .crew {
-      display: inline-block;
-      padding: 6px;
-      border-radius: 50%;
-      margin: 3px;
-      background: #324b74;
-    }
-    .crew.dead {
-      filter: grayscale(1);
-      opacity: 0.35;
-    }
-    .layout {
-      display: grid;
-      grid-template-columns: 1fr 300px;
-      gap: 12px;
-    }
-    .panel {
-      background: #0d172b;
-      border: 1px solid #344a6c;
-      border-radius: 11px;
-      padding: 10px;
-      margin-bottom: 9px;
-    }
-    .players button {
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      margin: 5px 0;
-    }
-    .players button.sel {
-      outline: 3px solid #ffd965;
-    }
-    .log {
-      height: 140px;
-      overflow: auto;
-      color: #b9c9e2;
-      font-size: 13px;
-    }
-    button {
-      padding: 9px 11px;
-      border: 1px solid #526b91;
-      border-radius: 9px;
-      background: #29456e;
-      color: white;
-      font-weight: bold;
-    }
-    .task {
-      background: #38735b;
-    }
-    .vote {
-      background: #93464c;
-    }
-    .help {
-      font-size: 13px;
-      color: #b6c8df;
-    }
-    @media (max-width: 700px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
-      .ship {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      .app {
-        place-items: start center;
-      }
-    }
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>星舰疑云：航迹证词</title>
+  <style>
+    :root{--bg:#070d18;--panel:#111d31;--panel2:#172841;--line:#3e5c7c;--ink:#edf6ff;--muted:#aebfd4;--cyan:#67d4e5;--gold:#f0c55e;--green:#62d49a;--red:#e76d78;--violet:#a88ced}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 12% 0,#173a58 0,transparent 31%),radial-gradient(circle at 90% 5%,#39284f 0,transparent 28%),linear-gradient(145deg,#050b14,#0b1524 65%,#100e1b);color:var(--ink);font-family:system-ui,"Microsoft YaHei",sans-serif}.app{width:min(1450px,calc(100% - 22px));margin:11px auto}.top,.panel{border:1px solid var(--line);border-radius:15px;background:rgba(17,29,49,.97);box-shadow:0 18px 48px rgba(0,0,0,.34)}.top{display:flex;justify-content:space-between;align-items:center;gap:15px;padding:15px 18px}.eyebrow{margin:0 0 4px;color:var(--cyan);font-size:12px;font-weight:950;letter-spacing:.15em}.top h1{margin:0;font-size:clamp(26px,4vw,43px);line-height:1}.sub{margin:7px 0 0;color:var(--muted);font-size:13px}.actions,.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}button,select,textarea{font:inherit}.btn{min-height:42px;padding:0 13px;border:1px solid #58769a;border-radius:9px;background:#294d72;color:white;font-weight:900;cursor:pointer}.btn.gold{border-color:#9e7931;background:#76561e}.btn.red{border-color:#9a4550;background:#76343d}.btn.ghost{background:#203651}.btn:disabled{opacity:.42;filter:saturate(.3);cursor:not-allowed}.layout{display:grid;grid-template-columns:minmax(0,1fr) 385px;gap:12px;margin-top:12px;align-items:start}.case{padding:12px;min-width:0}.side{padding:12px;display:grid;gap:10px;max-height:calc(100vh - 105px);overflow:auto}.case-head{padding:12px;border:1px solid #425f7f;border-radius:11px;background:linear-gradient(100deg,#1d344e,#151d34);display:flex;justify-content:space-between;gap:10px}.case-head h2{margin:0 0 5px}.case-head p{margin:0;color:var(--muted);font-size:12px}.status{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;min-width:265px}.stat{padding:7px;border:1px solid #48617b;border-radius:8px;text-align:center;background:#0e1b2c}.stat b{display:block;font-size:19px}.stat small{font-size:10px;color:var(--muted)}.crew{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:10px}.crew-card{padding:8px;border:1px solid #405b78;border-radius:9px;background:#14243a}.crew-card b,.crew-card small{display:block}.crew-card b{font-size:13px}.crew-card small{margin-top:3px;color:var(--muted);font-size:10px;line-height:1.35}.evidence-title{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:12px 0 7px}.evidence-title h3{margin:0;color:var(--cyan)}.evidence{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}.clue{position:relative;min-height:118px;padding:10px;border:1px solid #405b78;border-radius:10px;background:#0d1a2a;color:white;text-align:left;cursor:pointer}.clue.selected{outline:3px solid var(--gold);background:#213248}.clue.linked{border-color:#468866;background:#153126}.clue b,.clue small,.clue span{display:block}.clue b{margin:5px 0}.clue small{color:var(--cyan);font-size:10px}.clue span{color:var(--muted);font-size:11px;line-height:1.45}.linkbar{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-top:8px;padding:9px;border:1px solid #405b78;border-radius:9px;background:#0c1827}.linkbar span{color:var(--muted);font-size:11px}.inferences{display:grid;gap:6px;margin-top:9px}.inference{padding:8px;border-left:4px solid var(--green);background:#132d29;color:#dff8ed;font-size:11px}.block{padding:11px;border:1px solid #3c5775;border-radius:11px;background:#0c1828}.block h2,.block h3{margin:0 0 8px}.block h2{font-size:20px}.block h3{font-size:14px;color:var(--cyan)}.cases{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.case-btn{min-height:49px;padding:4px;border:1px solid #405d7a;border-radius:8px;background:#182d45;color:white;cursor:pointer}.case-btn.active{outline:3px solid var(--cyan)}.case-btn:disabled{opacity:.38}.stars{color:var(--gold);font-size:10px}.accuse{display:grid;gap:7px}.accuse label{display:grid;gap:3px;color:var(--muted);font-size:11px}.accuse select{min-height:40px;padding:0 8px;border:1px solid #486782;border-radius:8px;background:#142940;color:white;font-weight:850}.result{min-height:44px;padding:8px;border:1px solid #405c78;border-radius:8px;color:var(--muted);font-size:11px;line-height:1.45}.result.win{border-color:#468866;color:#dff8ea;background:#143027}.career{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.career div{padding:7px;border:1px solid #405b75;border-radius:8px;background:#14283d;text-align:center}.career b{display:block;font-size:19px}.career small{font-size:10px;color:var(--muted)}.tip{color:var(--muted);font-size:12px;line-height:1.5}.archive{position:fixed;inset:0;z-index:8;display:grid;place-items:center;padding:18px;background:rgba(2,8,15,.84)}.archive.hidden{display:none}.dialog{width:min(620px,100%);padding:18px;border:1px solid #506f90;border-radius:15px;background:#111d31}.dialog h2{margin:0 0 8px}.dialog textarea{width:100%;min-height:125px;padding:10px;border:1px solid #4e6d89;border-radius:8px;background:#071321;color:white;resize:vertical}.dialog .row{justify-content:flex-end}.feedback{min-height:20px;margin-top:7px;color:var(--gold);font-size:12px;font-weight:850}
+    @media(max-width:1000px){.layout{grid-template-columns:1fr}.side{max-height:none;grid-template-columns:repeat(2,minmax(0,1fr))}.side .wide{grid-column:1/-1}}
+    @media(max-width:680px){.app{width:min(100% - 10px,1450px);margin:5px auto}.top{display:block;padding:12px}.actions{margin-top:11px}.actions .btn{flex:1}.case,.side{padding:9px}.side{grid-template-columns:1fr}.side .wide{grid-column:auto}.case-head{display:block}.status{min-width:0;margin-top:8px}.crew{grid-template-columns:repeat(2,1fr)}.evidence{grid-template-columns:1fr}.clue{min-height:104px}.sub{line-height:1.45}}
   </style>
-  <main class="app">
-    <section class="shell">
-      <div class="top">
-        <div>
-          <h1 style="margin: 0">星舰疑云</h1>
-          <div class="help">
-            完成任务获取行动记录，观察船员位置与口供；冒名者会制造破坏并逐轮袭击。
-          </div>
-        </div>
-        <div>
-          轮次 <b id="round"></b>/6　任务 <b id="tasks"></b>/8　存活
-          <b id="alive"></b>　警报 <b id="alarm"></b>
-        </div>
-      </div>
-      <div class="layout">
-        <div>
-          <div class="ship" id="ship"></div>
-          <div class="row">
-            <button class="task" id="doTask">执行所在舱任务</button
-            ><button id="move">移动舱室</button
-            ><button id="investigate">检查监控</button
-            ><button class="vote" id="meeting">召开会议</button>
-          </div>
-          <div class="panel log" id="log"></div>
-        </div>
-        <aside>
-          <div class="panel">
-            <b>船员与口供</b>
-            <div class="players" id="players"></div>
-          </div>
-          <div class="panel">
-            <b>调查笔记</b>
-            <div id="notes" class="help"></div>
-          </div>
-          <button id="vote">投票放逐选中船员</button
-          ><button id="restart">新航程</button>
-        </aside>
-      </div>
+</head>
+<body>
+<main class="app">
+  <header class="top"><div><p class="eyebrow">STARSHIP TESTIMONY V2</p><h1>星舰疑云</h1><p class="sub">六起确定性案件、三条证据关联与三重指控。位置、证词和系统记录必须互相解释。</p></div><div class="actions"><button class="btn gold" id="linkBtn">关联两条证据</button><button class="btn" id="hintBtn">请求提示</button><button class="btn ghost" id="archiveBtn">调查档案</button></div></header>
+  <section class="layout">
+    <section class="panel case">
+      <div class="case-head"><div><h2 id="caseName"></h2><p id="incident"></p></div><div class="status"><div class="stat"><b id="linkText">0/3</b><small>有效关联</small></div><div class="stat"><b id="errorText">0</b><small>错误关联</small></div><div class="stat"><b id="hintText">0</b><small>提示</small></div></div></div>
+      <div class="crew" id="crew"></div>
+      <div class="evidence-title"><h3>证据档案</h3><span class="tip">选择两张卡片后点击“关联”</span></div>
+      <div class="evidence" id="evidence"></div>
+      <div class="linkbar"><span id="selectionText">尚未选择证据</span><button class="btn" id="clearBtn">清除选择</button></div>
+      <div class="inferences" id="inferences"></div>
     </section>
-  </main>
-  <script>
-    const rooms = ["驾驶舱", "反应堆", "医务室", "仓库", "通讯室", "引擎室"],
-      C = [
-        ["你", "🔵"],
-        ["赤红", "🔴"],
-        ["青柠", "🟢"],
-        ["金黄", "🟡"],
-        ["紫罗兰", "🟣"],
-        ["白霜", "⚪"],
-      ];
-    let q,
-      selected = 1;
-    const $ = (x) => document.getElementById(x);
-    function fresh() {
-      let imp = 1 + Math.floor(Math.random() * 5);
-      return {
-        round: 1,
-        tasks: 0,
-        alarm: 0,
-        youRoom: 0,
-        crew: C.map((c, i) => ({
-          i,
-          room: Math.floor(Math.random() * 6),
-          alive: true,
-          imp: i === imp,
-        })),
-        logs: ["星舰启航，但系统检测到一名冒名者。"],
-        notes: [],
-        meeting: false,
-        over: false,
-      };
-    }
-    function advance(action) {
-      if (q.over) return;
-      q.logs.unshift(action);
-      for (const c of q.crew)
-        if (c.alive && c.i > 0) c.room = Math.floor(Math.random() * 6);
-      let imp = q.crew.find((c) => c.imp && c.alive);
-      if (imp) {
-        if (Math.random() < 0.38) {
-          let victims = q.crew.filter((c) => c.alive && !c.imp && c.i > 0);
-          if (victims.length) {
-            let v = victims[Math.floor(Math.random() * victims.length)];
-            v.alive = false;
-            q.logs.unshift(
-              `${C[v.i][1]}${C[v.i][0]}在${rooms[v.room]}失去联系！`,
-            );
-          }
-        } else {
-          q.alarm++;
-          q.logs.unshift(`系统在${rooms[imp.room]}遭到破坏，警报上升。`);
-        }
-      }
-      q.round++;
-      if (q.tasks >= 8) {
-        q.over = true;
-        q.logs.unshift("全部任务完成，星舰安全抵达！");
-      }
-      if (q.round > 6 && !q.over) {
-        q.over = true;
-        q.logs.unshift(
-          "航程结束：" +
-            (imp ? "冒名者仍潜伏在船上。" : "船员成功排除了威胁！"),
-        );
-      }
-      if (
-        q.crew.filter((c) => c.alive && !c.imp && c.i > 0).length <= 1 &&
-        imp
-      ) {
-        q.over = true;
-        q.logs.unshift("冒名者控制了星舰。");
-      }
-      draw();
-    }
-    function task() {
-      q.tasks++;
-      q.alarm = Math.max(0, q.alarm - 1);
-      advance(`你在${rooms[q.youRoom]}完成一项维修任务。`);
-    }
-    function inspect() {
-      let seen = q.crew
-        .filter((c) => c.alive && c.i > 0 && Math.random() < 0.7)
-        .map((c) => `${C[c.i][0]}出现在${rooms[c.room]}`);
-      let imp = q.crew.find((c) => c.imp && c.alive);
-      if (imp && Math.random() < 0.35)
-        seen.push(`监控中有一段来自${rooms[imp.room]}的画面被删除`);
-      q.notes.push(...seen);
-      advance("你调取了本轮监控记录。");
-    }
-    function castVote() {
-      if (!q.meeting) return note("需要先召开会议。");
-      let c = q.crew[selected];
-      if (!c?.alive || c.i === 0) return;
-      c.alive = false;
-      q.logs.unshift(
-        `${C[c.i][1]}${C[c.i][0]}被放逐。${c.imp ? "身份确认：冒名者！" : "他是无辜船员。"}`,
-      );
-      q.meeting = false;
-      if (c.imp) {
-        q.over = true;
-        q.logs.unshift("威胁解除，船员阵营获胜！");
-      } else advance("错误放逐后，航程继续。");
-      draw();
-    }
-    function note(s) {
-      q.logs.unshift(s);
-      draw();
-    }
-    function draw() {
-      round.textContent = Math.min(6, q.round);
-      tasks.textContent = q.tasks;
-      alive.textContent = q.crew.filter((c) => c.alive).length;
-      alarm.textContent = q.alarm;
-      ship.innerHTML = rooms
-        .map(
-          (r, i) =>
-            `<div class="room"><b>${r}${q.youRoom === i ? " · 你在这里" : ""}</b><div>${q.crew
-              .filter((c) => c.alive && c.room === i)
-              .map((c) => `<span class="crew">${C[c.i][1]}</span>`)
-              .join("")}</div></div>`,
-        )
-        .join("");
-      players.innerHTML = q.crew
-        .slice(1)
-        .map(
-          (c) =>
-            `<button data-i="${c.i}" class="${selected === c.i ? "sel" : ""}" ${!c.alive ? "disabled" : ""}><span>${C[c.i][1]}${C[c.i][0]}</span><span>${c.alive ? rooms[c.room] : "失联"}</span></button>`,
-        )
-        .join("");
-      players.querySelectorAll("[data-i]").forEach(
-        (e) =>
-          (e.onclick = () => {
-            selected = +e.dataset.i;
-            draw();
-          }),
-      );
-      notes.innerHTML =
-        q.notes
-          .slice(-8)
-          .map((x) => `• ${x}`)
-          .join("<br>") || "尚未取得监控记录。";
-      log.innerHTML = q.logs
-        .slice(0, 10)
-        .map((x) => `<div>• ${x}</div>`)
-        .join("");
-      meeting.disabled = q.over;
-      vote.disabled = !q.meeting || q.over;
-      doTask.disabled = q.over;
-    }
-    doTask.onclick = task;
-    move.onclick = () => {
-      q.youRoom = (q.youRoom + 1) % 6;
-      q.crew[0].room = q.youRoom;
-      advance(`你移动到${rooms[q.youRoom]}。`);
-    };
-    investigate.onclick = inspect;
-    meeting.onclick = () => {
-      q.meeting = true;
-      note("紧急会议召开，请结合监控与位置选择嫌疑人。");
-    };
-    vote.onclick = castVote;
-    restart.onclick = () => {
-      q = fresh();
-      selected = 1;
-      draw();
-    };
-    q = fresh();
-    q.crew[0].room = 0;
-    draw();
-  </script>
+    <aside class="panel side">
+      <section class="block wide"><h3 id="chapterText"></h3><h2>最终指控</h2><div class="accuse"><label>嫌疑船员<select id="suspectSelect"></select></label><label>破坏手段<select id="methodSelect"></select></label><label>作案动机<select id="motiveSelect"></select></label><button class="btn red" id="accuseBtn">提交三重指控</button><div class="result" id="result">关联证据可以形成推论，但不会替你选择答案。</div></div></section>
+      <section class="block"><h3>案件战役</h3><div class="cases" id="cases"></div></section>
+      <section class="block"><h3>调查生涯</h3><div class="career"><div><b id="careerStars">0</b><small>星章</small></div><div><b id="solvedText">0</b><small>结案</small></div><div><b id="perfectText">0</b><small>完美推理</small></div></div></section>
+      <section class="block wide"><h3>推理原则</h3><p class="tip">证词描述的是说话者声称的位置；门禁、工具、传感器和账目是独立记录。正确关联必须让两条记录共同支持一个结论，而不是仅仅题材相似。</p></section>
+    </aside>
+  </section>
+</main>
+<div class="archive hidden" id="archiveModal"><div class="dialog"><h2>跨设备调查档案</h2><p class="tip">档案包含六案星级、最佳错误数、已解锁案件和结案统计。</p><textarea id="archiveText" spellcheck="false"></textarea><div class="row"><button class="btn" id="closeArchiveBtn">关闭</button><button class="btn" id="importBtn">导入</button><button class="btn gold" id="exportBtn">生成并复制</button></div><div class="feedback" id="archiveFeedback"></div></div></div>
+<script>
+(() => {
+  "use strict";
+  const KEY="miniStarshipSuspectsV2",$=id=>document.getElementById(id);
+  const CREW=[
+    {name:"赤红",icon:"🔴",role:"轮机师",trait:"说话精确，习惯给出完整时间段"},
+    {name:"青柠",icon:"🟢",role:"医官",trait:"谨慎，只陈述亲眼见到的内容"},
+    {name:"金黄",icon:"🟡",role:"领航员",trait:"自信，喜欢引用航行数据"},
+    {name:"紫罗兰",icon:"🟣",role:"通讯官",trait:"敏感，会回避涉及私人频道的问题"},
+    {name:"白霜",icon:"⚪",role:"货运长",trait:"寡言，常用货单作为不在场证明"}
+  ];
+  const METHODS=["冷却管破坏","医疗气溶胶","导航偏转","通讯注入","伪造权限","远程过载"];
+  const MOTIVES=["掩盖走私","清除债务","偷取航线","保护秘密","争夺指挥权","制造救援合同"];
+  const CASES=[
+    {chapter:"第一章 · 近地航线",name:"冷却舱失压",incident:"反应堆冷却管在海关靠泊前被精准切开，维修令星舰错过检查窗口。",culprit:0,method:"冷却管破坏",motive:"掩盖走私",clues:[
+      ["a","门禁记录","21:14 赤红进入反应堆；21:18 才抵达引擎室。"],["b","赤红证词","“21:10 到 21:20，我一直在引擎室校准喷口。”"],["c","断口扫描","切口残留蓝钨合金，来自手持微弧切割器。"],["d","工具签领","赤红在 20:50 签出蓝钨微弧切割器，未登记归还。"],["e","隐藏货单","未申报零件箱的责任签名属于赤红。"],["f","海关通知","发生冷却事故将自动取消本次靠泊检查。"]],links:[["a","b","门禁与证词冲突：赤红隐瞒了 21:14 的反应堆行程。"],["c","d","断口材料与签领工具一致：破坏使用了赤红持有的切割器。"],["e","f","事故取消海关检查，使未申报货物暂时不会暴露。"]]},
+    {chapter:"第一章 · 近地航线",name:"静默病舱",incident:"两名值班员同时昏睡，医疗舱换气系统检测到不应出现的镇静剂。",culprit:1,method:"医疗气溶胶",motive:"清除债务",clues:[
+      ["a","药柜日志","青柠于 03:06 取出两支雾化镇静剂。"],["b","青柠证词","“整夜没有打开药柜，我只在观察室整理病例。”"],["c","滤芯化验","换气滤芯残留雾化镇静剂和医用稳定剂。"],["d","设备权限","只有医官终端能把药剂注入医疗舱换气支路。"],["e","债务催告","昏睡值班员原计划在 04:00 提交青柠的借款违纪报告。"],["f","排班变更","事故后报告人错过提交窗口，听证自动延期。"]],links:[["a","b","药柜日志否定青柠的证词，她隐瞒了取药行为。"],["c","d","残留成分与权限范围共同指向医疗气溶胶注入。"],["e","f","昏睡直接推迟债务听证，青柠从事故中获益。"]]},
+    {chapter:"第二章 · 深空转运",name:"偏航十七度",incident:"自动航线被修改，星舰险些进入私人采矿区。偏航命令没有触发普通警报。",culprit:2,method:"导航偏转",motive:"偷取航线",clues:[
+      ["a","航控审计","金黄的领航密钥在 12:42 写入了十七度偏转。"],["b","金黄证词","“我的密钥锁在休眠柜，12:30 后没有使用。”"],["c","命令格式","偏转命令使用领航员专属的静默校正格式。"],["d","训练记录","本航次只有金黄完成过静默校正认证。"],["e","采矿区报价","私人矿主承诺为完整航线模型支付高额报酬。"],["f","外发缓存","金黄终端缓存了发往采矿区的加密航线分片。"]],links:[["a","b","领航密钥在证词声称的锁存期间被使用。"],["c","d","命令格式需要金黄独有的静默校正认证。"],["e","f","报价与外发航线分片构成偷取航线的动机链。"]]},
+    {chapter:"第二章 · 深空转运",name:"失真的求救信号",incident:"求救频道被注入伪造坐标，救援队被引向一艘不存在的运输船。",culprit:3,method:"通讯注入",motive:"保护秘密",clues:[
+      ["a","频道指纹","伪造信号使用紫罗兰私人终端的压缩指纹。"],["b","紫罗兰证词","“私人终端本航次从未连接公共求救频道。”"],["c","路由镜像","23:11 私人频道曾短接公共求救总线 46 秒。"],["d","接口权限","短接操作需要通讯官级路由权限。"],["e","密谈记录","真实遇险船保存着紫罗兰未申报的私人通信副本。"],["f","救援后果","错误坐标使真实遇险船在证据传回前失去联系。"]],links:[["a","b","信号指纹直接否定紫罗兰的断连证词。"],["c","d","路由镜像和权限共同证明通讯注入路径。"],["e","f","误导救援阻止私人通信副本被带回。"]]},
+    {chapter:"第三章 · 边境回航",name:"不存在的货主",incident:"一批危险电池以舰长名义通过货舱验证，签名却来自已注销的旧权限。",culprit:4,method:"伪造权限",motive:"争夺指挥权",clues:[
+      ["a","货舱终端","白霜在 18:32 调取了已注销的舰长签名模板。"],["b","白霜证词","“我只核对箱数，没有接触任何权限模板。”"],["c","签名字节","危险电池货单含旧模板特有的 2019 校验尾码。"],["d","权限档案","旧模板只保存在货运长的离线审计盘。"],["e","晋升备忘","若舰长被认定违规承运，白霜将临时接管航次。"],["f","匿名举报","危险电池入舱后，举报信立即指向舰长失职。"]],links:[["a","b","终端记录与白霜的证词直接冲突。"],["c","d","旧校验尾码和离线审计盘证明权限伪造来源。"],["e","f","违规货物与即时举报共同服务于指挥权争夺。"]]},
+    {chapter:"第三章 · 边境回航",name:"远端熔断",incident:"能源核心在安全状态下突然过载，附近救援承包商提前三分钟发出报价。",culprit:0,method:"远程过载",motive:"制造救援合同",clues:[
+      ["a","维护隧道","赤红终端在过载前向能源核心发送隐藏诊断包。"],["b","赤红证词","“我只读取数据，没有向核心写入任何指令。”"],["c","诊断包分析","数据包内嵌延迟执行的熔断阈值覆盖命令。"],["d","轮机权限","阈值覆盖只能由轮机师签名的诊断包执行。"],["e","合同分成","赤红与救援承包商共享一个未披露的收益账户。"],["f","报价时间","承包商在公开警报前三分钟生成了本舰救援报价。"]],links:[["a","b","隐藏诊断包否定了赤红“只读”的说法。"],["c","d","覆盖命令与轮机权限共同证明远程过载手段。"],["e","f","收益账户和提前报价证明事故用于制造救援合同。"]]}
+  ];
+  let profile=load(),selectedCase=Math.min(profile.unlocked,5),run=makeRun(),selection=[];
+  function defaults(){return {v:2,unlocked:0,stars:Array(6).fill(0),bestErrors:Array(6).fill(null),solved:0,perfect:0};}
+  function load(){try{const v=JSON.parse(localStorage.getItem(KEY)||"null");if(v&&v.v===2)return Object.assign(defaults(),v,{stars:Array.from({length:6},(_,i)=>v.stars?.[i]||0),bestErrors:Array.from({length:6},(_,i)=>Number.isInteger(v.bestErrors?.[i])?v.bestErrors[i]:null)});}catch(_){}return defaults();}
+  function save(){localStorage.setItem(KEY,JSON.stringify(profile));}function totalStars(){return profile.stars.reduce((a,b)=>a+b,0);}
+  function makeRun(){return {links:[],errors:0,hints:0,over:false,result:""};}
+  function caseData(){return CASES[selectedCase];}
+  function validateCases(){const errors=[];CASES.forEach((c,ci)=>{const ids=new Set(c.clues.map(x=>x[0]));if(c.clues.length!==6||ids.size!==6)errors.push(`${ci}: clues`);if(c.links.length!==3)errors.push(`${ci}: links`);c.links.forEach(l=>{if(!ids.has(l[0])||!ids.has(l[1])||!l[2])errors.push(`${ci}: link`);});if(!CREW[c.culprit]||!METHODS.includes(c.method)||!MOTIVES.includes(c.motive))errors.push(`${ci}: answer`);});return {valid:errors.length===0,errors,cases:CASES.length,clues:CASES.reduce((n,c)=>n+c.clues.length,0),links:CASES.reduce((n,c)=>n+c.links.length,0)};}
+  function selectClue(id){if(run.over)return;const at=selection.indexOf(id);if(at>=0)selection.splice(at,1);else{if(selection.length>=2)selection.shift();selection.push(id);}renderCase();}
+  function linkEvidence(){if(run.over||selection.length!==2)return;const c=caseData(),key=[...selection].sort().join('|');if(run.links.some(x=>x.key===key)){selection=[];return renderCase();}const found=c.links.find(l=>[l[0],l[1]].sort().join('|')===key);if(found){run.links.push({key,text:found[2]});run.result="关联成立，形成一条可用于指控的推论。";}else{run.errors++;run.result="两条记录没有形成直接推论，请重新检查时间、权限或利益关系。";}selection=[];renderAll();}
+  function giveHint(){if(run.over)return;const c=caseData(),remaining=c.links.find(l=>!run.links.some(x=>x.key===[l[0],l[1]].sort().join('|')));if(!remaining){run.result="三条关键关联已经全部建立。";return renderAll();}run.hints++;selection=[remaining[0]];run.result=`提示：先从“${c.clues.find(x=>x[0]===remaining[0])[1]}”寻找能够直接印证或否定它的记录。`;renderAll();}
+  function accuse(){if(run.over)return;const c=caseData(),suspect=+suspectSelect.value,method=methodSelect.value,motive=motiveSelect.value;if(suspect===c.culprit&&method===c.method&&motive===c.motive){run.over=true;let stars=1;if(run.links.length===3)stars=2;if(run.links.length===3&&run.errors===0&&run.hints===0)stars=3;const prior=profile.stars[selectedCase];profile.stars[selectedCase]=Math.max(prior,stars);profile.bestErrors[selectedCase]=profile.bestErrors[selectedCase]===null?run.errors:Math.min(profile.bestErrors[selectedCase],run.errors);profile.unlocked=Math.max(profile.unlocked,Math.min(5,selectedCase+1));profile.solved++;if(stars===3&&prior<3)profile.perfect++;save();run.result=`指控成立：${CREW[c.culprit].name}使用“${c.method}”，动机是“${c.motive}”。本案 ${stars} 星。`;}else{run.errors++;const parts=[];if(suspect!==c.culprit)parts.push("嫌疑人");if(method!==c.method)parts.push("手段");if(motive!==c.motive)parts.push("动机");run.result=`指控未成立：${parts.join('、')}与证据链不一致。你仍可继续调查。`;}renderAll();}
+  function chooseCase(i){if(i>profile.unlocked)return;selectedCase=i;run=makeRun();selection=[];renderAll();}
+  function renderCase(){const c=caseData();caseName.textContent=`${selectedCase+1}. ${c.name}`;incident.textContent=c.incident;chapterText.textContent=c.chapter;linkText.textContent=`${run.links.length}/3`;errorText.textContent=run.errors;hintText.textContent=run.hints;crew.innerHTML=CREW.map((p,i)=>`<div class="crew-card"><b>${p.icon} ${p.name} · ${p.role}</b><small>${p.trait}</small></div>`).join('');const linkedIds=new Set(run.links.flatMap(x=>x.key.split('|')));evidence.innerHTML=c.clues.map(([id,title,text])=>`<button class="clue ${selection.includes(id)?'selected':''} ${linkedIds.has(id)?'linked':''}" data-clue="${id}"><small>证据 ${id.toUpperCase()}</small><b>${title}</b><span>${text}</span></button>`).join('');evidence.querySelectorAll('[data-clue]').forEach(b=>b.onclick=()=>selectClue(b.dataset.clue));selectionText.textContent=selection.length?`已选：${selection.map(id=>c.clues.find(x=>x[0]===id)[1]).join(' + ')}`:'尚未选择证据';inferences.innerHTML=run.links.map((x,i)=>`<div class="inference">推论 ${i+1}：${x.text}</div>`).join('');linkBtn.disabled=selection.length!==2||run.over;hintBtn.disabled=run.over;clearBtn.disabled=!selection.length;}
+  function renderSide(){const c=caseData();suspectSelect.innerHTML=CREW.map((p,i)=>`<option value="${i}">${p.icon} ${p.name} · ${p.role}</option>`).join('');methodSelect.innerHTML=METHODS.map(x=>`<option>${x}</option>`).join('');motiveSelect.innerHTML=MOTIVES.map(x=>`<option>${x}</option>`).join('');result.textContent=run.result||"关联证据可以形成推论，但不会替你选择答案。";result.className=`result ${run.over?'win':''}`;accuseBtn.disabled=run.over;cases.innerHTML=CASES.map((x,i)=>`<button class="case-btn ${i===selectedCase?'active':''}" data-case="${i}" ${i>profile.unlocked?'disabled':''}><b>${i+1}</b><div class="stars">${'★'.repeat(profile.stars[i])}${'☆'.repeat(3-profile.stars[i])}</div></button>`).join('');cases.querySelectorAll('[data-case]').forEach(b=>b.onclick=()=>chooseCase(+b.dataset.case));careerStars.textContent=totalStars();solvedText.textContent=profile.solved;perfectText.textContent=profile.perfect;}
+  function renderAll(){renderCase();renderSide();}
+  function checksum(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return (h>>>0).toString(36).toUpperCase();}
+  function encode(){const p=btoa(unescape(encodeURIComponent(JSON.stringify({v:2,u:profile.unlocked,s:profile.stars,b:profile.bestErrors,n:profile.solved,p:profile.perfect}))));return `SHIP2.${p}.${checksum(p)}`;}
+  function decode(code){const p=code.trim().split('.');if(p.length!==3||p[0]!=="SHIP2"||checksum(p[1])!==p[2])throw Error('调查档案校验失败');const v=JSON.parse(decodeURIComponent(escape(atob(p[1]))));if(v.v!==2||!Array.isArray(v.s))throw Error('档案版本不兼容');return {v:2,unlocked:Math.max(0,Math.min(5,+v.u||0)),stars:Array.from({length:6},(_,i)=>Math.max(0,Math.min(3,+v.s[i]||0))),bestErrors:Array.from({length:6},(_,i)=>Number.isInteger(v.b?.[i])?Math.max(0,v.b[i]):null),solved:Math.max(0,+v.n||0),perfect:Math.max(0,+v.p||0)};}
+  linkBtn.onclick=linkEvidence;hintBtn.onclick=giveHint;clearBtn.onclick=()=>{selection=[];renderCase();};accuseBtn.onclick=accuse;archiveBtn.onclick=()=>{archiveModal.classList.remove('hidden');archiveText.value=encode();archiveFeedback.textContent='';};closeArchiveBtn.onclick=()=>archiveModal.classList.add('hidden');exportBtn.onclick=async()=>{archiveText.value=encode();archiveText.select();try{await navigator.clipboard.writeText(archiveText.value);archiveFeedback.textContent='调查档案已复制。';}catch(_){archiveFeedback.textContent='档案已生成，请手动复制。';}};importBtn.onclick=()=>{try{profile=decode(archiveText.value);save();selectedCase=Math.min(profile.unlocked,5);run=makeRun();selection=[];renderAll();archiveFeedback.textContent='导入成功。';}catch(e){archiveFeedback.textContent=e.message;}};
+  window.__starshipSuspects={CASES,CREW,METHODS,MOTIVES,profile:()=>profile,run:()=>run,validateCases,chooseCase,selectClue,linkEvidence,accuse,encode,decode};
+  renderAll();
+})();
+</script>
+</body>
 </html>

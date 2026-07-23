@@ -1,311 +1,116 @@
 <!doctype html>
 <html lang="zh-CN">
-  <meta charset="utf-8" /><meta
-    name="viewport"
-    content="width=device-width,initial-scale=1"
-  /><title>骰域远征</title
-  ><style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      background: #20162b;
-      color: #fff2e4;
-      font-family: system-ui, "Microsoft YaHei";
-    }
-    .app {
-      min-height: 100vh;
-      padding: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .shell {
-      width: 100%;
-      max-width: 900px;
-      min-width: 0;
-      background: #372344;
-      border: 1px solid #806194;
-      border-radius: 20px;
-      padding: 16px;
-    }
-    .top,
-    .row {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .battle {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-      margin: 12px 0;
-    }
-    .fighter {
-      background: #281a34;
-      border: 1px solid #684d79;
-      border-radius: 12px;
-      padding: 16px;
-      text-align: center;
-      font-size: 55px;
-      min-width: 0;
-    }
-    .fighter small {
-      display: block;
-      margin-top: 6px;
-      font-size: 14px;
-      white-space: nowrap;
-    }
-    .bar {
-      height: 9px;
-      background: #1b1222;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-    .bar i {
-      display: block;
-      height: 100%;
-      background: #70df9a;
-    }
-    .dice {
-      display: flex;
-      gap: 9px;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin: 15px;
-    }
-    .die {
-      width: 75px;
-      height: 75px;
-      font-size: 34px;
-    }
-    .die.keep {
-      outline: 4px solid #ffe06b;
-    }
-    .combos {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 7px;
-    }
-    .log {
-      height: 85px;
-      overflow: auto;
-      color: #cfbdd6;
-      font-size: 13px;
-    }
-    button {
-      padding: 9px 11px;
-      border: 1px solid #8c6b9c;
-      border-radius: 9px;
-      background: #573b68;
-      color: white;
-      font-weight: bold;
-    }
-    .roll {
-      background: #9b5d2c;
-    }
-    .help {
-      font-size: 13px;
-      color: #d0bfd7;
-    }
-    @media (max-width: 650px) {
-      .combos {
-        grid-template-columns: 1fr 1fr;
-      }
-      .die {
-        width: 58px;
-        height: 58px;
-      }
-      .fighter {
-        padding: 12px 6px;
-        font-size: 44px;
-      }
-      .app {
-        align-items: flex-start;
-      }
-    }
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>骰域远征：命运岔路</title>
+  <style>
+    :root{--bg:#1c1227;--panel:#342041;--panel2:#271832;--line:#73558a;--ink:#fff4e8;--muted:#cbb9d2;--gold:#f0c55e;--green:#70db9a;--red:#e16f75;--cyan:#6ed0dc;--violet:#b58be8}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 10% 0,#563467 0,transparent 31%),radial-gradient(circle at 92% 7%,#2f4e64 0,transparent 28%),linear-gradient(145deg,#160d20,#21142d 65%,#101522);color:var(--ink);font-family:system-ui,"Microsoft YaHei",sans-serif}.app{width:min(1380px,calc(100% - 22px));margin:11px auto}.top,.panel{border:1px solid var(--line);border-radius:15px;background:rgba(52,32,65,.97);box-shadow:0 18px 48px rgba(0,0,0,.34)}.top{display:flex;justify-content:space-between;align-items:center;gap:15px;padding:15px 18px}.eyebrow{margin:0 0 4px;color:var(--cyan);font-size:12px;font-weight:950;letter-spacing:.15em}.top h1{margin:0;font-size:clamp(26px,4vw,43px);line-height:1}.sub{margin:7px 0 0;color:var(--muted);font-size:13px}.actions,.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}button,textarea{font:inherit}.btn{min-height:42px;padding:0 13px;border:1px solid #8669a0;border-radius:9px;background:#5b3f70;color:white;font-weight:900;cursor:pointer}.btn.gold{border-color:#a27635;background:#7a5623}.btn.red{border-color:#9c4a50;background:#79393f}.btn.cyan{border-color:#4c8996;background:#356d78}.btn:disabled{opacity:.42;filter:saturate(.3);cursor:not-allowed}.layout{display:grid;grid-template-columns:minmax(0,1fr) 370px;gap:12px;margin-top:12px;align-items:start}.battle{padding:12px;min-width:0}.side{padding:12px;display:grid;gap:10px;max-height:calc(100vh - 105px);overflow:auto}.route{display:grid;grid-template-columns:repeat(18,1fr);gap:4px;overflow-x:auto;padding-bottom:5px}.node{min-width:43px;min-height:40px;border:1px solid #644b79;border-radius:7px;background:#281a34;color:#8d7998;display:grid;place-items:center;font-size:10px}.node.done{background:#4a3658;color:white}.node.now{outline:3px solid var(--gold);color:white}.fighters{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}.fighter{padding:12px;border:1px solid #674e7b;border-radius:11px;background:#25172f;text-align:center}.avatar{font-size:58px}.fighter b,.fighter small{display:block}.fighter small{color:var(--muted);margin-top:4px}.bar{height:10px;margin-top:7px;border-radius:99px;overflow:hidden;background:#130c19}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--red),var(--green))}.intent{margin-top:7px;padding:6px;border:1px solid #5e4770;border-radius:7px;color:var(--gold);font-size:11px}.dice{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:13px 0}.die{width:72px;height:72px;padding:0;border:1px solid #987cac;border-radius:12px;background:#f3e8d4;color:#35223f;font-size:36px;cursor:pointer}.die.keep{outline:4px solid var(--gold);transform:translateY(-5px)}.rollbar{display:flex;justify-content:center;gap:8px;align-items:center;flex-wrap:wrap}.combos{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}.combo{min-height:48px;padding:5px}.route-choice{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px}.choice{min-height:82px;padding:9px;border:1px solid #76588a;border-radius:9px;background:#2c1b38;color:white;text-align:left;cursor:pointer}.choice b,.choice small{display:block}.choice small{margin-top:5px;color:var(--muted);line-height:1.4}.choice.event{border-color:#4f8990}.choice.elite{border-color:#a76169}.log{height:90px;overflow:auto;margin-top:9px;padding:8px;border:1px solid #624a76;border-radius:8px;background:#21142a;color:var(--muted);font-size:11px;line-height:1.5}.block{padding:11px;border:1px solid #614978;border-radius:11px;background:#21142b}.block h2,.block h3{margin:0 0 8px}.block h2{font-size:20px}.block h3{font-size:14px;color:var(--cyan)}.heroes{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.hero{min-height:72px;padding:5px;border:1px solid #674f79;border-radius:8px;background:#2e1d39;color:white;cursor:pointer}.hero.active{outline:3px solid var(--cyan)}.hero b,.hero small{display:block}.hero small{margin-top:3px;color:var(--muted);font-size:9px}.relics{display:grid;grid-template-columns:repeat(2,1fr);gap:5px}.relic{padding:6px;border:1px solid #5f4972;border-radius:8px;background:#2a1a35}.relic b,.relic small{display:block}.relic small{color:var(--muted);font-size:9px;min-height:27px}.empty{color:#7f6d87}.career{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.career div{padding:7px;border:1px solid #5d4770;border-radius:8px;background:#2a1b35;text-align:center}.career b{display:block;font-size:19px}.career small{font-size:10px;color:var(--muted)}.overlay{position:fixed;inset:0;z-index:6;display:grid;place-items:center;padding:18px;background:rgba(12,6,17,.82)}.overlay.hidden{display:none}.dialog{width:min(640px,100%);padding:18px;border:1px solid #7b6091;border-radius:15px;background:#342041}.dialog h2{margin:0 0 8px}.reward-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.reward{min-height:105px;padding:8px;border:1px solid #75598b;border-radius:9px;background:#281832;color:white;cursor:pointer}.reward b,.reward small{display:block}.reward small{margin-top:5px;color:var(--muted);font-size:10px}.archive{position:fixed;inset:0;z-index:8;display:grid;place-items:center;padding:18px;background:rgba(8,4,13,.86)}.archive.hidden{display:none}.archive textarea{width:100%;min-height:125px;padding:10px;border:1px solid #73588a;border-radius:8px;background:#190f21;color:white;resize:vertical}.feedback{min-height:20px;margin-top:7px;color:var(--gold);font-size:12px;font-weight:850}.tip{color:var(--muted);font-size:12px;line-height:1.5}
+    @media(max-width:950px){.layout{grid-template-columns:1fr}.side{max-height:none;grid-template-columns:repeat(2,minmax(0,1fr))}.side .wide{grid-column:1/-1}}
+    @media(max-width:650px){.app{width:min(100% - 10px,1380px);margin:5px auto}.top{display:block;padding:12px}.actions{margin-top:11px}.actions .btn{flex:1}.battle,.side{padding:9px}.side{grid-template-columns:1fr}.side .wide{grid-column:auto}.die{width:58px;height:58px;font-size:30px}.combos{grid-template-columns:1fr 1fr}.reward-grid{grid-template-columns:1fr}.sub{line-height:1.45}}
   </style>
-  <main class="app">
-    <section class="shell">
-      <div class="top">
-        <div>
-          <h1 style="margin: 0">骰域远征</h1>
-          <div class="help">
-            每回合最多掷三次并锁定骰子，用对子、顺子、葫芦等组合攻击十二层怪物。
-          </div>
-        </div>
-        <div>
-          层数 <b id="floor"></b>/12　生命 <b id="life"></b>　金币
-          <b id="gold"></b>　遗物 <b id="relics"></b>
-        </div>
-      </div>
-      <div class="battle">
-        <div class="fighter">
-          🧙
-          <div class="bar"><i id="php"></i></div>
-          <small id="ptext"></small>
-        </div>
-        <div class="fighter">
-          <span id="enemyIcon"></span>
-          <div class="bar"><i id="ehp"></i></div>
-          <small id="etext"></small>
-        </div>
-      </div>
+</head>
+<body>
+<main class="app">
+  <header class="top"><div><p class="eyebrow">FATEFORK EXPEDITION V2</p><h1>骰域远征</h1><p class="sub">三地区十八节点、三名旅者与十二件规则遗物。锁骰、选路，再决定把哪种组合做成流派。</p></div><div class="actions"><button class="btn gold" id="rollBtn">掷骰</button><button class="btn cyan" id="skillBtn">旅者能力</button><button class="btn red" id="passBtn">放弃组合</button><button class="btn" id="archiveBtn">远征档案</button></div></header>
+  <section class="layout">
+    <section class="panel battle">
+      <div class="route" id="route"></div>
+      <div class="fighters"><div class="fighter"><div class="avatar" id="heroIcon"></div><b id="heroName"></b><div class="bar"><i id="heroBar"></i></div><small id="heroStats"></small><div class="intent" id="heroStatus"></div></div><div class="fighter"><div class="avatar" id="enemyIcon"></div><b id="enemyName"></b><div class="bar"><i id="enemyBar"></i></div><small id="enemyStats"></small><div class="intent" id="intent"></div></div></div>
       <div class="dice" id="dice"></div>
-      <div class="row">
-        <button class="roll" id="roll">掷骰</button
-        ><span>剩余重掷 <b id="rolls"></b></span
-        ><button id="heal">营火治疗（15金）</button
-        ><button id="restart">新远征</button>
-      </div>
+      <div class="rollbar"><span>剩余重掷 <b id="rollText">3</b></span><span>·</span><span>护盾 <b id="shieldText">0</b></span><span>·</span><span>金币 <b id="goldText">0</b></span></div>
       <div class="combos" id="combos"></div>
+      <div class="route-choice" id="choices"></div>
       <div class="log" id="log"></div>
     </section>
-  </main>
-  <script>
-    const C = [
-        ["一对", (a) => maxCount(a) >= 2, 8],
-        [
-          "两对",
-          (a) => Object.values(counts(a)).filter((x) => x >= 2).length >= 2,
-          14,
-        ],
-        ["三条", (a) => maxCount(a) >= 3, 18],
-        [
-          "小顺子",
-          (a) =>
-            [...new Set(a)].sort().join("").includes("1234") ||
-            [...new Set(a)].sort().join("").includes("2345") ||
-            [...new Set(a)].sort().join("").includes("3456"),
-          22,
-        ],
-        ["葫芦", (a) => Object.values(counts(a)).sort().join("") === "23", 30],
-        ["四条", (a) => maxCount(a) >= 4, 38],
-        [
-          "大顺子",
-          (a) =>
-            [...new Set(a)].sort().join("") === "12345" ||
-            [...new Set(a)].sort().join("") === "23456",
-          42,
-        ],
-        ["五骰同点", (a) => maxCount(a) === 5, 60],
-      ],
-      icons = ["👺", "💀", "🐲"];
-    let q;
-    const $ = (x) => document.getElementById(x),
-      counts = (a) => a.reduce((o, x) => ((o[x] = (o[x] || 0) + 1), o), {}),
-      maxCount = (a) => Math.max(...Object.values(counts(a)));
-    function fresh() {
-      return {
-        floor: 1,
-        hp: 100,
-        max: 100,
-        gold: 0,
-        dice: [1, 2, 3, 4, 5],
-        keep: [false, false, false, false, false],
-        rolls: 3,
-        enemy: { hp: 45, max: 45, atk: 8 },
-        logs: ["选择掷骰开始战斗。"],
-        relics: 0,
-        over: false,
-      };
-    }
-    function rollDice() {
-      if (q.rolls <= 0 || q.over) return;
-      q.dice = q.dice.map((x, i) =>
-        q.keep[i] ? x : 1 + Math.floor(Math.random() * 6),
-      );
-      q.rolls--;
-      draw();
-    }
-    function use(i) {
-      let c = C[i];
-      if (!c[1](q.dice) || q.over) return;
-      let dmg = c[2] + q.relics * 3;
-      q.enemy.hp -= dmg;
-      q.logs.unshift(`${c[0]}造成 ${dmg} 伤害！`);
-      if (q.enemy.hp <= 0) {
-        q.gold += 8 + q.floor * 2;
-        q.floor++;
-        if (q.floor > 12) {
-          q.over = true;
-          q.logs.unshift("十二层首领倒下，骰域征服完成！");
-        } else {
-          if (q.floor % 3 === 0) {
-            q.relics++;
-            q.logs.unshift("获得遗物：所有组合伤害 +3。");
-          }
-          q.enemy = {
-            max: 40 + q.floor * 12,
-            hp: 40 + q.floor * 12,
-            atk: 7 + q.floor * 2,
-          };
-        }
-      } else {
-        q.hp -= q.enemy.atk;
-        q.logs.unshift(`敌人反击 ${q.enemy.atk} 伤害。`);
-        if (q.hp <= 0) {
-          q.over = true;
-          q.logs.unshift("远征失败。");
-        }
-      }
-      q.rolls = 3;
-      q.keep = [false, false, false, false, false];
-      draw();
-    }
-    function draw() {
-      floor.textContent = Math.min(12, q.floor);
-      life.textContent = q.hp;
-      gold.textContent = q.gold;
-      relics.textContent = q.relics;
-      php.style.width = Math.max(0, (q.hp / q.max) * 100) + "%";
-      ehp.style.width = Math.max(0, (q.enemy.hp / q.enemy.max) * 100) + "%";
-      ptext.textContent = `${q.hp}/${q.max}`;
-      etext.textContent = `${Math.max(0, q.enemy.hp)}/${q.enemy.max} · 攻${q.enemy.atk}`;
-      enemyIcon.textContent = icons[Math.min(2, Math.floor(q.floor / 5))];
-      dice.innerHTML = q.dice
-        .map(
-          (d, i) =>
-            `<button class="die ${q.keep[i] ? "keep" : ""}" data-i="${i}">${["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"][d - 1]}</button>`,
-        )
-        .join("");
-      dice.querySelectorAll("[data-i]").forEach(
-        (e) =>
-          (e.onclick = () => {
-            q.keep[+e.dataset.i] = !q.keep[+e.dataset.i];
-            draw();
-          }),
-      );
-      rolls.textContent = q.rolls;
-      combos.innerHTML = C.map(
-        (c, i) =>
-          `<button data-i="${i}" ${!c[1](q.dice) ? "disabled" : ""}>${c[0]} · ${c[2] + q.relics * 3}伤</button>`,
-      ).join("");
-      combos
-        .querySelectorAll("[data-i]")
-        .forEach((e) => (e.onclick = () => use(+e.dataset.i)));
-      log.innerHTML = q.logs
-        .slice(0, 8)
-        .map((x) => `<div>• ${x}</div>`)
-        .join("");
-      roll.disabled = q.rolls <= 0 || q.over;
-    }
-    roll.onclick = rollDice;
-    heal.onclick = () => {
-      if (q.gold >= 15) {
-        q.gold -= 15;
-        q.hp = Math.min(q.max, q.hp + 35);
-        draw();
-      }
-    };
-    restart.onclick = () => {
-      q = fresh();
-      draw();
-    };
-    q = fresh();
-    draw();
-  </script>
+    <aside class="panel side">
+      <section class="block wide"><h3 id="regionText">第一域</h3><h2 id="modeTitle"></h2><p class="tip" id="modeBrief"></p></section>
+      <section class="block"><h3>旅者</h3><div class="heroes" id="heroes"></div></section>
+      <section class="block"><h3>远征生涯</h3><div class="career"><div><b id="starText">0</b><small>地区星章</small></div><div><b id="winText">0</b><small>通关</small></div><div><b id="relicText">0</b><small>遗物图鉴</small></div></div></section>
+      <section class="block wide"><h3>本次遗物</h3><div class="relics" id="relics"></div></section>
+      <section class="block wide"><h3>组合说明</h3><p class="tip">每回合最多掷三次，点击骰子锁定。使用一个有效组合后敌人按预告行动；没有可用组合时可以放弃并承受行动。英雄能力每场战斗一次。</p></section>
+    </aside>
+  </section>
+</main>
+<div class="overlay hidden" id="overlay"><div class="dialog"><h2 id="overlayTitle"></h2><p class="tip" id="overlayText"></p><div class="reward-grid" id="rewardGrid"></div><div class="row" style="justify-content:flex-end;margin-top:9px"><button class="btn" id="overlayCloseBtn">继续</button></div></div></div>
+<div class="archive hidden" id="archiveModal"><div class="dialog"><h2>跨设备远征档案</h2><p class="tip">档案包含地区星级、遗物图鉴、英雄通关和当前远征断点。</p><textarea id="archiveText" spellcheck="false"></textarea><div class="row" style="justify-content:flex-end"><button class="btn" id="closeArchiveBtn">关闭</button><button class="btn" id="importBtn">导入</button><button class="btn gold" id="exportBtn">生成并复制</button></div><div class="feedback" id="archiveFeedback"></div></div></div>
+<script>
+(() => {
+  "use strict";
+  const KEY="miniDiceDelverV2",$=id=>document.getElementById(id),FACES=["⚀","⚁","⚂","⚃","⚄","⚅"];
+  const HEROES=[
+    {name:"旅法师",icon:"🧙",desc:"每回合首次组合额外 +4 伤害",key:"mage"},
+    {name:"赌刃客",icon:"🗡️",desc:"对子、两对、三条伤害 +30%",key:"blade"},
+    {name:"星算师",icon:"🔮",desc:"顺子伤害 +30%，能力翻转一枚骰子",key:"seer"}
+  ];
+  const COMBOS=[
+    {name:"一对",base:8,key:"pair",test:a=>maxCount(a)>=2},{name:"两对",base:14,key:"twoPair",test:a=>Object.values(counts(a)).filter(x=>x>=2).length>=2},
+    {name:"三条",base:18,key:"triple",test:a=>maxCount(a)>=3},{name:"小顺子",base:22,key:"smallStraight",test:a=>["1234","2345","3456"].some(s=>unique(a).includes(s))},
+    {name:"葫芦",base:30,key:"fullHouse",test:a=>Object.values(counts(a)).sort().join('')==='23'},{name:"四条",base:38,key:"four",test:a=>maxCount(a)>=4},
+    {name:"大顺子",base:42,key:"largeStraight",test:a=>["12345","23456"].includes(unique(a))},{name:"五骰同点",base:60,key:"five",test:a=>maxCount(a)===5}
+  ];
+  const RELICS=[
+    {id:"echo",name:"双生回声",desc:"对子类组合命中后恢复 3 生命"},{id:"compass",name:"顺星罗盘",desc:"顺子伤害 +8"},
+    {id:"chalice",name:"满月杯",desc:"葫芦获得 10 护盾"},{id:"odd",name:"奇数刃",desc:"三个以上奇数时伤害 +7"},
+    {id:"even",name:"偶数甲",desc:"三个以上偶数时获得 6 护盾"},{id:"crown",name:"六面王冠",desc:"每个六点额外 +3 伤害"},
+    {id:"hourglass",name:"重掷沙漏",desc:"每场战斗重掷次数 +1"},{id:"ember",name:"余烬骰",desc:"击败敌人恢复 5 生命"},
+    {id:"vault",name:"金库钥匙",desc:"战斗金币奖励 +40%"},{id:"mirror",name:"镜面骰",desc:"英雄能力每场可使用两次"},
+    {id:"anchor",name:"铁锚印",desc:"地区首领伤害 -3"},{id:"wild",name:"百变星",desc:"五骰同点与大顺子伤害 +12"}
+  ];
+  const REGIONS=[
+    {name:"灰烬回廊",icons:["👺","🦂","🗿"],boss:"熔面王",color:"#e48a61"},
+    {name:"月蚀赌城",icons:["🎭","🦇","♟️"],boss:"无面荷官",color:"#b18ae8"},
+    {name:"天穹骰塔",icons:["⚙️","🐲","🌌"],boss:"命运织主",color:"#69d0dd"}
+  ];
+  const NODE_OPTIONS=[
+    ["battle","event"],["battle","shop"],["elite","camp"],["battle","event"],["elite","shop"],["boss"],
+    ["battle","event"],["battle","shop"],["elite","camp"],["battle","event"],["elite","shop"],["boss"],
+    ["battle","event"],["battle","shop"],["elite","camp"],["battle","event"],["elite","shop"],["boss"]
+  ];
+  const NODE_LABEL={battle:["⚔️ 普通战","稳定金币与少量治疗"],elite:["💀 精英战","更危险，胜利后获得遗物"],event:["❓ 命运事件","在代价与收益之间选择"],shop:["🛒 骰域商店","花金币购买遗物"],camp:["🔥 营火","恢复生命并强化最大生命"],boss:["👑 地区首领","击败后结算地区星级"]};
+  let profile=load(),run=profile.run&&validRun(profile.run)?profile.run:fresh(profile.hero||0);
+  function defaults(){return {v:2,stars:[0,0,0],wins:0,collection:[],heroWins:[0,0,0],hero:0,run:null};}
+  function load(){try{const v=JSON.parse(localStorage.getItem(KEY)||"null");if(v&&v.v===2)return Object.assign(defaults(),v,{stars:Array.from({length:3},(_,i)=>v.stars?.[i]||0),collection:Array.isArray(v.collection)?v.collection:[],heroWins:Array.from({length:3},(_,i)=>v.heroWins?.[i]||0)});}catch(_){}return defaults();}
+  function validRun(r){return r&&Number.isInteger(r.node)&&r.node>=0&&r.node<=18&&Array.isArray(r.relics)&&Array.isArray(r.dice);}
+  function fresh(hero){return {hero,node:0,mode:"route",hp:100,max:100,shield:0,gold:15,relics:[],dice:[1,2,3,4,5],keep:[false,false,false,false,false],rolls:3,enemy:null,turn:0,skillUses:0,nextRollPenalty:0,logs:["命运岔路展开，选择第一处节点。"],seed:0x5f3759df+hero*1777,regionStartHp:100,complete:false};}
+  function persist(){profile.hero=run.hero;profile.run=run.complete?null:run;localStorage.setItem(KEY,JSON.stringify(profile));}function totalStars(){return profile.stars.reduce((a,b)=>a+b,0);}
+  const counts=a=>a.reduce((o,x)=>((o[x]=(o[x]||0)+1),o),{}),maxCount=a=>Math.max(...Object.values(counts(a))),unique=a=>[...new Set(a)].sort().join('');
+  function has(id){return run.relics.includes(id);}function random(){run.seed^=run.seed<<13;run.seed^=run.seed>>>17;run.seed^=run.seed<<5;return (run.seed>>>0)/4294967296;}function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+  function validateContent(){const errors=[];if(NODE_OPTIONS.length!==18)errors.push('nodes');if(RELICS.length!==12||new Set(RELICS.map(x=>x.id)).size!==12)errors.push('relics');if(COMBOS.length!==8)errors.push('combos');for(const hero of HEROES)if(!hero.key)errors.push('hero');return {valid:errors.length===0,errors,nodes:NODE_OPTIONS.length,relics:RELICS.length,heroes:HEROES.length,combos:COMBOS.length};}
+  function region(){return Math.min(2,Math.floor(run.node/6));}function nodeInRegion(){return run.node%6;}
+  function routeOptions(){return NODE_OPTIONS[Math.min(17,run.node)];}
+  function enemyFor(type){const r=region(),step=nodeInRegion(),boss=type==='boss',elite=type==='elite',max=Math.round(48+r*28+step*9+(elite?25:0)+(boss?75:0));return {type,name:boss?REGIONS[r].boss:elite?`精英·${REGIONS[r].icons[(step+1)%3]}`:`巡游者·${REGIONS[r].icons[step%3]}`,icon:boss?'👑':REGIONS[r].icons[step%3],hp:max,max,shield:0,atk:8+r*3+Math.floor(step/2)+(elite?3:0)+(boss?5:0)};}
+  function chooseNode(type){if(run.mode!=='route'||!routeOptions().includes(type))return;if(type==='battle'||type==='elite'||type==='boss')startBattle(type);else if(type==='camp'){run.hp=Math.min(run.max+6,run.hp+32);run.max+=6;run.hp=Math.min(run.max,run.hp+6);log('营火扩充最大生命并恢复状态。');completeNode();}else if(type==='event')openEvent();else openShop();}
+  function startBattle(type){run.mode='battle';run.enemy=enemyFor(type);run.dice=[1,2,3,4,5];run.keep=[false,false,false,false,false];run.rolls=3+(has('hourglass')?1:0);run.turn=0;run.skillUses=has('mirror')?2:1;run.nextRollPenalty=0;run.shield=0;log(`${run.enemy.name}挡住去路。`);renderAll();}
+  function rollDice(){if(run.mode!=='battle'||run.rolls<=0)return;run.dice=run.dice.map((x,i)=>run.keep[i]?x:1+Math.floor(random()*6));run.rolls--;renderAll();}
+  function heroSkill(){if(run.mode!=='battle'||run.skillUses<=0)return;const kept=run.keep.findIndex(Boolean),i=kept>=0?kept:0;if(run.hero===0){run.dice=run.dice.map((x,index)=>run.keep[index]?x:1+Math.floor(random()*6));log('旅法师免费重塑未锁定骰子。');}else if(run.hero===1){const target=run.keep.find(Boolean)?run.dice[i]:run.dice[0];const j=run.keep.findIndex((x,index)=>!x&&index!==i);run.dice[j>=0?j:4]=target;log('赌刃客复制一枚锁定点数。');}else{run.dice[i]=7-run.dice[i];log('星算师将一枚骰子翻转到对面。');}run.skillUses--;renderAll();}
+  function comboDamage(combo){let damage=combo.base;if(run.hero===0&&run.turn===0)damage+=4;if(run.hero===1&&['pair','twoPair','triple'].includes(combo.key))damage=Math.round(damage*1.3);if(run.hero===2&&combo.key.includes('Straight'))damage=Math.round(damage*1.3);if(has('compass')&&combo.key.includes('Straight'))damage+=8;if(has('odd')&&run.dice.filter(x=>x%2).length>=3)damage+=7;if(has('crown'))damage+=run.dice.filter(x=>x===6).length*3;if(has('wild')&&['five','largeStraight'].includes(combo.key))damage+=12;return damage;}
+  function useCombo(index){if(run.mode!=='battle')return;const combo=COMBOS[index];if(!combo.test(run.dice))return;let damage=comboDamage(combo),absorbed=Math.min(damage,run.enemy.shield);run.enemy.shield-=absorbed;damage-=absorbed;run.enemy.hp-=damage;log(`${combo.name}造成 ${damage}${absorbed?`（护甲吸收 ${absorbed}）`:''}伤害。`);if(has('echo')&&['pair','twoPair','triple'].includes(combo.key))run.hp=Math.min(run.max,run.hp+3);if(has('chalice')&&combo.key==='fullHouse')run.shield+=10;if(has('even')&&run.dice.filter(x=>x%2===0).length>=3)run.shield+=6;if(run.enemy.hp<=0)return winBattle();enemyTurn();if(run.mode==='battle')resetTurn();}
+  function enemyTurn(){const boss=run.enemy.type==='boss',phase=run.turn%3;if(phase===1){run.enemy.shield+=8+region()*3;log(`${run.enemy.name}架起 ${8+region()*3} 护甲。`);}else if(phase===2){run.nextRollPenalty=1;log(`${run.enemy.name}扰乱骰面，下回合少一次重掷。`);}else{let damage=run.enemy.atk-(boss&&has('anchor')?3:0),blocked=Math.min(damage,run.shield);run.shield-=blocked;damage-=blocked;run.hp-=damage;log(`${run.enemy.name}攻击 ${damage}${blocked?`（护盾抵挡 ${blocked}）`:''}。`);if(run.hp<=0)failRun();}run.turn++;}
+  function resetTurn(){run.dice=[1,2,3,4,5];run.keep=[false,false,false,false,false];run.rolls=Math.max(1,3+(has('hourglass')?1:0)-(run.nextRollPenalty||0));run.nextRollPenalty=0;renderAll();}
+  function passTurn(){if(run.mode!=='battle')return;log('没有形成组合，敌人取得行动。');enemyTurn();if(run.mode==='battle')resetTurn();}
+  function winBattle(){const elite=run.enemy.type==='elite',boss=run.enemy.type==='boss',base=10+region()*5+(elite?10:0)+(boss?18:0),gain=Math.round(base*(has('vault')?1.4:1));run.gold+=gain;if(has('ember'))run.hp=Math.min(run.max,run.hp+5);log(`战斗胜利，获得 ${gain} 金币。`);if(elite||boss)openRelicReward(boss);else completeNode();}
+  function openRelicReward(boss){run.mode='reward';const offers=relicOffers();if(!offers.length){run.gold+=30;log('遗物已经集齐，奖励转化为 30 金币。');return completeNode();}overlayTitle.textContent=boss?'首领遗物':'精英遗物';overlayText.textContent='选择一件会改变组合规则的遗物。';rewardGrid.innerHTML=offers.map(id=>{const r=RELICS.find(x=>x.id===id);return `<button class="reward" data-relic="${id}"><b>${r.name}</b><small>${r.desc}</small></button>`;}).join('');rewardGrid.querySelectorAll('[data-relic]').forEach(b=>b.onclick=()=>{gainRelic(b.dataset.relic);overlay.classList.add('hidden');completeNode();});overlayCloseBtn.style.display='none';overlay.classList.remove('hidden');}
+  function relicOffers(){const available=RELICS.filter(r=>!run.relics.includes(r.id));const out=[];for(let i=0;i<Math.min(3,available.length);i++)out.push(available[(run.node*3+i*5)%available.length].id);return [...new Set(out)];}
+  function gainRelic(id){if(!run.relics.includes(id)){run.relics.push(id);if(!profile.collection.includes(id))profile.collection.push(id);log(`获得遗物：${RELICS.find(x=>x.id===id).name}。`);}}
+  function openEvent(){run.mode='event';overlayTitle.textContent='命运事件';overlayText.textContent='岔路尽头出现一座会回应骰点的祭坛。';rewardGrid.innerHTML=`<button class="reward" data-event="heal"><b>献上 8 金币</b><small>恢复 28 生命</small></button><button class="reward" data-event="risk"><b>掷命运骰</b><small>失去 10 生命，获得 20 金币</small></button><button class="reward" data-event="max"><b>刻下旅者名</b><small>最大生命 +8，当前生命 +8</small></button>`;rewardGrid.querySelectorAll('[data-event]').forEach(b=>b.onclick=()=>{const x=b.dataset.event;if(x==='heal'&&run.gold>=8){run.gold-=8;run.hp=Math.min(run.max,run.hp+28);}else if(x==='risk'){run.hp=Math.max(1,run.hp-10);run.gold+=20;}else if(x==='max'){run.max+=8;run.hp+=8;}else return;overlay.classList.add('hidden');completeNode();});overlayCloseBtn.style.display='none';overlay.classList.remove('hidden');}
+  function openShop(){run.mode='shop';const offers=relicOffers();overlayTitle.textContent='骰域商店';overlayText.textContent=`当前 ${run.gold} 金币。购买一件遗物或直接离开。`;rewardGrid.innerHTML=offers.map(id=>{const r=RELICS.find(x=>x.id===id);return `<button class="reward" data-buy="${id}" ${run.gold<25?'disabled':''}><b>${r.name} · 25金</b><small>${r.desc}</small></button>`;}).join('');overlayCloseBtn.style.display='block';overlayCloseBtn.textContent='不购买，继续';overlayCloseBtn.onclick=()=>{overlay.classList.add('hidden');completeNode();};rewardGrid.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>{if(run.gold<25)return;run.gold-=25;gainRelic(b.dataset.buy);overlay.classList.add('hidden');completeNode();});overlay.classList.remove('hidden');}
+  function completeNode(){const wasBoss=run.node%6===5;if(wasBoss){const r=region();let stars=1;if(run.hp/run.max>=.5)stars=2;if(run.hp/run.max>=.75&&run.relics.length>=2)stars=3;profile.stars[r]=Math.max(profile.stars[r],stars);log(`${REGIONS[r].name}首领倒下，本地区获得 ${stars} 星。`);}run.node++;run.enemy=null;if(run.node>=18){run.mode='complete';run.complete=true;profile.wins++;profile.heroWins[run.hero]++;profile.run=null;persist();overlayTitle.textContent='命运岔路贯通';overlayText.textContent='三地区十八节点全部完成，旅者的构筑已写入远征档案。';rewardGrid.innerHTML='';overlayCloseBtn.style.display='block';overlayCloseBtn.textContent='查看结算';overlayCloseBtn.onclick=()=>overlay.classList.add('hidden');overlay.classList.remove('hidden');}else{run.mode='route';if(wasBoss)run.regionStartHp=run.hp;persist();renderAll();}}
+  function failRun(){run.mode='failed';run.complete=true;persist();overlayTitle.textContent='远征中断';overlayText.textContent=`抵达第 ${run.node+1} 节点，收集 ${run.relics.length} 件遗物。地区星级和图鉴已经保留。`;rewardGrid.innerHTML='';overlayCloseBtn.style.display='block';overlayCloseBtn.textContent='重新出发';overlayCloseBtn.onclick=()=>{overlay.classList.add('hidden');newRun(run.hero);};overlay.classList.remove('hidden');renderAll();}
+  function newRun(hero=run.hero){run=fresh(hero);profile.hero=hero;persist();overlay.classList.add('hidden');renderAll();}
+  function setHero(i){if(run.node>0&&!run.complete)return;newRun(i);}
+  function log(text){run.logs.unshift(text);run.logs=run.logs.slice(0,14);persist();}
+  function renderBattle(){const r=region(),inBattle=run.mode==='battle';route.innerHTML=Array.from({length:18},(_,i)=>`<div class="node ${i<run.node?'done':''} ${i===run.node?'now':''}">${i+1}</div>`).join('');heroIcon.textContent=HEROES[run.hero].icon;heroName.textContent=HEROES[run.hero].name;heroBar.style.width=`${Math.max(0,run.hp/run.max*100)}%`;heroStats.textContent=`${Math.max(0,run.hp)}/${run.max} · 护盾 ${run.shield}`;heroStatus.textContent=run.complete?'本次远征已结束':HEROES[run.hero].desc;enemyIcon.textContent=inBattle?run.enemy.icon:'🗺️';enemyName.textContent=inBattle?run.enemy.name:'等待选择路线';enemyBar.style.width=inBattle?`${Math.max(0,run.enemy.hp/run.enemy.max*100)}%`:'0%';enemyStats.textContent=inBattle?`${Math.max(0,run.enemy.hp)}/${run.enemy.max} · 攻 ${run.enemy.atk} · 护甲 ${run.enemy.shield}`:'非战斗状态';intent.textContent=inBattle?['下一行动：攻击','下一行动：架盾','下一行动：扰乱重掷'][run.turn%3]:'查看下方节点选项';dice.innerHTML=run.dice.map((d,i)=>`<button class="die ${run.keep[i]?'keep':''}" data-die="${i}" ${!inBattle?'disabled':''}>${FACES[d-1]}</button>`).join('');dice.querySelectorAll('[data-die]').forEach(b=>b.onclick=()=>{run.keep[+b.dataset.die]=!run.keep[+b.dataset.die];renderAll();});rollText.textContent=run.rolls;shieldText.textContent=run.shield;goldText.textContent=run.gold;combos.innerHTML=COMBOS.map((c,i)=>`<button class="btn combo" data-combo="${i}" ${!inBattle||!c.test(run.dice)?'disabled':''}>${c.name}<br><small>${comboDamage(c)} 伤害</small></button>`).join('');combos.querySelectorAll('[data-combo]').forEach(b=>b.onclick=()=>useCombo(+b.dataset.combo));choices.innerHTML=run.mode==='route'?routeOptions().map(type=>`<button class="choice ${type}" data-node="${type}"><b>${NODE_LABEL[type][0]}</b><small>${NODE_LABEL[type][1]}</small></button>`).join(''):'';choices.querySelectorAll('[data-node]').forEach(b=>b.onclick=()=>chooseNode(b.dataset.node));$("log").innerHTML=run.logs.map(x=>`<div>• ${x}</div>`).join('');rollBtn.disabled=!inBattle||run.rolls<=0;skillBtn.disabled=!inBattle||run.skillUses<=0;passBtn.disabled=!inBattle;}
+  function renderSide(){const r=region();regionText.textContent=run.node>=18?'远征完成':`第 ${r+1} 域 · ${REGIONS[r].name}`;modeTitle.textContent=run.mode==='route'?'选择命运岔路':run.mode==='battle'?'组合战斗':run.mode==='complete'?'远征结算':'远征状态';modeBrief.textContent=run.mode==='route'?'每个节点只能选择一条路线；精英和首领提供遗物，营火与事件负责维持状态。':run.mode==='battle'?'观察敌人下一行动，再决定继续重掷还是提前使用组合。':'地区星级与遗物图鉴会永久保留。';heroes.innerHTML=HEROES.map((h,i)=>`<button class="hero ${i===run.hero?'active':''}" data-hero="${i}" ${run.node>0&&!run.complete?'disabled':''}><b>${h.icon} ${h.name}</b><small>${h.desc}</small></button>`).join('');heroes.querySelectorAll('[data-hero]').forEach(b=>b.onclick=()=>setHero(+b.dataset.hero));starText.textContent=totalStars();winText.textContent=profile.wins;relicText.textContent=profile.collection.length;relics.innerHTML=run.relics.length?run.relics.map(id=>{const x=RELICS.find(r=>r.id===id);return `<div class="relic"><b>${x.name}</b><small>${x.desc}</small></div>`;}).join(''):'<div class="empty">本次尚无遗物</div>';}
+  function renderAll(){renderBattle();renderSide();persist();}
+  function checksum(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return (h>>>0).toString(36).toUpperCase();}
+  function encode(){const p=btoa(unescape(encodeURIComponent(JSON.stringify({v:2,s:profile.stars,w:profile.wins,c:profile.collection,h:profile.heroWins,e:profile.hero,r:run.complete?null:run}))));return `DICE2.${p}.${checksum(p)}`;}
+  function decode(code){const p=code.trim().split('.');if(p.length!==3||p[0]!=="DICE2"||checksum(p[1])!==p[2])throw Error('远征档案校验失败');const v=JSON.parse(decodeURIComponent(escape(atob(p[1]))));if(v.v!==2||!Array.isArray(v.s)||!Array.isArray(v.c))throw Error('档案版本不兼容');const parsed={v:2,stars:Array.from({length:3},(_,i)=>clamp(+v.s[i]||0,0,3)),wins:Math.max(0,+v.w||0),collection:v.c.filter(id=>RELICS.some(r=>r.id===id)),heroWins:Array.from({length:3},(_,i)=>Math.max(0,+v.h?.[i]||0)),hero:clamp(+v.e||0,0,2),run:validRun(v.r)?v.r:null};return parsed;}
+  rollBtn.onclick=rollDice;skillBtn.onclick=heroSkill;passBtn.onclick=passTurn;archiveBtn.onclick=()=>{archiveModal.classList.remove('hidden');archiveText.value=encode();archiveFeedback.textContent='';};closeArchiveBtn.onclick=()=>archiveModal.classList.add('hidden');exportBtn.onclick=async()=>{archiveText.value=encode();archiveText.select();try{await navigator.clipboard.writeText(archiveText.value);archiveFeedback.textContent='远征档案已复制。';}catch(_){archiveFeedback.textContent='档案已生成，请手动复制。';}};importBtn.onclick=()=>{try{profile=decode(archiveText.value);run=profile.run||fresh(profile.hero);persist();renderAll();archiveFeedback.textContent='导入成功。';}catch(e){archiveFeedback.textContent=e.message;}};
+  window.__diceDelver={HEROES,COMBOS,RELICS,REGIONS,NODE_OPTIONS,profile:()=>profile,run:()=>run,validateContent,chooseNode,startBattle,rollDice,useCombo,completeNode,newRun,renderAll,encode,decode};
+  renderAll();
+})();
+</script>
+</body>
 </html>
