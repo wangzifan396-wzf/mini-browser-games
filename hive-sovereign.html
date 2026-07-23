@@ -1,251 +1,458 @@
 <!doctype html>
 <html lang="zh-CN">
-  <meta charset="utf-8" /><meta
-    name="viewport"
-    content="width=device-width,initial-scale=1"
-  /><title>蜂巢女王</title
-  ><style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      background: #2b2412;
-      color: #fff7d7;
-      font-family: system-ui, "Microsoft YaHei";
-    }
-    .app {
-      min-height: 100vh;
-      padding: 14px;
-      display: grid;
-      place-items: center;
-    }
-    .shell {
-      width: min(920px, 100%);
-      background: #50401b;
-      border: 1px solid #9d843d;
-      border-radius: 20px;
-      padding: 16px;
-    }
-    .top,
-    .row {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .hive {
-      min-height: 360px;
-      margin: 12px 0;
-      background: #78601f;
-      border-radius: 45%;
-      padding: 35px;
-      text-align: center;
-    }
-    .queen {
-      font-size: 80px;
-    }
-    .cells {
-      display: flex;
-      gap: 7px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-    .hex {
-      width: 65px;
-      height: 58px;
-      background: #e2b93b;
-      color: #3d2e0c;
-      display: grid;
-      place-items: center;
-      clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
-    }
-    .panel {
-      background: #372c15;
-      border: 1px solid #806c32;
-      border-radius: 10px;
-      padding: 10px;
-    }
-    .assign {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 7px;
-    }
-    .stat {
-      padding: 6px;
-      background: #5d4b20;
-      border-radius: 8px;
-    }
-    button {
-      padding: 9px 11px;
-      border: 1px solid #a58b42;
-      border-radius: 8px;
-      background: #745d25;
-      color: white;
-      font-weight: bold;
-    }
-    .next {
-      background: #9b7024;
-    }
-    .help {
-      font-size: 13px;
-      color: #eadcae;
-    }
-    @media (max-width: 650px) {
-      .assign {
-        grid-template-columns: repeat(2, 1fr);
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>蜂巢女王：四季谱系</title>
+    <style>
+      :root {
+        --bg: #1c170b;
+        --panel: #403519;
+        --panel2: #30270f;
+        --line: #8c7332;
+        --ink: #fff8dc;
+        --muted: #d9c99d;
+        --gold: #f2c94f;
+        --green: #7bd29d;
+        --red: #e87770;
+        --blue: #80bcd6;
       }
-      .app {
-        place-items: start center;
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--ink);
+        font-family: system-ui, "Microsoft YaHei", sans-serif;
+        background:
+          radial-gradient(circle at 10% 0, #715520 0, transparent 29%),
+          radial-gradient(circle at 92% 6%, #4a5735 0, transparent 27%),
+          linear-gradient(145deg, #171206, #372b10 63%, #17241b);
       }
-    }
-  </style>
-  <main class="app">
-    <section class="shell">
-      <div class="top">
+      button, textarea { font: inherit; }
+      button { color: inherit; }
+      .app { width: min(1440px, calc(100% - 22px)); margin: 11px auto; }
+      .top, .panel { border: 1px solid var(--line); border-radius: 8px; background: rgba(64, 53, 25, .97); box-shadow: 0 18px 48px rgba(0, 0, 0, .33); }
+      .top { display: flex; justify-content: space-between; align-items: center; gap: 14px; padding: 15px 18px; }
+      .eyebrow { margin: 0 0 4px; color: var(--gold); font-size: 12px; font-weight: 950; }
+      h1 { margin: 0; font-size: clamp(26px, 4vw, 42px); line-height: 1; }
+      .sub { margin: 7px 0 0; color: var(--muted); font-size: 13px; }
+      .actions, .row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+      .btn { min-height: 42px; padding: 0 13px; border: 1px solid #a88a3d; border-radius: 7px; background: #6b5720; font-weight: 900; cursor: pointer; }
+      .btn.gold { background: #8a681b; }
+      .btn.red { border-color: #a9554f; background: #723a34; }
+      .btn:disabled { opacity: .38; cursor: not-allowed; }
+      .layout { display: grid; grid-template-columns: minmax(0, 1fr) 405px; gap: 12px; margin-top: 12px; align-items: start; }
+      .hive { padding: 13px; min-width: 0; }
+      .hive-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+      .hive-head h2 { margin: 0 0 5px; }
+      .hive-head p { margin: 0; color: var(--muted); font-size: 12px; }
+      .stats { display: grid; grid-template-columns: repeat(6, minmax(76px, 1fr)); gap: 5px; min-width: 540px; }
+      .stat { padding: 7px; border: 1px solid #77652e; border-radius: 7px; background: #251f0e; text-align: center; }
+      .stat b { display: block; font-size: 19px; }
+      .stat small { color: var(--muted); font-size: 9px; }
+      .hive-scene { position: relative; min-height: 340px; margin-top: 12px; overflow: hidden; border: 1px solid #a18538; border-radius: 8px; background: linear-gradient(#8fc8d3 0 30%, #83ad58 30% 61%, #513917 61%); }
+      .hive-scene::before { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 18% 54%, #5d8d43 0 7%, transparent 7.5%), radial-gradient(circle at 82% 48%, #668e3d 0 10%, transparent 10.5%); opacity: .85; }
+      .weather { position: absolute; right: 7%; top: 8%; z-index: 1; font-size: 58px; }
+      .queen { position: absolute; left: 9%; top: 12%; z-index: 1; padding: 8px 10px; border: 1px solid #fff5bb88; border-radius: 7px; background: #3c310fcc; font-size: 12px; }
+      .comb { position: absolute; left: 38%; top: 39%; z-index: 1; font-size: 118px; filter: drop-shadow(0 7px 4px #34240b); }
+      .bees { position: absolute; inset: 28% 15% 12%; z-index: 2; pointer-events: none; }
+      .bee { position: absolute; font-size: 23px; filter: drop-shadow(0 2px 1px #37280a); }
+      .forecast { margin-top: 10px; padding: 9px; border: 1px solid #806b31; border-radius: 7px; background: #2b250f; color: #eadfb8; font-size: 12px; line-height: 1.5; }
+      .roles { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; margin-top: 10px; }
+      .role { padding: 9px 6px; border: 1px solid #806c32; border-radius: 7px; background: #352d13; text-align: center; }
+      .role b, .role small { display: block; }
+      .role b { font-size: 20px; }
+      .role small { min-height: 27px; color: var(--muted); font-size: 9px; }
+      .stepper { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 6px; }
+      .stepper button { min-height: 38px; border: 1px solid #8d7737; border-radius: 5px; background: #594717; font-weight: 950; cursor: pointer; }
+      .projects { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin-top: 10px; }
+      .project { min-height: 72px; padding: 7px; border: 1px solid #846f31; border-radius: 7px; background: #4b3d16; text-align: left; cursor: pointer; }
+      .project b, .project small { display: block; }
+      .project small { margin-top: 4px; color: var(--muted); font-size: 9px; line-height: 1.35; }
+      .project.max { border-color: #719a63; background: #354b25; }
+      .message { min-height: 40px; margin-top: 10px; padding: 9px; border: 1px solid #806b31; border-radius: 7px; background: #271f0c; color: #eadfb9; font-size: 12px; }
+      .day-action { justify-content: center; margin-top: 10px; }
+      .side { padding: 12px; display: grid; gap: 10px; max-height: calc(100vh - 105px); overflow: auto; }
+      .block { padding: 11px; border: 1px solid #77652e; border-radius: 8px; background: var(--panel2); }
+      .block h2, .block h3 { margin: 0 0 8px; }
+      .block h2 { font-size: 20px; }
+      .block h3 { color: var(--gold); font-size: 14px; }
+      .scenarios { display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; }
+      .scenario { min-height: 64px; padding: 6px; border: 1px solid #806c32; border-radius: 6px; background: #463817; cursor: pointer; }
+      .scenario.active { outline: 3px solid var(--gold); }
+      .scenario:disabled { opacity: .35; }
+      .scenario b, .scenario small { display: block; }
+      .scenario small { margin-top: 3px; color: var(--muted); font-size: 9px; }
+      .stars { color: var(--gold); font-size: 9px; }
+      .lineages { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+      .lineage { min-height: 72px; padding: 5px; border: 1px solid #7e6b32; border-radius: 6px; background: #493b18; cursor: pointer; }
+      .lineage.active { outline: 3px solid var(--blue); }
+      .lineage:disabled { opacity: .4; }
+      .lineage b, .lineage small { display: block; }
+      .lineage small { margin-top: 4px; color: var(--muted); font-size: 9px; line-height: 1.3; }
+      .goals { display: grid; gap: 5px; }
+      .goal { padding: 7px; border: 1px solid #75622d; border-radius: 6px; color: var(--muted); font-size: 11px; }
+      .goal.pass { border-color: #4f8d66; background: #203d2c; color: #dff3e6; }
+      .log { height: 150px; overflow: auto; color: #d4c79f; font-size: 11px; line-height: 1.5; }
+      .career { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+      .career div { padding: 7px; border: 1px solid #75622d; border-radius: 7px; background: #453817; text-align: center; }
+      .career b { display: block; font-size: 19px; }
+      .career small { color: var(--muted); font-size: 9px; }
+      .archive { position: fixed; inset: 0; z-index: 9; display: grid; place-items: center; padding: 18px; background: #0e0b04dd; }
+      .archive.hidden { display: none; }
+      .dialog { width: min(620px, 100%); padding: 18px; border: 1px solid #927a35; border-radius: 8px; background: #403519; }
+      .dialog h2 { margin: 0 0 8px; }
+      .dialog p { color: var(--muted); font-size: 12px; }
+      .dialog textarea { width: 100%; min-height: 125px; padding: 10px; border: 1px solid #806b30; border-radius: 6px; background: #211b0b; color: white; resize: vertical; }
+      .feedback { min-height: 20px; margin-top: 7px; color: var(--gold); font-size: 12px; font-weight: 850; }
+      @media (max-width: 980px) {
+        .layout { grid-template-columns: 1fr; }
+        .side { max-height: none; }
+        .hive-head { display: grid; }
+        .stats { min-width: 0; width: 100%; }
+      }
+      @media (max-width: 620px) {
+        .app { width: min(100% - 12px, 1440px); margin: 6px auto; }
+        .top { display: grid; padding: 12px; }
+        h1 { font-size: 25px; }
+        .hive, .side { padding: 8px; }
+        .stats { grid-template-columns: repeat(3, 1fr); }
+        .hive-scene { min-height: 280px; }
+        .comb { font-size: 90px; }
+        .roles { grid-template-columns: repeat(2, 1fr); }
+        .projects { grid-template-columns: repeat(2, 1fr); }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <header class="top">
         <div>
-          <h1 style="margin: 0">蜂巢女王</h1>
-          <div class="help">
-            分配工蜂采蜜、育幼、守卫和筑巢；撑过二十天花季并把蜂群发展到八十只。
+          <p class="eyebrow">DETERMINISTIC COLONY CAMPAIGN</p>
+          <h1>蜂巢女王：四季谱系</h1>
+          <p class="sub">四个十二日情景 · 三种女王谱系 · 五类岗位 · 六项双级设施 · 固定天气威胁 · `HIVE2` 档案</p>
+        </div>
+        <div class="actions"><button class="btn red" id="restartBtn">重开花季</button><button class="btn gold" id="archiveBtn">蜂群档案</button></div>
+      </header>
+
+      <section class="layout">
+        <section class="panel hive">
+          <div class="hive-head">
+            <div><h2 id="scenarioTitle"></h2><p id="scenarioDesc"></p></div>
+            <div class="stats">
+              <div class="stat"><b id="dayStat">1/12</b><small>日程</small></div>
+              <div class="stat"><b id="beeStat">30</b><small>工蜂</small></div>
+              <div class="stat"><b id="honeyStat">60</b><small>蜂蜜</small></div>
+              <div class="stat"><b id="waxStat">12</b><small>蜂蜡</small></div>
+              <div class="stat"><b id="healthStat">100</b><small>健康</small></div>
+              <div class="stat"><b id="idleStat">0</b><small>空闲</small></div>
+            </div>
           </div>
-        </div>
-        <div>
-          第 <b id="day"></b>/20 天　蜂群 <b id="bees"></b>　蜂蜜
-          <b id="honey"></b>　蜂房 <b id="cap"></b>
-        </div>
+          <div class="hive-scene"><div class="queen" id="queenLabel"></div><div class="weather" id="weatherIcon"></div><div class="comb">🍯</div><div class="bees" id="beeField"></div></div>
+          <div class="forecast" id="forecast"></div>
+          <div class="roles" id="roles"></div>
+          <div class="projects" id="projects"></div>
+          <div class="row day-action"><button class="btn gold" id="nextDayBtn">结束一天</button><button class="btn" id="balanceBtn">均衡分工</button></div>
+          <div class="message" id="message">预读今日天气与威胁，再安排岗位。空闲工蜂不会产生收益。</div>
+        </section>
+
+        <aside class="panel side">
+          <section class="block"><h3>四季情景</h3><div class="scenarios" id="scenarioList"></div></section>
+          <section class="block"><h3>女王谱系</h3><div class="lineages" id="lineageList"></div></section>
+          <section class="block"><h3>情景目标</h3><div class="goals" id="goals"></div></section>
+          <section class="block"><h3>花季记录</h3><div class="log" id="log"></div></section>
+          <section class="block"><h3>谱系生涯</h3><div class="career"><div><b id="totalStars">0</b><small>总星章</small></div><div><b id="clears">0</b><small>完成花季</small></div><div><b id="bestBees">0</b><small>最大蜂群</small></div></div></section>
+        </aside>
+      </section>
+    </main>
+
+    <div class="archive hidden" id="archiveModal">
+      <div class="dialog">
+        <h2>跨设备蜂群档案</h2>
+        <p>档案保存四季星级、最佳蜂群、解锁进度和生涯统计。</p>
+        <textarea id="archiveText" spellcheck="false"></textarea>
+        <div class="row" style="justify-content:flex-end;margin-top:8px"><button class="btn" id="closeArchiveBtn">关闭</button><button class="btn" id="importBtn">导入</button><button class="btn gold" id="exportBtn">生成并复制</button></div>
+        <div class="feedback" id="archiveFeedback"></div>
       </div>
-      <div class="hive">
-        <div class="queen">👑🐝</div>
-        <div class="cells" id="cells"></div>
-      </div>
-      <div class="panel">
-        <div class="assign">
-          <div class="stat">
-            🌼采集 <b id="forage"></b>
-            <div>
-              <button data-a="forage" data-d="-1">−</button
-              ><button data-a="forage" data-d="1">＋</button>
-            </div>
-          </div>
-          <div class="stat">
-            🥚育幼 <b id="nurse"></b>
-            <div>
-              <button data-a="nurse" data-d="-1">−</button
-              ><button data-a="nurse" data-d="1">＋</button>
-            </div>
-          </div>
-          <div class="stat">
-            🛡️守卫 <b id="guard"></b>
-            <div>
-              <button data-a="guard" data-d="-1">−</button
-              ><button data-a="guard" data-d="1">＋</button>
-            </div>
-          </div>
-          <div class="stat">
-            🏗️筑巢 <b id="build"></b>
-            <div>
-              <button data-a="build" data-d="-1">−</button
-              ><button data-a="build" data-d="1">＋</button>
-            </div>
-          </div>
-        </div>
-        <div class="row" style="margin-top: 9px">
-          <span>空闲工蜂 <b id="idle"></b>　<span id="weather"></span></span
-          ><button class="next" id="nextDay">结束一天</button
-          ><button id="restart">新蜂群</button><span id="msg"></span>
-        </div>
-      </div>
-    </section>
-  </main>
-  <script>
-    let q;
-    const $ = (x) => document.getElementById(x);
-    function fresh() {
-      return {
-        day: 1,
-        bees: 20,
-        honey: 25,
-        cap: 30,
-        forage: 8,
-        nurse: 5,
-        guard: 3,
-        build: 2,
-        w: 0,
-        over: false,
-      };
-    }
-    function idleN() {
-      return q.bees - q.forage - q.nurse - q.guard - q.build;
-    }
-    function assign(k, d) {
-      if (d > 0 && idleN() <= 0) return;
-      q[k] = Math.max(0, q[k] + d);
-      draw();
-    }
-    function next() {
-      if (q.over) return;
-      let mult = [1, 1.35, 0.55, 0.75][q.w],
-        gain = Math.round(q.forage * 2.2 * mult),
-        eat = Math.ceil(q.bees * 0.35);
-      q.honey += gain - eat;
-      let born = Math.min(
-        q.nurse,
-        Math.floor(Math.max(0, q.honey) / 4),
-        q.cap - q.bees,
-      );
-      q.bees += born;
-      q.honey -= born * 2;
-      q.cap += Math.floor(q.build / 3);
-      if (Math.random() < 0.28) {
-        let loss = Math.max(0, 8 - q.guard * 2);
-        q.bees -= loss;
-        msg.textContent = loss
-          ? `胡蜂袭击，损失 ${loss} 只工蜂。`
-          : "守卫击退了胡蜂！";
-      }
-      if (q.honey < 0) {
-        q.bees = Math.max(1, q.bees - 5);
-        q.honey = 0;
-      }
-      while (idleN() < 0)
-        for (const k of ["build", "guard", "nurse", "forage"])
-          if (q[k] > 0 && idleN() < 0) q[k]--;
-      q.day++;
-      q.w = Math.floor(Math.random() * 4);
-      if (q.day > 20) {
-        q.over = true;
-        msg.textContent =
-          q.bees >= 80
-            ? "花季结束，蜂群繁荣胜利！"
-            : "花季结束，蜂群仍需壮大。";
-      }
-      draw();
-    }
-    function draw() {
-      day.textContent = Math.min(20, q.day);
-      bees.textContent = q.bees;
-      honey.textContent = q.honey;
-      cap.textContent = q.cap;
-      for (const k of ["forage", "nurse", "guard", "build"])
-        $(k).textContent = q[k];
-      idle.textContent = idleN();
-      weather.textContent = ["晴朗", "百花盛开", "暴雨", "大风"][q.w];
-      cells.innerHTML = Array.from(
-        { length: Math.min(18, Math.ceil(q.cap / 5)) },
-        (_, i) => `<span class="hex">${i < q.bees / 5 ? "🍯" : "·"}</span>`,
-      ).join("");
-      nextDay.disabled = q.over;
-    }
-    document
-      .querySelectorAll("[data-a]")
-      .forEach((e) => (e.onclick = () => assign(e.dataset.a, +e.dataset.d)));
-    nextDay.onclick = next;
-    restart.onclick = () => {
-      q = fresh();
-      draw();
-    };
-    q = fresh();
-    draw();
-  </script>
+    </div>
+
+    <script>
+      (() => {
+        const $ = (id) => document.getElementById(id);
+        const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+        const WEATHER = {
+          sun: { name: "晴朗", icon: "☀️", forage: 1.15, danger: 5, heat: 3, text: "花源稳定，少量巡飞胡蜂。" },
+          bloom: { name: "盛花", icon: "🌼", forage: 1.5, danger: 7, heat: 4, text: "蜜源丰厚，适合扩大采集。" },
+          rain: { name: "暴雨", icon: "🌧️", forage: .62, danger: 4, heat: 1, text: "外勤受限，蜂巢需要储备。" },
+          wind: { name: "强风", icon: "🌬️", forage: .78, danger: 10, heat: 2, text: "返巢困难，守卫压力提高。" },
+          heat: { name: "热浪", icon: "🌡️", forage: .82, danger: 6, heat: 16, text: "高温会损伤蜂巢健康，必须通风。" },
+          wasp: { name: "胡蜂潮", icon: "⚠️", forage: .95, danger: 22, heat: 4, text: "大规模胡蜂逼近，守卫数量决定损失。" },
+          cold: { name: "冷雨", icon: "🌨️", forage: .58, danger: 6, heat: 0, text: "低温压低采蜜，但不会产生热应激。" },
+          spray: { name: "农药漂移", icon: "☣️", forage: .45, danger: 15, heat: 7, text: "外勤与蜂巢同时承压，宜减少冒险。" }
+        };
+        const LINEAGES = {
+          amber: { name: "琥珀谱系", icon: "👑", text: "采蜜 +18%，均衡开局", forage: 1.18, brood: 0, defense: 1, cooling: 1 },
+          pearl: { name: "珍珠谱系", icon: "🤍", text: "产卵 +2，育幼效率高", forage: 1, brood: 2, defense: 1, cooling: 1 },
+          obsidian: { name: "黑曜谱系", icon: "🛡️", text: "守卫与通风效率 +25%", forage: 1, brood: 0, defense: 1.25, cooling: 1.25 }
+        };
+        const PROJECTS = [
+          { id: "comb", name: "扩建巢脾", icon: "🍯", honey: 20, wax: 8, max: 2, text: "每级容量 +22" },
+          { id: "nursery", name: "恒温育房", icon: "🥚", honey: 18, wax: 9, max: 2, text: "每级育幼效率 +25%" },
+          { id: "sentry", name: "守卫廊道", icon: "🛡️", honey: 16, wax: 10, max: 2, text: "每级守卫效率 +35%" },
+          { id: "vent", name: "通风蜂道", icon: "🌬️", honey: 16, wax: 9, max: 2, text: "每级通风效率 +35%" },
+          { id: "meadow", name: "蜜源标记", icon: "🌼", honey: 22, wax: 12, max: 2, text: "每级采蜜 +14%" },
+          { id: "reserve", name: "蜂王浆库", icon: "🏺", honey: 24, wax: 8, max: 2, text: "建设时健康 +10" }
+        ];
+        const SCENARIOS = [
+          { name: "春汛初巢", desc: "温和花季中建立第一座稳定蜂巢。", events: ["sun", "bloom", "rain", "sun", "wind", "bloom", "sun", "rain", "bloom", "sun", "wind", "bloom"], targetBees: 78, targetHoney: 250, starHealth: 78, starLoss: 4, queen: "amber" },
+          { name: "梅雨迁徙", desc: "连续降雨压缩采集窗口，储备比峰值更重要。", events: ["rain", "cold", "sun", "rain", "wind", "bloom", "rain", "cold", "sun", "rain", "wind", "bloom"], targetBees: 76, targetHoney: 180, starHealth: 74, starLoss: 5, queen: "pearl" },
+          { name: "盛夏热巢", desc: "热浪反复出现，通风岗位和设施必须提前投入。", events: ["sun", "heat", "bloom", "heat", "wind", "sun", "heat", "spray", "bloom", "heat", "sun", "wasp"], targetBees: 76, targetHoney: 180, starHealth: 70, starLoss: 7, queen: "obsidian" },
+          { name: "秋末王台", desc: "胡蜂潮与农药漂移交替，完成终季谱系保存。", events: ["wind", "wasp", "sun", "spray", "bloom", "wasp", "rain", "wind", "spray", "bloom", "wasp", "cold"], targetBees: 74, targetHoney: 160, starHealth: 65, starLoss: 9, queen: "obsidian" }
+        ];
+        const ROLE_DATA = {
+          forage: ["采集", "🌼", "蜂蜜收益"], nurse: ["育幼", "🥚", "幼虫羽化"], guard: ["守卫", "🛡️", "抵御威胁"], build: ["筑巢", "🔨", "生成蜂蜡"], cool: ["通风", "🌬️", "缓解热应激"]
+        };
+        const KEY = "mini_hive_lineage_v2";
+        const els = {
+          title: $("scenarioTitle"), desc: $("scenarioDesc"), day: $("dayStat"), bees: $("beeStat"), honey: $("honeyStat"), wax: $("waxStat"), health: $("healthStat"), idle: $("idleStat"),
+          queen: $("queenLabel"), weather: $("weatherIcon"), field: $("beeField"), forecast: $("forecast"), roles: $("roles"), projects: $("projects"), message: $("message"),
+          scenarios: $("scenarioList"), lineages: $("lineageList"), goals: $("goals"), log: $("log"), totalStars: $("totalStars"), clears: $("clears"), bestBees: $("bestBees"),
+          next: $("nextDayBtn"), balance: $("balanceBtn"), archive: $("archiveModal"), archiveText: $("archiveText"), archiveFeedback: $("archiveFeedback")
+        };
+
+        function freshProfile() { return { v: 2, unlocked: 0, stars: [0, 0, 0, 0], bestBees: [0, 0, 0, 0], clears: 0 }; }
+        function load() {
+          try {
+            const value = JSON.parse(localStorage.getItem(KEY));
+            if (!value || value.v !== 2) return freshProfile();
+            return { v: 2, unlocked: clamp(+value.unlocked || 0, 0, 3), stars: Array.from({ length: 4 }, (_, i) => clamp(+value.stars?.[i] || 0, 0, 3)), bestBees: Array.from({ length: 4 }, (_, i) => Math.max(0, +value.bestBees?.[i] || 0)), clears: Math.max(0, +value.clears || 0) };
+          } catch { return freshProfile(); }
+        }
+        let profile = load();
+        let scenarioIndex = Math.min(profile.unlocked, 3);
+        let lineageId = SCENARIOS[scenarioIndex].queen;
+        function scenario() { return SCENARIOS[scenarioIndex]; }
+        function lineage() { return LINEAGES[lineageId]; }
+        function makeState() {
+          return {
+            mode: "play", day: 1, bees: 30, larvae: 8, honey: 64, wax: 14, cap: 44, health: 100, lost: 0,
+            roles: { forage: 12, nurse: 6, guard: 4, build: 4, cool: 4 },
+            projects: { comb: 0, nursery: 0, sentry: 0, vent: 0, meadow: 0, reserve: 0 },
+            events: [{ type: "START", detail: `${scenario().name}开始，${lineage().name}接管蜂群。` }], result: "", replaying: false
+          };
+        }
+        let state = makeState();
+        function idle() { return state.bees - Object.values(state.roles).reduce((sum, value) => sum + value, 0); }
+        function normalizeRoles() {
+          const order = ["cool", "build", "guard", "nurse", "forage"];
+          while (idle() < 0) for (const id of order) if (state.roles[id] > 0 && idle() < 0) state.roles[id]--;
+        }
+        function record(type, detail) { state.events.unshift({ type, detail }); state.events = state.events.slice(0, 36); state.result = detail; els.message.textContent = detail; }
+        function assign(role, delta) {
+          if (state.mode !== "play") return false;
+          if (delta > 0 && idle() <= 0) { record("ASSIGN", "没有空闲工蜂可调动。"); return false; }
+          state.roles[role] = Math.max(0, state.roles[role] + delta);
+          renderAll();
+          return true;
+        }
+        function balanceRoles() {
+          if (state.mode !== "play") return;
+          const event = WEATHER[scenario().events[state.day - 1]];
+          state.roles.guard = Math.min(state.bees, Math.ceil(event.danger / (2 * lineage().defense * (1 + state.projects.sentry * .35))));
+          state.roles.cool = Math.min(state.bees - state.roles.guard, Math.ceil(event.heat / (2 * lineage().cooling * (1 + state.projects.vent * .35))));
+          state.roles.nurse = Math.min(10 + state.projects.nursery * 2, Math.max(4, Math.ceil(state.larvae / 1.3)));
+          state.roles.build = state.day <= 7 ? 5 : 3;
+          state.roles.forage = Math.max(0, state.bees - state.roles.guard - state.roles.cool - state.roles.nurse - state.roles.build);
+          normalizeRoles();
+          record("PLAN", "已按今日威胁生成均衡分工，仍可继续手动调整。");
+          renderAll();
+        }
+        function buildProject(id) {
+          if (state.mode !== "play") return false;
+          const project = PROJECTS.find((item) => item.id === id);
+          const level = state.projects[id];
+          const honeyCost = project.honey + level * 8;
+          const waxCost = project.wax + level * 4;
+          if (level >= project.max) return false;
+          if (state.honey < honeyCost || state.wax < waxCost) { record("BUILD", `${project.name}需要 ${honeyCost} 蜂蜜与 ${waxCost} 蜂蜡。`); return false; }
+          state.honey -= honeyCost;
+          state.wax -= waxCost;
+          state.projects[id]++;
+          if (id === "comb") state.cap += 22;
+          if (id === "reserve") state.health = clamp(state.health + 10, 0, 100);
+          record("BUILD", `${project.icon}${project.name}提升至 Lv.${state.projects[id]}。`);
+          renderAll();
+          return true;
+        }
+        function advanceDay() {
+          if (state.mode !== "play") return false;
+          const event = WEATHER[scenario().events[state.day - 1]];
+          const queen = lineage();
+          const forageGain = Math.round(state.roles.forage * 2.4 * event.forage * queen.forage * (1 + state.projects.meadow * .14));
+          const waxGain = Math.round(state.roles.build * .9);
+          const consumption = Math.ceil(state.bees * .32 + state.larvae * .11);
+          state.honey += forageGain - consumption;
+          state.wax += waxGain;
+          const nurseryRate = 1.12 + state.projects.nursery * .28;
+          const births = Math.max(0, Math.min(state.larvae, Math.floor(state.roles.nurse * nurseryRate), state.cap - state.bees));
+          const laid = Math.floor(4 + queen.brood + state.health / 55 + state.projects.nursery);
+          state.larvae = Math.max(0, state.larvae - births + laid);
+          state.bees += births;
+          const guardPower = state.roles.guard * 2.05 * queen.defense * (1 + state.projects.sentry * .35);
+          const losses = Math.max(0, Math.ceil((event.danger - guardPower) * .18));
+          state.bees = Math.max(1, state.bees - losses);
+          state.lost += losses;
+          const coolPower = state.roles.cool * 2.05 * queen.cooling * (1 + state.projects.vent * .35);
+          const heatStress = Math.max(0, event.heat - coolPower);
+          state.health -= Math.ceil(heatStress * .75);
+          if (state.honey < 0) {
+            const shortage = Math.ceil(Math.abs(state.honey) / 5);
+            state.health -= shortage * 4;
+            state.bees = Math.max(1, state.bees - shortage);
+            state.lost += shortage;
+            state.honey = 0;
+          } else state.health += 2 + state.projects.reserve;
+          state.health = clamp(state.health, 0, 100);
+          normalizeRoles();
+          record("DAY", `第 ${state.day} 日 ${event.name}：采蜜 ${forageGain}，羽化 ${births}，损失 ${losses}，健康 ${state.health}。`);
+          state.day++;
+          if (state.health <= 0 || state.bees <= 4) return fail("蜂群无法维持基本运转。");
+          if (state.day > 12) return finish();
+          renderAll();
+          return true;
+        }
+        function meetsMain() { return state.bees >= scenario().targetBees && state.honey >= scenario().targetHoney; }
+        function finish() {
+          const stars = meetsMain() ? 1 + (state.health >= scenario().starHealth ? 1 : 0) + (state.lost <= scenario().starLoss ? 1 : 0) : 0;
+          state.mode = stars ? "result" : "failed";
+          state.result = stars ? `花季完成：${"★".repeat(stars)}${"☆".repeat(3 - stars)}，工蜂 ${state.bees}，蜂蜜 ${state.honey}。` : `花季目标未完成：工蜂 ${state.bees}/${scenario().targetBees}，蜂蜜 ${state.honey}/${scenario().targetHoney}。`;
+          if (stars && !state.replaying) {
+            profile.stars[scenarioIndex] = Math.max(profile.stars[scenarioIndex], stars);
+            profile.bestBees[scenarioIndex] = Math.max(profile.bestBees[scenarioIndex], state.bees);
+            profile.unlocked = Math.max(profile.unlocked, Math.min(3, scenarioIndex + 1));
+            profile.clears++;
+            save();
+          }
+          record("END", state.result);
+          renderAll();
+          return stars;
+        }
+        function fail(reason) { state.mode = "failed"; state.result = `花季失败：${reason}`; record("FAIL", state.result); renderAll(); return 0; }
+        function setScenario(index, force = false) {
+          if (!force && index > profile.unlocked) return;
+          scenarioIndex = index;
+          lineageId = SCENARIOS[index].queen;
+          state = makeState();
+          renderAll();
+        }
+        function setLineage(id) {
+          if (state.day > 1 || state.mode !== "play") return;
+          lineageId = id;
+          state = makeState();
+          renderAll();
+        }
+        function referenceBuildOrder(index) {
+          if (index === 0) return ["comb", "nursery", "meadow", "comb", "nursery", "meadow", "reserve"];
+          if (index === 1) return ["comb", "nursery", "nursery", "meadow", "comb", "reserve", "meadow"];
+          if (index === 2) return ["comb", "vent", "vent", "nursery", "comb", "meadow", "reserve"];
+          return ["comb", "sentry", "sentry", "nursery", "comb", "reserve", "meadow"];
+        }
+        function simulateReference(index) {
+          const liveState = state, liveScenario = scenarioIndex, liveLineage = lineageId;
+          scenarioIndex = index;
+          lineageId = SCENARIOS[index].queen;
+          state = makeState();
+          state.replaying = true;
+          const order = referenceBuildOrder(index);
+          let cursor = 0;
+          while (state.mode === "play") {
+            while (cursor < order.length && buildProject(order[cursor])) cursor++;
+            balanceRoles();
+            advanceDay();
+          }
+          const result = { mode: state.mode, stars: meetsMain() ? 1 + (state.health >= scenario().starHealth ? 1 : 0) + (state.lost <= scenario().starLoss ? 1 : 0) : 0, bees: state.bees, honey: state.honey, health: state.health, lost: state.lost, projects: Object.values(state.projects).reduce((sum, value) => sum + value, 0) };
+          state = liveState;
+          scenarioIndex = liveScenario;
+          lineageId = liveLineage;
+          renderAll();
+          return result;
+        }
+        function totalStars() { return profile.stars.reduce((sum, value) => sum + value, 0); }
+        function save() { localStorage.setItem(KEY, JSON.stringify(profile)); }
+        function checksum(text) { let hash = 2166136261; for (let i = 0; i < text.length; i++) { hash ^= text.charCodeAt(i); hash = Math.imul(hash, 16777619); } return (hash >>> 0).toString(36); }
+        function encode() {
+          const payload = btoa(unescape(encodeURIComponent(JSON.stringify({ v: 2, u: profile.unlocked, s: profile.stars, b: profile.bestBees, c: profile.clears }))));
+          return `HIVE2.${payload}.${checksum(payload)}`;
+        }
+        function decode(code) {
+          const parts = code.trim().split(".");
+          if (parts.length !== 3 || parts[0] !== "HIVE2" || checksum(parts[1]) !== parts[2]) throw Error("蜂群档案校验失败");
+          const value = JSON.parse(decodeURIComponent(escape(atob(parts[1]))));
+          if (value.v !== 2 || !Array.isArray(value.s)) throw Error("档案版本不兼容");
+          return { v: 2, unlocked: clamp(+value.u || 0, 0, 3), stars: Array.from({ length: 4 }, (_, i) => clamp(+value.s[i] || 0, 0, 3)), bestBees: Array.from({ length: 4 }, (_, i) => Math.max(0, +value.b?.[i] || 0)), clears: Math.max(0, +value.c || 0) };
+        }
+        function validateContent() {
+          const errors = [];
+          if (SCENARIOS.length !== 4) errors.push("scenario count");
+          if (SCENARIOS.some((item) => item.events.length !== 12 || item.events.some((id) => !WEATHER[id]))) errors.push("event schedule");
+          if (Object.keys(LINEAGES).length !== 3) errors.push("lineage count");
+          if (PROJECTS.length !== 6) errors.push("project count");
+          const references = SCENARIOS.map((_, index) => simulateReference(index));
+          if (references.some((item) => item.mode !== "result")) errors.push("reference plan");
+          return { valid: errors.length === 0, errors, scenarios: SCENARIOS.length, days: SCENARIOS.reduce((sum, item) => sum + item.events.length, 0), lineages: Object.keys(LINEAGES).length, roles: Object.keys(ROLE_DATA).length, projects: PROJECTS.length, references };
+        }
+        function renderAll() {
+          const current = scenario();
+          const queen = lineage();
+          const event = WEATHER[current.events[Math.min(11, state.day - 1)]];
+          const nextEvent = WEATHER[current.events[Math.min(11, state.day)]];
+          els.title.textContent = `${scenarioIndex + 1}. ${current.name}`;
+          els.desc.textContent = current.desc;
+          els.day.textContent = `${Math.min(12, state.day)}/12`;
+          els.bees.textContent = state.bees;
+          els.honey.textContent = state.honey;
+          els.wax.textContent = state.wax;
+          els.health.textContent = state.health;
+          els.idle.textContent = idle();
+          els.queen.textContent = `${queen.icon} ${queen.name} · 容量 ${state.bees}/${state.cap} · 幼虫 ${state.larvae}`;
+          els.weather.textContent = event.icon;
+          els.forecast.innerHTML = `<b>今日：${event.name}</b> · 采集倍率 ${event.forage.toFixed(2)} · 威胁 ${event.danger} · 热压 ${event.heat}<br>${event.text}${state.day < 12 ? `<br><span style="color:var(--blue)">明日预告：${nextEvent.name} · 威胁 ${nextEvent.danger} · 热压 ${nextEvent.heat}</span>` : ""}`;
+          const beeCount = Math.min(28, Math.max(8, Math.ceil(state.bees / 3)));
+          els.field.innerHTML = Array.from({ length: beeCount }, (_, index) => `<span class="bee" style="left:${(index * 37) % 92}%;top:${(index * 53) % 80}%">🐝</span>`).join("");
+          els.roles.innerHTML = Object.entries(ROLE_DATA).map(([id, data]) => `<div class="role"><span>${data[1]}</span><b>${state.roles[id]}</b><small>${data[0]} · ${data[2]}</small><div class="stepper"><button data-role="${id}" data-delta="-1">−</button><button data-role="${id}" data-delta="1">＋</button></div></div>`).join("");
+          els.roles.querySelectorAll("[data-role]").forEach((button) => button.onclick = () => assign(button.dataset.role, +button.dataset.delta));
+          els.projects.innerHTML = PROJECTS.map((project) => {
+            const level = state.projects[project.id], honeyCost = project.honey + level * 8, waxCost = project.wax + level * 4;
+            return `<button class="project ${level >= project.max ? "max" : ""}" data-project="${project.id}" ${state.mode !== "play" || level >= project.max ? "disabled" : ""}><b>${project.icon} ${project.name} · Lv.${level}/${project.max}</b><small>${project.text}<br>${level >= project.max ? "已完成" : `${honeyCost} 蜂蜜 / ${waxCost} 蜂蜡`}</small></button>`;
+          }).join("");
+          els.projects.querySelectorAll("[data-project]").forEach((button) => button.onclick = () => buildProject(button.dataset.project));
+          els.scenarios.innerHTML = SCENARIOS.map((item, index) => `<button class="scenario ${index === scenarioIndex ? "active" : ""}" data-scenario="${index}" ${index > profile.unlocked ? "disabled" : ""}><b>${index + 1}. ${item.name}</b><small>${item.targetBees} 蜂 / ${item.targetHoney} 蜜</small><span class="stars">${"★".repeat(profile.stars[index])}${"☆".repeat(3 - profile.stars[index])}</span></button>`).join("");
+          els.scenarios.querySelectorAll("[data-scenario]").forEach((button) => button.onclick = () => setScenario(+button.dataset.scenario));
+          els.lineages.innerHTML = Object.entries(LINEAGES).map(([id, item]) => `<button class="lineage ${id === lineageId ? "active" : ""}" data-lineage="${id}" ${state.day > 1 ? "disabled" : ""}><b>${item.icon} ${item.name}</b><small>${item.text}</small></button>`).join("");
+          els.lineages.querySelectorAll("[data-lineage]").forEach((button) => button.onclick = () => setLineage(button.dataset.lineage));
+          els.goals.innerHTML = [
+            [state.bees >= current.targetBees && state.honey >= current.targetHoney, `主目标：工蜂 ${state.bees}/${current.targetBees} · 蜂蜜 ${state.honey}/${current.targetHoney}`],
+            [state.health >= current.starHealth, `健康阈值：${state.health}/${current.starHealth}`],
+            [state.lost <= current.starLoss, `损失控制：${state.lost}/${current.starLoss}`]
+          ].map(([pass, label]) => `<div class="goal ${pass ? "pass" : ""}">${label}</div>`).join("");
+          els.log.innerHTML = state.events.map((entry) => `<div>• [${entry.type}] ${entry.detail}</div>`).join("");
+          els.totalStars.textContent = totalStars();
+          els.clears.textContent = profile.clears;
+          els.bestBees.textContent = Math.max(...profile.bestBees, 0);
+          els.next.disabled = state.mode !== "play";
+          els.balance.disabled = state.mode !== "play";
+        }
+
+        els.next.onclick = advanceDay;
+        els.balance.onclick = balanceRoles;
+        $("restartBtn").onclick = () => { state = makeState(); renderAll(); };
+        $("archiveBtn").onclick = () => { els.archive.classList.remove("hidden"); els.archiveText.value = encode(); els.archiveFeedback.textContent = ""; };
+        $("closeArchiveBtn").onclick = () => els.archive.classList.add("hidden");
+        $("exportBtn").onclick = async () => { els.archiveText.value = encode(); els.archiveText.select(); try { await navigator.clipboard.writeText(els.archiveText.value); els.archiveFeedback.textContent = "蜂群档案已复制。"; } catch { els.archiveFeedback.textContent = "档案已生成，请手动复制。"; } };
+        $("importBtn").onclick = () => { try { profile = decode(els.archiveText.value); save(); scenarioIndex = Math.min(profile.unlocked, 3); lineageId = SCENARIOS[scenarioIndex].queen; state = makeState(); renderAll(); els.archiveFeedback.textContent = "导入成功。"; } catch (error) { els.archiveFeedback.textContent = error.message; } };
+        window.__hiveSovereign = { WEATHER, LINEAGES, PROJECTS, SCENARIOS, profile: () => profile, state: () => state, assign, balanceRoles, buildProject, advanceDay, finish, setScenario, setLineage, simulateReference, validateContent, encode, decode, renderAll };
+        renderAll();
+      })();
+    </script>
+  </body>
 </html>

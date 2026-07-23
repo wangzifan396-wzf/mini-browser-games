@@ -1,324 +1,571 @@
 <!doctype html>
 <html lang="zh-CN">
-  <meta charset="utf-8" /><meta
-    name="viewport"
-    content="width=device-width,initial-scale=1"
-  /><title>小屋收纳师</title
-  ><style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      background: #3c302a;
-      color: #fff5e8;
-      font-family: system-ui, "Microsoft YaHei";
-    }
-    .app {
-      min-height: 100vh;
-      padding: 14px;
-      display: grid;
-      place-items: center;
-    }
-    .shell {
-      width: min(940px, 100%);
-      background: #59463c;
-      border: 1px solid #a3836c;
-      border-radius: 20px;
-      padding: 16px;
-    }
-    .top,
-    .row {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .layout {
-      display: grid;
-      grid-template-columns: 1fr 300px;
-      gap: 12px;
-      margin-top: 12px;
-    }
-    .shelf {
-      display: grid;
-      grid-template-columns: repeat(8, 1fr);
-      gap: 4px;
-      background: #342822;
-      padding: 9px;
-      border: 8px solid #8b6345;
-      border-radius: 12px;
-    }
-    .cell {
-      height: 68px;
-      border: 1px solid #755944;
-      background: #684d3d;
-      border-radius: 4px;
-      display: grid;
-      place-items: center;
-      font-size: 28px;
-    }
-    .cell.bad {
-      outline: 3px solid #e96b6b;
-    }
-    .items {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 7px;
-    }
-    .item {
-      min-height: 72px;
-    }
-    .item.sel {
-      outline: 3px solid #ffdd72;
-    }
-    .panel {
-      background: #413229;
-      border: 1px solid #806450;
-      border-radius: 11px;
-      padding: 10px;
-      margin-bottom: 9px;
-    }
-    .rule {
-      padding: 5px;
-      border-bottom: 1px solid #ffffff18;
-    }
-    .log {
-      height: 90px;
-      overflow: auto;
-      color: #dac8b9;
-      font-size: 13px;
-    }
-    button {
-      padding: 9px 11px;
-      border: 1px solid #a07e64;
-      border-radius: 9px;
-      background: #745542;
-      color: white;
-      font-weight: bold;
-    }
-    .check {
-      background: #86702d;
-    }
-    .help {
-      font-size: 13px;
-      color: #ddcabc;
-    }
-    @media (max-width: 700px) {
-      .layout {
-        grid-template-columns: 1fr;
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>小屋收纳师：十二室委托</title>
+    <style>
+      :root {
+        --bg: #17221f;
+        --panel: #263d37;
+        --panel2: #1d302b;
+        --line: #66877b;
+        --ink: #f5f2e8;
+        --muted: #c1cec8;
+        --gold: #efc35f;
+        --green: #76d39e;
+        --red: #e57d78;
+        --blue: #7fb8d5;
       }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--ink);
+        font-family: system-ui, "Microsoft YaHei", sans-serif;
+        background:
+          radial-gradient(circle at 8% 0, #3d6658 0, transparent 27%),
+          radial-gradient(circle at 92% 6%, #5c4b3d 0, transparent 25%),
+          linear-gradient(145deg, #111b18, #23382f 65%, #29291f);
+      }
+      button, textarea { font: inherit; }
+      button { color: inherit; }
+      .app { width: min(1420px, calc(100% - 22px)); margin: 11px auto; }
+      .top, .panel {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(38, 61, 55, .97);
+        box-shadow: 0 18px 46px rgba(0, 0, 0, .3);
+      }
+      .top { display: flex; justify-content: space-between; align-items: center; gap: 14px; padding: 15px 18px; }
+      .eyebrow { margin: 0 0 4px; color: var(--gold); font-size: 12px; font-weight: 950; }
+      h1 { margin: 0; font-size: clamp(26px, 4vw, 42px); line-height: 1; }
+      .sub { margin: 7px 0 0; color: var(--muted); font-size: 13px; }
+      .actions, .row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+      .btn {
+        min-height: 42px;
+        padding: 0 13px;
+        border: 1px solid #83a398;
+        border-radius: 7px;
+        background: #3b6659;
+        font-weight: 900;
+        cursor: pointer;
+      }
+      .btn.gold { border-color: #ad8941; background: #765b23; }
+      .btn.red { border-color: #aa5855; background: #743c3a; }
+      .btn:disabled { opacity: .38; cursor: not-allowed; }
+      .layout { display: grid; grid-template-columns: minmax(0, 1fr) 410px; gap: 12px; margin-top: 12px; align-items: start; }
+      .workspace { padding: 13px; min-width: 0; }
+      .work-head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+      .work-head h2 { margin: 0 0 5px; }
+      .work-head p { margin: 0; color: var(--muted); font-size: 12px; }
+      .stats { display: grid; grid-template-columns: repeat(4, minmax(82px, 1fr)); gap: 6px; min-width: 390px; }
+      .stat { padding: 7px; border: 1px solid #587d71; border-radius: 7px; background: #172b26; text-align: center; }
+      .stat b { display: block; font-size: 20px; }
+      .stat small { color: var(--muted); font-size: 9px; }
+      .room-wrap { display: grid; place-items: center; min-height: 650px; margin-top: 12px; padding: 18px; border-radius: 8px; background: linear-gradient(145deg, #c9b68d, #9c8969); }
+      .board { width: min(650px, 100%); aspect-ratio: 1; display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; }
       .cell {
-        height: auto;
-        aspect-ratio: 1;
-        font-size: 20px;
+        position: relative;
+        min-width: 0;
+        border: 2px solid rgba(255, 255, 255, .26);
+        border-radius: 6px;
+        display: grid;
+        place-items: center;
+        font-size: clamp(20px, 4vw, 38px);
+        cursor: pointer;
+        box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .16);
       }
-      .app {
-        place-items: start center;
+      .cell small { position: absolute; left: 4px; top: 3px; color: rgba(255, 255, 255, .75); font-size: 8px; font-weight: 900; }
+      .cell.blocked { background: repeating-linear-gradient(135deg, #3a403d 0 8px, #2a302e 8px 16px); cursor: default; }
+      .cell.zone-S { background: #6b7560; }
+      .cell.zone-K { background: #8c654d; }
+      .cell.zone-C { background: #597083; }
+      .cell.zone-G { background: #4f795d; }
+      .cell.zone-T { background: #806376; }
+      .cell.occupied { outline: 3px solid #fff3c2; outline-offset: -4px; }
+      .cell.selected { outline-color: var(--gold); filter: brightness(1.18); }
+      .message { min-height: 42px; margin-top: 10px; padding: 9px; border: 1px solid #5a7d72; border-radius: 7px; background: #182b26; color: #d7e6df; font-size: 12px; }
+      .side { padding: 12px; display: grid; gap: 10px; max-height: calc(100vh - 105px); overflow: auto; }
+      .block { padding: 11px; border: 1px solid #587c70; border-radius: 8px; background: var(--panel2); }
+      .block h2, .block h3 { margin: 0 0 8px; }
+      .block h2 { font-size: 20px; }
+      .block h3 { color: var(--gold); font-size: 14px; }
+      .rooms { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+      .room { min-height: 54px; padding: 5px; border: 1px solid #628276; border-radius: 6px; background: #315046; cursor: pointer; }
+      .room.active { outline: 3px solid var(--gold); }
+      .room:disabled { opacity: .35; }
+      .room b, .room small { display: block; }
+      .room small { margin-top: 2px; color: var(--muted); font-size: 9px; }
+      .stars { color: var(--gold); font-size: 9px; }
+      .tray { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+      .piece { min-height: 62px; padding: 5px; border: 1px solid #648579; border-radius: 6px; background: #31554a; cursor: pointer; }
+      .piece.selected { outline: 3px solid var(--gold); }
+      .piece.placed { opacity: .68; }
+      .piece b, .piece small { display: block; }
+      .piece b { font-size: 19px; }
+      .piece small { color: var(--muted); font-size: 9px; }
+      .control { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-top: 8px; }
+      .control button { min-height: 42px; padding: 4px; border: 1px solid #6d8d82; border-radius: 6px; background: #355e52; font-size: 11px; font-weight: 850; cursor: pointer; }
+      .rules, .goals { display: grid; gap: 5px; }
+      .rule, .goal { padding: 7px; border: 1px solid #507267; border-radius: 6px; color: var(--muted); font-size: 11px; }
+      .goal.pass { border-color: #51936c; background: #1d4030; color: #e0f3e7; }
+      .legend { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+      .legend span { padding: 4px 6px; border-radius: 5px; color: #fff; font-size: 9px; }
+      .log { height: 120px; overflow: auto; color: #bdd0c8; font-size: 11px; line-height: 1.5; }
+      .career { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+      .career div { padding: 7px; border: 1px solid #52756a; border-radius: 7px; background: #29463e; text-align: center; }
+      .career b { display: block; font-size: 19px; }
+      .career small { color: var(--muted); font-size: 9px; }
+      .archive { position: fixed; inset: 0; z-index: 9; display: grid; place-items: center; padding: 18px; background: #09110fdd; }
+      .archive.hidden { display: none; }
+      .dialog { width: min(620px, 100%); padding: 18px; border: 1px solid #6f9185; border-radius: 8px; background: #263f38; }
+      .dialog h2 { margin: 0 0 8px; }
+      .dialog p { color: var(--muted); font-size: 12px; }
+      .dialog textarea { width: 100%; min-height: 125px; padding: 10px; border: 1px solid #66877c; border-radius: 6px; background: #172923; color: white; resize: vertical; }
+      .feedback { min-height: 20px; margin-top: 7px; color: var(--gold); font-size: 12px; font-weight: 850; }
+      @media (max-width: 980px) {
+        .layout { grid-template-columns: 1fr; }
+        .side { max-height: none; }
+        .work-head { display: grid; }
+        .stats { min-width: 0; width: 100%; }
       }
-    }
-  </style>
-  <main class="app">
-    <section class="shell">
-      <div class="top">
+      @media (max-width: 560px) {
+        .app { width: min(100% - 12px, 1420px); margin: 6px auto; }
+        .top { display: grid; padding: 12px; }
+        h1 { font-size: 25px; }
+        .workspace, .side { padding: 8px; }
+        .stats { grid-template-columns: repeat(2, 1fr); }
+        .room-wrap { min-height: 430px; padding: 7px; }
+        .board { gap: 3px; }
+        .cell { font-size: 20px; border-width: 1px; }
+        .rooms { grid-template-columns: repeat(3, 1fr); }
+        .tray { grid-template-columns: repeat(2, 1fr); }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <header class="top">
         <div>
-          <h1 style="margin: 0">小屋收纳师</h1>
-          <div class="help">
-            把物品放入正确区域并满足相邻规则；六个房间会逐渐加入尺寸与分类限制。
-          </div>
+          <p class="eyebrow">SPATIAL CONSTRAINT CAMPAIGN</p>
+          <h1>小屋收纳师：十二室委托</h1>
+          <p class="sub">十二间固定房型 · 多格物品旋转 · 靠墙/相邻/隔离规则 · 撤销与参考摆法 · `COZY2` 档案</p>
         </div>
-        <div>
-          房间 <b id="level"></b>/6　移动 <b id="moves"></b>　星星
-          <b id="stars"></b>
+        <div class="actions">
+          <button class="btn red" id="restartBtn">重开房间</button>
+          <button class="btn gold" id="archiveBtn">收纳档案</button>
         </div>
-      </div>
-      <div class="layout">
-        <div>
-          <div class="shelf" id="shelf"></div>
-          <div class="row" style="margin-top: 9px">
-            <button class="check" id="check">检查收纳</button
-            ><button id="undo">撤回</button><button id="reset">重置房间</button
-            ><span id="msg"></span>
+      </header>
+
+      <section class="layout">
+        <section class="panel workspace">
+          <div class="work-head">
+            <div><h2 id="roomTitle"></h2><p id="roomDesc"></p></div>
+            <div class="stats">
+              <div class="stat"><b id="placedStat">0/0</b><small>已放置</small></div>
+              <div class="stat"><b id="moveStat">0</b><small>移动</small></div>
+              <div class="stat"><b id="parStat">0</b><small>三星预算</small></div>
+              <div class="stat"><b id="hintStat">0</b><small>提示</small></div>
+            </div>
           </div>
-        </div>
-        <aside>
-          <div class="panel">
-            <b>待收纳物品</b>
-            <div class="items" id="items"></div>
-          </div>
-          <div class="panel">
-            <b>本房规则</b>
-            <div id="rules"></div>
-          </div>
-          <div class="panel log" id="log"></div>
+          <div class="room-wrap"><div class="board" id="board"></div></div>
+          <div class="message" id="message">选择物品，再点击房间格作为左上锚点。物品可旋转，所有占用格都必须落在对应区域。</div>
+        </section>
+
+        <aside class="panel side">
+          <section class="block"><h3>十二室委托</h3><div class="rooms" id="roomList"></div></section>
+          <section class="block">
+            <h3>待收纳物品</h3>
+            <div class="tray" id="tray"></div>
+            <div class="control">
+              <button id="rotateBtn">旋转</button>
+              <button id="removeBtn">取回</button>
+              <button id="undoBtn">撤销</button>
+              <button id="hintBtn">提示</button>
+            </div>
+          </section>
+          <section class="block"><h3>本室规则</h3><div class="rules" id="rules"></div><div class="legend" id="legend"></div></section>
+          <section class="block"><h3>委托目标</h3><div class="goals" id="goals"></div><button class="btn gold" id="checkBtn" style="width:100%;margin-top:8px">提交验收</button></section>
+          <section class="block"><h3>收纳记录</h3><div class="log" id="log"></div></section>
+          <section class="block"><h3>收纳生涯</h3><div class="career"><div><b id="totalStars">0</b><small>总星章</small></div><div><b id="clears">0</b><small>完成房间</small></div><div><b id="bestMove">0</b><small>最佳移动</small></div></div></section>
         </aside>
+      </section>
+    </main>
+
+    <div class="archive hidden" id="archiveModal">
+      <div class="dialog">
+        <h2>跨设备收纳档案</h2>
+        <p>档案只保存十二室星级、最佳移动、解锁进度和生涯统计。</p>
+        <textarea id="archiveText" spellcheck="false"></textarea>
+        <div class="row" style="justify-content:flex-end;margin-top:8px"><button class="btn" id="closeArchiveBtn">关闭</button><button class="btn" id="importBtn">导入</button><button class="btn gold" id="exportBtn">生成并复制</button></div>
+        <div class="feedback" id="archiveFeedback"></div>
       </div>
-    </section>
-  </main>
-  <script>
-    const TYPES = [
-        ["书籍", "📚", "study"],
-        ["杯子", "☕", "kitchen"],
-        ["衣物", "👕", "cloth"],
-        ["植物", "🪴", "green"],
-        ["玩具", "🧸", "toy"],
-        ["鞋子", "👟", "cloth"],
-        ["香料", "🧂", "kitchen"],
-        ["相册", "📔", "study"],
-        ["花瓶", "🏺", "green"],
-        ["积木", "🧱", "toy"],
-      ],
-      zones = [
-        "study",
-        "study",
-        "kitchen",
-        "kitchen",
-        "cloth",
-        "cloth",
-        "green",
-        "toy",
-      ];
-    let q,
-      selected = null;
-    const $ = (x) => document.getElementById(x);
-    function fresh(l = 0) {
-      let count = 5 + l,
-        items = Array.from({ length: count }, (_, i) => ({
-          id: i,
-          type: (i * 2 + l) % TYPES.length,
-          placed: null,
-        }));
-      return {
-        lv: l,
-        items,
-        cells: Array(32).fill(null),
-        moves: 0,
-        stars: +localStorage.getItem("organizer_stars") || 0,
-        hist: [],
-        logs: ["选择物品，再点击架子空格放置。"],
-      };
-    }
-    function place(i) {
-      if (selected === null) {
-        let uid = q.cells[i];
-        selected = uid === null ? null : uid;
-        return draw();
-      }
-      let old = q.items[selected].placed;
-      q.hist.push({
-        cells: [...q.cells],
-        placed: q.items.map((x) => x.placed),
-        moves: q.moves,
-      });
-      if (q.cells[i] !== null) {
-        let other = q.cells[i];
-        q.items[other].placed = old;
-        if (old !== null) q.cells[old] = other;
-      } else if (old !== null) q.cells[old] = null;
-      q.cells[i] = selected;
-      q.items[selected].placed = i;
-      q.moves++;
-      selected = null;
-      draw();
-    }
-    function verify() {
-      let errors = [];
-      for (const item of q.items) {
-        if (item.placed === null) {
-          errors.push("仍有物品未放置");
-          continue;
-        }
-        let col = item.placed % 8,
-          want = TYPES[item.type][2],
-          zone = zones[col];
-        if (want !== zone) errors.push(`${TYPES[item.type][0]}放错区域`);
-      }
-      if (q.lv >= 2) {
-        for (let i = 0; i < 31; i++)
-          if (
-            q.cells[i] !== null &&
-            q.cells[i + 1] !== null &&
-            Math.floor(i / 8) === Math.floor((i + 1) / 8)
-          ) {
-            let a = TYPES[q.items[q.cells[i]].type][2],
-              b = TYPES[q.items[q.cells[i + 1]].type][2];
-            if (
-              (a === "kitchen" && b === "green") ||
-              (a === "green" && b === "kitchen")
-            )
-              errors.push("植物不能紧邻餐具");
+    </div>
+
+    <script>
+      (() => {
+        const $ = (id) => document.getElementById(id);
+        const CATEGORY = {
+          S: { name: "书房", color: "#68755f", icon: "📚" },
+          K: { name: "厨房", color: "#8b644d", icon: "☕" },
+          C: { name: "衣物", color: "#587083", icon: "👕" },
+          G: { name: "绿植", color: "#4e795d", icon: "🪴" },
+          T: { name: "玩具", color: "#806276", icon: "🧸" }
+        };
+        const SHAPES = {
+          single: [[0, 0]],
+          h2: [[0, 0], [1, 0]],
+          h3: [[0, 0], [1, 0], [2, 0]],
+          v2: [[0, 0], [0, 1]],
+          tall: [[0, 0], [0, 1], [0, 2]],
+          block: [[0, 0], [1, 0], [0, 1], [1, 1]],
+          corner: [[0, 0], [0, 1], [1, 1]]
+        };
+        const CATALOG = {
+          S: [["旧书", "📚"], ["相册", "📔"], ["文件盒", "🗂️"], ["台灯", "🛋️"]],
+          K: [["杯组", "☕"], ["香料", "🧂"], ["汤锅", "🍲"], ["餐盘", "🍽️"]],
+          C: [["外套", "🧥"], ["鞋盒", "👟"], ["围巾", "🧣"], ["布箱", "🧺"]],
+          G: [["盆栽", "🪴"], ["花瓶", "🏺"], ["藤篮", "🌿"], ["苗盘", "🌱"]],
+          T: [["玩偶", "🧸"], ["积木", "🧱"], ["火车", "🚂"], ["棋盒", "🎲"]]
+        };
+        const LAYOUTS = [
+          {
+            zones: ["SSKKGG", "SSKKGG", "CCTTGG", "CCTTGG", "SSKKTT", "SSKKTT"],
+            slots: [
+              ["S", "h2", 0, 0, 0], ["K", "v2", 2, 0, 0], ["G", "tall", 4, 0, 0],
+              ["C", "block", 0, 2, 0], ["T", "block", 2, 2, 0], ["G", "h2", 4, 3, 0],
+              ["S", "block", 0, 4, 0], ["K", "block", 2, 4, 0], ["T", "block", 4, 4, 0]
+            ]
+          },
+          {
+            zones: ["SSSSSS", "SSSSSS", "KKKKKK", "CCCCCC", "GGGGGG", "TTTTTT"],
+            slots: [
+              ["S", "block", 0, 0, 0], ["S", "h3", 2, 0, 0], ["K", "h3", 0, 2, 0],
+              ["K", "h3", 3, 2, 0], ["C", "h2", 0, 3, 0], ["C", "h2", 3, 3, 0],
+              ["G", "h3", 0, 4, 0], ["G", "h2", 4, 4, 0], ["T", "h3", 0, 5, 0],
+              ["T", "h2", 4, 5, 0]
+            ]
+          },
+          {
+            zones: ["SSSGGG", "SSSGGG", "KKKGGG", "KKKCCC", "TTTCCC", "TTTCCC"],
+            slots: [
+              ["S", "block", 0, 0, 0], ["S", "v2", 2, 0, 0], ["G", "block", 3, 0, 0],
+              ["G", "h3", 3, 2, 0], ["K", "h3", 0, 2, 0], ["K", "h2", 0, 3, 0],
+              ["C", "v2", 3, 3, 0], ["C", "block", 4, 4, 0], ["T", "h3", 0, 4, 0],
+              ["T", "h2", 0, 5, 0]
+            ]
           }
-      }
-      if (!errors.length) {
-        let gain = Math.max(1, 3 - Math.floor(q.moves / (q.items.length + 2)));
-        q.stars += gain;
-        localStorage.setItem("organizer_stars", q.stars);
-        q.logs.unshift(`收纳完成，获得 ${gain} 星！`);
-        draw();
-        if (q.lv < 5)
-          setTimeout(() => {
-            q = fresh(q.lv + 1);
-            draw();
-          }, 650);
-        else setTimeout(() => alert("六间小屋全部整理完毕！"), 50);
-      } else {
-        msg.textContent = errors[0];
-        draw();
-      }
-    }
-    function draw() {
-      level.textContent = q.lv + 1;
-      moves.textContent = q.moves;
-      stars.textContent = q.stars;
-      shelf.innerHTML = q.cells
-        .map(
-          (uid, i) =>
-            `<button class="cell" data-i="${i}">${uid === null ? "" : TYPES[q.items[uid].type][1]}</button>`,
-        )
-        .join("");
-      shelf
-        .querySelectorAll("[data-i]")
-        .forEach((e) => (e.onclick = () => place(+e.dataset.i)));
-      items.innerHTML =
-        q.items
-          .filter((x) => x.placed === null)
-          .map(
-            (x) =>
-              `<button class="item ${selected === x.id ? "sel" : ""}" data-i="${x.id}">${TYPES[x.type][1]}<br>${TYPES[x.type][0]}</button>`,
-          )
-          .join("") || "<div>全部已放入</div>";
-      items.querySelectorAll("[data-i]").forEach(
-        (e) =>
-          (e.onclick = () => {
-            selected = +e.dataset.i;
-            draw();
-          }),
-      );
-      rules.innerHTML = [
-        `架子列区域：📚书房、☕厨房、👕衣物、🪴植物、🧸玩具`,
-        q.lv >= 2 ? "植物不可紧邻厨房用品" : "基础分类练习",
-        q.lv >= 4 ? "用尽量少的移动获得三星" : "后续房间解锁效率评分",
-      ]
-        .map((x) => `<div class="rule">• ${x}</div>`)
-        .join("");
-      log.innerHTML = q.logs.map((x) => `<div>• ${x}</div>`).join("");
-    }
-    check.onclick = verify;
-    undo.onclick = () => {
-      let h = q.hist.pop();
-      if (h) {
-        q.cells = h.cells;
-        q.items.forEach((x, i) => (x.placed = h.placed[i]));
-        q.moves = h.moves;
-        draw();
-      }
-    };
-    reset.onclick = () => {
-      q = fresh(q.lv);
-      draw();
-    };
-    q = fresh();
-    draw();
-  </script>
+        ];
+        const ROOM_SPECS = [
+          ["晨光书屋", "旧宅篇", 0, 5, 6, { edge: [0] }],
+          ["窄廊厨房", "旧宅篇", 1, 6, 7, { near: [[2, 4]] }],
+          ["雨窗衣帽间", "旧宅篇", 2, 6, 7, { avoid: [[0, 5]] }],
+          ["陶匠工作室", "工坊篇", 0, 7, 8, { edge: [2], near: [[3, 4]] }],
+          ["裁缝阁楼", "工坊篇", 1, 8, 9, { edge: [0], near: [[2, 4]] }],
+          ["植物标本室", "工坊篇", 2, 8, 9, { edge: [4], avoid: [[0, 7]] }],
+          ["湖畔家庭房", "旅店篇", 0, 9, 10, { edge: [6, 8], near: [[4, 5]], avoid: [[0, 8]] }],
+          ["长桌宴会厅", "旅店篇", 1, 10, 11, { edge: [0, 9], near: [[6, 8]], avoid: [[0, 9]] }],
+          ["钟塔套房", "旅店篇", 2, 10, 11, { edge: [0, 9], near: [[3, 6]], avoid: [[0, 7]] }],
+          ["旧港收藏间", "大师篇", 0, 9, 9, { edge: [0, 2, 8], near: [[0, 1], [4, 5]], avoid: [[0, 8]] }],
+          ["山馆行李房", "大师篇", 1, 10, 10, { edge: [0, 8, 9], near: [[2, 4], [6, 8]], avoid: [[0, 9]] }],
+          ["十二室终验", "大师篇", 2, 10, 10, { edge: [0, 4, 9], near: [[1, 2], [3, 6], [5, 8]], avoid: [[0, 7]] }]
+        ];
+
+        function buildRoom(spec, index) {
+          const [name, chapter, layoutIndex, count, par, ruleIndexes] = spec;
+          const layout = LAYOUTS[layoutIndex];
+          const counters = { S: 0, K: 0, C: 0, G: 0, T: 0 };
+          const items = layout.slots.slice(0, count).map((slot, itemIndex) => {
+            const [cat, shape, x, y, rotation] = slot;
+            const source = CATALOG[cat][(counters[cat]++ + index) % CATALOG[cat].length];
+            return { id: `p${itemIndex}`, name: source[0], emoji: source[1], cat, shape, solution: { x, y, rotation } };
+          });
+          const id = (value) => `p${value}`;
+          return {
+            name, chapter, par,
+            desc: `${chapter}第 ${(index % 3) + 1} 份委托：让多格物品完整进入色区，并同时满足空间规则。`,
+            zones: layout.zones,
+            items,
+            rules: {
+              edge: (ruleIndexes.edge || []).map(id),
+              near: (ruleIndexes.near || []).map((pair) => pair.map(id)),
+              avoid: (ruleIndexes.avoid || []).map((pair) => pair.map(id))
+            }
+          };
+        }
+        const ROOMS = ROOM_SPECS.map(buildRoom);
+        const KEY = "mini_cozy_organizer_v2";
+        const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+        const els = {
+          board: $("board"), roomTitle: $("roomTitle"), roomDesc: $("roomDesc"), placed: $("placedStat"), moves: $("moveStat"), par: $("parStat"), hints: $("hintStat"),
+          message: $("message"), roomList: $("roomList"), tray: $("tray"), rules: $("rules"), legend: $("legend"), goals: $("goals"), log: $("log"),
+          rotate: $("rotateBtn"), remove: $("removeBtn"), undo: $("undoBtn"), hint: $("hintBtn"), check: $("checkBtn"), totalStars: $("totalStars"), clears: $("clears"), bestMove: $("bestMove"),
+          archive: $("archiveModal"), archiveText: $("archiveText"), archiveFeedback: $("archiveFeedback")
+        };
+
+        function freshProfile() { return { v: 2, unlocked: 0, stars: Array(12).fill(0), bestMoves: Array(12).fill(0), clears: 0 }; }
+        function load() {
+          try {
+            const value = JSON.parse(localStorage.getItem(KEY));
+            if (!value || value.v !== 2) return freshProfile();
+            return {
+              v: 2,
+              unlocked: clamp(+value.unlocked || 0, 0, 11),
+              stars: Array.from({ length: 12 }, (_, i) => clamp(+value.stars?.[i] || 0, 0, 3)),
+              bestMoves: Array.from({ length: 12 }, (_, i) => Math.max(0, +value.bestMoves?.[i] || 0)),
+              clears: Math.max(0, +value.clears || 0)
+            };
+          } catch { return freshProfile(); }
+        }
+        let profile = load();
+        let roomIndex = Math.min(profile.unlocked, 11);
+
+        function makeState() {
+          return { mode: "play", selected: ROOMS[roomIndex].items[0]?.id || null, placements: {}, moves: 0, hints: 0, undo: [], events: ["选择物品并点击房间格放置。"] };
+        }
+        let state = makeState();
+        function room() { return ROOMS[roomIndex]; }
+        function itemById(id) { return room().items.find((item) => item.id === id); }
+        function rotateCells(shape, rotation) {
+          let cells = SHAPES[shape].map(([x, y]) => [x, y]);
+          for (let turn = 0; turn < ((rotation % 4) + 4) % 4; turn++) cells = cells.map(([x, y]) => [-y, x]);
+          const minX = Math.min(...cells.map((cell) => cell[0]));
+          const minY = Math.min(...cells.map((cell) => cell[1]));
+          return cells.map(([x, y]) => [x - minX, y - minY]);
+        }
+        function occupiedMap(placements = state.placements, ignoreId = null) {
+          const map = new Map();
+          for (const [id, placement] of Object.entries(placements)) {
+            if (id === ignoreId) continue;
+            const item = itemById(id);
+            if (!item) continue;
+            rotateCells(item.shape, placement.rotation).forEach(([dx, dy], offset) => map.set(`${placement.x + dx},${placement.y + dy}`, { id, offset }));
+          }
+          return map;
+        }
+        function cellsFor(id, placement) {
+          const item = itemById(id);
+          if (!item || !placement) return [];
+          return rotateCells(item.shape, placement.rotation).map(([dx, dy]) => [placement.x + dx, placement.y + dy]);
+        }
+        function canPlace(id, placement, placements = state.placements) {
+          const item = itemById(id);
+          if (!item) return { ok: false, reason: "物品不存在" };
+          const occupied = occupiedMap(placements, id);
+          for (const [x, y] of cellsFor(id, placement)) {
+            if (x < 0 || y < 0 || x >= 6 || y >= 6) return { ok: false, reason: "物品超出房间边界" };
+            const zone = room().zones[y][x];
+            if (zone === "#") return { ok: false, reason: "该位置被固定家具占用" };
+            if (zone !== item.cat) return { ok: false, reason: `${item.name}必须完整放进${CATEGORY[item.cat].name}区域` };
+            if (occupied.has(`${x},${y}`)) return { ok: false, reason: "物品发生重叠" };
+          }
+          return { ok: true, reason: "" };
+        }
+        function adjacent(idA, idB, placements = state.placements) {
+          const a = cellsFor(idA, placements[idA]);
+          const b = cellsFor(idB, placements[idB]);
+          return a.some(([ax, ay]) => b.some(([bx, by]) => Math.abs(ax - bx) + Math.abs(ay - by) === 1));
+        }
+        function touchesEdge(id, placements = state.placements) {
+          return cellsFor(id, placements[id]).some(([x, y]) => x === 0 || y === 0 || x === 5 || y === 5);
+        }
+        function validateRules(placements = state.placements) {
+          const errors = [];
+          for (const item of room().items) {
+            const placement = placements[item.id];
+            if (!placement) { errors.push(`${item.name}尚未放置`); continue; }
+            const legal = canPlace(item.id, placement, placements);
+            if (!legal.ok) errors.push(legal.reason);
+          }
+          for (const id of room().rules.edge) if (placements[id] && !touchesEdge(id, placements)) errors.push(`${itemById(id).name}必须靠墙`);
+          for (const [a, b] of room().rules.near) if (placements[a] && placements[b] && !adjacent(a, b, placements)) errors.push(`${itemById(a).name}必须紧邻${itemById(b).name}`);
+          for (const [a, b] of room().rules.avoid) if (placements[a] && placements[b] && adjacent(a, b, placements)) errors.push(`${itemById(a).name}不能紧邻${itemById(b).name}`);
+          return { ok: errors.length === 0, errors };
+        }
+        function snapshot() { return { placements: JSON.parse(JSON.stringify(state.placements)), moves: state.moves, hints: state.hints }; }
+        function pushUndo() { state.undo.push(snapshot()); state.undo = state.undo.slice(-30); }
+        function log(text) { state.events.unshift(text); state.events = state.events.slice(0, 24); els.message.textContent = text; }
+        function place(id, x, y, rotation = state.placements[id]?.rotation || 0) {
+          if (state.mode !== "play") return false;
+          const next = { x, y, rotation };
+          const legal = canPlace(id, next);
+          if (!legal.ok) { log(legal.reason); return false; }
+          pushUndo();
+          state.placements[id] = next;
+          state.selected = id;
+          state.moves++;
+          log(`${itemById(id).emoji} ${itemById(id).name}已放置。`);
+          renderAll();
+          return true;
+        }
+        function rotateSelected() {
+          const id = state.selected;
+          if (!id) return;
+          const current = state.placements[id];
+          if (!current) { log("先放置物品，或直接以当前方向选择锚点。"); return; }
+          const next = { ...current, rotation: (current.rotation + 1) % 4 };
+          const legal = canPlace(id, next);
+          if (!legal.ok) { log(`旋转失败：${legal.reason}`); return; }
+          pushUndo();
+          state.placements[id] = next;
+          state.moves++;
+          log(`${itemById(id).name}已旋转。`);
+          renderAll();
+        }
+        function removeSelected() {
+          const id = state.selected;
+          if (!id || !state.placements[id]) return;
+          pushUndo();
+          delete state.placements[id];
+          state.moves++;
+          log(`${itemById(id).name}已取回托盘。`);
+          renderAll();
+        }
+        function undo() {
+          const previous = state.undo.pop();
+          if (!previous) return;
+          state.placements = previous.placements;
+          state.moves = previous.moves;
+          state.hints = previous.hints;
+          log("已撤销上一步。");
+          renderAll();
+        }
+        function hint() {
+          const target = room().items.find((item) => {
+            const p = state.placements[item.id];
+            return !p || p.x !== item.solution.x || p.y !== item.solution.y || p.rotation !== item.solution.rotation;
+          });
+          if (!target) { log("当前摆法已经等同参考方案。"); return; }
+          pushUndo();
+          state.placements[target.id] = { ...target.solution };
+          state.selected = target.id;
+          state.moves++;
+          state.hints++;
+          log(`提示已放置 ${target.emoji}${target.name}，本室无提示星失效。`);
+          renderAll();
+        }
+        function finish() {
+          const result = validateRules();
+          if (!result.ok) { log(`验收未通过：${result.errors[0]}`); renderAll(); return 0; }
+          const stars = 1 + (state.moves <= room().par ? 1 : 0) + (state.hints === 0 ? 1 : 0);
+          state.mode = "result";
+          profile.stars[roomIndex] = Math.max(profile.stars[roomIndex], stars);
+          profile.bestMoves[roomIndex] = profile.bestMoves[roomIndex] ? Math.min(profile.bestMoves[roomIndex], state.moves) : state.moves;
+          profile.unlocked = Math.max(profile.unlocked, Math.min(11, roomIndex + 1));
+          profile.clears++;
+          save();
+          log(`委托完成：${"★".repeat(stars)}${"☆".repeat(3 - stars)}，移动 ${state.moves} 次。`);
+          renderAll();
+          return stars;
+        }
+        function applyReference(index = roomIndex) {
+          if (index !== roomIndex) selectRoom(index, true);
+          state.placements = Object.fromEntries(room().items.map((item) => [item.id, { ...item.solution }]));
+          state.moves = room().items.length;
+          state.hints = 0;
+          return validateRules();
+        }
+        function selectRoom(index, force = false) {
+          if (!force && index > profile.unlocked) return;
+          roomIndex = index;
+          state = makeState();
+          renderAll();
+        }
+        function totalStars() { return profile.stars.reduce((sum, value) => sum + value, 0); }
+        function save() { localStorage.setItem(KEY, JSON.stringify(profile)); }
+        function checksum(text) { let hash = 2166136261; for (let i = 0; i < text.length; i++) { hash ^= text.charCodeAt(i); hash = Math.imul(hash, 16777619); } return (hash >>> 0).toString(36); }
+        function encode() {
+          const payload = btoa(unescape(encodeURIComponent(JSON.stringify({ v: 2, u: profile.unlocked, s: profile.stars, b: profile.bestMoves, c: profile.clears }))));
+          return `COZY2.${payload}.${checksum(payload)}`;
+        }
+        function decode(code) {
+          const parts = code.trim().split(".");
+          if (parts.length !== 3 || parts[0] !== "COZY2" || checksum(parts[1]) !== parts[2]) throw Error("收纳档案校验失败");
+          const value = JSON.parse(decodeURIComponent(escape(atob(parts[1]))));
+          if (value.v !== 2 || !Array.isArray(value.s)) throw Error("档案版本不兼容");
+          return {
+            v: 2,
+            unlocked: clamp(+value.u || 0, 0, 11),
+            stars: Array.from({ length: 12 }, (_, i) => clamp(+value.s[i] || 0, 0, 3)),
+            bestMoves: Array.from({ length: 12 }, (_, i) => Math.max(0, +value.b?.[i] || 0)),
+            clears: Math.max(0, +value.c || 0)
+          };
+        }
+        function validateContent() {
+          const errors = [];
+          if (ROOMS.length !== 12) errors.push("room count");
+          ROOMS.forEach((candidate, index) => {
+            if (candidate.zones.length !== 6 || candidate.zones.some((row) => row.length !== 6)) errors.push(`room ${index} grid`);
+            const oldIndex = roomIndex;
+            roomIndex = index;
+            const placements = Object.fromEntries(candidate.items.map((item) => [item.id, { ...item.solution }]));
+            if (!validateRules(placements).ok) errors.push(`room ${index} reference`);
+            roomIndex = oldIndex;
+          });
+          return { valid: errors.length === 0, errors, rooms: ROOMS.length, chapters: new Set(ROOMS.map((item) => item.chapter)).size, pieces: ROOMS.reduce((sum, item) => sum + item.items.length, 0), references: ROOMS.length };
+        }
+        function renderAll() {
+          const current = room();
+          const occupied = occupiedMap();
+          els.roomTitle.textContent = `${roomIndex + 1}. ${current.name}`;
+          els.roomDesc.textContent = current.desc;
+          els.placed.textContent = `${Object.keys(state.placements).length}/${current.items.length}`;
+          els.moves.textContent = state.moves;
+          els.par.textContent = current.par;
+          els.hints.textContent = state.hints;
+          els.board.innerHTML = current.zones.flatMap((row, y) => [...row].map((zone, x) => {
+            const hit = occupied.get(`${x},${y}`);
+            const item = hit ? itemById(hit.id) : null;
+            const selected = item && item.id === state.selected;
+            return `<button class="cell ${zone === "#" ? "blocked" : `zone-${zone}`} ${item ? "occupied" : ""} ${selected ? "selected" : ""}" data-x="${x}" data-y="${y}" ${zone === "#" ? "disabled" : ""}>${item ? (hit.offset === 0 ? item.emoji : "•") : ""}<small>${zone === "#" ? "" : CATEGORY[zone].name}</small></button>`;
+          })).join("");
+          els.board.querySelectorAll("[data-x]").forEach((button) => button.onclick = () => {
+            const x = +button.dataset.x, y = +button.dataset.y;
+            const hit = occupied.get(`${x},${y}`);
+            if (hit) { state.selected = hit.id; renderAll(); return; }
+            if (state.selected) place(state.selected, x, y, state.placements[state.selected]?.rotation || 0);
+          });
+          els.tray.innerHTML = current.items.map((item) => `<button class="piece ${state.selected === item.id ? "selected" : ""} ${state.placements[item.id] ? "placed" : ""}" data-piece="${item.id}"><b>${item.emoji}</b><small>${item.name} · ${CATEGORY[item.cat].name}<br>${SHAPES[item.shape].length} 格</small></button>`).join("");
+          els.tray.querySelectorAll("[data-piece]").forEach((button) => button.onclick = () => { state.selected = button.dataset.piece; renderAll(); });
+          const ruleLines = ["所有占用格必须完整落入同色功能区。"];
+          current.rules.edge.forEach((id) => ruleLines.push(`${itemById(id).emoji}${itemById(id).name}必须接触外墙。`));
+          current.rules.near.forEach(([a, b]) => ruleLines.push(`${itemById(a).emoji}${itemById(a).name}必须紧邻${itemById(b).emoji}${itemById(b).name}。`));
+          current.rules.avoid.forEach(([a, b]) => ruleLines.push(`${itemById(a).emoji}${itemById(a).name}不能紧邻${itemById(b).emoji}${itemById(b).name}。`));
+          els.rules.innerHTML = ruleLines.map((line) => `<div class="rule">${line}</div>`).join("");
+          els.legend.innerHTML = Object.entries(CATEGORY).map(([id, value]) => `<span style="background:${value.color}">${value.icon}${value.name}</span>`).join("");
+          const validation = validateRules();
+          els.goals.innerHTML = [
+            [Object.keys(state.placements).length === current.items.length && validation.ok, "正确放置全部物品"],
+            [state.moves <= current.par, `移动不超过 ${current.par} 次`],
+            [state.hints === 0, "不使用自动提示"]
+          ].map(([pass, label]) => `<div class="goal ${pass ? "pass" : ""}">${label}</div>`).join("");
+          els.log.innerHTML = state.events.map((entry) => `<div>• ${entry}</div>`).join("");
+          els.roomList.innerHTML = ROOMS.map((candidate, index) => `<button class="room ${index === roomIndex ? "active" : ""}" data-room="${index}" ${index > profile.unlocked ? "disabled" : ""}><b>${index + 1}. ${candidate.name}</b><small>${candidate.chapter}</small><span class="stars">${"★".repeat(profile.stars[index])}${"☆".repeat(3 - profile.stars[index])}</span></button>`).join("");
+          els.roomList.querySelectorAll("[data-room]").forEach((button) => button.onclick = () => selectRoom(+button.dataset.room));
+          els.rotate.disabled = !state.selected || state.mode !== "play";
+          els.remove.disabled = !state.selected || !state.placements[state.selected] || state.mode !== "play";
+          els.undo.disabled = !state.undo.length || state.mode !== "play";
+          els.hint.disabled = state.mode !== "play";
+          els.check.disabled = state.mode !== "play";
+          els.totalStars.textContent = totalStars();
+          els.clears.textContent = profile.clears;
+          els.bestMove.textContent = Math.min(...profile.bestMoves.filter(Boolean).concat([0])) || 0;
+        }
+
+        els.rotate.onclick = rotateSelected;
+        els.remove.onclick = removeSelected;
+        els.undo.onclick = undo;
+        els.hint.onclick = hint;
+        els.check.onclick = finish;
+        $("restartBtn").onclick = () => { state = makeState(); renderAll(); };
+        $("archiveBtn").onclick = () => { els.archive.classList.remove("hidden"); els.archiveText.value = encode(); els.archiveFeedback.textContent = ""; };
+        $("closeArchiveBtn").onclick = () => els.archive.classList.add("hidden");
+        $("exportBtn").onclick = async () => { els.archiveText.value = encode(); els.archiveText.select(); try { await navigator.clipboard.writeText(els.archiveText.value); els.archiveFeedback.textContent = "收纳档案已复制。"; } catch { els.archiveFeedback.textContent = "档案已生成，请手动复制。"; } };
+        $("importBtn").onclick = () => { try { profile = decode(els.archiveText.value); save(); roomIndex = Math.min(profile.unlocked, 11); state = makeState(); renderAll(); els.archiveFeedback.textContent = "导入成功。"; } catch (error) { els.archiveFeedback.textContent = error.message; } };
+        window.__cozyOrganizer = { ROOMS, SHAPES, profile: () => profile, state: () => state, selectRoom, place, rotateSelected, hint, finish, applyReference, validateRules, validateContent, encode, decode, renderAll };
+        renderAll();
+      })();
+    </script>
+  </body>
 </html>

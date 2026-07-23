@@ -1,0 +1,48 @@
+{
+  "status": "draft",
+  "original": true,
+  "title": "别让 Playwright 只能点按钮：前端灰盒测试接口的设计与边界",
+  "alternativeTitles": [
+    "前端测试不能只找按钮：如何设计最小灰盒契约",
+    "从 DOM 点击到内容契约：Playwright 如何验证真实前端状态",
+    "给 Web 应用留一扇测试门：状态接口、参考方案与 E2E 边界"
+  ],
+  "summary": "Playwright 能证明按钮可以点击，却未必能证明内容完整、规则存在可行解、状态真的变化或档案能够恢复。本文讨论一种最小前端灰盒测试契约：保留真实 UI 点击与触摸，再通过 validateContent、state、simulateReference、encode/decode 和 Canvas 像素信号补足业务证据；同时说明哪些内部状态不应暴露、如何避免测试后门，以及黑盒、灰盒和模型测试各自应负责什么。文中给出三个零依赖页面的真实专项结果：28 条参考方案全部通过，3 种档案完成往返，页面与控制台错误为 0，390×844 横向溢出为 0；全仓 200 个桌面/手机页面组合复测同样实现加载、JavaScript、控制台和横向溢出失败全部为 0。",
+  "category": "前端",
+  "alternativeCategories": [
+    "软件工程",
+    "自动化测试"
+  ],
+  "tags": [
+    "JavaScript",
+    "Playwright",
+    "自动化测试",
+    "前端架构",
+    "E2E测试"
+  ],
+  "cover": {
+    "path": "docs/images/gray-box-contracts/cover.jpg",
+    "width": 1920,
+    "height": 1080,
+    "insertInBody": false
+  },
+  "figures": [
+    {
+      "path": "docs/images/gray-box-contracts/evidence-layers.jpg",
+      "name": "真实交互与灰盒契约的分层证据链",
+      "placement": "为什么只点按钮仍然不够"
+    },
+    {
+      "path": "docs/images/gray-box-contracts/contract-surface.jpg",
+      "name": "最小灰盒接口的能力边界",
+      "placement": "最小契约应该长什么样"
+    },
+    {
+      "path": "docs/images/gray-box-contracts/validation-results.jpg",
+      "name": "专项验证矩阵与真实结果",
+      "placement": "把真实交互与契约断言放进同一条测试"
+    }
+  ],
+  "repository": "https://github.com/wangzifan396-wzf/mini-browser-games",
+  "generatedAt": "2026-07-24"
+}

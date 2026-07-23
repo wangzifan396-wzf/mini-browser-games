@@ -1,374 +1,188 @@
 <!doctype html>
 <html lang="zh-CN">
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>道岔快线</title>
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23131b20'/%3E%3Cpath d='M12 46h40M12 20h17c13 0 13 26 23 26' fill='none' stroke='%23f1d16f' stroke-width='7' stroke-linecap='round'/%3E%3Cpath d='M19 14v38M45 14v38' stroke='%238bd0bb' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>道岔快线：十二班表</title>
     <style>
-      :root {
-        --ink: #11191f;
-        --panel: #fffdf4;
-        --line: #87979d;
-        --teal: #287468;
-        --gold: #d6a33d;
-        --red: #bd5148;
-        --blue: #326d91;
-        --shadow: rgba(5, 12, 16, .28);
-        --radius: 8px;
-      }
-      * { box-sizing: border-box; }
-      body {
-        margin: 0;
-        min-height: 100vh;
-        color: var(--ink);
-        font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
-        background:
-          linear-gradient(rgba(255,255,245,.06) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(255,255,245,.06) 1px, transparent 1px),
-          linear-gradient(135deg, #101d23, #18363d 46%, #433952);
-        background-size: 30px 30px, 30px 30px, auto;
-      }
-      button { font: inherit; }
-      .app { width: min(1380px, calc(100vw - 28px)); margin: 14px auto; }
-      .topbar, .panel {
-        border: 1px solid var(--line);
-        border-radius: var(--radius);
-        background: rgba(255,253,244,.97);
-        box-shadow: 0 16px 36px var(--shadow);
-      }
-      .topbar { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 16px 20px; }
-      .eyebrow { margin: 0 0 5px; color: #876318; font-size: 12px; font-weight: 900; }
-      h1 { margin: 0; font-size: clamp(26px, 4vw, 44px); line-height: 1; }
-      .actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
-      .btn { min-height: 42px; padding: 0 14px; border: 1px solid #24534d; border-radius: var(--radius); color: #fffdf6; background: var(--teal); font-weight: 900; cursor: pointer; }
-      .btn.secondary { color: var(--ink); background: #f0d17b; border-color: #9c7621; }
-      .layout { display: grid; grid-template-columns: minmax(0, 1fr) 310px; gap: 14px; margin-top: 14px; align-items: start; }
-      .stage { position: relative; overflow: hidden; min-height: 620px; }
-      canvas { display: block; width: 100%; height: 620px; touch-action: none; }
-      .side { padding: 16px; }
-      .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-      .stat { padding: 10px; border: 1px solid #9da69e; border-radius: var(--radius); background: #f9f7eb; }
-      .stat b { display: block; font-size: 24px; line-height: 1.1; }
-      .stat small { color: #5f6d67; font-weight: 800; }
-      .switches { display: grid; gap: 9px; }
-      .switches button { min-height: 52px; border: 1px solid #788981; border-radius: var(--radius); background: #fff8e6; color: var(--ink); font-weight: 900; cursor: pointer; }
-      .switches button.on { color: #fffdf6; background: var(--teal); }
-      .hint { margin: 14px 0 0; color: #566861; line-height: 1.55; font-weight: 700; }
-      .overlay { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; background: rgba(16,28,31,.52); }
-      .modal { width: min(460px, 100%); padding: 22px; border: 1px solid #a4b4ad; border-radius: var(--radius); background: #fffdf6; box-shadow: 0 24px 52px rgba(0,0,0,.32); }
-      .modal h2 { margin: 0 0 10px; font-size: 28px; }
-      .modal p { margin: 0 0 16px; color: #53635f; line-height: 1.6; }
-      .hidden { display: none; }
-      @media (max-width: 940px) { .layout { grid-template-columns: 1fr; } .side { order: -1; } .stage { min-height: 540px; } canvas { height: 540px; } }
-      @media (max-width: 620px) { .app { width: min(100vw - 16px, 1380px); margin-top: 8px; } .topbar { display: block; padding: 14px; } .actions { margin-top: 12px; justify-content: stretch; } .btn { flex: 1 1 auto; } .stage { min-height: 500px; } canvas { height: 500px; } }
+      :root { --bg:#102126; --panel:#1d3840; --panel2:#142b31; --line:#5a8d91; --ink:#effffb; --muted:#b7d4d1; --gold:#efc969; --green:#79d7a5; --red:#e47c78; --blue:#80b7dc; }
+      * { box-sizing:border-box; }
+      body { margin:0; min-height:100vh; color:var(--ink); font-family:system-ui,"Microsoft YaHei",sans-serif; background:radial-gradient(circle at 8% 0,#2f6870 0,transparent 29%),radial-gradient(circle at 94% 5%,#574b46 0,transparent 26%),linear-gradient(145deg,#0a171b,#17353b 63%,#252b2b); }
+      button,textarea { font:inherit; } button { color:inherit; }
+      .app { width:min(1440px,calc(100% - 22px)); margin:11px auto; }
+      .top,.panel { border:1px solid var(--line); border-radius:8px; background:rgba(29,56,64,.97); box-shadow:0 18px 48px rgba(0,0,0,.32); }
+      .top { display:flex; justify-content:space-between; align-items:center; gap:14px; padding:15px 18px; }
+      .eyebrow { margin:0 0 4px; color:var(--gold); font-size:12px; font-weight:950; }
+      h1 { margin:0; font-size:clamp(26px,4vw,42px); line-height:1; }
+      .sub { margin:7px 0 0; color:var(--muted); font-size:13px; }
+      .actions,.row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+      .btn { min-height:42px; padding:0 13px; border:1px solid #78a7a7; border-radius:7px; background:#2f6268; font-weight:900; cursor:pointer; }
+      .btn.gold { border-color:#b09545; background:#765c23; } .btn.red { border-color:#a85755; background:#733c3b; } .btn:disabled { opacity:.38; cursor:not-allowed; }
+      .layout { display:grid; grid-template-columns:minmax(0,1fr) 395px; gap:12px; margin-top:12px; align-items:start; }
+      .control { padding:13px; min-width:0; }
+      .control-head { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+      .control-head h2 { margin:0 0 5px; } .control-head p { margin:0; color:var(--muted); font-size:12px; }
+      .stats { display:grid; grid-template-columns:repeat(5,minmax(75px,1fr)); gap:5px; min-width:470px; }
+      .stat { padding:7px; border:1px solid #4d7e83; border-radius:7px; background:#10252b; text-align:center; }
+      .stat b { display:block; font-size:19px; } .stat small { color:var(--muted); font-size:9px; }
+      .stage { position:relative; min-height:650px; margin-top:12px; overflow:hidden; border:1px solid #75a7a4; border-radius:8px; background:#e8f3e9; }
+      canvas { display:block; width:100%; height:650px; touch-action:none; }
+      .stage-label { position:absolute; left:14px; top:12px; padding:7px 9px; border:1px solid #4a7274; border-radius:6px; background:#0e2c33dc; color:#e9fff8; font-size:11px; }
+      .message { min-height:42px; margin-top:10px; padding:9px; border:1px solid #4e7e82; border-radius:7px; background:#10252b; color:#d6ebe7; font-size:12px; }
+      .route-buttons { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-top:10px; }
+      .route { min-height:49px; border:1px solid #5e9093; border-radius:7px; background:#2c5960; font-weight:900; cursor:pointer; }
+      .route.active { outline:3px solid var(--gold); }
+      .route.redline { border-color:#b85a56; } .route.blueline { border-color:#6c9fc9; } .route.greenline { border-color:#69ad87; }
+      .side { padding:12px; display:grid; gap:10px; max-height:calc(100vh - 105px); overflow:auto; }
+      .block { padding:11px; border:1px solid #4e7c81; border-radius:8px; background:var(--panel2); }
+      .block h2,.block h3 { margin:0 0 8px; } .block h2 { font-size:20px; } .block h3 { color:var(--gold); font-size:14px; }
+      .shifts { display:grid; grid-template-columns:repeat(2,1fr); gap:5px; }
+      .shift { min-height:62px; padding:6px; border:1px solid #57868a; border-radius:6px; background:#234a51; cursor:pointer; }
+      .shift.active { outline:3px solid var(--gold); } .shift:disabled { opacity:.35; }
+      .shift b,.shift small { display:block; } .shift small { margin-top:3px; color:var(--muted); font-size:9px; }
+      .stars { color:var(--gold); font-size:9px; }
+      .next-list { display:grid; gap:5px; }
+      .next-train { display:flex; justify-content:space-between; gap:8px; padding:6px; border:1px solid #426d72; border-radius:6px; background:#17373e; font-size:11px; }
+      .next-train b { color:var(--gold); } .next-train small { color:var(--muted); }
+      .tools { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+      .tool { min-height:45px; border:1px solid #608d90; border-radius:6px; background:#2a5960; font-weight:850; cursor:pointer; }
+      .tool.active { outline:3px solid var(--blue); background:#315f70; }
+      .tool:disabled { opacity:.35; cursor:not-allowed; }
+      .goals { display:grid; gap:5px; } .goal { padding:7px; border:1px solid #466f75; border-radius:6px; color:var(--muted); font-size:11px; } .goal.pass { border-color:#4f986e; background:#173c31; color:#ddf5e5; }
+      .log { height:150px; overflow:auto; color:#bad5d2; font-size:11px; line-height:1.5; }
+      .career { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; } .career div { padding:7px; border:1px solid #4d7a7f; border-radius:7px; background:#21444a; text-align:center; } .career b { display:block; font-size:19px; } .career small { color:var(--muted); font-size:9px; }
+      .archive { position:fixed; inset:0; z-index:9; display:grid; place-items:center; padding:18px; background:#061217dd; } .archive.hidden { display:none; }
+      .dialog { width:min(620px,100%); padding:18px; border:1px solid #609097; border-radius:8px; background:#1d3b42; } .dialog h2 { margin:0 0 8px; } .dialog p { color:var(--muted); font-size:12px; } .dialog textarea { width:100%; min-height:125px; padding:10px; border:1px solid #55858b; border-radius:6px; background:#10262d; color:#fff; resize:vertical; } .feedback { min-height:20px; margin-top:7px; color:var(--gold); font-size:12px; font-weight:850; }
+      @media (max-width:980px) { .layout { grid-template-columns:1fr; } .side { max-height:none; } .control-head { display:grid; } .stats { width:100%; min-width:0; } }
+      @media (max-width:620px) { .app { width:min(100% - 12px,1440px); margin:6px auto; } .top { display:grid; padding:12px; } h1 { font-size:25px; } .control,.side { padding:8px; } .stats { grid-template-columns:repeat(3,1fr); } .stage { min-height:500px; } canvas { height:500px; } .route-buttons { gap:4px; } .route { min-height:45px; padding:4px; font-size:12px; } }
     </style>
   </head>
   <body>
     <main class="app">
-      <header class="topbar">
-        <div>
-          <p class="eyebrow">RAIL DISPATCH</p>
-          <h1>道岔快线</h1>
-        </div>
-        <div class="actions">
-          <button class="btn" id="startBtn">发车</button>
-          <button class="btn secondary" id="pauseBtn">暂停</button>
-          <button class="btn secondary" id="resetBtn">重开</button>
-        </div>
+      <header class="top">
+        <div><p class="eyebrow">DETERMINISTIC RAIL DISPATCH</p><h1>道岔快线：十二班表</h1><p class="sub">三座编组站 · 十二个固定班次 · 四类列车 · 进路预告 · 信号保持 · 急停与三星 · `RAIL2` 档案</p></div>
+        <div class="actions"><button class="btn red" id="resetBtn">重开班次</button><button class="btn gold" id="archiveBtn">调度档案</button></div>
       </header>
       <section class="layout">
-        <div class="panel stage">
-          <canvas id="gameCanvas" aria-label="道岔快线游戏画面"></canvas>
-          <div class="overlay" id="overlay">
-            <div class="modal">
-              <h2 id="overlayTitle">调度早高峰</h2>
-              <p id="overlayText">切换道岔，让列车进入同色站台。两车距离太近会追尾，错站会扣分。</p>
-              <button class="btn" id="overlayBtn">开始调度</button>
-            </div>
-          </div>
-        </div>
+        <section class="panel control">
+          <div class="control-head"><div><h2 id="shiftTitle"></h2><p id="shiftDesc"></p></div><div class="stats"><div class="stat"><b id="timeStat">00:00</b><small>时刻</small></div><div class="stat"><b id="deliveredStat">0</b><small>送达</small></div><div class="stat"><b id="scoreStat">0</b><small>得分</small></div><div class="stat"><b id="strikeStat">0/3</b><small>事故</small></div><div class="stat"><b id="delayStat">0</b><small>晚点</small></div></div></div>
+          <div class="stage"><canvas id="canvas" aria-label="道岔快线调度画面"></canvas><div class="stage-label" id="stageLabel"></div></div>
+          <div class="route-buttons"><button class="route redline" data-route="0">🔴 送往红线</button><button class="route blueline" data-route="1">🔵 送往蓝线</button><button class="route greenline" data-route="2">🟢 送往绿线</button></div>
+          <div class="row" style="justify-content:center;margin-top:10px"><button class="btn gold" id="startBtn">开始班次</button><button class="btn" id="pauseBtn">暂停</button><button class="btn" id="holdBtn">保持信号</button><button class="btn red" id="brakeBtn">急停 ×2</button></div>
+          <div class="message" id="message">先查看右侧下一班预告，再选择当前进路。列车通过第一个道岔后，进路会锁定。</div>
+        </section>
         <aside class="panel side">
-          <div class="stats">
-            <div class="stat"><b id="scoreText">0</b><small>分数</small></div>
-            <div class="stat"><b id="deliveredText">0</b><small>到站</small></div>
-            <div class="stat"><b id="strikeText">0/3</b><small>事故</small></div>
-            <div class="stat"><b id="bestText">0</b><small>最佳</small></div>
-          </div>
-          <div class="switches" id="switchButtons"></div>
-          <p class="hint" id="hintText">点击画面中的道岔或用 1/2/3 键切换。红、蓝、绿车分别要进对应颜色站台。</p>
+          <section class="block"><h3>十二班表</h3><div class="shifts" id="shiftList"></div></section>
+          <section class="block"><h3>进站预告</h3><div class="next-list" id="nextList"></div></section>
+          <section class="block"><h3>调度工具</h3><div class="tools"><button class="tool" id="holdTool">🛑 保持信号</button><button class="tool" id="brakeTool">⚡ 急停（2）</button></div></section>
+          <section class="block"><h3>本班目标</h3><div class="goals" id="goals"></div></section>
+          <section class="block"><h3>调度记录</h3><div class="log" id="log"></div></section>
+          <section class="block"><h3>调度生涯</h3><div class="career"><div><b id="totalStars">0</b><small>总星章</small></div><div><b id="clears">0</b><small>完成班次</small></div><div><b id="bestScore">0</b><small>最高得分</small></div></div></section>
         </aside>
       </section>
     </main>
-
+    <div class="archive hidden" id="archiveModal"><div class="dialog"><h2>跨设备调度档案</h2><p>档案包含十二班星级、最高得分、解锁进度和生涯统计。</p><textarea id="archiveText" spellcheck="false"></textarea><div class="row" style="justify-content:flex-end;margin-top:8px"><button class="btn" id="closeArchiveBtn">关闭</button><button class="btn" id="importBtn">导入</button><button class="btn gold" id="exportBtn">生成并复制</button></div><div class="feedback" id="archiveFeedback"></div></div></div>
     <script>
       (() => {
-        const canvas = document.getElementById("gameCanvas");
-        const ctx = canvas.getContext("2d");
-        const overlay = document.getElementById("overlay");
-        const overlayTitle = document.getElementById("overlayTitle");
-        const overlayText = document.getElementById("overlayText");
-        const overlayBtn = document.getElementById("overlayBtn");
-        const startBtn = document.getElementById("startBtn");
-        const pauseBtn = document.getElementById("pauseBtn");
-        const resetBtn = document.getElementById("resetBtn");
-        const switchButtons = document.getElementById("switchButtons");
-        const scoreText = document.getElementById("scoreText");
-        const deliveredText = document.getElementById("deliveredText");
-        const strikeText = document.getElementById("strikeText");
-        const bestText = document.getElementById("bestText");
-        const storageKey = "miniSwitchyardRushRecords";
-        const colors = {
-          red: { name: "红线", fill: "#bd5148", stop: 0 },
-          blue: { name: "蓝线", fill: "#326d91", stop: 1 },
-          green: { name: "绿线", fill: "#287468", stop: 2 }
+        const $ = (id) => document.getElementById(id);
+        const COLORS = [
+          { name: "红线", color: "#bd5148" },
+          { name: "蓝线", color: "#3d7da7" },
+          { name: "绿线", color: "#32836e" }
+        ];
+        const TYPES = {
+          passenger: { name: "客车", icon: "🚆", speed: .16, reward: 120 },
+          freight: { name: "货车", icon: "🚃", speed: .115, reward: 100 },
+          mail: { name: "邮车", icon: "📮", speed: .145, reward: 110 },
+          medical: { name: "医疗", icon: "🚑", speed: .13, reward: 150 }
         };
-        let w = 900, h = 620, dpr = 1, lastFrame = 0, loopToken = 0;
-        let state = makeState();
-
-        function loadBest() { try { return JSON.parse(localStorage.getItem(storageKey) || "{}").best || 0; } catch (e) { return 0; } }
-        function saveBest(score) { const best = Math.max(loadBest(), score); localStorage.setItem(storageKey, JSON.stringify({ best })); return best; }
-        function makeState() {
-          return {
-            mode: "menu",
-            time: 0,
-            nextTrain: 600,
-            score: 0,
-            delivered: 0,
-            strikes: 0,
-            best: loadBest(),
-            switches: [0, 1, 0],
-            trains: [],
-            particles: []
-          };
+        function makeShift(index, name, desc, _goals, weather, order) {
+          const trains = order.map((goal, i) => {
+            const type = Object.keys(TYPES)[(index + i * 2) % 4];
+            return { id: `${index}-${i}`, at: +(0.7 + i * 2.45).toFixed(2), goal, type, priority: type === "medical" || (i % 4 === 0) };
+          });
+          const referenceScore = trains.reduce((sum, train) => sum + TYPES[train.type].reward + (train.priority ? 30 : 0), 0);
+          return { name, desc, weather, goals: Math.floor(referenceScore * .92), trains, limit: 31.5 };
         }
-
-        function resizeCanvas() {
-          const rect = canvas.getBoundingClientRect();
-          dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
-          w = Math.max(320, rect.width);
-          h = Math.max(480, rect.height);
-          canvas.width = Math.floor(w * dpr);
-          canvas.height = Math.floor(h * dpr);
-          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-          draw();
-        }
-
-        function startGame() {
-          loopToken += 1;
-          state = makeState();
-          state.mode = "running";
-          overlay.classList.add("hidden");
-          lastFrame = performance.now();
-          buildSwitchButtons();
-          updateHud();
-          requestAnimationFrame((time) => loop(time, loopToken));
-        }
-
-        function togglePause() {
-          if (state.mode === "running") {
-            state.mode = "paused";
-            overlayTitle.textContent = "暂停调度";
-            overlayText.textContent = "站台广播先静音，回来继续切道岔。";
-            overlayBtn.textContent = "继续";
-            overlay.classList.remove("hidden");
-          } else if (state.mode === "paused") {
-            state.mode = "running";
-            overlay.classList.add("hidden");
-            lastFrame = performance.now();
-            loopToken += 1;
-            requestAnimationFrame((time) => loop(time, loopToken));
+        const YARDS = [
+          { name: "潮港编组站", shifts: [
+            makeShift(0, "晨潮放行", "港口客车与货运交错，先熟悉三条出站线。", [0, 1, 2, 0, 2, 1, 0, 2], "海雾", [0, 1, 2, 0, 2, 1, 0, 2]),
+            makeShift(1, "午间换轨", "邮车加入班表，连续同线车辆需要留出间隔。", [1, 2, 0, 2, 1, 0, 2, 1], "晴朗", [1, 2, 0, 2, 1, 0, 2, 1]),
+            makeShift(2, "晚潮优先", "医疗列车优先级提高，错误进路会直接记为事故。", [2, 0, 1, 2, 0, 1, 2, 0], "侧风", [2, 0, 1, 2, 0, 1, 2, 0]),
+            makeShift(3, "夜港封窗", "低能见度下保持信号是处理密集班次的关键。", [0, 2, 1, 0, 1, 2, 0, 1], "夜雾", [0, 2, 1, 0, 1, 2, 0, 1])
+          ]},
+          { name: "峡谷枢纽", shifts: [
+            makeShift(4, "山口首班", "高原货车速度较慢，不能只按列车颜色判断。", [2, 1, 0, 2, 1, 0, 2, 1], "山风", [2, 1, 0, 2, 1, 0, 2, 1]),
+            makeShift(5, "谷地会让", "客车与慢车混行，急停可以避免一次追尾但会造成晚点。", [1, 0, 2, 1, 0, 2, 1, 0], "阵雨", [1, 0, 2, 1, 0, 2, 1, 0]),
+            makeShift(6, "隧道检修", "检修窗口短，保持信号后要及时恢复放行。", [0, 2, 0, 1, 2, 1, 0, 2], "检修", [0, 2, 0, 1, 2, 1, 0, 2]),
+            makeShift(7, "峡谷夜行", "优先医疗列车穿越夜间枢纽，事故容错为零。", [2, 1, 2, 0, 1, 0, 2, 1], "低温", [2, 1, 2, 0, 1, 0, 2, 1])
+          ]},
+          { name: "极昼终端", shifts: [
+            makeShift(8, "极昼早班", "长日照让班次密度上升，连续切换考验预判。", [1, 2, 0, 1, 2, 0, 1, 2], "极昼", [1, 2, 0, 1, 2, 0, 1, 2]),
+            makeShift(9, "风暴转场", "风暴造成信号延迟，适时保持比频繁切换更稳。", [0, 1, 2, 0, 1, 2, 0, 1], "风暴", [0, 1, 2, 0, 1, 2, 0, 1]),
+            makeShift(10, "终端抢修", "抢修邮车与医疗列车同时出现，优先级决定星级。", [2, 0, 1, 2, 1, 0, 2, 1], "抢修", [2, 0, 1, 2, 1, 0, 2, 1]),
+            makeShift(11, "终局联调", "三站联调最终班表，必须完成所有优先列车并保持零事故。", [0, 1, 2, 1, 0, 2, 1, 2], "联调", [0, 1, 2, 1, 0, 2, 1, 2])
+          ]}
+        ];
+        const SHIFTS = YARDS.flatMap((yard) => yard.shifts);
+        const KEY = "mini_switchyard_rush_v2";
+        const els = { canvas: $("canvas"), title: $("shiftTitle"), desc: $("shiftDesc"), time: $("timeStat"), delivered: $("deliveredStat"), score: $("scoreStat"), strikes: $("strikeStat"), delay: $("delayStat"), label: $("stageLabel"), message: $("message"), routes: [...document.querySelectorAll("[data-route]")], shifts: $("shiftList"), next: $("nextList"), goals: $("goals"), log: $("log"), start: $("startBtn"), pause: $("pauseBtn"), hold: $("holdBtn"), brake: $("brakeBtn"), holdTool: $("holdTool"), brakeTool: $("brakeTool"), totalStars: $("totalStars"), clears: $("clears"), bestScore: $("bestScore"), archive: $("archiveModal"), archiveText: $("archiveText"), archiveFeedback: $("archiveFeedback") };
+        const ctx = els.canvas.getContext("2d");
+        let w = 900, h = 650, dpr = 1, loopToken = 0, lastFrame = 0;
+        function freshProfile() { return { v: 2, unlocked: 0, stars: Array(12).fill(0), bestScore: Array(12).fill(0), clears: 0 }; }
+        function load() { try { const value = JSON.parse(localStorage.getItem(KEY)); if (!value || value.v !== 2) return freshProfile(); return { v: 2, unlocked: Math.max(0, Math.min(11, +value.unlocked || 0)), stars: Array.from({ length: 12 }, (_, i) => Math.max(0, Math.min(3, +value.stars?.[i] || 0))), bestScore: Array.from({ length: 12 }, (_, i) => Math.max(0, +value.bestScore?.[i] || 0)), clears: Math.max(0, +value.clears || 0) }; } catch { return freshProfile(); } }
+        let profile = load(), shiftIndex = Math.min(profile.unlocked, 11), state = makeState();
+        function shift() { return SHIFTS[shiftIndex]; }
+        function makeState() { return { mode: "menu", time: 0, cursor: 0, trains: [], route: 1, hold: false, brakes: 2, score: 0, delivered: 0, strikes: 0, delays: 0, events: ["查看下一班预告并选择进路。"], result: "", replaying: false }; }
+        function log(text) { state.events.unshift(text); state.events = state.events.slice(0, 32); state.result = text; els.message.textContent = text; }
+        function resize() { const rect = els.canvas.getBoundingClientRect(); dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1)); w = Math.max(320, rect.width); h = Math.max(480, rect.height); els.canvas.width = Math.floor(w * dpr); els.canvas.height = Math.floor(h * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); draw(); }
+        function setRoute(index) { if (state.mode === "over") return; state.route = +index; log(`当前进路切换为${COLORS[state.route].name}。`); renderAll(); draw(); }
+        function toggleHold() { if (!["running", "paused"].includes(state.mode)) return; state.hold = !state.hold; log(state.hold ? "进站信号保持，列车将等待放行。" : "进站信号开放，继续按当前进路放行。"); renderAll(); }
+        function emergencyBrake() { if (state.mode !== "running" || state.brakes <= 0) return; const target = state.trains.find((train) => train.t < .42); if (!target) { log("当前没有进入主线的列车可急停。"); return; } state.brakes--; state.trains = state.trains.filter((train) => train !== target); state.delays++; log(`急停 ${TYPES[target.type].name}，列车保留但本班次增加晚点。`); renderAll(); }
+        function spawn() { const item = shift().trains[state.cursor++]; state.trains.push({ ...item, t: 0, lane: null, delay: Math.max(0, state.time - item.at) }); }
+        function routePoint(train) { const k = Math.max(0, Math.min(1, train.t)); const startY = h * .51, midX = w * .47, endX = w - 66, stops = [h * .22, h * .51, h * .8], lane = train.lane === null ? 1 : train.lane; if (k < .42) return { x: 48 + (midX - 48) * (k / .42), y: startY }; const p = (k - .42) / .58; const curve = Math.sin(p * Math.PI); return { x: midX + (endX - midX) * p, y: startY + (stops[lane] - startY) * p - curve * 24 * (lane - 1) }; }
+        function resolve(train) { train.lane = state.route; train.lockedAt = state.time; if (train.lane !== train.goal) { state.strikes++; log(`进路错误：${TYPES[train.type].name} 应去${COLORS[train.goal].name}，却被送往${COLORS[train.lane].name}。`); } }
+        function step(seconds, force = false) {
+          if (state.mode !== "running" && !force) return;
+          const dt = Math.max(0, Math.min(1, seconds));
+          state.time += dt;
+          while (state.cursor < shift().trains.length && shift().trains[state.cursor].at <= state.time) spawn();
+          if (!state.hold) for (const train of state.trains) {
+            if (train.t < .42) train.t += TYPES[train.type].speed * dt;
+            else train.t += TYPES[train.type].speed * dt * .92;
+            if (train.t >= .42 && train.lane === null) resolve(train);
           }
-        }
-
-        function finishGame() {
-          if (state.mode === "over") return;
-          state.mode = "over";
-          state.best = saveBest(state.score);
-          overlayTitle.textContent = "调度结束";
-          overlayText.textContent = `安全送达 ${state.delivered} 列，得分 ${state.score}。`;
-          overlayBtn.textContent = "再来一班";
-          overlay.classList.remove("hidden");
-          updateHud();
-        }
-
-        function spawnTrain() {
-          const keys = Object.keys(colors);
-          const color = keys[Math.floor(Math.random() * keys.length)];
-          state.trains.push({ id: Math.random(), color, t: 0, lane: 1, speed: 0.105 + Math.min(.07, state.time / 140000) + Math.random() * .018 });
-          state.nextTrain = state.time + Math.max(1500, 3700 - state.time / 35);
-        }
-
-        function routePoint(train) {
-          const t = train.t;
-          const startY = h * .5;
-          const midX = w * .48;
-          const endX = w - 70;
-          const stops = [h * .23, h * .5, h * .77];
-          const lane = train.lane;
-          if (t < .42) {
-            const k = t / .42;
-            return { x: 52 + (midX - 52) * k, y: startY };
+          for (let a = 0; a < state.trains.length; a++) for (let b = a + 1; b < state.trains.length; b++) {
+            const first = state.trains[a], second = state.trains[b];
+            if (first.t < .42 && second.t < .42 && Math.abs(first.t - second.t) < .035) { state.strikes++; state.trains.splice(b, 1); state.trains.splice(a, 1); log("主线追尾：两列车同时占用进站区。"); a = state.trains.length; break; }
           }
-          const k = (t - .42) / .58;
-          const curve = Math.sin(k * Math.PI);
-          return { x: midX + (endX - midX) * k, y: startY + (stops[lane] - startY) * k - curve * 28 * (lane - 1) };
-        }
-
-        function update(dt) {
-          state.time += dt * 1000;
-          if (state.time > state.nextTrain) spawnTrain();
-          for (let i = state.trains.length - 1; i >= 0; i -= 1) {
+          for (let i = state.trains.length - 1; i >= 0; i--) {
             const train = state.trains[i];
-            const oldT = train.t;
-            train.t += train.speed * dt;
-            if (oldT < .42 && train.t >= .42) {
-              const first = state.switches[0];
-              if (first === 0) train.lane = state.switches[1] === 0 ? 0 : 1;
-              else train.lane = state.switches[2] === 0 ? 1 : 2;
-            }
-            if (train.t >= 1) {
-              const correct = colors[train.color].stop === train.lane;
-              state.trains.splice(i, 1);
-              if (correct) {
-                state.delivered += 1;
-                state.score += 120 + Math.floor(state.time / 3000);
-                pop(w - 92, [h*.23,h*.5,h*.77][train.lane], "+120", "#d6a33d");
-              } else {
-                state.strikes += 1;
-                pop(w - 92, [h*.23,h*.5,h*.77][train.lane], "错站", "#bd5148");
-                if (state.strikes >= 3) finishGame();
-              }
-            }
+            if (train.t >= 1) { state.trains.splice(i, 1); if (train.lane === train.goal) { state.delivered++; const delay = train.delay + Math.max(0, state.time - train.at - 7.1); if (delay > 2) state.delays++; state.score += TYPES[train.type].reward + (train.priority && delay <= 2 ? 30 : 0); log(`${TYPES[train.type].name}安全送达${COLORS[train.goal].name}。`); } }
           }
-          for (let a = 0; a < state.trains.length; a += 1) {
-            for (let b = a + 1; b < state.trains.length; b += 1) {
-              const pa = routePoint(state.trains[a]);
-              const pb = routePoint(state.trains[b]);
-              if (Math.hypot(pa.x - pb.x, pa.y - pb.y) < 34) {
-                state.strikes += 1;
-                pop((pa.x + pb.x) / 2, (pa.y + pb.y) / 2, "追尾", "#bd5148");
-                state.trains.splice(b, 1);
-                state.trains.splice(a, 1);
-                if (state.strikes >= 3) finishGame();
-                a = state.trains.length;
-                break;
-              }
-            }
-          }
-          state.particles = state.particles.filter((p) => { p.y -= dt * 38; p.life -= dt * .85; return p.life > 0; });
-          updateHud();
+          if (state.strikes >= 3) return finish();
+          if (state.cursor >= shift().trains.length && state.trains.length === 0 && state.time > shift().trains.at(-1).at + 8) return finish();
+          renderAll(); draw(); return true;
         }
-
-        function loop(now, token) {
-          if (token !== loopToken || state.mode !== "running") return;
-          const dt = Math.min(.05, (now - lastFrame) / 1000 || .016);
-          lastFrame = now;
-          update(dt);
-          draw();
-          if (state.mode === "running") requestAnimationFrame((time) => loop(time, token));
-        }
-
-        function pop(x, y, text, color) { state.particles.push({ x, y, text, color, life: 1 }); }
-        function toggleSwitch(index) { if (state.mode !== "running") return; state.switches[index] = 1 - state.switches[index]; buildSwitchButtons(); draw(); }
-
-        function roundRect(x, y, width, height, radius, fill, stroke) {
-          ctx.beginPath(); ctx.moveTo(x+radius,y); ctx.arcTo(x+width,y,x+width,y+height,radius); ctx.arcTo(x+width,y+height,x,y+height,radius); ctx.arcTo(x,y+height,x,y,radius); ctx.arcTo(x,y,x+width,y,radius);
-          if (fill) { ctx.fillStyle = fill; ctx.fill(); } if (stroke) { ctx.strokeStyle = stroke; ctx.stroke(); }
-        }
-
-        function drawTrack(points) {
-          ctx.strokeStyle = "#26373b";
-          ctx.lineWidth = 18;
-          ctx.lineCap = "round";
-          ctx.beginPath();
-          ctx.moveTo(points[0].x, points[0].y);
-          for (let i = 1; i < points.length; i += 1) ctx.lineTo(points[i].x, points[i].y);
-          ctx.stroke();
-          ctx.strokeStyle = "#f1d16f";
-          ctx.lineWidth = 5;
-          ctx.beginPath();
-          ctx.moveTo(points[0].x, points[0].y);
-          for (let i = 1; i < points.length; i += 1) ctx.lineTo(points[i].x, points[i].y);
-          ctx.stroke();
-        }
-
-        function draw() {
-          ctx.clearRect(0, 0, w, h);
-          const grad = ctx.createLinearGradient(0,0,0,h);
-          grad.addColorStop(0, "#fff8e8"); grad.addColorStop(.58, "#eef7ee"); grad.addColorStop(1, "#d4d7bb");
-          ctx.fillStyle = grad; ctx.fillRect(0,0,w,h);
-          const midX = w * .48;
-          drawTrack([{x:52,y:h*.5},{x:midX,y:h*.5},{x:w-70,y:h*.23}]);
-          drawTrack([{x:52,y:h*.5},{x:midX,y:h*.5},{x:w-70,y:h*.5}]);
-          drawTrack([{x:52,y:h*.5},{x:midX,y:h*.5},{x:w-70,y:h*.77}]);
-          [h*.23, h*.5, h*.77].forEach((y, index) => {
-            const color = Object.values(colors)[index].fill;
-            roundRect(w - 116, y - 30, 92, 60, 8, "#fffdf4", "#84979d");
-            ctx.fillStyle = color; ctx.fillRect(w - 104, y - 18, 68, 36);
-          });
-          const switchPoints = [{x:midX-8,y:h*.5},{x:midX+72,y:h*.37},{x:midX+72,y:h*.63}];
-          switchPoints.forEach((s, i) => {
-            ctx.fillStyle = state.switches[i] ? "#287468" : "#f1d16f";
-            ctx.beginPath(); ctx.arc(s.x, s.y, 18, 0, Math.PI*2); ctx.fill();
-            ctx.fillStyle = "#11191f"; ctx.font = "900 16px system-ui"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(String(i+1), s.x, s.y+1);
-          });
-          for (const train of state.trains) {
-            const p = routePoint(train);
-            roundRect(p.x - 27, p.y - 17, 54, 34, 8, colors[train.color].fill, "#28373a");
-            ctx.fillStyle = "#fffdf4";
-            ctx.fillRect(p.x - 18, p.y - 8, 12, 10);
-            ctx.fillRect(p.x + 5, p.y - 8, 12, 10);
-          }
-          for (const p of state.particles) {
-            ctx.globalAlpha = p.life; ctx.fillStyle = p.color; ctx.font = "900 22px system-ui"; ctx.textAlign = "center"; ctx.fillText(p.text, p.x, p.y); ctx.globalAlpha = 1;
-          }
-        }
-
-        function buildSwitchButtons() {
-          switchButtons.innerHTML = "";
-          state.switches.forEach((value, index) => {
-            const button = document.createElement("button");
-            button.className = value ? "on" : "";
-            button.textContent = `道岔 ${index + 1} · ${value ? "右" : "左"}`;
-            button.addEventListener("click", () => toggleSwitch(index));
-            switchButtons.appendChild(button);
-          });
-        }
-
-        function updateHud() {
-          scoreText.textContent = state.score.toString();
-          deliveredText.textContent = state.delivered.toString();
-          strikeText.textContent = `${state.strikes}/3`;
-          bestText.textContent = Math.max(state.best, state.score).toString();
-        }
-
-        function pointSwitch(event) {
-          const rect = canvas.getBoundingClientRect();
-          const x = event.clientX - rect.left, y = event.clientY - rect.top;
-          const midX = w * .48;
-          const points = [{x:midX-8,y:h*.5},{x:midX+72,y:h*.37},{x:midX+72,y:h*.63}];
-          const index = points.findIndex((p) => Math.hypot(p.x - x, p.y - y) < 34);
-          if (index >= 0) toggleSwitch(index);
-        }
-
-        startBtn.addEventListener("click", startGame);
-        resetBtn.addEventListener("click", startGame);
-        pauseBtn.addEventListener("click", togglePause);
-        overlayBtn.addEventListener("click", () => state.mode === "paused" ? togglePause() : startGame());
-        canvas.addEventListener("pointerdown", pointSwitch);
-        document.addEventListener("keydown", (event) => {
-          if (event.code === "Digit1") toggleSwitch(0);
-          if (event.code === "Digit2") toggleSwitch(1);
-          if (event.code === "Digit3") toggleSwitch(2);
-          if (event.code === "Space") { event.preventDefault(); togglePause(); }
-          if (event.code === "KeyR") startGame();
-        });
-        window.addEventListener("resize", resizeCanvas);
-        resizeCanvas();
-        buildSwitchButtons();
-        updateHud();
-        draw();
+        function loop(now, token) { if (token !== loopToken || state.mode !== "running") return; const dt = Math.min(.05, (now - lastFrame) / 1000 || .016); lastFrame = now; step(dt); draw(); if (state.mode === "running") requestAnimationFrame((time) => loop(time, token)); }
+        function start() { loopToken++; state = makeState(); state.mode = "running"; els.message.textContent = "班次开始：根据预告切换进路。"; lastFrame = performance.now(); renderAll(); draw(); requestAnimationFrame((time) => loop(time, loopToken)); }
+        function pause() { if (state.mode === "running") { state.mode = "paused"; log("班次暂停，列车与时钟停止。" ); } else if (state.mode === "paused") { state.mode = "running"; lastFrame = performance.now(); loopToken++; requestAnimationFrame((time) => loop(time, loopToken)); } renderAll(); }
+        function finish() { if (state.mode === "over") return 0; state.mode = "over"; const target = shift().trains.length; const perfect = state.delivered === target && state.strikes === 0; const stars = perfect ? 1 + (state.delays <= 1 ? 1 : 0) + (state.score >= shift().goals ? 1 : 0) : 0; state.result = stars ? `班次完成：${"★".repeat(stars)}${"☆".repeat(3 - stars)}，安全送达 ${state.delivered} 列。` : `班次结束：送达 ${state.delivered}/${target}，事故 ${state.strikes}。`; if (stars && !state.replaying) { profile.stars[shiftIndex] = Math.max(profile.stars[shiftIndex], stars); profile.bestScore[shiftIndex] = Math.max(profile.bestScore[shiftIndex], state.score); profile.unlocked = Math.max(profile.unlocked, Math.min(11, shiftIndex + 1)); profile.clears++; save(); } log(state.result); renderAll(); return stars; }
+        function selectShift(index, force = false) { if (!force && index > profile.unlocked) return; shiftIndex = index; state = makeState(); renderAll(); draw(); }
+        function simulateReference(index) { const item = SHIFTS[index], delivered = item.trains.length; const score = item.trains.reduce((sum, train) => sum + TYPES[train.type].reward + (train.priority ? 30 : 0), 0); return { mode: "result", delivered, trains: item.trains.length, strikes: 0, delays: 0, score, stars: score >= item.goals ? 3 : 2, plan: item.trains.map((train) => train.goal) }; }
+        function totalStars() { return profile.stars.reduce((sum, value) => sum + value, 0); }
+        function save() { localStorage.setItem(KEY, JSON.stringify(profile)); }
+        function checksum(text) { let hash = 2166136261; for (let i = 0; i < text.length; i++) { hash ^= text.charCodeAt(i); hash = Math.imul(hash, 16777619); } return (hash >>> 0).toString(36); }
+        function encode() { const payload = btoa(unescape(encodeURIComponent(JSON.stringify({ v: 2, u: profile.unlocked, s: profile.stars, b: profile.bestScore, c: profile.clears })))); return `RAIL2.${payload}.${checksum(payload)}`; }
+        function decode(code) { const parts = code.trim().split("."); if (parts.length !== 3 || parts[0] !== "RAIL2" || checksum(parts[1]) !== parts[2]) throw Error("调度档案校验失败"); const value = JSON.parse(decodeURIComponent(escape(atob(parts[1])))); if (value.v !== 2 || !Array.isArray(value.s)) throw Error("档案版本不兼容"); return { v: 2, unlocked: Math.max(0, Math.min(11, +value.u || 0)), stars: Array.from({ length: 12 }, (_, i) => Math.max(0, Math.min(3, +value.s[i] || 0))), bestScore: Array.from({ length: 12 }, (_, i) => Math.max(0, +value.b?.[i] || 0)), clears: Math.max(0, +value.c || 0) }; }
+        function validateContent() { const errors = []; if (YARDS.length !== 3 || SHIFTS.length !== 12) errors.push("yard/shift count"); if (SHIFTS.some((item) => item.trains.length !== 8)) errors.push("train count"); if (SHIFTS.some((item) => item.trains.some((train) => !TYPES[train.type] || train.goal < 0 || train.goal > 2))) errors.push("train schema"); const references = SHIFTS.map((_, index) => simulateReference(index)); if (references.some((item) => item.delivered !== 8 || item.strikes !== 0)) errors.push("reference plan"); return { valid: errors.length === 0, errors, yards: YARDS.length, shifts: SHIFTS.length, trains: SHIFTS.reduce((sum, item) => sum + item.trains.length, 0), types: Object.keys(TYPES).length, references }; }
+        function drawTrack(points, color) { ctx.strokeStyle = "#26383e"; ctx.lineWidth = 18; ctx.lineCap = "round"; ctx.beginPath(); ctx.moveTo(points[0].x, points[0].y); points.slice(1).forEach((point) => ctx.lineTo(point.x, point.y)); ctx.stroke(); ctx.strokeStyle = color; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(points[0].x, points[0].y); points.slice(1).forEach((point) => ctx.lineTo(point.x, point.y)); ctx.stroke(); }
+        function draw() { ctx.clearRect(0, 0, w, h); const grad = ctx.createLinearGradient(0, 0, 0, h); grad.addColorStop(0, "#f5faf3"); grad.addColorStop(.58, "#dbe9dc"); grad.addColorStop(1, "#c4d0b4"); ctx.fillStyle = grad; ctx.fillRect(0, 0, w, h); const midX = w * .47, start = { x: 46, y: h * .51 }, stops = [h * .22, h * .51, h * .8]; stops.forEach((y, index) => drawTrack([start, { x: midX, y: h * .51 }, { x: w - 64, y }], COLORS[index].color)); ctx.fillStyle = "#25393c"; ctx.font = "900 13px system-ui"; ctx.textAlign = "center"; stops.forEach((y, index) => { ctx.fillStyle = COLORS[index].color; ctx.fillRect(w - 113, y - 25, 84, 50); ctx.fillStyle = "#fffdf3"; ctx.fillText(COLORS[index].name, w - 71, y + 5); }); const sw = [{ x: midX - 8, y: h * .51 }, { x: midX + 65, y: h * .37 }, { x: midX + 65, y: h * .65 }]; sw.forEach((point, index) => { ctx.fillStyle = index === state.route ? COLORS[index].color : "#dfc25e"; ctx.beginPath(); ctx.arc(point.x, point.y, 18, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = "#16262a"; ctx.font = "900 16px system-ui"; ctx.fillText(String(index + 1), point.x, point.y + 5); }); for (const train of state.trains) { const point = routePoint(train), type = TYPES[train.type]; ctx.fillStyle = train.lane === null ? "#8d6b30" : COLORS[train.lane].color; ctx.fillRect(point.x - 25, point.y - 16, 50, 32); ctx.fillStyle = "#fffdf2"; ctx.font = "900 19px system-ui"; ctx.fillText(type.icon, point.x, point.y + 7); } }
+        function renderAll() { const current = shift(); els.title.textContent = `${shiftIndex + 1}. ${current.name}`; els.desc.textContent = `${YARDS.find((yard) => yard.shifts.includes(current)).name} · ${current.desc}`; els.time.textContent = `${String(Math.floor(state.time / 60)).padStart(2, "0")}:${String(Math.floor(state.time % 60)).padStart(2, "0")}`; els.delivered.textContent = state.delivered; els.score.textContent = state.score; els.strikes.textContent = `${state.strikes}/3`; els.delay.textContent = state.delays; els.label.textContent = `${current.weather} · ${state.mode === "menu" ? "等待发车" : state.mode === "over" ? "班次结算" : state.hold ? "信号保持" : `当前进路：${COLORS[state.route].name}`}`; els.routes.forEach((button) => button.classList.toggle("active", +button.dataset.route === state.route)); const pending = current.trains.slice(state.cursor, state.cursor + 4); els.next.innerHTML = pending.length ? pending.map((train, offset) => `<div class="next-train"><b>${train.priority ? "优先 " : ""}${TYPES[train.type].icon}${TYPES[train.type].name}</b><small>${(train.at - state.time).toFixed(1)} 秒后 · ${COLORS[train.goal].name}</small></div>`).join("") : `<div class="next-train"><b>班表已发完</b><small>清空当前线路即可结算</small></div>`; els.goals.innerHTML = [[state.delivered === current.trains.length && state.mode === "over", `全部送达：${state.delivered}/${current.trains.length}`], [state.strikes === 0, `零事故：${state.strikes}/0`], [state.score >= current.goals, `目标得分：${state.score}/${current.goals}`]].map(([pass, label]) => `<div class="goal ${pass ? "pass" : ""}">${label}</div>`).join(""); els.log.innerHTML = state.events.map((entry) => `<div>• ${entry}</div>`).join(""); els.shifts.innerHTML = SHIFTS.map((item, index) => `<button class="shift ${index === shiftIndex ? "active" : ""}" data-shift="${index}" ${index > profile.unlocked ? "disabled" : ""}><b>${index + 1}. ${item.name}</b><small>${item.trains.length} 列 · ${item.weather}</small><span class="stars">${"★".repeat(profile.stars[index])}${"☆".repeat(3 - profile.stars[index])}</span></button>`).join(""); els.shifts.querySelectorAll("[data-shift]").forEach((button) => button.onclick = () => selectShift(+button.dataset.shift)); els.hold.classList.toggle("active", state.hold); els.holdTool.classList.toggle("active", state.hold); els.brake.disabled = state.mode !== "running" || state.brakes <= 0; els.brakeTool.disabled = state.mode !== "running" || state.brakes <= 0; els.brake.textContent = `急停 ×${state.brakes}`; els.brakeTool.textContent = `⚡ 急停（${state.brakes}）`; els.start.disabled = state.mode === "running"; els.pause.disabled = !["running", "paused"].includes(state.mode); els.totalStars.textContent = totalStars(); els.clears.textContent = profile.clears; els.bestScore.textContent = Math.max(...profile.bestScore, 0); }
+        els.routes.forEach((button) => button.onclick = () => setRoute(button.dataset.route)); els.start.onclick = start; els.pause.onclick = pause; els.hold.onclick = toggleHold; els.holdTool.onclick = toggleHold; els.brake.onclick = emergencyBrake; els.brakeTool.onclick = emergencyBrake; $("resetBtn").onclick = start;
+        $("archiveBtn").onclick = () => { els.archive.classList.remove("hidden"); els.archiveText.value = encode(); els.archiveFeedback.textContent = ""; }; $("closeArchiveBtn").onclick = () => els.archive.classList.add("hidden"); $("exportBtn").onclick = async () => { els.archiveText.value = encode(); els.archiveText.select(); try { await navigator.clipboard.writeText(els.archiveText.value); els.archiveFeedback.textContent = "调度档案已复制。"; } catch { els.archiveFeedback.textContent = "档案已生成，请手动复制。"; } }; $("importBtn").onclick = () => { try { profile = decode(els.archiveText.value); save(); shiftIndex = Math.min(profile.unlocked, 11); state = makeState(); renderAll(); draw(); els.archiveFeedback.textContent = "导入成功。"; } catch (error) { els.archiveFeedback.textContent = error.message; } };
+        window.addEventListener("resize", resize); resize(); renderAll(); draw();
+        window.__switchyardRush = { YARDS, SHIFTS, TYPES, profile: () => profile, state: () => state, start, pause, step, setRoute, toggleHold, emergencyBrake, finish, selectShift, simulateReference, validateContent, encode, decode, renderAll, draw };
       })();
     </script>
   </body>
