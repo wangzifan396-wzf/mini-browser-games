@@ -44,7 +44,7 @@ const server = http.createServer(async (request, response) => {
 });
 
 const files = (await readdir(rootDir))
-  .filter((file) => file.endsWith(".html"))
+  .filter((file) => file.endsWith(".html") && file !== "index.html")
   .sort((a, b) => a.localeCompare(b));
 
 await new Promise((resolve) => server.listen(port, "127.0.0.1", resolve));
