@@ -1,326 +1,65 @@
 <!doctype html>
 <html lang="zh-CN">
-  <meta charset="utf-8" /><meta
-    name="viewport"
-    content="width=device-width,initial-scale=1"
-  /><title>掌心城市</title
-  ><style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      background: #152333;
-      color: #eef8ff;
-      font-family: system-ui, "Microsoft YaHei";
-    }
-    .app {
-      min-height: 100vh;
-      padding: 14px;
-      display: grid;
-      place-items: center;
-    }
-    .shell {
-      width: min(1000px, 100%);
-      background: #20364b;
-      border: 1px solid #587792;
-      border-radius: 20px;
-      padding: 16px;
-    }
-    .top,
-    .row,
-    .tools {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .layout {
-      display: grid;
-      grid-template-columns: 1fr 280px;
-      gap: 12px;
-      margin-top: 12px;
-    }
-    .city {
-      display: grid;
-      grid-template-columns: repeat(10, 1fr);
-      gap: 3px;
-      background: #102333;
-      padding: 7px;
-      border-radius: 12px;
-    }
-    .cell {
-      height: 52px;
-      border: 1px solid #42617b;
-      border-radius: 5px;
-      background: #31526b;
-      font-size: 23px;
-      padding: 0;
-    }
-    .cell.empty:hover {
-      background: #47738e;
-    }
-    .panel {
-      background: #172c3d;
-      border: 1px solid #48657c;
-      border-radius: 11px;
-      padding: 10px;
-      margin-bottom: 9px;
-    }
-    .tools {
-      justify-content: flex-start;
-    }
-    .tools button.active {
-      outline: 3px solid #ffe06c;
-    }
-    .stat {
-      display: flex;
-      justify-content: space-between;
-      padding: 5px;
-      border-bottom: 1px solid #ffffff18;
-    }
-    .log {
-      height: 120px;
-      overflow: auto;
-      color: #b7d1df;
-      font-size: 13px;
-    }
-    button {
-      padding: 9px 11px;
-      border: 1px solid #66849b;
-      border-radius: 9px;
-      background: #2d5875;
-      color: white;
-      font-weight: bold;
-    }
-    .next {
-      background: #8b6a26;
-    }
-    .help {
-      font-size: 13px;
-      color: #bdd1dc;
-    }
-    @media (max-width: 720px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
-      .cell {
-        height: auto;
-        aspect-ratio: 1;
-        font-size: 17px;
-      }
-      .app {
-        place-items: start center;
-      }
-    }
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>掌心城市：十二城规划战役</title>
+  <style>
+    :root{--bg:#172834;--paper:#f7f4e8;--panel:#fffdf5;--ink:#172126;--muted:#63706f;--line:#96a39f;--green:#34745e;--blue:#397596;--gold:#b4872e;--red:#a94c49;--radius:8px;--shadow:rgba(7,18,23,.28)}*{box-sizing:border-box}body{margin:0;min-height:100vh;color:var(--ink);font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;background:linear-gradient(135deg,#142631,#294544 55%,#4d4140)}button,textarea{font:inherit}.app{width:min(1450px,calc(100vw - 24px));margin:12px auto 28px}.topbar,.panel,.archive-box{border:1px solid var(--line);border-radius:var(--radius);background:rgba(255,253,245,.97);box-shadow:0 16px 38px var(--shadow)}.topbar{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:16px 20px}.eyebrow{margin:0 0 5px;color:#8a651d;font-size:12px;font-weight:900;letter-spacing:.06em}.topbar h1{margin:0;font-size:clamp(27px,4vw,44px);line-height:1}.subtitle{margin:7px 0 0;color:var(--muted);font-size:14px;line-height:1.5}.actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.btn{min-height:42px;padding:0 14px;border:1px solid #275d4b;border-radius:var(--radius);color:#fff;background:var(--green);font-weight:900;cursor:pointer}.btn.secondary{color:var(--ink);background:#eed17b;border-color:#9b7624}.btn.ghost{color:var(--ink);background:#edf0e9;border-color:#84948e}.btn:disabled{opacity:.45;cursor:not-allowed}.layout{display:grid;grid-template-columns:260px minmax(0,1fr) 320px;gap:12px;margin-top:12px;align-items:start}.panel{padding:13px}.panel h2{margin:0 0 9px;font-size:17px}.scenario-list{display:grid;gap:6px;max-height:710px;overflow:auto}.scenario{display:flex;justify-content:space-between;align-items:center;gap:7px;width:100%;padding:9px;border:1px solid #a6b0aa;border-radius:var(--radius);color:var(--ink);background:#fffbf0;text-align:left;cursor:pointer}.scenario strong{display:block;font-size:13px}.scenario small{display:block;margin-top:2px;color:var(--muted);font-size:11px}.scenario.active{border-color:var(--green);box-shadow:0 0 0 2px rgba(52,116,94,.18);background:#e7f1eb}.scenario:disabled{opacity:.46;cursor:not-allowed}.workspace{min-width:0}.city-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px}.city-head h2{margin:0 0 5px;font-size:25px}.city-head p{margin:0;color:var(--muted);font-size:13px;line-height:1.5}.budget{text-align:right;white-space:nowrap}.budget b{display:block;color:var(--green);font-size:23px}.tools{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:9px}.tool{min-width:0;min-height:54px;padding:5px 3px;border:1px solid #91a19b;border-radius:var(--radius);color:var(--ink);background:#edf0e9;font-weight:900;cursor:pointer}.tool span{display:block;font-size:19px}.tool small{display:block;overflow:hidden;color:var(--muted);font-size:10px;white-space:nowrap;text-overflow:ellipsis}.tool.active{border-color:var(--gold);box-shadow:0 0 0 2px rgba(180,135,46,.24);background:#fff3c8}.city{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:3px;width:100%;padding:7px;border:1px solid #6f8582;border-radius:var(--radius);background:#1a3038;aspect-ratio:1}.cell{position:relative;min-width:0;padding:0;border:1px solid #5c7474;border-radius:5px;color:#fff;background:#31565c;font-size:clamp(14px,2.2vw,24px);cursor:pointer;aspect-ratio:1}.cell:hover,.cell:focus-visible{border-color:#f1d77f;outline:none}.cell.road{background:#586468}.cell.road:after{content:"";position:absolute;left:10%;right:10%;top:48%;height:3px;background:#e6c967}.cell.fixed{cursor:not-allowed}.cell.disconnected{box-shadow:inset 0 0 0 3px rgba(169,76,73,.75)}.cell .level{position:absolute;right:2px;bottom:1px;font-size:9px;color:#fff}.workspace-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.message{flex:1 1 220px;align-self:center;color:var(--muted);font-size:13px;font-weight:800}.stats{display:grid;grid-template-columns:1fr 1fr;gap:7px}.stat{padding:8px;border:1px solid #a6b0aa;border-radius:var(--radius);background:#f8f6ec}.stat b{display:block;color:var(--blue);font-size:21px}.stat small{color:var(--muted);font-size:11px;font-weight:800}.goal{margin-top:10px;padding:10px;border:1px solid #a6b0aa;border-radius:var(--radius);background:#f8f6ec}.goal-row{display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px solid #d8d9cf;font-size:12px}.goal-row:last-child{border-bottom:0}.goal-row.ok{color:var(--green);font-weight:900}.policies{display:grid;gap:7px}.policy{padding:9px;border:1px solid #9da9a3;border-radius:var(--radius);color:var(--ink);background:#f8f6ec;text-align:left;cursor:pointer}.policy strong{display:block}.policy small{display:block;margin-top:3px;color:var(--muted);line-height:1.4}.policy.active{border-color:var(--blue);box-shadow:0 0 0 2px rgba(57,117,150,.18);background:#e9f1f4}.log{height:134px;overflow:auto;margin-top:10px;padding:9px;border:1px solid #a6b0aa;border-radius:var(--radius);background:#f7f5eb;font-size:12px;line-height:1.55}.archive-box{position:fixed;z-index:10;left:50%;top:50%;width:min(620px,calc(100vw - 28px));padding:18px;transform:translate(-50%,-50%)}.archive-box h2{margin:0 0 8px}.archive-box p{margin:0 0 10px;color:var(--muted);font-size:13px}.archive-box textarea{display:block;width:100%;min-height:92px;padding:9px;border:1px solid var(--line);border-radius:var(--radius);background:#f7f5eb;color:var(--ink);resize:vertical}.archive-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px}.archive-feedback{min-height:20px;margin-top:8px;color:var(--green);font-size:13px;font-weight:800}.hidden{display:none!important}@media(max-width:1100px){.layout{grid-template-columns:220px minmax(0,1fr)}.right{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:12px}.log{height:110px}}@media(max-width:760px){.app{width:calc(100vw - 14px);margin-top:7px}.topbar{display:block;padding:14px}.topbar .actions{margin-top:11px;justify-content:stretch}.topbar .btn{flex:1 1 auto}.layout{grid-template-columns:1fr}.scenario-list{grid-template-columns:repeat(2,1fr);max-height:310px;overflow:auto}.right{grid-column:auto;display:block}.tools{grid-template-columns:repeat(4,1fr)}.city{gap:2px;padding:5px}.cell{font-size:16px}.city-head{display:block}.budget{margin-top:7px;text-align:left}.stat b{font-size:19px}}
   </style>
+</head>
+<body>
   <main class="app">
-    <section class="shell">
-      <div class="top">
-        <div>
-          <h1 style="margin: 0">掌心城市</h1>
-          <div class="help">
-            规划住宅、商业、工业与服务设施；道路相连才会发展，兼顾就业、污染和幸福。
-          </div>
-        </div>
-        <div>
-          年份 <b id="year"></b>/15　资金 <b id="money"></b>　人口
-          <b id="pop"></b>
-        </div>
-      </div>
-      <div class="tools" id="tools"></div>
-      <div class="layout">
-        <div>
-          <div class="city" id="city"></div>
-          <div class="row" style="margin-top: 9px">
-            <button class="next" id="nextYear">推进一年</button
-            ><button id="bulldoze">拆除模式</button
-            ><button id="restart">新地图</button><span id="msg"></span>
-          </div>
-        </div>
-        <aside>
-          <div class="panel">
-            <b>城市指标</b>
-            <div id="stats"></div>
-          </div>
-          <div class="panel">
-            <b>发展目标</b>
-            <div id="goal"></div>
-          </div>
-          <div class="panel log" id="log"></div>
-        </aside>
-      </div>
+    <header class="topbar"><div><p class="eyebrow">CITY SYSTEMS / SCENARIO CAMPAIGN</p><h1>掌心城市：十二城规划战役</h1><p class="subtitle">道路连通、电力、就业、污染与幸福共同结算；每座城市有独立政策和三星约束。</p></div><div class="actions"><button class="btn" id="nextYearBtn">推进一年</button><button class="btn secondary" id="referenceBtn">参考建设</button><button class="btn ghost" id="restartBtn">重开本城</button><button class="btn ghost" id="archiveBtn">城市档案</button></div></header>
+    <section class="layout">
+      <aside class="panel"><h2>十二城情景</h2><div class="scenario-list" id="scenarioList"></div></aside>
+      <section class="panel workspace"><div class="city-head"><div><h2 id="cityTitle"></h2><p id="cityBrief"></p></div><div class="budget"><b id="moneyText"></b><small>预算 · 第 <span id="yearText"></span> 年</small></div></div><div class="tools" id="tools"></div><div class="city" id="city" aria-label="10 乘 10 城市规划网格"></div><div class="workspace-actions"><button class="btn ghost" id="bulldozeBtn">拆除模式</button><span class="message" id="message"></span></div></section>
+      <aside class="panel right"><div><h2>城市指标</h2><div class="stats" id="stats"></div><div class="goal" id="goals"></div></div><div><h2 style="margin-top:14px">本城政策</h2><div class="policies" id="policies"></div><div class="log" id="log"></div></div></aside>
     </section>
+    <section class="archive-box hidden" id="archiveBox"><h2>十二城规划档案</h2><p>档案保存情景解锁、星级和最佳结余，不包含当前未结算的地图。</p><textarea id="archiveText" spellcheck="false"></textarea><div class="archive-actions"><button class="btn" id="exportBtn">复制档案</button><button class="btn secondary" id="importBtn">导入档案</button><button class="btn ghost" id="closeArchiveBtn">关闭</button></div><div class="archive-feedback" id="archiveFeedback"></div></section>
   </main>
   <script>
-    const B = {
-      road: { n: "道路", ic: "═", cost: 5 },
-      home: { n: "住宅", ic: "🏠", cost: 18 },
-      shop: { n: "商业", ic: "🏪", cost: 24 },
-      factory: { n: "工业", ic: "🏭", cost: 28 },
-      park: { n: "公园", ic: "🌳", cost: 20 },
-      power: { n: "电站", ic: "⚡", cost: 45 },
-      school: { n: "学校", ic: "🏫", cost: 55 },
-    };
-    let q,
-      tool = "road";
-    const $ = (x) => document.getElementById(x);
-    function fresh() {
-      let cells = Array(100).fill(null);
-      for (let x = 0; x < 10; x++) cells[5 * 10 + x] = "road";
-      return {
-        year: 1,
-        money: 180,
-        cells,
-        pop: 0,
-        jobs: 0,
-        power: 0,
-        happy: 50,
-        log: ["第一条主干道已建成，开始规划城市吧。"],
-        over: false,
-      };
-    }
-    function say(s) {
-      q.log.unshift(s);
-      q.log = q.log.slice(0, 10);
-    }
-    function near(i, type) {
-      let r = Math.floor(i / 10),
-        c = i % 10;
-      return [i - 10, i + 10, i - 1, i + 1].some(
-        (j) =>
-          j >= 0 &&
-          j < 100 &&
-          Math.abs((j % 10) - c) + Math.abs(Math.floor(j / 10) - r) === 1 &&
-          q.cells[j] === type,
-      );
-    }
-    function connected(i) {
-      if (q.cells[i] === "road") return true;
-      return near(i, "road");
-    }
-    function build(i) {
-      if (q.over) return;
-      if (tool === "erase") {
-        if (!q.cells[i]) return;
-        q.money += Math.floor(B[q.cells[i]].cost * 0.3);
-        q.cells[i] = null;
-        return draw();
-      }
-      if (q.cells[i]) return (say("这块地已经被占用。"), draw());
-      let b = B[tool];
-      if (q.money < b.cost) return (say("资金不足。"), draw());
-      q.money -= b.cost;
-      q.cells[i] = tool;
-      draw();
-    }
-    function calc() {
-      let count = (t) => q.cells.filter((x) => x === t).length,
-        active = (t) =>
-          q.cells.reduce((n, x, i) => n + (x === t && connected(i) ? 1 : 0), 0),
-        homes = active("home"),
-        shops = active("shop"),
-        fac = active("factory"),
-        parks = count("park"),
-        schools = count("school"),
-        plants = count("power");
-      q.power =
-        plants * 70 - (homes * 8 + shops * 10 + fac * 14 + schools * 12);
-      q.jobs = shops * 18 + fac * 28;
-      q.pop = Math.max(
-        0,
-        Math.min(
-          homes * 24,
-          q.jobs + 20,
-          q.power > 0 ? 999 : Math.floor(homes * 10),
-        ),
-      );
-      let pollution = fac * 8 + plants * 10 - parks * 7,
-        happy =
-          55 +
-          parks * 6 +
-          schools * 8 -
-          Math.max(0, pollution) -
-          Math.max(0, q.pop - q.jobs) * 0.5;
-      q.happy = Math.max(0, Math.min(100, Math.round(happy)));
-      return { homes, shops, fac, parks, schools, plants, pollution };
-    }
-    function next() {
-      if (q.over) return;
-      let s = calc(),
-        tax = Math.round(q.pop * 1.2 + s.shops * 8 + s.fac * 10),
-        cost = s.parks * 5 + s.schools * 8 + s.plants * 6;
-      q.money += tax - cost;
-      q.year++;
-      if (q.power < 0) say("电力不足，部分住宅无法入住。");
-      if (q.happy < 30) say("市民幸福过低，人口增长停滞。");
-      else say(`年度结算：税收 ${tax}，维护 ${cost}。`);
-      if (q.year > 15) {
-        q.over = true;
-        say(
-          q.pop >= 180 && q.happy >= 55
-            ? "十五年规划成功，城市成为宜居新星！"
-            : "规划期结束，继续挑战更高人口与幸福。",
-        );
-      }
-      draw();
-    }
-    function draw() {
-      let s = calc();
-      year.textContent = Math.min(15, q.year);
-      money.textContent = q.money;
-      pop.textContent = q.pop;
-      tools.innerHTML = Object.entries(B)
-        .map(
-          ([k, b]) =>
-            `<button data-k="${k}" class="${tool === k ? "active" : ""}">${b.ic}${b.n} ${b.cost}</button>`,
-        )
-        .join("");
-      tools.querySelectorAll("[data-k]").forEach(
-        (e) =>
-          (e.onclick = () => {
-            tool = e.dataset.k;
-            draw();
-          }),
-      );
-      city.innerHTML = q.cells
-        .map(
-          (x, i) =>
-            `<button class="cell ${x ? "" : "empty"}" data-i="${i}">${x ? B[x].ic : ""}</button>`,
-        )
-        .join("");
-      city
-        .querySelectorAll("[data-i]")
-        .forEach((e) => (e.onclick = () => build(+e.dataset.i)));
-      stats.innerHTML = [
-        ["就业", `${q.jobs}/${q.pop}`],
-        ["电力余量", q.power],
-        ["幸福度", q.happy],
-        ["污染", s.pollution],
-        ["已通路住宅", s.homes],
-      ]
-        .map(
-          (x) => `<div class="stat"><span>${x[0]}</span><b>${x[1]}</b></div>`,
-        )
-        .join("");
-      goal.innerHTML = `在第 15 年前达到：<br>人口 180（${q.pop}）<br>幸福度 55（${q.happy}）<br><span class="help">住宅、商业、工业必须紧邻道路才会生效。</span>`;
-      log.innerHTML = q.log.map((x) => `<div>• ${x}</div>`).join("");
-      bulldoze.textContent = tool === "erase" ? "退出拆除" : "拆除模式";
-      nextYear.disabled = q.over;
-    }
-    nextYear.onclick = next;
-    bulldoze.onclick = () => {
-      tool = tool === "erase" ? "road" : "erase";
-      draw();
-    };
-    restart.onclick = () => {
-      if (confirm("生成一座新城市？")) {
-        q = fresh();
-        draw();
-      }
-    };
-    q = fresh();
-    draw();
+  (()=>{
+    const BUILDINGS={road:{name:"道路",icon:"═",cost:6,upkeep:1},home:{name:"住宅",icon:"🏠",cost:18,upkeep:2},shop:{name:"商业",icon:"🏬",cost:28,upkeep:3},factory:{name:"工厂",icon:"🏭",cost:35,upkeep:5},park:{name:"公园",icon:"🌳",cost:22,upkeep:2},power:{name:"电站",icon:"⚡",cost:52,upkeep:7},solar:{name:"光伏",icon:"☀",cost:35,upkeep:2},school:{name:"学校",icon:"🏫",cost:48,upkeep:5},clinic:{name:"诊所",icon:"✚",cost:52,upkeep:5},water:{name:"水务",icon:"💧",cost:42,upkeep:4},transit:{name:"公交",icon:"▣",cost:45,upkeep:4}};
+    const POLICIES={compact:{name:"紧凑街区",text:"每座连通住宅增加 2 人，幸福 -2。",homePop:2,happy:-2},green:{name:"绿带协议",text:"公园额外降低污染并提高幸福。",parkHappy:3,parkClean:2},industry:{name:"学徒工坊",text:"工厂就业 +4，但每座工厂污染 +3。",factoryJobs:4,factoryPollution:3},care:{name:"社区照护",text:"诊所和学校合计为幸福额外 +4。",careHappy:4},solar:{name:"屋顶计划",text:"每组光伏额外提供 8 单位电力。",solarPower:8},transit:{name:"公交优先",text:"公交就业 +3，城市幸福 +2。",transitJobs:3,happy:2}};
+    const SCENARIO_SEEDS=[
+      ["harbor","临港新城","海湾带","在旧码头路网周围建立第一批完整社区。",["compact","green"],{pop:52,jobs:42,happy:58,pollution:30,reserve:70,year:4}],
+      ["orchard","果园环城","平原带","保留宜居指标，让产业和社区在绿带两侧生长。",["green","care"],{pop:58,jobs:45,happy:64,pollution:20,reserve:65,year:4}],
+      ["forge","铸造走廊","平原带","工厂不能成为孤岛，电力和就业必须同步交付。",["industry","solar"],{pop:58,jobs:56,happy:58,pollution:28,reserve:55,year:4}],
+      ["campus","学城北岸","河谷带","以学校和公共交通支撑持续增长的住宅区。",["care","transit"],{pop:60,jobs:48,happy:65,pollution:22,reserve:60,year:4}],
+      ["delta","三河汇城","河谷带","水务设施和道路覆盖率是扩张的先决条件。",["green","compact"],{pop:62,jobs:48,happy:62,pollution:22,reserve:60,year:4}],
+      ["ridge","高岭电网","高原带","高地电网损耗严重，供电余量必须保持为正。",["solar","compact"],{pop:62,jobs:50,happy:58,pollution:24,reserve:50,year:4}],
+      ["works","机车工坊","高原带","把重工业就业转化为可居住的完整城区。",["industry","care"],{pop:62,jobs:58,happy:58,pollution:28,reserve:45,year:4}],
+      ["frost","霜港重建","北部带","低温压缩电力供应，优先保证居民与公共服务。",["solar","care"],{pop:62,jobs:50,happy:62,pollution:22,reserve:45,year:4}],
+      ["garden","环塔花城","北部带","高密住宅要由公园、诊所和公交共同托底。",["green","transit"],{pop:66,jobs:52,happy:68,pollution:18,reserve:45,year:4}],
+      ["terminal","边境终端","边境带","终端城市必须同时承担物流就业和居民生活。",["transit","industry"],{pop:66,jobs:58,happy:60,pollution:28,reserve:40,year:4}],
+      ["renewal","旧城更新","边境带","不依赖拆除完成结构调整，保留足够财政结余。",["compact","care"],{pop:68,jobs:52,happy:64,pollution:22,reserve:40,year:4}],
+      ["twelve","十二城之心","首都圈","在最严格约束下交付人口、就业、环境和电力。",["green","solar"],{pop:72,jobs:58,happy:68,pollution:16,reserve:35,year:4}]
+    ];
+    const MODIFIERS=[{}, {},{factoryPollution:1},{happy:1},{waterHappy:2},{powerLoss:8},{factoryJobs:2},{powerLoss:12},{happy:2},{transitJobs:2},{homePop:1},{powerLoss:8,factoryPollution:1}];
+    const SCENARIOS=SCENARIO_SEEDS.map((item,index)=>({id:item[0],title:item[1],region:item[2],brief:item[3],policies:item[4],goal:item[5],modifier:MODIFIERS[index],budget:760-index*8,parYear:4,referencePolicy:index===11?item[4][1]:item[4][0],reference:referencePlan(index)}));
+    const STORAGE="palmCityV2";const $=id=>document.getElementById(id);const scenarioList=$("scenarioList"),tools=$("tools"),cityEl=$("city"),statsEl=$("stats"),goalsEl=$("goals"),policiesEl=$("policies"),logEl=$("log"),messageEl=$("message"),archiveBox=$("archiveBox"),archiveText=$("archiveText"),archiveFeedback=$("archiveFeedback");let profile=loadProfile(),scenarioIndex=Math.min(profile.unlocked,11),state=makeState(scenarioIndex),tool="road",bulldoze=false;
+    function referencePlan(){return[[0,4,"home"],[1,4,"home"],[2,4,"home"],[3,4,"home"],[0,6,"home"],[1,6,"home"],[7,6,"home"],[4,2,"home"],[2,6,"shop"],[3,6,"shop"],[8,6,"factory"],[9,6,"factory"],[7,4,"park"],[8,4,"park"],[6,6,"power"],[6,4,"school"],[4,4,"clinic"],[4,6,"water"],[9,4,"transit"],[4,1,"solar"],[6,1,"solar"]]}
+    function emptyProfile(){return{v:2,unlocked:0,stars:Array(12).fill(0),best:Array(12).fill(0),clears:0}}function normalize(p){return{v:2,unlocked:Math.max(0,Math.min(11,+p.unlocked||0)),stars:Array.from({length:12},(_,i)=>Math.max(0,Math.min(3,+p.stars?.[i]||0))),best:Array.from({length:12},(_,i)=>Math.max(0,+p.best?.[i]||0)),clears:Math.max(0,+p.clears||0)}}function loadProfile(){try{const p=JSON.parse(localStorage.getItem(STORAGE)||"null");return p?.v===2?normalize(p):emptyProfile()}catch{return emptyProfile()}}function saveProfile(){localStorage.setItem(STORAGE,JSON.stringify(profile))}
+    function seedCells(){const cells=Array(100).fill(null);for(let x=0;x<10;x++)cells[5*10+x]={type:"road",fixed:true};for(let y=0;y<10;y++)cells[y*10+5]={type:"road",fixed:true};return cells}function makeState(index){const sc=SCENARIOS[index];return{scenario:index,year:1,money:sc.budget,cells:seedCells(),policy:sc.policies[0],bulldozed:0,done:false,stars:0,logs:[`[START] ${sc.title} · 初始预算 ${sc.budget}`],message:"选择设施，再点击空地建设。",metrics:null}}
+    function scenario(s=state){return SCENARIOS[s.scenario]}function xy(index){return[index%10,Math.floor(index/10)]}function indexOf(x,y){return y*10+x}function neighbors(index){const [x,y]=xy(index);return[[x-1,y],[x+1,y],[x,y-1],[x,y+1]].filter(([X,Y])=>X>=0&&X<10&&Y>=0&&Y<10).map(([X,Y])=>indexOf(X,Y))}
+    function roadNetwork(s){const start=indexOf(5,5),seen=new Set(),queue=s.cells[start]?.type==="road"?[start]:[];while(queue.length){const current=queue.shift();if(seen.has(current))continue;seen.add(current);for(const next of neighbors(current))if(s.cells[next]?.type==="road"&&!seen.has(next))queue.push(next)}return seen}function connectedBuildings(s){const roads=roadNetwork(s),connected=new Set(roads);s.cells.forEach((cell,index)=>{if(cell&&cell.type!=="road"&&neighbors(index).some(next=>roads.has(next)))connected.add(index)});return connected}
+    function calculate(s=state,sc=scenario(s)){const connected=connectedBuildings(s),counts=Object.fromEntries(Object.keys(BUILDINGS).map(key=>[key,0]));s.cells.forEach((cell,index)=>{if(cell&&connected.has(index))counts[cell.type]++});const policy=POLICIES[s.policy],mod=sc.modifier||{};const rawPop=counts.home*(10+(policy.homePop||0)+(mod.homePop||0));const rawJobs=counts.shop*8+counts.factory*(14+(policy.factoryJobs||0)+(mod.factoryJobs||0))+counts.school*6+counts.clinic*6+counts.water*4+counts.transit*(5+(policy.transitJobs||0)+(mod.transitJobs||0));const supply=counts.power*48+counts.solar*(20+(policy.solarPower||0))- (mod.powerLoss||0);const demand=counts.home*4+counts.shop*5+counts.factory*9+counts.school*6+counts.clinic*6+counts.water*4+counts.transit*7;const powered=demand?Math.min(1,Math.max(0,supply/demand)):1;const population=Math.round(rawPop*powered),jobs=Math.round(rawJobs*powered);const pollution=Math.max(0,counts.factory*(10+(policy.factoryPollution||0)+(mod.factoryPollution||0))+counts.power*8-counts.park*(5+(policy.parkClean||0))-counts.water*3-counts.solar*2);const happiness=Math.max(0,Math.min(100,52+counts.park*(6+(policy.parkHappy||0))+counts.school*5+counts.clinic*5+counts.transit*3+counts.water*(2+(mod.waterHappy||0))-counts.factory*5+(policy.careHappy||0)+(policy.happy||0)+(mod.happy||0)));const built=s.cells.filter(Boolean).length,connectedCount=[...connected].filter(index=>s.cells[index]).length,coverage=built?Math.round(connectedCount/built*100):100;const upkeep=Object.entries(counts).reduce((sum,[key,count])=>sum+BUILDINGS[key].upkeep*count,0);const income=Math.round(population*1.35+jobs*.7);return{population,jobs,power:supply-demand,pollution,happiness,coverage,income,upkeep,counts,connected}}
+    function placeCore(s,sc,x,y,type){if(x<0||x>9||y<0||y>9||!BUILDINGS[type])return{ok:false,reason:"invalid"};const index=indexOf(x,y);if(s.cells[index])return{ok:false,reason:"occupied"};const cost=BUILDINGS[type].cost;if(s.money<cost)return{ok:false,reason:"budget"};s.cells[index]={type,fixed:false};s.money-=cost;return{ok:true}}
+    function place(x,y,type=tool){if(state.done)return false;const result=placeCore(state,scenario(),x,y,type);if(!result.ok){state.message=result.reason==="occupied"?"该地块已有设施。":result.reason==="budget"?"预算不足。":"不能在这里建设。";renderAll();return false}state.message=`已建设${BUILDINGS[type].name}，结余 ${state.money}。`;state.logs.unshift(`[BUILD] ${x+1},${y+1} ${BUILDINGS[type].name}`);renderAll();return true}
+    function demolish(x,y){const index=indexOf(x,y),cell=state.cells[index];if(!cell||cell.fixed){state.message="初始主干道不能拆除。";renderAll();return false}state.money+=Math.floor(BUILDINGS[cell.type].cost*.35);state.cells[index]=null;state.bulldozed++;state.message="设施已拆除，返还部分预算。";state.logs.unshift(`[REMOVE] ${x+1},${y+1} ${BUILDINGS[cell.type].name}`);renderAll();return true}
+    function goalsMet(metrics,sc){const g=sc.goal;return metrics.population>=g.pop&&metrics.jobs>=g.jobs&&metrics.happiness>=g.happy&&metrics.pollution<=g.pollution&&metrics.power>=0&&metrics.coverage>=90}
+    function settle(s=state,testing=false){if(s.done)return resultOf(s);const sc=scenario(s),metrics=calculate(s,sc);s.metrics=metrics;s.money+=metrics.income-metrics.upkeep;s.year++;s.logs.unshift(`[YEAR ${s.year-1}] 税收 ${metrics.income} / 维护 ${metrics.upkeep} / 结余 ${s.money}`);if(goalsMet(metrics,sc)){s.done=true;s.stars=1+(s.money>=sc.goal.reserve?1:0)+(s.bulldozed===0&&s.year-1<=sc.parYear?1:0);s.message=`${sc.title} 达成 ${s.stars} 星规划。`;if(!testing){profile.stars[s.scenario]=Math.max(profile.stars[s.scenario],s.stars);profile.best[s.scenario]=Math.max(profile.best[s.scenario],s.money);profile.unlocked=Math.max(profile.unlocked,Math.min(11,s.scenario+1));profile.clears++;saveProfile()}}else if(s.year>10){s.done=true;s.stars=0;s.message="规划周期结束，仍有指标未达成。"}else{s.message="年度结算完成，继续补足未达标指标。"}if(!testing)renderAll();return resultOf(s)}function resultOf(s){const m=s.metrics||calculate(s);return{ok:s.done&&s.stars>0,scenario:scenario(s).id,stars:s.stars,money:s.money,year:s.year-1,population:m.population,jobs:m.jobs,happiness:m.happiness,pollution:m.pollution,power:m.power,coverage:m.coverage}}
+    function simulateReference(index){const sc=SCENARIOS[index],s=makeState(index);s.policy=sc.referencePolicy;for(const [x,y,type] of sc.reference){const result=placeCore(s,sc,x,y,type);if(!result.ok)return{ok:false,reason:result.reason,at:[x,y,type]}}return settle(s,true)}function applyReference(index=scenarioIndex){scenarioIndex=index;const sc=SCENARIOS[index];state=makeState(index);state.policy=sc.referencePolicy;for(const [x,y,type] of sc.reference)placeCore(state,sc,x,y,type);const result=settle(state,true);state.message=`参考布局：${result.stars} 星，结余 ${result.money}，可继续观察连通与指标。`;renderAll();return result}
+    function validateContent(){const errors=[];const ids=new Set();for(const [index,sc] of SCENARIOS.entries()){if(ids.has(sc.id))errors.push(`duplicate ${sc.id}`);ids.add(sc.id);if(sc.reference.length<18)errors.push(`reference size ${index}`);const result=simulateReference(index);if(!result.ok||result.stars!==3)errors.push(`reference ${index} ${JSON.stringify(result)}`)}scenarioIndex=Math.min(profile.unlocked,11);state=makeState(scenarioIndex);renderAll();return{valid:errors.length===0,errors,scenarios:SCENARIOS.length,buildings:Object.keys(BUILDINGS).length,policies:Object.keys(POLICIES).length,references:SCENARIOS.length}}
+    function selectScenario(index){if(index<0||index>profile.unlocked||index>11)return false;scenarioIndex=index;state=makeState(index);tool="road";bulldoze=false;renderAll();return true}function checksum(text){let hash=2166136261;for(let i=0;i<text.length;i++){hash^=text.charCodeAt(i);hash=Math.imul(hash,16777619)}return(hash>>>0).toString(36)}function encode(){const payload=btoa(unescape(encodeURIComponent(JSON.stringify({v:2,u:profile.unlocked,s:profile.stars,b:profile.best,c:profile.clears}))));return`CITY2.${payload}.${checksum(payload)}`}function decode(code){const parts=String(code).trim().split(".");if(parts.length!==3||parts[0]!=="CITY2"||checksum(parts[1])!==parts[2])throw Error("城市档案校验失败");const data=JSON.parse(decodeURIComponent(escape(atob(parts[1]))));if(data.v!==2)throw Error("城市档案版本不兼容");return normalize({v:2,unlocked:data.u,stars:data.s,best:data.b,clears:data.c})}
+    function renderScenarios(){scenarioList.innerHTML=SCENARIOS.map((sc,index)=>`<button class="scenario ${index===scenarioIndex?"active":""}" data-scenario="${index}" ${index>profile.unlocked?"disabled":""}><span><strong>${index+1}. ${sc.title}</strong><small>${sc.region} · ${sc.brief}</small></span><b>${profile.stars[index]?"★".repeat(profile.stars[index]):index<=profile.unlocked?"待建":"锁定"}</b></button>`).join("");scenarioList.querySelectorAll("[data-scenario]").forEach(button=>button.onclick=()=>selectScenario(+button.dataset.scenario))}
+    function renderTools(){tools.innerHTML=Object.entries(BUILDINGS).map(([key,b])=>`<button class="tool ${key===tool&&!bulldoze?"active":""}" data-tool="${key}"><span>${b.icon}</span><small>${b.name} ${b.cost}</small></button>`).join("");tools.querySelectorAll("[data-tool]").forEach(button=>button.onclick=()=>{tool=button.dataset.tool;bulldoze=false;renderAll()})}
+    function renderCity(){const connected=connectedBuildings(state);cityEl.innerHTML=state.cells.map((cell,index)=>{const [x,y]=xy(index),b=cell?BUILDINGS[cell.type]:null;return`<button class="cell ${cell?.type||"empty"} ${cell?.fixed?"fixed":""} ${cell&&!connected.has(index)?"disconnected":""}" data-x="${x}" data-y="${y}" aria-label="${x+1},${y+1} ${b?.name||"空地"}" ${cell?.fixed?"disabled":""}>${cell?.type==="road"?"":b?.icon||""}</button>`}).join("");cityEl.querySelectorAll(".cell:not([disabled])").forEach(button=>button.onclick=()=>{const x=+button.dataset.x,y=+button.dataset.y;bulldoze?demolish(x,y):place(x,y,tool)})}
+    function metricGoalRows(metrics,sc){const rows=[["人口",metrics.population,`≥ ${sc.goal.pop}`,metrics.population>=sc.goal.pop],["就业",metrics.jobs,`≥ ${sc.goal.jobs}`,metrics.jobs>=sc.goal.jobs],["幸福",metrics.happiness,`≥ ${sc.goal.happy}`,metrics.happiness>=sc.goal.happy],["污染",metrics.pollution,`≤ ${sc.goal.pollution}`,metrics.pollution<=sc.goal.pollution],["电力余量",metrics.power,"≥ 0",metrics.power>=0],["道路覆盖",`${metrics.coverage}%`,`≥ 90%`,metrics.coverage>=90],["结余",state.money,`三星 ≥ ${sc.goal.reserve}`,state.money>=sc.goal.reserve]];return rows.map(row=>`<div class="goal-row ${row[3]?"ok":""}"><span>${row[0]}：${row[1]}</span><b>${row[2]}</b></div>`).join("")}
+    function renderAll(){const sc=scenario(),metrics=calculate();state.metrics=metrics;$("cityTitle").textContent=`${scenarioIndex+1}. ${sc.title}`;$("cityBrief").textContent=sc.brief;$("moneyText").textContent=state.money;$("yearText").textContent=state.year;messageEl.textContent=state.message;renderScenarios();renderTools();renderCity();statsEl.innerHTML=[["人口",metrics.population],["就业",metrics.jobs],["幸福",metrics.happiness],["污染",metrics.pollution],["电力",metrics.power],["覆盖",metrics.coverage+"%"]].map(([label,value])=>`<div class="stat"><b>${value}</b><small>${label}</small></div>`).join("");goalsEl.innerHTML=`<b>发展目标 · ${state.done?state.stars+" 星完成":"第 "+sc.goal.year+" 年前"}</b>${metricGoalRows(metrics,sc)}`;policiesEl.innerHTML=sc.policies.map(id=>`<button class="policy ${state.policy===id?"active":""}" data-policy="${id}"><strong>${POLICIES[id].name}</strong><small>${POLICIES[id].text}</small></button>`).join("");policiesEl.querySelectorAll("[data-policy]").forEach(button=>button.onclick=()=>{if(state.year>1||state.done){state.message="政策只能在规划第一年调整。"}else{state.policy=button.dataset.policy;state.message=`已选择${POLICIES[state.policy].name}。`}renderAll()});logEl.innerHTML=state.logs.map(line=>`<div>${line}</div>`).join("");$("nextYearBtn").disabled=state.done;$("bulldozeBtn").textContent=bulldoze?"退出拆除":"拆除模式"}
+    $("nextYearBtn").onclick=()=>settle(state,false);$("restartBtn").onclick=()=>{state=makeState(scenarioIndex);tool="road";bulldoze=false;renderAll()};$("referenceBtn").onclick=()=>applyReference(scenarioIndex);$("bulldozeBtn").onclick=()=>{bulldoze=!bulldoze;renderAll()};$("archiveBtn").onclick=()=>{archiveText.value=encode();archiveFeedback.textContent="";archiveBox.classList.remove("hidden")};$("closeArchiveBtn").onclick=()=>archiveBox.classList.add("hidden");$("exportBtn").onclick=async()=>{archiveText.value=encode();archiveText.select();try{await navigator.clipboard.writeText(archiveText.value);archiveFeedback.textContent="档案已复制"}catch{archiveFeedback.textContent="档案已生成，请手动复制"}};$("importBtn").onclick=()=>{try{profile=decode(archiveText.value);saveProfile();scenarioIndex=Math.min(profile.unlocked,11);state=makeState(scenarioIndex);archiveFeedback.textContent="导入成功";renderAll()}catch(error){archiveFeedback.textContent=error.message}};window.__skylinePlanner={SCENARIOS,BUILDINGS,POLICIES,profile:()=>profile,state:()=>state,selectScenario,place,settle,calculate,simulateReference,applyReference,validateContent,encode,decode,renderAll};renderAll();
+  })();
   </script>
+</body>
 </html>

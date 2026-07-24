@@ -1,357 +1,141 @@
 <!doctype html>
 <html lang="zh-CN">
-  <meta charset="utf-8" /><meta
-    name="viewport"
-    content="width=device-width,initial-scale=1"
-  /><title>钟楼密室</title
-  ><style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      background: #17130f;
-      color: #f7e8ca;
-      font-family: system-ui, "Microsoft YaHei";
-    }
-    .app {
-      min-height: 100vh;
-      padding: 14px;
-      display: grid;
-      place-items: center;
-    }
-    .shell {
-      width: min(930px, 100%);
-      background: #292018;
-      border: 1px solid #79654c;
-      border-radius: 20px;
-      padding: 16px;
-    }
-    .top,
-    .row,
-    .inv {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .top {
-      justify-content: space-between;
-    }
-    .scene {
-      height: 460px;
-      margin: 12px 0;
-      border: 2px solid #756047;
-      border-radius: 14px;
-      position: relative;
-      overflow: hidden;
-      background: linear-gradient(#342b27 0 70%, #4a3927 70%);
-      box-shadow: inset 0 0 80px #000;
-    }
-    .obj {
-      position: absolute;
-      border: 1px solid #987b54;
-      background: #3d3025;
-      color: #ffecc5;
-      border-radius: 9px;
-      padding: 10px;
-      cursor: pointer;
-      font-size: 25px;
-    }
-    .obj:hover {
-      filter: brightness(1.25);
-    }
-    .door {
-      width: 130px;
-      height: 250px;
-      left: 43%;
-      top: 120px;
-      background: #493321;
-    }
-    .desk {
-      left: 8%;
-      bottom: 35px;
-      width: 180px;
-      height: 90px;
-    }
-    .clock {
-      right: 8%;
-      top: 35px;
-      border-radius: 50%;
-      width: 110px;
-      height: 110px;
-    }
-    .painting {
-      left: 12%;
-      top: 50px;
-      width: 130px;
-      height: 90px;
-    }
-    .safe {
-      right: 10%;
-      bottom: 45px;
-      width: 120px;
-      height: 100px;
-    }
-    .inv {
-      min-height: 55px;
-      padding: 8px;
-      background: #19130f;
-      border-radius: 10px;
-    }
-    .item {
-      padding: 8px;
-      border: 1px solid #8b7250;
-      border-radius: 8px;
-      background: #3c2e20;
-    }
-    .item.sel {
-      outline: 3px solid #ffd970;
-    }
-    button {
-      padding: 9px 12px;
-      border: 1px solid #8c7455;
-      border-radius: 9px;
-      background: #493725;
-      color: #fff;
-      font-weight: bold;
-    }
-    .dialog {
-      min-height: 45px;
-      color: #e5cda8;
-    }
-    .modal {
-      position: fixed;
-      inset: 0;
-      background: #000b;
-      display: none;
-      place-items: center;
-    }
-    .modal.show {
-      display: grid;
-    }
-    .box {
-      background: #2d241c;
-      border: 1px solid #8d7452;
-      border-radius: 15px;
-      padding: 20px;
-      text-align: center;
-    }
-    .code {
-      font-size: 24px;
-      letter-spacing: 8px;
-      width: 180px;
-      padding: 8px;
-    }
-    @media (max-width: 650px) {
-      .scene {
-        height: 380px;
-      }
-      .obj {
-        transform: scale(0.82);
-      }
-      .app {
-        place-items: start center;
-      }
-    }
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>钟楼密室：六刻回廊</title>
+  <style>
+    :root{--bg:#10151d;--panel:#1a222d;--panel2:#222d39;--line:#566678;--ink:#f3ead8;--muted:#aeb9c4;--gold:#e9b85d;--blue:#72b9d2;--red:#bd655e;--green:#75c7a4;--shadow:rgba(0,0,0,.35);font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;color-scheme:dark}*{box-sizing:border-box}body{margin:0;min-height:100vh;color:var(--ink);background:radial-gradient(circle at 18% 12%,#26384a 0,transparent 34%),linear-gradient(145deg,#0b1017,#161f29 55%,#201a1d)}button,input,textarea{font:inherit}.app{width:min(1460px,calc(100vw - 24px));margin:12px auto 28px}.topbar,.main,.side-card,.archive-box{border:1px solid var(--line);border-radius:12px;background:rgba(24,32,42,.96);box-shadow:0 18px 44px var(--shadow)}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:17px 20px}.eyebrow{margin:0 0 5px;color:var(--gold);font-size:12px;font-weight:900;letter-spacing:.08em}.topbar h1{margin:0;font-size:clamp(28px,4vw,46px);line-height:1}.subtitle{margin:8px 0 0;color:var(--muted);font-size:14px}.actions{display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end}.btn{min-height:43px;padding:0 15px;border:1px solid #806a3f;border-radius:9px;color:#16130d;background:var(--gold);font-weight:900;cursor:pointer}.btn.secondary{color:var(--ink);background:#344252;border-color:#66798c}.btn.danger{color:#fff;background:#8c4846;border-color:#bd6d65}.layout{display:grid;grid-template-columns:minmax(0,1fr) 370px;gap:12px;margin-top:12px;align-items:start}.main{padding:14px}.chapter-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:4px 4px 13px}.chapter-head h2{margin:0 0 6px;font-size:26px}.chapter-head p{margin:0;color:var(--muted)}.stats{display:grid;grid-template-columns:repeat(3,88px);gap:7px}.stat{padding:8px;border:1px solid #526477;border-radius:9px;background:#121a23;text-align:center}.stat b{display:block;color:var(--gold);font-size:20px}.stat small{color:var(--muted);font-size:11px}.scene{position:relative;min-height:540px;overflow:hidden;border:1px solid #647588;border-radius:12px;background:linear-gradient(180deg,rgba(17,28,40,.2),rgba(6,10,15,.76)),radial-gradient(circle at 50% 15%,var(--scene-a),transparent 37%),linear-gradient(145deg,var(--scene-b),#10141a);isolation:isolate}.scene:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 74px,rgba(255,255,255,.035) 75px 76px),linear-gradient(transparent 77%,rgba(0,0,0,.32) 78%);pointer-events:none}.scene-title{position:absolute;left:18px;top:16px;padding:8px 11px;border:1px solid rgba(255,255,255,.2);border-radius:8px;background:rgba(9,14,20,.76);font-weight:900;color:var(--gold)}.object{position:absolute;min-width:92px;min-height:62px;padding:9px;border:1px solid rgba(255,255,255,.32);border-radius:12px;color:var(--ink);background:rgba(21,30,39,.88);box-shadow:0 10px 22px rgba(0,0,0,.28);font-weight:900;cursor:pointer;transform:translate(-50%,-50%);transition:.15s transform,.15s border-color}.object:hover,.object:focus-visible{transform:translate(-50%,-50%) scale(1.05);border-color:var(--gold);outline:none}.object.done{border-color:var(--green);background:rgba(34,70,65,.9)}.object .icon{display:block;margin-bottom:4px;font-size:29px}.dialog{min-height:78px;margin-top:10px;padding:12px 14px;border:1px solid #56687b;border-radius:10px;color:#dae5ec;background:#111a23;line-height:1.55}.inventory{display:flex;gap:8px;min-height:64px;padding:9px;margin-top:10px;overflow-x:auto;border:1px solid #56687b;border-radius:10px;background:#111820}.item{flex:0 0 auto;min-width:114px;padding:8px;border:1px solid #586b7d;border-radius:9px;color:var(--ink);background:#273544;font-weight:800;cursor:pointer}.item.selected{border-color:var(--gold);box-shadow:0 0 0 2px rgba(233,184,93,.22)}.item.used{opacity:.5}.side{display:grid;gap:12px}.side-card{padding:13px}.side-card h3{margin:0 0 10px;color:var(--gold);font-size:16px}.chapters{display:grid;grid-template-columns:1fr 1fr;gap:7px}.chapter{min-height:68px;padding:8px;border:1px solid #506174;border-radius:9px;color:var(--ink);background:#202b37;text-align:left;cursor:pointer}.chapter.active{border:2px solid var(--gold);background:#30313a}.chapter:disabled{opacity:.43;cursor:not-allowed}.chapter b,.chapter small{display:block}.chapter small{margin-top:4px;color:var(--muted)}.rules{display:grid;gap:7px}.rule{padding:9px;border:1px solid #4f6070;border-radius:8px;background:#131c25;color:var(--muted);font-size:13px;line-height:1.45}.rule.ok{border-color:#4b9478;color:#cceedd}.log{height:198px;overflow:auto;color:#bfcbd5;font-size:13px;line-height:1.55}.log div{margin-bottom:5px}.row{display:flex;gap:8px;flex-wrap:wrap}.modal,.archive{position:fixed;inset:0;z-index:20;display:grid;place-items:center;padding:18px;background:rgba(4,8,12,.78)}.modal.hidden,.archive.hidden{display:none}.modal-box,.archive-box{width:min(520px,100%);padding:20px}.modal-box{border:1px solid #6c7c8b;border-radius:12px;background:#1b2530;box-shadow:0 24px 60px #000}.modal-box h2,.archive-box h2{margin:0 0 10px}.modal-box p{color:var(--muted)}.code{width:100%;padding:13px;border:1px solid #6d7d8c;border-radius:9px;color:var(--ink);background:#0e151d;font-size:28px;font-weight:900;letter-spacing:.25em;text-align:center}.archive textarea{width:100%;min-height:150px;padding:10px;border:1px solid #617285;border-radius:8px;color:#d9e8ee;background:#0d151d;resize:vertical}.feedback{min-height:24px;margin-top:8px;color:var(--green)}@media(max-width:980px){.layout{grid-template-columns:1fr}.side{grid-template-columns:1fr 1fr}.side .side-card:first-child{grid-column:1/-1}}@media(max-width:620px){.app{width:calc(100vw - 12px);margin-top:6px}.topbar{display:block;padding:14px}.actions{margin-top:12px;justify-content:stretch}.actions .btn{flex:1}.main{padding:7px}.chapter-head{display:block}.stats{grid-template-columns:repeat(3,1fr);margin-top:10px}.scene{min-height:470px}.object{min-width:76px;min-height:57px;padding:6px;font-size:12px}.object .icon{font-size:24px}.side{grid-template-columns:1fr}.chapters{grid-template-columns:1fr 1fr}.dialog{min-height:90px}.subtitle{font-size:12px}}
   </style>
-  <main class="app">
-    <section class="shell">
-      <div class="top">
-        <div>
-          <h1 style="margin: 0">钟楼密室</h1>
-          <div class="hint">点击场景调查，选择道具后再点击目标使用。</div>
-        </div>
-        <div>线索 <b id="clues">0</b>/7　用时 <b id="time">00:00</b></div>
-      </div>
-      <div class="scene" id="scene">
-        <button class="obj painting" data-o="painting">🖼️ 旧画</button
-        ><button class="obj clock" data-o="clock">🕰️</button
-        ><button class="obj desk" data-o="desk">🗄️ 书桌</button
-        ><button class="obj door" data-o="door">🚪<br />顶层门</button
-        ><button class="obj safe" data-o="safe">🔒<br />保险箱</button>
-      </div>
-      <div class="dialog" id="dialog">
-        醒来时，钟楼的门已经锁死。空气里有齿轮转动的声音……
-      </div>
-      <div>
-        <b>道具栏</b>
-        <div class="inv" id="inv"></div>
-      </div>
-      <div class="row" style="margin-top: 8px">
-        <button id="hint">提示</button><button id="restart">重新开始</button>
-      </div>
-    </section>
-    <div class="modal" id="modal">
-      <div class="box">
-        <h2 id="modalTitle">输入密码</h2>
-        <input class="code" id="code" inputmode="numeric" maxlength="4" />
-        <div class="row" style="justify-content: center; margin-top: 12px">
-          <button id="confirmCode">确认</button
-          ><button id="closeModal">取消</button>
-        </div>
-      </div>
-    </div>
-  </main>
-  <script>
-    let q = { items: [], used: {}, clues: 0, start: Date.now(), done: false },
-      selected = null;
-    const $ = (x) => document.getElementById(x);
-    function say(s) {
-      dialog.textContent = s;
-    }
-    function gain(item, icon) {
-      if (q.items.some((x) => x.n === item)) return;
-      q.items.push({ n: item, ic: icon });
-      q.clues++;
-      say(`获得道具：${icon}${item}`);
-      draw();
-    }
-    function inspect(o) {
-      let item = q.items[selected];
-      if (o === "painting") {
-        if (!q.used.paint) {
-          q.used.paint = true;
-          q.clues++;
-          say("画背写着：“长针指月，短针向晨”。画框里夹着半张星图。");
-        } else say("画中的月亮停在数字 9 上。");
-      }
-      if (o === "desk") {
-        if (!q.used.desk) {
-          q.used.desk = true;
-          gain("发条钥匙", "🗝️");
-        }
-        else if (item?.n === "铜钥匙" && !q.used.drawer) {
-          q.used.drawer = true;
-          gain("透明星盘", "💿");
-        } else
-          say(
-            q.used.drawer ? "抽屉已经空了。" : "右侧抽屉锁着，需要一把小钥匙。",
-          );
-      }
-      if (o === "clock") {
-        if (item?.n === "发条钥匙" && !q.used.clock) {
-          q.used.clock = true;
-          gain("铜钥匙", "🔑");
-          say("钟摆重新运动，掉出一把铜钥匙。表盘停在 06:45。");
-        } else
-          say(q.used.clock ? "时针指向 6，分针指向 9。" : "钟表缺少上弦钥匙。");
-      }
-      if (o === "safe") {
-        if (!q.used.clock) return say("四位密码盘旁刻着太阳与月亮。");
-        openCode("保险箱密码");
-        q.target = "safe";
-      }
-      if (o === "door") {
-        if (item?.n === "钟楼齿轮" && q.used.star && !q.done) {
-          q.done = true;
-          q.clues++;
-          say("齿轮嵌入门锁，晨光照进钟楼——逃脱成功！");
-          setTimeout(() => alert(`逃脱成功！用时 ${time.textContent}`), 100);
-        } else if (!q.used.star)
-          say("门锁缺少核心齿轮，门上的星轨似乎与画中线索有关。");
-        else say("需要把钟楼齿轮装回门锁。");
-      }
-      selected = null;
-      draw();
-    }
-    function openCode(title) {
-      modalTitle.textContent = title;
-      code.value = "";
-      modal.classList.add("show");
-      code.focus();
-    }
-    function submit() {
-      if (q.target === "safe") {
-        if (code.value === "0645") {
-          modal.classList.remove("show");
-          if (!q.used.safe) {
-            q.used.safe = true;
-            gain("星轨纸", "📜");
-          }
-          say("保险箱打开了：里面是一张完整星轨纸。");
-        } else say("密码错误，想想钟表停下的时刻。");
-      }
-      if (q.target === "star") {
-        if (code.value === "1969") {
-          modal.classList.remove("show");
-          q.used.star = true;
-          gain("钟楼齿轮", "⚙️");
-          say("星盘投出 1969 的光影，暗格弹开。");
-        }
-      }
-    }
-    function draw() {
-      clues.textContent = q.clues;
-      inv.innerHTML =
-        q.items
-          .map(
-            (a, i) =>
-              `<button class="item ${selected === i ? "sel" : ""}" data-i="${i}">${a.ic}${a.n}</button>`,
-          )
-          .join("") || "<span>暂无道具</span>";
-      inv.querySelectorAll("[data-i]").forEach(
-        (e) =>
-          (e.onclick = () => {
-            selected = +e.dataset.i;
-            draw();
-          }),
-      );
-      document.querySelector('[data-o="painting"]').textContent = q.used.paint
-        ? "🌙 星月旧画"
-        : "🖼️ 旧画";
-      if (
-        q.items.some((x) => x.n === "透明星盘") &&
-        q.items.some((x) => x.n === "星轨纸") &&
-        !q.used.star
-      ) {
-        say("透明星盘与星轨纸可以叠合。点击提示或直接输入星轨年代。");
-        q.target = "star";
-        openCode("星轨年代");
-      }
-      save();
-    }
-    function save() {
-      localStorage.setItem("escape_progress", JSON.stringify(q));
-    }
-    document
-      .querySelectorAll("[data-o]")
-      .forEach((e) => (e.onclick = () => inspect(e.dataset.o)));
-    confirmCode.onclick = submit;
-    closeModal.onclick = () => modal.classList.remove("show");
-    hint.onclick = () => {
-      let s = !q.used.desk
-        ? "先检查书桌和画。"
-        : !q.used.clock
-          ? "用发条钥匙启动钟表。"
-          : !q.used.safe
-            ? "钟表显示 06:45，这是保险箱密码。"
-            : !q.used.drawer
-              ? "铜钥匙能打开书桌抽屉。"
-              : !q.used.star
-                ? "将星盘与星轨纸叠合，重要年代是 1969。"
-                : "把齿轮装到顶层门。";
-      say(s);
-    };
-    restart.onclick = () => {
-      if (confirm("清除当前密室进度？")) {
-        localStorage.removeItem("escape_progress");
-        location.reload();
-      }
-    };
-    try {
-      let s = JSON.parse(localStorage.getItem("escape_progress"));
-      if (s) q = s;
-    } catch {}
-    setInterval(() => {
-      if (!q.done) {
-        let n = Math.floor((Date.now() - q.start) / 1000);
-        time.textContent =
-          String(Math.floor(n / 60)).padStart(2, "0") +
-          ":" +
-          String(n % 60).padStart(2, "0");
-      }
-    }, 1000);
-    draw();
-  </script>
+</head>
+<body>
+<main class="app">
+  <header class="topbar">
+    <div><p class="eyebrow">DETERMINISTIC ESCAPE CAMPAIGN</p><h1>钟楼密室：六刻回廊</h1><p class="subtitle">六章机关链 · 三十件可调查物 · 道具组合与密码锁 · 参考解校验 · ESCAPE2 档案</p></div>
+    <div class="actions"><button class="btn danger" id="restartBtn">重启本章</button><button class="btn secondary" id="archiveBtn">密室档案</button></div>
+  </header>
+  <section class="layout">
+    <article class="main">
+      <div class="chapter-head"><div><h2 id="chapterTitle"></h2><p id="chapterText"></p></div><div class="stats"><div class="stat"><b id="stepText">0</b><small>操作</small></div><div class="stat"><b id="clueText">0/0</b><small>机关</small></div><div class="stat"><b id="hintText">0</b><small>提示</small></div></div></div>
+      <div class="scene" id="scene"><div class="scene-title" id="sceneLabel"></div></div>
+      <div class="dialog" id="dialog"></div>
+      <div class="inventory" id="inventory"></div>
+      <div class="row" style="margin-top:10px"><button class="btn" id="hintBtn">查看下一步提示</button><button class="btn secondary" id="cancelBtn">取消选中</button></div>
+    </article>
+    <aside class="side">
+      <section class="side-card"><h3>六刻回廊</h3><div class="chapters" id="chapters"></div></section>
+      <section class="side-card"><h3>本章机关</h3><div class="rules" id="rules"></div></section>
+      <section class="side-card"><h3>调查记录</h3><div class="log" id="log"></div></section>
+      <section class="side-card"><h3>生涯记录</h3><div class="stats"><div class="stat"><b id="careerStars">0</b><small>星章</small></div><div class="stat"><b id="careerClears">0</b><small>逃脱</small></div><div class="stat"><b id="careerBest">--</b><small>最佳操作</small></div></div></section>
+    </aside>
+  </section>
+</main>
+<div class="modal hidden" id="codeModal"><div class="modal-box"><h2 id="codeTitle">输入密码</h2><p id="codeClue"></p><input class="code" id="codeInput" maxlength="6" inputmode="numeric"><div class="row" style="margin-top:14px;justify-content:center"><button class="btn" id="codeConfirm">确认</button><button class="btn secondary" id="codeCancel">取消</button></div></div></div>
+<div class="archive hidden" id="archive"><div class="archive-box"><h2>钟楼密室档案</h2><p class="subtitle">复制档案码可在另一台设备恢复六章星级与最佳操作数。</p><textarea id="archiveText"></textarea><div class="row"><button class="btn" id="exportBtn">生成并复制</button><button class="btn secondary" id="importBtn">导入档案</button><button class="btn secondary" id="closeArchiveBtn">关闭</button></div><div class="feedback" id="archiveFeedback"></div></div></div>
+<script>
+(() => {
+  const CHAPTERS = [
+    {id:"dawn",title:"1. 晨钟旧室",label:"晨刻 · 旧钟室",text:"让停摆的晨钟重新转动，沿星轨找回门锁齿轮。",colors:["#324d62","#242129"],par:9,objects:[
+      ["painting","星月旧画","🖼️",20,25],["desk","黄铜书桌","🗄️",28,70],["clock","停摆座钟","🕰️",51,36],["safe","太阳保险箱","🔒",71,68],["projector","星轨投影仪","🔭",77,28],["door","晨光门","🚪",91,49]],
+      actions:[
+        {target:"painting",flag:"paint",message:"画背写着：长针指月，短针向晨。月亮停在数字 9。"},
+        {target:"desk",flag:"desk",give:["wind","发条钥匙","🗝️"],message:"抽屉夹层里藏着一把发条钥匙。"},
+        {target:"clock",item:"wind",flag:"clock",give:["copper","铜钥匙","🔑"],message:"座钟停在 06:45，钟摆落下一把铜钥匙。"},
+        {target:"desk",item:"copper",flag:"drawer",give:["disk","透明星盘","💿"],requires:["desk"],message:"铜钥匙打开暗抽屉，里面是透明星盘。"},
+        {target:"projector",item:"disk",flag:"projector",requires:["safe"],give:["gear","晨钟齿轮","⚙️"],message:"星盘与星轨纸叠合，投影仪吐出晨钟齿轮。"},
+        {target:"door",item:"gear",flag:"exit",finish:true,message:"齿轮归位，晨光穿过回廊。"}],
+      codes:[{target:"safe",title:"太阳保险箱",clue:"四位密码来自停摆座钟。",code:"0645",requires:["clock"],flag:"safe",give:["chart","星轨纸","📜"],message:"保险箱打开，完整星轨纸显现。"}],
+      reference:[["inspect","painting"],["inspect","desk"],["use","wind","clock"],["code","safe","0645"],["use","copper","desk"],["use","disk","projector"],["use","gear","door"]]},
+    {id:"storm",title:"2. 雷鸣钟廊",label:"午刻 · 雷雨廊",text:"重接避雷针与报时电路，在雷声间读取电报码。",colors:["#33475d","#28233a"],par:9,objects:[
+      ["window","破裂天窗","🌩️",16,28],["cabinet","检修柜","🧰",25,72],["panel","断路面板","🔌",49,62],["antenna","屋脊天线","📡",55,24],["telegraph","电报码机","⌨️",76,67],["door","雷纹门","🚪",91,42]],
+      actions:[
+        {target:"window",flag:"window",give:["rod","银质避雷针","⚡"],message:"窗框夹层藏着可伸缩避雷针。"},
+        {target:"cabinet",flag:"cabinet",give:["fuse","陶瓷保险丝","🧯"],message:"检修柜里还剩一枚完整保险丝。"},
+        {target:"panel",item:"fuse",flag:"power",message:"报时电路重新通电。"},
+        {target:"antenna",item:"rod",flag:"signal",requires:["power"],message:"避雷针接通天线，雷声被转成四组脉冲：3-1-4-2。"},
+        {target:"door",item:"pendulum",flag:"exit",finish:true,message:"雷晶钟摆吸收余电，雷纹门缓缓开启。"}],
+      codes:[{target:"telegraph",title:"雷报码机",clue:"输入天线捕获的四组脉冲。",code:"3142",requires:["signal"],flag:"telegraph",give:["pendulum","雷晶钟摆","🔷"],message:"报码机吐出一枚雷晶钟摆。"}],
+      reference:[["inspect","window"],["inspect","cabinet"],["use","fuse","panel"],["use","rod","antenna"],["code","telegraph","3142"],["use","pendulum","door"]]},
+    {id:"frost",title:"3. 冰水刻盘",label:"昏刻 · 冰封水钟",text:"融开水钟的冰层，让透镜复现失落的立方数。",colors:["#285162","#263b4b"],par:9,objects:[
+      ["notes","水钟札记","📘",18,29],["basin","干涸水盆","🏺",25,71],["furnace","余烬炉","🔥",49,70],["ice","冰封水钟","🧊",55,28],["sundial","棱镜日晷","☀️",77,61],["door","霜刻门","🚪",92,38]],
+      actions:[
+        {target:"notes",flag:"notes",message:"札记写着：十二的立方，锁住冬刻。"},
+        {target:"basin",flag:"basin",give:["cup","黄铜量杯","🥛"],message:"水盆底部压着一只黄铜量杯。"},
+        {target:"furnace",item:"cup",flag:"heated",give:["hotcup","温热量杯","♨️"],message:"量杯蓄满余烬热量。"},
+        {target:"ice",item:"hotcup",flag:"melt",give:["lens","水晶透镜","🔎"],message:"冰层融开，浮子上嵌着水晶透镜。"},
+        {target:"sundial",item:"lens",flag:"shadow",message:"透镜将刻线聚成数字 1728。"},
+        {target:"door",item:"escapement",flag:"exit",finish:true,message:"擒纵叉校准水钟，霜刻门退入墙内。"}],
+      codes:[{target:"door",title:"霜刻门心",clue:"札记中的立方数与日晷投影相同。",code:"1728",requires:["shadow"],flag:"lock",give:["escapement","水钟擒纵叉","🔱"],message:"锁心弹出水钟擒纵叉。"}],
+      reference:[["inspect","notes"],["inspect","basin"],["use","cup","furnace"],["use","hotcup","ice"],["use","lens","sundial"],["code","door","1728"],["use","escapement","door"]]},
+    {id:"mirror",title:"4. 镜面乐室",label:"夜刻 · 镜厅乐室",text:"让破碎光束穿过棱镜，以钟声频率唤醒镜门。",colors:["#4c365d","#252439"],par:10,objects:[
+      ["mirror","裂纹长镜","🪞",17,27],["rug","星纹地毯","🧶",24,72],["cabinet","乐谱柜","🎼",48,66],["lamp","月白灯","🏮",53,25],["pedestal","棱镜座","🔺",76,64],["organ","镜音机关","🎹",81,25],["door","镜面门","🚪",93,49]],
+      actions:[
+        {target:"mirror",flag:"mirror",give:["shard","反光镜片","◇"],message:"从裂缝中取下一片仍然平整的镜片。"},
+        {target:"rug",flag:"rug",give:["handle","八音柜柄","🪝"],message:"地毯下压着八音柜柄。"},
+        {target:"cabinet",item:"handle",flag:"cabinet",give:["prism","三棱镜","🔺"],message:"乐谱柜打开，三棱镜安放在软垫上。"},
+        {target:"lamp",item:"shard",flag:"beam",message:"镜片把月白灯折向棱镜座。"},
+        {target:"pedestal",item:"prism",flag:"spectrum",requires:["beam"],message:"七色光谱依次亮起 2、7、1、8 四个音位。"},
+        {target:"door",item:"crown",flag:"exit",finish:true,message:"冠轮驱动镜阵，镜面门分成两翼。"}],
+      codes:[{target:"organ",title:"镜音机关",clue:"输入光谱亮起的四个音位。",code:"2718",requires:["spectrum"],flag:"organ",give:["crown","八音冠轮","🎡"],message:"镜音机关奏响终止和弦，冠轮升起。"}],
+      reference:[["inspect","mirror"],["inspect","rug"],["use","handle","cabinet"],["use","shard","lamp"],["use","prism","pedestal"],["code","organ","2718"],["use","crown","door"]]},
+    {id:"archive",title:"5. 逆行档案",label:"逆刻 · 机要档案室",text:"修复穿孔机，将逆序年份写入终端并取得主钥。",colors:["#4c4134","#282522"],par:9,objects:[
+      ["shelf","倒序卷宗","🗃️",16,28],["drawer","油封抽屉","🛢️",24,72],["machine","穿孔机","⚙️",49,58],["terminal","黄铜终端","🖥️",73,28],["press","卡片压印台","📇",76,69],["door","档案铁门","🚪",92,47]],
+      actions:[
+        {target:"shelf",flag:"shelf",give:["strip","年份纸带","📜"],message:"卷宗年份按 1-9-0-1 逆行排列。"},
+        {target:"drawer",flag:"drawer",give:["oil","钟油壶","🫗"],message:"抽屉中有一壶低温钟油。"},
+        {target:"machine",item:"oil",flag:"oiled",message:"穿孔机恢复顺滑运转。"},
+        {target:"machine",item:"strip",flag:"punched",requires:["oiled"],give:["card","穿孔卡","🎫"],message:"纸带被转写为终端穿孔卡。"},
+        {target:"press",item:"master",flag:"pressed",give:["sealkey","档案主钥","🗝️"],message:"主钥胚在压印台刻入档案齿纹。"},
+        {target:"door",item:"sealkey",flag:"exit",finish:true,message:"档案铁门识别齿纹，逆行齿轮停止。"}],
+      codes:[{target:"terminal",title:"机要终端",clue:"插入穿孔卡后输入卷宗中的逆行年份。",code:"1901",requires:["punched"],flag:"terminal",give:["master","主钥胚","🔐"],message:"终端验证穿孔卡，弹出主钥胚。"}],
+      reference:[["inspect","shelf"],["inspect","drawer"],["use","oil","machine"],["use","strip","machine"],["code","terminal","1901"],["use","master","press"],["use","sealkey","door"]]},
+    {id:"zenith",title:"6. 星轮顶层",label:"终刻 · 星轮顶层",text:"令六刻共鸣，将星轮核心校准到午夜前最后一分钟。",colors:["#223f55","#29223d"],par:9,objects:[
+      ["map","穹顶星图","🌌",18,27],["statue","报时者像","🗿",25,70],["bells","六刻钟组","🔔",49,30],["console","星轮台","🧭",54,70],["core","终刻核心","🌀",78,48],["door","天台门","🚪",93,43]],
+      actions:[
+        {target:"map",flag:"map",give:["plate","星座校准盘","🌠"],message:"星图夹层落下星座校准盘。"},
+        {target:"statue",flag:"statue",give:["fork","六音音叉","🎵"],message:"石像掌心握着六音音叉。"},
+        {target:"bells",item:"fork",flag:"tone",message:"六座钟依次共鸣，终刻核心开始响应。"},
+        {target:"console",item:"plate",flag:"aligned",requires:["tone"],message:"校准盘锁定午夜前最后一分钟：23:59。"},
+        {target:"door",item:"chrono",flag:"exit",finish:true,message:"时序核心嵌入天台门，六刻回廊重归正时。"}],
+      codes:[{target:"core",title:"终刻核心",clue:"输入校准盘锁定的四位终刻。",code:"2359",requires:["aligned"],flag:"core",give:["chrono","时序核心","💠"],message:"终刻核心稳定为可携带的时序核心。"}],
+      reference:[["inspect","map"],["inspect","statue"],["use","fork","bells"],["use","plate","console"],["code","core","2359"],["use","chrono","door"]]}
+  ];
+  const STORAGE="clockworkEscapeV2";
+  const $=id=>document.getElementById(id);
+  const els={scene:$("scene"),chapterTitle:$("chapterTitle"),chapterText:$("chapterText"),sceneLabel:$("sceneLabel"),stepText:$("stepText"),clueText:$("clueText"),hintText:$("hintText"),dialog:$("dialog"),inventory:$("inventory"),chapters:$("chapters"),rules:$("rules"),log:$("log"),careerStars:$("careerStars"),careerClears:$("careerClears"),careerBest:$("careerBest"),codeModal:$("codeModal"),codeTitle:$("codeTitle"),codeClue:$("codeClue"),codeInput:$("codeInput"),archive:$("archive"),archiveText:$("archiveText"),archiveFeedback:$("archiveFeedback")};
+  const emptyProfile=()=>({v:2,unlocked:0,stars:Array(6).fill(0),bestMoves:Array(6).fill(0),clears:0});
+  let profile=load(),chapterIndex=Math.min(profile.unlocked,5),state=makeState(),pendingCode=null;
+  function load(){try{const p=JSON.parse(localStorage.getItem(STORAGE)||"null");if(p?.v===2&&Array.isArray(p.stars))return normalize(p)}catch{}return emptyProfile()}
+  function normalize(p){return{v:2,unlocked:Math.max(0,Math.min(5,+p.unlocked||0)),stars:Array.from({length:6},(_,i)=>Math.max(0,Math.min(3,+p.stars?.[i]||0))),bestMoves:Array.from({length:6},(_,i)=>Math.max(0,+p.bestMoves?.[i]||0)),clears:Math.max(0,+p.clears||0)}}
+  function save(){localStorage.setItem(STORAGE,JSON.stringify(profile))}
+  function makeState(){return{flags:{},items:[],usedItems:{},steps:0,hints:0,done:false,message:"调查场景中的物件，机关链会留下可复核的线索。",logs:["[START] 进入"+CHAPTERS[chapterIndex].label]}}
+  function chapter(){return CHAPTERS[chapterIndex]}
+  function addLog(text){state.logs.unshift(text);state.logs=state.logs.slice(0,30)}
+  function give(item){if(!item||state.items.some(entry=>entry.id===item[0]))return;state.items.push({id:item[0],name:item[1],icon:item[2]});addLog(`[ITEM] 获得 ${item[1]}`)}
+  function requirementsMet(list=[]){return list.every(flag=>state.flags[flag])}
+  function getAction(target,itemId){return chapter().actions.find(action=>action.target===target&&(action.item||null)===(itemId||null)&&!state.flags[action.flag])}
+  function openCode(target){const lock=chapter().codes.find(code=>code.target===target&&!state.flags[code.flag]);if(!lock)return false;if(!requirementsMet(lock.requires)){state.message="当前线索还不足以操作这道密码机关。";addLog(`[BLOCK] ${target} 缺少前置线索`);renderAll();return true}pendingCode=lock;els.codeTitle.textContent=lock.title;els.codeClue.textContent=lock.clue;els.codeInput.value="";els.codeModal.classList.remove("hidden");setTimeout(()=>els.codeInput.focus(),0);return true}
+  function inspect(target,itemId=null,testing=false){if(state.done)return{ok:false,reason:"done"};const selected=itemId||document.querySelector(".item.selected")?.dataset.id||null;if(!selected&&openCode(target))return{ok:true,mode:"code"};const action=getAction(target,selected);state.steps++;
+    if(!action){state.message=selected?`“${state.items.find(i=>i.id===selected)?.name||selected}”不能这样用于此处。`:"这里暂时没有新的发现。";addLog(`[MISS] ${selected?selected+" → ":"调查 "}${target}`);if(!testing)renderAll();return{ok:false,reason:"no action"}}
+    if(!requirementsMet(action.requires)){state.message="还缺少前置机关或线索。";addLog(`[BLOCK] ${target}`);if(!testing)renderAll();return{ok:false,reason:"requirements"}}
+    state.flags[action.flag]=true;if(selected)state.usedItems[selected]=true;give(action.give);state.message=action.message;addLog(`[OK] ${action.message}`);if(action.finish)finish(testing);if(!testing)renderAll();return{ok:true,flag:action.flag}}
+  function submitCode(value,testing=false){const lock=pendingCode;if(!lock)return{ok:false,reason:"no code"};state.steps++;if(String(value)!==lock.code){state.message="密码没有通过，机关退回初始位置。";addLog(`[CODE] ${lock.title} 输入错误`);if(!testing){els.codeModal.classList.add("hidden");renderAll()}pendingCode=null;return{ok:false,reason:"wrong"}}
+    state.flags[lock.flag]=true;give(lock.give);state.message=lock.message;addLog(`[CODE] ${lock.message}`);pendingCode=null;if(!testing){els.codeModal.classList.add("hidden");renderAll()}return{ok:true,flag:lock.flag}}
+  function finish(testing=false){if(state.done)return state.stars||0;state.done=true;const stars=1+(state.steps<=chapter().par?1:0)+(state.hints===0?1:0);state.stars=stars;if(!testing){profile.stars[chapterIndex]=Math.max(profile.stars[chapterIndex],stars);profile.bestMoves[chapterIndex]=profile.bestMoves[chapterIndex]?Math.min(profile.bestMoves[chapterIndex],state.steps):state.steps;profile.unlocked=Math.max(profile.unlocked,Math.min(5,chapterIndex+1));profile.clears++;save()}state.message+=` 本章评价：${"★".repeat(stars)}${"☆".repeat(3-stars)}。`;addLog(`[CLEAR] ${state.steps} 步，${stars} 星`);return stars}
+  function selectChapter(index){if(index<0||index>profile.unlocked||index>=CHAPTERS.length)return false;chapterIndex=index;state=makeState();pendingCode=null;renderAll();return true}
+  function commandFlag(command){if(command[0]==="inspect")return chapter().actions.find(action=>action.target===command[1]&&!action.item)?.flag;if(command[0]==="use")return chapter().actions.find(action=>action.target===command[2]&&action.item===command[1])?.flag;if(command[0]==="code")return chapter().codes.find(code=>code.target===command[1])?.flag;return null}
+  function hint(){if(state.done)return;state.hints++;const next=chapter().reference.find(command=>!state.flags[commandFlag(command)]);state.message=next?next[0]==="inspect"?`提示：调查“${objectName(next[1])}”。`:next[0]==="use"?`提示：把“${itemName(next[1])}”用于“${objectName(next[2])}”。`:`提示：检查“${objectName(next[1])}”的密码线索。`:"所有机关已经完成。";addLog(`[HINT] ${state.message}`);renderAll()}
+  function objectName(id){return chapter().objects.find(item=>item[0]===id)?.[1]||id}function itemName(id){return state.items.find(item=>item.id===id)?.name||chapter().actions.find(action=>action.give?.[0]===id)?.give[1]||chapter().codes.find(code=>code.give?.[0]===id)?.give[1]||id}
+  function applyReference(index=chapterIndex){const oldIndex=chapterIndex;chapterIndex=index;state=makeState();pendingCode=null;for(const command of chapter().reference){let result;if(command[0]==="inspect")result=inspect(command[1],null,true);else if(command[0]==="use")result=inspect(command[2],command[1],true);else{pendingCode=chapter().codes.find(code=>code.target===command[1]&&!state.flags[code.flag]);result=pendingCode&&requirementsMet(pendingCode.requires)?submitCode(command[2],true):{ok:false,reason:"requirements"}}if(!result.ok){const failure={ok:false,command,reason:result.reason};chapterIndex=oldIndex;return failure}}const result={ok:state.done,stars:state.stars,steps:state.steps,flags:{...state.flags}};if(oldIndex!==index)chapterIndex=oldIndex;return result}
+  function validateContent(){const errors=[];const ids=new Set();for(const [index,item] of CHAPTERS.entries()){if(ids.has(item.id))errors.push(`duplicate chapter ${item.id}`);ids.add(item.id);const objects=new Set(item.objects.map(object=>object[0]));if(item.objects.length<6)errors.push(`objects ${index}`);for(const action of item.actions)if(!objects.has(action.target))errors.push(`target ${action.target}`);for(const lock of item.codes)if(!objects.has(lock.target)||!/^\d{4,6}$/.test(lock.code))errors.push(`code ${index}`);const reference=applyReference(index);if(!reference.ok||reference.stars!==3)errors.push(`reference ${index}`)}chapterIndex=Math.min(profile.unlocked,5);state=makeState();return{valid:errors.length===0,errors,chapters:CHAPTERS.length,objects:CHAPTERS.reduce((sum,item)=>sum+item.objects.length,0),actions:CHAPTERS.reduce((sum,item)=>sum+item.actions.length+item.codes.length,0),references:CHAPTERS.length}}
+  function checksum(text){let hash=2166136261;for(let i=0;i<text.length;i++){hash^=text.charCodeAt(i);hash=Math.imul(hash,16777619)}return(hash>>>0).toString(36)}
+  function encode(){const payload=btoa(unescape(encodeURIComponent(JSON.stringify({v:2,u:profile.unlocked,s:profile.stars,b:profile.bestMoves,c:profile.clears}))));return`ESCAPE2.${payload}.${checksum(payload)}`}
+  function decode(code){const parts=code.trim().split(".");if(parts.length!==3||parts[0]!=="ESCAPE2"||checksum(parts[1])!==parts[2])throw Error("密室档案校验失败");const value=JSON.parse(decodeURIComponent(escape(atob(parts[1]))));if(value.v!==2)throw Error("密室档案版本不兼容");return normalize({v:2,unlocked:value.u,stars:value.s,bestMoves:value.b,clears:value.c})}
+  function renderScene(){const item=chapter();els.scene.style.setProperty("--scene-a",item.colors[0]);els.scene.style.setProperty("--scene-b",item.colors[1]);els.scene.querySelectorAll(".object").forEach(node=>node.remove());for(const object of item.objects){const [id,name,icon,x,y]=object;const button=document.createElement("button");button.className="object"+(Object.values(state.flags).length&&[...item.actions,...item.codes].some(action=>action.target===id&&state.flags[action.flag])?" done":"");button.dataset.object=id;button.style.left=`clamp(48px,${x}%,calc(100% - 48px))`;button.style.top=`clamp(42px,${y}%,calc(100% - 42px))`;button.innerHTML=`<span class="icon">${icon}</span>${name}`;button.onclick=()=>inspect(id);els.scene.appendChild(button)}}
+  function renderAll(){const item=chapter();els.chapterTitle.textContent=item.title;els.chapterText.textContent=item.text;els.sceneLabel.textContent=item.label;els.stepText.textContent=state.steps;const completed=[...item.actions,...item.codes].filter(action=>state.flags[action.flag]).length;els.clueText.textContent=`${completed}/${item.actions.length+item.codes.length}`;els.hintText.textContent=state.hints;els.dialog.textContent=state.message;renderScene();els.inventory.innerHTML=state.items.length?state.items.map(entry=>`<button class="item ${state.usedItems[entry.id]?"used":""}" data-id="${entry.id}">${entry.icon} ${entry.name}</button>`).join(""):"<span class='subtitle'>道具栏为空，先调查场景。</span>";els.inventory.querySelectorAll(".item").forEach(button=>button.onclick=()=>{const was=button.classList.contains("selected");els.inventory.querySelectorAll(".item").forEach(node=>node.classList.remove("selected"));if(!was)button.classList.add("selected")});els.chapters.innerHTML=CHAPTERS.map((entry,index)=>`<button class="chapter ${index===chapterIndex?"active":""}" data-chapter="${index}" ${index>profile.unlocked?"disabled":""}><b>${entry.title}</b><small>${profile.stars[index]?"★".repeat(profile.stars[index]):index<=profile.unlocked?"待破解":"未解锁"}</small></button>`).join("");els.chapters.querySelectorAll("[data-chapter]").forEach(button=>button.onclick=()=>selectChapter(+button.dataset.chapter));els.rules.innerHTML=[...item.actions,...item.codes].map(action=>`<div class="rule ${state.flags[action.flag]?"ok":""}">${state.flags[action.flag]?"✓":"○"} ${action.finish?"打开出口":action.message}</div>`).join("");els.log.innerHTML=state.logs.map(line=>`<div>• ${line}</div>`).join("");els.careerStars.textContent=profile.stars.reduce((sum,value)=>sum+value,0);els.careerClears.textContent=profile.clears;els.careerBest.textContent=profile.bestMoves[chapterIndex]||"--"}
+  $("hintBtn").onclick=hint;$("cancelBtn").onclick=()=>{els.inventory.querySelectorAll(".item").forEach(node=>node.classList.remove("selected"));state.message="已取消道具选择。";renderAll()};$("restartBtn").onclick=()=>{state=makeState();pendingCode=null;renderAll()};$("codeConfirm").onclick=()=>submitCode(els.codeInput.value);$("codeCancel").onclick=()=>{pendingCode=null;els.codeModal.classList.add("hidden")};els.codeInput.addEventListener("keydown",event=>{if(event.key==="Enter")submitCode(els.codeInput.value)});$("archiveBtn").onclick=()=>{els.archive.classList.remove("hidden");els.archiveText.value=encode();els.archiveFeedback.textContent=""};$("closeArchiveBtn").onclick=()=>els.archive.classList.add("hidden");$("exportBtn").onclick=async()=>{els.archiveText.value=encode();els.archiveText.select();try{await navigator.clipboard.writeText(els.archiveText.value);els.archiveFeedback.textContent="密室档案已复制。"}catch{els.archiveFeedback.textContent="档案已生成，请手动复制。"}};$("importBtn").onclick=()=>{try{profile=decode(els.archiveText.value);save();chapterIndex=Math.min(profile.unlocked,5);state=makeState();renderAll();els.archiveFeedback.textContent="导入成功。"}catch(error){els.archiveFeedback.textContent=error.message}};
+  window.__clockworkEscape={CHAPTERS,profile:()=>profile,state:()=>state,selectChapter,inspect,submitCode,hint,applyReference,validateContent,encode,decode,renderAll};renderAll();
+})();
+</script>
+</body>
 </html>
