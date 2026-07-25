@@ -1,328 +1,72 @@
 <!doctype html>
 <html lang="zh-CN">
-  <meta charset="utf-8" /><meta
-    name="viewport"
-    content="width=device-width,initial-scale=1"
-  /><title>奇想乐园</title
-  ><style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      background: #20352b;
-      color: #f7fff2;
-      font-family: system-ui, "Microsoft YaHei";
-    }
-    .app {
-      min-height: 100vh;
-      padding: 14px;
-      display: grid;
-      place-items: center;
-    }
-    .shell {
-      width: min(1000px, 100%);
-      background: #315443;
-      border: 1px solid #78a585;
-      border-radius: 20px;
-      padding: 16px;
-    }
-    .top,
-    .row,
-    .tools {
-      display: flex;
-      justify-content: space-between;
-      gap: 7px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .layout {
-      display: grid;
-      grid-template-columns: 1fr 280px;
-      gap: 12px;
-      margin-top: 12px;
-    }
-    .park {
-      display: grid;
-      grid-template-columns: repeat(10, 1fr);
-      gap: 3px;
-      background: #183329;
-      padding: 7px;
-      border-radius: 11px;
-    }
-    .cell {
-      height: 52px;
-      border: 1px solid #527765;
-      border-radius: 5px;
-      background: #4f7757;
-      font-size: 23px;
-      padding: 0;
-    }
-    .panel {
-      background: #203d31;
-      border: 1px solid #5a7f68;
-      border-radius: 11px;
-      padding: 10px;
-      margin-bottom: 9px;
-    }
-    .tools {
-      justify-content: flex-start;
-    }
-    .tools button.active {
-      outline: 3px solid #ffe06b;
-    }
-    .stat {
-      display: flex;
-      justify-content: space-between;
-      padding: 5px;
-      border-bottom: 1px solid #ffffff18;
-    }
-    .log {
-      height: 110px;
-      overflow: auto;
-      color: #c2d6c7;
-      font-size: 13px;
-    }
-    button {
-      padding: 9px 10px;
-      border: 1px solid #82a48b;
-      border-radius: 8px;
-      background: #477357;
-      color: white;
-      font-weight: bold;
-    }
-    .day {
-      background: #8d6b2e;
-    }
-    .help {
-      font-size: 13px;
-      color: #c1d5c6;
-    }
-    @media (max-width: 700px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
-      .cell {
-        height: auto;
-        aspect-ratio: 1;
-        font-size: 17px;
-      }
-      .app {
-        place-items: start center;
-      }
-    }
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>奇想乐园：六城巡回</title>
+  <style>
+    :root{--ink:#1c2929;--muted:#62716d;--paper:#fffdf4;--line:#96a39e;--green:#34735c;--blue:#397590;--gold:#b1842d;--red:#a94e49;--radius:8px;--shadow:rgba(7,18,20,.27)}*{box-sizing:border-box}body{margin:0;min-height:100vh;color:var(--ink);font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;background:linear-gradient(135deg,#173039,#36564c 56%,#554744)}button,textarea{font:inherit}.app{width:min(1460px,calc(100vw - 24px));margin:12px auto 28px}.topbar,.panel,.archive{border:1px solid var(--line);border-radius:var(--radius);background:rgba(255,253,244,.97);box-shadow:0 16px 38px var(--shadow)}.topbar{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:15px 19px}.eyebrow{margin:0 0 4px;color:#88631c;font-size:12px;font-weight:900}.topbar h1{margin:0;font-size:clamp(27px,4vw,43px);line-height:1.05}.subtitle{margin:7px 0 0;color:var(--muted);font-size:13px;line-height:1.5}.actions,.row{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.actions{justify-content:flex-end}.btn{min-height:42px;padding:0 13px;border:1px solid #285c49;border-radius:var(--radius);color:#fff;background:var(--green);font-weight:900;cursor:pointer}.btn.secondary{color:var(--ink);background:#efd17b;border-color:#9a7623}.btn.ghost{color:var(--ink);background:#edf0e9;border-color:#82938d}.btn:disabled{opacity:.46;cursor:not-allowed}.layout{display:grid;grid-template-columns:230px minmax(440px,1fr) 305px;gap:12px;margin-top:12px;align-items:start}.panel{padding:12px}.panel h2{margin:0 0 9px;font-size:16px}.scenario-list{display:grid;gap:6px}.scenario{width:100%;padding:9px;border:1px solid #a3aea8;border-radius:var(--radius);color:var(--ink);background:#faf7eb;text-align:left;cursor:pointer}.scenario strong,.scenario small{display:block}.scenario small{margin-top:3px;color:var(--muted);font-size:11px}.scenario span{float:right;color:var(--gold)}.scenario.active{border-color:var(--green);box-shadow:0 0 0 2px rgba(52,115,92,.18);background:#e7f1ea}.scenario:disabled{opacity:.46;cursor:not-allowed}.price-group{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.price{padding:8px 3px;border:1px solid #9ca9a3;border-radius:var(--radius);color:var(--ink);background:#f5f3e8;font-size:12px;font-weight:900;cursor:pointer}.price.active{border-color:var(--gold);background:#fff1c4}.park-head{display:flex;justify-content:space-between;gap:12px;margin-bottom:9px}.park-head h2{margin:0;font-size:24px}.park-head p{margin:4px 0 0;color:var(--muted);font-size:12px}.day{text-align:right;white-space:nowrap}.day b{display:block;color:var(--blue);font-size:23px}.tools{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-bottom:8px}.tool{min-width:0;min-height:54px;padding:5px 2px;border:1px solid #91a099;border-radius:var(--radius);color:var(--ink);background:#edf0e8;cursor:pointer}.tool b,.tool small{display:block}.tool b{font-size:19px}.tool small{overflow:hidden;color:var(--muted);font-size:9px;font-weight:900;white-space:nowrap;text-overflow:ellipsis}.tool.active{border-color:var(--gold);box-shadow:0 0 0 2px rgba(177,132,45,.2);background:#fff1c5}.park{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:3px;padding:7px;border:1px solid #6d817a;border-radius:var(--radius);background:#183332;aspect-ratio:1}.cell{position:relative;min-width:0;padding:0;border:1px solid #647b70;border-radius:5px;color:#fff;background:#55775c;font-size:clamp(16px,2.6vw,27px);cursor:pointer;aspect-ratio:1}.cell.path{background:#6a6f69}.cell.path:after{content:"";position:absolute;left:12%;right:12%;top:48%;height:3px;background:#e5c76a}.cell.rock{background:#626967}.cell.water{background:#39768a}.cell.disconnected{box-shadow:inset 0 0 0 3px rgba(169,78,73,.75)}.cell small{position:absolute;right:2px;bottom:1px;color:#fff;font-size:9px}.workspace-actions{margin-top:9px}.message{flex:1 1 210px;color:var(--muted);font-size:12px;font-weight:800}.stats{display:grid;grid-template-columns:1fr 1fr;gap:7px}.stat{padding:8px;border:1px solid #a6b0a9;border-radius:var(--radius);background:#f8f5e9}.stat b{display:block;color:var(--blue);font-size:20px}.stat small{color:var(--muted);font-size:10px;font-weight:800}.mix{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.mix div{padding:7px;border:1px solid #a6b0a9;border-radius:var(--radius);background:#f8f5e9;text-align:center;font-size:11px}.mix b{display:block;font-size:18px}.goal{margin-top:9px;padding:9px;border:1px solid #a6b0a9;border-radius:var(--radius);background:#f8f5e9}.goal-row{display:flex;justify-content:space-between;gap:7px;padding:4px 0;border-bottom:1px solid #d8d9ce;font-size:12px}.goal-row:last-child{border-bottom:0}.goal-row.ok{color:var(--green);font-weight:900}.event{padding:9px;border:1px solid #a6b0a9;border-radius:var(--radius);background:#fff1c8}.event strong,.event small{display:block}.event small{margin-top:3px;color:var(--muted);line-height:1.4}.log{height:118px;overflow:auto;margin-top:9px;padding:8px;border:1px solid #a6b0a9;border-radius:var(--radius);background:#f8f5e9;font-size:12px;line-height:1.55}.archive{position:fixed;z-index:20;left:50%;top:50%;width:min(620px,calc(100vw - 26px));padding:18px;transform:translate(-50%,-50%)}.archive h2{margin:0 0 7px}.archive p{margin:0 0 10px;color:var(--muted);font-size:12px}.archive textarea{width:100%;min-height:94px;padding:9px;border:1px solid var(--line);border-radius:var(--radius);resize:vertical}.feedback{min-height:20px;margin-top:7px;color:var(--green);font-size:12px;font-weight:900}.hidden{display:none!important}@media(max-width:1080px){.layout{grid-template-columns:210px minmax(420px,1fr)}.right{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:12px}.log{height:100px}}@media(max-width:760px){.app{width:calc(100vw - 14px);margin-top:7px}.topbar{display:block;padding:14px}.actions{margin-top:11px;justify-content:stretch}.actions .btn{flex:1 1 auto}.layout{grid-template-columns:1fr}.scenario-list{grid-template-columns:repeat(2,1fr)}.right{grid-column:auto;display:block}.park-head{display:block}.day{text-align:left;margin-top:7px}.tools{grid-template-columns:repeat(4,1fr)}.park{gap:2px;padding:5px}.cell{font-size:18px}.workspace-actions .btn{flex:1 1 42%}}
   </style>
+</head>
+<body>
   <main class="app">
-    <section class="shell">
-      <div class="top">
-        <div>
-          <h1 style="margin: 0">奇想乐园</h1>
-          <div class="help">
-            铺路并建造游乐设施、餐饮和景观，平衡票价、排队、清洁与游客满意度。
-          </div>
-        </div>
-        <div>
-          第 <b id="dayNo"></b>/20 天　资金 <b id="money"></b>　游客
-          <b id="guests"></b>　口碑 <b id="rating"></b>
-        </div>
-      </div>
-      <div class="tools" id="tools"></div>
-      <div class="layout">
-        <div>
-          <div class="park" id="park"></div>
-          <div class="row" style="margin-top: 9px">
-            <button class="day" id="nextDay">开园一天</button
-            ><button id="clean">全园清洁（20）</button
-            ><button id="erase">拆除</button
-            ><button id="restart">新乐园</button>
-          </div>
-        </div>
-        <aside>
-          <div class="panel">
-            <b>经营指标</b>
-            <div id="stats"></div>
-          </div>
-          <div class="panel">
-            <b>董事会目标</b>
-            <div class="help">
-              第 20 天达到 120 名游客、80
-              口碑并拥有至少四种游乐设施。道路必须从入口连通设施。
-            </div>
-          </div>
-          <div class="panel log" id="log"></div>
-        </aside>
-      </div>
+    <header class="topbar"><div><p class="eyebrow">THEME PARK SCENARIO CAMPAIGN</p><h1>奇想乐园：六城巡回</h1><p class="subtitle">游客偏好、排队容量、清洁压力和固定活动日程共同决定每座乐园的经营成绩。</p></div><div class="actions"><button class="btn" id="openBtn">开园一天</button><button class="btn secondary" id="referenceBtn">参考经营</button><button class="btn ghost" id="restartBtn">重开本城</button><button class="btn ghost" id="archiveBtn">巡回档案</button></div></header>
+    <section class="layout">
+      <aside class="panel"><h2>六城巡回</h2><div class="scenario-list" id="scenarioList"></div><h2 style="margin-top:13px">票价策略</h2><div class="price-group" id="prices"></div></aside>
+      <section class="panel"><div class="park-head"><div><h2 id="scenarioTitle"></h2><p id="scenarioBrief"></p></div><div class="day"><b>营业日 <span id="day"></span>/10</b><span>资金 <strong id="money"></strong></span></div></div><div class="tools" id="tools"></div><div class="park" id="park"></div><div class="row workspace-actions"><button class="btn" id="cleanBtn">全园清洁 · 24</button><button class="btn ghost" id="eraseBtn">拆除模式</button><span class="message" id="message"></span></div></section>
+      <aside class="right"><section class="panel"><h2>今日客群</h2><div class="event" id="event"></div><div class="mix" id="mix" style="margin-top:8px"></div><div class="stats" id="stats" style="margin-top:8px"></div><div class="goal" id="goals"></div></section><section class="panel" style="margin-top:12px"><h2>经营记录</h2><div class="log" id="log"></div></section></aside>
     </section>
   </main>
+  <section class="archive hidden" id="archive"><h2>六城巡回档案</h2><p>档案保存情景解锁、星级与最佳结余，并带有完整性校验。</p><textarea id="archiveText" spellcheck="false"></textarea><div class="row" style="margin-top:8px"><button class="btn" id="copyBtn">生成并复制</button><button class="btn secondary" id="importBtn">导入档案</button><button class="btn ghost" id="closeBtn">关闭</button></div><div class="feedback" id="feedback"></div></section>
   <script>
-    const B = {
-      path: ["道路", "·", 2],
-      wheel: ["摩天轮", "🎡", 65],
-      coaster: ["过山车", "🎢", 100],
-      carousel: ["旋转木马", "🎠", 55],
-      boat: ["漂流", "🛶", 75],
-      food: ["餐车", "🍔", 35],
-      tree: ["景观", "🌳", 18],
-      bin: ["垃圾桶", "🗑️", 12],
-    };
-    let q,
-      tool = "path";
-    const $ = (x) => document.getElementById(x);
-    function fresh() {
-      let cells = Array(80).fill(null);
-      cells[70] = "path";
-      return {
-        day: 1,
-        money: 220,
-        guests: 0,
-        rating: 55,
-        dirt: 0,
-        cells,
-        logs: ["入口位于左下角，先铺设道路。"],
-        over: false,
-      };
-    }
-    function build(i) {
-      if (tool === "erase") {
-        if (q.cells[i] && i !== 70) {
-          q.money += Math.floor(B[q.cells[i]][2] * 0.3);
-          q.cells[i] = null;
-        }
-        return draw();
-      }
-      if (q.cells[i]) return;
-      let b = B[tool];
-      if (q.money < b[2]) return;
-      q.money -= b[2];
-      q.cells[i] = tool;
-      draw();
-    }
-    function connected(i) {
-      let seen = new Set([70]),
-        stack = [70];
-      while (stack.length) {
-        let a = stack.pop(),
-          r = Math.floor(a / 10),
-          c = a % 10;
-        for (const j of [a - 10, a + 10, a - 1, a + 1])
-          if (
-            j >= 0 &&
-            j < 80 &&
-            Math.abs((j % 10) - c) + Math.abs(Math.floor(j / 10) - r) === 1 &&
-            !seen.has(j) &&
-            q.cells[j] === "path"
-          ) {
-            seen.add(j);
-            stack.push(j);
-          }
-      }
-      let r = Math.floor(i / 10),
-        c = i % 10;
-      return [i - 10, i + 10, i - 1, i + 1].some(
-        (j) =>
-          seen.has(j) &&
-          Math.abs((j % 10) - c) + Math.abs(Math.floor(j / 10) - r) === 1,
-      );
-    }
-    function next() {
-      if (q.over) return;
-      let rides = ["wheel", "coaster", "carousel", "boat"].filter((k) =>
-          q.cells.some((x, i) => x === k && connected(i)),
-        ).length,
-        food = q.cells.filter((x, i) => x === "food" && connected(i)).length,
-        trees = q.cells.filter((x) => x === "tree").length,
-        bins = q.cells.filter((x) => x === "bin").length,
-        capacity = rides * 35 + food * 8;
-      q.guests = Math.max(0, Math.round(capacity * (q.rating / 100)));
-      let income = q.guests * 2 + food * q.guests * 0.25,
-        cost = rides * 12 + food * 4;
-      q.money += Math.round(income - cost);
-      q.dirt += q.guests * 0.08 - bins * 3;
-      q.dirt = Math.max(0, q.dirt);
-      q.rating = Math.max(
-        0,
-        Math.min(
-          100,
-          Math.round(55 + trees * 2 + rides * 5 - Math.max(0, q.dirt) * 0.7),
-        ),
-      );
-      q.day++;
-      q.logs.unshift(
-        `营业收入 ${Math.round(income)}，维护 ${cost}，新增垃圾 ${Math.round(q.dirt)}。`,
-      );
-      if (q.day > 20) {
-        q.over = true;
-        q.logs.unshift(
-          q.guests >= 120 && q.rating >= 80 && rides >= 4
-            ? "乐园评级五星，经营挑战成功！"
-            : "经营期结束，仍可优化布局。",
-        );
-      }
-      draw();
-    }
-    function draw() {
-      dayNo.textContent = Math.min(20, q.day);
-      money.textContent = q.money;
-      guests.textContent = q.guests;
-      rating.textContent = q.rating;
-      tools.innerHTML = Object.entries(B)
-        .map(
-          ([k, b]) =>
-            `<button data-k="${k}" class="${tool === k ? "active" : ""}">${b[1]}${b[0]} ${b[2]}</button>`,
-        )
-        .join("");
-      tools.querySelectorAll("[data-k]").forEach(
-        (e) =>
-          (e.onclick = () => {
-            tool = e.dataset.k;
-            draw();
-          }),
-      );
-      park.innerHTML = q.cells
-        .map(
-          (x, i) =>
-            `<button class="cell" data-i="${i}">${i === 70 ? "🚪" : x ? B[x][1] : ""}</button>`,
-        )
-        .join("");
-      park
-        .querySelectorAll("[data-i]")
-        .forEach((e) => (e.onclick = () => build(+e.dataset.i)));
-      let rides = ["wheel", "coaster", "carousel", "boat"].filter((k) =>
-        q.cells.includes(k),
-      ).length;
-      stats.innerHTML = [
-        ["游乐种类", rides + "/4"],
-        ["垃圾压力", Math.round(q.dirt)],
-        ["已铺道路", q.cells.filter((x) => x === "path").length],
-        ["每日客流", q.guests],
-      ]
-        .map(
-          (x) => `<div class="stat"><span>${x[0]}</span><b>${x[1]}</b></div>`,
-        )
-        .join("");
-      log.innerHTML = q.logs
-        .slice(0, 8)
-        .map((x) => `<div>• ${x}</div>`)
-        .join("");
-      nextDay.disabled = q.over;
-    }
-    nextDay.onclick = next;
-    clean.onclick = () => {
-      if (q.money >= 20) {
-        q.money -= 20;
-        q.dirt = 0;
-        draw();
-      }
-    };
-    erase.onclick = () => {
-      tool = tool === "erase" ? "path" : "erase";
-      draw();
-    };
-    restart.onclick = () => {
-      q = fresh();
-      draw();
-    };
-    q = fresh();
-    draw();
+  (()=>{
+    const N=8,ENTRANCE=56,STORAGE="wonderParkV2",$=id=>document.getElementById(id);
+    const BUILDINGS={path:{name:"道路",icon:"·",cost:3,kind:"path"},wheel:{name:"摩天轮",icon:"🎡",cost:68,kind:"ride",capacity:27,family:8,thrill:5,scenic:7,upkeep:8},coaster:{name:"过山车",icon:"🎢",cost:96,kind:"ride",capacity:34,family:2,thrill:17,scenic:2,upkeep:13},carousel:{name:"旋转木马",icon:"🎠",cost:54,kind:"ride",capacity:28,family:15,thrill:1,scenic:5,upkeep:7},boat:{name:"漂流",icon:"🛶",cost:72,kind:"ride",capacity:25,family:5,thrill:5,scenic:15,upkeep:9},show:{name:"奇想剧场",icon:"🎭",cost:82,kind:"ride",capacity:30,family:10,thrill:4,scenic:12,upkeep:10},food:{name:"餐车",icon:"🍔",cost:34,kind:"service",family:4,thrill:2,scenic:2,upkeep:4},tree:{name:"景观",icon:"🌳",cost:17,kind:"scenery",scenic:5,upkeep:1},bin:{name:"清洁站",icon:"♻️",cost:14,kind:"service",upkeep:2}};
+    const PRICES={value:{name:"亲民票",amount:3,demand:1.16,rating:3},standard:{name:"标准票",amount:4,demand:1,rating:0},premium:{name:"精品票",amount:6,demand:.78,rating:-5}};
+    const EVENT_SEEDS=[{name:"亲子周末",text:"家庭游客增加，餐饮需求上升。",mix:[55,20,25],demand:1.05,dirt:1.05},{name:"青年结伴",text:"刺激设施成为客流核心。",mix:[22,58,20],demand:1.12,dirt:1.1},{name:"摄影日",text:"景观和慢节奏项目更受欢迎。",mix:[24,18,58],demand:.96,dirt:.86},{name:"晴空假日",text:"全客群稳定到访。",mix:[35,35,30],demand:1.18,dirt:1.15},{name:"阵雨预报",text:"室外客流下降，口碑更重要。",mix:[42,24,34],demand:.78,dirt:.72},{name:"学校春游",text:"家庭团体集中入园。",mix:[64,20,16],demand:1.24,dirt:1.22},{name:"极限社团",text:"刺激偏好显著提升。",mix:[15,70,15],demand:1.08,dirt:1.08},{name:"城市庆典",text:"三类游客共同涌入。",mix:[34,34,32],demand:1.3,dirt:1.28},{name:"银发漫游",text:"景观舒适度决定评价。",mix:[30,12,58],demand:.9,dirt:.75},{name:"闭幕烟火",text:"巡回终场带来高峰客流。",mix:[36,34,30],demand:1.34,dirt:1.3}];
+    function events(offset){return Array.from({length:10},(_,i)=>{const e=EVENT_SEEDS[(i+offset)%EVENT_SEEDS.length];return{...e,name:`${i+1}日 · ${e.name}`}})}
+    const SCENARIOS=[
+      {id:"maple",name:"枫桥亲子园",region:"枫桥",brief:"以家庭设施和整洁服务建立第一站口碑。",blocked:[1,2,9,10],terrain:"rock",budget:650,events:events(0),goal:{guests:105,rating:80,variety:4,theme:"family",themeValue:30,reserve:450,par:4}},
+      {id:"harbor",name:"蓝港水岸园",region:"蓝港",brief:"水岸景观要求更强的观景吸引力。",blocked:[3,4,11,12,19],terrain:"water",budget:645,events:events(2),goal:{guests:100,rating:82,variety:4,theme:"scenic",themeValue:32,reserve:430,par:4}},
+      {id:"ironhill",name:"铁丘动力园",region:"铁丘",brief:"青年客群期待更高刺激度与吞吐量。",blocked:[0,1,8,16,17],terrain:"rock",budget:640,events:events(1),goal:{guests:112,rating:78,variety:4,theme:"thrill",themeValue:28,reserve:420,par:4}},
+      {id:"raincity",name:"雨城四季园",region:"雨城",brief:"波动客流考验票价与维护成本控制。",blocked:[5,6,13,14,21],terrain:"water",budget:635,events:events(4),goal:{guests:96,rating:82,variety:5,theme:"family",themeValue:30,reserve:440,par:4}},
+      {id:"oldtown",name:"古城夜游园",region:"古城",brief:"用剧场和景观服务偏好慢游的客群。",blocked:[2,3,4,10,12],terrain:"rock",budget:630,events:events(8),goal:{guests:98,rating:84,variety:5,theme:"scenic",themeValue:34,reserve:430,par:4}},
+      {id:"grandtour",name:"星河总站",region:"星河",brief:"在最高客流下同时守住三类偏好与清洁。",blocked:[0,7,8,15,16,23],terrain:"water",budget:660,events:events(7),goal:{guests:118,rating:82,variety:5,theme:"balanced",themeValue:27,reserve:470,par:4}}
+    ];
+    const REFERENCE=[[57,"path"],[58,"path"],[59,"path"],[60,"path"],[61,"path"],[62,"path"],[63,"path"],[55,"path"],[47,"path"],[39,"path"],[31,"path"],[49,"carousel"],[50,"food"],[51,"wheel"],[52,"coaster"],[53,"bin"],[54,"tree"],[46,"boat"],[38,"show"],[30,"tree"],[48,"bin"]];
+    function blankProfile(){return{v:2,unlocked:0,stars:Array(6).fill(0),best:Array(6).fill(0),clears:0}}
+    function normalize(p){return{v:2,unlocked:Math.max(0,Math.min(5,+p.unlocked||0)),stars:Array.from({length:6},(_,i)=>Math.max(0,Math.min(3,+p.stars?.[i]||0))),best:Array.from({length:6},(_,i)=>Math.max(0,+p.best?.[i]||0)),clears:Math.max(0,+p.clears||0)}}
+    function load(){try{const p=JSON.parse(localStorage.getItem(STORAGE)||"null");return p?.v===2?normalize(p):blankProfile()}catch{return blankProfile()}}
+    let profile=load(),scenarioIndex=Math.min(profile.unlocked,5),state=makeState(scenarioIndex),tool="path",erasing=false;
+    function scenario(s=state){return SCENARIOS[s.scenario]}
+    function makeState(index){const sc=SCENARIOS[index],cells=Array(64).fill(null);cells[ENTRANCE]={type:"path",level:1,fixed:true};for(const i of sc.blocked)cells[i]={type:sc.terrain,level:1,fixed:true};return{scenario:index,day:1,money:sc.budget,guests:0,rating:60,dirt:0,cells,price:"standard",done:false,stars:0,metrics:null,logs:[`${sc.region}入口开放，董事会发布十日经营日程。`],message:"从左下入口延伸道路，再把设施建在道路旁。"}}
+    function adjacent(a,b){return Math.abs(Math.floor(a/N)-Math.floor(b/N))+Math.abs(a%N-b%N)===1}
+    function connectedPaths(s=state){const seen=new Set([ENTRANCE]),queue=[ENTRANCE];while(queue.length){const at=queue.shift();for(let i=0;i<64;i++)if(!seen.has(i)&&adjacent(at,i)&&s.cells[i]?.type==="path"){seen.add(i);queue.push(i)}}return seen}
+    function isConnected(s,index,paths=connectedPaths(s)){return s.cells[index]?.type==="path"?paths.has(index):Array.from(paths).some(i=>adjacent(i,index))}
+    function buildCore(s,index,type){const data=BUILDINGS[type],cell=s.cells[index];if(!data||index<0||index>=64)return{ok:false,reason:"未知设施"};if(cell?.fixed)return{ok:false,reason:"固定地形不能改造"};if(cell){if(cell.type!==type||type==="path"||cell.level>=3)return{ok:false,reason:"地块已被占用"};const cost=Math.round(data.cost*.62*cell.level);if(s.money<cost)return{ok:false,reason:`升级需要 ${cost} 资金`};s.money-=cost;cell.level++;return{ok:true,upgrade:true,cost}}if(s.money<data.cost)return{ok:false,reason:`建造需要 ${data.cost} 资金`};s.money-=data.cost;s.cells[index]={type,level:1,fixed:false};return{ok:true,cost:data.cost}}
+    function build(index){if(state.done)return false;if(erasing){const c=state.cells[index];if(c&&!c.fixed){state.money+=Math.round(BUILDINGS[c.type].cost*c.level*.28);state.cells[index]=null;state.message="设施已拆除并回收部分资金。";renderAll()}return true}const result=buildCore(state,index,tool);state.message=result.ok?(result.upgrade?`${BUILDINGS[tool].name}升级到 ${state.cells[index].level} 级。`:`${BUILDINGS[tool].name}建造完成。`):result.reason;renderAll();return result.ok}
+    function calculate(s=state,eventIndex=Math.min(9,s.day-1)){const sc=scenario(s),event=sc.events[eventIndex],paths=connectedPaths(s),facilities=s.cells.map((cell,index)=>({cell,index})).filter(x=>x.cell&&BUILDINGS[x.cell.type]&&x.cell.type!=="path"&&isConnected(s,x.index,paths)),rides=facilities.filter(x=>BUILDINGS[x.cell.type].kind==="ride"),services=facilities.filter(x=>BUILDINGS[x.cell.type].kind==="service"),variety=new Set(rides.map(x=>x.cell.type)).size,food=facilities.filter(x=>x.cell.type==="food").reduce((n,x)=>n+x.cell.level,0),bins=facilities.filter(x=>x.cell.type==="bin").reduce((n,x)=>n+x.cell.level,0),trees=facilities.filter(x=>x.cell.type==="tree").reduce((n,x)=>n+x.cell.level,0),capacity=rides.reduce((n,x)=>n+BUILDINGS[x.cell.type].capacity*(1+(x.cell.level-1)*.55),0),themes={family:0,thrill:0,scenic:trees*5};for(const x of facilities){const b=BUILDINGS[x.cell.type],mult=1+(x.cell.level-1)*.5;themes.family+=(b.family||0)*mult;themes.thrill+=(b.thrill||0)*mult;themes.scenic+=(b.scenic||0)*mult}const weighted=(themes.family*event.mix[0]+themes.thrill*event.mix[1]+themes.scenic*event.mix[2])/100,price=PRICES[s.price],baseDemand=(82+weighted*1.65+variety*5)*event.demand*price.demand,guests=Math.max(0,Math.round(Math.min(capacity,baseDemand))),queue=Math.max(0,baseDemand-capacity),rating=Math.max(0,Math.min(100,Math.round(58+variety*3+trees*3+bins*2+food*1.5+weighted*.32+price.rating-s.dirt*.7-queue*.16))),upkeep=Math.round(facilities.reduce((n,x)=>n+(BUILDINGS[x.cell.type].upkeep||0)*x.cell.level,0)),income=Math.round(guests*(price.amount+food*.78));return{event,paths,facilities,rides,variety,food,bins,trees,capacity,themes,guests,rating,upkeep,income,queue}}
+    function themeMet(metrics,goal){if(goal.theme==="balanced")return Math.min(metrics.themes.family,metrics.themes.thrill,metrics.themes.scenic)>=goal.themeValue;return metrics.themes[goal.theme]>=goal.themeValue}
+    function goalsMet(s,metrics){const g=scenario(s).goal;return s.day>=3&&metrics.guests>=g.guests&&metrics.rating>=g.rating&&metrics.variety>=g.variety&&themeMet(metrics,g)}
+    function advanceDay(s=state,testing=false){if(s.done)return resultOf(s);const sc=scenario(s),metrics=calculate(s);s.guests=metrics.guests;s.rating=metrics.rating;s.money+=metrics.income-metrics.upkeep;s.dirt=Math.max(0,s.dirt+metrics.guests*.07*metrics.event.dirt-metrics.bins*8);s.metrics=metrics;s.logs.unshift(`${metrics.event.name}：${metrics.guests} 人，收入 ${metrics.income}，维护 ${metrics.upkeep}。`);if(goalsMet(s,metrics)){s.done=true;s.stars=1+(s.money>=sc.goal.reserve?1:0)+(s.day<=sc.goal.par&&s.dirt<=12?1:0);s.message=`巡回目标达成，获得 ${s.stars} 星。`;if(!testing){profile.stars[s.scenario]=Math.max(profile.stars[s.scenario],s.stars);profile.best[s.scenario]=Math.max(profile.best[s.scenario],s.money);profile.unlocked=Math.max(profile.unlocked,Math.min(5,s.scenario+1));profile.clears++;save()}}else if(s.day>=10){s.done=true;s.stars=0;s.message="十日档期结束，仍有经营指标未达成。"}else{s.day++;s.message="今日结算完成，可调整布局和票价。"}if(!testing)renderAll();return resultOf(s)}
+    function clean(s=state,testing=false){if(s.money<24||s.done)return false;s.money-=24;s.dirt=0;s.message="全园清洁完成。";if(!testing)renderAll();return true}
+    function resultOf(s){const m=s.metrics||calculate(s);return{ok:s.done&&s.stars>0,scenario:scenario(s).id,stars:s.stars,day:s.day,money:s.money,guests:m.guests,rating:m.rating,variety:m.variety,dirt:Math.round(s.dirt),themes:{family:Math.round(m.themes.family),thrill:Math.round(m.themes.thrill),scenic:Math.round(m.themes.scenic)}}}
+    function referencePlan(){return REFERENCE.map(x=>x.slice())}
+    function simulateReference(index){const s=makeState(index);for(const [cell,type] of referencePlan(index)){const result=buildCore(s,cell,type);if(!result.ok)return{ok:false,reason:result.reason,at:[cell,type]}}let guard=0;while(!s.done&&guard++<4){if(s.dirt>5)clean(s,true);advanceDay(s,true)}return resultOf(s)}
+    function applyReference(){state=makeState(scenarioIndex);tool="path";erasing=false;for(const [cell,type] of referencePlan(scenarioIndex))buildCore(state,cell,type);let guard=0;while(!state.done&&guard++<4){if(state.dirt>5)clean(state,true);advanceDay(state,true)}const result=resultOf(state);state.message=`参考经营：${result.stars} 星 / ${result.guests} 游客 / ${result.rating} 口碑。`;renderAll();return result}
+    function validateContent(){const errors=[];for(const [i,sc] of SCENARIOS.entries()){if(sc.events.length!==10)errors.push(`events ${i}`);if(sc.blocked.some(x=>REFERENCE.some(r=>r[0]===x)))errors.push(`blocked reference ${i}`);const result=simulateReference(i);if(!result.ok||result.stars!==3)errors.push(`reference ${i}: ${JSON.stringify(result)}`)}return{valid:errors.length===0,errors,scenarios:SCENARIOS.length,days:SCENARIOS.reduce((n,s)=>n+s.events.length,0),buildings:Object.keys(BUILDINGS).length,visitorTypes:3,references:SCENARIOS.length}}
+    function save(){localStorage.setItem(STORAGE,JSON.stringify(profile))}
+    function selectScenario(index,force=false){if(index<0||index>5||(!force&&index>profile.unlocked))return false;scenarioIndex=index;state=makeState(index);tool="path";erasing=false;renderAll();return true}
+    function checksum(text){let h=2166136261;for(let i=0;i<text.length;i++){h^=text.charCodeAt(i);h=Math.imul(h,16777619)}return(h>>>0).toString(36)}
+    function encode(){const payload=btoa(unescape(encodeURIComponent(JSON.stringify({v:2,u:profile.unlocked,s:profile.stars,b:profile.best,c:profile.clears}))));return`PARK2.${payload}.${checksum(payload)}`}
+    function decode(code){const p=String(code).trim().split(".");if(p.length!==3||p[0]!=="PARK2"||checksum(p[1])!==p[2])throw Error("巡回档案校验失败");const data=JSON.parse(decodeURIComponent(escape(atob(p[1]))));if(data.v!==2)throw Error("巡回档案版本不兼容");return normalize({v:2,unlocked:data.u,stars:data.s,best:data.b,clears:data.c})}
+    function renderScenarios(){$("scenarioList").innerHTML=SCENARIOS.map((sc,i)=>`<button class="scenario ${i===scenarioIndex?"active":""}" data-scenario="${i}" ${i>profile.unlocked?"disabled":""}><span>${profile.stars[i]?"★".repeat(profile.stars[i]):i<=profile.unlocked?"待营":"锁定"}</span><strong>${i+1}. ${sc.name}</strong><small>${sc.region} · 十日档期</small></button>`).join("");$("scenarioList").querySelectorAll("[data-scenario]").forEach(b=>b.onclick=()=>selectScenario(+b.dataset.scenario))}
+    function renderPark(){const paths=connectedPaths();$("park").innerHTML=state.cells.map((c,i)=>{if(i===ENTRANCE)return`<button class="cell path" data-cell="${i}" aria-label="乐园入口">🚪</button>`;if(!c)return`<button class="cell" data-cell="${i}" aria-label="空地"></button>`;if(c.type==="rock")return`<button class="cell rock" data-cell="${i}" aria-label="岩石" disabled>◆</button>`;if(c.type==="water")return`<button class="cell water" data-cell="${i}" aria-label="水域" disabled>≈</button>`;const b=BUILDINGS[c.type],connected=isConnected(state,i,paths);return`<button class="cell ${c.type} ${connected?"":"disconnected"}" data-cell="${i}" aria-label="${b.name}${c.level>1?` ${c.level} 级`:""}${connected?"":"，未连通"}">${b.icon}${c.level>1?`<small>Lv.${c.level}</small>`:""}</button>`}).join("");$("park").querySelectorAll("[data-cell]").forEach(b=>b.onclick=()=>build(+b.dataset.cell))}
+    function renderRight(){const m=calculate(),e=m.event,g=scenario().goal;$("event").innerHTML=`<strong>${e.name}</strong><small>${e.text}</small>`;$("mix").innerHTML=[["家庭",e.mix[0]],["刺激",e.mix[1]],["观景",e.mix[2]]].map(x=>`<div><b>${x[1]}%</b>${x[0]}</div>`).join("");$("stats").innerHTML=[["游客",state.guests||m.guests],["口碑",state.rating],["容量",Math.round(m.capacity)],["垃圾",Math.round(state.dirt)],["游乐种类",m.variety],["连通设施",m.facilities.length]].map(x=>`<div class="stat"><b>${x[1]}</b><small>${x[0]}</small></div>`).join("");const themeLabel=g.theme==="family"?"家庭吸引":g.theme==="thrill"?"刺激吸引":g.theme==="scenic"?"观景吸引":"三类吸引";const themeValue=g.theme==="balanced"?Math.min(m.themes.family,m.themes.thrill,m.themes.scenic):m.themes[g.theme];const rows=[[`游客 ≥ ${g.guests}`,m.guests>=g.guests],[`口碑 ≥ ${g.rating}`,m.rating>=g.rating],[`游乐种类 ≥ ${g.variety}`,m.variety>=g.variety],[`${themeLabel} ≥ ${g.themeValue}`,themeValue>=g.themeValue]];$("goals").innerHTML=rows.map(x=>`<div class="goal-row ${x[1]?"ok":""}"><span>${x[0]}</span><b>${x[1]?"达成":"未达"}</b></div>`).join("");$("log").innerHTML=state.logs.slice(0,9).map(x=>`<div>· ${x}</div>`).join("")}
+    function renderAll(){const sc=scenario();renderScenarios();renderPark();renderRight();$("tools").innerHTML=Object.entries(BUILDINGS).map(([key,b])=>`<button class="tool ${tool===key&&!erasing?"active":""}" data-tool="${key}"><b>${b.icon}</b><small>${b.name} ${b.cost}</small></button>`).join("");$("tools").querySelectorAll("[data-tool]").forEach(b=>b.onclick=()=>{tool=b.dataset.tool;erasing=false;renderAll()});$("prices").innerHTML=Object.entries(PRICES).map(([key,p])=>`<button class="price ${state.price===key?"active":""}" data-price="${key}">${p.name}<br>${p.amount}</button>`).join("");$("prices").querySelectorAll("[data-price]").forEach(b=>b.onclick=()=>{state.price=b.dataset.price;state.message=`票价调整为${PRICES[state.price].name}。`;renderAll()});$("scenarioTitle").textContent=sc.name;$("scenarioBrief").textContent=sc.brief;$("day").textContent=Math.min(10,state.day);$("money").textContent=state.money;$("message").textContent=state.message;$("eraseBtn").textContent=erasing?"退出拆除":"拆除模式";$("openBtn").disabled=state.done;$("cleanBtn").disabled=state.done}
+    $("openBtn").onclick=()=>advanceDay();$("cleanBtn").onclick=()=>{if(!clean()){state.message="清洁需要 24 资金。";renderAll()}};$("eraseBtn").onclick=()=>{erasing=!erasing;renderAll()};$("restartBtn").onclick=()=>selectScenario(scenarioIndex,true);$("referenceBtn").onclick=applyReference;$("archiveBtn").onclick=()=>{$("archiveText").value=encode();$("feedback").textContent="";$("archive").classList.remove("hidden")};$("closeBtn").onclick=()=>$("archive").classList.add("hidden");$("copyBtn").onclick=async()=>{$("archiveText").value=encode();$("archiveText").select();try{await navigator.clipboard.writeText($("archiveText").value);$("feedback").textContent="档案已复制。"}catch{$("feedback").textContent="档案已生成，请手动复制。"}};$("importBtn").onclick=()=>{try{profile=decode($("archiveText").value);save();scenarioIndex=Math.min(profile.unlocked,5);state=makeState(scenarioIndex);$("feedback").textContent="导入成功。";renderAll()}catch(error){$("feedback").textContent=error.message}};
+    window.__wonderPark={SCENARIOS,BUILDINGS,PRICES,profile:()=>profile,state:()=>state,selectScenario,buildCore,build,calculate,advanceDay,clean,referencePlan,simulateReference,applyReference,validateContent,encode,decode,renderAll};renderAll();
+  })();
   </script>
+</body>
 </html>
