@@ -1,275 +1,78 @@
 <!doctype html>
 <html lang="zh-CN">
-  <meta charset="utf-8" /><meta
-    name="viewport"
-    content="width=device-width,initial-scale=1"
-  /><title>极速配送网</title
-  ><style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      background: #132433;
-      color: #eef8ff;
-      font-family: system-ui, "Microsoft YaHei";
-    }
-    .app {
-      min-height: 100vh;
-      padding: 14px;
-      display: grid;
-      place-items: center;
-    }
-    .shell {
-      width: min(980px, 100%);
-      background: #213d52;
-      border: 1px solid #5c7f96;
-      border-radius: 20px;
-      padding: 16px;
-    }
-    .top,
-    .row {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .stage {
-      position: relative;
-      margin: 12px 0;
-    }
-    canvas {
-      width: 100%;
-      aspect-ratio: 16/9;
-      background: #d8e1de;
-      border: 2px solid #70909a;
-      border-radius: 13px;
-      display: block;
-      touch-action: none;
-    }
-    .orders {
-      display: flex;
-      gap: 7px;
-      flex-wrap: wrap;
-    }
-    .tag {
-      padding: 6px 9px;
-      border-radius: 15px;
-      background: #315871;
-    }
-    .tag.late {
-      background: #8a3f43;
-    }
-    button {
-      padding: 9px 11px;
-      border: 1px solid #7592a2;
-      border-radius: 8px;
-      background: #3b637a;
-      color: white;
-      font-weight: bold;
-    }
-    .go {
-      background: #8f6b2b;
-    }
-    .help {
-      font-size: 13px;
-      color: #c0d2dc;
-    }
-    @media (max-width: 650px) {
-      .app {
-        place-items: start center;
-      }
-    }
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>极速配送网：三城班表</title>
+  <style>
+    :root{--ink:#17262d;--muted:#607177;--paper:#f8f6ed;--line:#93a3a6;--blue:#326f8c;--green:#34735d;--gold:#b2812a;--red:#a94d49;--radius:8px;--shadow:rgba(4,16,20,.28)}*{box-sizing:border-box}body{margin:0;min-height:100vh;color:var(--ink);font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;background:linear-gradient(135deg,#102630,#2c5250 56%,#524544)}button,textarea{font:inherit}.app{width:min(1460px,calc(100vw - 24px));margin:12px auto 28px}.topbar,.panel,.archive{border:1px solid var(--line);border-radius:var(--radius);background:rgba(248,246,237,.97);box-shadow:0 16px 38px var(--shadow)}.topbar{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:15px 19px}.eyebrow{margin:0 0 4px;color:#86621b;font-size:12px;font-weight:900}.topbar h1{margin:0;font-size:clamp(27px,4vw,43px);line-height:1.05}.subtitle{margin:7px 0 0;color:var(--muted);font-size:13px;line-height:1.5}.actions,.row{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.actions{justify-content:flex-end}.btn{min-height:42px;padding:0 13px;border:1px solid #285b72;border-radius:var(--radius);color:#fff;background:var(--blue);font-weight:900;cursor:pointer}.btn.secondary{color:var(--ink);background:#efd17a;border-color:#98731e}.btn.ghost{color:var(--ink);background:#e9edeb;border-color:#81918f}.btn:disabled{opacity:.46;cursor:not-allowed}.layout{display:grid;grid-template-columns:230px minmax(520px,1fr) 300px;gap:12px;margin-top:12px;align-items:start}.panel{padding:12px}.panel h2{margin:0 0 9px;font-size:16px}.shift-list{display:grid;gap:6px;max-height:660px;overflow:auto}.shift{width:100%;padding:9px;border:1px solid #a2ada9;border-radius:var(--radius);color:var(--ink);background:#f5f4e9;text-align:left;cursor:pointer}.shift strong,.shift small{display:block}.shift small{margin-top:3px;color:var(--muted);font-size:10px}.shift span{float:right;color:var(--gold)}.shift.active{border-color:var(--blue);box-shadow:0 0 0 2px rgba(50,111,140,.18);background:#e5eff2}.shift:disabled{opacity:.45;cursor:not-allowed}.vans{display:grid;gap:6px}.van{padding:8px;border:1px solid #9ba8a4;border-radius:var(--radius);color:var(--ink);background:#f5f4e9;text-align:left;cursor:pointer}.van strong,.van small{display:block}.van small{margin-top:2px;color:var(--muted);font-size:10px}.van.active{border-color:var(--gold);background:#fff0c2}.route-head{display:flex;justify-content:space-between;gap:12px;margin-bottom:8px}.route-head h2{margin:0;font-size:24px}.route-head p{margin:4px 0 0;color:var(--muted);font-size:12px}.clock{text-align:right;white-space:nowrap}.clock b{display:block;color:var(--blue);font-size:22px}.stage{position:relative;overflow:hidden;border:1px solid #6d8182;border-radius:var(--radius);background:#dce4df;aspect-ratio:16/9}canvas{display:block;width:100%;height:100%;touch-action:none}.route-chips,.orders{display:flex;gap:6px;flex-wrap:wrap}.route-chips{min-height:38px;margin-top:8px;padding:6px;border:1px solid #a2ada9;border-radius:var(--radius);background:#f5f4e9}.chip,.order{padding:5px 8px;border:1px solid #9ba8a4;border-radius:6px;background:#fffdf4;font-size:11px;font-weight:800}.chip{color:var(--blue)}.order.late{border-color:var(--red);color:var(--red)}.order.done{border-color:var(--green);color:var(--green)}.workspace-actions{margin-top:8px}.message{flex:1 1 220px;color:var(--muted);font-size:12px;font-weight:800}.stats{display:grid;grid-template-columns:1fr 1fr;gap:7px}.stat{padding:8px;border:1px solid #a2ada9;border-radius:var(--radius);background:#f5f4e9}.stat b{display:block;color:var(--blue);font-size:20px}.stat small{color:var(--muted);font-size:10px;font-weight:800}.goal{margin-top:9px;padding:9px;border:1px solid #a2ada9;border-radius:var(--radius);background:#f5f4e9}.goal-row{display:flex;justify-content:space-between;gap:7px;padding:4px 0;border-bottom:1px solid #d5d8d3;font-size:12px}.goal-row:last-child{border-bottom:0}.goal-row.ok{color:var(--green);font-weight:900}.traffic{padding:9px;border:1px solid #a2ada9;border-radius:var(--radius);background:#fff0c6;font-size:12px;line-height:1.5}.log{height:130px;overflow:auto;margin-top:9px;padding:8px;border:1px solid #a2ada9;border-radius:var(--radius);background:#f5f4e9;font-size:12px;line-height:1.55}.archive{position:fixed;z-index:20;left:50%;top:50%;width:min(620px,calc(100vw - 26px));padding:18px;transform:translate(-50%,-50%)}.archive h2{margin:0 0 7px}.archive p{margin:0 0 10px;color:var(--muted);font-size:12px}.archive textarea{width:100%;min-height:94px;padding:9px;border:1px solid var(--line);border-radius:var(--radius);resize:vertical}.feedback{min-height:20px;margin-top:7px;color:var(--green);font-size:12px;font-weight:900}.hidden{display:none!important}@media(max-width:1080px){.layout{grid-template-columns:210px minmax(500px,1fr)}.right{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:12px}.log{height:100px}}@media(max-width:760px){.app{width:calc(100vw - 14px);margin-top:7px}.topbar{display:block;padding:14px}.actions{margin-top:11px;justify-content:stretch}.actions .btn{flex:1 1 auto}.layout{grid-template-columns:1fr}.shift-list{grid-template-columns:repeat(2,1fr);max-height:none}.right{grid-column:auto;display:block}.route-head{display:block}.clock{text-align:left;margin-top:7px}.stage{min-height:0}.workspace-actions .btn{flex:1 1 42%}}
   </style>
+</head>
+<body>
   <main class="app">
-    <section class="shell">
-      <div class="top">
-        <div>
-          <h1 style="margin: 0">极速配送网</h1>
-          <div class="help">
-            点击站点规划配送顺序，兼顾距离和倒计时；车辆出发后会按路线自动送达。
-          </div>
-        </div>
-        <div>
-          班次 <b id="shift"></b>/8　时间 <b id="time"></b>　收入
-          <b id="money"></b>　准时率 <b id="rate"></b>%
-        </div>
-      </div>
-      <div class="stage"><canvas id="c" width="960" height="540"></canvas></div>
-      <div class="orders" id="orders"></div>
-      <div class="row" style="margin-top: 9px">
-        <button class="go" id="dispatch">发车</button
-        ><button id="undo">撤销末站</button
-        ><button id="newShift">下一班次</button
-        ><button id="restart">新事业</button><span id="msg"></span>
-      </div>
+    <header class="topbar"><div><p class="eyebrow">DETERMINISTIC ROUTE CAMPAIGN</p><h1>极速配送网：三城班表</h1><p class="subtitle">固定订单、道路拥堵、车型容量和截止时间共同组成十二场可计算、可复盘的配送班次。</p></div><div class="actions"><button class="btn" id="dispatchBtn">确认发车</button><button class="btn secondary" id="referenceBtn">参考路线</button><button class="btn ghost" id="restartBtn">重排班次</button><button class="btn ghost" id="archiveBtn">事业档案</button></div></header>
+    <section class="layout">
+      <aside class="panel"><h2>三城十二班</h2><div class="shift-list" id="shiftList"></div><h2 style="margin-top:13px">配送车型</h2><div class="vans" id="vans"></div></aside>
+      <section class="panel"><div class="route-head"><div><h2 id="shiftTitle"></h2><p id="shiftBrief"></p></div><div class="clock"><b>预计 <span id="eta"></span> 分钟</b><span>标杆 <strong id="par"></strong> 分钟</span></div></div><div class="stage"><canvas id="mapCanvas" width="960" height="540" aria-label="配送路网与车辆路线"></canvas></div><div class="route-chips" id="routeChips"></div><div class="orders" id="orders" style="margin-top:7px"></div><div class="row workspace-actions"><button class="btn" id="undoBtn">撤销末站</button><button class="btn ghost" id="clearBtn">清空路线</button><span class="message" id="message"></span></div></section>
+      <aside class="right"><section class="panel"><h2>班次预测</h2><div class="traffic" id="traffic"></div><div class="stats" id="stats" style="margin-top:8px"></div><div class="goal" id="goals"></div></section><section class="panel" style="margin-top:12px"><h2>调度记录</h2><div class="log" id="log"></div></section></aside>
     </section>
   </main>
+  <section class="archive hidden" id="archive"><h2>三城配送事业档案</h2><p>档案保存班次解锁、星级和最佳用时，并带有完整性校验。</p><textarea id="archiveText" spellcheck="false"></textarea><div class="row" style="margin-top:8px"><button class="btn" id="copyBtn">生成并复制</button><button class="btn secondary" id="importBtn">导入档案</button><button class="btn ghost" id="closeBtn">关闭</button></div><div class="feedback" id="feedback"></div></section>
   <script>
-    const cv = document.getElementById("c"),
-      g = cv.getContext("2d"),
-      pts = [
-        [100, 270],
-        [230, 90],
-        [310, 390],
-        [480, 170],
-        [590, 410],
-        [730, 100],
-        [850, 300],
-      ];
-    let q,
-      last = 0;
-    const $ = (x) => document.getElementById(x);
-    function fresh() {
-      return {
-        shift: 1,
-        time: 90,
-        money: 0,
-        on: 0,
-        total: 0,
-        orders: [],
-        route: [0],
-        van: { at: 0, t: 0, moving: false },
-        done: false,
-      };
-    }
-    function setup() {
-      q.time = 75 + q.shift * 3;
-      q.orders = Array.from({ length: 3 + Math.min(3, q.shift) }, (_, i) => ({
-        to: 1 + Math.floor(Math.random() * 6),
-        deadline: 28 + Math.random() * 45,
-        done: false,
-      }));
-      q.route = [0];
-      q.van = { at: 0, t: 0, moving: false };
-      q.done = false;
-      drawUI();
-    }
-    function click(e) {
-      if (q.van.moving) return;
-      let r = cv.getBoundingClientRect(),
-        x = ((e.clientX - r.left) * 960) / r.width,
-        y = ((e.clientY - r.top) * 540) / r.height,
-        i = pts.findIndex((p) => Math.hypot(p[0] - x, p[1] - y) < 28);
-      if (i > 0) q.route.push(i);
-      drawUI();
-    }
-    function update(dt) {
-      if (!q.van.moving || q.done) return;
-      q.time -= dt;
-      for (const o of q.orders) if (!o.done) o.deadline -= dt;
-      let idx = q.van.at;
-      if (idx >= q.route.length - 1) {
-        q.van.moving = false;
-        q.done = true;
-        q.total += q.orders.filter((o) => !o.done).length;
-        msg.textContent = "班次完成，可进入下一班。";
-        drawUI();
-        return;
-      }
-      let a = pts[q.route[idx]],
-        b = pts[q.route[idx + 1]],
-        dist = Math.hypot(b[0] - a[0], b[1] - a[1]);
-      q.van.t += (dt * 105) / dist;
-      if (q.van.t >= 1) {
-        q.van.at++;
-        q.van.t = 0;
-        let stop = q.route[q.van.at];
-        for (const o of q.orders)
-          if (!o.done && o.to === stop) {
-            o.done = true;
-            q.total++;
-            if (o.deadline >= 0) {
-              q.on++;
-              q.money += 25 + Math.round(o.deadline);
-            } else q.money += 8;
-          }
-      }
-      if (q.time <= 0) {
-        q.van.moving = false;
-        q.done = true;
-        msg.textContent = "工作时间结束。";
-      }
-      drawUI();
-    }
-    function render(t) {
-      let dt = Math.min(0.05, (t - last) / 1000 || 0);
-      last = t;
-      update(dt);
-      g.fillStyle = "#d8e1de";
-      g.fillRect(0, 0, 960, 540);
-      g.strokeStyle = "#91a6a4";
-      g.lineWidth = 10;
-      for (let i = 0; i < pts.length; i++)
-        for (let j = i + 1; j < pts.length; j++)
-          if ((i + j) % 3 !== 0) {
-            g.beginPath();
-            g.moveTo(...pts[i]);
-            g.lineTo(...pts[j]);
-            g.stroke();
-          }
-      if (q.route.length > 1) {
-        g.strokeStyle = "#e08b36";
-        g.lineWidth = 6;
-        g.beginPath();
-        q.route.forEach((i, k) =>
-          k ? g.lineTo(...pts[i]) : g.moveTo(...pts[i]),
-        );
-        g.stroke();
-      }
-      pts.forEach((p, i) => {
-        g.fillStyle = i ? "#fff" : "#3478a0";
-        g.strokeStyle = "#263d48";
-        g.lineWidth = 3;
-        g.beginPath();
-        g.arc(p[0], p[1], 24, 0, 7);
-        g.fill();
-        g.stroke();
-        g.fillStyle = "#222";
-        g.font = "16px sans-serif";
-        g.textAlign = "center";
-        g.fillText(i ? "站" + i : "仓", p[0], p[1] + 5);
-      });
-      let a = pts[q.route[q.van.at]],
-        b = pts[q.route[Math.min(q.van.at + 1, q.route.length - 1)]],
-        x = a[0] + (b[0] - a[0]) * q.van.t,
-        y = a[1] + (b[1] - a[1]) * q.van.t;
-      g.font = "28px serif";
-      g.fillText("🚚", x, y);
-      requestAnimationFrame(render);
-    }
-    function drawUI() {
-      shift.textContent = q.shift;
-      time.textContent = Math.max(0, Math.ceil(q.time));
-      money.textContent = q.money;
-      rate.textContent = q.total ? Math.round((q.on / q.total) * 100) : 100;
-      orders.innerHTML = q.orders
-        .map(
-          (o) =>
-            `<span class="tag ${o.deadline < 0 && !o.done ? "late" : ""}">${o.done ? "✓" : "📦"} 站${o.to} · ${Math.ceil(o.deadline)}秒</span>`,
-        )
-        .join("");
-      dispatch.disabled = q.van.moving || q.route.length < 2 || q.done;
-      newShift.disabled = !q.done;
-    }
-    cv.onclick = click;
-    dispatch.onclick = () => (q.van.moving = true);
-    undo.onclick = () => {
-      if (!q.van.moving && q.route.length > 1) q.route.pop();
-    };
-    newShift.onclick = () => {
-      if (q.shift < 8) {
-        q.shift++;
-        setup();
-      } else msg.textContent = "八个班次全部完成！";
-    };
-    restart.onclick = () => {
-      q = fresh();
-      setup();
-    };
-    q = fresh();
-    setup();
-    requestAnimationFrame(render);
+  (()=>{
+    const STORAGE="courierGridV2",$=id=>document.getElementById(id),canvas=$("mapCanvas"),ctx=canvas.getContext("2d");
+    const VANS={swift:{name:"燕隼快运",text:"4 单容量 · 速度 1.18×",capacity:4,speed:1.18,service:1},standard:{name:"蓝线厢车",text:"6 单容量 · 装卸加快",capacity:6,speed:1,service:.82},cargo:{name:"重载方舟",text:"8 单容量 · 速度 0.92×",capacity:8,speed:.92,service:.7}};
+    const CITIES=[
+      {name:"澄川",nodes:[["总站",110,280],["北港",230,85],["南市",285,435],["医院",465,155],["学园",530,410],["高铁",730,90],["新城",850,300],["滨河",690,315]],edges:[[0,1,12],[0,2,10],[1,3,10],[2,3,12],[2,4,9],[3,4,11],[3,5,11],[3,7,9],[4,7,8],[4,6,13],[5,6,11],[5,7,9],[6,7,8]]},
+      {name:"岚港",nodes:[["总站",115,270],["旧街",260,100],["船坞",235,420],["会展",455,270],["机场",655,90],["花园",620,430],["科技园",850,170],["海湾",845,390]],edges:[[0,1,11],[0,2,11],[1,3,10],[2,3,10],[2,5,13],[3,4,12],[3,5,11],[3,6,15],[4,6,10],[5,6,12],[5,7,9],[6,7,8]]},
+      {name:"星丘",nodes:[["总站",105,285],["观测站",260,75],["矿谷",280,450],["中枢",470,270],["实验室",610,100],["温室",615,430],["东站",850,130],["居住环",850,390]],edges:[[0,1,13],[0,2,10],[1,3,11],[1,4,14],[2,3,10],[2,5,12],[3,4,10],[3,5,10],[3,7,15],[4,6,10],[4,7,13],[5,7,9],[6,7,9]]}
+    ];
+    const SEEDS=[
+      [0,"晨港首班","通勤高峰前完成四站基础配送。",[1,3,2,4],0],[0,"医院急件","北港主路拥堵，急件必须优先。",[3,1,5,7,4],3],[0,"滨河冷链","冷链订单横跨东西两岸。",[2,4,7,6,5],7],[0,"雨夜联运","六站全覆盖，避免重复绕行。",[2,1,3,5,6,4],10],
+      [1,"旧街补给","船坞与旧街需要短线接驳。",[2,1,3,5],1],[1,"会展开幕","会展急件之后衔接机场货物。",[3,4,6,7,5],4],[1,"海湾生鲜","先保冷链，再处理科技园器材。",[2,5,7,6,4],8],[1,"台风窗口","在道路限速前完成六站派送。",[1,3,4,6,7,5],11],
+      [2,"星丘轮值","观测站与矿谷同时交班。",[1,2,3,5],2],[2,"实验舱件","中枢、实验室和东站连续加急。",[3,4,6,7,5],5],[2,"温室保鲜","低温货物要在居住环前送达。",[2,5,7,6,4],9],[2,"轨道封窗","最终班表覆盖全城六站。",[1,4,6,7,5,2],12]
+    ];
+    function makeShift(seed,index){const [city,name,brief,stops,trafficEdge]=seed,kinds=["急件","冷链","易碎","普件"];return{id:`shift-${index+1}`,city,name,brief,stops:stops.slice(),orders:stops.map((to,i)=>({id:`${index+1}-${i+1}`,to,kind:kinds[(i+index)%4],deadline:30+i*21+(index%4)*2,service:3+(i%2),reward:42+i*5})),trafficEdge,traffic:index%4===3?1.65:1.42,par:68+stops.length*12}}
+    const SHIFTS=SEEDS.map(makeShift);
+    function blankProfile(){return{v:2,unlocked:0,stars:Array(12).fill(0),best:Array(12).fill(0),clears:0}}
+    function normalize(p){return{v:2,unlocked:Math.max(0,Math.min(11,+p.unlocked||0)),stars:Array.from({length:12},(_,i)=>Math.max(0,Math.min(3,+p.stars?.[i]||0))),best:Array.from({length:12},(_,i)=>Math.max(0,+p.best?.[i]||0)),clears:Math.max(0,+p.clears||0)}}
+    function load(){try{const p=JSON.parse(localStorage.getItem(STORAGE)||"null");return p?.v===2?normalize(p):blankProfile()}catch{return blankProfile()}}
+    let profile=load(),shiftIndex=Math.min(profile.unlocked,11),vanId="standard",state=makeState(shiftIndex),last=performance.now(),dpr=1,w=960,h=540;
+    function shift(s=state){return SHIFTS[s.shift]}
+    function city(s=state){return CITIES[shift(s).city]}
+    function makeState(index){return{shift:index,route:[0],mode:"plan",elapsed:0,result:null,animation:null,logs:[`${SHIFTS[index].name}班表已载入，订单和拥堵均为固定数据。`],message:"点击站点依次加入路线；发车时会自动规划每段最短道路并返回总站。"}}
+    function edgeKey(a,b){return a<b?`${a}-${b}`:`${b}-${a}`}
+    function edgeWeight(sc,a,b,base){const congested=CITIES[sc.city].edges[sc.trafficEdge];return edgeKey(a,b)===edgeKey(congested[0],congested[1])?base*sc.traffic:base}
+    function shortest(sc,from,to){const c=CITIES[sc.city],dist=Array(c.nodes.length).fill(Infinity),prev=Array(c.nodes.length).fill(-1),open=new Set(c.nodes.map((_,i)=>i));dist[from]=0;while(open.size){let at=-1;for(const i of open)if(at<0||dist[i]<dist[at])at=i;if(at===to||!Number.isFinite(dist[at]))break;open.delete(at);for(const [a,b,base] of c.edges){if(a!==at&&b!==at)continue;const next=a===at?b:a;if(!open.has(next))continue;const value=dist[at]+edgeWeight(sc,at,next,base);if(value<dist[next]){dist[next]=value;prev[next]=at}}}if(!Number.isFinite(dist[to]))return{distance:Infinity,path:[]};const path=[];for(let at=to;at!==-1;at=prev[at])path.unshift(at);return{distance:dist[to],path}}
+    function expandedPath(sc,route){const out=[route[0]];for(let i=1;i<route.length;i++){const leg=shortest(sc,route[i-1],route[i]);out.push(...leg.path.slice(1))}return out}
+    function simulateRoute(index,route,vehicle=vanId){const sc=SHIFTS[index],van=VANS[vehicle],stops=route[0]===0?route.slice():[0,...route],full=stops.at(-1)===0?stops:[...stops,0];if(sc.orders.length>van.capacity)return{valid:false,reason:`${van.name}只能装载 ${van.capacity} 单`,stars:0,route:full};let elapsed=0,distance=0,onTime=0,delivered=0,money=0,served=new Set();for(let i=1;i<full.length;i++){const leg=shortest(sc,full[i-1],full[i]);if(!Number.isFinite(leg.distance))return{valid:false,reason:"路线不连通",stars:0,route:full};const travel=leg.distance/van.speed;elapsed+=travel;distance+=leg.distance;for(const order of sc.orders)if(order.to===full[i]&&!served.has(order.id)){elapsed+=order.service*van.service;served.add(order.id);delivered++;if(elapsed<=order.deadline){onTime++;money+=order.reward}else money+=Math.round(order.reward*.35)}}const success=delivered===sc.orders.length,stars=success?1+(onTime===delivered?1:0)+(elapsed<=sc.par?1:0):0;return{valid:true,success,stars,route:full,elapsed:+elapsed.toFixed(1),distance:+distance.toFixed(1),delivered,onTime,late:delivered-onTime,money,expanded:expandedPath(sc,full)}}
+    function permutations(items){const out=[];function visit(prefix,left){if(!left.length)return out.push(prefix);for(let i=0;i<left.length;i++)visit([...prefix,left[i]],[...left.slice(0,i),...left.slice(i+1)])}visit([],items);return out}
+    function solveShift(index){const sc=SHIFTS[index],unique=[...new Set(sc.orders.map(o=>o.to))];let best=null;for(const vehicle of Object.keys(VANS))for(const order of permutations(unique)){const result=simulateRoute(index,[0,...order,0],vehicle);if(!result.valid)continue;const candidate={...result,vehicle};if(!best||candidate.stars>best.stars||candidate.stars===best.stars&&candidate.late<best.late||candidate.stars===best.stars&&candidate.late===best.late&&candidate.elapsed<best.elapsed)best=candidate}return best}
+    function prediction(){return simulateRoute(shiftIndex,state.route,vanId)}
+    function addStop(index){if(state.mode!=="plan"||index===0||state.route.at(-1)===index)return false;state.route.push(index);state.message=`已加入${city().nodes[index][0]}，可继续规划或确认发车。`;renderAll();return true}
+    function finish(s=state,result=simulateRoute(s.shift,s.route,vanId),testing=false){s.mode="result";s.result=result;s.elapsed=result.elapsed||0;s.animation=null;s.message=result.success?`班次完成：${result.stars} 星，${result.onTime}/${result.delivered} 单准时。`:`班次完成，但仍有订单未覆盖。`;s.logs.unshift(`${result.elapsed||0} 分钟 / ${result.delivered} 单送达 / ${result.onTime} 单准时。`);if(result.success&&!testing){profile.stars[s.shift]=Math.max(profile.stars[s.shift],result.stars);profile.best[s.shift]=profile.best[s.shift]?Math.min(profile.best[s.shift],result.elapsed):result.elapsed;profile.unlocked=Math.max(profile.unlocked,Math.min(11,s.shift+1));profile.clears++;save()}if(!testing)renderAll();return result}
+    function dispatch(){if(state.mode!=="plan")return false;const result=prediction();if(!result.valid){state.message=result.reason;renderAll();return false}state.route=result.route;state.mode="run";state.animation={path:result.expanded,segment:0,progress:0,result};state.message="车辆已经发出，正在按最短道路行驶。";renderAll();return true}
+    function step(dt,s=state,testing=false){if(s.mode!=="run"||!s.animation)return false;const a=s.animation,sc=shift(s);if(a.segment>=a.path.length-1){finish(s,a.result,testing);return true}const from=a.path[a.segment],to=a.path[a.segment+1],edge=CITIES[sc.city].edges.find(e=>edgeKey(e[0],e[1])===edgeKey(from,to)),weight=edgeWeight(sc,from,to,edge[2]);a.progress+=dt*7*VANS[vanId].speed/weight;s.elapsed=Math.min(a.result.elapsed,s.elapsed+dt*7);if(a.progress>=1){a.segment++;a.progress=0}if(a.segment>=a.path.length-1)finish(s,a.result,testing);return true}
+    function finishInstant(){if(state.mode==="plan"&&!dispatch())return null;if(state.mode==="run")return finish(state,state.animation.result,false);return state.result}
+    function applyReference(){const solved=solveShift(shiftIndex);vanId=solved.vehicle;state=makeState(shiftIndex);state.route=solved.route;finish(state,solved,true);state.message=`参考路线：${solved.stars} 星 / ${solved.elapsed} 分钟 / ${VANS[solved.vehicle].name}。`;renderAll();return solved}
+    function validateContent(){const errors=[];const refs=[];for(let i=0;i<SHIFTS.length;i++){const result=solveShift(i);refs.push(result);if(!result||result.stars!==3)errors.push(`reference ${i}: ${JSON.stringify(result)}`)}return{valid:errors.length===0,errors,cities:CITIES.length,shifts:SHIFTS.length,orders:SHIFTS.reduce((n,s)=>n+s.orders.length,0),vans:Object.keys(VANS).length,references:refs.length}}
+    function save(){localStorage.setItem(STORAGE,JSON.stringify(profile))}
+    function selectShift(index,force=false){if(index<0||index>11||(!force&&index>profile.unlocked))return false;shiftIndex=index;state=makeState(index);renderAll();return true}
+    function selectVan(id){if(!VANS[id]||state.mode!=="plan")return false;vanId=id;state.message=`已选择${VANS[id].name}。`;renderAll();return true}
+    function checksum(text){let h=2166136261;for(let i=0;i<text.length;i++){h^=text.charCodeAt(i);h=Math.imul(h,16777619)}return(h>>>0).toString(36)}
+    function encode(){const payload=btoa(unescape(encodeURIComponent(JSON.stringify({v:2,u:profile.unlocked,s:profile.stars,b:profile.best,c:profile.clears}))));return`COURIER2.${payload}.${checksum(payload)}`}
+    function decode(code){const p=String(code).trim().split(".");if(p.length!==3||p[0]!=="COURIER2"||checksum(p[1])!==p[2])throw Error("配送档案校验失败");const data=JSON.parse(decodeURIComponent(escape(atob(p[1]))));if(data.v!==2)throw Error("配送档案版本不兼容");return normalize({v:2,unlocked:data.u,stars:data.s,best:data.b,clears:data.c})}
+    function resize(){const r=canvas.getBoundingClientRect();dpr=Math.max(1,Math.min(2,devicePixelRatio||1));w=Math.max(320,r.width);h=Math.max(220,r.height);canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);draw()}
+    function point(node){return{x:node[1]/960*w,y:node[2]/540*h}}
+    function draw(){ctx.clearRect(0,0,w,h);ctx.fillStyle="#dce4df";ctx.fillRect(0,0,w,h);const c=city(),sc=shift();ctx.lineCap="round";for(const [index,[a,b]] of c.edges.entries()){const pa=point(c.nodes[a]),pb=point(c.nodes[b]),busy=index===sc.trafficEdge;ctx.strokeStyle=busy?"#b85a4e":"#91a5a0";ctx.lineWidth=busy?8:6;ctx.beginPath();ctx.moveTo(pa.x,pa.y);ctx.lineTo(pb.x,pb.y);ctx.stroke()}if(state.route.length>1){ctx.strokeStyle="#d58a31";ctx.lineWidth=5;ctx.setLineDash([10,7]);ctx.beginPath();const expanded=expandedPath(sc,state.route.at(-1)===0?state.route:[...state.route,0]);expanded.forEach((node,i)=>{const p=point(c.nodes[node]);i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y)});ctx.stroke();ctx.setLineDash([])}for(const [i,node] of c.nodes.entries()){const p=point(node),needed=sc.orders.some(o=>o.to===i);ctx.fillStyle=i===0?"#326f8c":needed?"#fff4c7":"#fffdf4";ctx.strokeStyle="#28434a";ctx.lineWidth=2;ctx.beginPath();ctx.arc(p.x,p.y,Math.max(15,w*.019),0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle="#17262d";ctx.font=`900 ${Math.max(10,w*.014)}px system-ui`;ctx.textAlign="center";ctx.fillText(node[0],p.x,p.y+4)}if(state.animation){const a=state.animation,from=point(c.nodes[a.path[Math.min(a.segment,a.path.length-1)]]),to=point(c.nodes[a.path[Math.min(a.segment+1,a.path.length-1)]]),x=from.x+(to.x-from.x)*a.progress,y=from.y+(to.y-from.y)*a.progress;ctx.font=`${Math.max(22,w*.03)}px serif`;ctx.fillText("🚚",x,y)} }
+    function renderShiftList(){$("shiftList").innerHTML=SHIFTS.map((s,i)=>`<button class="shift ${i===shiftIndex?"active":""}" data-shift="${i}" ${i>profile.unlocked?"disabled":""}><span>${profile.stars[i]?"★".repeat(profile.stars[i]):i<=profile.unlocked?"待发":"锁定"}</span><strong>${i+1}. ${s.name}</strong><small>${CITIES[s.city].name} · ${s.orders.length} 单 · ${s.par} 分标杆</small></button>`).join("");$("shiftList").querySelectorAll("[data-shift]").forEach(b=>b.onclick=()=>selectShift(+b.dataset.shift))}
+    function renderRight(){const pred=prediction(),sc=shift(),c=city(),edge=c.edges[sc.trafficEdge],delivered=pred.delivered||0,onTime=pred.onTime||0;$("traffic").innerHTML=`<strong>${c.name}路况</strong><br>${c.nodes[edge[0]][0]}—${c.nodes[edge[1]][0]}拥堵 ${sc.traffic.toFixed(2)}×；其他道路通行正常。`;$("stats").innerHTML=[["覆盖订单",`${delivered}/${sc.orders.length}`],["预计准时",onTime],["预计用时",pred.elapsed||0],["路线站次",Math.max(0,state.route.length-1)],["车型容量",VANS[vanId].capacity],["预计收入",pred.money||0]].map(x=>`<div class="stat"><b>${x[1]}</b><small>${x[0]}</small></div>`).join("");const rows=[["送达全部订单",pred.success],["全部订单准时",pred.success&&pred.onTime===pred.delivered],[`用时 ≤ ${sc.par}`,pred.valid&&pred.elapsed<=sc.par]];$("goals").innerHTML=rows.map(x=>`<div class="goal-row ${x[1]?"ok":""}"><span>${x[0]}</span><b>${x[1]?"达成":"未达"}</b></div>`).join("");$("log").innerHTML=state.logs.slice(0,9).map(x=>`<div>· ${x}</div>`).join("")}
+    function renderAll(){const sc=shift(),c=city(),pred=prediction();renderShiftList();renderRight();$("vans").innerHTML=Object.entries(VANS).map(([id,v])=>`<button class="van ${vanId===id?"active":""}" data-van="${id}" ${state.mode!=="plan"?"disabled":""}><strong>${v.name}</strong><small>${v.text}</small></button>`).join("");$("vans").querySelectorAll("[data-van]").forEach(b=>b.onclick=()=>selectVan(b.dataset.van));$("shiftTitle").textContent=`${c.name} · ${sc.name}`;$("shiftBrief").textContent=sc.brief;$("eta").textContent=pred.elapsed||0;$("par").textContent=sc.par;$("routeChips").innerHTML=state.route.map((node,i)=>`<span class="chip">${i?"→ ":""}${c.nodes[node][0]}</span>`).join("");$("orders").innerHTML=sc.orders.map(o=>`<span class="order ${state.result&&state.result.onTime<state.result.delivered?"":""}">📦 ${c.nodes[o.to][0]} · ${o.kind} · ${o.deadline}分</span>`).join("");$("message").textContent=state.message;$("dispatchBtn").disabled=state.mode!=="plan"||state.route.length<2;$("undoBtn").disabled=state.mode!=="plan"||state.route.length<2;$("clearBtn").disabled=state.mode!=="plan";draw()}
+    function pointer(e){const r=canvas.getBoundingClientRect();return{x:(e.clientX-r.left)/r.width*960,y:(e.clientY-r.top)/r.height*540}}
+    canvas.addEventListener("pointerdown",e=>{if(state.mode!=="plan")return;const p=pointer(e),index=city().nodes.findIndex(node=>Math.hypot(node[1]-p.x,node[2]-p.y)<38);if(index>0)addStop(index)});$("dispatchBtn").onclick=dispatch;$("undoBtn").onclick=()=>{if(state.route.length>1)state.route.pop();state.message="已撤销末站。";renderAll()};$("clearBtn").onclick=()=>{state.route=[0];state.message="路线已清空。";renderAll()};$("restartBtn").onclick=()=>selectShift(shiftIndex,true);$("referenceBtn").onclick=applyReference;$("archiveBtn").onclick=()=>{$("archiveText").value=encode();$("feedback").textContent="";$("archive").classList.remove("hidden")};$("closeBtn").onclick=()=>$("archive").classList.add("hidden");$("copyBtn").onclick=async()=>{$("archiveText").value=encode();$("archiveText").select();try{await navigator.clipboard.writeText($("archiveText").value);$("feedback").textContent="档案已复制。"}catch{$("feedback").textContent="档案已生成，请手动复制。"}};$("importBtn").onclick=()=>{try{profile=decode($("archiveText").value);save();shiftIndex=Math.min(profile.unlocked,11);state=makeState(shiftIndex);$("feedback").textContent="导入成功。";renderAll()}catch(error){$("feedback").textContent=error.message}};window.addEventListener("resize",resize);
+    function loop(now){const dt=Math.min(.05,(now-last)/1000||.016);last=now;if(state.mode==="run"){step(dt);draw()}requestAnimationFrame(loop)}
+    window.__courierGrid={CITIES,SHIFTS,VANS,profile:()=>profile,state:()=>state,selectShift,selectVan,addStop,simulateRoute,solveShift,dispatch,step,finishInstant,applyReference,validateContent,encode,decode,renderAll};resize();renderAll();requestAnimationFrame(loop);
+  })();
   </script>
+</body>
 </html>
