@@ -154,7 +154,7 @@
 | A | [钟楼密室：六刻回廊](https://wangzifan396-wzf.github.io/mini-browser-games/clockwork-escape.html) | 六章 37 个可调查物件、40 段道具/密码机关链、动态提示、参考解三星与 `ESCAPE2` 档案 | 点击物件调查；选中道具后点击目标使用，按场景线索提交数字密码；章节按钮切换已解锁回廊 |
 | A | [深海舰队：静默海域](https://wangzifan396-wzf.github.io/mini-browser-games/fleet-duel.html) | 六片 8×8 固定海域、30 组舰艇配置、三名差异舰长、礁区、追击 AI、九宫声呐、三星参考航迹与 `FLEET2` 档案 | 点击敌方坐标开火并根据命中方向推断舰身；切换声呐后选择中心格读取九宫未毁舰段数，利用舰长的侦察、校射或装甲能力保全舰队 |
 | A | [雾城侦探](https://wangzifan396-wzf.github.io/mini-browser-games/detective-desk.html) | 六起连续案件、18 个场景、36 条证据、嫌疑人盘问、两证据关联、三段关键推论、完整指控与侦探技能 | 搜查每个现场并盘问证人，在证据板连接正确线索；完成推论后同时选择凶手、动机和手法，案件档案支持跨设备存档码 |
-| A | [河牌之夜](https://wangzifan396-wzf.github.io/mini-browser-games/river-holdem.html) | 德州扑克锦标赛、三名 AI、动态盲注、翻牌转牌河牌、七选五牌型、加注弃牌和淘汰 | 每条下注街选择跟注、加注或弃牌；结合两张手牌与五张公共牌判断胜率，赢光三名对手筹码 |
+| A | [河牌之夜：三席读牌赛](https://wangzifan396-wzf.github.io/mini-browser-games/river-holdem.html) | 潮港/雾桥/天际三桌巡回、红狐/蓝鲸/夜枭三种可识别 AI、标准小盲大盲、逐街行动、全押与三层边池、平分底池、随机范围胜率、三星、六枚勋章和 `RIVER2` 断点档案 | 轮到你时选择过牌/跟注、弃牌或全押，也可拖动滑杆指定加注总额；根据位置、底池赔率、公共牌和对手风格管理筹码，逐桌赢下三席冠军 |
 | A | [逆转法庭：六案终审](https://wangzifan396-wzf.github.io/mini-browser-games/courtroom-clash.html) | 六案十八段交叉询问、72 句证词、30 件证物、逐句追问公开隐藏证物、连续异议、责任人/实施方式结案论证、三星与 `COURT2` 档案 | 切换证词并在关键句追问细节，选择已公开证物后对直接矛盾提出异议；连续击破三段证词，再组合责任人与实施方式完成结案 |
 | A | [字节机器人：指令远征](https://wangzifan396-wzf.github.io/mini-browser-games/bytebot-lab.html) | 三章 12 关编程解谜、前进/转向、×2/×3 循环、墙面传感、跳跃裂隙、开关门、传送环、源码/步数三星、六枚勋章与 `BYTE2` 档案 | 编排有限指令后运行程序；让机器人收齐芯片并抵达终点，逐步学习循环、条件式墙感与机关交互 |
 | A | [小屋收纳师：十二室委托](https://wangzifan396-wzf.github.io/mini-browser-games/cozy-organizer.html) | 四章十二室、98 件多格物品、旋转、区域限制、障碍、边缘/相邻/分离规则、撤回、提示、参考布局三星与 `COZY2` 档案 | 选择物品并旋转后放入合法格位，按房间委托完成分类、邻接和空间约束；可撤回、查看提示或套用参考布局，通关后保存章节星级 |

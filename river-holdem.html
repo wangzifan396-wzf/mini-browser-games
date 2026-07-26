@@ -1,457 +1,1218 @@
 <!doctype html>
 <html lang="zh-CN">
-  <meta charset="utf-8" /><meta
-    name="viewport"
-    content="width=device-width,initial-scale=1"
-  /><title>河牌之夜</title
-  ><style>
-    * {
-      box-sizing: border-box;
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#101719">
+  <title>河牌之夜：三席读牌赛</title>
+  <style>
+    * { box-sizing: border-box; }
+    :root {
+      --ink: #f5f1e6;
+      --muted: #aebbb7;
+      --line: #405452;
+      --panel: #182326;
+      --panel-2: #213033;
+      --felt: #176956;
+      --felt-dark: #0e4f43;
+      --gold: #efc45c;
+      --red: #d9665f;
+      --blue: #68a8c7;
+      --green: #61c2a0;
     }
     body {
       margin: 0;
-      background: #071b16;
-      color: #fff8e4;
-      font-family: system-ui, "Microsoft YaHei";
-    }
-    .app {
+      min-width: 320px;
       min-height: 100vh;
-      padding: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      overflow-x: hidden;
+      background: #101719;
+      color: var(--ink);
+      font-family: system-ui, "Microsoft YaHei", sans-serif;
     }
-    .shell {
-      width: 100%;
-      max-width: 960px;
-      min-width: 0;
-      background: #10392d;
-      border: 1px solid #497e69;
-      border-radius: 50px;
-      padding: 20px;
+    button, input, textarea { font: inherit; }
+    button {
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #29393b;
+      color: var(--ink);
+      font-weight: 800;
+      cursor: pointer;
     }
-    .top,
-    .row {
+    button:hover:not(:disabled) { border-color: var(--gold); }
+    button:focus-visible, input:focus-visible, textarea:focus-visible {
+      outline: 3px solid rgba(239, 196, 92, .48);
+      outline-offset: 2px;
+    }
+    button:disabled { cursor: not-allowed; opacity: .42; }
+    .app {
+      width: min(1240px, 100%);
+      min-height: 100vh;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 272px minmax(0, 1fr);
+    }
+    .sidebar {
+      padding: 22px 18px;
+      border-right: 1px solid #2d3c3e;
+      background: #141e20;
+    }
+    .brand small, .eyebrow {
+      color: var(--gold);
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+    h1 { margin: 5px 0 6px; font-size: 27px; line-height: 1.15; }
+    h2, h3, p { margin-top: 0; }
+    .subtle { color: var(--muted); font-size: 13px; line-height: 1.55; }
+    .side-section { margin-top: 24px; }
+    .side-title {
       display: flex;
       justify-content: space-between;
-      gap: 9px;
-      align-items: center;
-      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
     }
+    .contract-list { display: grid; gap: 7px; }
+    .contract {
+      width: 100%;
+      min-height: 58px;
+      padding: 9px 10px;
+      text-align: left;
+      background: transparent;
+    }
+    .contract.active { border-color: var(--gold); background: #2b3128; }
+    .contract b, .contract span { display: block; }
+    .contract span { margin-top: 3px; color: var(--muted); font-size: 11px; }
+    .intel-list { display: grid; gap: 8px; }
+    .intel {
+      padding-left: 10px;
+      border-left: 3px solid var(--red);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    .intel:nth-child(2) { border-color: var(--blue); }
+    .intel:nth-child(3) { border-color: var(--gold); }
+    .intel span { display: block; color: var(--muted); }
+    .career {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+    .career div {
+      padding: 9px 4px;
+      border: 1px solid #344548;
+      border-radius: 6px;
+      text-align: center;
+    }
+    .career b, .career small { display: block; }
+    .career b { color: var(--gold); font-size: 20px; }
+    .career small { color: var(--muted); font-size: 10px; }
+    .side-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-top: 12px; }
+    .stage { min-width: 0; padding: 18px; }
+    .topbar {
+      min-height: 56px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .topbar h2 { margin: 0; font-size: 21px; }
+    .metrics { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 7px; }
+    .metric {
+      min-width: 88px;
+      padding: 7px 9px;
+      border-left: 1px solid var(--line);
+    }
+    .metric b, .metric small { display: block; }
+    .metric b { color: var(--gold); }
+    .metric small { color: var(--muted); font-size: 10px; }
+    .table-wrap { position: relative; min-height: 690px; }
     .table {
-      min-height: 470px;
-      border: 8px solid #5b3921;
-      border-radius: 45%;
-      background: radial-gradient(circle, #176045, #0e4937);
-      padding: 20px;
+      min-height: 580px;
+      padding: 18px;
+      border: 12px solid #724b2c;
+      border-radius: 28px;
+      background: var(--felt);
+      box-shadow: inset 0 0 0 3px #a87843;
       position: relative;
     }
     .opponents {
-      display: flex;
-      justify-content: space-around;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
     }
     .seat {
-      text-align: center;
-      padding: 9px;
-      border-radius: 12px;
-      background: #082d23aa;
-      min-width: 135px;
-    }
-    .seat.fold {
-      opacity: 0.45;
-    }
-    .cards {
-      display: flex;
-      justify-content: center;
-      gap: 7px;
-      margin: 12px;
-    }
-    .card {
-      width: 64px;
-      height: 90px;
+      min-width: 0;
+      min-height: 138px;
+      padding: 10px;
+      border: 1px solid rgba(255,255,255,.2);
       border-radius: 8px;
-      background: #fff;
-      color: #171717;
-      padding: 6px;
-      font-weight: 900;
-      font-size: 19px;
-      border: 1px solid #bbb;
-    }
-    .red {
-      color: #c52e3d;
-    }
-    .back {
-      background: repeating-linear-gradient(
-        45deg,
-        #293a84 0 7px,
-        #5269bd 7px 14px
-      );
-      border: 4px solid white;
-    }
-    .pot {
+      background: rgba(10, 31, 28, .82);
       text-align: center;
-      font-size: 23px;
-      color: #ffe079;
     }
-    .player {
-      text-align: center;
-      margin-top: 35px;
+    .seat.turn { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(239,196,92,.25); }
+    .seat.folded { opacity: .5; }
+    .seat.out { opacity: .32; filter: grayscale(1); }
+    .seat-head { display: flex; justify-content: space-between; gap: 5px; font-size: 12px; }
+    .seat-head span { color: var(--gold); }
+    .tell {
+      min-height: 18px;
+      margin-top: 5px;
+      color: #cbd9d4;
+      font-size: 11px;
+      overflow-wrap: anywhere;
     }
-    .actions {
-      justify-content: center;
+    .cards { display: flex; justify-content: center; gap: 6px; min-width: 0; }
+    .seat .cards { margin: 8px 0 4px; }
+    .card {
+      width: 54px;
+      height: 76px;
+      flex: 0 0 auto;
+      padding: 5px;
+      border: 1px solid #d3d0c7;
+      border-radius: 6px;
+      background: #fffdf7;
+      color: #171a1b;
+      font-size: 17px;
+      font-weight: 950;
+      line-height: 1.05;
+      box-shadow: 0 3px 8px rgba(0,0,0,.24);
     }
-    .actions button {
-      min-width: 90px;
+    .card.red { color: #c63d48; }
+    .card.back {
+      border: 4px solid #f0eee4;
+      background: repeating-linear-gradient(45deg, #274f68 0 7px, #5788a1 7px 14px);
     }
-    .log {
-      height: 65px;
+    .card.empty { border-style: dashed; background: rgba(255,255,255,.12); box-shadow: none; }
+    .pot-area { padding: 17px 0 8px; text-align: center; }
+    .pot-area b { color: var(--gold); font-size: 25px; }
+    .pot-area span { color: #d4e1db; font-size: 12px; }
+    .board { min-height: 76px; }
+    .hero {
+      width: min(520px, 100%);
+      margin: 22px auto 0;
+      padding: 12px;
+      border: 1px solid rgba(255,255,255,.25);
+      border-radius: 8px;
+      background: rgba(11, 39, 34, .88);
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 12px;
+    }
+    .hero.turn { border-color: var(--gold); }
+    .hero-meta b, .hero-meta small { display: block; }
+    .hero-meta small { color: var(--muted); }
+    .equity { min-width: 90px; text-align: right; }
+    .equity b, .equity small { display: block; }
+    .equity b { color: var(--green); font-size: 23px; }
+    .equity small { color: var(--muted); font-size: 10px; }
+    .action-panel {
+      margin-top: 12px;
+      padding: 12px;
+      border: 1px solid #33494a;
+      border-radius: 8px;
+      background: var(--panel);
+    }
+    .action-row { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; }
+    .action-row button { min-width: 102px; padding: 8px 12px; }
+    .primary { background: #28745f; border-color: #58ad91; }
+    .raise-button { background: #8c5b25; border-color: #d39c51; }
+    .danger { background: #783b40; border-color: #b35b62; }
+    .all-in { background: #334f78; border-color: #668bbb; }
+    .raise-control {
+      width: min(420px, 100%);
+      display: grid;
+      grid-template-columns: 74px minmax(100px, 1fr) 62px;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    input[type="range"] { width: 100%; accent-color: var(--gold); }
+    .hand-log {
+      height: 96px;
+      margin-top: 12px;
+      padding: 9px 12px;
       overflow: auto;
-      text-align: center;
-      color: #c8dfd2;
-      font-size: 13px;
+      border-top: 1px solid rgba(255,255,255,.16);
+      color: #d4e1dd;
+      font-size: 12px;
+      line-height: 1.55;
     }
-    button {
-      padding: 10px 13px;
-      border: 1px solid #78a28f;
-      border-radius: 9px;
-      background: #245f4c;
-      color: white;
-      font-weight: bold;
+    .footer-row { display: flex; justify-content: space-between; gap: 8px; margin-top: 10px; }
+    .footer-row button { padding: 7px 12px; }
+    .overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      background: rgba(8, 14, 16, .76);
     }
-    .raise {
-      background: #a85c28;
+    .overlay.hidden, .modal.hidden { display: none; }
+    .overlay-card {
+      width: min(510px, 100%);
+      padding: 24px;
+      border: 1px solid #526766;
+      border-radius: 8px;
+      background: #192426;
     }
-    .danger {
-      background: #8d393e;
+    .goals { display: grid; gap: 7px; margin: 15px 0; }
+    .goal { display: flex; justify-content: space-between; gap: 10px; padding: 8px 0; border-bottom: 1px solid #344345; }
+    .goal b { color: var(--gold); }
+    .button-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .button-row button { padding: 9px 14px; }
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      display: grid;
+      place-items: center;
+      padding: 16px;
+      background: rgba(5, 9, 10, .82);
     }
-    .help {
-      font-size: 13px;
-      color: #bfd5cb;
+    .modal-card {
+      width: min(620px, 100%);
+      padding: 20px;
+      border: 1px solid #536a68;
+      border-radius: 8px;
+      background: #1a2528;
     }
-    @media (max-width: 650px) {
-      .table {
-        border-radius: 25px;
-        padding: 10px;
-      }
-      .seat {
-        min-width: 90px;
-        font-size: 12px;
-      }
-      .card {
-        width: 45px;
-        height: 66px;
-        font-size: 14px;
-      }
-      .app {
-        align-items: flex-start;
-      }
+    textarea {
+      width: 100%;
+      min-height: 126px;
+      resize: vertical;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #0e1719;
+      color: var(--ink);
+    }
+    #archiveFeedback { min-height: 20px; color: var(--gold); font-size: 12px; }
+    @media (max-width: 880px) {
+      .app { grid-template-columns: 1fr; }
+      .stage { grid-row: 1; }
+      .sidebar { grid-row: 2; border-right: 0; border-top: 1px solid #2d3c3e; }
+      .sidebar-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 18px; }
+      .side-section { margin-top: 16px; }
+      .stage { padding-top: 12px; }
+    }
+    @media (max-width: 600px) {
+      .sidebar, .stage { padding: 12px; }
+      .sidebar-grid { grid-template-columns: 1fr; }
+      .intel-list { grid-template-columns: repeat(3, 1fr); }
+      .intel { padding-left: 7px; font-size: 11px; }
+      .intel span { display: none; }
+      .topbar { align-items: stretch; flex-direction: column; }
+      .metrics { width: 100%; justify-content: space-between; gap: 2px; }
+      .metric { min-width: 64px; flex: 1; padding: 5px 8px; }
+      .metric small { display: none; }
+      .table-wrap { min-height: 645px; }
+      .table { min-height: 535px; padding: 9px; border-width: 7px; border-radius: 18px; }
+      .opponents { gap: 5px; }
+      .seat { min-height: 112px; padding: 6px 3px; }
+      .seat-head { justify-content: center; }
+      .seat-head span { display: none; }
+      .seat .card { width: 34px; height: 48px; padding: 3px; font-size: 11px; }
+      .seat .cards { gap: 3px; }
+      .tell { font-size: 9px; }
+      .card { width: 45px; height: 64px; font-size: 14px; }
+      .board { min-height: 64px; gap: 4px; }
+      .hero { margin-top: 15px; grid-template-columns: 1fr auto; }
+      .hero .cards { grid-row: 2; grid-column: 1 / -1; }
+      .equity { grid-column: 2; grid-row: 1; }
+      .action-row button { min-width: 88px; flex: 1 1 88px; }
+      .raise-control { grid-template-columns: 58px minmax(80px, 1fr) 48px; }
+      .hand-log { height: 82px; }
     }
   </style>
+</head>
+<body>
   <main class="app">
-    <section class="shell">
-      <div class="top">
+    <aside class="sidebar">
+      <div class="brand">
+        <small>River Reading Circuit</small>
+        <h1>河牌之夜<br>三席读牌赛</h1>
+        <p class="subtle">潮港、雾桥与天际三张牌桌，共用一条逐街淘汰赛生涯。</p>
+      </div>
+      <div class="sidebar-grid">
+        <section class="side-section">
+          <div class="side-title"><span>巡回牌桌</span><span id="starTotal">0 / 9 ★</span></div>
+          <div class="contract-list" id="contractList"></div>
+        </section>
+        <section class="side-section">
+          <div class="side-title"><span>对手档案</span><span>三种风格</span></div>
+          <div class="intel-list" id="intelList"></div>
+        </section>
+      </div>
+      <section class="side-section">
+        <div class="side-title"><span>巡回记录</span><span id="medalText">0 / 6 勋章</span></div>
+        <div class="career">
+          <div><b id="clearText">0</b><small>冠军</small></div>
+          <div><b id="bestPotText">0</b><small>最大底池</small></div>
+          <div><b id="runText">0</b><small>参赛</small></div>
+        </div>
+        <div class="side-actions">
+          <button id="archiveBtn">档案</button>
+          <button id="soundBtn" aria-pressed="true">音效 开</button>
+        </div>
+      </section>
+    </aside>
+
+    <section class="stage">
+      <header class="topbar">
         <div>
-          <h1 style="margin: 0">河牌之夜</h1>
-          <div class="help">
-            德州扑克淘汰赛：读牌、跟注、加注或弃牌，赢下筹码并击败三名对手。
+          <small class="eyebrow" id="venueText">TOURNAMENT LOBBY</small>
+          <h2 id="tableTitle">选择一张巡回牌桌</h2>
+        </div>
+        <div class="metrics">
+          <div class="metric"><b id="handText">--</b><small>手数</small></div>
+          <div class="metric"><b id="blindText">--</b><small>盲注</small></div>
+          <div class="metric"><b id="positionText">--</b><small>位置</small></div>
+          <div class="metric"><b id="chipText">--</b><small>你的筹码</small></div>
+        </div>
+      </header>
+
+      <div class="table-wrap">
+        <section class="table" aria-label="德州扑克牌桌">
+          <div class="opponents" id="opponents"></div>
+          <div class="pot-area"><b id="potText">0</b><div><span id="streetText">牌桌待命</span></div></div>
+          <div class="cards board" id="board"></div>
+          <div class="hero" id="heroSeat">
+            <div class="hero-meta"><b>你</b><small id="heroStatus">等待入席</small></div>
+            <div class="cards" id="hole"></div>
+            <div class="equity"><b id="equityText">--</b><small>随机范围估算</small></div>
           </div>
+        </section>
+
+        <section class="action-panel" id="actionPanel">
+          <div class="action-row">
+            <button class="danger" id="foldBtn">弃牌</button>
+            <button class="primary" id="callBtn">过牌</button>
+            <div class="raise-control">
+              <span>加注到</span>
+              <input id="raiseRange" type="range" min="0" max="0" value="0" step="5" aria-label="加注总额">
+              <b id="raiseValue">0</b>
+            </div>
+            <button class="raise-button" id="raiseBtn">加注</button>
+            <button class="all-in" id="allInBtn">全押</button>
+          </div>
+        </section>
+
+        <div class="hand-log" id="handLog" aria-live="polite"></div>
+        <div class="footer-row">
+          <button id="leaveBtn">返回赛历</button>
+          <button class="primary" id="nextHandBtn">下一手</button>
         </div>
-        <div>
-          第 <b id="handNo"></b> 手　盲注 <b id="blind"></b>　你的筹码
-          <b id="chips"></b>
+
+        <div class="overlay" id="overlay">
+          <div class="overlay-card" id="overlayCard"></div>
         </div>
-      </div>
-      <div class="table">
-        <div class="opponents" id="opponents"></div>
-        <div class="pot">底池 <b id="pot"></b> · <span id="street"></span></div>
-        <div class="cards" id="board"></div>
-        <div class="player">
-          <div class="cards" id="hole"></div>
-          <div id="handName"></div>
-        </div>
-        <div class="row actions">
-          <button id="check">跟注 / 过牌</button
-          ><button class="raise" id="raise">加注</button
-          ><button class="danger" id="fold">弃牌</button
-          ><button id="nextHand" style="display: none">下一手</button>
-        </div>
-        <div class="log" id="log"></div>
-      </div>
-      <div class="row">
-        <span>锦标赛目标：成为唯一仍有筹码的玩家</span
-        ><button id="restart">新锦标赛</button>
       </div>
     </section>
   </main>
+
+  <div class="modal hidden" id="archiveModal" role="dialog" aria-modal="true" aria-labelledby="archiveTitle">
+    <div class="modal-card">
+      <small class="eyebrow">PORTABLE TOURNAMENT FILE</small>
+      <h2 id="archiveTitle">巡回档案</h2>
+      <textarea id="archiveText" spellcheck="false" aria-label="巡回档案码"></textarea>
+      <p id="archiveFeedback"></p>
+      <div class="button-row">
+        <button class="primary" id="copyBtn">复制档案</button>
+        <button id="importBtn">导入档案</button>
+        <button id="closeArchiveBtn">关闭</button>
+      </div>
+    </div>
+  </div>
+
   <script>
-    const suits = ["♠", "♥", "♦", "♣"],
-      ranks = [
-        "2",
-        "3",
-        "4",
-        "5",
-        "6",
-        "7",
-        "8",
-        "9",
-        "10",
-        "J",
-        "Q",
-        "K",
-        "A",
+    (() => {
+      "use strict";
+
+      const STORAGE = "river-holdem-v2";
+      const SUITS = ["♠", "♥", "♦", "♣"];
+      const RANKS = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"];
+      const HAND_NAMES = ["高牌", "一对", "两对", "三条", "顺子", "同花", "葫芦", "四条", "同花顺"];
+      const STREETS = ["翻牌前", "翻牌圈", "转牌圈", "河牌圈"];
+      const $ = (id) => document.getElementById(id);
+
+      const CONTRACTS = [
+        { id: "harbor", venue: "潮港席", name: "潮汐新秀桌", stack: 600, baseBlind: 10, riseEvery: 5, par: 18, aiBoost: -0.03, brief: "盲注舒缓，适合建立底池赔率与位置意识。" },
+        { id: "bridge", venue: "雾桥席", name: "雾桥深筹桌", stack: 550, baseBlind: 15, riseEvery: 4, par: 20, aiBoost: 0.02, brief: "盲注提速，对手会更频繁利用位置施压。" },
+        { id: "summit", venue: "天际席", name: "天际冠军桌", stack: 500, baseBlind: 20, riseEvery: 3, par: 22, aiBoost: 0.06, brief: "短筹码高压决赛，错误会被快速放大。" },
       ];
-    let q;
-    const $ = (x) => document.getElementById(x);
-    function deck() {
-      let d = [];
-      for (let s = 0; s < 4; s++) for (let r = 0; r < 13; r++) d.push({ s, r });
-      for (let i = d.length - 1; i; i--) {
-        let j = Math.floor(Math.random() * (i + 1));
-        [d[i], d[j]] = [d[j], d[i]];
+
+      const OPPONENTS = [
+        { id: "fox", name: "红狐", tag: "主动施压", text: "宽范围入池，敢于用小概率诈唬争夺主动权。", aggression: 0.82, tightness: 0.28, bluff: 0.16, color: "#d9665f" },
+        { id: "whale", name: "蓝鲸", tag: "紧手价值", text: "弃掉边缘牌，用强成牌和好听牌持续取值。", aggression: 0.38, tightness: 0.66, bluff: 0.03, color: "#68a8c7" },
+        { id: "owl", name: "夜枭", tag: "动态适应", text: "记录你的加注频率，在过松或过紧时调整反击。", aggression: 0.58, tightness: 0.48, bluff: 0.08, color: "#efc45c" },
+      ];
+
+      const MEDALS = [
+        { id: "first", name: "首冠", test: (r) => r.win },
+        { id: "hunter", name: "清桌者", test: (r) => r.eliminations >= 3 },
+        { id: "river", name: "河牌英雄", test: (r) => r.bestCategory >= 4 },
+        { id: "vault", name: "大底池", test: (r) => r.biggestPot >= 700 },
+        { id: "tempo", name: "节奏大师", test: (r) => r.win && r.hands <= r.par },
+        { id: "reader", name: "读牌者", test: (r) => r.showdownWins >= 3 },
+      ];
+
+      function blankProfile() {
+        return { v: 2, stars: [0, 0, 0], best: [null, null, null], unlocked: 0, clears: 0, runs: 0, biggestPot: 0, medals: [], sound: true };
       }
-      return d;
-    }
-    function fresh() {
-      return {
-        hand: 0,
-        players: [
-          { n: "你", chips: 500 },
-          { n: "红狐", chips: 500 },
-          { n: "蓝鲸", chips: 500 },
-          { n: "夜枭", chips: 500 },
-        ],
-        dealer: 0,
-        logs: [],
-        over: false,
-      };
-    }
-    function start() {
-      q.hand++;
-      q.dealer = (q.dealer + 1) % 4;
-      let d = deck();
-      q.players.forEach((p) => {
-        p.hole = [d.pop(), d.pop()];
-        p.fold = p.chips <= 0;
-        p.bet = 0;
-      });
-      q.community = [d.pop(), d.pop(), d.pop(), d.pop(), d.pop()];
-      q.shown = 0;
-      q.pot = 0;
-      q.ended = false;
-      q.blind = 10 + Math.floor(q.hand / 5) * 5;
-      for (let i = 0; i < q.players.length; i++)
-        if (!q.players[i].fold) {
-          let pay = Math.min(q.players[i].chips, q.blind);
-          q.players[i].chips -= pay;
-          q.players[i].bet = pay;
-          q.pot += pay;
+
+      function clamp(value, min, max) { return Math.max(min, Math.min(max, Number(value) || 0)); }
+
+      function normalizeProfile(raw = {}) {
+        const base = blankProfile();
+        return {
+          v: 2,
+          stars: Array.from({ length: 3 }, (_, i) => clamp(raw.stars?.[i], 0, 3)),
+          best: Array.from({ length: 3 }, (_, i) => raw.best?.[i] == null ? null : clamp(raw.best[i], 1, 999)),
+          unlocked: clamp(raw.unlocked, 0, 2),
+          clears: clamp(raw.clears, 0, 9999),
+          runs: clamp(raw.runs, 0, 9999),
+          biggestPot: clamp(raw.biggestPot, 0, 9999999),
+          medals: Array.isArray(raw.medals) ? raw.medals.filter((id) => MEDALS.some((m) => m.id === id)) : base.medals,
+          sound: raw.sound !== false,
+        };
+      }
+
+      function checksum(text) {
+        let hash = 2166136261;
+        for (let i = 0; i < text.length; i++) {
+          hash ^= text.charCodeAt(i);
+          hash = Math.imul(hash, 16777619);
         }
-      q.logs = [`第 ${q.hand} 手牌开始，所有在场玩家投入盲注。`];
-      draw();
-    }
-    function card(c, hidden = false) {
-      if (hidden) return '<div class="card back"></div>';
-      return `<div class="card ${c.s === 1 || c.s === 2 ? "red" : ""}">${ranks[c.r]}${suits[c.s]}<br><center>${suits[c.s]}</center></div>`;
-    }
-    function combos(a) {
-      let out = [];
-      for (let i = 0; i < a.length - 4; i++)
-        for (let j = i + 1; j < a.length - 3; j++)
-          for (let k = j + 1; k < a.length - 2; k++)
-            for (let l = k + 1; l < a.length - 1; l++)
-              for (let m = l + 1; m < a.length; m++)
-                out.push([a[i], a[j], a[k], a[l], a[m]]);
-      return out;
-    }
-    function five(a) {
-      let rs = a.map((c) => c.r).sort((x, y) => y - x),
-        cnt = {};
-      rs.forEach((r) => (cnt[r] = (cnt[r] || 0) + 1));
-      let groups = Object.entries(cnt)
-          .map(([r, n]) => [+r, n])
-          .sort((a, b) => b[1] - a[1] || b[0] - a[0]),
-        flush = a.every((c) => c.s === a[0].s),
-        u = [...new Set(rs)],
-        straight = false,
-        hi = u[0];
-      if (u.join(",") === "12,3,2,1,0") {
-        straight = true;
-        hi = 3;
-      } else
-        for (let i = 0; i <= u.length - 5; i++)
-          if (u[i] - u[i + 4] === 4) {
-            straight = true;
-            hi = u[i];
-            break;
-          }
-      let cat =
-          straight && flush
-            ? 8
-            : groups[0][1] === 4
-              ? 7
-              : groups[0][1] === 3 && groups[1]?.[1] === 2
-                ? 6
-                : flush
-                  ? 5
-                  : straight
-                    ? 4
-                    : groups[0][1] === 3
-                      ? 3
-                      : groups[0][1] === 2 && groups[1]?.[1] === 2
-                        ? 2
-                        : groups[0][1] === 2
-                          ? 1
-                          : 0,
-        order =
-          cat === 8
-            ? [hi]
-            : cat === 7
-              ? [groups[0][0], ...groups.slice(1).map((x) => x[0])]
-              : cat === 6
-                ? [groups[0][0], groups[1][0]]
-                : cat === 5
-                  ? rs
-                  : cat === 4
-                    ? [hi]
-                    : cat === 3
-                      ? [groups[0][0], ...groups.slice(1).map((x) => x[0])]
-                      : cat === 2
-                        ? [groups[0][0], groups[1][0], groups[2][0]]
-                        : cat === 1
-                          ? [groups[0][0], ...groups.slice(1).map((x) => x[0])]
-                          : rs;
-      return {
-        score:
-          cat * 1e8 + order.reduce((v, r, i) => v + r * Math.pow(14, 4 - i), 0),
-        cat,
-      };
-    }
-    function best(cards) {
-      return combos(cards)
-        .map(five)
-        .sort((a, b) => b.score - a.score)[0];
-    }
-    const names = [
-      "高牌",
-      "一对",
-      "两对",
-      "三条",
-      "顺子",
-      "同花",
-      "葫芦",
-      "四条",
-      "同花顺",
-    ];
-    function aiRound(cost, raised) {
-      for (let i = 1; i < 4; i++) {
-        let p = q.players[i];
-        if (p.fold) continue;
-        let strength =
-          p.hole[0].r +
-          p.hole[1].r +
-          (p.hole[0].r === p.hole[1].r ? 12 : 0) +
-          (p.hole[0].s === p.hole[1].s ? 3 : 0) +
-          q.shown * 2;
-        if (
-          cost > p.chips ||
-          strength + Math.random() * 12 < (cost / (q.blind || 1)) * 3
-        ) {
-          p.fold = true;
-          q.logs.unshift(`${p.n} 弃牌。`);
+        return (hash >>> 0).toString(36);
+      }
+
+      function encodeData(data) {
+        const payload = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+        return `RIVER2.${payload}.${checksum(payload)}`;
+      }
+
+      function normalizeRun(run) {
+        if (!run || run.mode !== "playing" || !CONTRACTS[run.contractIndex]) return null;
+        if (!Array.isArray(run.players) || run.players.length !== 4 || !Array.isArray(run.needs)) return null;
+        return JSON.parse(JSON.stringify(run));
+      }
+
+      function decode(code) {
+        const parts = String(code).trim().split(".");
+        if (parts.length !== 3 || parts[0] !== "RIVER2" || checksum(parts[1]) !== parts[2]) throw Error("巡回档案校验失败");
+        const data = JSON.parse(decodeURIComponent(escape(atob(parts[1]))));
+        if (data.v !== 2) throw Error("巡回档案版本不兼容");
+        return { profile: normalizeProfile(data.profile), run: normalizeRun(data.run) };
+      }
+
+      function loadLocal() {
+        try {
+          const data = JSON.parse(localStorage.getItem(STORAGE) || "null");
+          return { profile: normalizeProfile(data?.profile), run: normalizeRun(data?.run) };
+        } catch {
+          return { profile: blankProfile(), run: null };
+        }
+      }
+
+      const loaded = loadLocal();
+      let profile = loaded.profile;
+      let q = loaded.run;
+      let selected = q?.contractIndex ?? Math.min(profile.unlocked, 2);
+
+      function saveLocal() {
+        const run = q?.mode === "playing" ? q : null;
+        localStorage.setItem(STORAGE, JSON.stringify({ profile, run }));
+      }
+
+      function encode() { return encodeData({ v: 2, profile, run: q?.mode === "playing" ? q : null }); }
+      function copy(value) { return JSON.parse(JSON.stringify(value)); }
+      let audioContext = null;
+
+      function tone(frequency = 440, duration = 0.05, volume = 0.025) {
+        if (!profile.sound) return;
+        try {
+          audioContext ||= new (window.AudioContext || window.webkitAudioContext)();
+          const oscillator = audioContext.createOscillator();
+          const gain = audioContext.createGain();
+          oscillator.frequency.value = frequency;
+          gain.gain.setValueAtTime(volume, audioContext.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + duration);
+          oscillator.connect(gain).connect(audioContext.destination);
+          oscillator.start();
+          oscillator.stop(audioContext.currentTime + duration);
+        } catch {}
+      }
+
+      function random() {
+        q.rngState = (q.rngState + 0x6D2B79F5) >>> 0;
+        let t = q.rngState;
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      }
+
+      function makeDeck() {
+        const cards = [];
+        for (let suit = 0; suit < 4; suit++) for (let rank = 0; rank < 13; rank++) cards.push({ s: suit, r: rank });
+        for (let i = cards.length - 1; i > 0; i--) {
+          const j = Math.floor(random() * (i + 1));
+          [cards[i], cards[j]] = [cards[j], cards[i]];
+        }
+        return cards;
+      }
+
+      function combinations(cards) {
+        const out = [];
+        for (let a = 0; a < cards.length - 4; a++)
+          for (let b = a + 1; b < cards.length - 3; b++)
+            for (let c = b + 1; c < cards.length - 2; c++)
+              for (let d = c + 1; d < cards.length - 1; d++)
+                for (let e = d + 1; e < cards.length; e++) out.push([cards[a], cards[b], cards[c], cards[d], cards[e]]);
+        return out;
+      }
+
+      function rankFive(cards) {
+        const ranks = cards.map((card) => card.r).sort((a, b) => b - a);
+        const counts = {};
+        ranks.forEach((rank) => counts[rank] = (counts[rank] || 0) + 1);
+        const groups = Object.entries(counts).map(([rank, count]) => [+rank, count]).sort((a, b) => b[1] - a[1] || b[0] - a[0]);
+        const flush = cards.every((card) => card.s === cards[0].s);
+        const unique = [...new Set(ranks)];
+        let straight = false;
+        let straightHigh = unique[0];
+        if (unique.join(",") === "12,3,2,1,0") {
+          straight = true;
+          straightHigh = 3;
+        } else if (unique.length === 5 && unique[0] - unique[4] === 4) {
+          straight = true;
+          straightHigh = unique[0];
+        }
+        const category = straight && flush ? 8 : groups[0][1] === 4 ? 7 : groups[0][1] === 3 && groups[1]?.[1] === 2 ? 6 : flush ? 5 : straight ? 4 : groups[0][1] === 3 ? 3 : groups[0][1] === 2 && groups[1]?.[1] === 2 ? 2 : groups[0][1] === 2 ? 1 : 0;
+        const order = category === 8 || category === 4 ? [straightHigh]
+          : category === 7 || category === 3 || category === 1 ? [groups[0][0], ...groups.slice(1).map((group) => group[0])]
+          : category === 6 ? [groups[0][0], groups[1][0]]
+          : category === 5 || category === 0 ? ranks
+          : [groups[0][0], groups[1][0], groups[2][0]];
+        const score = category * 100000000 + order.reduce((sum, rank, index) => sum + rank * Math.pow(14, 4 - index), 0);
+        return { category, score, order };
+      }
+
+      function best(cards) {
+        if (cards.length < 5) return { category: -1, score: -1, order: [] };
+        return combinations(cards).map(rankFive).sort((a, b) => b.score - a.score)[0];
+      }
+
+      function buildSidePots(players) {
+        const levels = [...new Set(players.map((player) => player.committed).filter(Boolean))].sort((a, b) => a - b);
+        let previous = 0;
+        return levels.map((level) => {
+          const contributors = players.map((player, index) => ({ player, index })).filter(({ player }) => player.committed >= level);
+          const amount = (level - previous) * contributors.length;
+          previous = level;
+          return { amount, eligible: contributors.filter(({ player }) => !player.folded).map(({ index }) => index) };
+        }).filter((pot) => pot.amount > 0 && pot.eligible.length);
+      }
+
+      function seatsAfterDealer(seats, dealer) {
+        const order = [];
+        for (let step = 1; step <= 4; step++) {
+          const seat = (dealer + step) % 4;
+          if (seats.includes(seat)) order.push(seat);
+        }
+        return order;
+      }
+
+      function settlePots(players, scores, dealer) {
+        const awards = Array(players.length).fill(0);
+        for (const pot of buildSidePots(players)) {
+          const high = Math.max(...pot.eligible.map((index) => scores[index]));
+          const winners = seatsAfterDealer(pot.eligible.filter((index) => scores[index] === high), dealer);
+          const share = Math.floor(pot.amount / winners.length);
+          let remainder = pot.amount - share * winners.length;
+          winners.forEach((index) => awards[index] += share + (remainder-- > 0 ? 1 : 0));
+        }
+        return awards;
+      }
+
+      function localRandom(seed) {
+        let state = seed >>> 0;
+        return () => {
+          state = (state + 0x6D2B79F5) >>> 0;
+          let t = state;
+          t = Math.imul(t ^ (t >>> 15), t | 1);
+          t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+      }
+
+      function equityEstimate(holeCards, boardCards, rivals, seed, samples = 72) {
+        if (!holeCards?.length || rivals < 1) return 1;
+        const known = new Set([...holeCards, ...boardCards].map((card) => `${card.s}:${card.r}`));
+        const source = [];
+        for (let suit = 0; suit < 4; suit++) for (let rank = 0; rank < 13; rank++) if (!known.has(`${suit}:${rank}`)) source.push({ s: suit, r: rank });
+        const rand = localRandom(seed);
+        let total = 0;
+        for (let sample = 0; sample < samples; sample++) {
+          const pool = source.slice();
+          let cursor = 0;
+          const take = () => {
+            const pick = cursor + Math.floor(rand() * (pool.length - cursor));
+            [pool[cursor], pool[pick]] = [pool[pick], pool[cursor]];
+            return pool[cursor++];
+          };
+          const fullBoard = boardCards.slice();
+          while (fullBoard.length < 5) fullBoard.push(take());
+          const scores = [best([...holeCards, ...fullBoard]).score];
+          for (let rival = 0; rival < rivals; rival++) scores.push(best([take(), take(), ...fullBoard]).score);
+          const high = Math.max(...scores);
+          if (scores[0] === high) total += 1 / scores.filter((score) => score === high).length;
+        }
+        return total / samples;
+      }
+
+      function nextSeat(from, predicate) {
+        for (let step = 1; step <= 4; step++) {
+          const index = (from + step + 4) % 4;
+          if (predicate(q.players[index], index)) return index;
+        }
+        return -1;
+      }
+
+      function activePlayers() { return q.players.filter((player) => player.chips > 0 && !player.out); }
+      function contenders() { return q.players.map((player, index) => ({ player, index })).filter(({ player }) => !player.folded); }
+      function canAct(player) { return !player.folded && !player.allIn && player.chips > 0; }
+      function potTotal() { return q.handEnded ? q.lastPot : q.players.reduce((sum, player) => sum + player.committed, 0); }
+      function callCost(index) { return Math.max(0, q.currentBet - q.players[index].streetBet); }
+      function roundToFive(value) { return Math.max(5, Math.round(value / 5) * 5); }
+
+      function blindForHand(contract, hand) {
+        const level = Math.floor(Math.max(0, hand - 1) / contract.riseEvery);
+        return roundToFive(contract.baseBlind * Math.pow(1.5, level));
+      }
+
+      function makePlayers(stack) {
+        return [
+          { id: "hero", name: "你", chips: stack, out: false, tell: "等待发牌" },
+          ...OPPONENTS.map((opponent) => ({ ...opponent, chips: stack, out: false, tell: opponent.tag })),
+        ];
+      }
+
+      function startContract(index = selected, seed = Date.now()) {
+        if (index < 0 || index > profile.unlocked) return false;
+        selected = index;
+        const contract = CONTRACTS[index];
+        q = {
+          mode: "playing",
+          contractIndex: index,
+          seed: seed >>> 0,
+          rngState: seed >>> 0,
+          hand: 0,
+          dealer: -1,
+          players: makePlayers(contract.stack),
+          deck: [],
+          board: [],
+          shown: 0,
+          street: 0,
+          currentBet: 0,
+          minRaise: contract.baseBlind,
+          needs: [],
+          turn: -1,
+          logs: [],
+          handEnded: false,
+          lastPot: 0,
+          stats: { pots: 0, showdownWins: 0, eliminations: 0, raises: 0, folds: 0, actions: 0, biggestPot: 0, bestCategory: 0 },
+        };
+        profile.runs++;
+        startHand();
+        return true;
+      }
+
+      function contribute(index, amount) {
+        const player = q.players[index];
+        const paid = Math.min(player.chips, Math.max(0, amount));
+        player.chips -= paid;
+        player.streetBet += paid;
+        player.committed += paid;
+        if (player.chips === 0) player.allIn = true;
+        return paid;
+      }
+
+      function startHand() {
+        if (!q || q.mode !== "playing") return;
+        if (q.players[0].chips <= 0) return finishContract(false);
+        if (!q.players.slice(1).some((player) => player.chips > 0)) return finishContract(true);
+
+        const contract = CONTRACTS[q.contractIndex];
+        q.hand++;
+        q.handEnded = false;
+        q.showdown = false;
+        q.lastPot = 0;
+        q.street = 0;
+        q.shown = 0;
+        q.currentBet = 0;
+        q.deck = makeDeck();
+        q.board = Array.from({ length: 5 }, () => q.deck.pop());
+        q.dealer = nextSeat(q.dealer, (player) => player.chips > 0 && !player.out);
+        q.bigBlind = blindForHand(contract, q.hand);
+        q.smallBlind = Math.max(5, Math.floor(q.bigBlind / 2 / 5) * 5);
+
+        q.players.forEach((player) => {
+          player.hole = [q.deck.pop(), q.deck.pop()];
+          player.folded = player.chips <= 0 || player.out;
+          player.allIn = false;
+          player.streetBet = 0;
+          player.committed = 0;
+          player.tell = player.out ? "已离席" : "观察牌面";
+        });
+
+        const alive = q.players.map((player, index) => ({ player, index })).filter(({ player }) => player.chips > 0 && !player.out);
+        const smallBlindSeat = alive.length === 2 ? q.dealer : nextSeat(q.dealer, (player) => player.chips > 0 && !player.out);
+        const bigBlindSeat = nextSeat(smallBlindSeat, (player) => player.chips > 0 && !player.out);
+        q.smallBlindSeat = smallBlindSeat;
+        q.bigBlindSeat = bigBlindSeat;
+        contribute(smallBlindSeat, q.smallBlind);
+        contribute(bigBlindSeat, q.bigBlind);
+        q.currentBet = Math.max(q.players[smallBlindSeat].streetBet, q.players[bigBlindSeat].streetBet);
+        q.minRaise = q.bigBlind;
+        q.needs = q.players.map((player, index) => canAct(player) ? index : -1).filter((index) => index >= 0);
+        q.turn = nextSeat(bigBlindSeat, (_, index) => q.needs.includes(index));
+        q.logs = [`第 ${q.hand} 手牌开始 · ${q.smallBlind}/${q.bigBlind} 盲注。`];
+        tone(420, 0.045);
+        updateHeroEquity();
+        runUntilHero();
+      }
+
+      function removeNeed(index) { q.needs = q.needs.filter((seat) => seat !== index); }
+
+      function actionLabel(type, paid, target) {
+        if (type === "fold") return "弃牌";
+        if (type === "allin") return `全押到 ${target}`;
+        if (type === "raise") return `加注到 ${target}`;
+        return paid ? `跟注 ${paid}` : "过牌";
+      }
+
+      function applyAction(index, type, requestedTarget = 0) {
+        if (!q || q.mode !== "playing" || q.handEnded || q.turn !== index || !q.needs.includes(index)) return false;
+        const player = q.players[index];
+        const before = player.streetBet;
+        const previousCurrentBet = q.currentBet;
+        const maxTarget = before + player.chips;
+        let actualType = type;
+        let paid = 0;
+        let target = before;
+
+        if (type === "fold") {
+          player.folded = true;
+          removeNeed(index);
+        } else if (type === "call") {
+          paid = contribute(index, callCost(index));
+          target = player.streetBet;
+          removeNeed(index);
         } else {
-          let pay = Math.min(p.chips, cost);
-          p.chips -= pay;
-          q.pot += pay;
-          q.logs.unshift(`${p.n} ${pay ? "跟注 " + pay : "过牌"}。`);
+          target = type === "allin" ? maxTarget : clamp(requestedTarget, 0, maxTarget);
+          if (target <= q.currentBet) {
+            actualType = type === "allin" ? "allin" : "call";
+            paid = contribute(index, callCost(index));
+            target = player.streetBet;
+            removeNeed(index);
+          } else {
+            const increase = target - q.currentBet;
+            const fullRaise = increase >= q.minRaise;
+            if (!fullRaise && target < maxTarget) return false;
+            paid = contribute(index, target - before);
+            target = player.streetBet;
+            if (fullRaise) q.minRaise = increase;
+            q.currentBet = target;
+            q.needs = q.players.map((candidate, seat) => seat !== index && canAct(candidate) ? seat : -1).filter((seat) => seat >= 0);
+          }
+        }
+
+        if (index === 0) {
+          q.stats.actions++;
+          if (actualType === "fold") q.stats.folds++;
+          if ((actualType === "raise" || actualType === "allin") && target > previousCurrentBet) q.stats.raises++;
+        }
+
+        const labels = {
+          fold: "收起手牌",
+          call: paid ? "平静跟注" : "敲桌过牌",
+          raise: "推入一叠筹码",
+          allin: "将筹码推到线内",
+        };
+        player.tell = labels[actualType];
+        q.logs.unshift(`${player.name}${actionLabel(actualType, paid, target)}。`);
+        tone(actualType === "raise" || actualType === "allin" ? 520 : actualType === "fold" ? 260 : 360, 0.035, 0.018);
+        settleAfterAction(index);
+        return true;
+      }
+
+      function settleAfterAction(actor) {
+        const live = contenders();
+        if (live.length === 1) return awardUncontested(live[0].index);
+        q.needs = q.needs.filter((index) => canAct(q.players[index]));
+        if (!q.needs.length) return advanceStreet();
+        q.turn = nextSeat(actor, (_, index) => q.needs.includes(index));
+      }
+
+      function decideAI(index) {
+        const player = q.players[index];
+        const contract = CONTRACTS[q.contractIndex];
+        const rivals = Math.max(1, contenders().length - 1);
+        const equity = equityEstimate(player.hole, q.board.slice(0, q.shown), rivals, q.seed + q.hand * 97 + q.street * 31 + index * 13, 54);
+        const cost = callCost(index);
+        const potOdds = cost / Math.max(1, potTotal() + cost);
+        const heroAggression = q.stats.raises / Math.max(1, q.stats.actions);
+        const adaptation = player.id === "owl" ? (heroAggression - 0.28) * 0.16 : 0;
+        const confidence = equity + contract.aiBoost + adaptation + (random() - 0.5) * 0.08;
+        const maxTarget = player.streetBet + player.chips;
+        const canRaise = maxTarget > q.currentBet && maxTarget >= q.currentBet + q.minRaise;
+        const bluffing = random() < player.bluff * (q.street >= 2 ? 1.25 : 1);
+
+        if (cost === 0) {
+          if (canRaise && (confidence > 0.58 - player.aggression * 0.12 || bluffing)) {
+            const target = Math.min(maxTarget, q.currentBet + Math.max(q.minRaise, roundToFive(potTotal() * (0.28 + player.aggression * 0.28))));
+            return { type: target === maxTarget ? "allin" : "raise", target };
+          }
+          return { type: "call", target: 0 };
+        }
+
+        if (confidence + (bluffing ? 0.18 : 0) < potOdds + player.tightness * 0.08) return { type: "fold", target: 0 };
+        if (canRaise && (confidence > 0.66 - player.aggression * 0.12 || bluffing)) {
+          const target = Math.min(maxTarget, q.currentBet + Math.max(q.minRaise, roundToFive(potTotal() * (0.3 + player.aggression * 0.3))));
+          return { type: target === maxTarget ? "allin" : "raise", target };
+        }
+        return { type: cost >= player.chips ? "allin" : "call", target: maxTarget };
+      }
+
+      function runUntilHero() {
+        let guard = 0;
+        while (q?.mode === "playing" && !q.handEnded && q.turn !== 0 && guard++ < 80) {
+          const decision = decideAI(q.turn);
+          if (!applyAction(q.turn, decision.type, decision.target)) throw Error("AI action rejected");
+        }
+        updateHeroEquity();
+        saveLocal();
+        draw();
+      }
+
+      function advanceStreet() {
+        q.street++;
+        if (q.street > 3) return showdown();
+        q.shown = [0, 3, 4, 5][q.street];
+        q.currentBet = 0;
+        q.minRaise = q.bigBlind;
+        q.players.forEach((player) => player.streetBet = 0);
+        q.needs = q.players.map((player, index) => canAct(player) ? index : -1).filter((index) => index >= 0);
+        q.logs.unshift(`${STREETS[q.street]}：公共牌更新。`);
+        updateHeroEquity();
+        if (q.needs.length <= 1) return advanceStreet();
+        q.turn = nextSeat(q.dealer, (_, index) => q.needs.includes(index));
+      }
+
+      function showdown() {
+        q.shown = 5;
+        q.showdown = true;
+        const ranks = new Map(contenders().map(({ player, index }) => [index, best([...player.hole, ...q.board])]));
+        const scores = q.players.map((_, index) => ranks.get(index)?.score ?? -1);
+        const awards = settlePots(q.players, scores, q.dealer);
+        awards.forEach((amount, index) => q.players[index].chips += amount);
+        const winners = awards.map((amount, index) => amount > 0 ? index : -1).filter((index) => index >= 0);
+        winners.forEach((index) => {
+          const rank = ranks.get(index);
+          q.logs.unshift(`${q.players[index].name}以${HAND_NAMES[rank.category]}赢得 ${awards[index]}。`);
+        });
+        if (awards[0] > 0) {
+          q.stats.pots++;
+          q.stats.showdownWins++;
+          q.stats.bestCategory = Math.max(q.stats.bestCategory, ranks.get(0).category);
+        }
+        finishHand(winners);
+      }
+
+      function awardUncontested(winner) {
+        q.showdown = false;
+        const amount = potTotal();
+        q.players[winner].chips += amount;
+        q.logs.unshift(`${q.players[winner].name}赢得无人跟注的 ${amount} 筹码底池。`);
+        if (winner === 0) q.stats.pots++;
+        finishHand([winner]);
+      }
+
+      function finishHand(winners) {
+        const amount = q.players.reduce((sum, player) => sum + player.committed, 0);
+        q.lastPot = amount;
+        q.stats.biggestPot = Math.max(q.stats.biggestPot, amount);
+        q.players.forEach((player, index) => {
+          if (index > 0 && player.chips <= 0 && !player.out) {
+            player.out = true;
+            player.tell = "筹码归零";
+            if (winners.includes(0)) q.stats.eliminations++;
+            q.logs.unshift(`${player.name}离开本桌。`);
+          }
+        });
+        q.handEnded = true;
+        q.turn = -1;
+        q.needs = [];
+        tone(winners.includes(0) ? 680 : 230, 0.09, 0.028);
+        if (q.players[0].chips <= 0) return finishContract(false);
+        if (!q.players.slice(1).some((player) => player.chips > 0)) return finishContract(true);
+        saveLocal();
+        draw();
+      }
+
+      function finishContract(win) {
+        const contract = CONTRACTS[q.contractIndex];
+        const result = {
+          win,
+          hands: q.hand,
+          par: contract.par,
+          eliminations: q.stats.eliminations,
+          showdownWins: q.stats.showdownWins,
+          biggestPot: q.stats.biggestPot,
+          bestCategory: q.stats.bestCategory,
+        };
+        result.stars = win ? 1 + (result.hands <= result.par ? 1 : 0) + (result.eliminations >= 2 ? 1 : 0) : 0;
+        if (win) {
+          profile.clears++;
+          profile.stars[q.contractIndex] = Math.max(profile.stars[q.contractIndex], result.stars);
+          profile.best[q.contractIndex] = profile.best[q.contractIndex] == null ? result.hands : Math.min(profile.best[q.contractIndex], result.hands);
+          profile.unlocked = Math.max(profile.unlocked, Math.min(2, q.contractIndex + 1));
+        }
+        profile.biggestPot = Math.max(profile.biggestPot, result.biggestPot);
+        MEDALS.forEach((medal) => { if (!profile.medals.includes(medal.id) && medal.test(result)) profile.medals.push(medal.id); });
+        q.mode = "result";
+        q.result = result;
+        saveLocal();
+        draw();
+      }
+
+      function heroPosition() {
+        if (!q) return "--";
+        if (q.dealer === 0) return "庄位";
+        if (q.smallBlindSeat === 0) return "小盲";
+        if (q.bigBlindSeat === 0) return "大盲";
+        return "枪口位";
+      }
+
+      function updateHeroEquity() {
+        if (!q?.players?.[0]?.hole) return;
+        const rivals = Math.max(1, contenders().length - 1);
+        q.heroEquity = equityEstimate(q.players[0].hole, q.board.slice(0, q.shown), rivals, q.seed + q.hand * 101 + q.street * 17, 90);
+      }
+
+      function cardHTML(card, hidden = false, small = false) {
+        if (!card) return '<div class="card empty"></div>';
+        if (hidden) return '<div class="card back" aria-label="暗牌"></div>';
+        const red = card.s === 1 || card.s === 2;
+        return `<div class="card ${red ? "red" : ""}" aria-label="${RANKS[card.r]}${SUITS[card.s]}">${RANKS[card.r]}${SUITS[card.s]}<br>${SUITS[card.s]}</div>`;
+      }
+
+      function renderSidebar() {
+        $("starTotal").textContent = `${profile.stars.reduce((sum, value) => sum + value, 0)} / 9 ★`;
+        $("medalText").textContent = `${profile.medals.length} / 6 勋章`;
+        $("clearText").textContent = profile.clears;
+        $("bestPotText").textContent = profile.biggestPot;
+        $("runText").textContent = profile.runs;
+        $("soundBtn").textContent = `音效 ${profile.sound ? "开" : "关"}`;
+        $("soundBtn").setAttribute("aria-pressed", String(profile.sound));
+        $("contractList").innerHTML = CONTRACTS.map((contract, index) => {
+          const locked = index > profile.unlocked;
+          return `<button class="contract ${selected === index ? "active" : ""}" data-contract="${index}" ${locked || q?.mode === "playing" ? "disabled" : ""}><b>${index + 1}. ${contract.name}</b><span>${locked ? "锁定" : `${"★".repeat(profile.stars[index])}${"☆".repeat(3 - profile.stars[index])} · 最佳 ${profile.best[index] || "--"} 手`}</span></button>`;
+        }).join("");
+        $("contractList").querySelectorAll("[data-contract]").forEach((button) => button.onclick = () => {
+          selected = +button.dataset.contract;
+          draw();
+        });
+        $("intelList").innerHTML = OPPONENTS.map((opponent) => `<div class="intel"><b>${opponent.name} · ${opponent.tag}</b><span>${opponent.text}</span></div>`).join("");
+      }
+
+      function renderSeats() {
+        if (!q) {
+          $("opponents").innerHTML = OPPONENTS.map((opponent) => `<div class="seat"><div class="seat-head"><b>${opponent.name}</b><span>${opponent.tag}</span></div><div class="cards">${cardHTML(null)}${cardHTML(null)}</div><div class="tell">等待入席</div></div>`).join("");
+          return;
+        }
+        $("opponents").innerHTML = q.players.slice(1).map((player, offset) => {
+          const index = offset + 1;
+          const reveal = q.showdown && !player.folded;
+          return `<div class="seat ${q.turn === index ? "turn" : ""} ${player.folded ? "folded" : ""} ${player.out ? "out" : ""}"><div class="seat-head"><b>${player.name}</b><span>${player.chips}</span></div><div class="cards">${cardHTML(player.hole?.[0], !reveal)}${cardHTML(player.hole?.[1], !reveal)}</div><div class="tell">${player.tell || "观察牌面"}</div></div>`;
+        }).join("");
+      }
+
+      function lobbyOverlay() {
+        const contract = CONTRACTS[selected];
+        $("overlayCard").innerHTML = `<small class="eyebrow">${contract.venue}</small><h2>${contract.name}</h2><p class="subtle">${contract.brief}</p><div class="goals"><div class="goal"><span>夺得本桌冠军</span><b>★</b></div><div class="goal"><span>${contract.par} 手内夺冠</span><b>★</b></div><div class="goal"><span>亲手淘汰至少两席</span><b>★</b></div></div><p class="subtle">起始筹码 ${contract.stack} · 初始盲注 ${Math.max(5, contract.baseBlind / 2)}/${contract.baseBlind} · 每 ${contract.riseEvery} 手升级</p><div class="button-row"><button class="primary" id="startContractBtn">进入牌桌</button></div>`;
+        $("startContractBtn").onclick = () => startContract(selected);
+      }
+
+      function resultOverlay() {
+        const result = q.result;
+        const contract = CONTRACTS[q.contractIndex];
+        $("overlayCard").innerHTML = `<small class="eyebrow">${result.win ? "TABLE CLEARED" : "TOURNAMENT ENDED"}</small><h2>${result.win ? `${contract.name}冠军` : "筹码归零"}</h2><p>${result.win ? `${"★".repeat(result.stars)}${"☆".repeat(3 - result.stars)}` : "重新选择牌桌，调整入池与加注范围。"}</p><div class="goals"><div class="goal"><span>完赛手数</span><b>${result.hands}</b></div><div class="goal"><span>亲手淘汰</span><b>${result.eliminations}</b></div><div class="goal"><span>摊牌获胜</span><b>${result.showdownWins}</b></div><div class="goal"><span>最大底池</span><b>${result.biggestPot}</b></div></div><div class="button-row"><button class="primary" id="returnLobbyBtn">返回赛历</button><button id="retryContractBtn">重赛本桌</button></div>`;
+        $("returnLobbyBtn").onclick = () => { q = null; selected = Math.min(profile.unlocked, selected + (result.win ? 1 : 0)); saveLocal(); draw(); };
+        $("retryContractBtn").onclick = () => startContract(q.contractIndex);
+      }
+
+      function draw() {
+        renderSidebar();
+        renderSeats();
+        const contract = CONTRACTS[q?.contractIndex ?? selected];
+        $("venueText").textContent = contract.venue;
+        $("tableTitle").textContent = contract.name;
+        $("handText").textContent = q ? q.hand : "--";
+        $("blindText").textContent = q ? `${q.smallBlind}/${q.bigBlind}` : "--";
+        $("positionText").textContent = q ? heroPosition() : "--";
+        $("chipText").textContent = q ? q.players[0].chips : "--";
+        $("potText").textContent = q ? potTotal() : 0;
+        $("streetText").textContent = q ? `${STREETS[Math.min(3, q.street)]} · 当前注额 ${q.currentBet}` : "牌桌待命";
+        $("board").innerHTML = Array.from({ length: 5 }, (_, index) => q ? cardHTML(q.board[index], index >= q.shown) : cardHTML(null)).join("");
+        $("hole").innerHTML = q ? q.players[0].hole.map((card) => cardHTML(card)).join("") : `${cardHTML(null)}${cardHTML(null)}`;
+        const hero = q?.players[0];
+        const handRank = q && q.shown >= 3 ? best([...hero.hole, ...q.board.slice(0, q.shown)]) : null;
+        $("heroStatus").textContent = !q ? "等待入席" : hero.out ? "已淘汰" : `${hero.chips} 筹码 · ${handRank ? HAND_NAMES[handRank.category] : heroPosition()}`;
+        $("equityText").textContent = q ? `${Math.round(q.heroEquity * 100)}%` : "--";
+        $("heroSeat").classList.toggle("turn", q?.turn === 0 && !q.handEnded);
+        $("handLog").innerHTML = q ? q.logs.map((line) => `<div>• ${line}</div>`).join("") : "选择牌桌后开始巡回赛。";
+
+        const heroTurn = q?.mode === "playing" && !q.handEnded && q.turn === 0;
+        $("actionPanel").style.visibility = heroTurn ? "visible" : "hidden";
+        const cost = heroTurn ? callCost(0) : 0;
+        $("callBtn").textContent = cost ? `跟注 ${Math.min(cost, hero.chips)}` : "过牌";
+        $("foldBtn").disabled = !heroTurn;
+        $("callBtn").disabled = !heroTurn;
+        $("allInBtn").disabled = !heroTurn || hero.chips <= 0;
+        const maxTarget = heroTurn ? hero.streetBet + hero.chips : 0;
+        const minTarget = heroTurn ? Math.min(maxTarget, q.currentBet + q.minRaise) : 0;
+        const suggested = heroTurn ? Math.min(maxTarget, Math.max(minTarget, q.currentBet + roundToFive(potTotal() / 2))) : 0;
+        $("raiseRange").min = minTarget;
+        $("raiseRange").max = maxTarget;
+        if (!heroTurn || +$("raiseRange").value < minTarget || +$("raiseRange").value > maxTarget) $("raiseRange").value = suggested;
+        $("raiseValue").textContent = $("raiseRange").value;
+        $("raiseBtn").disabled = !heroTurn || maxTarget <= q.currentBet || maxTarget < q.currentBet + q.minRaise;
+        $("nextHandBtn").style.visibility = q?.mode === "playing" && q.handEnded ? "visible" : "hidden";
+        $("leaveBtn").style.visibility = q ? "visible" : "hidden";
+
+        if (!q) {
+          $("overlay").classList.remove("hidden");
+          lobbyOverlay();
+        } else if (q.mode === "result") {
+          $("overlay").classList.remove("hidden");
+          resultOverlay();
+        } else {
+          $("overlay").classList.add("hidden");
         }
       }
-      advance();
-    }
-    function act(kind) {
-      if (q.ended || q.players[0].fold) return;
-      let cost = kind === "raise" ? q.blind * 3 : kind === "call" ? q.blind : 0;
-      if (kind === "fold") {
-        q.players[0].fold = true;
-        q.logs.unshift("你选择弃牌。");
-        return aiRound(0, false);
+
+      function parseCards(text) {
+        const suitMap = { S: 0, H: 1, D: 2, C: 3 };
+        const rankMap = { T: 8, J: 9, Q: 10, K: 11, A: 12 };
+        return text.split(/\s+/).map((token) => ({ s: suitMap[token.slice(-1)], r: rankMap[token[0]] ?? Number(token[0]) - 2 }));
       }
-      if (cost > q.players[0].chips) return;
-      q.players[0].chips -= cost;
-      q.pot += cost;
-      q.logs.unshift(
-        kind === "raise" ? `你加注 ${cost}。` : `你跟注 ${cost}。`,
-      );
-      aiRound(cost, kind === "raise");
-    }
-    function advance() {
-      let live = q.players.filter((p) => !p.fold);
-      if (live.length === 1) return finish(live[0]);
-      q.shown = q.shown === 0 ? 3 : q.shown + 1;
-      if (q.shown > 5) return showdown();
-      q.players.forEach((p) => (p.bet = 0));
+
+      function validateContent() {
+        const errors = [];
+        const cases = [
+          ["AS KS QS JS TS", 8],
+          ["9S 8H 7D 6C 5S", 4],
+          ["AS 2H 3D 4C 5S", 4],
+          ["AH AD AC KS KD", 6],
+          ["AH AD KC QS 2D", 1],
+        ];
+        cases.forEach(([cards, category], index) => { if (rankFive(parseCards(cards)).category !== category) errors.push(`evaluator ${index}`); });
+        const pots = buildSidePots([
+          { committed: 100, folded: false },
+          { committed: 200, folded: false },
+          { committed: 300, folded: true },
+          { committed: 300, folded: false },
+        ]);
+        if (pots.map((pot) => pot.amount).join(",") !== "400,300,200") errors.push("side pots");
+        const awards = settlePots([
+          { committed: 100, folded: false },
+          { committed: 200, folded: false },
+          { committed: 300, folded: true },
+          { committed: 300, folded: false },
+        ], [100, 300, 999, 200], 0);
+        if (awards.join(",") !== "0,700,0,200") errors.push("side pot awards");
+        if (new Set(CONTRACTS.map((contract) => contract.id)).size !== 3) errors.push("contracts");
+        if (new Set(OPPONENTS.map((opponent) => opponent.id)).size !== 3) errors.push("opponents");
+        return { valid: errors.length === 0, errors, contracts: CONTRACTS.length, opponents: OPPONENTS.length, medals: MEDALS.length, evaluatorCases: cases.length, sidePots: pots.length };
+      }
+
+      $("foldBtn").onclick = () => { if (applyAction(0, "fold")) runUntilHero(); };
+      $("callBtn").onclick = () => { if (applyAction(0, "call")) runUntilHero(); };
+      $("raiseBtn").onclick = () => { if (applyAction(0, "raise", +$("raiseRange").value)) runUntilHero(); };
+      $("allInBtn").onclick = () => { if (applyAction(0, "allin")) runUntilHero(); };
+      $("raiseRange").oninput = () => $("raiseValue").textContent = $("raiseRange").value;
+      $("nextHandBtn").onclick = startHand;
+      $("leaveBtn").onclick = () => {
+        if (q?.mode === "playing" && !confirm("结束当前锦标赛并返回赛历？")) return;
+        q = null;
+        saveLocal();
+        draw();
+      };
+      $("soundBtn").onclick = () => { profile.sound = !profile.sound; saveLocal(); draw(); };
+      $("archiveBtn").onclick = () => {
+        $("archiveText").value = encode();
+        $("archiveFeedback").textContent = "";
+        $("archiveModal").classList.remove("hidden");
+      };
+      $("closeArchiveBtn").onclick = () => $("archiveModal").classList.add("hidden");
+      $("copyBtn").onclick = async () => {
+        $("archiveText").value = encode();
+        try {
+          await navigator.clipboard.writeText($("archiveText").value);
+          $("archiveFeedback").textContent = "档案已复制。";
+        } catch {
+          $("archiveText").select();
+          $("archiveFeedback").textContent = "档案已生成，请手动复制。";
+        }
+      };
+      $("importBtn").onclick = () => {
+        try {
+          const restored = decode($("archiveText").value);
+          profile = restored.profile;
+          q = restored.run;
+          selected = q?.contractIndex ?? Math.min(profile.unlocked, 2);
+          if (q) updateHeroEquity();
+          saveLocal();
+          $("archiveFeedback").textContent = "档案已恢复。";
+          draw();
+        } catch (error) {
+          $("archiveFeedback").textContent = error.message;
+        }
+      };
+
+      window.__riverHoldem = Object.freeze({
+        CONTRACTS,
+        OPPONENTS,
+        MEDALS,
+        profile: () => copy(profile),
+        state: () => q ? copy(q) : null,
+        rankFive,
+        best,
+        buildSidePots,
+        settlePots,
+        equityEstimate,
+        validateContent,
+        startContract,
+        encode,
+        decode,
+      });
+
+      if (q) {
+        updateHeroEquity();
+        if (!q.handEnded && q.turn !== 0) runUntilHero();
+      }
       draw();
-    }
-    function showdown() {
-      let live = q.players.filter((p) => !p.fold),
-        ranked = live
-          .map((p) => ({ p, e: best([...p.hole, ...q.community]) }))
-          .sort((a, b) => b.e.score - a.e.score),
-        win = ranked[0];
-      finish(win.p, `${win.p.n} 以${names[win.e.cat]}获胜。`);
-    }
-    function finish(winner, text) {
-      winner.chips += q.pot;
-      q.logs.unshift(text || `${winner.n} 赢得无人跟注的底池。`);
-      q.ended = true;
-      if (q.players[0].chips <= 0) {
-        q.over = true;
-        q.logs.unshift("你的筹码归零，锦标赛结束。");
-      }
-      let ai = q.players.slice(1).filter((p) => p.chips > 0);
-      if (!ai.length) {
-        q.over = true;
-        q.logs.unshift("恭喜！你成为锦标赛冠军！");
-      }
-      draw();
-    }
-    function draw() {
-      handNo.textContent = q.hand;
-      blind.textContent = q.blind;
-      chips.textContent = q.players[0].chips;
-      pot.textContent = q.pot;
-      street.textContent = ["翻牌前", "翻牌圈", "转牌圈", "河牌圈"][
-        q.shown === 0 ? 0 : q.shown === 3 ? 1 : q.shown === 4 ? 2 : 3
-      ];
-      opponents.innerHTML = q.players
-        .slice(1)
-        .map(
-          (p) =>
-            `<div class="seat ${p.fold ? "fold" : ""}"><b>${p.n}</b><div class="cards">${card(p.hole[0], !q.ended)}${card(p.hole[1], !q.ended)}</div><span>${p.chips} 筹码 ${p.fold ? "· 已弃牌" : ""}</span></div>`,
-        )
-        .join("");
-      board.innerHTML = q.community
-        .map((c, i) =>
-          i < q.shown ? card(c) : '<div class="card back"></div>',
-        )
-        .join("");
-      hole.innerHTML = q.players[0].hole.map((c) => card(c)).join("");
-      handName.textContent =
-        q.shown >= 3
-          ? `当前牌力：${names[best([...q.players[0].hole, ...q.community.slice(0, q.shown)]).cat]}`
-          : "";
-      log.innerHTML = q.logs.map((s) => `<div>• ${s}</div>`).join("");
-      nextHand.style.display = q.ended && !q.over ? "inline-block" : "none";
-      check.disabled = raise.disabled = fold.disabled = q.ended || q.over;
-    }
-    check.onclick = () => act("call");
-    raise.onclick = () => act("raise");
-    fold.onclick = () => act("fold");
-    nextHand.onclick = start;
-    restart.onclick = () => {
-      q = fresh();
-      start();
-    };
-    q = fresh();
-    start();
+    })();
   </script>
+</body>
 </html>
