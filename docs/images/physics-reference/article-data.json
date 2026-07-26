@@ -1,0 +1,20 @@
+{
+  "title": "别拿录屏当物理验证",
+  "subtitle": "固定时间步、参考输入与 27 条真实球路自动验收",
+  "sourceCommit": "092bc152ddf0ce061660cad8d87f1e9a4be7ccda",
+  "metrics": {
+    "missions": 9,
+    "drills": 27,
+    "referencePassed": 27,
+    "physicsHz": 120,
+    "desktopRealStroke": true,
+    "mobileRealStroke": true,
+    "archivePrefix": "CUE2",
+    "archiveTamperRejected": true,
+    "pageCombinations": 200,
+    "loadFailures": 0,
+    "javascriptFailures": 0,
+    "consoleFailures": 0,
+    "overflows": 0
+  }
+}

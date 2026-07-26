@@ -1,0 +1,45 @@
+{
+  "status": "draft",
+  "original": true,
+  "title": "别拿录屏当物理验证：浏览器连续模拟的固定时间步、参考输入与自动验收",
+  "alternativeTitles": [
+    "27 条球路怎样自动证明可进？从拖拽输入到同源物理回归",
+    "浏览器物理关卡怎么测：固定时间步、轨迹夹具与 Playwright 真拖拽",
+    "Canvas 不报错还不够：给连续碰撞系统建立可复现验收"
+  ],
+  "summary": "截图和录屏能证明浏览器物理画面在动，却不能证明固定关卡真的可完成，也不能解释不同帧率下碰撞结果为什么漂移。本文以一个零依赖 Canvas 台球页面为真实样本，把屏幕拖拽归一化为世界坐标输入，让玩家出杆与 27 条参考杆共享 velocityFor、120Hz 固定物理步、球体碰撞、指数摩擦、库边反弹和袋口判定；再用 Playwright 完成桌面与 390×844 触屏真实拖杆、档案防篡改和 Canvas 像素回归。文章重点讨论连续数值系统如何建立可复现证据，而不是介绍游戏内容。",
+  "category": "前端",
+  "alternativeCategories": ["游戏开发", "软件工程", "自动化测试"],
+  "tags": ["JavaScript", "Canvas", "物理模拟", "Playwright", "自动化测试"],
+  "cover": {
+    "path": "docs/images/physics-reference/cover.jpg",
+    "width": 1920,
+    "height": 1080,
+    "insertInBody": false
+  },
+  "figures": [
+    {
+      "path": "docs/images/physics-reference/evidence-pipeline.jpg",
+      "name": "真实拖拽与参考输入汇入同一物理管线",
+      "placement": "先定义什么叫同源验证"
+    },
+    {
+      "path": "docs/images/physics-reference/trajectory-evidence.jpg",
+      "name": "真实手机拖杆与幽灵球几何夹具",
+      "placement": "参考球路保存输入，不保存答案"
+    },
+    {
+      "path": "docs/images/physics-reference/validation-results.jpg",
+      "name": "27 条物理球路与浏览器回归结果",
+      "placement": "模型通过以后，仍要走真实浏览器"
+    }
+  ],
+  "repository": "https://github.com/wangzifan396-wzf/mini-browser-games",
+  "sourceCommit": "092bc152ddf0ce061660cad8d87f1e9a4be7ccda",
+  "generatedAt": "2026-07-26",
+  "notes": [
+    "封面只设置为 CSDN 封面，不在正文重复插入。",
+    "正文三张图均保留图名与图注。",
+    "27/27 代表固定参考夹具通过，不代表任意玩家输入都已穷举。"
+  ]
+}
