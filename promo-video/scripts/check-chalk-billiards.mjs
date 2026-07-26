@@ -108,6 +108,14 @@ try {
     true,
     "all 27 reference strokes use the real physics model",
   );
+  assert.equal(
+    await page.evaluate(() => {
+      const run = window.__chalkBilliards.makeRun(0);
+      return window.__chalkBilliards.fire(run, 0.5) && run.shots === 1 && run.inShot;
+    }),
+    true,
+    "shared fire entry maps reference geometry to velocity",
+  );
 
   await page.locator('[data-cue="fine"]').click();
   assert.equal(await page.evaluate(() => window.__chalkBilliards.profile().cue), "fine", "real cue selection");
