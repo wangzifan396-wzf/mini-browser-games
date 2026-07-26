@@ -1,6 +1,6 @@
 import http from "node:http";
 import { createReadStream } from "node:fs";
-import { readdir, stat, writeFile } from "node:fs/promises";
+import { readFile, readdir, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
@@ -43,8 +43,20 @@ const server = http.createServer(async (request, response) => {
   }
 });
 
-const files = (await readdir(rootDir))
+const tierConfig = JSON.parse(await readFile(path.join(rootDir, "GAME_TIERS.json"), "utf8"));
+const tierEntries = Object.entries(tierConfig.tiers);
+const classifiedFiles = tierEntries.flatMap(([, tierFiles]) => tierFiles);
+const repositoryFiles = (await readdir(rootDir))
   .filter((file) => file.endsWith(".html") && file !== "index.html")
+  .sort((a, b) => a.localeCompare(b));
+if (new Set(classifiedFiles).size !== classifiedFiles.length
+  || classifiedFiles.slice().sort().join("\n") !== repositoryFiles.join("\n")) {
+  throw new Error("GAME_TIERS.json does not match the root game files");
+}
+const archivedFiles = tierConfig.tiers.E.slice().sort((a, b) => a.localeCompare(b));
+const files = tierEntries
+  .filter(([tier]) => tier !== "E")
+  .flatMap(([, tierFiles]) => tierFiles)
   .sort((a, b) => a.localeCompare(b));
 
 await new Promise((resolve) => server.listen(port, "127.0.0.1", resolve));
@@ -216,12 +228,17 @@ for (const viewport of viewports) {
 const payload = {
   generatedAt: new Date().toISOString(),
   gameCount: files.length,
+  repositoryGameCount: repositoryFiles.length,
+  archivedGameCount: archivedFiles.length,
   viewports,
   results,
 };
 await writeFile(outputFile, `${JSON.stringify(payload, null, 2)}\n`, "utf8");
 
 const summary = {
+  repositoryGames: repositoryFiles.length,
+  activeGames: files.length,
+  archivedGames: archivedFiles.length,
   pages: results.length,
   loadFailures: results.filter((result) => result.loadError || result.responseStatus !== 200).length,
   javascriptFailures: results.filter((result) => result.pageErrors.length).length,

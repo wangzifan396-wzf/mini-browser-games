@@ -26,7 +26,7 @@ jobs:
       - name: Prepare static site
         run: |
           mkdir -p _site
-          cp ./*.html README.md GAME_AUDIT.md LICENSE _site/
+          cp ./*.html README.md GAME_AUDIT.md GAME_TIERS.json LICENSE _site/
           touch _site/.nojekyll
       - name: Configure Pages
         uses: actions/configure-pages@v5
