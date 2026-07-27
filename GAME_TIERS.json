@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-07-27",
+  "updatedAt": "2026-07-28",
   "tiers": {
     "SSS": [
       "ball-arena.html",
@@ -57,6 +57,7 @@
       "fishing-harbor.html",
       "fleet-duel.html",
       "frontier-command.html",
+      "fruit-slice.html",
       "hive-sovereign.html",
       "island-survival.html",
       "market-pulse.html",
@@ -106,7 +107,6 @@
     ],
     "D": [
       "block-forge.html",
-      "fruit-slice.html",
       "maze-chase.html",
       "merge-orbit.html",
       "sky-hop.html"
