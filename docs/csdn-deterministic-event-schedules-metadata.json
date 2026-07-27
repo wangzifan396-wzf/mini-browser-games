@@ -1,0 +1,49 @@
+{
+  "status": "draft",
+  "original": true,
+  "title": "Seed 不是可复现的终点：把实时随机内容编译成可验证事件计划",
+  "alternativeTitles": [
+    "同一个 Seed 为什么仍然复现不了？JavaScript 实时随机内容的事件计划设计",
+    "别在动画循环里随手 Math.random：先生成 Schedule，再运行和回归",
+    "从 PRNG 到事件计划：让 Canvas 实时内容可复现、可校验、可回放"
+  ],
+  "summary": "固定随机种子只能保证伪随机数流一致，不能保证动画帧、输入事件和分支代码以相同顺序消费它。本文结合一个零依赖 Canvas 实时页面，说明如何把 seed、业务配置和局部 PRNG 放进纯构建阶段，预先编译带稳定 ID 的事件计划，再让运行时只按时间游标消费事件。真实样例生成 12 份互不重复的计划、499 个事件、297 份订单目标，并由共享正式命中与物理函数的参考消费者全部完成；Playwright 还验证真实划切、档案防篡改、双端 Canvas 和 190 个全仓页面组合。文章同时讨论调用顺序分叉、浮点时间、计划签名、版本化、参考方案过拟合及不适合预编译的随机边界。",
+  "category": "前端",
+  "alternativeCategories": [
+    "软件工程",
+    "自动化测试"
+  ],
+  "tags": [
+    "JavaScript",
+    "确定性测试",
+    "Canvas",
+    "自动化测试",
+    "前端架构"
+  ],
+  "cover": {
+    "path": "docs/images/deterministic-schedules/cover.jpg",
+    "width": 1920,
+    "height": 1080,
+    "insertInBody": false
+  },
+  "figures": [
+    {
+      "path": "docs/images/deterministic-schedules/seed-vs-schedule.jpg",
+      "name": "相同随机数流与稳定事件计划的差别",
+      "placement": "同一个 Seed 为什么仍然会分叉"
+    },
+    {
+      "path": "docs/images/deterministic-schedules/compile-pipeline.jpg",
+      "name": "从配置与局部 PRNG 到只读事件计划",
+      "placement": "把随机过程前移到编译阶段"
+    },
+    {
+      "path": "docs/images/deterministic-schedules/validation-results.jpg",
+      "name": "事件计划、参考消费者与浏览器回归的三层验证",
+      "placement": "三层验证：计划正确、规则可完成、用户入口可用"
+    }
+  ],
+  "repository": "https://github.com/wangzifan396-wzf/mini-browser-games",
+  "sourceCommit": "449a0b1a6d110021a34eb9944948098642fe1ac8",
+  "generatedAt": "2026-07-28"
+}

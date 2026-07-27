@@ -1,0 +1,22 @@
+{
+  "title": "Seed 不是可复现的终点",
+  "subtitle": "把实时随机内容编译成可验证事件计划",
+  "sourceCommit": "449a0b1a6d110021a34eb9944948098642fe1ac8",
+  "metrics": {
+    "missions": 12,
+    "events": 499,
+    "fruitEvents": 421,
+    "bombEvents": 78,
+    "bossLayers": 33,
+    "orderItems": 297,
+    "referenceWins": 12,
+    "auditedPages": 190,
+    "loadFailures": 0,
+    "javascriptErrors": 0,
+    "consoleErrors": 0,
+    "horizontalOverflows": 0
+  },
+  "testCommand": "node promo-video/scripts/check-fruit-slice.mjs",
+  "auditCommand": "node promo-video/scripts/audit-games.mjs",
+  "screenshot": "output/fruit-slice-v2-desktop.png"
+}
