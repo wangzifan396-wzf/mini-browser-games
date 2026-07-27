@@ -14,8 +14,8 @@ const audit = await readFile(path.join(rootDir, "GAME_AUDIT.md"), "utf8");
 assert.deepEqual(Object.keys(config.tiers), order, "tier order");
 const entries = order.flatMap((tier) => config.tiers[tier].map((file) => ({ tier, file })));
 const files = (await readdir(rootDir)).filter((file) => file.endsWith(".html") && file !== "index.html").sort();
-assert.equal(entries.length, 100, "configured game count");
-assert.equal(new Set(entries.map(({ file }) => file)).size, 100, "each game appears once");
+assert.equal(entries.length, files.length, "configured game count");
+assert.equal(new Set(entries.map(({ file }) => file)).size, entries.length, "each game appears once");
 assert.deepEqual(entries.map(({ file }) => file).sort(), files, "all root games are classified");
 
 const expected = new Map(entries.map(({ tier, file }) => [file, tier]));
@@ -30,16 +30,17 @@ for (const line of audit.split(/\r?\n/)) {
   const row = line.match(/^\| [^|]+ \| `([^`]+\.html)` /);
   if (row && auditTier) auditRows.set(row[1], auditTier);
 }
-assert.equal(auditRows.size, 100, "audit row count");
+assert.equal(auditRows.size, entries.length, "audit row count");
 for (const [file, tier] of expected) assert.equal(auditRows.get(file), tier, `${file} audit tier`);
 
 const overview = readme.split("## 游戏总览")[1]?.split(/^## /m)[0] || "";
 const activeRows = [...overview.matchAll(/^\|\s*(SSS|SS|S|A|B|C|D)\s*\|\s*\[[^\]]+\]\([^)]*\/([^/)]+\.html)\)/gm)]
   .map((match) => ({ tier: match[1], file: match[2] }));
-assert.equal(activeRows.length, 91, "README active row count");
-assert.equal(new Set(activeRows.map(({ file }) => file)).size, 91, "README active rows are unique");
+const activeFiles = activeOrder.flatMap((tier) => config.tiers[tier]);
+assert.equal(activeRows.length, activeFiles.length, "README active row count");
+assert.equal(new Set(activeRows.map(({ file }) => file)).size, activeFiles.length, "README active rows are unique");
 for (const { file, tier } of activeRows) assert.equal(expected.get(file), tier, `${file} README tier`);
-assert.deepEqual(activeRows.map(({ file }) => file).sort(), activeOrder.flatMap((tier) => config.tiers[tier]).sort(), "README active coverage");
+assert.deepEqual(activeRows.map(({ file }) => file).sort(), activeFiles.slice().sort(), "README active coverage");
 
 const archive = readme.split("## E 级历史废案")[1]?.split(/^## /m)[0] || "";
 const archiveFiles = [...archive.matchAll(/\/([^/)]+\.html)\)/g)].map((match) => match[1]);

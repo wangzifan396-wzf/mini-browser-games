@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { createReadStream } from "node:fs";
-import { mkdir, stat } from "node:fs/promises";
+import { mkdir, readFile, stat } from "node:fs/promises";
 import http from "node:http";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -11,6 +11,10 @@ const rootDir = path.resolve(here, "..", "..");
 const outputDir = path.join(rootDir, "output");
 const port = 4194;
 await mkdir(outputDir, { recursive: true });
+const tierConfig = JSON.parse(await readFile(path.join(rootDir, "GAME_TIERS.json"), "utf8"));
+const repositoryGameCount = Object.values(tierConfig.tiers).flat().length;
+const archivedGameCount = tierConfig.tiers.E.length;
+const activeGameCount = repositoryGameCount - archivedGameCount;
 
 const mime = {
   ".html": "text/html; charset=utf-8",
@@ -67,13 +71,13 @@ try {
   observe(desktop, "desktop");
   await desktop.goto(`http://127.0.0.1:${port}/`, { waitUntil: "networkidle" });
   await desktop.waitForSelector(".game-card");
-  assert.equal(await desktop.locator(".game-card").count(), 91, "active catalog game count");
-  assert.equal(await desktop.locator("#totalStat").innerText(), "91");
-  assert.equal(await desktop.locator("#archiveStat").innerText(), "9");
-  assert.equal(await desktop.locator(".category").count(), 91);
-  assert.equal(await desktop.locator(".play").count(), 91);
+  assert.equal(await desktop.locator(".game-card").count(), activeGameCount, "active catalog game count");
+  assert.equal(await desktop.locator("#totalStat").innerText(), String(activeGameCount));
+  assert.equal(await desktop.locator("#archiveStat").innerText(), String(archivedGameCount));
+  assert.equal(await desktop.locator(".category").count(), activeGameCount);
+  assert.equal(await desktop.locator(".play").count(), activeGameCount);
   const links = await desktop.locator(".play").evaluateAll((nodes) => nodes.map((node) => node.href));
-  assert.equal(new Set(links).size, 91, "unique active Pages game links");
+  assert.equal(new Set(links).size, activeGameCount, "unique active Pages game links");
   assert.equal(links.every((link) => /^https:\/\/wangzifan396-wzf\.github\.io\/mini-browser-games\/.+\.html$/.test(link)), true);
   await desktop.locator('[data-grade="SSS"]').click();
   assert.equal(await desktop.locator(".game-card").count(), 3, "SSS grade filter");
@@ -103,7 +107,7 @@ try {
   observe(mobile, "mobile");
   await mobile.goto(`http://127.0.0.1:${port}/`, { waitUntil: "networkidle" });
   await mobile.waitForSelector(".game-card");
-  assert.equal(await mobile.locator(".game-card").count(), 91);
+  assert.equal(await mobile.locator(".game-card").count(), activeGameCount);
   assert.equal(await noOverflow(mobile), true);
   await mobile.locator("#searchInput").fill("信标车队");
   assert.equal(await mobile.locator(".game-card").count(), 1);
@@ -113,10 +117,10 @@ try {
   assert.deepEqual(errors, [], `browser errors: ${errors.join(" | ")}`);
   console.log(JSON.stringify({
     checks: "PASS",
-    repositoryGames: 100,
-    activeGames: 91,
-    archivedGames: 9,
-    uniquePagesLinks: 91,
+    repositoryGames: repositoryGameCount,
+    activeGames: activeGameCount,
+    archivedGames: archivedGameCount,
+    uniquePagesLinks: activeGameCount,
     desktopOverflow: false,
     mobileOverflow: false,
     screenshots: ["output/pages-catalog-desktop.png", "output/pages-catalog-mobile.png"],

@@ -1,266 +1,87 @@
 <!doctype html>
 <html lang="zh-CN">
-  <meta charset="utf-8" /><meta
-    name="viewport"
-    content="width=device-width,initial-scale=1"
-  /><title>焕新清洁队</title
-  ><style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      background: #15333c;
-      color: #effcff;
-      font-family: system-ui, "Microsoft YaHei";
-    }
-    .app {
-      min-height: 100vh;
-      padding: 14px;
-      display: grid;
-      place-items: center;
-    }
-    .shell {
-      width: min(980px, 100%);
-      background: #20505b;
-      border: 1px solid #65a0a9;
-      border-radius: 20px;
-      padding: 16px;
-    }
-    .top,
-    .row {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .stage {
-      position: relative;
-      margin: 12px 0;
-    }
-    canvas {
-      width: 100%;
-      aspect-ratio: 16/9;
-      border: 2px solid #82acaf;
-      border-radius: 14px;
-      background: #bac4be;
-      display: block;
-      cursor: crosshair;
-      touch-action: none;
-    }
-    .meter {
-      height: 12px;
-      background: #173a42;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-    .meter i {
-      display: block;
-      height: 100%;
-      background: #77e5a3;
-    }
-    .panel {
-      background: #173e47;
-      border: 1px solid #50848c;
-      border-radius: 11px;
-      padding: 10px;
-    }
-    .jobs {
-      display: flex;
-      gap: 7px;
-      flex-wrap: wrap;
-    }
-    .jobs button.active {
-      outline: 3px solid #ffe16f;
-    }
-    button {
-      padding: 9px 11px;
-      border: 1px solid #72a2a9;
-      border-radius: 9px;
-      background: #33717c;
-      color: white;
-      font-weight: bold;
-    }
-    .upgrade {
-      background: #8d6b2f;
-    }
-    .help {
-      font-size: 13px;
-      color: #c2dcdf;
-    }
-    @media (max-width: 650px) {
-      .app {
-        place-items: start center;
-      }
-    }
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#23464a">
+  <title>焕新清洁队：十二材质委托</title>
+  <style>
+    :root{--bg:#e9eeee;--paper:#fffefb;--ink:#203638;--muted:#687879;--line:#c2cecd;--deep:#23464a;--teal:#287c7f;--blue:#26759a;--gold:#b77e20;--red:#a84d4e;--green:#39785c;--violet:#6a5d87;--radius:8px;--shadow:0 12px 28px rgba(31,65,68,.12)}
+    *{box-sizing:border-box;letter-spacing:0}body{margin:0;min-height:100vh;color:var(--ink);font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;background:var(--bg)}button{font:inherit}.app{width:min(1200px,calc(100vw - 24px));margin:auto;padding:18px 0 30px}.head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;padding:18px 20px;border-bottom:4px solid #e1b04c;color:#fff;background:var(--deep)}h1{margin:0;font-size:28px}.sub{margin:5px 0 0;color:#c9dbda;font-size:13px}.campaign{display:flex;gap:20px;text-align:right}.campaign b{display:block;color:#f1c969;font-size:20px}.campaign span{color:#bdcfce;font-size:10px}.jobs{display:grid;grid-template-columns:repeat(12,minmax(40px,1fr));gap:5px;padding:12px 0}.job{height:45px;border:1px solid #a4b5b4;border-radius:6px;color:#3d5657;background:#fafcfa;font-weight:900;cursor:pointer}.job.active{border-color:var(--teal);color:#fff;background:var(--teal)}.job.locked{opacity:.42}.job small{display:block;height:11px;color:#f3cd72;font-size:9px}.layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:14px}.stage{min-width:0;padding:14px;border:1px solid var(--line);border-radius:var(--radius);background:var(--paper);box-shadow:var(--shadow)}.brief{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px}.brief h2{margin:0;font-size:21px}.brief p{margin:5px 0 0;color:var(--muted);font-size:12px}.goal{flex:0 0 auto;padding:7px 9px;border:1px solid #c8a052;border-radius:6px;color:#704d0c;background:#fff4d8;font-size:11px;font-weight:900}.surface{position:relative;overflow:hidden;border:7px solid #a5b2b0;border-radius:6px;background:#ccd2cf}.surface canvas{display:block;width:100%;aspect-ratio:16/9;touch-action:none;cursor:crosshair}.surface-note{position:absolute;left:8px;bottom:8px;padding:5px 7px;border-radius:4px;color:#fff;background:rgba(33,57,59,.76);font-size:9px}.progress{height:12px;margin-top:9px;overflow:hidden;border-radius:5px;background:#d6dfdd}.progress i{display:block;width:0;height:100%;background:var(--green);transition:.15s}.tools{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:10px}.tool{min-height:54px;border:1px solid #9dafae;border-radius:6px;color:#3a5555;background:#eef3f1;font-weight:900;cursor:pointer}.tool small{display:block;margin-top:3px;color:var(--muted);font-size:9px}.tool.active{border-color:var(--teal);color:#fff;background:var(--teal)}.tool.active small{color:#d9efed}.panel{display:flex;flex-direction:column;gap:10px}.box{padding:12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--paper)}.box h3{margin:0 0 9px;font-size:14px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.stat{padding:8px 3px;border:1px solid #d1dcda;border-radius:6px;text-align:center;background:#f2f6f4}.stat b{display:block;color:var(--teal);font-size:17px}.stat span{color:var(--muted);font-size:9px}.damage b{color:var(--red)}.actions,.archive{display:grid;grid-template-columns:1fr 1fr;gap:6px}.actions button,.archive button{min-height:40px;border:1px solid #9eafad;border-radius:6px;color:#354e4f;background:#eff3f2;font-weight:900;cursor:pointer}.actions .primary{grid-column:1/-1;border-color:var(--teal);color:#fff;background:var(--teal)}.status{min-height:78px;margin:0;padding:10px;border-left:4px solid var(--teal);color:#385253;background:#edf5f3;font-size:12px;line-height:1.55}.layers{display:grid;grid-template-columns:1fr 1fr;gap:7px;color:var(--muted);font-size:10px}.layers i{display:inline-block;width:11px;height:11px;margin-right:5px;border-radius:50%;vertical-align:-1px}.result{position:fixed;inset:0;z-index:10;display:grid;place-items:center;padding:16px;background:rgba(25,48,50,.74)}.result[hidden]{display:none}.result-card{width:min(430px,100%);padding:22px;border-radius:var(--radius);background:#fff;box-shadow:0 24px 70px rgba(0,0,0,.3);text-align:center}.result-card h2{margin:0}.result-card p{color:var(--muted);line-height:1.6}.result-stars{margin:12px 0;color:#d49a18;font-size:34px}.result-card button{min-height:42px;padding:0 18px;border:0;border-radius:6px;color:#fff;background:var(--teal);font-weight:900;cursor:pointer}
+    @media(max-width:900px){.layout{grid-template-columns:1fr}.panel{display:grid;grid-template-columns:1fr 1fr}.panel .status{grid-column:1/-1}}
+    @media(max-width:680px){.app{width:calc(100vw - 12px);padding-top:6px}.head{display:block;padding:14px}.campaign{justify-content:space-between;margin-top:12px;text-align:left}.jobs{grid-template-columns:repeat(6,1fr)}.job{height:39px}.stage{padding:8px}.brief{display:block}.goal{display:inline-block;margin-top:7px}.surface{border-width:4px}.surface canvas{aspect-ratio:4/3}.tools{grid-template-columns:1fr 1fr}.panel{display:flex}}
   </style>
+</head>
+<body>
   <main class="app">
-    <section class="shell">
-      <div class="top">
-        <div>
-          <h1 style="margin: 0">焕新清洁队</h1>
-          <div class="help">
-            按住鼠标或手指冲洗污渍；完成五项清洁委托，升级喷头、压力与清洁剂。
-          </div>
-        </div>
-        <div>
-          委托 <b id="jobNo"></b>/5　进度 <b id="progress"></b>%　报酬
-          <b id="money"></b>
-        </div>
+    <header class="head"><div><h1>焕新清洁队：十二材质委托</h1><p class="sub">识别污层、切换工具，按正确顺序清洁不同材质并控制耗材与损伤。</p></div><div class="campaign"><div><b id="starTotal">0 / 36</b><span>清洁星章</span></div><div><b id="perfectTotal">0 / 12</b><span>零损验收</span></div><div><b id="layerTotal">0</b><span>累计污层</span></div></div></header>
+    <nav class="jobs" id="jobs" aria-label="清洁委托"></nav>
+    <section class="layout">
+      <div class="stage">
+        <div class="brief"><div><h2 id="title"></h2><p id="brief"></p></div><span class="goal" id="goal"></span></div>
+        <div class="surface"><canvas id="surface" width="960" height="540" aria-label="材质清洁工作面"></canvas><span class="surface-note">按住并拖动工具处理污层</span></div>
+        <div class="progress"><i id="progressBar"></i></div>
+        <div class="tools" id="tools"></div>
       </div>
-      <div class="jobs" id="jobs"></div>
-      <div class="stage"><canvas id="c" width="960" height="540"></canvas></div>
-      <div class="meter"><i id="bar"></i></div>
-      <div class="row" style="margin-top: 10px">
-        <div>
-          <button class="upgrade" id="nozzle">
-            宽喷头（<span id="nCost"></span>）</button
-          ><button class="upgrade" id="pressure">
-            高压力（<span id="pCost"></span>）</button
-          ><button class="upgrade" id="soap">
-            清洁剂（<span id="sCost"></span>）
-          </button>
-        </div>
-        <button id="nextJob">下一委托</button
-        ><button id="restart">重开事业</button><span id="msg"></span>
-      </div>
+      <aside class="panel">
+        <section class="box"><h3>剩余耗材</h3><div class="stats"><div class="stat"><b id="water">0</b><span>清水</span></div><div class="stat"><b id="chemical">0</b><span>药剂</span></div><div class="stat"><b id="battery">0</b><span>电量</span></div></div></section>
+        <section class="box"><h3>验收状态</h3><div class="stats"><div class="stat"><b id="cleaned">0%</b><span>洁净度</span></div><div class="stat damage"><b id="damage">0.0</b><span>表面损伤</span></div><div class="stat"><b id="hints">0</b><span>示范次数</span></div></div></section>
+        <section class="box"><div class="actions"><button class="primary" id="inspect">提交材质验收</button><button id="hint">示范一层</button><button id="reset">重做委托</button></div></section>
+        <p class="status" id="status"></p>
+        <section class="box"><div class="layers"><span><i style="background:#6d4d35"></i>浮尘 · 清水</span><span><i style="background:#c19035"></i>油膜 · 泡沫</span><span><i style="background:#47788e"></i>旧漆 · 刮片</span><span><i style="background:#a6533d"></i>锈斑 · 抛光</span></div></section>
+        <section class="box"><div class="archive"><button id="exportSave">导出档案</button><button id="importSave">导入档案</button></div></section>
+      </aside>
     </section>
   </main>
+  <div class="result" id="result" hidden><div class="result-card"><h2 id="resultTitle"></h2><p id="resultText"></p><div class="result-stars" id="resultStars"></div><button id="next">下一份委托</button></div></div>
   <script>
-    const cv = document.getElementById("c"),
-      g = cv.getContext("2d"),
-      J = [
-        ["泥泞滑板", "🛹", "#df715c"],
-        ["旧庭院", "🏡", "#d9b46d"],
-        ["观光巴士", "🚌", "#e6c64f"],
-        ["石像喷泉", "⛲", "#aab8bc"],
-        ["太空展厅", "🚀", "#d8dde8"],
-      ];
-    let q,
-      dirty = [],
-      down = false,
-      mouse = { x: 0, y: 0 };
-    const $ = (x) => document.getElementById(x);
-    function fresh() {
-      return { job: 0, money: 0, nozzle: 1, pressure: 1, soap: 1, done: {} };
-    }
-    function setup(i = q.job) {
-      q.job = i;
-      let n = 800 + i * 260;
-      dirty = Array.from({ length: n }, () => ({
-        x: 100 + Math.random() * 760,
-        y: 75 + Math.random() * 390,
-        r: 5 + Math.random() * 14,
-        hp: 1 + i * 0.2,
-      }));
-      msg.textContent = "从边角开始冲洗，污渍会逐渐剥落。";
-      drawUI();
-    }
-    function wash() {
-      if (!down || !dirty.length) return;
-      let radius = 18 + q.nozzle * 7,
-        power = 0.08 * q.pressure * (1 + q.soap * 0.15);
-      for (const d of dirty)
-        if (Math.hypot(d.x - mouse.x, d.y - mouse.y) < radius + d.r)
-          d.hp -= power;
-      dirty = dirty.filter((d) => d.hp > 0);
-      if (!dirty.length && !q.done[q.job]) {
-        q.done[q.job] = true;
-        let reward = 70 + q.job * 45;
-        q.money += reward;
-        msg.textContent = `焕然一新！获得 ${reward} 报酬。`;
-      }
-      drawUI();
-    }
-    function render() {
-      g.fillStyle = J[q.job][2];
-      g.fillRect(0, 0, 960, 540);
-      g.fillStyle = "#ffffff22";
-      for (let x = 0; x < 960; x += 80) g.fillRect(x, 0, 3, 540);
-      g.font = "150px serif";
-      g.textAlign = "center";
-      g.fillText(J[q.job][1], 480, 330);
-      for (const d of dirty) {
-        g.fillStyle = `rgba(66,45,29,${Math.min(0.82, d.hp)})`;
-        g.beginPath();
-        g.arc(d.x, d.y, d.r, 0, 7);
-        g.fill();
-      }
-      if (down) {
-        g.strokeStyle = "#c9f7ff";
-        g.lineWidth = 5;
-        g.beginPath();
-        g.moveTo(mouse.x - 150, 540);
-        g.lineTo(mouse.x, mouse.y);
-        g.stroke();
-        g.strokeStyle = "#9feaffaa";
-        g.lineWidth = 2;
-        g.beginPath();
-        g.arc(mouse.x, mouse.y, 18 + q.nozzle * 7, 0, 7);
-        g.stroke();
-      }
-      wash();
-      requestAnimationFrame(render);
-    }
-    function drawUI() {
-      let total = 800 + q.job * 260,
-        p = Math.round((1 - dirty.length / total) * 100);
-      jobNo.textContent = q.job + 1;
-      progress.textContent = Math.min(100, p);
-      money.textContent = q.money;
-      bar.style.width = Math.min(100, p) + "%";
-      jobs.innerHTML = J.map(
-        (j, i) =>
-          `<button data-i="${i}" class="${q.job === i ? "active" : ""}" ${i > 0 && !q.done[i - 1] ? "disabled" : ""}>${j[1]}${j[0]} ${q.done[i] ? "✓" : ""}</button>`,
-      ).join("");
-      jobs
-        .querySelectorAll("[data-i]")
-        .forEach((e) => (e.onclick = () => setup(+e.dataset.i)));
-      nCost.textContent = q.nozzle * 45;
-      pCost.textContent = q.pressure * 55;
-      sCost.textContent = q.soap * 40;
-      nextJob.disabled = !q.done[q.job] || q.job >= 4;
-    }
-    function upgrade(k, base) {
-      let cost = q[k] * base;
-      if (q.money < cost) return;
-      q.money -= cost;
-      q[k]++;
-      drawUI();
-    }
-    function point(e) {
-      let r = cv.getBoundingClientRect(),
-        p = e.touches?.[0] || e;
-      mouse.x = ((p.clientX - r.left) * 960) / r.width;
-      mouse.y = ((p.clientY - r.top) * 540) / r.height;
-    }
-    cv.onpointerdown = (e) => {
-      down = true;
-      point(e);
-    };
-    cv.onpointermove = point;
-    addEventListener("pointerup", () => (down = false));
-    cv.ontouchstart = (e) => {
-      down = true;
-      point(e);
-      e.preventDefault();
-    };
-    cv.ontouchmove = (e) => {
-      point(e);
-      e.preventDefault();
-    };
-    cv.ontouchend = () => (down = false);
-    nozzle.onclick = () => upgrade("nozzle", 45);
-    pressure.onclick = () => upgrade("pressure", 55);
-    soap.onclick = () => upgrade("soap", 40);
-    nextJob.onclick = () => setup(Math.min(4, q.job + 1));
-    restart.onclick = () => {
-      q = fresh();
-      setup();
-    };
-    q = fresh();
-    setup();
-    render();
+  (()=>{
+    "use strict";
+    const SAVE_KEY="clean_slate_v2",toolDefs={rinse:{name:"清水喷头",for:"dust",cost:{water:1},radius:31,key:"1"},foam:{name:"泡沫刷",for:"grease",cost:{chemical:1},radius:35,key:"2"},scraper:{name:"振动刮片",for:"paint",cost:{battery:1},radius:25,key:"3"},polish:{name:"抛光轮",for:"rust",cost:{chemical:.55,battery:.7},radius:29,key:"4"}},typeNames={dust:"浮尘",grease:"油膜",paint:"旧漆",rust:"锈斑"},typeColors={dust:"#6d4d35",grease:"#c19035",paint:"#47788e",rust:"#a6533d"},materials={tile:{name:"釉面砖",base:"#b9d1ce",line:"#eff8f6"},steel:{name:"拉丝钢",base:"#aeb9bd",line:"#dce2e4"},glass:{name:"展柜玻璃",base:"#9fc7cf",line:"#d8f0f2"},wood:{name:"封蜡木",base:"#b99367",line:"#e1c39a"}},specs=[
+      ["门厅脚印","先冲走浮尘，再处理砖缝油膜。","tile",["dust","grease"],16,4],["厨房挡板","油膜覆盖在浮尘之上，工具顺序很重要。","steel",["dust","grease"],18,3],["旧窗胶印","玻璃上的旧漆必须用刮片局部处理。","glass",["dust","paint"],19,4],["庭院铁门","锈斑与浮尘交错，避免错误工具磨损底材。","steel",["rust","dust"],20,3],
+      ["画室地坪","旧漆、浮尘和油膜形成三类分区。","tile",["paint","dust","grease"],21,4],["档案木柜","封蜡木面不耐误操作，按污层颜色切换。","wood",["dust","grease","paint"],22,3],["车站铭牌","锈斑上覆盖油膜，需要先刷后抛。","steel",["rust","grease","dust"],23,3],["温室玻璃","透明表面混合三类污层，损伤限额更低。","glass",["dust","paint","grease"],24,3],
+      ["船坞舱门","盐尘、锈斑、旧漆和油膜全部出现。","steel",["dust","rust","paint","grease"],25,3],["剧院木台","分层旧漆与油膜覆盖封蜡木板。","wood",["dust","paint","grease","rust"],26,3],["博物展柜","玻璃终检要求在有限药剂内完成四类污层。","glass",["grease","dust","paint","rust"],27,3],["总馆验收","四种污层与多层覆盖组成最终材质合同。","tile",["dust","grease","paint","rust"],28,2]
+    ];
+    const $=id=>document.getElementById(id),cv=$("surface"),g=cv.getContext("2d"),jobEl=$("jobs"),toolEl=$("tools"),statusEl=$("status");
+    function rng(seed){return()=>((seed=Math.imul(seed,1664525)+1013904223>>>0)/4294967296)}
+    function buildJob(spec,index){const[title,brief,material,types,count,layerEvery]=spec,random=rng(4103+index*7919),patches=[];for(let i=0;i<count;i++){const layers=[{type:types[i%types.length],hp:1+index*.035}];if(i%layerEvery===0)layers.push({type:types[(i+1)%types.length],hp:.8+index*.025});if(index>=8&&i%(layerEvery+2)===1)layers.push({type:types[(i+2)%types.length],hp:.65+index*.02});patches.push({id:i,x:82+random()*796,y:74+random()*390,r:12+random()*17,layers})}const exact={water:0,chemical:0,battery:0};for(const patch of patches)for(const layer of patch.layers)for(const[resource,cost]of Object.entries(Object.values(toolDefs).find(tool=>tool.for===layer.type).cost))exact[resource]+=cost*layer.hp;const supplies=Object.fromEntries(Object.entries(exact).map(([key,value])=>[key,Math.ceil(value*1.28+2)]));return{id:`j${index+1}`,title,brief,material,patches,supplies,totalLayers:patches.reduce((sum,patch)=>sum+patch.layers.length,0),damageLimit:index===7||index===10?2:4}}
+    const jobs=specs.map(buildJob);
+    let save=loadSave(),q=null,tool="rinse",down=false,lastPoint=null,audio=null;
+    function defaults(){return{version:2,stars:{},damage:{},updatedAt:Date.now()}}
+    function checksum(text){let h=2166136261;for(const ch of text){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)}return(h>>>0).toString(36)}
+    function normalize(value){const clean=defaults();if(!value||value.version!==2)return clean;for(const job of jobs){clean.stars[job.id]=Math.max(0,Math.min(3,Number(value.stars?.[job.id])||0));if(Number.isFinite(Number(value.damage?.[job.id])))clean.damage[job.id]=Math.max(0,Number(value.damage[job.id]))}return clean}
+    function loadSave(){try{return normalize(JSON.parse(localStorage.getItem(SAVE_KEY)))}catch{return defaults()}}
+    function persist(){save.updatedAt=Date.now();localStorage.setItem(SAVE_KEY,JSON.stringify(save));renderCampaign()}
+    function encodeSave(){const body=btoa(unescape(encodeURIComponent(JSON.stringify(save))));return`CLEAN2.${body}.${checksum(body)}`}
+    function decodeSave(code){const parts=code.trim().split(".");if(parts.length!==3||parts[0]!=="CLEAN2"||checksum(parts[1])!==parts[2])throw Error("清洁档案校验失败");return normalize(JSON.parse(decodeURIComponent(escape(atob(parts[1])))))}
+    function clonePatches(patches){return patches.map(patch=>({...patch,layers:patch.layers.map(layer=>({...layer}))}))}
+    function cleanLayer(layer,selected,supplies,amount){const definition=toolDefs[selected];if(definition.for!==layer.type)return{valid:false,damage:.22};const applied=Math.min(amount,layer.hp);for(const[resource,cost]of Object.entries(definition.cost))if(supplies[resource]+1e-6<cost*applied)return{valid:false,exhausted:resource};for(const[resource,cost]of Object.entries(definition.cost))supplies[resource]-=cost*applied;layer.hp-=applied;return{valid:true,removed:layer.hp<=.001,applied}}
+    function simulateReference(job){const supplies={...job.supplies},patches=clonePatches(job.patches);for(const patch of patches)while(patch.layers.length){const layer=patch.layers.at(-1),selected=Object.keys(toolDefs).find(id=>toolDefs[id].for===layer.type),result=cleanLayer(layer,selected,supplies,Infinity);if(!result.valid)return{complete:false,supplies};patch.layers.pop()}return{complete:true,supplies}}
+    function validateContent(){if(jobs.length!==12)throw Error("清洁委托数量错误");let patches=0,totalLayers=0;for(const job of jobs){patches+=job.patches.length;totalLayers+=job.totalLayers;const result=simulateReference(job);if(!result.complete||Object.values(result.supplies).some(value=>value<-.001))throw Error(`${job.id} 参考清洁失败`)}return{jobs:jobs.length,referencesPassed:jobs.length,patches,totalLayers,tools:Object.keys(toolDefs).length}}
+    function unlocked(index){return index===0||Number(save.stars[jobs[index-1].id])>0}
+    function begin(index=0){if(!unlocked(index))return;const job=jobs[index];q={index,job,patches:clonePatches(job.patches),supplies:{...job.supplies},damage:0,hints:0,totalLayers:job.totalLayers,cleanedLayers:0,done:false};tool="rinse";down=false;lastPoint=null;renderAll();setStatus("观察污层颜色并选择对应工具。叠层污渍必须从当前可见的最上层开始处理。")}
+    function setStatus(text){statusEl.textContent=text}
+    function renderCampaign(){const stars=Object.values(save.stars).reduce((sum,n)=>sum+Number(n||0),0),perfect=Object.values(save.damage).filter(n=>n===0).length,layers=jobs.reduce((sum,job)=>sum+(save.stars[job.id]?job.totalLayers:0),0);$("starTotal").textContent=`${stars} / 36`;$("perfectTotal").textContent=`${perfect} / 12`;$("layerTotal").textContent=layers}
+    function renderJobs(){jobEl.replaceChildren();jobs.forEach((job,index)=>{const button=document.createElement("button"),stars=Number(save.stars[job.id])||0;button.className=`job${q?.index===index?" active":""}${unlocked(index)?"":" locked"}`;button.innerHTML=`${String(index+1).padStart(2,"0")}<small>${stars?"★".repeat(stars):""}</small>`;button.disabled=!unlocked(index);button.title=job.title;button.onclick=()=>begin(index);jobEl.append(button)})}
+    function renderTools(){toolEl.replaceChildren();for(const[id,definition]of Object.entries(toolDefs)){const button=document.createElement("button");button.className=`tool${tool===id?" active":""}`;button.dataset.tool=id;button.innerHTML=`${definition.name}<small>${definition.key} · 处理${typeNames[definition.for]}</small>`;button.onclick=()=>{tool=id;renderTools();setStatus(`已切换${definition.name}，用于处理${typeNames[definition.for]}。`)};toolEl.append(button)}}
+    function remainingLayers(){return q.patches.reduce((sum,patch)=>sum+patch.layers.length,0)}
+    function renderPanel(){const clean=Math.round(q.cleanedLayers/q.totalLayers*100);$("title").textContent=`${String(q.index+1).padStart(2,"0")} · ${q.job.title}`;$("brief").textContent=q.job.brief;$("goal").textContent=`${materials[q.job.material].name} · 损伤 ≤ ${q.job.damageLimit}`;$("water").textContent=Math.max(0,q.supplies.water).toFixed(1);$("chemical").textContent=Math.max(0,q.supplies.chemical).toFixed(1);$("battery").textContent=Math.max(0,q.supplies.battery).toFixed(1);$("cleaned").textContent=`${clean}%`;$("damage").textContent=q.damage.toFixed(1);$("hints").textContent=q.hints;$("progressBar").style.width=`${clean}%`}
+    function renderAll(){renderCampaign();renderJobs();renderTools();renderPanel();draw()}
+    function tone(freq,duration=.07){try{audio??=new AudioContext();const osc=audio.createOscillator(),gain=audio.createGain();osc.frequency.value=freq;gain.gain.setValueAtTime(.025,audio.currentTime);gain.gain.exponentialRampToValueAtTime(.001,audio.currentTime+duration);osc.connect(gain).connect(audio.destination);osc.start();osc.stop(audio.currentTime+duration)}catch{}}
+    function drawBase(){const material=materials[q.job.material];g.fillStyle=material.base;g.fillRect(0,0,960,540);g.strokeStyle=material.line;g.lineWidth=q.job.material==="steel"?3:2;if(q.job.material==="tile"){for(let x=0;x<960;x+=120){g.beginPath();g.moveTo(x,0);g.lineTo(x,540);g.stroke()}for(let y=0;y<540;y+=108){g.beginPath();g.moveTo(0,y);g.lineTo(960,y);g.stroke()}}else if(q.job.material==="wood"){for(let y=35;y<540;y+=70){g.beginPath();g.moveTo(0,y);g.bezierCurveTo(250,y+12,650,y-12,960,y);g.stroke()}}else{for(let x=0;x<960;x+=18){g.globalAlpha=.25;g.beginPath();g.moveTo(x,0);g.lineTo(x,540);g.stroke();g.globalAlpha=1}}}
+    function drawPatch(patch){if(!patch.layers.length)return;const layer=patch.layers.at(-1),depth=patch.layers.length;g.save();g.globalAlpha=.64+Math.min(.25,layer.hp*.12);g.fillStyle=typeColors[layer.type];g.beginPath();const points=10;for(let i=0;i<points;i++){const angle=i/points*Math.PI*2,r=patch.r*(.76+((patch.id*17+i*31)%23)/55),x=patch.x+Math.cos(angle)*r,y=patch.y+Math.sin(angle)*r;if(i===0)g.moveTo(x,y);else g.lineTo(x,y)}g.closePath();g.fill();g.globalAlpha=.55;g.strokeStyle="#2d3230";g.lineWidth=depth>1?4:2;if(layer.type==="grease"){g.beginPath();g.arc(patch.x,patch.y,patch.r*.55,0,Math.PI*2);g.stroke()}else if(layer.type==="paint"){g.beginPath();g.moveTo(patch.x-patch.r*.7,patch.y+patch.r*.4);g.lineTo(patch.x+patch.r*.7,patch.y-patch.r*.35);g.stroke()}else if(layer.type==="rust"){g.setLineDash([3,5]);g.beginPath();g.arc(patch.x,patch.y,patch.r*.65,0,Math.PI*2);g.stroke()}g.restore()}
+    function draw(){drawBase();for(const patch of q.patches)drawPatch(patch);if(lastPoint&&down){g.strokeStyle="rgba(255,255,255,.85)";g.lineWidth=3;g.beginPath();g.arc(lastPoint.x,lastPoint.y,toolDefs[tool].radius,0,Math.PI*2);g.stroke()}g.fillStyle="rgba(35,70,74,.82)";g.fillRect(12,12,180,30);g.fillStyle="#fff";g.font="bold 13px sans-serif";g.fillText(`${materials[q.job.material].name} · ${remainingLayers()} 层待处理`,24,32)}
+    function point(event){const rect=cv.getBoundingClientRect();return{x:(event.clientX-rect.left)*960/rect.width,y:(event.clientY-rect.top)*540/rect.height}}
+    function applyAt(position,power=.2){if(q.done)return;let touched=0,wrong=0,exhausted="";for(const patch of q.patches){if(!patch.layers.length)continue;const distance=Math.hypot(patch.x-position.x,patch.y-position.y);if(distance>patch.r+toolDefs[tool].radius)continue;const layer=patch.layers.at(-1);if(toolDefs[tool].for!==layer.type&&distance>Math.max(8,patch.r*.65))continue;const result=cleanLayer(layer,tool,q.supplies,power);touched++;if(result.valid&&result.removed){patch.layers.pop();q.cleanedLayers++;tone(390+q.cleanedLayers*3)}else if(!result.valid&&result.exhausted)exhausted=result.exhausted;else if(!result.valid){q.damage+=result.damage;wrong++}}if(exhausted)setStatus(`对应耗材不足，无法继续使用${toolDefs[tool].name}。`);else if(wrong)setStatus(`${toolDefs[tool].name}不适合当前可见污层，表面损伤增加。`);else if(!touched)setStatus("工具没有接触到可见污层。");renderPanel();draw();if(!remainingLayers())finish()}
+    function finish(){if(q.done)return;q.done=true;const stars=1+(q.damage<=q.job.damageLimit?1:0)+(q.damage===0&&q.hints===0?1:0),id=q.job.id;save.stars[id]=Math.max(Number(save.stars[id])||0,stars);save.damage[id]=Math.min(save.damage[id]??Infinity,q.damage);persist();renderAll();$("resultTitle").textContent="材质验收通过";$("resultText").textContent=`${q.totalLayers} 层污渍全部清除，表面损伤 ${q.damage.toFixed(1)}。`;$("resultStars").textContent="★".repeat(stars)+"☆".repeat(3-stars);$("next").textContent=q.index<jobs.length-1?"下一份委托":"返回总馆";$("result").hidden=false;tone(610,.2)}
+    function hint(){const patch=q.patches.find(item=>item.layers.length);if(!patch){setStatus("全部污层已经处理，可以提交验收。");return}const layer=patch.layers.at(-1),selected=Object.keys(toolDefs).find(id=>toolDefs[id].for===layer.type);tool=selected;const result=cleanLayer(layer,selected,q.supplies,Infinity);if(!result.valid){setStatus("参考工具耗材不足，请重做委托。");return}patch.layers.pop();q.cleanedLayers++;q.hints++;lastPoint={x:patch.x,y:patch.y};renderAll();setStatus(`示范完成：在标记位置用${toolDefs[selected].name}处理${typeNames[layer.type]}。`);if(!remainingLayers())finish()}
+    function inspect(){if(remainingLayers()){setStatus(`仍有 ${remainingLayers()} 层污渍未清除。`);tone(100,.15);return}finish()}
+    cv.addEventListener("pointerdown",event=>{down=true;cv.setPointerCapture(event.pointerId);lastPoint=point(event);applyAt(lastPoint,.28)});cv.addEventListener("pointermove",event=>{if(!down)return;lastPoint=point(event);applyAt(lastPoint,.2)});cv.addEventListener("pointerup",event=>{down=false;lastPoint=null;cv.releasePointerCapture(event.pointerId);draw()});cv.addEventListener("pointercancel",()=>{down=false;lastPoint=null;draw()});
+    $("inspect").onclick=inspect;$("hint").onclick=hint;$("reset").onclick=()=>begin(q.index);$("next").onclick=()=>{$("result").hidden=true;begin(Math.min(jobs.length-1,q.index+1))};
+    $("exportSave").onclick=async()=>{const code=encodeSave();try{await navigator.clipboard.writeText(code);setStatus("CLEAN2 档案码已复制。") }catch{prompt("CLEAN2 档案码",code)}};$("importSave").onclick=()=>{const code=prompt("输入 CLEAN2 档案码");if(!code)return;try{save=decodeSave(code);persist();begin(0);setStatus("清洁档案导入完成。") }catch(error){setStatus(error.message)}};
+    addEventListener("keydown",event=>{const id=Object.keys(toolDefs).find(key=>toolDefs[key].key===event.key);if(id){tool=id;renderTools()}if(event.code==="Enter")inspect()});
+    window.__cleanSlateTest={validateContent,simulateReference,jobs,getState:()=>{const patch=q.patches.find(item=>item.layers.length),layer=patch?.layers.at(-1);return{index:q.index,cleanedLayers:q.cleanedLayers,damage:q.damage,firstPatch:patch&&{x:patch.x,y:patch.y,type:layer.type,hp:layer.hp}}}};validateContent();begin(0);
+  })();
   </script>
+</body>
 </html>
