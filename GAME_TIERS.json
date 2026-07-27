@@ -36,6 +36,7 @@
       "thunder-vanguard.html"
     ],
     "A": [
+      "air-hockey.html",
       "air-traffic-control.html",
       "alchemy-workshop.html",
       "auction-fever.html",
@@ -68,11 +69,13 @@
       "pocket-companion.html",
       "pocket-empire.html",
       "pocket-golf.html",
+      "prism-breaker.html",
       "pulse-studio.html",
       "signal-caravan.html",
       "skyline-planner.html",
       "starline-route.html",
       "starship-suspects.html",
+      "sudoku-studio.html",
       "switchyard-rush.html",
       "tidal-grid.html",
       "tide-salvage.html",
@@ -102,14 +105,11 @@
       "solitaire-classic.html"
     ],
     "D": [
-      "air-hockey.html",
       "block-forge.html",
       "fruit-slice.html",
       "maze-chase.html",
       "merge-orbit.html",
-      "prism-breaker.html",
-      "sky-hop.html",
-      "sudoku-studio.html"
+      "sky-hop.html"
     ],
     "E": [
       "blackjack-table.html",
