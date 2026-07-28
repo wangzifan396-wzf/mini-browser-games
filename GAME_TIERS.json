@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-07-28",
+  "updatedAt": "2026-07-29",
   "tiers": {
     "SSS": [
       "ball-arena.html",
@@ -63,6 +63,7 @@
       "island-survival.html",
       "market-pulse.html",
       "maze-chase.html",
+      "merge-orbit.html",
       "metro-weaver.html",
       "midnight-monitor.html",
       "mine-matrix.html",
@@ -108,7 +109,6 @@
       "solitaire-classic.html"
     ],
     "D": [
-      "merge-orbit.html",
       "sky-hop.html"
     ],
     "E": [
