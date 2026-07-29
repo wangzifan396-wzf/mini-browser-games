@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-07-29",
+  "updatedAt": "2026-07-30",
   "tiers": {
     "SSS": [
       "ball-arena.html",
@@ -74,6 +74,7 @@
       "pocket-empire.html",
       "pocket-golf.html",
       "prism-breaker.html",
+      "prism-orchard.html",
       "pulse-studio.html",
       "signal-caravan.html",
       "sky-hop.html",
@@ -95,7 +96,6 @@
       "monster-horde.html",
       "noodle-shift.html",
       "pixel-clues.html",
-      "prism-orchard.html",
       "radish-guard.html",
       "snow-ridge.html"
     ],
