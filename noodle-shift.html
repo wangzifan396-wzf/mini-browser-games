@@ -1,864 +1,104 @@
 <!doctype html>
 <html lang="zh-CN">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>夜市面摊</title>
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23141b1c'/%3E%3Cpath d='M14 31h36l-5 21H19z' fill='%23f1dfb3'/%3E%3Cpath d='M18 31c2-9 8-14 14-14s12 5 14 14' fill='none' stroke='%23d65a4a' stroke-width='5' stroke-linecap='round'/%3E%3Cpath d='M24 26c5-9 12-9 17 0' fill='none' stroke='%23f3c45f' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
-    <style>
-      :root {
-        --ink: #111c1d;
-        --paper: #fff3df;
-        --panel: #fffdf5;
-        --line: #8c9a90;
-        --teal: #2d7468;
-        --red: #c45447;
-        --gold: #d49e37;
-        --blue: #326886;
-        --leaf: #668d4e;
-        --shadow: rgba(8, 15, 14, 0.27);
-        --radius: 8px;
-      }
-
-      * {
-        box-sizing: border-box;
-      }
-
-      body {
-        margin: 0;
-        min-height: 100vh;
-        color: var(--ink);
-        font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
-        background:
-          linear-gradient(rgba(255, 243, 223, 0.07) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(255, 243, 223, 0.07) 1px, transparent 1px),
-          linear-gradient(135deg, #122022, #263b35 46%, #533b3f);
-        background-size: 30px 30px, 30px 30px, auto;
-        overflow-x: hidden;
-      }
-
-      button {
-        font: inherit;
-      }
-
-      .app {
-        width: min(1380px, calc(100vw - 28px));
-        margin: 14px auto;
-      }
-
-      .topbar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 14px;
-        padding: 16px 20px;
-        border: 1px solid var(--line);
-        border-radius: var(--radius);
-        background: linear-gradient(90deg, rgba(255, 253, 245, 0.98), rgba(255, 245, 230, 0.96));
-        box-shadow: 0 16px 36px var(--shadow);
-      }
-
-      .eyebrow {
-        margin: 0 0 5px;
-        color: #8c6318;
-        font-size: 12px;
-        font-weight: 900;
-      }
-
-      h1,
-      h2,
-      p {
-        margin-top: 0;
-      }
-
-      h1 {
-        margin: 0;
-        font-size: clamp(26px, 4vw, 44px);
-        line-height: 1;
-      }
-
-      .actions {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: flex-end;
-        gap: 10px;
-      }
-
-      .btn {
-        min-height: 42px;
-        padding: 0 14px;
-        border: 1px solid #24534d;
-        border-radius: var(--radius);
-        color: #fffdf6;
-        background: #287066;
-        font-weight: 900;
-        cursor: pointer;
-        box-shadow: 0 8px 18px rgba(15, 45, 42, 0.22);
-      }
-
-      .btn.secondary {
-        color: var(--ink);
-        background: #f2d17a;
-        border-color: #9a7421;
-      }
-
-      .layout {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) 330px;
-        gap: 14px;
-        margin-top: 14px;
-        align-items: start;
-      }
-
-      .stage,
-      .side {
-        border: 1px solid var(--line);
-        border-radius: var(--radius);
-        background: rgba(255, 253, 245, 0.96);
-        box-shadow: 0 16px 36px var(--shadow);
-      }
-
-      .stage {
-        position: relative;
-        overflow: hidden;
-        min-height: 640px;
-      }
-
-      canvas {
-        display: block;
-        width: 100%;
-        height: 640px;
-        touch-action: none;
-      }
-
-      .side {
-        padding: 16px;
-      }
-
-      .stats {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        margin-bottom: 14px;
-      }
-
-      .stat {
-        padding: 10px;
-        border: 1px solid #9ea69c;
-        border-radius: var(--radius);
-        background: #f9f7eb;
-      }
-
-      .stat b {
-        display: block;
-        font-size: 24px;
-        line-height: 1.1;
-      }
-
-      .stat small {
-        color: #5e6c66;
-        font-weight: 800;
-      }
-
-      .station-title {
-        margin: 12px 0 8px;
-        color: #475954;
-        font-size: 13px;
-        font-weight: 900;
-      }
-
-      .grid-buttons {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 8px;
-      }
-
-      .grid-buttons button {
-        min-height: 58px;
-        border: 1px solid #778980;
-        border-radius: var(--radius);
-        background: #fff8e7;
-        color: var(--ink);
-        font-weight: 900;
-        cursor: pointer;
-      }
-
-      .grid-buttons button.selected {
-        background: #d9f0df;
-        border-color: #2d7468;
-      }
-
-      .grid-buttons .wide {
-        grid-column: span 3;
-        min-height: 48px;
-        color: #fffdf6;
-        background: #c45447;
-        border-color: #8e342d;
-      }
-
-      .queue {
-        display: grid;
-        gap: 8px;
-        margin-top: 8px;
-      }
-
-      .ticket {
-        padding: 9px;
-        border: 1px solid #9ea69c;
-        border-radius: var(--radius);
-        background: #fff9ea;
-      }
-
-      .ticket b {
-        display: block;
-        margin-bottom: 3px;
-      }
-
-      .ticket small {
-        color: #627069;
-        font-weight: 800;
-      }
-
-      .overlay {
-        position: absolute;
-        inset: 0;
-        display: grid;
-        place-items: center;
-        padding: 24px;
-        background: rgba(16, 28, 29, 0.52);
-      }
-
-      .modal {
-        width: min(480px, 100%);
-        padding: 22px;
-        border: 1px solid #a6b1a9;
-        border-radius: var(--radius);
-        background: #fffdf6;
-        box-shadow: 0 24px 52px rgba(0, 0, 0, 0.32);
-      }
-
-      .modal h2 {
-        margin: 0 0 10px;
-        font-size: 28px;
-      }
-
-      .modal p {
-        margin-bottom: 16px;
-        color: #53635f;
-        line-height: 1.6;
-      }
-
-      .hidden {
-        display: none;
-      }
-
-      @media (max-width: 980px) {
-        .layout {
-          grid-template-columns: 1fr;
-        }
-
-        .side {
-          order: -1;
-        }
-
-        .stage {
-          min-height: 560px;
-        }
-
-        canvas {
-          height: 560px;
-        }
-      }
-
-      @media (max-width: 620px) {
-        .app {
-          width: min(100vw - 16px, 1380px);
-          margin-top: 8px;
-        }
-
-        .topbar {
-          display: block;
-          padding: 14px;
-        }
-
-        .actions {
-          justify-content: stretch;
-          margin-top: 12px;
-        }
-
-        .btn {
-          flex: 1 1 auto;
-        }
-
-        canvas {
-          height: 500px;
-        }
-
-        .stage {
-          min-height: 500px;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <main class="app">
-      <header class="topbar">
-        <div>
-          <p class="eyebrow">TIME MANAGEMENT</p>
-          <h1>夜市面摊</h1>
-        </div>
-        <div class="actions">
-          <button class="btn" id="startBtn">开摊</button>
-          <button class="btn secondary" id="pauseBtn">暂停</button>
-          <button class="btn secondary" id="resetBtn">重开</button>
-        </div>
-      </header>
-
-      <section class="layout">
-        <div class="stage">
-          <canvas id="gameCanvas" aria-label="夜市面摊游戏画面"></canvas>
-          <div class="overlay" id="overlay">
-            <div class="modal">
-              <h2 id="overlayTitle">准备出摊</h2>
-              <p id="overlayText">煮面、加浇头、按订单出餐。锅会过熟，客人会失去耐心。</p>
-              <button class="btn" id="overlayBtn">开摊</button>
-            </div>
-          </div>
-        </div>
-        <aside class="side">
-          <div class="stats">
-            <div class="stat"><b id="moneyText">0</b><small>收入</small></div>
-            <div class="stat"><b id="servedText">0</b><small>出餐</small></div>
-            <div class="stat"><b id="comboText">0</b><small>连单</small></div>
-            <div class="stat"><b id="bestText">0</b><small>最佳</small></div>
-          </div>
-
-          <div class="station-title">锅位</div>
-          <div class="grid-buttons" id="potButtons">
-            <button data-pot="0">锅 1</button>
-            <button data-pot="1">锅 2</button>
-            <button data-pot="2">锅 3</button>
-          </div>
-
-          <div class="station-title">浇头</div>
-          <div class="grid-buttons" id="toppingButtons">
-            <button data-top="egg">卤蛋</button>
-            <button data-top="beef">牛肉</button>
-            <button data-top="veg">青菜</button>
-            <button class="wide" id="serveBtn">出餐</button>
-          </div>
-
-          <div class="station-title">订单</div>
-          <div class="queue" id="queueList"></div>
-        </aside>
-      </section>
-    </main>
-
-    <script>
-      (() => {
-        const canvas = document.getElementById("gameCanvas");
-        const ctx = canvas.getContext("2d");
-        const startBtn = document.getElementById("startBtn");
-        const pauseBtn = document.getElementById("pauseBtn");
-        const resetBtn = document.getElementById("resetBtn");
-        const overlay = document.getElementById("overlay");
-        const overlayBtn = document.getElementById("overlayBtn");
-        const overlayTitle = document.getElementById("overlayTitle");
-        const overlayText = document.getElementById("overlayText");
-        const moneyText = document.getElementById("moneyText");
-        const servedText = document.getElementById("servedText");
-        const comboText = document.getElementById("comboText");
-        const bestText = document.getElementById("bestText");
-        const queueList = document.getElementById("queueList");
-        const serveBtn = document.getElementById("serveBtn");
-        const storageKey = "miniNoodleShiftRecords";
-
-        const toppings = {
-          egg: { name: "卤蛋", icon: "蛋", color: "#f0c65a" },
-          beef: { name: "牛肉", icon: "肉", color: "#be5548" },
-          veg: { name: "青菜", icon: "菜", color: "#69a85c" }
-        };
-
-        const orderNames = ["码头工", "夜骑手", "收摊阿姨", "巡街人", "加班客", "学生"];
-        const recipes = [
-          ["egg"],
-          ["beef"],
-          ["veg"],
-          ["egg", "veg"],
-          ["beef", "veg"],
-          ["egg", "beef"],
-          ["egg", "beef", "veg"]
-        ];
-
-        let dpr = 1;
-        let w = 900;
-        let h = 640;
-        let state;
-        let lastFrame = 0;
-        let loopToken = 0;
-        let audioCtx = null;
-        let selectedPot = 0;
-        let floaters = [];
-
-        function loadBest() {
-          try {
-            return JSON.parse(localStorage.getItem(storageKey) || "{}").best || 0;
-          } catch (error) {
-            return 0;
-          }
-        }
-
-        function saveBest(value) {
-          const best = Math.max(loadBest(), value);
-          localStorage.setItem(storageKey, JSON.stringify({ best }));
-          return best;
-        }
-
-        function makeState() {
-          return {
-            mode: "menu",
-            time: 0,
-            duration: 90000,
-            nextOrder: 0,
-            orderGap: 5200,
-            money: 0,
-            served: 0,
-            combo: 0,
-            best: loadBest(),
-            orders: [],
-            pots: [
-              { cooking: false, cook: 0, toppings: [] },
-              { cooking: false, cook: 0, toppings: [] },
-              { cooking: false, cook: 0, toppings: [] }
-            ],
-            pausedAt: 0
-          };
-        }
-
-        state = makeState();
-
-        function resizeCanvas() {
-          const rect = canvas.getBoundingClientRect();
-          dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
-          w = Math.max(320, rect.width);
-          h = Math.max(500, rect.height);
-          canvas.width = Math.floor(w * dpr);
-          canvas.height = Math.floor(h * dpr);
-          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-          draw();
-        }
-
-        function ensureAudio() {
-          if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-          if (audioCtx.state === "suspended") audioCtx.resume();
-        }
-
-        function beep(freq, duration, gain) {
-          if (!audioCtx) return;
-          const osc = audioCtx.createOscillator();
-          const amp = audioCtx.createGain();
-          osc.type = "sine";
-          osc.frequency.value = freq;
-          amp.gain.setValueAtTime(0, audioCtx.currentTime);
-          amp.gain.linearRampToValueAtTime(gain, audioCtx.currentTime + 0.01);
-          amp.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
-          osc.connect(amp);
-          amp.connect(audioCtx.destination);
-          osc.start();
-          osc.stop(audioCtx.currentTime + duration + 0.02);
-        }
-
-        function setOverlay(title, text, button) {
-          overlayTitle.textContent = title;
-          overlayText.textContent = text;
-          overlayBtn.textContent = button;
-          overlay.classList.remove("hidden");
-        }
-
-        function hideOverlay() {
-          overlay.classList.add("hidden");
-        }
-
-        function startGame() {
-          ensureAudio();
-          loopToken += 1;
-          state = makeState();
-          state.mode = "running";
-          state.nextOrder = 600;
-          lastFrame = performance.now();
-          floaters = [];
-          selectedPot = 0;
-          hideOverlay();
-          updateHud();
-          requestAnimationFrame((time) => loop(time, loopToken));
-        }
-
-        function togglePause() {
-          if (state.mode === "running") {
-            state.mode = "paused";
-            setOverlay("暂停中", "面汤先小火温着，回来继续接单。", "继续");
-          } else if (state.mode === "paused") {
-            state.mode = "running";
-            hideOverlay();
-            lastFrame = performance.now();
-            loopToken += 1;
-            requestAnimationFrame((time) => loop(time, loopToken));
-          }
-        }
-
-        function finishGame() {
-          if (state.mode === "over") return;
-          state.mode = "over";
-          state.best = saveBest(state.money);
-          setOverlay("收摊", `卖出 ${state.served} 碗，收入 ${state.money}。`, "再开一摊");
-          updateHud();
-        }
-
-        function randomOrder() {
-          const base = recipes[Math.floor(Math.random() * recipes.length)];
-          const patience = 16500 + Math.random() * 7000 - Math.min(5000, state.time / 16);
-          return {
-            id: Math.random(),
-            name: orderNames[Math.floor(Math.random() * orderNames.length)],
-            toppings: [...base].sort(),
-            born: state.time,
-            patience: Math.max(9500, patience),
-            value: 18 + base.length * 8
-          };
-        }
-
-        function spawnOrders() {
-          if (state.time >= state.nextOrder && state.orders.length < 5) {
-            state.orders.push(randomOrder());
-            state.nextOrder = state.time + Math.max(2400, state.orderGap - state.time / 32);
-          }
-        }
-
-        function startPot(index) {
-          if (state.mode !== "running") return;
-          const pot = state.pots[index];
-          selectedPot = index;
-          if (!pot.cooking) {
-            pot.cooking = true;
-            pot.cook = 0;
-            pot.toppings = [];
-            beep(260, 0.08, 0.035);
-          }
-          updateHud();
-          draw();
-        }
-
-        function addTopping(key) {
-          if (state.mode !== "running") return;
-          const pot = state.pots[selectedPot];
-          if (!pot.cooking || pot.cook < 2300) return;
-          if (!pot.toppings.includes(key)) {
-            pot.toppings.push(key);
-            pot.toppings.sort();
-            beep(340 + pot.toppings.length * 80, 0.08, 0.035);
-          }
-          updateHud();
-          draw();
-        }
-
-        function arraysEqual(a, b) {
-          return a.length === b.length && a.every((item, index) => item === b[index]);
-        }
-
-        function serveSelected() {
-          if (state.mode !== "running") return;
-          const pot = state.pots[selectedPot];
-          if (!pot.cooking || pot.cook < 4200) return;
-          const overCook = pot.cook > 9800;
-          const matchIndex = state.orders.findIndex((order) => arraysEqual(order.toppings, pot.toppings));
-          if (matchIndex >= 0 && !overCook) {
-            const order = state.orders.splice(matchIndex, 1)[0];
-            const remaining = Math.max(0, 1 - (state.time - order.born) / order.patience);
-            state.combo += 1;
-            const gain = Math.round(order.value * (1 + remaining * 0.7) + state.combo * 3);
-            state.money += gain;
-            state.served += 1;
-            addFloat(`+${gain}`, potX(selectedPot), h * 0.5, "#d49e37");
-            beep(560 + Math.min(10, state.combo) * 24, 0.1, 0.05);
-          } else {
-            state.combo = 0;
-            state.money = Math.max(0, state.money - 8);
-            addFloat(overCook ? "糊了" : "错单", potX(selectedPot), h * 0.5, "#b74a42");
-            beep(130, 0.1, 0.04);
-          }
-          state.pots[selectedPot] = { cooking: false, cook: 0, toppings: [] };
-          updateHud();
-          draw();
-        }
-
-        function discardPot(index) {
-          state.pots[index] = { cooking: false, cook: 0, toppings: [] };
-          state.combo = 0;
-          updateHud();
-          draw();
-        }
-
-        function addFloat(text, x, y, color) {
-          floaters.push({ text, x, y, color, life: 1 });
-        }
-
-        function update(dt) {
-          state.time += dt * 1000;
-          if (state.time >= state.duration) {
-            finishGame();
-            return;
-          }
-          spawnOrders();
-          for (const pot of state.pots) {
-            if (pot.cooking) pot.cook += dt * 1000;
-          }
-          for (let i = state.orders.length - 1; i >= 0; i -= 1) {
-            const order = state.orders[i];
-            if (state.time - order.born > order.patience) {
-              state.orders.splice(i, 1);
-              state.combo = 0;
-              state.money = Math.max(0, state.money - 5);
-              addFloat("跑单", w - 130, 118 + i * 54, "#b74a42");
-            }
-          }
-          floaters = floaters.filter((item) => {
-            item.y -= dt * 42;
-            item.life -= dt * 0.9;
-            return item.life > 0;
-          });
-          updateHud();
-        }
-
-        function loop(now, token) {
-          if (token !== loopToken) return;
-          if (state.mode !== "running") return;
-          const dt = Math.min(0.05, (now - lastFrame) / 1000 || 0.016);
-          lastFrame = now;
-          update(dt);
-          draw();
-          if (state.mode === "running") requestAnimationFrame((time) => loop(time, token));
-        }
-
-        function potX(index) {
-          const gap = Math.min(42, w * 0.04);
-          const width = Math.min(190, (w - gap * 4) / 3);
-          return (w - width * 3 - gap * 2) / 2 + index * (width + gap) + width / 2;
-        }
-
-        function drawRoundRect(x, y, width, height, radius, fill, stroke) {
-          ctx.beginPath();
-          ctx.moveTo(x + radius, y);
-          ctx.arcTo(x + width, y, x + width, y + height, radius);
-          ctx.arcTo(x + width, y + height, x, y + height, radius);
-          ctx.arcTo(x, y + height, x, y, radius);
-          ctx.arcTo(x, y, x + width, y, radius);
-          if (fill) {
-            ctx.fillStyle = fill;
-            ctx.fill();
-          }
-          if (stroke) {
-            ctx.strokeStyle = stroke;
-            ctx.stroke();
-          }
-        }
-
-        function draw() {
-          ctx.clearRect(0, 0, w, h);
-          const grad = ctx.createLinearGradient(0, 0, 0, h);
-          grad.addColorStop(0, "#fff8e9");
-          grad.addColorStop(0.52, "#f7ead5");
-          grad.addColorStop(1, "#d8c19a");
-          ctx.fillStyle = grad;
-          ctx.fillRect(0, 0, w, h);
-
-          ctx.fillStyle = "#263536";
-          ctx.fillRect(0, h * 0.58, w, h * 0.42);
-          ctx.fillStyle = "#3d4b48";
-          ctx.fillRect(0, h * 0.61, w, 18);
-          ctx.fillStyle = "#d25a4b";
-          for (let x = 30; x < w; x += 72) {
-            ctx.beginPath();
-            ctx.arc(x, 68, 18, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillStyle = "#f1c45f";
-            ctx.fillRect(x - 1, 82, 2, 24);
-            ctx.fillStyle = "#d25a4b";
-          }
-
-          drawOrders();
-          drawPots();
-          drawClock();
-
-          for (const item of floaters) {
-            ctx.globalAlpha = item.life;
-            ctx.fillStyle = item.color;
-            ctx.font = "900 24px system-ui";
-            ctx.textAlign = "center";
-            ctx.fillText(item.text, item.x, item.y);
-            ctx.globalAlpha = 1;
-          }
-        }
-
-        function drawOrders() {
-          const startX = 30;
-          const y = 118;
-          const cardW = Math.min(168, (w - 60) / 5 - 8);
-          state.orders.forEach((order, index) => {
-            const x = startX + index * (cardW + 8);
-            const remain = Math.max(0, 1 - (state.time - order.born) / order.patience);
-            drawRoundRect(x, y, cardW, 104, 8, "#fffdf5", "#89978f");
-            ctx.fillStyle = "#132021";
-            ctx.font = "900 15px system-ui";
-            ctx.textAlign = "left";
-            ctx.fillText(order.name, x + 10, y + 24);
-            ctx.fillStyle = remain < 0.28 ? "#b74a42" : "#2d7468";
-            ctx.fillRect(x + 10, y + 34, (cardW - 20) * remain, 8);
-            order.toppings.forEach((top, topIndex) => {
-              const tx = x + 12 + topIndex * 44;
-              const ty = y + 56;
-              drawRoundRect(tx, ty, 36, 32, 7, toppings[top].color, "#59482a");
-              ctx.fillStyle = "#fffdf5";
-              ctx.font = "900 14px system-ui";
-              ctx.textAlign = "center";
-              ctx.fillText(toppings[top].icon, tx + 18, ty + 21);
-            });
-          });
-        }
-
-        function drawPots() {
-          const gap = Math.min(42, w * 0.04);
-          const potW = Math.min(190, (w - gap * 4) / 3);
-          const startX = (w - potW * 3 - gap * 2) / 2;
-          const y = h * 0.62;
-          for (let i = 0; i < 3; i += 1) {
-            const pot = state.pots[i];
-            const x = startX + i * (potW + gap);
-            drawRoundRect(x, y, potW, 142, 8, selectedPot === i ? "#fff6d6" : "#e9e6d5", "#72847c");
-            ctx.fillStyle = "#596967";
-            ctx.fillRect(x + 20, y + 78, potW - 40, 30);
-            ctx.fillStyle = "#293838";
-            ctx.beginPath();
-            ctx.ellipse(x + potW / 2, y + 74, potW * 0.34, 28, 0, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillStyle = pot.cooking ? "#f2c45f" : "#cbd1c3";
-            ctx.beginPath();
-            ctx.ellipse(x + potW / 2, y + 68, potW * 0.3, 22, 0, 0, Math.PI * 2);
-            ctx.fill();
-            if (pot.cooking) {
-              const ready = Math.min(1, pot.cook / 4200);
-              const over = Math.max(0, (pot.cook - 9800) / 2600);
-              ctx.fillStyle = over > 0 ? "#b74a42" : "#2d7468";
-              ctx.fillRect(x + 18, y + 118, (potW - 36) * Math.min(1, over || ready), 8);
-              pot.toppings.forEach((top, index) => {
-                ctx.fillStyle = toppings[top].color;
-                ctx.beginPath();
-                ctx.arc(x + potW * 0.36 + index * 24, y + 64, 9, 0, Math.PI * 2);
-                ctx.fill();
-              });
-              for (let s = 0; s < 3; s += 1) {
-                const steamX = x + potW * (0.38 + s * 0.12);
-                ctx.strokeStyle = "rgba(255,255,255,.72)";
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.moveTo(steamX, y + 36);
-                ctx.quadraticCurveTo(steamX - 12, y + 24, steamX + 3, y + 10);
-                ctx.stroke();
-              }
-            }
-            ctx.fillStyle = "#132021";
-            ctx.font = "900 17px system-ui";
-            ctx.textAlign = "center";
-            const label = pot.cooking ? (pot.cook < 4200 ? "煮面中" : pot.cook > 9800 ? "快糊了" : "可出餐") : "空锅";
-            ctx.fillText(`锅 ${i + 1} · ${label}`, x + potW / 2, y + 26);
-          }
-        }
-
-        function drawClock() {
-          const left = Math.max(0, Math.ceil((state.duration - state.time) / 1000));
-          drawRoundRect(w - 138, 24, 110, 46, 8, "rgba(255,253,245,.92)", "#87958d");
-          ctx.fillStyle = "#132021";
-          ctx.font = "900 22px system-ui";
-          ctx.textAlign = "center";
-          ctx.fillText(`${left}s`, w - 83, 54);
-        }
-
-        function updateHud() {
-          moneyText.textContent = state.money.toString();
-          servedText.textContent = state.served.toString();
-          comboText.textContent = state.combo.toString();
-          bestText.textContent = Math.max(state.best, state.money).toString();
-          document.querySelectorAll("[data-pot]").forEach((button) => {
-            button.classList.toggle("selected", Number(button.dataset.pot) === selectedPot);
-            const pot = state.pots[Number(button.dataset.pot)];
-            button.textContent = pot.cooking ? `锅 ${Number(button.dataset.pot) + 1} ${pot.cook >= 4200 ? "熟" : "煮"}` : `锅 ${Number(button.dataset.pot) + 1}`;
-          });
-          queueList.innerHTML = "";
-          state.orders.slice(0, 4).forEach((order) => {
-            const item = document.createElement("div");
-            item.className = "ticket";
-            const remain = Math.max(0, Math.ceil((order.patience - (state.time - order.born)) / 1000));
-            item.innerHTML = `<b>${order.name}</b><small>${order.toppings.map((top) => toppings[top].name).join(" + ")} · ${remain}s</small>`;
-            queueList.appendChild(item);
-          });
-        }
-
-        function pointPot(event) {
-          const rect = canvas.getBoundingClientRect();
-          const x = event.clientX - rect.left;
-          const y = event.clientY - rect.top;
-          const gap = Math.min(42, w * 0.04);
-          const potW = Math.min(190, (w - gap * 4) / 3);
-          const startX = (w - potW * 3 - gap * 2) / 2;
-          const py = h * 0.62;
-          for (let i = 0; i < 3; i += 1) {
-            const px = startX + i * (potW + gap);
-            if (x >= px && x <= px + potW && y >= py && y <= py + 142) return i;
-          }
-          return -1;
-        }
-
-        startBtn.addEventListener("click", startGame);
-        resetBtn.addEventListener("click", startGame);
-        pauseBtn.addEventListener("click", togglePause);
-        overlayBtn.addEventListener("click", () => {
-          if (state.mode === "paused") togglePause();
-          else startGame();
-        });
-        document.querySelectorAll("[data-pot]").forEach((button) => {
-          button.addEventListener("click", () => startPot(Number(button.dataset.pot)));
-        });
-        document.querySelectorAll("[data-top]").forEach((button) => {
-          button.addEventListener("click", () => addTopping(button.dataset.top));
-        });
-        serveBtn.addEventListener("click", serveSelected);
-        canvas.addEventListener("pointerdown", (event) => {
-          ensureAudio();
-          const pot = pointPot(event);
-          if (pot >= 0) {
-            if (selectedPot === pot && state.pots[pot].cooking && state.pots[pot].cook > 12000) discardPot(pot);
-            else startPot(pot);
-          }
-        });
-        document.addEventListener("keydown", (event) => {
-          if (event.repeat) return;
-          if (event.code === "Digit1") startPot(0);
-          if (event.code === "Digit2") startPot(1);
-          if (event.code === "Digit3") startPot(2);
-          if (event.code === "KeyQ") addTopping("egg");
-          if (event.code === "KeyW") addTopping("beef");
-          if (event.code === "KeyE") addTopping("veg");
-          if (event.code === "Space") {
-            event.preventDefault();
-            serveSelected();
-          }
-          if (event.code === "KeyP") togglePause();
-          if (event.code === "KeyR") startGame();
-        });
-        window.addEventListener("resize", resizeCanvas);
-        resizeCanvas();
-        updateHud();
-        draw();
-      })();
-    </script>
-  </body>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>夜市面摊：十二班灯火账</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='8' fill='%23283a34'/%3E%3Cpath d='M12 25h40l-5 25H17z' fill='%23f2cf72'/%3E%3Cpath d='M18 20c3-8 4 7 8 0s5 8 9 0 5 8 10 0' fill='none' stroke='%23fff8e6' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+  <style>
+    :root{--deep:#263a34;--ground:#e9ece5;--paper:#fffaf0;--line:#a7afa6;--ink:#293a33;--muted:#6d786f;--green:#43866f;--blue:#4f819e;--gold:#d8a640;--red:#c35d58;--radius:7px;--shadow:0 14px 32px rgba(35,52,45,.14)}
+    *{box-sizing:border-box;letter-spacing:0}html,body{margin:0;min-height:100%;color:var(--ink);background:var(--ground);font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif}button{font:inherit}.app{width:min(1190px,calc(100vw - 24px));margin:auto;padding:16px 0 30px}.head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;padding:17px 20px;border-bottom:4px solid var(--gold);color:#fff;background:var(--deep)}h1{margin:0;font-size:28px}.sub{margin:5px 0 0;color:#d1ddd6;font-size:13px}.totals{display:flex;gap:18px;text-align:right}.totals b{display:block;color:#f3ca70;font-size:20px}.totals span{color:#cad6d0;font-size:10px}.contracts{display:grid;grid-template-columns:repeat(12,minmax(42px,1fr));gap:5px;padding:11px 0}.contract{height:46px;border:1px solid #adb8b1;border-radius:6px;color:#405248;background:#f7f9f6;font-weight:900;cursor:pointer}.contract.active{border-color:var(--green);color:#fff;background:var(--green)}.contract:disabled{opacity:.42}.contract small{display:block;height:11px;color:#f3d17c;font-size:9px}.layout{display:grid;grid-template-columns:minmax(510px,790px) 340px;gap:14px;align-items:start}.stage{position:relative;overflow:hidden;padding:8px;border:1px solid #77867e;border-radius:var(--radius);background:#17251f;box-shadow:var(--shadow)}.stage canvas{display:block;width:100%;height:auto;aspect-ratio:36/31;border:1px solid #566a60;border-radius:6px;background:#13201b;touch-action:none}.canvas-hud{position:absolute;inset:16px 16px auto;display:flex;justify-content:space-between;gap:6px;pointer-events:none}.canvas-hud span{padding:5px 7px;border:1px solid rgba(255,255,255,.2);border-radius:5px;color:#e1ebe5;background:rgba(22,36,29,.9);font-size:10px}.side{display:flex;flex-direction:column;gap:10px}.panel{padding:12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--paper)}.panel h2,.panel h3{margin:0 0 8px}.panel h2{font-size:18px}.panel h3{font-size:14px}.brief{margin:0;color:var(--muted);font-size:11px;line-height:1.55}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:9px 0}.metric{padding:7px;border:1px solid #b2bab2;border-radius:6px;background:#f2f5ef}.metric b{display:block;color:var(--green);font-size:17px}.metric span{color:#738078;font-size:9px}.status{min-height:55px;margin:8px 0 0;padding:8px;border-left:4px solid var(--gold);color:#526159;background:#eef2ea;font-size:11px;line-height:1.5}.carts{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.cart{min-height:66px;padding:6px;border:1px solid #aab6ae;border-radius:6px;color:#405248;background:#edf2ed;font-size:9px;font-weight:900;cursor:pointer}.cart b{display:block;font-size:12px}.cart.active{border-color:var(--blue);color:#fff;background:var(--blue)}.tickets{display:grid;gap:5px;max-height:230px;overflow:auto}.ticket{display:grid;grid-template-columns:1fr auto;gap:4px;padding:7px;border:1px solid #aeb8b0;border-radius:6px;color:#3c5045;background:#f2f5ef;text-align:left;cursor:pointer}.ticket.active{border-color:var(--green);box-shadow:inset 4px 0 var(--green)}.ticket strong{font-size:11px}.ticket small{color:#68786f;font-size:9px}.ticket time{color:var(--red);font-size:10px;font-weight:900}.ticket .recipe{grid-column:1/-1;display:flex;gap:3px}.dot{display:inline-grid;place-items:center;width:17px;height:17px;border-radius:50%;color:#fff;font-size:9px;font-weight:900}.empty{padding:12px;color:#7a867f;text-align:center;font-size:11px}.pots{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.pot{min-height:56px;padding:5px;border:1px solid #a3afa7;border-radius:6px;color:#3d5046;background:#edf2ed;font-size:10px;font-weight:900;cursor:pointer}.pot b{display:block;font-size:14px}.pot.active{border-color:var(--green);color:#fff;background:var(--green)}.ingredients{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:7px}.ingredient{min-height:42px;border:1px solid #a6b2aa;border-radius:6px;color:#354b40;background:#f1f4ee;font-size:10px;font-weight:900;cursor:pointer}.ingredient i{display:inline-block;width:9px;height:9px;margin-right:4px;border-radius:50%}.commands,.archive{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}.commands button,.archive button{min-height:40px;border:1px solid #9eafa5;border-radius:6px;color:#344b3f;background:#edf2ed;font-weight:900;cursor:pointer}.commands .primary{grid-column:1/-1;border-color:var(--green);color:#fff;background:var(--green)}.commands .serve{border-color:var(--gold);color:#3c3728;background:#f1ce72}.overlay{position:absolute;inset:8px;display:grid;place-items:center;padding:14px;background:rgba(13,25,19,.9);text-align:center}.overlay[hidden]{display:none}.overlay-card{width:min(380px,100%);padding:22px;border-radius:var(--radius);color:#fff;background:#30453a;box-shadow:0 24px 60px rgba(0,0,0,.45)}.overlay-card h2{margin:0;font-size:24px}.overlay-card p{color:#d2ddd6;line-height:1.6}.overlay-stars{color:#efc668;font-size:34px}.overlay-card button{min-height:42px;padding:0 20px;border:0;border-radius:6px;color:#29382f;background:#efc668;font-weight:900;cursor:pointer}
+    .commands button:disabled{opacity:.55;cursor:not-allowed}@media(max-width:930px){.layout{grid-template-columns:1fr}.side{order:-1;display:grid;grid-template-columns:1fr 1fr}.tickets-panel,.kitchen-panel{grid-column:1/-1}.archive-panel{grid-column:1/-1}.tickets{max-height:190px}}
+    @media(max-width:700px){.app{width:calc(100vw - 12px);padding-top:6px}.head{display:block;padding:13px}.head h1{font-size:22px}.sub{font-size:11px}.totals{justify-content:space-between;margin-top:11px;text-align:left}.contracts{grid-template-columns:repeat(6,1fr)}.contract{height:39px}.side{display:flex}.panel{padding:10px}.tickets{max-height:220px}.stage{padding:6px}.overlay{inset:6px}}
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="head"><div><h1>夜市面摊：十二班灯火账</h1><p class="sub">看固定订单表调度三口汤锅，在四条夜街完成十二班可复盘的出餐合同。</p></div><div class="totals"><div><b id="starTotal">0 / 36</b><span>夜班星章</span></div><div><b id="clearTotal">0 / 12</b><span>完成班次</span></div><div><b id="cleanTotal">0 / 12</b><span>零错单班次</span></div></div></header>
+    <nav class="contracts" id="contracts" aria-label="夜班合同"></nav>
+    <section class="layout">
+      <div class="stage"><canvas id="board" width="720" height="620" aria-label="夜市三锅面摊"></canvas><div class="canvas-hud"><span>班次 <b id="shiftHud">01</b></span><span>时间 <b id="timeHud">0.0</b>s</span></div><div class="overlay" id="overlay"><div class="overlay-card"><h2 id="overlayTitle"></h2><p id="overlayText"></p><div class="overlay-stars" id="overlayStars"></div><button id="overlayButton">开始</button></div></div></div>
+      <aside class="side">
+        <section class="panel"><h2 id="shiftTitle"></h2><p class="brief" id="shiftBrief"></p><div class="metrics"><div class="metric"><b id="serveMetric">0 / 0</b><span>出餐 / 目标</span></div><div class="metric"><b id="moneyMetric">0 / 0</b><span>收入 / 二星线</span></div><div class="metric"><b id="mistakeMetric">0</b><span>错单 / 超时</span></div></div><p class="status" id="status"></p></section>
+        <section class="panel"><h3>选择餐车</h3><div class="carts"><button class="cart" data-cart="stove"><b>老灶车</b>煮面快 18%</button><button class="cart" data-cart="prep"><b>备菜车</b>自动放首料</button><button class="cart" data-cart="lantern"><b>暖灯车</b>耐心增 18%</button></div></section>
+        <section class="panel tickets-panel"><h3>待出订单 · 点击选中</h3><div class="tickets" id="tickets"></div></section>
+        <section class="panel kitchen-panel"><h3>三锅并行 · 点击空锅开火</h3><div class="pots" id="pots"></div><div class="ingredients" id="ingredients"></div><div class="commands"><button class="primary" id="start">开始夜班</button><button class="serve" id="serve">出餐</button><button id="discard">倒掉本锅</button><button id="pause">暂停</button><button id="restart">重开</button></div></section>
+        <section class="panel archive-panel"><h3>跨设备灯火账</h3><div class="archive"><button id="exportSave">导出档案</button><button id="importSave">导入档案</button></div></section>
+      </aside>
+    </section>
+  </main>
+  <script>
+  (()=>{
+    "use strict";
+    const SAVE_KEY="noodle_shift_v2",BLANCH=2.35,FINISH_PER_TOPPING=.28,streets=["河灯街","雨巷口","旧码头","灯会桥"];
+    const ingredients={egg:{name:"卤蛋",mark:"蛋",color:"#d4a83e"},beef:{name:"酱牛肉",mark:"肉",color:"#b45a52"},veg:{name:"青菜",mark:"青",color:"#5d9b63"},fish:{name:"鱼丸",mark:"鱼",color:"#6f9eae"},chili:{name:"辣油",mark:"辣",color:"#c65d47"},mushroom:{name:"香菇",mark:"菇",color:"#826d56"}};
+    const recipes={veg:{name:"青菜清汤",items:["veg"]},egg:{name:"卤蛋面",items:["egg"]},beef:{name:"酱牛肉面",items:["beef"]},eggveg:{name:"芽菜蛋面",items:["egg","veg"]},beefveg:{name:"青菜牛肉",items:["beef","veg"]},fishveg:{name:"鱼丸青汤",items:["fish","veg"]},spicybeef:{name:"红油牛肉",items:["beef","chili"]},mushroomegg:{name:"香菇蛋面",items:["egg","mushroom"]},harbor:{name:"码头三鲜",items:["fish","chili","veg"]},house:{name:"灯火招牌",items:["egg","beef","mushroom"]},festival:{name:"四喜灯会",items:["egg","beef","fish","veg"]}};
+    const customers=["夜骑手","码头工","巡街人","收摊阿姨","晚课生","修灯匠","渡船客","报时员"];
+    function makeShift(title,brief,ids,gap,patience,index){return{title,brief,street:streets[Math.floor(index/3)],orders:ids.map((recipe,i)=>({id:i,recipe,customer:customers[(i*3+index)%customers.length],at:.8+i*gap+(i%3)*.18,patience:patience+(i%4)*.65})),target:Math.max(1,ids.length-1)}}
+    const shiftSeeds=[];
+    shiftSeeds.push(["初灯试灶","单料面与双料面交替出现，先熟悉三锅切换。",["egg","veg","beef","eggveg","veg","egg","beef","eggveg"],4.4,14.5]);
+    shiftSeeds.push(["河风并单","同类订单会连续出现，适合提前分配空锅。",["beef","veg","beefveg","egg","eggveg","beef","beefveg","veg"],4.05,14]);
+    shiftSeeds.push(["桥头散席","河灯街末班首次加入三种双料面。",["eggveg","beefveg","egg","beef","eggveg","veg","beefveg","egg","beef"],3.8,13.6]);
+    shiftSeeds.push(["雨巷新味","鱼丸与香菇进入菜单，订单辨认比锅速更重要。",["fishveg","mushroomegg","egg","veg","fishveg","beefveg","mushroomegg","beef","eggveg"],3.75,13.3]);
+    shiftSeeds.push(["红油夜雨","辣油只属于红油与三鲜，错放会整锅作废。",["spicybeef","fishveg","beef","spicybeef","eggveg","mushroomegg","fishveg","veg","spicybeef","egg"],3.5,12.9]);
+    shiftSeeds.push(["伞下连席","双料订单密集到达，观察下一单再决定空锅。",["mushroomegg","spicybeef","fishveg","beefveg","eggveg","mushroomegg","spicybeef","fishveg","beef","veg"],3.35,12.6]);
+    shiftSeeds.push(["码头开舱","三鲜面加入第三种配料，备菜车开始体现优势。",["harbor","fishveg","beefveg","spicybeef","harbor","eggveg","mushroomegg","fishveg","beef","harbor"],3.3,12.4]);
+    shiftSeeds.push(["潮班换岗","招牌面与三鲜面交错，不能只记配料数量。",["house","harbor","eggveg","spicybeef","fishveg","house","beefveg","harbor","mushroomegg","house","veg"],3.08,12.1]);
+    shiftSeeds.push(["汽笛末班","旧码头的最后一班把单料面藏进复杂订单之间。",["harbor","house","beef","festival","fishveg","spicybeef","egg","house","harbor","beefveg","mushroomegg"],2.95,11.9]);
+    shiftSeeds.push(["灯会初巡","四喜面登场，四料锅会占用更长收尾时间。",["festival","house","harbor","eggveg","festival","spicybeef","mushroomegg","house","fishveg","festival","beef"],2.9,11.8]);
+    shiftSeeds.push(["百灯同席","三锅几乎持续满载，订单预告决定调度顺序。",["house","festival","harbor","spicybeef","festival","fishveg","house","mushroomegg","festival","beefveg","harbor","egg"],2.75,11.5]);
+    shiftSeeds.push(["子夜合账","终班混合全部面谱，用完整灯火账完成收官。",["festival","house","harbor","spicybeef","mushroomegg","festival","beefveg","fishveg","house","harbor","festival","eggveg"],2.62,11.3]);
+    const shifts=shiftSeeds.map((seed,index)=>makeShift(...seed,index));
+    const carts={stove:{name:"老灶车",cookFactor:.82,patienceFactor:1,autoFirst:false},prep:{name:"备菜车",cookFactor:1,patienceFactor:1,autoFirst:true},lantern:{name:"暖灯车",cookFactor:1,patienceFactor:1.18,autoFirst:false}};
+    const $=id=>document.getElementById(id),canvas=$("board"),ctx=canvas.getContext("2d"),contractEl=$("contracts"),overlay=$("overlay");
+    let profile=load(),cart=profile.cart||"stove",selected=0,q=makeState(0),lastTime=0,loopToken=0,audio=null;
+    function defaults(){return{version:2,stars:{},best:{},clean:{},cart:"stove",updatedAt:Date.now()}}
+    function normalize(value){const clean=defaults();if(!value||value.version!==2)return clean;for(let i=0;i<shifts.length;i++){clean.stars[i]=Math.max(0,Math.min(3,Number(value.stars?.[i])||0));if(Number.isFinite(Number(value.best?.[i])))clean.best[i]=Math.max(0,Number(value.best[i]));clean.clean[i]=Boolean(value.clean?.[i])}if(carts[value.cart])clean.cart=value.cart;return clean}
+    function load(){try{return normalize(JSON.parse(localStorage.getItem(SAVE_KEY)))}catch{return defaults()}}
+    function save(){profile.cart=cart;profile.updatedAt=Date.now();localStorage.setItem(SAVE_KEY,JSON.stringify(profile));renderCampaign()}
+    function checksum(text){let h=2166136261;for(const ch of text){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)}return(h>>>0).toString(36)}
+    function encodeProfile(){const body=btoa(unescape(encodeURIComponent(JSON.stringify(profile))));return`NOODLE2.${body}.${checksum(body)}`}
+    function decodeProfile(code){const part=code.trim().split(".");if(part.length!==3||part[0]!=="NOODLE2"||checksum(part[1])!==part[2])throw Error("灯火账档案校验失败");return normalize(JSON.parse(decodeURIComponent(escape(atob(part[1])))))}
+    function recipeFor(order){return recipes[order.recipe]}
+    function cookDuration(order,cartId=cart){return(BLANCH+recipeFor(order).items.length*FINISH_PER_TOPPING)*carts[cartId].cookFactor}
+    function deadlineFor(order,cartId=cart){return order.at+order.patience*carts[cartId].patienceFactor}
+    function baseValue(order){return 14+recipeFor(order).items.length*9}
+    function priceAt(order,finishedAt,cartId=cart){const remaining=Math.max(0,deadlineFor(order,cartId)-finishedAt);return baseValue(order)+Math.floor(remaining/3)}
+    function referencePlan(shiftIndex,cartId="stove"){const shift=shifts[shiftIndex],available=[0,0,0],plan=[];let income=0,served=0;for(const source of shift.orders){let pot=0;for(let i=1;i<3;i++)if(available[i]<available[pot])pot=i;const start=Math.max(source.at,available[pot]),finish=start+cookDuration(source,cartId);if(finish>deadlineFor(source,cartId))continue;available[pot]=finish+.16;income+=priceAt(source,finish,cartId);served++;plan.push({orderId:source.id,pot,start,finish})}return{won:served>=shift.target,served,income,plan,lastFinish:Math.max(...available)}}
+    function validateContent(){const signatures=new Set();let orders=0,referenceWins=0,referencePlans=0;for(let i=0;i<shifts.length;i++){const shift=shifts[i],signature=shift.orders.map(order=>`${order.recipe}@${order.at.toFixed(2)}:${order.patience.toFixed(2)}`).join("|");if(signatures.has(signature))throw Error(`第 ${i+1} 班订单重复`);signatures.add(signature);if(shift.orders.some(order=>!recipes[order.recipe]||deadlineFor(order,"stove")<=order.at))throw Error(`第 ${i+1} 班订单非法`);orders+=shift.orders.length;let all=true;for(const cartId of Object.keys(carts)){const result=referencePlan(i,cartId);referencePlans++;if(!result.won||result.served!==shift.orders.length)all=false}if(!all)throw Error(`第 ${i+1} 班存在无法完整履约的餐车`);referenceWins++}return{shifts:shifts.length,streets:4,recipes:Object.keys(recipes).length,ingredients:Object.keys(ingredients).length,orders,uniqueSchedules:signatures.size,referencePlans,referenceWins}}
+    function makeState(index=selected){const shift=shifts[index];return{index,shift,mode:"brief",time:0,orders:shift.orders.map(order=>({...order,status:"scheduled",deadline:deadlineFor(order),pot:null,servedAt:null})),pots:Array.from({length:3},()=>({orderId:null,stage:"empty",timer:0,items:[]})),selectedOrder:null,selectedPot:0,served:0,income:0,waste:0,missed:0,message:"查看固定订单表，选中订单后点击空锅开火。"}}
+    function ensureAudio(){try{if(!audio)audio=new(AudioContext||webkitAudioContext)();if(audio.state==="suspended")audio.resume()}catch{audio=null}}
+    function beep(freq=.03,duration=.08,gain=.03){if(!audio)return;const osc=audio.createOscillator(),amp=audio.createGain();osc.frequency.value=220+freq;osc.type="sine";amp.gain.setValueAtTime(gain,audio.currentTime);amp.gain.exponentialRampToValueAtTime(.0001,audio.currentTime+duration);osc.connect(amp);amp.connect(audio.destination);osc.start();osc.stop(audio.currentTime+duration+.02)}
+    function activeOrders(){return q.orders.filter(order=>order.status==="waiting"||order.status==="cooking")}
+    function startRun(){ensureAudio();q.mode="running";lastTime=performance.now();loopToken++;hideOverlay();q.message="第一批订单将按固定时刻进入；票面配料顺序不影响成品。";renderAll();requestAnimationFrame(time=>loop(time,loopToken))}
+    function loop(time,token){if(token!==loopToken||q.mode!=="running")return;const dt=Math.min(.08,Math.max(0,(time-lastTime)/1000));lastTime=time;advance(dt);requestAnimationFrame(next=>loop(next,token))}
+    function advance(dt){if(q.mode!=="running")return;q.time+=dt;let dirty=false;for(const order of q.orders)if(order.status==="scheduled"&&q.time>=order.at){order.status="waiting";dirty=true}for(let index=0;index<q.pots.length;index++){const pot=q.pots[index];if(pot.stage==="blanch"){pot.timer-=dt;if(pot.timer<=0){pot.stage="dress";pot.timer=0;const order=q.orders.find(item=>item.id===pot.orderId);if(carts[cart].autoFirst&&order&&!pot.items.length)pot.items.push(recipeFor(order).items[0]);q.message=`${index+1} 号锅已出汤，可以按票面加料。`;beep(230,0.07,.025);dirty=true}}}for(const order of q.orders)if((order.status==="waiting"||order.status==="cooking")&&q.time>order.deadline){expireOrder(order);dirty=true}if(q.orders.every(order=>order.status==="served"||order.status==="missed")){finishShift();return}if(dirty)renderAll();else renderFrame()}
+    function expireOrder(order){order.status="missed";q.missed++;if(order.pot!==null){const pot=q.pots[order.pot];pot.orderId=null;pot.stage="empty";pot.items=[];pot.timer=0}if(q.selectedOrder===order.id)q.selectedOrder=null;q.message=`${order.customer} 等候超时，本班目标仍可继续争取。`;beep(40,.16,.03)}
+    function selectOrder(id){if(q.mode!=="running")return false;const order=q.orders.find(item=>item.id===id);if(!order||order.status!=="waiting")return false;q.selectedOrder=id;q.message=`已选 ${order.customer} 的${recipeFor(order).name}，点击空锅开火。`;renderAll();return true}
+    function selectPot(index){if(index<0||index>2)return false;q.selectedPot=index;const pot=q.pots[index];if(q.mode!=="running"){renderAll();return false}if(pot.stage==="empty"&&q.selectedOrder!==null){const order=q.orders.find(item=>item.id===q.selectedOrder&&item.status==="waiting");if(order){pot.orderId=order.id;pot.stage="blanch";pot.timer=BLANCH*carts[cart].cookFactor;pot.items=[];order.status="cooking";order.pot=index;q.selectedOrder=null;q.message=`${index+1} 号锅开始煮 ${recipeFor(order).name}。`;beep(70,.08,.025)}}else if(pot.stage!=="empty"){const order=q.orders.find(item=>item.id===pot.orderId);if(order)q.message=`${index+1} 号锅：${recipeFor(order).name}，${pot.stage==="blanch"?`还需 ${pot.timer.toFixed(1)} 秒出汤`:"等待配料与出餐"}。`}renderAll();return true}
+    function addIngredient(id){if(q.mode!=="running"||!ingredients[id])return false;const pot=q.pots[q.selectedPot];if(pot.stage!=="dress"||pot.items.includes(id))return false;pot.items.push(id);q.message=`${q.selectedPot+1} 号锅加入${ingredients[id].name}。`;beep(150+pot.items.length*55,.06,.02);renderAll();return true}
+    function sameItems(a,b){return a.length===b.length&&[...a].sort().every((value,index)=>value===[...b].sort()[index])}
+    function servePot(){if(q.mode!=="running")return false;const pot=q.pots[q.selectedPot],order=q.orders.find(item=>item.id===pot.orderId);if(!order||pot.stage!=="dress")return false;const expected=recipeFor(order).items;if(!sameItems(pot.items,expected)){q.waste++;order.status="waiting";order.pot=null;pot.orderId=null;pot.stage="empty";pot.items=[];q.message=`错单：${recipeFor(order).name} 需要 ${expected.map(id=>ingredients[id].name).join("、")}，本锅已倒掉。`;beep(30,.18,.035);renderAll();return false}const value=priceAt(order,q.time);order.status="served";order.servedAt=q.time;order.pot=null;q.served++;q.income+=value;pot.orderId=null;pot.stage="empty";pot.items=[];q.message=`${recipeFor(order).name} 出餐，收入 ${value}。`;beep(330,.12,.035);renderAll();return true}
+    function discardPot(){if(q.mode!=="running")return false;const pot=q.pots[q.selectedPot],order=q.orders.find(item=>item.id===pot.orderId);if(!order)return false;order.status="waiting";order.pot=null;pot.orderId=null;pot.stage="empty";pot.items=[];pot.timer=0;q.waste++;q.message=`${q.selectedPot+1} 号锅已倒掉，订单回到等待区。`;renderAll();return true}
+    function finishShift(){if(q.mode==="over")return;loopToken++;q.mode="over";const reference=referencePlan(q.index,cart),won=q.served>=q.shift.target;if(!won){showOverlay("本班未结清",`完成 ${q.served}/${q.shift.target} 份目标订单，重新安排开火顺序再试一次。`,"","重开夜班",()=>begin(q.index));return}const stars=1+(q.income>=Math.floor(reference.income*.88)?1:0)+(q.waste===0&&q.missed===0?1:0);profile.stars[q.index]=Math.max(Number(profile.stars[q.index])||0,stars);profile.best[q.index]=Math.max(Number(profile.best[q.index])||0,q.income);profile.clean[q.index]=profile.clean[q.index]||(q.waste===0&&q.missed===0);save();renderAll();showOverlay("灯火账已结清",`出餐 ${q.served} 份，收入 ${q.income}，错单 ${q.waste}，超时 ${q.missed}。`,"★".repeat(stars)+"☆".repeat(3-stars),q.index<11?"下一班":"返回班表",()=>begin(q.index<11?q.index+1:q.index))}
+    function togglePause(){if(q.mode==="running"){q.mode="paused";loopToken++;showOverlay("炉火暂歇","订单时钟与汤锅已经暂停。","","继续夜班",()=>{q.mode="running";lastTime=performance.now();loopToken++;hideOverlay();requestAnimationFrame(time=>loop(time,loopToken))})}}
+    function unlocked(index){return index===0||Number(profile.stars[index-1])>0}
+    function begin(index=selected){if(!unlocked(index))return;loopToken++;selected=index;q=makeState(index);renderAll();const ref=referencePlan(index,cart);showOverlay(`${q.shift.street} · ${q.shift.title}`,`${q.shift.orders.length} 份固定订单，目标出餐 ${q.shift.target} 份；${carts[cart].name}参考收入 ${ref.income}。`,"","升火开摊",startRun)}
+    function showOverlay(title,text,stars,label,handler){$("overlayTitle").textContent=title;$("overlayText").textContent=text;$("overlayStars").textContent=stars;$("overlayButton").textContent=label;$("overlayButton").onclick=handler;overlay.hidden=false}
+    function hideOverlay(){overlay.hidden=true}
+    function renderCampaign(){contractEl.innerHTML=shifts.map((shift,index)=>`<button class="contract ${index===selected?"active":""}" data-index="${index}" ${unlocked(index)?"":"disabled"}>${String(index+1).padStart(2,"0")}<small>${"★".repeat(Number(profile.stars[index])||0)}</small></button>`).join("");$("starTotal").textContent=`${Object.values(profile.stars).reduce((a,b)=>a+Number(b||0),0)} / 36`;$("clearTotal").textContent=`${Object.values(profile.stars).filter(Boolean).length} / 12`;$("cleanTotal").textContent=`${Object.values(profile.clean).filter(Boolean).length} / 12`;document.querySelectorAll(".cart").forEach(button=>button.classList.toggle("active",button.dataset.cart===cart))}
+    function renderTickets(){const active=activeOrders().sort((a,b)=>a.deadline-b.deadline);$("tickets").innerHTML=active.length?active.map(order=>`<button class="ticket ${q.selectedOrder===order.id?"active":""}" data-order="${order.id}" ${order.status!=="waiting"?"disabled":""}><strong>${order.customer} · ${recipeFor(order).name}</strong><time>${Math.max(0,order.deadline-q.time).toFixed(1)}s</time><small>${order.status==="cooking"?`${Number(order.pot)+1} 号锅制作中`:"等待开火"}</small><span class="recipe">${recipeFor(order).items.map(id=>`<i class="dot" style="background:${ingredients[id].color}">${ingredients[id].mark}</i>`).join("")}</span></button>`).join(""):`<div class="empty">${q.mode==="running"?"下一张订单尚未到达":"开摊后显示固定订单"}</div>`}
+    function renderKitchen(){$("pots").innerHTML=q.pots.map((pot,index)=>{const order=q.orders.find(item=>item.id===pot.orderId),label=pot.stage==="empty"?"空锅":pot.stage==="blanch"?`${pot.timer.toFixed(1)}s`:pot.items.length?pot.items.map(id=>ingredients[id].mark).join("+"):"待加料";return`<button class="pot ${q.selectedPot===index?"active":""}" data-pot="${index}"><b>${index+1} 号锅</b>${order?recipeFor(order).name:"可接订单"}<br><span class="pot-state">${label}</span></button>`}).join("");$("ingredients").innerHTML=Object.entries(ingredients).map(([id,item])=>`<button class="ingredient" data-ingredient="${id}"><i style="background:${item.color}"></i>${item.name}</button>`).join("")}
+    function renderInfo(){const ref=referencePlan(q.index,cart),running=q.mode==="running"||q.mode==="paused";$("shiftTitle").textContent=`${String(q.index+1).padStart(2,"0")} · ${q.shift.title}`;$("shiftBrief").textContent=`${q.shift.street}：${q.shift.brief}`;$("serveMetric").textContent=`${q.served} / ${q.shift.target}`;$("moneyMetric").textContent=`${q.income} / ${Math.floor(ref.income*.88)}`;$("mistakeMetric").textContent=`${q.waste} / ${q.missed}`;$("status").textContent=q.message;$("shiftHud").textContent=String(q.index+1).padStart(2,"0");$("timeHud").textContent=q.time.toFixed(1);$("pause").textContent=q.mode==="paused"?"继续":"暂停";$("start").disabled=running;$("start").textContent=running?"夜班进行中":"开始夜班"}
+    function drawPot(x,y,pot,index){ctx.fillStyle="#d5a943";ctx.beginPath();ctx.ellipse(x,y,88,32,0,0,Math.PI*2);ctx.fill();ctx.fillStyle="#2b3d35";ctx.beginPath();ctx.ellipse(x,y-4,73,22,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle=q.selectedPot===index?"#72cfaa":"#82938a";ctx.lineWidth=q.selectedPot===index?6:3;ctx.stroke();if(pot.stage!=="empty"){const order=q.orders.find(item=>item.id===pot.orderId);ctx.fillStyle="#f2ead4";ctx.beginPath();ctx.ellipse(x,y-4,62,16,0,0,Math.PI*2);ctx.fill();if(order){const ids=pot.stage==="blanch"?[]:pot.items;ids.forEach((id,i)=>{ctx.fillStyle=ingredients[id].color;ctx.beginPath();ctx.arc(x-28+i*24,y-5,8,0,Math.PI*2);ctx.fill()})}}ctx.fillStyle="#e4ece7";ctx.font="900 15px system-ui";ctx.textAlign="center";ctx.fillText(`${index+1} 号锅`,x,y+55)}
+    function draw(){ctx.fillStyle="#15231d";ctx.fillRect(0,0,720,620);ctx.fillStyle="#263b32";ctx.fillRect(0,0,720,150);for(let i=0;i<18;i++){ctx.fillStyle=i%3===0?"#d9aa43":"#6d927e";ctx.beginPath();ctx.arc(30+i*42,70+(i%2)*18,5,0,Math.PI*2);ctx.fill()}ctx.fillStyle="#314a3e";ctx.fillRect(0,150,720,470);ctx.fillStyle="#1e3028";for(let y=180;y<620;y+=74)ctx.fillRect(0,y,720,2);ctx.fillStyle="#f3cc71";ctx.font="900 24px system-ui";ctx.textAlign="left";ctx.fillText(`${q.shift.street} · ${q.shift.title}`,28,118);ctx.fillStyle="#c6d3cb";ctx.font="14px system-ui";ctx.fillText(`固定订单 ${q.shift.orders.length} · ${carts[cart].name} · 已出 ${q.served}`,30,145);q.pots.forEach((pot,index)=>drawPot(150+index*210,325,pot,index));const next=q.orders.find(order=>order.status==="scheduled");ctx.fillStyle="#22362d";ctx.fillRect(36,450,648,116);ctx.fillStyle="#72cba7";ctx.font="900 18px system-ui";ctx.fillText("下一单预告",58,480);ctx.fillStyle="#e5eee8";ctx.font="900 22px system-ui";ctx.fillText(next?`${next.customer} · ${recipeFor(next).name}`:"本班订单已全部到齐",58,520);if(next){ctx.fillStyle="#aebdb4";ctx.font="14px system-ui";ctx.fillText(`${Math.max(0,next.at-q.time).toFixed(1)} 秒后到达`,58,550);recipeFor(next).items.forEach((id,index)=>{ctx.fillStyle=ingredients[id].color;ctx.beginPath();ctx.arc(430+index*42,518,15,0,Math.PI*2);ctx.fill();ctx.fillStyle="#fff";ctx.font="900 11px system-ui";ctx.textAlign="center";ctx.fillText(ingredients[id].mark,430+index*42,519);ctx.textAlign="left"})}}
+    function renderFrame(){renderInfo();document.querySelectorAll(".ticket[data-order]").forEach(button=>{const order=q.orders.find(item=>item.id===Number(button.dataset.order)),time=button.querySelector("time");if(order&&time)time.textContent=`${Math.max(0,order.deadline-q.time).toFixed(1)}s`});document.querySelectorAll("[data-pot]").forEach(button=>{const pot=q.pots[Number(button.dataset.pot)],label=button.querySelector(".pot-state");if(pot&&label&&pot.stage==="blanch")label.textContent=`${pot.timer.toFixed(1)}s`});draw()}
+    function renderAll(){renderCampaign();renderTickets();renderKitchen();renderInfo();draw()}
+    contractEl.addEventListener("click",event=>{const button=event.target.closest("[data-index]");if(button)begin(Number(button.dataset.index))});$("tickets").addEventListener("click",event=>{const button=event.target.closest("[data-order]");if(button)selectOrder(Number(button.dataset.order))});$("pots").addEventListener("click",event=>{const button=event.target.closest("[data-pot]");if(button)selectPot(Number(button.dataset.pot))});$("ingredients").addEventListener("click",event=>{const button=event.target.closest("[data-ingredient]");if(button)addIngredient(button.dataset.ingredient)});document.querySelectorAll(".cart").forEach(button=>button.addEventListener("click",()=>{if(q.mode==="running"||q.mode==="paused")return;cart=button.dataset.cart;save();q=makeState(selected);renderAll()}));canvas.addEventListener("pointerdown",event=>{const rect=canvas.getBoundingClientRect(),x=(event.clientX-rect.left)*720/rect.width,y=(event.clientY-rect.top)*620/rect.height;if(y>250&&y<410){const index=Math.max(0,Math.min(2,Math.floor((x-45)/210)));selectPot(index)}});addEventListener("keydown",event=>{if(["Digit1","Digit2","Digit3"].includes(event.code))selectPot(Number(event.code.slice(-1))-1);const ingredientKeys={KeyE:"egg",KeyB:"beef",KeyV:"veg",KeyF:"fish",KeyC:"chili",KeyM:"mushroom"};if(ingredientKeys[event.code])addIngredient(ingredientKeys[event.code]);if(event.code==="Space"){event.preventDefault();servePot()}if(event.code==="KeyP")togglePause()});$("start").onclick=()=>begin(selected);$("serve").onclick=servePot;$("discard").onclick=discardPot;$("pause").onclick=togglePause;$("restart").onclick=()=>begin(q.index);
+    $("exportSave").onclick=async()=>{const code=encodeProfile();try{await navigator.clipboard.writeText(code);q.message="NOODLE2 灯火账已复制。";renderAll()}catch{prompt("复制灯火账",code)}};$("importSave").onclick=()=>{const code=prompt("粘贴 NOODLE2 灯火账");if(!code)return;try{profile=decodeProfile(code);cart=profile.cart;save();q.message="灯火账已导入。";renderAll()}catch(error){q.message=error.message;renderAll()}};
+    renderAll();showOverlay("十二班待开摊","所有订单的到达、耐心、面谱与价值固定不变；失败可以复盘锅位和开火顺序。","","查看首班",()=>begin(0));
+    window.__noodleShiftTest={shifts,recipes,ingredients,carts,cookDuration,deadlineFor,referencePlan,validateContent,begin,getState:()=>q,getProfile:()=>profile,encodeProfile,decodeProfile,advance(seconds){advance(seconds)},selectOrder,selectPot,addIngredient,servePot,discardPot,forceFinish(){const ref=referencePlan(q.index,cart);for(const order of q.orders){order.status="served";order.servedAt=ref.plan.find(item=>item.orderId===order.id)?.finish||order.at}q.served=q.orders.length;q.income=ref.income;q.waste=0;q.missed=0;q.mode="running";finishShift()}};
+  })();
+  </script>
+</body>
 </html>
