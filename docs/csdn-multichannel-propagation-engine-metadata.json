@@ -1,0 +1,48 @@
+{
+  "status": "draft",
+  "original": true,
+  "title": "别再用 Boolean 表示传播状态：位掩码、工作队列与循环终止",
+  "alternativeTitles": [
+    "一个可终止的多通道传播引擎：位掩码、分叉队列与状态去重",
+    "图里有环也不怕：用有限状态上界写稳 JavaScript 传播算法",
+    "从 visited[node] 到完整状态键：多通道图传播的建模与验证"
+  ],
+  "summary": "权限、信号、依赖、颜色和能力传播常被写成一串递归与布尔标记，遇到多通道、分叉、过滤、合流和回路后很快失控。本文用一个零依赖 JavaScript 传播核心说明如何用位掩码表达通道集合，用工作队列统一处理分支，用 (节点, 方向, 通道) 作为访问状态，并通过有限状态上界证明循环必然终止。真实样例包含 12 份固定场景、28 个复合目标和 30 个参考器件，12/12 参考方案通过同一正式追踪器；文章同时讨论队列顺序、状态爆炸、有记忆节点、测试夹具与适用边界。",
+  "category": "前端",
+  "alternativeCategories": [
+    "软件工程",
+    "算法"
+  ],
+  "tags": [
+    "JavaScript",
+    "算法",
+    "位运算",
+    "前端架构",
+    "图搜索"
+  ],
+  "cover": {
+    "path": "docs/images/multichannel-propagation/cover.jpg",
+    "width": 1920,
+    "height": 1080,
+    "insertInBody": false
+  },
+  "figures": [
+    {
+      "path": "docs/images/multichannel-propagation/state-model.jpg",
+      "name": "从布尔可达性到多通道传播状态",
+      "placement": "先把通道集合压成位掩码"
+    },
+    {
+      "path": "docs/images/multichannel-propagation/queue-pipeline.jpg",
+      "name": "工作队列驱动的分叉、过滤与合流",
+      "placement": "不要递归追一条线，用工作队列处理整个传播过程"
+    },
+    {
+      "path": "docs/images/multichannel-propagation/termination-validation.jpg",
+      "name": "有限状态上界与三层验证结果",
+      "placement": "循环不是异常，无法证明终止才是问题"
+    }
+  ],
+  "repository": "https://github.com/wangzifan396-wzf/mini-browser-games",
+  "generatedAt": "2026-07-30"
+}

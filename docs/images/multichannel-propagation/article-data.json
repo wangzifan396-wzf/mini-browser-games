@@ -1,0 +1,16 @@
+{
+  "title": "别再用 Boolean 表示传播状态",
+  "subtitle": "位掩码、工作队列与循环终止",
+  "metrics": {
+    "scenes": 12,
+    "targets": 28,
+    "referencePieces": 30,
+    "referenceWins": 12,
+    "channels": 3,
+    "directions": 4,
+    "maxStates": 2016,
+    "browserErrors": 0,
+    "horizontalOverflows": 0
+  },
+  "testCommand": "node promo-video/scripts/check-prism-orchard.mjs"
+}
