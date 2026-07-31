@@ -67,6 +67,7 @@
       "metro-weaver.html",
       "midnight-monitor.html",
       "mine-matrix.html",
+      "monster-horde.html",
       "monster-tamer.html",
       "noodle-shift.html",
       "pathogen-protocol.html",
@@ -95,7 +96,6 @@
     "B": [
       "forest-dash.html",
       "midnight-chess.html",
-      "monster-horde.html",
       "radish-guard.html",
       "snow-ridge.html"
     ],

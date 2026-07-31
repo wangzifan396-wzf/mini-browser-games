@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>怪潮逆塔防</title>
+    <title>怪潮军议：十二城破阵</title>
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23101914'/%3E%3Cpath d='M12 48c10-26 30-26 40 0H12Z' fill='%2384b65d'/%3E%3Cpath d='M22 32 16 18l14 8m12 6 6-14-14 8' stroke='%23f0d27a' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='25' cy='39' r='3' fill='%23101914'/%3E%3Ccircle cx='39' cy='39' r='3' fill='%23101914'/%3E%3C/svg%3E">
     <style>
       :root {
@@ -105,6 +105,119 @@
         color: var(--ink);
         cursor: pointer;
         box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.08);
+      }
+
+      .campaign-strip {
+        display: grid;
+        grid-template-columns: minmax(0, 1.4fr) minmax(180px, 0.8fr) auto;
+        gap: 12px;
+        align-items: center;
+        margin: 14px 0;
+        padding: 12px 16px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: rgba(255, 250, 240, 0.96);
+        box-shadow: 0 12px 28px var(--shadow);
+      }
+
+      .campaign-strip strong,
+      .campaign-strip span {
+        display: block;
+      }
+
+      .campaign-strip strong {
+        margin-bottom: 3px;
+        font-size: 17px;
+      }
+
+      .campaign-strip span {
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.45;
+      }
+
+      .campaign-stars {
+        color: #9b6b0b !important;
+        font-size: 18px !important;
+        font-weight: 900;
+        text-align: right;
+      }
+
+      .contract-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+        max-height: min(54vh, 520px);
+        margin-top: 12px;
+        overflow: auto;
+      }
+
+      .contract-card {
+        min-width: 0;
+        min-height: 116px;
+        padding: 11px;
+        border: 1px solid #a89143;
+        border-radius: var(--radius);
+        background: #fffaf0;
+        color: var(--ink);
+        text-align: left;
+        cursor: pointer;
+      }
+
+      .contract-card.active {
+        border-color: var(--leaf-dark);
+        background: #e8f2e8;
+        box-shadow: inset 0 0 0 1px var(--leaf);
+      }
+
+      .contract-card:disabled {
+        cursor: not-allowed;
+        opacity: 0.48;
+      }
+
+      .contract-card strong,
+      .contract-card span {
+        display: block;
+      }
+
+      .contract-card span {
+        margin-top: 5px;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.35;
+      }
+
+      .commander-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+        margin-top: 12px;
+      }
+
+      .commander-button {
+        min-height: 74px;
+        padding: 10px;
+        border: 1px solid #8570a6;
+        border-radius: var(--radius);
+        background: #f3ecff;
+        color: var(--ink);
+        text-align: left;
+        cursor: pointer;
+      }
+
+      .commander-button.active {
+        background: var(--violet);
+        color: #fffaf0;
+      }
+
+      .archive-box {
+        width: 100%;
+        min-height: 108px;
+        padding: 10px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        resize: vertical;
+        font: 12px/1.45 ui-monospace, "Cascadia Mono", monospace;
       }
 
       .quiet-button {
@@ -551,6 +664,19 @@
           grid-template-columns: repeat(2, minmax(0, 1fr));
         }
 
+        .campaign-strip {
+          grid-template-columns: 1fr auto;
+        }
+
+        .campaign-strip > div:first-child {
+          grid-column: 1 / -1;
+        }
+
+        .contract-grid,
+        .commander-grid {
+          grid-template-columns: 1fr;
+        }
+
         .stat-tile {
           min-height: 54px;
           padding: 9px 12px;
@@ -589,14 +715,28 @@
     <div class="app-shell">
       <header class="topbar">
         <div>
-          <p class="eyebrow">反向塔防怪潮编队</p>
-          <h1>怪潮逆塔防</h1>
+          <p class="eyebrow">十二座固定城防 · 反向塔防战役</p>
+          <h1>怪潮军议</h1>
         </div>
         <div class="top-actions">
+          <button id="campaignButton" class="quiet-button" type="button">战役</button>
+          <button id="archiveButton" class="quiet-button" type="button">档案</button>
           <button id="helpButton" class="quiet-button" type="button">规则</button>
-          <button id="resetButton" class="quiet-button" type="button">新局</button>
+          <button id="resetButton" class="quiet-button" type="button">重开</button>
         </div>
       </header>
+
+      <section class="campaign-strip" aria-label="当前攻城合同">
+        <div>
+          <strong id="contractName">第一城 · 青渠哨关</strong>
+          <span id="contractRule">固定塔阵与攻城目标</span>
+        </div>
+        <div>
+          <strong id="commanderName">骨税官</strong>
+          <span id="contractGoals">破城 · 参考夜数 · 附加军令</span>
+        </div>
+        <span id="campaignStars" class="campaign-stars">☆☆☆</span>
+      </section>
 
       <section class="status-strip" aria-label="战局状态">
         <div class="stat-tile">
@@ -697,10 +837,134 @@
       const H = 560;
       const START_X = 64;
       const GATE_X = 888;
-      const MAX_WAVE = 6;
-      const WAVE_DREAD = [0, 62, 76, 104, 136, 168, 204];
-      const WAVE_OMENS = [0, 1, 1, 2, 2, 3, 3];
-      const QUEUE_LIMIT = [0, 3, 4, 5, 6, 7, 8];
+      const STORAGE_KEY = "monster-horde-campaign-v2";
+      const ARCHIVE_PREFIX = "HORDE2";
+
+      const commanders = {
+        bone: {
+          name: "骨税官",
+          desc: "重甲与攻城怪护甲 +2，每夜多容纳一份契约。",
+          apply() {
+            state.mutations.armor += 2;
+            state.commanderQueue = 1;
+          }
+        },
+        mist: {
+          name: "雾旗使",
+          desc: "潜行与潜地怪速度 +10%，黑雾额外持续 2 秒。",
+          apply() {
+            state.mutations.hiddenSpeed += 0.1;
+            state.mutations.smokeBonus += 2;
+          }
+        },
+        brood: {
+          name: "孳生母",
+          desc: "齿鼠群每契约多一只，裂殖泥多分裂一个幼体。",
+          apply() {
+            state.mutations.ratExtra += 1;
+            state.mutations.splitExtra += 1;
+          }
+        }
+      };
+
+      const contracts = [
+        {
+          id: "green-lock", region: "枯河边境", name: "青渠哨关", seed: 1103, nights: 4, hope: 18, unitTier: 0,
+          dread: [0, 80, 104, 132, 162], omens: [0, 1, 1, 2, 2], limits: [0, 4, 5, 6, 7], par: 3,
+          laneSpeed: [1.08, 1, 0.96], towerHp: 0.88, towerDamage: 0.9,
+          rule: "北门水渠流速更快，游侠只完成了临时布防。",
+          challenge: { type: "lanes", value: 3, label: "三路都部署怪物" },
+          defense: [["archer", 0, 302], ["archer", 1, 418], ["frost", 2, 534]]
+        },
+        {
+          id: "ember-market", region: "枯河边境", name: "烬市门楼", seed: 2207, nights: 4, hope: 20, unitTier: 1,
+          dread: [0, 88, 112, 142, 174], omens: [0, 1, 2, 2, 2], limits: [0, 4, 5, 6, 7], par: 3,
+          laneSpeed: [1, 1.06, 0.95], towerHp: 0.92, towerDamage: 0.94,
+          rule: "中路商街最短，但火炮会惩罚密集鼠群。",
+          challenge: { type: "variety", value: 4, label: "使用至少四种怪物" },
+          defense: [["archer", 0, 330], ["cannon", 1, 454], ["archer", 2, 574]]
+        },
+        {
+          id: "mirror-lake", region: "枯河边境", name: "镜湖星垒", seed: 3313, nights: 4, hope: 23, unitTier: 2,
+          dread: [0, 94, 120, 150, 184], omens: [0, 1, 2, 2, 3], limits: [0, 4, 5, 6, 7], par: 3,
+          laneSpeed: [0.96, 1, 1.08], towerHp: 0.96, towerDamage: 0.96,
+          rule: "南墙墓径速度更快，观星塔会揭露隐匿单位。",
+          challenge: { type: "towers", value: 1, label: "至少摧毁一座塔" },
+          defense: [["sentinel", 0, 286], ["archer", 1, 446], ["sentinel", 2, 612]]
+        },
+        {
+          id: "frost-bell", region: "灰钟山地", name: "寒钟堡", seed: 4421, nights: 4, hope: 24, unitTier: 2,
+          dread: [0, 100, 128, 160, 194], omens: [0, 1, 2, 2, 3], limits: [0, 4, 5, 6, 7], par: 3,
+          laneSpeed: [0.93, 1.02, 1.05], towerHp: 0.98, towerDamage: 0.98,
+          rule: "霜塔覆盖三路，重甲与雾行需要交替吸引火力。",
+          challenge: { type: "spells", value: 4, label: "全程至多施放四次邪术" },
+          defense: [["frost", 0, 320], ["frost", 1, 470], ["archer", 2, 620], ["frost", 2, 374]]
+        },
+        {
+          id: "bone-post", region: "灰钟山地", name: "砂骨驿", seed: 5527, nights: 4, hope: 26, unitTier: 3,
+          dread: [0, 106, 136, 168, 204], omens: [0, 1, 2, 3, 3], limits: [0, 4, 5, 6, 7], par: 3,
+          laneSpeed: [1.06, 0.94, 1.02], towerHp: 1, towerDamage: 1,
+          rule: "破甲弩会优先追猎重甲，快攻可迫使它频繁换目标。",
+          challenge: { type: "variety", value: 5, label: "使用至少五种怪物" },
+          defense: [["ballista", 0, 374], ["archer", 1, 532], ["ballista", 2, 676], ["frost", 1, 278]]
+        },
+        {
+          id: "twin-forge", region: "灰钟山地", name: "双塔铸城", seed: 6637, nights: 4, hope: 28, unitTier: 3,
+          dread: [0, 112, 142, 176, 214], omens: [0, 2, 2, 3, 3], limits: [0, 4, 5, 6, 7], par: 3,
+          laneSpeed: [0.98, 1.08, 0.98], towerHp: 1.02, towerDamage: 1,
+          rule: "焰术台与誓言祭坛互相照应，爆囊怪需要抓准窗口。",
+          challenge: { type: "towers", value: 2, label: "至少摧毁两座塔" },
+          defense: [["pyro", 0, 332], ["priest", 0, 558], ["archer", 1, 430], ["pyro", 2, 332], ["priest", 2, 558]]
+        },
+        {
+          id: "mist-harbor", region: "暮潮王领", name: "雾港圣墙", seed: 7753, nights: 4, hope: 29, unitTier: 4,
+          dread: [0, 118, 150, 184, 224], omens: [0, 2, 2, 3, 3], limits: [0, 5, 6, 7, 8], par: 3,
+          laneSpeed: [1.08, 0.92, 1.04], towerHp: 1.04, towerDamage: 1.02,
+          rule: "两座观星塔封锁边路，中路更慢却缺少侦测。",
+          challenge: { type: "lanes", value: 3, label: "三路都部署怪物" },
+          defense: [["sentinel", 0, 350], ["mage", 0, 622], ["cannon", 1, 478], ["sentinel", 2, 350], ["mage", 2, 622]]
+        },
+        {
+          id: "red-furnace", region: "暮潮王领", name: "赤炉王庭", seed: 8861, nights: 4, hope: 31, unitTier: 4,
+          dread: [0, 124, 158, 194, 234], omens: [0, 2, 2, 3, 4], limits: [0, 5, 6, 7, 8], par: 3,
+          laneSpeed: [0.96, 1.08, 0.96], towerHp: 1.06, towerDamage: 1.03,
+          rule: "中路短而灼热，分裂怪会被火焰克制，镜翼可反制炮弹。",
+          challenge: { type: "spells", value: 5, label: "全程至多施放五次邪术" },
+          defense: [["pyro", 0, 310], ["cannon", 0, 610], ["pyro", 1, 438], ["cannon", 2, 610], ["pyro", 2, 310]]
+        },
+        {
+          id: "eclipse-keep", region: "暮潮王领", name: "月蚀高垒", seed: 9973, nights: 4, hope: 33, unitTier: 5,
+          dread: [0, 132, 168, 204, 246], omens: [0, 2, 3, 3, 4], limits: [0, 5, 6, 7, 8], par: 3,
+          laneSpeed: [1, 0.96, 1.08], towerHp: 1.08, towerDamage: 1.04,
+          rule: "秘术塔会优先狙击支援与镜翼，旗巫不宜独自暴露。",
+          challenge: { type: "variety", value: 6, label: "使用至少六种怪物" },
+          defense: [["mage", 0, 298], ["ballista", 0, 626], ["frost", 1, 464], ["mage", 2, 298], ["ballista", 2, 626]]
+        },
+        {
+          id: "three-oaths", region: "黎明内环", name: "三誓天门", seed: 10181, nights: 4, hope: 34, unitTier: 5,
+          dread: [0, 140, 178, 216, 260], omens: [0, 2, 3, 4, 4], limits: [0, 5, 6, 7, 8], par: 3,
+          laneSpeed: [1.04, 1, 1.04], towerHp: 1.1, towerDamage: 1.05,
+          rule: "祭坛持续修复同路塔群，攻城怪必须集中制造缺口。",
+          challenge: { type: "towers", value: 3, label: "至少摧毁三座塔" },
+          defense: [["priest", 0, 270], ["ballista", 0, 580], ["priest", 1, 270], ["cannon", 1, 580], ["priest", 2, 270], ["ballista", 2, 580]]
+        },
+        {
+          id: "dawn-engine", region: "黎明内环", name: "黎明机城", seed: 11299, nights: 4, hope: 36, unitTier: 5,
+          dread: [0, 148, 188, 228, 274], omens: [0, 3, 3, 4, 4], limits: [0, 5, 6, 7, 8], par: 3,
+          laneSpeed: [0.98, 1.06, 1], towerHp: 1.12, towerDamage: 1.06,
+          rule: "八类塔混编，英雄 AI 会更快补齐上一夜暴露的弱点。",
+          challenge: { type: "lanes", value: 3, label: "三路都部署怪物" },
+          defense: [["sentinel", 0, 252], ["pyro", 0, 594], ["frost", 1, 316], ["cannon", 1, 644], ["mage", 2, 252], ["ballista", 2, 594]]
+        },
+        {
+          id: "crown-last", region: "黎明内环", name: "王冠终城", seed: 12413, nights: 4, hope: 38, unitTier: 5,
+          dread: [0, 158, 200, 242, 290], omens: [0, 3, 3, 4, 5], limits: [0, 5, 6, 7, 8], par: 3,
+          laneSpeed: [1.02, 1.04, 1.02], towerHp: 1.14, towerDamage: 1.08,
+          rule: "三路满编防线与快速反制共同守卫王冠，必须轮换怪物标签。",
+          challenge: { type: "variety", value: 7, label: "使用至少七种怪物" },
+          defense: [["sentinel", 0, 244], ["ballista", 0, 612], ["pyro", 1, 244], ["priest", 1, 460], ["cannon", 1, 676], ["mage", 2, 244], ["frost", 2, 612]]
+        }
+      ];
 
       const canvas = document.getElementById("gameCanvas");
       const ctx = canvas.getContext("2d");
@@ -728,7 +992,14 @@
         modalTitle: document.getElementById("modalTitle"),
         modalBody: document.getElementById("modalBody"),
         reset: document.getElementById("resetButton"),
-        help: document.getElementById("helpButton")
+        help: document.getElementById("helpButton"),
+        campaign: document.getElementById("campaignButton"),
+        archive: document.getElementById("archiveButton"),
+        contractName: document.getElementById("contractName"),
+        contractRule: document.getElementById("contractRule"),
+        commanderName: document.getElementById("commanderName"),
+        contractGoals: document.getElementById("contractGoals"),
+        campaignStars: document.getElementById("campaignStars")
       };
 
       const lanes = [
@@ -1106,6 +1377,173 @@
         }
       ];
 
+      function freshProfile() {
+        return {
+          version: 2,
+          contract: 0,
+          commander: "bone",
+          stars: Array(contracts.length).fill(0),
+          bestNights: Array(contracts.length).fill(0),
+          badges: []
+        };
+      }
+
+      function sanitizeProfile(value) {
+        const clean = freshProfile();
+        if (!value || typeof value !== "object") return clean;
+        clean.contract = Math.max(0, Math.min(contracts.length - 1, Number(value.contract) || 0));
+        clean.commander = commanders[value.commander] ? value.commander : "bone";
+        clean.stars = clean.stars.map((_, index) => Math.max(0, Math.min(3, Number(value.stars?.[index]) || 0)));
+        clean.bestNights = clean.bestNights.map((_, index) => Math.max(0, Number(value.bestNights?.[index]) || 0));
+        clean.badges = Array.isArray(value.badges) ? [...new Set(value.badges.filter((id) => typeof id === "string"))].slice(0, 12) : [];
+        return clean;
+      }
+
+      function loadProfile() {
+        try {
+          return sanitizeProfile(JSON.parse(localStorage.getItem(STORAGE_KEY)));
+        } catch {
+          return freshProfile();
+        }
+      }
+
+      function saveProfile() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+      }
+
+      function checksum(text) {
+        let hash = 2166136261;
+        for (let i = 0; i < text.length; i += 1) {
+          hash ^= text.charCodeAt(i);
+          hash = Math.imul(hash, 16777619);
+        }
+        return (hash >>> 0).toString(36).toUpperCase();
+      }
+
+      function encodeArchive(value = profile) {
+        const raw = JSON.stringify(sanitizeProfile(value));
+        const bytes = new TextEncoder().encode(raw);
+        let binary = "";
+        for (const byte of bytes) binary += String.fromCharCode(byte);
+        const payload = btoa(binary).replace(/=+$/g, "").replace(/\+/g, "-").replace(/\//g, "_");
+        return `${ARCHIVE_PREFIX}.${payload}.${checksum(payload)}`;
+      }
+
+      function decodeArchive(code) {
+        const [prefix, payload, signature] = String(code || "").trim().split(".");
+        if (prefix !== ARCHIVE_PREFIX || !payload || checksum(payload) !== signature) throw new Error("档案校验失败");
+        const padded = payload.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((payload.length + 3) % 4);
+        const bytes = Uint8Array.from(atob(padded), (char) => char.charCodeAt(0));
+        return sanitizeProfile(JSON.parse(new TextDecoder().decode(bytes)));
+      }
+
+      function isContractUnlocked(index) {
+        return index === 0 || profile.stars[index - 1] > 0;
+      }
+
+      function currentContract() {
+        return contracts[state?.contractIndex ?? profile.contract] || contracts[0];
+      }
+
+      function maxWave() {
+        return currentContract().nights;
+      }
+
+      function contractGoalText(contract = currentContract()) {
+        return `破城 · ${contract.par} 夜内 · ${contract.challenge.label}`;
+      }
+
+      function randomUnit() {
+        let x = state.rng >>> 0;
+        x ^= x << 13;
+        x ^= x >>> 17;
+        x ^= x << 5;
+        state.rng = x >>> 0;
+        return state.rng / 4294967296;
+      }
+
+      function showCampaign() {
+        const selected = profile.contract;
+        ui.modalKicker.textContent = "十二城破阵";
+        ui.modalTitle.textContent = "怪潮战役";
+        ui.modalBody.innerHTML = `
+          <div class="commander-grid">
+            ${Object.entries(commanders).map(([id, commander]) => `
+              <button class="commander-button ${profile.commander === id ? "active" : ""}" type="button" data-commander="${id}">
+                <strong>${commander.name}</strong><br><small>${commander.desc}</small>
+              </button>
+            `).join("")}
+          </div>
+          <div class="contract-grid">
+            ${contracts.map((contract, index) => {
+              const unlocked = isContractUnlocked(index);
+              const stars = "★".repeat(profile.stars[index]) + "☆".repeat(3 - profile.stars[index]);
+              return `
+                <button class="contract-card ${selected === index ? "active" : ""}" type="button" data-contract="${index}" ${unlocked ? "" : "disabled"}>
+                  <strong>${index + 1}. ${contract.name}　${stars}</strong>
+                  <span>${contract.region} · ${contract.rule}</span>
+                </button>
+              `;
+            }).join("")}
+          </div>
+          <button class="primary-button" type="button" id="closeCampaign">继续当前合同</button>
+        `;
+        ui.modal.classList.remove("hidden");
+        ui.modalBody.querySelectorAll("[data-commander]").forEach((button) => {
+          button.addEventListener("click", () => {
+            profile.commander = button.dataset.commander;
+            saveProfile();
+            newGame();
+            showCampaign();
+          });
+        });
+        ui.modalBody.querySelectorAll("[data-contract]").forEach((button) => {
+          button.addEventListener("click", () => {
+            profile.contract = Number(button.dataset.contract);
+            saveProfile();
+            ui.modal.classList.add("hidden");
+            newGame();
+          });
+        });
+        document.getElementById("closeCampaign").addEventListener("click", () => ui.modal.classList.add("hidden"));
+      }
+
+      function showArchive(message = "") {
+        ui.modalKicker.textContent = "跨设备档案";
+        ui.modalTitle.textContent = "HORDE2 战役档案";
+        ui.modalBody.innerHTML = `
+          ${message ? `<p><strong>${message}</strong></p>` : ""}
+          <textarea id="archiveText" class="archive-box" aria-label="战役档案码">${encodeArchive()}</textarea>
+          <div class="small-actions">
+            <button id="copyArchive" class="danger-button" type="button">复制档案</button>
+            <button id="importArchive" class="danger-button" type="button">导入档案</button>
+          </div>
+          <button id="closeArchive" class="primary-button" type="button">返回战场</button>
+        `;
+        ui.modal.classList.remove("hidden");
+        const input = document.getElementById("archiveText");
+        document.getElementById("copyArchive").addEventListener("click", async () => {
+          input.select();
+          try {
+            await navigator.clipboard.writeText(input.value);
+          } catch {
+            document.execCommand("copy");
+          }
+        });
+        document.getElementById("importArchive").addEventListener("click", () => {
+          try {
+            profile = decodeArchive(input.value);
+            saveProfile();
+            newGame();
+            showArchive("档案已导入并通过校验");
+          } catch (error) {
+            showArchive(error.message || "档案无效");
+          }
+        });
+        document.getElementById("closeArchive").addEventListener("click", () => ui.modal.classList.add("hidden"));
+      }
+
+      let profile = loadProfile();
       let state;
       let lastTime = 0;
       let animationFrame = null;
@@ -1124,14 +1562,21 @@
         };
       }
 
-      function newGame() {
+      function newGame(contractIndex = profile.contract, commanderId = profile.commander, options = {}) {
+        ui.modal.classList.add("hidden");
+        const safeContract = Math.max(0, Math.min(contracts.length - 1, Number(contractIndex) || 0));
+        const contract = contracts[safeContract];
+        const safeCommander = commanders[commanderId] ? commanderId : "bone";
         state = {
           mode: "planning",
           wave: 1,
-          hope: 34,
-          maxHope: 34,
-          dread: WAVE_DREAD[1],
-          omens: WAVE_OMENS[1],
+          contractIndex: safeContract,
+          commander: safeCommander,
+          rng: contract.seed,
+          hope: contract.hope,
+          maxHope: contract.hope,
+          dread: contract.dread[1],
+          omens: contract.omens[1],
           breach: 0,
           selectedLane: 1,
           queue: [],
@@ -1145,8 +1590,17 @@
           waveTime: 0,
           bankBonus: 0,
           carryDread: 0,
+          spellsUsed: 0,
+          towersDestroyedTotal: 0,
+          usedUnits: {},
+          usedLanes: {},
+          breachedLanes: {},
+          commanderQueue: 0,
+          offeredMutations: [],
+          result: null,
+          testing: Boolean(options.testing),
           logs: [],
-          aiReadout: "王国 AI 尚未掌握你的怪潮偏好。第一夜只有基础哨塔，先试出一条路线的缺口。",
+          aiReadout: `${contract.name} 的固定塔阵已记录。英雄 AI 会从第二夜开始按你的怪物标签调整防线。`,
           lastStats: makeEmptyStats(),
           mutations: {
             hp: 1,
@@ -1168,10 +1622,13 @@
           paused: false
         };
 
-        addTower("archer", 0, 302);
-        addTower("archer", 1, 418);
-        addTower("frost", 2, 534);
-        addLog("怪潮议会已就位。选择路线与契约，释放第一夜怪潮。");
+        commanders[safeCommander].apply();
+        for (const [type, lane, x, level = 1] of contract.defense) {
+          const tower = addTower(type, lane, x);
+          while (tower.level < level) upgradeTower(tower);
+        }
+        addLog(`${contract.region} · ${contract.name}：${contract.rule}`);
+        addLog(`${commanders[safeCommander].name} 已接管军议。选择路线与契约，释放第一夜怪潮。`, "good");
         renderUi({ preserveScroll: false });
       }
 
@@ -1194,6 +1651,7 @@
 
       function addTower(type, lane, forcedX) {
         const def = towers[type];
+        const contract = currentContract();
         const slots = [194, 278, 366, 456, 548, 642, 736];
         let x = forcedX;
         if (!x) {
@@ -1214,8 +1672,8 @@
           lane,
           x,
           y: towerY(lane, x),
-          hp: def.hp,
-          maxHp: def.hp,
+          hp: Math.round(def.hp * contract.towerHp),
+          maxHp: Math.round(def.hp * contract.towerHp),
           level: 1,
           cooldown: random(0.2, 0.8),
           stun: 0,
@@ -1228,7 +1686,7 @@
       function upgradeTower(tower) {
         const def = towers[tower.type];
         tower.level += 1;
-        tower.maxHp = Math.round(tower.maxHp + def.hp * 0.26);
+        tower.maxHp = Math.round(tower.maxHp + def.hp * currentContract().towerHp * 0.26);
         tower.hp = tower.maxHp;
         addFloater(tower.x, tower.y - 26, `Lv.${tower.level}`, "#f0d27a");
         return tower;
@@ -1253,12 +1711,13 @@
       }
 
       function queueLimit() {
-        return QUEUE_LIMIT[Math.min(state.wave, QUEUE_LIMIT.length - 1)];
+        const limits = currentContract().limits;
+        return limits[Math.min(state.wave, limits.length - 1)] + state.commanderQueue;
       }
 
       function isUnitUnlocked(key) {
         const def = units[key];
-        return !def.unlockWave || state.wave >= def.unlockWave;
+        return !def.unlockWave || state.wave + currentContract().unitTier >= def.unlockWave;
       }
 
       function addQueueUnit(key) {
@@ -1313,8 +1772,8 @@
             return isUnitUnlocked(key) && unitCost(key) <= state.dread;
           });
           if (!available.length) break;
-          const key = available[Math.floor(Math.random() * Math.min(available.length, 5))];
-          state.selectedLane = Math.floor(Math.random() * lanes.length);
+          const key = available[Math.floor(randomUnit() * Math.min(available.length, 5))];
+          state.selectedLane = Math.floor(randomUnit() * lanes.length);
           addQueueUnit(key);
         }
         addLog("议会按英雄防线弱点自动排了一波怪潮。", "good");
@@ -1328,10 +1787,13 @@
         state.spawnIndex = 0;
         state.spawnPlan = [];
         state.lastStats = makeEmptyStats();
-        state.omens = WAVE_OMENS[Math.min(state.wave, WAVE_OMENS.length - 1)] + state.mutations.omens;
+        const contract = currentContract();
+        state.omens = contract.omens[Math.min(state.wave, contract.omens.length - 1)] + state.mutations.omens;
         let t = 0.45;
         for (const item of state.queue) {
           const def = units[item.key];
+          state.usedUnits[item.key] = true;
+          state.usedLanes[item.lane] = true;
           const count = def.count + (item.key === "rat" ? state.mutations.ratExtra : 0);
           for (let i = 0; i < count; i += 1) {
             state.spawnPlan.push({
@@ -1340,7 +1802,7 @@
               time: t + i * 0.22
             });
           }
-          t += Math.max(0.48, 0.76 - state.wave * 0.03);
+          t += Math.max(0.44, 0.72 - state.wave * 0.03);
           for (const tag of def.tags) {
             state.lastStats.tags[tag] = (state.lastStats.tags[tag] || 0) + 1;
           }
@@ -1362,7 +1824,7 @@
           y: lanes[lane].y + random(-7, 7),
           hp: Math.round(def.hp * state.mutations.hp),
           maxHp: Math.round(def.hp * state.mutations.hp),
-          speed: def.speed * (1 + hiddenBoost),
+          speed: def.speed * (1 + hiddenBoost) * currentContract().laneSpeed[lane],
           armor: def.armor + (armored ? state.mutations.armor : 0),
           radius: def.radius,
           breach: def.breach,
@@ -1427,7 +1889,7 @@
           }
 
           if (monster.key === "sapper") {
-            const target = nearestTower(monster, 54);
+            const target = nearestTower(monster, 74);
             if (target) {
               explodeSapper(monster, target);
               continue;
@@ -1452,6 +1914,7 @@
           if (monster.x >= GATE_X) {
             monster.escaped = true;
             state.breach += monster.breach;
+            state.breachedLanes[monster.lane] = true;
             state.hope = Math.max(0, state.hope - monster.breach);
             state.lastStats.escaped += 1;
             state.lastStats.laneLeaks[monster.lane] += monster.breach;
@@ -1544,7 +2007,7 @@
           if (tower.type === "sentinel") score += (u.tags.includes("潜行") || u.tags.includes("潜地")) ? 3 : 0;
           if (tower.type === "pyro") score += (u.tags.includes("群体") || u.tags.includes("分裂") || u.tags.includes("支援")) ? 2 : 0;
           if (tower.type === "priest") score += u.tags.includes("支援") ? 2.4 : 0;
-          score += Math.random() * 0.05;
+          score += randomUnit() * 0.05;
 
           if (score > bestScore) {
             bestScore = score;
@@ -1560,7 +2023,7 @@
         const revealed = isRevealed(monster);
         if (u.tags.includes("潜地") && monster.x < 265 && !def.reveal && !revealed) return false;
         if (u.tags.includes("潜行") && !def.reveal && !revealed) return false;
-        if (state.smoke[monster.lane] > 0 && !def.reveal && Math.random() < 0.18) return false;
+        if (state.smoke[monster.lane] > 0 && !def.reveal && randomUnit() < 0.18) return false;
         return d <= def.range;
       }
 
@@ -1595,7 +2058,7 @@
       }
 
       function towerScale(tower) {
-        return 1 + (tower.level - 1) * 0.24;
+        return (1 + (tower.level - 1) * 0.24) * currentContract().towerDamage;
       }
 
       function hitProjectile(projectile, target) {
@@ -1678,7 +2141,7 @@
           if (tower.dead) continue;
           const d = distance(monster.x, monster.y, tower.x, tower.y);
           if (d > 92) continue;
-          tower.hp -= Math.max(28, 92 - d * 0.55);
+          tower.hp -= Math.max(46, 130 - d * 0.55);
           tower.stun = Math.max(tower.stun, 1.2);
           if (tower.hp <= 0) {
             destroyTower(tower);
@@ -1692,6 +2155,7 @@
         if (tower.dead) return;
         tower.dead = true;
         state.lastStats.towersDestroyed += 1;
+        state.towersDestroyedTotal += 1;
         state.bankBonus += 12 + state.mutations.bounty;
         addFloater(tower.x, tower.y - 18, "破塔", "#b7443c");
       }
@@ -1724,6 +2188,7 @@
       function castSpell(key) {
         if (state.mode !== "running" || state.omens <= 0) return;
         state.omens -= 1;
+        state.spellsUsed += 1;
         spells[key].use(state.selectedLane);
         renderUi();
       }
@@ -1733,7 +2198,7 @@
           winGame();
           return;
         }
-        if (state.wave >= MAX_WAVE) {
+        if (state.wave >= maxWave()) {
           loseGame();
           return;
         }
@@ -1827,9 +2292,10 @@
         const pool = mutations.filter((mutation) => !state[mutation.id]);
         const choices = [];
         while (choices.length < 3 && pool.length) {
-          const index = Math.floor(Math.random() * pool.length);
+          const index = Math.floor(randomUnit() * pool.length);
           choices.push(pool.splice(index, 1)[0]);
         }
+        state.offeredMutations = choices.map((choice) => choice.id);
         ui.modalKicker.textContent = `第 ${state.wave - 1} 夜结束`;
         ui.modalTitle.textContent = "怪潮进化";
         ui.modalBody.innerHTML = `
@@ -1860,9 +2326,10 @@
       }
 
       function beginPlanning() {
+        const contract = currentContract();
         state.mode = "planning";
-        state.dread = WAVE_DREAD[Math.min(state.wave, WAVE_DREAD.length - 1)] + state.bankBonus + state.carryDread;
-        state.omens = WAVE_OMENS[Math.min(state.wave, WAVE_OMENS.length - 1)] + state.mutations.omens;
+        state.dread = contract.dread[Math.min(state.wave, contract.dread.length - 1)] + state.bankBonus + state.carryDread;
+        state.omens = contract.omens[Math.min(state.wave, contract.omens.length - 1)] + state.mutations.omens;
         state.bankBonus = 0;
         state.carryDread = 0;
         state.queue = [];
@@ -1873,17 +2340,57 @@
         renderUi({ preserveScroll: false });
       }
 
+      function challengeMet(contract = currentContract()) {
+        if (contract.challenge.type === "lanes") return Object.keys(state.usedLanes).length >= contract.challenge.value;
+        if (contract.challenge.type === "variety") return Object.keys(state.usedUnits).length >= contract.challenge.value;
+        if (contract.challenge.type === "towers") return state.towersDestroyedTotal >= contract.challenge.value;
+        if (contract.challenge.type === "spells") return state.spellsUsed <= contract.challenge.value;
+        return false;
+      }
+
+      function scoreVictory() {
+        const contract = currentContract();
+        return 1 + (state.wave <= contract.par ? 1 : 0) + (challengeMet(contract) ? 1 : 0);
+      }
+
+      function recordVictory(stars) {
+        const index = state.contractIndex;
+        profile.stars[index] = Math.max(profile.stars[index], stars);
+        const oldBest = profile.bestNights[index];
+        profile.bestNights[index] = oldBest ? Math.min(oldBest, state.wave) : state.wave;
+        if (!profile.badges.includes("first-fall")) profile.badges.push("first-fall");
+        if (profile.stars.every((value) => value > 0) && !profile.badges.includes("twelve-falls")) profile.badges.push("twelve-falls");
+        if (profile.stars.every((value) => value === 3) && !profile.badges.includes("perfect-council")) profile.badges.push("perfect-council");
+        saveProfile();
+      }
+
       function winGame() {
+        if (state.mode === "gameover") return;
         state.mode = "gameover";
         state.hope = 0;
+        const contract = currentContract();
+        const stars = scoreVictory();
+        state.result = { won: true, stars, wave: state.wave, challenge: challengeMet(contract) };
+        if (!state.testing) recordVictory(stars);
         ui.modalKicker.textContent = "王城陷落";
-        ui.modalTitle.textContent = "怪潮获胜";
+        ui.modalTitle.textContent = `${contract.name} · ${"★".repeat(stars)}${"☆".repeat(3 - stars)}`;
         ui.modalBody.innerHTML = `
-          <p>城墙后的火把一盏盏熄灭。你在第 ${state.wave} 夜压垮了王城士气，怪潮夺下了最后一道门。</p>
-          <button class="primary-button" type="button" id="modalNewGame">再来一局</button>
+          <p>第 ${state.wave} 夜破城；${state.wave <= contract.par ? "达成参考夜数" : `参考夜数为 ${contract.par}`}；${challengeMet(contract) ? "完成" : "未完成"}附加军令“${contract.challenge.label}”。</p>
+          <div class="small-actions">
+            <button class="danger-button" type="button" id="modalCampaign">返回战役</button>
+            <button class="danger-button" type="button" id="modalNewGame">重打本城</button>
+          </div>
+          ${state.contractIndex + 1 < contracts.length && isContractUnlocked(state.contractIndex + 1) ? `<button class="primary-button" type="button" id="modalNext">进攻下一城</button>` : ""}
         `;
         ui.modal.classList.remove("hidden");
+        document.getElementById("modalCampaign").addEventListener("click", showCampaign);
         document.getElementById("modalNewGame").addEventListener("click", () => {
+          ui.modal.classList.add("hidden");
+          newGame();
+        });
+        document.getElementById("modalNext")?.addEventListener("click", () => {
+          profile.contract = Math.min(contracts.length - 1, state.contractIndex + 1);
+          saveProfile();
           ui.modal.classList.add("hidden");
           newGame();
         });
@@ -1892,13 +2399,18 @@
 
       function loseGame() {
         state.mode = "gameover";
+        state.result = { won: false, stars: 0, wave: state.wave, challenge: challengeMet() };
         ui.modalKicker.textContent = "天亮";
         ui.modalTitle.textContent = "英雄守住了城";
         ui.modalBody.innerHTML = `
-          <p>第 ${MAX_WAVE} 夜结束，王城士气还剩 ${state.hope}。英雄 AI 已经读懂了你的怪潮，需要换一套编队思路。</p>
-          <button class="primary-button" type="button" id="modalNewGame">再来一局</button>
+          <p>第 ${maxWave()} 夜结束，王城士气还剩 ${state.hope}。换路线、统帅或怪物标签后再组织攻城。</p>
+          <div class="small-actions">
+            <button class="danger-button" type="button" id="modalCampaign">返回战役</button>
+            <button class="danger-button" type="button" id="modalNewGame">重打本城</button>
+          </div>
         `;
         ui.modal.classList.remove("hidden");
+        document.getElementById("modalCampaign").addEventListener("click", showCampaign);
         document.getElementById("modalNewGame").addEventListener("click", () => {
           ui.modal.classList.add("hidden");
           newGame();
@@ -1908,11 +2420,11 @@
 
       function showHelp() {
         ui.modalKicker.textContent = "规则";
-        ui.modalTitle.textContent = "怎样攻破塔防";
+        ui.modalTitle.textContent = "怎样攻破十二城";
         ui.modalBody.innerHTML = `
-          <p>你是进攻方。编队阶段选择路线和怪物契约，消耗魂火组建怪潮。战斗阶段怪物会自动向右推进，抵达城门会降低王城士气。</p>
+          <p>每座城有固定塔阵、路线速度、魂火预算和四夜时限。编队阶段选择路线与怪物契约；战斗阶段怪物自动推进，抵达城门会削减王城士气。</p>
           <p>英雄不是固定木桩。每夜结束后，英雄 AI 会分析你用了什么标签、哪条路突入最多、是否炸掉了塔，然后补充克制塔或升级关键塔。</p>
-          <p>邪兆是战斗中的法术次数。先选路线，再施放黑雾、裂地或血契。怪潮进化会改变后续所有夜晚的打法。</p>
+          <p>破城获得一星，在参考夜数内完成获得第二星，执行当前附加军令获得第三星。统帅、夜间异变和邪术会改变同一城防的攻城路线。</p>
           <button class="primary-button" type="button" id="closeHelp">明白了</button>
         `;
         ui.modal.classList.remove("hidden");
@@ -1922,7 +2434,8 @@
       function renderUi(options = {}) {
         const preserveScroll = options.preserveScroll !== false && state.mode !== "mutation" && state.mode !== "gameover";
         const previousScroll = window.scrollY;
-        ui.wave.textContent = `${Math.min(state.wave, MAX_WAVE)}/${MAX_WAVE}`;
+        const contract = currentContract();
+        ui.wave.textContent = `${Math.min(state.wave, maxWave())}/${maxWave()}`;
         ui.dread.textContent = Math.max(0, Math.floor(state.dread));
         ui.hope.textContent = Math.max(0, Math.ceil(state.hope));
         ui.omens.textContent = Math.max(0, state.omens);
@@ -1931,6 +2444,12 @@
         ui.unitCount.textContent = `${state.queue.length}/${queueLimit()} 队`;
         ui.queueCost.textContent = `队列 ${state.queue.reduce((sum, item) => sum + item.cost, 0)}`;
         ui.ai.textContent = state.aiReadout;
+        ui.contractName.textContent = `${state.contractIndex + 1}. ${contract.region} · ${contract.name}`;
+        ui.contractRule.textContent = contract.rule;
+        ui.commanderName.textContent = commanders[state.commander].name;
+        ui.contractGoals.textContent = contractGoalText(contract);
+        const savedStars = profile.stars[state.contractIndex];
+        ui.campaignStars.textContent = "★".repeat(savedStars) + "☆".repeat(3 - savedStars);
 
         ui.laneButtons.innerHTML = lanes.map((lane) => `
           <button class="lane-button ${state.selectedLane === lane.id ? "active" : ""}" type="button" data-lane="${lane.id}">
@@ -1943,10 +2462,11 @@
         });
 
         const unitEntries = Object.entries(units).filter(([key]) => isUnitUnlocked(key));
+        const effectiveWave = state.wave + contract.unitTier;
         const upcomingWave = Math.min(
           ...Object.values(units)
             .map((unit) => unit.unlockWave || 1)
-            .filter((wave) => wave > state.wave)
+            .filter((wave) => wave > effectiveWave)
         );
         const upcomingUnits = Number.isFinite(upcomingWave)
           ? Object.values(units).filter((unit) => unit.unlockWave === upcomingWave).map((unit) => unit.name)
@@ -1965,7 +2485,7 @@
               </span>
             </button>
           `;
-        }).join("") + (upcomingUnits.length ? `<div class="unlock-note">第 ${upcomingWave} 夜解锁：${upcomingUnits.join("、")}</div>` : "");
+        }).join("") + (upcomingUnits.length ? `<div class="unlock-note">后续夜解锁：${upcomingUnits.join("、")}</div>` : "");
 
         ui.unitGrid.querySelectorAll("[data-unit]").forEach((button) => {
           button.addEventListener("click", () => addQueueUnit(button.dataset.unit));
@@ -2006,6 +2526,97 @@
             window.scrollTo(0, Math.min(previousScroll, maxScroll));
           });
         }
+      }
+
+      const REFERENCE_ORDER = ["ram", "hag", "prince", "mirror", "imp", "mole", "ooze", "sapper", "rat"];
+      const SAPPER_ORDER = ["ram", "sapper", "sapper", "hag", "sapper", "mirror", "ram", "sapper", "imp"];
+      const MUTATION_PRIORITY = ["thick-hide", "mist-school", "bone-tax", "rat-choir", "banner-range", "split-law", "plunder", "omens", "bounty", "interest"];
+
+      function buildReferenceQueue(contractIndex, wave) {
+        clearQueue();
+        const contract = currentContract();
+        const order = contract.challenge.type === "towers" ? SAPPER_ORDER : REFERENCE_ORDER;
+        const laneScores = lanes.map((lane) => {
+          const defenders = contract.defense.filter(([, towerLane]) => towerLane === lane.id).length;
+          return contract.laneSpeed[lane.id] * 2 - defenders * 0.22;
+        });
+        const targetLane = laneScores.indexOf(Math.max(...laneScores));
+        const offset = (contractIndex + wave - 1) % order.length;
+        let misses = 0;
+        let cursor = 0;
+        while (state.queue.length < queueLimit() && misses < order.length * 2) {
+          const key = order[(offset + cursor) % order.length];
+          cursor += 1;
+          if (!isUnitUnlocked(key) || unitCost(key) > state.dread) {
+            misses += 1;
+            continue;
+          }
+          state.selectedLane = contract.challenge.type === "lanes"
+            ? (state.queue.length + wave + contractIndex) % lanes.length
+            : targetLane;
+          addQueueUnit(key);
+          misses = 0;
+        }
+        if (!state.queue.length) {
+          state.selectedLane = (wave + contractIndex) % lanes.length;
+          addQueueUnit("rat");
+        }
+        return state.queue.map((item) => ({ key: item.key, lane: item.lane }));
+      }
+
+      function runReferenceContract(contractIndex) {
+        newGame(contractIndex, "bone", { testing: true });
+        ui.modal.classList.add("hidden");
+        const queues = [];
+        let spellWave = 0;
+        let guard = 0;
+        while (state.mode !== "gameover" && guard < 60000) {
+          guard += 1;
+          if (state.mode === "planning") {
+            queues.push(buildReferenceQueue(contractIndex, state.wave));
+            startWave();
+            continue;
+          }
+          if (state.mode === "mutation") {
+            const choice = MUTATION_PRIORITY.find((id) => state.offeredMutations.includes(id)) || state.offeredMutations[0];
+            chooseMutation(choice);
+            continue;
+          }
+          if (state.mode === "running") {
+            if (spellWave !== state.wave && state.omens > 0 && state.waveTime >= 2.4 && state.monsters.length) {
+              const pressure = [0, 1, 2].map((lane) => state.monsters.filter((monster) => monster.lane === lane && !monster.dead).length);
+              state.selectedLane = pressure.indexOf(Math.max(...pressure));
+              castSpell(currentContract().challenge.type === "towers" ? "quake" : "blood");
+              spellWave = state.wave;
+            }
+            update(0.05);
+          }
+        }
+        if (guard >= 60000) throw new Error(`${contracts[contractIndex].name} 参考攻城超时`);
+        return {
+          id: currentContract().id,
+          won: Boolean(state.result?.won),
+          stars: state.result?.stars || 0,
+          wave: state.result?.wave || state.wave,
+          breach: state.breach,
+          towers: state.towersDestroyedTotal,
+          spells: state.spellsUsed,
+          variety: Object.keys(state.usedUnits).length,
+          breachedLanes: Object.keys(state.breachedLanes).length,
+          queues
+        };
+      }
+
+      function validateContent() {
+        if (contracts.length !== 12) throw new Error("攻城合同必须为 12 份");
+        if (new Set(contracts.map((contract) => contract.id)).size !== contracts.length) throw new Error("合同 id 重复");
+        if (Object.keys(commanders).length !== 3) throw new Error("统帅数量错误");
+        for (const contract of contracts) {
+          if (contract.nights !== 4 || contract.dread.length < 5 || contract.omens.length < 5 || contract.limits.length < 5) throw new Error(`${contract.id} 夜班数据不完整`);
+          if (contract.defense.length < 3 || contract.defense.some(([type, lane]) => !towers[type] || !lanes[lane])) throw new Error(`${contract.id} 塔阵无效`);
+          if (!contract.laneSpeed || contract.laneSpeed.length !== 3) throw new Error(`${contract.id} 路线规则无效`);
+        }
+        return { contracts: contracts.length, commanders: Object.keys(commanders).length, units: Object.keys(units).length, towers: Object.keys(towers).length };
       }
 
       function draw() {
@@ -2323,7 +2934,7 @@
       }
 
       function random(min, max) {
-        return min + Math.random() * (max - min);
+        return min + randomUnit() * (max - min);
       }
 
       function roundRect(x, y, w, h, r) {
@@ -2360,12 +2971,37 @@
       ui.start.addEventListener("click", startWave);
       ui.clear.addEventListener("click", clearQueue);
       ui.auto.addEventListener("click", autoQueue);
+      ui.campaign.addEventListener("click", showCampaign);
+      ui.archive.addEventListener("click", () => showArchive());
       ui.reset.addEventListener("click", () => {
         ui.modal.classList.add("hidden");
         newGame();
       });
       ui.help.addEventListener("click", showHelp);
       window.addEventListener("resize", resizeCanvas);
+
+      window.__monsterHordeTest = {
+        contracts,
+        commanders,
+        validateContent,
+        runReferenceContract,
+        encodeArchive,
+        decodeArchive,
+        freshProfile,
+        newGame,
+        getState: () => ({
+          mode: state.mode,
+          contractIndex: state.contractIndex,
+          commander: state.commander,
+          wave: state.wave,
+          hope: state.hope,
+          dread: state.dread,
+          spellsUsed: state.spellsUsed,
+          towersDestroyed: state.towersDestroyedTotal,
+          queue: state.queue.map((item) => ({ key: item.key, lane: item.lane })),
+          result: state.result
+        })
+      };
 
       newGame();
       resizeCanvas();
