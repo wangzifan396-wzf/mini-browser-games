@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>雪岭快逃</title>
+    <title>雪岭巡降：十二道风雪赛段</title>
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='8' fill='%23101a24'/%3E%3Cpath d='M10 50 27 18l8 15 7-11 12 28H10Z' fill='%23f7fbff'/%3E%3Cpath d='M16 48h36' stroke='%234d8daf' stroke-width='5' stroke-linecap='round'/%3E%3Ccircle cx='42' cy='18' r='7' fill='%23f2c84b'/%3E%3C/svg%3E">
     <style>
       :root {
@@ -142,6 +142,42 @@
         gap: 14px;
         align-items: start;
         margin-top: 14px;
+      }
+
+      .course-strip {
+        display: grid;
+        grid-template-columns: minmax(0, 1.4fr) minmax(180px, 0.8fr) auto;
+        gap: 12px;
+        align-items: center;
+        margin-top: 14px;
+        padding: 11px 15px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: rgba(255, 253, 245, 0.96);
+        box-shadow: 0 12px 28px var(--shadow);
+      }
+
+      .course-strip strong,
+      .course-strip span {
+        display: block;
+      }
+
+      .course-strip strong {
+        margin-bottom: 3px;
+        font-size: 16px;
+      }
+
+      .course-strip span {
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.4;
+      }
+
+      .course-stars {
+        color: #9b6b18 !important;
+        font-size: 18px !important;
+        font-weight: 900;
+        text-align: right;
       }
 
       .game-panel {
@@ -423,6 +459,97 @@
         font-weight: 800;
       }
 
+      .screen-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 20;
+        display: grid;
+        place-items: center;
+        padding: 16px;
+        background: rgba(5, 15, 24, 0.76);
+      }
+
+      .screen-modal[hidden] {
+        display: none;
+      }
+
+      .screen-card {
+        width: min(920px, 100%);
+        max-height: calc(100vh - 32px);
+        overflow: auto;
+        padding: 18px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--panel);
+        box-shadow: 0 22px 50px rgba(0, 0, 0, 0.36);
+      }
+
+      .screen-card h2 {
+        margin-bottom: 8px;
+      }
+
+      .loadout-grid,
+      .course-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+        margin: 12px 0;
+      }
+
+      .loadout-button,
+      .course-card {
+        min-width: 0;
+        min-height: 76px;
+        padding: 10px;
+        border: 1px solid #8aa3af;
+        border-radius: var(--radius);
+        background: #f4faff;
+        color: var(--ink);
+        text-align: left;
+        cursor: pointer;
+      }
+
+      .course-card {
+        min-height: 108px;
+      }
+
+      .loadout-button.active,
+      .course-card.active {
+        border-color: var(--blue-dark);
+        background: #dceff8;
+        box-shadow: inset 0 0 0 1px var(--blue);
+      }
+
+      .course-card:disabled {
+        cursor: not-allowed;
+        opacity: 0.48;
+      }
+
+      .loadout-button strong,
+      .loadout-button span,
+      .course-card strong,
+      .course-card span {
+        display: block;
+      }
+
+      .loadout-button span,
+      .course-card span {
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.35;
+      }
+
+      .archive-box {
+        width: 100%;
+        min-height: 110px;
+        padding: 10px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        resize: vertical;
+        font: 12px/1.45 ui-monospace, "Cascadia Mono", monospace;
+      }
+
       @media (max-width: 1040px) {
         .layout {
           grid-template-columns: 1fr;
@@ -459,6 +586,19 @@
           min-height: 560px;
         }
 
+        .course-strip {
+          grid-template-columns: 1fr auto;
+        }
+
+        .course-strip > div:first-child {
+          grid-column: 1 / -1;
+        }
+
+        .loadout-grid,
+        .course-grid {
+          grid-template-columns: 1fr;
+        }
+
         .hud {
           grid-template-columns: repeat(2, minmax(0, 1fr));
           gap: 6px;
@@ -478,23 +618,37 @@
     <div class="app-shell">
       <header class="topbar">
         <div>
-          <p class="eyebrow">横版雪坡逃生</p>
-          <h1>雪岭快逃</h1>
+          <p class="eyebrow">十二道固定雪线 · 物理竞速巡回</p>
+          <h1>雪岭巡降</h1>
         </div>
         <div class="top-actions">
-          <button class="primary-button" id="startTop" type="button">开始</button>
+          <button class="quiet-button" id="courseButton" type="button">赛历</button>
+          <button class="quiet-button" id="archiveButton" type="button">档案</button>
+          <button class="primary-button" id="startTop" type="button">出发</button>
           <button class="quiet-button" id="pauseTop" type="button">暂停</button>
           <button class="icon-button" id="muteTop" type="button" title="音效" aria-label="音效">♪</button>
         </div>
       </header>
 
+      <section class="course-strip" aria-label="当前赛段">
+        <div>
+          <strong id="courseName">1. 松针练习坡</strong>
+          <span id="courseRule">固定雪线与有限终点</span>
+        </div>
+        <div>
+          <strong id="loadoutName">巡线员 · 霜刃板</strong>
+          <span id="courseGoals">完赛 · 参考时间 · 附加目标</span>
+        </div>
+        <span class="course-stars" id="courseStars">☆☆☆</span>
+      </section>
+
       <main class="layout">
-        <section class="game-panel" id="gamePanel" aria-label="雪岭快逃游戏区域">
+        <section class="game-panel" id="gamePanel" aria-label="雪岭巡降游戏区域">
           <canvas id="gameCanvas"></canvas>
 
           <div class="hud">
             <div class="stat"><span>距离</span><b id="distanceText">0m</b></div>
-            <div class="stat"><span>松果</span><b id="coinText">0</b></div>
+            <div class="stat"><span>雪徽</span><b id="coinText">0</b></div>
             <div class="stat"><span>速度</span><b id="speedText">1.0x</b></div>
             <div class="stat"><span>雪崩</span><b id="gapText">稳</b></div>
             <div class="stat"><span>连段</span><b id="comboText">x1</b></div>
@@ -504,11 +658,11 @@
 
           <div class="overlay" id="readyOverlay">
             <div class="modal">
-              <h2>雪线已经裂开</h2>
-              <p>沿着坡面滑行，越过石块，干净落地会甩开雪崩。</p>
+              <h2 id="readyTitle">松针练习坡</h2>
+              <p id="readyText">沿固定雪线滑向终点，干净落地会甩开雪崩。</p>
               <div class="modal-actions">
                 <button class="primary-button" id="startButton" type="button">出发</button>
-                <button class="quiet-button" id="copyButton" type="button">复制战报</button>
+                <button class="quiet-button" id="selectButton" type="button">选择赛段</button>
               </div>
             </div>
           </div>
@@ -526,15 +680,15 @@
 
           <div class="overlay" id="gameOverOverlay" hidden>
             <div class="modal">
-              <h2>本轮结算</h2>
+              <h2 id="resultTitle">赛段结算</h2>
               <div class="result-grid">
-                <div class="result-item"><span>距离</span><b id="resultDistance">0m</b></div>
-                <div class="result-item"><span>松果</span><b id="resultCoins">0</b></div>
-                <div class="result-item"><span>分数</span><b id="resultScore">0</b></div>
+                <div class="result-item"><span>用时</span><b id="resultDistance">0.00s</b></div>
+                <div class="result-item"><span>雪徽</span><b id="resultCoins">☆☆☆</b></div>
+                <div class="result-item"><span>表现</span><b id="resultScore">0</b></div>
               </div>
               <div class="modal-actions">
-                <button class="primary-button" id="restartButton" type="button">再滑</button>
-                <button class="quiet-button" id="copyResultButton" type="button">复制战报</button>
+                <button class="primary-button" id="restartButton" type="button">重滑</button>
+                <button class="quiet-button" id="copyResultButton" type="button">下一赛段</button>
               </div>
             </div>
           </div>
@@ -549,11 +703,11 @@
 
         <aside class="side-panel">
           <section class="board">
-            <h2>本地战绩</h2>
+            <h2>巡降档案</h2>
             <div class="record-grid">
-              <div class="record-tile"><span>最佳距离</span><b id="recordDistance">0m</b></div>
-              <div class="record-tile"><span>最高分</span><b id="recordScore">0</b></div>
-              <div class="record-tile"><span>总松果</span><b id="recordCoins">0</b></div>
+              <div class="record-tile"><span>当前雪徽</span><b id="recordDistance">0/3</b></div>
+              <div class="record-tile"><span>最佳用时</span><b id="recordScore">--</b></div>
+              <div class="record-tile"><span>巡回雪徽</span><b id="recordCoins">0/36</b></div>
               <div class="record-tile"><span>最佳翻转</span><b id="recordFlips">0</b></div>
             </div>
             <p class="status-line" id="statusLine">雪坡已生成。</p>
@@ -567,6 +721,14 @@
       </main>
     </div>
 
+    <div class="screen-modal" id="screenModal" hidden role="dialog" aria-modal="true" aria-labelledby="screenTitle">
+      <div class="screen-card">
+        <p class="eyebrow" id="screenKicker">雪岭赛历</p>
+        <h2 id="screenTitle">十二道风雪赛段</h2>
+        <div id="screenBody"></div>
+      </div>
+    </div>
+
     <script>
       (() => {
         "use strict";
@@ -575,11 +737,13 @@
         const ctx = canvas.getContext("2d");
         const panel = document.getElementById("gamePanel");
         const ui = {
+          courseButton: document.getElementById("courseButton"),
+          archiveButton: document.getElementById("archiveButton"),
           startTop: document.getElementById("startTop"),
           pauseTop: document.getElementById("pauseTop"),
           muteTop: document.getElementById("muteTop"),
           startButton: document.getElementById("startButton"),
-          copyButton: document.getElementById("copyButton"),
+          selectButton: document.getElementById("selectButton"),
           resumeButton: document.getElementById("resumeButton"),
           restartPauseButton: document.getElementById("restartPauseButton"),
           restartButton: document.getElementById("restartButton"),
@@ -587,6 +751,9 @@
           readyOverlay: document.getElementById("readyOverlay"),
           pauseOverlay: document.getElementById("pauseOverlay"),
           gameOverOverlay: document.getElementById("gameOverOverlay"),
+          readyTitle: document.getElementById("readyTitle"),
+          readyText: document.getElementById("readyText"),
+          resultTitle: document.getElementById("resultTitle"),
           spinLeftButton: document.getElementById("spinLeftButton"),
           jumpButton: document.getElementById("jumpButton"),
           spinRightButton: document.getElementById("spinRightButton"),
@@ -605,21 +772,51 @@
           recordCoins: document.getElementById("recordCoins"),
           recordFlips: document.getElementById("recordFlips"),
           missionList: document.getElementById("missionList"),
-          statusLine: document.getElementById("statusLine")
+          statusLine: document.getElementById("statusLine"),
+          courseName: document.getElementById("courseName"),
+          courseRule: document.getElementById("courseRule"),
+          loadoutName: document.getElementById("loadoutName"),
+          courseGoals: document.getElementById("courseGoals"),
+          courseStars: document.getElementById("courseStars"),
+          screenModal: document.getElementById("screenModal"),
+          screenKicker: document.getElementById("screenKicker"),
+          screenTitle: document.getElementById("screenTitle"),
+          screenBody: document.getElementById("screenBody")
         };
 
-        const storageKey = "snow-ridge-records-v1";
+        const storageKey = "snow-ridge-campaign-v2";
+        const archivePrefix = "RIDGE2";
         const meterScale = 22;
         const gravity = 1420;
         const startSpeed = 410;
         const minSpeed = 220;
         const maxSpeed = 760;
         const playerRadius = 28;
-        const missions = [
-          { icon: "↻", title: "完成 3 次翻转", target: 3, value: () => run.flips },
-          { icon: "◎", title: "收集 60 颗松果", target: 60, value: () => run.coins },
-          { icon: "↟", title: "滑行 900 米", target: 900, value: () => Math.floor(run.distance) }
+        const riders = {
+          scout: { name: "巡线员", desc: "速度均衡，起跳与落地窗口标准。", speed: 1, jump: 1, spin: 1, land: 0, avalanche: 0 },
+          aerial: { name: "云跃手", desc: "起跳 +12%，空翻更快，但落地窗口略窄。", speed: 0.98, jump: 1.12, spin: 1.16, land: -0.08, avalanche: 0 },
+          rescuer: { name: "山地救援员", desc: "落地窗口更宽，碰撞后少损失雪崩距离。", speed: 0.96, jump: 1.02, spin: 0.9, land: 0.16, avalanche: -34 }
+        };
+        const boards = {
+          frost: { name: "霜刃板", desc: "地面速度 +5%，标准跳跃与抗风。", speed: 1.05, jump: 1, wind: 1, land: 0, boostCost: 12 },
+          cloud: { name: "云翼板", desc: "起跳 +10%，横风影响减半。", speed: 0.98, jump: 1.1, wind: 0.5, land: -0.04, boostCost: 12 },
+          ridge: { name: "岩脊板", desc: "落地窗口更宽，10 枚雪徽即可冲刺。", speed: 0.97, jump: 0.96, wind: 0.8, land: 0.13, boostCost: 10 }
+        };
+        const courses = [
+          { id: "pine-primer", region: "松针谷", name: "松针练习坡", seed: 1301, length: 360, par: 25, wind: 0, avalanche: 0.82, hazard: 0.72, terrain: [0.61, 0.09, 0.0033, 0.2, 0.04, 0.0072, 2.1], challenge: { type: "clean", value: 1, label: "全程至多碰撞一次" }, rule: "缓坡与稀疏障碍用于熟悉起跳和稳身。" },
+          { id: "ice-creek", region: "松针谷", name: "冰溪旗门", seed: 2417, length: 410, par: 28, wind: -0.18, avalanche: 0.86, hazard: 0.78, terrain: [0.6, 0.1, 0.0036, 1.2, 0.05, 0.0082, 0.7], challenge: { type: "coins", value: 12, label: "收集至少 12 枚雪徽" }, rule: "逆风冰溪压低腾空距离，雪徽线贴近坡面。" },
+          { id: "first-ramp", region: "松针谷", name: "跳台初雪", seed: 3529, length: 440, par: 29, wind: 0.12, avalanche: 0.88, hazard: 0.82, terrain: [0.62, 0.1, 0.0037, 2.3, 0.055, 0.0088, 1.4], challenge: { type: "flips", value: 1, label: "完成至少一次干净翻转" }, rule: "固定跳台第一次要求主动旋转并干净落地。" },
+          { id: "birch-crosswind", region: "白桦岭", name: "横风脊线", seed: 4643, length: 470, par: 31, wind: 0.42, avalanche: 0.92, hazard: 0.88, terrain: [0.59, 0.12, 0.0039, 0.5, 0.052, 0.0093, 2.7], challenge: { type: "clean", value: 0, label: "全程零碰撞" }, rule: "持续横风会在腾空时推转雪板。" },
+          { id: "rescue-post", region: "白桦岭", name: "救援哨路", seed: 5749, length: 500, par: 34, wind: -0.24, avalanche: 0.9, hazard: 0.9, terrain: [0.61, 0.115, 0.0041, 1.8, 0.06, 0.0098, 0.2], rescue: 2, challenge: { type: "rescue", value: 2, label: "接回两名巡山员" }, rule: "两名巡山员位于固定腾空线，漏接仍可完赛但失去三星。" },
+          { id: "blue-ice", region: "白桦岭", name: "蓝冰断坡", seed: 6857, length: 520, par: 34, wind: 0.28, avalanche: 0.96, hazard: 1, terrain: [0.58, 0.135, 0.0043, 2.8, 0.064, 0.0102, 1.1], challenge: { type: "coins", value: 18, label: "收集至少 18 枚雪徽" }, rule: "陡坡提高极速，密集雪徽线要求连续起跳。" },
+          { id: "aurora-spin", region: "极光坳", name: "夜光回旋", seed: 6971, length: 540, par: 36, wind: -0.38, avalanche: 0.98, hazard: 0.94, terrain: [0.62, 0.12, 0.0045, 0.9, 0.068, 0.0108, 2.2], challenge: { type: "flips", value: 2, label: "完成至少两次干净翻转" }, rule: "长跳台和反向横风考验空中旋转回正。" },
+          { id: "avalanche-line", region: "极光坳", name: "雪崩警戒线", seed: 7103, length: 560, par: 37, wind: 0.18, avalanche: 1.08, hazard: 1.02, terrain: [0.6, 0.125, 0.0047, 1.6, 0.062, 0.0112, 0.5], challenge: { type: "gap", value: 10, label: "终点领先雪崩至少 10 米" }, rule: "雪崩推进更快，翻转、搭乘和冲刺都会改变安全距离。" },
+          { id: "twin-rescue", region: "极光坳", name: "双峰救援", seed: 8219, length: 580, par: 39, wind: 0.34, avalanche: 1, hazard: 1.04, terrain: [0.61, 0.14, 0.0048, 2.5, 0.07, 0.0116, 1.6], rescue: 3, challenge: { type: "rescue", value: 3, label: "接回三名巡山员" }, rule: "三次救援分布在双峰腾空线，路线容错很低。" },
+          { id: "wind-jumps", region: "王冠峰", name: "风口连跳", seed: 9337, length: 600, par: 40, wind: -0.48, avalanche: 1.04, hazard: 1.08, terrain: [0.59, 0.145, 0.005, 0.3, 0.072, 0.0121, 2.9], challenge: { type: "flips", value: 3, label: "完成至少三次干净翻转" }, rule: "跳台连续出现，强逆风迫使滑手提前回正。" },
+          { id: "ice-needle", region: "王冠峰", name: "冰针竞速", seed: 10453, length: 620, par: 40, wind: 0.26, avalanche: 1.1, hazard: 1.16, terrain: [0.57, 0.15, 0.0052, 1.4, 0.075, 0.0126, 0.8], challenge: { type: "coins", value: 22, label: "收集至少 22 枚雪徽" }, rule: "高速短坡与密集障碍让冲刺时机比极限速度更重要。" },
+          { id: "crown-descent", region: "王冠峰", name: "王冠终降", seed: 11579, length: 650, par: 43, wind: -0.32, avalanche: 1.12, hazard: 1.2, terrain: [0.6, 0.15, 0.0054, 2.1, 0.078, 0.013, 1.9], challenge: { type: "clean", value: 1, label: "全程至多碰撞一次" }, rule: "十二赛段最长雪线，强雪崩与复合坡面共同验收巡回能力。" }
         ];
+        let missions = [];
 
         let width = 1;
         let height = 1;
@@ -635,34 +832,209 @@
           right: false,
           steady: false
         };
-        let records = loadRecords();
+        let profile = loadProfile();
         let run = makeRun();
         let player = makePlayer();
 
-        function loadRecords() {
+        function freshProfile() {
+          let legacyFlips = 0;
           try {
-            const parsed = JSON.parse(localStorage.getItem(storageKey) || "{}");
-            return {
-              bestDistance: Number(parsed.bestDistance) || 0,
-              bestScore: Number(parsed.bestScore) || 0,
-              totalCoins: Number(parsed.totalCoins) || 0,
-              bestFlips: Number(parsed.bestFlips) || 0
-            };
-          } catch (error) {
-            return { bestDistance: 0, bestScore: 0, totalCoins: 0, bestFlips: 0 };
+            legacyFlips = Number(JSON.parse(localStorage.getItem("snow-ridge-records-v1") || "{}").bestFlips) || 0;
+          } catch {
+            legacyFlips = 0;
+          }
+          return {
+            version: 2,
+            course: 0,
+            rider: "scout",
+            board: "frost",
+            stars: Array(courses.length).fill(0),
+            bestTimes: Array(courses.length).fill(0),
+            bestFlips: legacyFlips,
+            ghosts: Array(courses.length).fill(null),
+            badges: []
+          };
+        }
+
+        function sanitizeProfile(value) {
+          const clean = freshProfile();
+          if (!value || typeof value !== "object") return clean;
+          clean.course = Math.max(0, Math.min(courses.length - 1, Number(value.course) || 0));
+          clean.rider = riders[value.rider] ? value.rider : "scout";
+          clean.board = boards[value.board] ? value.board : "frost";
+          clean.stars = clean.stars.map((_, index) => Math.max(0, Math.min(3, Number(value.stars?.[index]) || 0)));
+          clean.bestTimes = clean.bestTimes.map((_, index) => Math.max(0, Number(value.bestTimes?.[index]) || 0));
+          clean.bestFlips = Math.max(0, Number(value.bestFlips) || 0);
+          clean.ghosts = clean.ghosts.map((_, index) => {
+            const points = value.ghosts?.[index];
+            if (!Array.isArray(points)) return null;
+            return points.slice(0, 420).map((point) => [Number(point?.[0]) || 0, Number(point?.[1]) || 0, Number(point?.[2]) || 0]);
+          });
+          clean.badges = Array.isArray(value.badges) ? [...new Set(value.badges.filter((id) => typeof id === "string"))].slice(0, 8) : [];
+          return clean;
+        }
+
+        function loadProfile() {
+          try {
+            return sanitizeProfile(JSON.parse(localStorage.getItem(storageKey) || "{}"));
+          } catch {
+            return freshProfile();
           }
         }
 
-        function saveRecords() {
-          localStorage.setItem(storageKey, JSON.stringify(records));
+        function saveProfile() {
+          localStorage.setItem(storageKey, JSON.stringify(profile));
         }
 
-        function makeRun() {
+        function checksum(text) {
+          let hash = 2166136261;
+          for (let i = 0; i < text.length; i += 1) {
+            hash ^= text.charCodeAt(i);
+            hash = Math.imul(hash, 16777619);
+          }
+          return (hash >>> 0).toString(36).toUpperCase();
+        }
+
+        function encodeArchive(value = profile) {
+          const raw = JSON.stringify(sanitizeProfile(value));
+          const bytes = new TextEncoder().encode(raw);
+          let binary = "";
+          for (const byte of bytes) binary += String.fromCharCode(byte);
+          const payload = btoa(binary).replace(/=+$/g, "").replace(/\+/g, "-").replace(/\//g, "_");
+          return `${archivePrefix}.${payload}.${checksum(payload)}`;
+        }
+
+        function decodeArchive(code) {
+          const [prefix, payload, signature] = String(code || "").trim().split(".");
+          if (prefix !== archivePrefix || !payload || checksum(payload) !== signature) throw new Error("档案校验失败");
+          const padded = payload.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((payload.length + 3) % 4);
+          const bytes = Uint8Array.from(atob(padded), (char) => char.charCodeAt(0));
+          return sanitizeProfile(JSON.parse(new TextDecoder().decode(bytes)));
+        }
+
+        function currentCourse() {
+          return courses[profile.course] || courses[0];
+        }
+
+        function currentRider() {
+          return riders[profile.rider] || riders.scout;
+        }
+
+        function currentBoard() {
+          return boards[profile.board] || boards.frost;
+        }
+
+        function isCourseUnlocked(index) {
+          return index === 0 || profile.stars[index - 1] > 0;
+        }
+
+        function challengeText(course = currentCourse()) {
+          return `完赛 · ${course.par} 秒内 · ${course.challenge.label}`;
+        }
+
+        function makeMissions() {
+          const course = currentCourse();
+          return [
+            { icon: "旗", title: `抵达 ${course.length} 米终点`, target: course.length, value: () => Math.min(course.length, Math.floor(run.distance)) },
+            { icon: "时", title: `${course.par} 秒参考时间`, target: course.par, value: () => Math.min(course.par, run.time) },
+            { icon: "星", title: course.challenge.label, target: course.challenge.type === "clean" ? 1 : course.challenge.value, value: () => challengeProgress(course) }
+          ];
+        }
+
+        function showCourseModal() {
+          ui.screenKicker.textContent = "滑手、雪板与十二道固定雪线";
+          ui.screenTitle.textContent = "雪岭巡降赛历";
+          ui.screenBody.innerHTML = `
+            <h3>滑手</h3>
+            <div class="loadout-grid">
+              ${Object.entries(riders).map(([id, rider]) => `<button class="loadout-button ${profile.rider === id ? "active" : ""}" type="button" data-rider="${id}"><strong>${rider.name}</strong><span>${rider.desc}</span></button>`).join("")}
+            </div>
+            <h3>雪板</h3>
+            <div class="loadout-grid">
+              ${Object.entries(boards).map(([id, board]) => `<button class="loadout-button ${profile.board === id ? "active" : ""}" type="button" data-board="${id}"><strong>${board.name}</strong><span>${board.desc}</span></button>`).join("")}
+            </div>
+            <h3>赛段</h3>
+            <div class="course-grid">
+              ${courses.map((course, index) => {
+                const stars = "★".repeat(profile.stars[index]) + "☆".repeat(3 - profile.stars[index]);
+                return `<button class="course-card ${profile.course === index ? "active" : ""}" type="button" data-course="${index}" ${isCourseUnlocked(index) ? "" : "disabled"}><strong>${index + 1}. ${course.name}　${stars}</strong><span>${course.region} · ${course.rule}</span></button>`;
+              }).join("")}
+            </div>
+            <button class="primary-button" id="closeScreen" type="button">继续当前赛段</button>
+          `;
+          ui.screenModal.hidden = false;
+          ui.screenBody.querySelectorAll("[data-rider]").forEach((button) => button.addEventListener("click", () => {
+            profile.rider = button.dataset.rider;
+            saveProfile();
+            prepareCourse();
+            showCourseModal();
+          }));
+          ui.screenBody.querySelectorAll("[data-board]").forEach((button) => button.addEventListener("click", () => {
+            profile.board = button.dataset.board;
+            saveProfile();
+            prepareCourse();
+            showCourseModal();
+          }));
+          ui.screenBody.querySelectorAll("[data-course]").forEach((button) => button.addEventListener("click", () => {
+            profile.course = Number(button.dataset.course);
+            saveProfile();
+            ui.screenModal.hidden = true;
+            prepareCourse();
+          }));
+          document.getElementById("closeScreen").addEventListener("click", () => {
+            ui.screenModal.hidden = true;
+            prepareCourse();
+          });
+        }
+
+        function showArchive(message = "") {
+          ui.screenKicker.textContent = "跨设备档案";
+          ui.screenTitle.textContent = "RIDGE2 巡降档案";
+          ui.screenBody.innerHTML = `
+            ${message ? `<p><strong>${message}</strong></p>` : ""}
+            <textarea class="archive-box" id="archiveText" aria-label="巡降档案码">${encodeArchive()}</textarea>
+            <div class="modal-actions">
+              <button class="quiet-button" id="copyArchive" type="button">复制档案</button>
+              <button class="quiet-button" id="importArchive" type="button">导入档案</button>
+              <button class="primary-button" id="closeArchive" type="button">返回赛段</button>
+            </div>
+          `;
+          ui.screenModal.hidden = false;
+          const inputBox = document.getElementById("archiveText");
+          document.getElementById("copyArchive").addEventListener("click", async () => {
+            inputBox.select();
+            try {
+              await navigator.clipboard.writeText(inputBox.value);
+            } catch {
+              document.execCommand("copy");
+            }
+          });
+          document.getElementById("importArchive").addEventListener("click", () => {
+            try {
+              profile = decodeArchive(inputBox.value);
+              saveProfile();
+              prepareCourse();
+              showArchive("档案已导入并通过校验");
+            } catch (error) {
+              showArchive(error.message || "档案无效");
+            }
+          });
+          document.getElementById("closeArchive").addEventListener("click", () => {
+            ui.screenModal.hidden = true;
+            prepareCourse();
+          });
+        }
+
+        function makeRun(options = {}) {
           return {
             distance: 0,
+            time: 0,
             coins: 0,
             score: 0,
             flips: 0,
+            crashes: 0,
+            rescued: 0,
+            finishGap: 0,
             combo: 1,
             comboClock: 0,
             passengers: 0,
@@ -677,8 +1049,12 @@
             nextCoinX: 520,
             items: [],
             particles: [],
-            seed: seedFromDate(),
-            endedBy: "雪崩"
+            seed: currentCourse().seed,
+            endedBy: "雪崩",
+            trace: [],
+            traceClock: 0,
+            testing: Boolean(options.testing),
+            result: null
           };
         }
 
@@ -688,7 +1064,7 @@
             x,
             y: terrainY(x),
             vy: 0,
-            speed: startSpeed,
+            speed: startSpeed * currentRider().speed * currentBoard().speed,
             grounded: true,
             angle: 0,
             spin: 0,
@@ -698,11 +1074,6 @@
             stumble: 0,
             bob: 0
           };
-        }
-
-        function seedFromDate() {
-          const now = new Date();
-          return now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
         }
 
         function random() {
@@ -724,11 +1095,8 @@
         }
 
         function terrainY(x) {
-          const n =
-            0.61 +
-            Math.sin(x * 0.0034 + 0.4) * 0.105 +
-            Math.sin(x * 0.0076 + 2.2) * 0.052 +
-            Math.sin(x * 0.013 + 1.1) * 0.025;
+          const [base, amp1, freq1, phase1, amp2, freq2, phase2] = currentCourse().terrain;
+          const n = base + Math.sin(x * freq1 + phase1) * amp1 + Math.sin(x * freq2 + phase2) * amp2 + Math.sin(x * 0.013 + 1.1) * 0.022;
           return clamp(n, 0.44, 0.79) * height;
         }
 
@@ -736,10 +1104,30 @@
           return (terrainY(x + 10) - terrainY(x - 10)) / 20;
         }
 
-        function startGame() {
-          ensureAudio();
+        function prepareCourse() {
           run = makeRun();
           player = makePlayer();
+          cameraX = 0;
+          state = "ready";
+          missions = makeMissions();
+          buildCourseWorld();
+          ui.readyOverlay.hidden = false;
+          ui.pauseOverlay.hidden = true;
+          ui.gameOverOverlay.hidden = true;
+          ui.readyTitle.textContent = `${profile.course + 1}. ${currentCourse().name}`;
+          ui.readyText.textContent = `${currentCourse().rule} ${challengeText()}`;
+          ui.statusLine.textContent = "固定雪线已装载。";
+          updateUi();
+          draw();
+        }
+
+        function startGame(options = {}) {
+          if (!options.testing) ensureAudio();
+          run = makeRun(options);
+          player = makePlayer();
+          cameraX = 0;
+          missions = makeMissions();
+          buildCourseWorld();
           state = "running";
           input.left = false;
           input.right = false;
@@ -747,11 +1135,12 @@
           ui.readyOverlay.hidden = true;
           ui.pauseOverlay.hidden = true;
           ui.gameOverOverlay.hidden = true;
-          ui.statusLine.textContent = "雪崩在身后轰鸣。";
-          spawnOpening();
-          beep(480, 0.07, "triangle", 0.04);
-          beep(720, 0.08, "triangle", 0.035, 0.07);
-          updateUi();
+          ui.statusLine.textContent = `${currentCourse().name} 已发车。`;
+          if (!run.testing) {
+            beep(480, 0.07, "triangle", 0.04);
+            beep(720, 0.08, "triangle", 0.035, 0.07);
+            updateUi();
+          }
         }
 
         function pauseGame() {
@@ -769,32 +1158,109 @@
           ui.statusLine.textContent = "继续滑。";
         }
 
+        function challengeProgress(course = currentCourse()) {
+          if (course.challenge.type === "coins") return run.coins;
+          if (course.challenge.type === "flips") return run.flips;
+          if (course.challenge.type === "rescue") return run.rescued;
+          if (course.challenge.type === "gap") return Math.max(0, Math.floor((player.x - run.avalancheX) / meterScale));
+          if (course.challenge.type === "clean") return run.crashes <= course.challenge.value ? 1 : 0;
+          return 0;
+        }
+
+        function challengeMet(course = currentCourse()) {
+          if (course.challenge.type === "clean") return run.crashes <= course.challenge.value;
+          return challengeProgress(course) >= course.challenge.value;
+        }
+
+        function scoreStars() {
+          const course = currentCourse();
+          return 1 + (run.time <= course.par ? 1 : 0) + (challengeMet(course) ? 1 : 0);
+        }
+
+        function compactTrace() {
+          return run.trace.slice(0, 420).map(([time, x, y]) => [Math.round(time * 20) / 20, Math.round(x), Math.round(y)]);
+        }
+
+        function completeCourse() {
+          if (state === "gameover") return;
+          state = "gameover";
+          const course = currentCourse();
+          run.distance = course.length;
+          run.finishGap = Math.max(0, (player.x - run.avalancheX) / meterScale);
+          const stars = scoreStars();
+          run.result = { won: true, stars, time: run.time, challenge: challengeMet(course), gap: run.finishGap };
+          ui.gameOverOverlay.hidden = false;
+          ui.resultTitle.textContent = `${course.name} · ${"★".repeat(stars)}${"☆".repeat(3 - stars)}`;
+          ui.resultDistance.textContent = `${run.time.toFixed(2)}s`;
+          ui.resultCoins.textContent = "★".repeat(stars) + "☆".repeat(3 - stars);
+          ui.resultScore.textContent = String(scoreValue());
+          if (!run.testing) {
+            const index = profile.course;
+            const previous = profile.bestTimes[index];
+            profile.stars[index] = Math.max(profile.stars[index], stars);
+            profile.bestTimes[index] = previous ? Math.min(previous, run.time) : run.time;
+            profile.bestFlips = Math.max(profile.bestFlips, run.flips);
+            if (!previous || run.time <= previous) profile.ghosts[index] = compactTrace();
+            if (!profile.badges.includes("first-descent")) profile.badges.push("first-descent");
+            if (profile.stars.every((value) => value > 0) && !profile.badges.includes("twelve-lines")) profile.badges.push("twelve-lines");
+            if (profile.stars.every((value) => value === 3) && !profile.badges.includes("white-crown")) profile.badges.push("white-crown");
+            saveProfile();
+            ui.statusLine.textContent = `${course.name} 完赛，获得 ${stars} 枚雪徽。`;
+            updateUi();
+            beep(920, 0.08, "triangle", 0.04);
+            beep(1160, 0.12, "sine", 0.035, 0.08);
+          }
+        }
+
         function endGame(reason) {
+          if (state === "gameover") return;
           state = "gameover";
           run.endedBy = reason;
           ui.gameOverOverlay.hidden = false;
           const finalScore = scoreValue();
-          ui.resultDistance.textContent = `${Math.floor(run.distance)}m`;
-          ui.resultCoins.textContent = String(run.coins);
+          ui.resultTitle.textContent = "赛段未完成";
+          ui.resultDistance.textContent = `${run.time.toFixed(2)}s`;
+          ui.resultCoins.textContent = "☆☆☆";
           ui.resultScore.textContent = String(finalScore);
-          records.bestDistance = Math.max(records.bestDistance, Math.floor(run.distance));
-          records.bestScore = Math.max(records.bestScore, finalScore);
-          records.totalCoins += run.coins;
-          records.bestFlips = Math.max(records.bestFlips, run.flips);
-          saveRecords();
+          profile.bestFlips = Math.max(profile.bestFlips, run.flips);
+          if (!run.testing) saveProfile();
           ui.statusLine.textContent = reason === "雪崩" ? "雪崩追上来了。" : "落地失衡了。";
-          updateUi();
-          beep(170, 0.18, "sawtooth", 0.05);
+          run.result = { won: false, stars: 0, time: run.time, reason };
+          if (!run.testing) {
+            updateUi();
+            beep(170, 0.18, "sawtooth", 0.05);
+          }
         }
 
-        function spawnOpening() {
-          for (let i = 0; i < 10; i += 1) {
-            const x = 260 + i * 72;
-            run.items.push({ kind: "coin", x, y: terrainY(x) - 78 - Math.sin(i * 0.7) * 24, taken: false });
+        function buildCourseWorld() {
+          const course = currentCourse();
+          run.seed = course.seed;
+          run.items = [];
+          let coinX = 300;
+          while (coinX < course.length * meterScale - 320) {
+            spawnCoinLine(coinX);
+            coinX += 500 + random() * 170;
           }
-          run.items.push({ kind: "rock", x: 980, taken: false });
-          run.items.push({ kind: "stump", x: 1780, taken: false });
-          run.items.push({ kind: "snowman", x: 2700, taken: false });
+          let eventX = 900;
+          while (eventX < course.length * meterScale - 220) {
+            spawnEvent(eventX);
+            eventX += Math.max(360, 700 - course.hazard * 110 + random() * 180);
+          }
+          const rescueCount = course.rescue || 0;
+          for (let i = 0; i < rescueCount; i += 1) {
+            const x = course.length * meterScale * ((i + 1) / (rescueCount + 1));
+            const rampX = x - 125;
+            run.items = run.items.filter((item) => !(item.x > rampX - 520 && item.x < x + 90 && (isObstacle(item.kind) || item.kind === "ramp")));
+            run.items.push({ kind: "rescue", x, y: terrainY(x) - 190 - (i % 2) * 18, taken: false });
+            run.items.push({ kind: "ramp", x: rampX, rescue: true, taken: false });
+          }
+          if (course.challenge.type === "flips") {
+            const rampCount = course.challenge.value + 3;
+            const trickXs = Array.from({ length: rampCount }, (_, i) => course.length * meterScale * ((i + 1) / (rampCount + 1)));
+            run.items = run.items.filter((item) => item.kind !== "ramp" && !trickXs.some((x) => item.x > x - 520 && item.x < x + 1500 && isObstacle(item.kind)));
+            trickXs.forEach((x) => run.items.push({ kind: "ramp", x, trick: true, taken: false }));
+          }
+          run.items.sort((a, b) => a.x - b.x);
         }
 
         function update(timestamp) {
@@ -808,6 +1274,10 @@
         }
 
         function updateRun(dt) {
+          const course = currentCourse();
+          const rider = currentRider();
+          const board = currentBoard();
+          run.time += dt;
           player.bob += dt * Math.max(5, player.speed / 80);
           if (run.comboClock > 0) run.comboClock = Math.max(0, run.comboClock - dt);
           else run.combo = Math.max(1, Math.floor(run.combo * 0.98));
@@ -825,7 +1295,7 @@
           const slope = terrainSlope(player.x);
           const downhill = clamp(slope, -0.45, 0.45);
           const rideSpeed = run.ride === "sled" ? 170 : run.ride === "seal" ? 95 : 0;
-          const targetSpeed = startSpeed + rideSpeed + Math.max(0, downhill) * 520 + Math.min(180, run.distance * 0.08);
+          const targetSpeed = (startSpeed + rideSpeed + Math.max(0, downhill) * 520 + Math.min(180, run.distance * 0.08)) * rider.speed * board.speed;
 
           if (player.grounded) {
             player.speed += (targetSpeed - player.speed) * dt * 1.6;
@@ -836,11 +1306,12 @@
             const airGravity = run.ride === "seal" ? gravity * 0.72 : gravity;
             player.vy += airGravity * dt;
             player.y += player.vy * dt;
-            if (input.left) player.spin -= 8.6 * dt;
-            if (input.right) player.spin += 8.6 * dt;
+            if (input.left) player.spin -= 8.6 * rider.spin * dt;
+            if (input.right) player.spin += 8.6 * rider.spin * dt;
+            player.spin += course.wind * board.wind * 1.9 * dt;
             if (input.steady) {
-              player.spin *= Math.pow(0.04, dt);
-              player.angle *= Math.pow(0.18, dt);
+              player.spin *= Math.pow(0.01, dt);
+              player.angle = normalizeAngle(player.angle) * Math.pow(0.05, dt);
             }
             player.angle += player.spin * dt;
             player.flipProgress += Math.abs(player.spin * dt);
@@ -856,6 +1327,16 @@
           player.speed = clamp(player.speed, minSpeed, maxSpeed + rideSpeed + (run.boost > 0 ? 170 : 0));
           player.x += player.speed * dt;
           run.distance = Math.max(0, player.x / meterScale);
+          run.traceClock += dt;
+          if (run.traceClock >= 0.18) {
+            run.traceClock = 0;
+            run.trace.push([run.time, player.x, player.y]);
+          }
+
+          if (run.distance >= course.length) {
+            completeCourse();
+            return;
+          }
 
           const ground = terrainY(player.x);
           if (!player.grounded && player.y >= ground) {
@@ -864,16 +1345,17 @@
           }
 
           cameraX += (player.x - width * 0.34 - cameraX) * Math.min(1, dt * 6);
-          spawnWorld();
           updateAvalanche(dt);
+          if (state === "gameover") return;
           checkItems();
           updateParticles(dt);
           cleanup();
-          updateUi();
+          if (!run.testing) updateUi();
         }
 
         function land() {
-          const upright = Math.abs(normalizeAngle(player.angle)) < 0.68;
+          const landingAngle = normalizeAngle(player.angle);
+          const upright = Math.abs(landingAngle) < 0.68 + currentRider().land + currentBoard().land;
           player.grounded = true;
           player.vy = 0;
           player.spin = 0;
@@ -898,18 +1380,6 @@
           player.angle = 0;
           player.flipProgress = 0;
           player.pendingFlips = 0;
-        }
-
-        function spawnWorld() {
-          const ahead = cameraX + width * 1.7;
-          while (run.nextCoinX < ahead) {
-            spawnCoinLine(run.nextCoinX);
-            run.nextCoinX += 520 + random() * 260;
-          }
-          while (run.nextEventX < ahead) {
-            spawnEvent(run.nextEventX);
-            run.nextEventX += 560 + random() * 230 - Math.min(120, run.distance * 0.04);
-          }
         }
 
         function spawnCoinLine(x) {
@@ -944,7 +1414,7 @@
         function updateAvalanche(dt) {
           const gap = player.x - run.avalancheX;
           const pressure = gap > 560 ? 124 : gap < 220 ? -18 : 42;
-          const avalancheSpeed = 348 + run.distance * 0.045 + pressure;
+          const avalancheSpeed = (348 + run.distance * 0.045 + pressure) * currentCourse().avalanche;
           run.avalancheX += avalancheSpeed * dt;
           if (player.x - run.avalancheX < 66) endGame("雪崩");
         }
@@ -966,12 +1436,27 @@
               continue;
             }
 
+            if (item.kind === "rescue") {
+              const dx = Math.abs(item.x - player.x);
+              const dy = Math.abs(item.y - (player.y - 44));
+              if (dx < 84 && (!player.grounded || dy < 132)) {
+                item.taken = true;
+                run.rescued += 1;
+                run.score += 520 * run.combo;
+                run.avalancheX -= 90;
+                burst(item.x, item.y, "#76c8d2", 16);
+                ui.statusLine.textContent = `接回第 ${run.rescued} 名巡山员。`;
+                beep(740, 0.07, "triangle", 0.035);
+              }
+              continue;
+            }
+
             const ground = terrainY(item.x);
             if (item.kind === "ramp") {
               const rampHit = Math.abs(item.x - player.x) < 48 && player.grounded;
               if (rampHit) {
                 item.taken = true;
-                launchRamp(item.x, ground);
+                launchRamp(item.x, ground, Boolean(item.trick));
               }
               continue;
             }
@@ -1024,11 +1509,11 @@
           beep(920, 0.08, "triangle", 0.03, 0.06);
         }
 
-        function launchRamp(x, y) {
+        function launchRamp(x, y, trick = false) {
           player.grounded = false;
           player.y = y - 8;
-          player.vy = -820 - Math.min(150, player.speed * 0.15);
-          player.spin -= 1.8;
+          player.vy = (-820 - Math.min(150, player.speed * 0.15)) * currentRider().jump * currentBoard().jump;
+          player.spin -= trick ? 3.8 : 1.8;
           player.jumpGrace = 0.9;
           player.speed += 120;
           run.boost = Math.max(run.boost, 1.2);
@@ -1043,6 +1528,7 @@
         function crash(reason) {
           if (run.invuln > 0) return;
           run.invuln = 1.1;
+          run.crashes += 1;
           player.stumble = 0.55;
           player.pendingFlips = 0;
           player.flipProgress = 0;
@@ -1051,13 +1537,13 @@
           if (run.rideHits > 0) {
             run.rideHits -= 1;
             player.speed *= run.ride === "sled" ? 0.82 : 0.7;
-            run.avalancheX += run.ride === "sled" ? 38 : 58;
+            run.avalancheX += Math.max(18, (run.ride === "sled" ? 38 : 58) + currentRider().avalanche);
             run.shake = Math.max(run.shake, 8);
             if (run.rideHits <= 0 && run.ride !== "sled") run.ride = null;
             ui.statusLine.textContent = run.ride === "sled" ? "雪橇撞开障碍。" : "伙伴替你扛了一下。";
           } else {
             player.speed = minSpeed;
-            run.avalancheX += 126;
+            run.avalancheX += Math.max(58, 126 + currentRider().avalanche);
             ui.statusLine.textContent = reason === "翻车" ? "落地角度太歪。" : "撞上障碍了。";
           }
           run.combo = 1;
@@ -1089,7 +1575,7 @@
           if (player.grounded) {
             player.grounded = false;
             player.y -= 4;
-            player.vy = -690 - Math.min(120, player.speed * 0.17);
+            player.vy = (-690 - Math.min(120, player.speed * 0.17)) * currentRider().jump * currentBoard().jump;
             player.spin *= 0.25;
             player.jumpGrace = 0.74;
             beep(540, 0.05, "sine", 0.035);
@@ -1108,15 +1594,16 @@
             return;
           }
           if (state !== "running") return;
-          if (run.coins >= 12) {
-            run.coins -= 12;
+          const cost = currentBoard().boostCost;
+          if (run.coins >= cost) {
+            run.coins -= cost;
             run.boost = Math.max(run.boost, 2.4);
             player.speed += 85;
             run.avalancheX -= 35;
             ui.statusLine.textContent = "热饮冲刺。";
             beep(760, 0.05, "triangle", 0.04);
           } else {
-            ui.statusLine.textContent = "松果还不够。";
+            ui.statusLine.textContent = `需要 ${cost} 枚雪徽。`;
           }
         }
 
@@ -1124,13 +1611,15 @@
           ctx.clearRect(0, 0, width, height);
           ctx.save();
           if (run.shake > 0) {
-            ctx.translate((Math.random() - 0.5) * run.shake, (Math.random() - 0.5) * run.shake);
+            ctx.translate(Math.sin(run.time * 91) * run.shake * 0.5, Math.cos(run.time * 73) * run.shake * 0.5);
           }
           drawSky();
           drawMountains();
           drawAvalanche();
           drawTerrain();
+          drawFinishLine();
           drawItems();
+          drawGhosts();
           drawPlayer();
           drawParticles();
           drawWeather();
@@ -1242,11 +1731,95 @@
             const sx = item.x - cameraX;
             if (sx < -180 || sx > width + 180) continue;
             if (item.kind === "coin") drawCoin(sx, item.y);
+            else if (item.kind === "rescue") drawRescue(sx, item.y);
             else if (item.kind === "seal") drawSeal(sx, item.y ? item.y + 18 : terrainY(item.x));
             else if (item.kind === "sled") drawSled(sx, terrainY(item.x));
             else if (item.kind === "ramp") drawRamp(sx, terrainY(item.x));
             else drawObstacle(item, sx, terrainY(item.x));
           }
+        }
+
+        function drawFinishLine() {
+          const x = currentCourse().length * meterScale - cameraX;
+          if (x < -80 || x > width + 100) return;
+          const ground = terrainY(currentCourse().length * meterScale);
+          ctx.save();
+          ctx.strokeStyle = "#fffdf5";
+          ctx.lineWidth = 8;
+          ctx.beginPath();
+          ctx.moveTo(x, ground);
+          ctx.lineTo(x, ground - 170);
+          ctx.stroke();
+          for (let row = 0; row < 4; row += 1) {
+            for (let col = 0; col < 4; col += 1) {
+              ctx.fillStyle = (row + col) % 2 ? "#101722" : "#fffdf5";
+              ctx.fillRect(x + col * 18, ground - 166 + row * 18, 18, 18);
+            }
+          }
+          ctx.fillStyle = "#fffdf5";
+          ctx.font = "900 15px Microsoft YaHei, system-ui";
+          ctx.fillText("终点", x - 18, ground - 184);
+          ctx.restore();
+        }
+
+        function drawGhosts() {
+          if (state !== "running") return;
+          const course = currentCourse();
+          const referenceX = Math.min(course.length * meterScale, run.time / course.par * course.length * meterScale);
+          drawGhost(referenceX - cameraX, terrainY(referenceX), "rgba(244, 200, 79, 0.5)", "参考");
+          const trace = profile.ghosts[profile.course];
+          if (!Array.isArray(trace) || !trace.length) return;
+          let point = trace[trace.length - 1];
+          for (let i = 0; i < trace.length; i += 1) {
+            if (trace[i][0] >= run.time) {
+              point = trace[i];
+              break;
+            }
+          }
+          drawGhost(point[1] - cameraX, point[2], "rgba(118, 200, 210, 0.55)", "最佳");
+        }
+
+        function drawGhost(x, y, color, label) {
+          if (x < -50 || x > width + 50) return;
+          ctx.save();
+          ctx.globalAlpha = 0.72;
+          ctx.fillStyle = color;
+          ctx.beginPath();
+          ctx.arc(x, y - 35, 17, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = color;
+          ctx.lineWidth = 5;
+          ctx.beginPath();
+          ctx.moveTo(x - 26, y + 3);
+          ctx.lineTo(x + 30, y + 3);
+          ctx.stroke();
+          ctx.fillStyle = "#fffdf5";
+          ctx.font = "800 11px Microsoft YaHei, system-ui";
+          ctx.textAlign = "center";
+          ctx.fillText(label, x, y - 58);
+          ctx.restore();
+        }
+
+        function drawRescue(x, y) {
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.fillStyle = "#e4563d";
+          roundRect(-15, -24, 30, 34, 7);
+          ctx.fill();
+          ctx.fillStyle = "#ffe0a6";
+          ctx.beginPath();
+          ctx.arc(0, -34, 12, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = "#76c8d2";
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(0, -4, 25, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.fillStyle = "#fffdf5";
+          ctx.font = "900 12px Microsoft YaHei, system-ui";
+          ctx.textAlign = "center";
+          ctx.fillText("救", 0, -6);
+          ctx.restore();
         }
 
         function drawCoin(x, y) {
@@ -1575,14 +2148,26 @@
           ui.speedText.textContent = `${(player.speed / startSpeed).toFixed(1)}x`;
           ui.gapText.textContent = gap > 430 ? "稳" : gap > 220 ? "近" : "危险";
           ui.comboText.textContent = `x${Math.max(1, run.combo)}`;
-          ui.recordDistance.textContent = `${Math.floor(records.bestDistance)}m`;
-          ui.recordScore.textContent = String(Math.floor(records.bestScore));
-          ui.recordCoins.textContent = String(Math.floor(records.totalCoins));
-          ui.recordFlips.textContent = String(Math.floor(records.bestFlips));
+          const course = currentCourse();
+          const stars = profile.stars[profile.course] || 0;
+          const best = profile.bestTimes[profile.course];
+          ui.recordDistance.textContent = `${stars}/3`;
+          ui.recordScore.textContent = best ? `${best.toFixed(2)}s` : "--";
+          ui.recordCoins.textContent = `${profile.stars.reduce((sum, value) => sum + value, 0)}/36`;
+          ui.recordFlips.textContent = String(Math.floor(profile.bestFlips));
+          ui.courseName.textContent = `${profile.course + 1}. ${course.region} · ${course.name}`;
+          ui.courseRule.textContent = course.rule;
+          ui.loadoutName.textContent = `${currentRider().name} · ${currentBoard().name}`;
+          ui.courseGoals.textContent = challengeText(course);
+          ui.courseStars.textContent = "★".repeat(stars) + "☆".repeat(3 - stars);
+          if (state === "ready") {
+            ui.readyTitle.textContent = `${profile.course + 1}. ${course.name}`;
+            ui.readyText.textContent = `${course.rule} ${challengeText(course)}`;
+          }
           renderMissions();
           if (state === "gameover") {
-            ui.resultDistance.textContent = `${Math.floor(run.distance)}m`;
-            ui.resultCoins.textContent = String(run.coins);
+            ui.resultDistance.textContent = run.result?.won ? `${run.time.toFixed(2)}s` : `${run.time.toFixed(2)}s`;
+            ui.resultCoins.textContent = run.result?.won ? "★".repeat(run.result.stars) + "☆".repeat(3 - run.result.stars) : "☆☆☆";
             ui.resultScore.textContent = String(score);
           }
         }
@@ -1609,33 +2194,14 @@
           return Math.floor(run.distance * 12 + run.coins * 42 + run.score);
         }
 
-        function copyReport() {
-          const text = `我在《雪岭快逃》滑了 ${Math.floor(run.distance)}m，收集 ${run.coins} 颗松果，完成 ${run.flips} 次翻转，分数 ${scoreValue()}。`;
-          const done = () => {
-            ui.statusLine.textContent = "战报已复制。";
-          };
-          if (navigator.clipboard && window.isSecureContext) {
-            navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+        function nextCourse() {
+          const next = Math.min(courses.length - 1, profile.course + 1);
+          if (next !== profile.course && isCourseUnlocked(next)) {
+            profile.course = next;
+            saveProfile();
+            prepareCourse();
           } else {
-            fallbackCopy(text, done);
-          }
-        }
-
-        function fallbackCopy(text, done) {
-          const input = document.createElement("textarea");
-          input.value = text;
-          input.setAttribute("readonly", "");
-          input.style.position = "fixed";
-          input.style.left = "-999px";
-          document.body.appendChild(input);
-          input.select();
-          try {
-            document.execCommand("copy");
-            done();
-          } catch (error) {
-            ui.statusLine.textContent = text;
-          } finally {
-            input.remove();
+            showCourseModal();
           }
         }
 
@@ -1699,14 +2265,16 @@
             if (key === "arrowdown" || key === "s") input.steady = false;
           });
 
+          ui.courseButton.addEventListener("click", showCourseModal);
+          ui.archiveButton.addEventListener("click", () => showArchive());
           ui.startTop.addEventListener("click", startGame);
           ui.startButton.addEventListener("click", startGame);
+          ui.selectButton.addEventListener("click", showCourseModal);
           ui.pauseTop.addEventListener("click", () => (state === "paused" ? resumeGame() : pauseGame()));
           ui.resumeButton.addEventListener("click", resumeGame);
           ui.restartPauseButton.addEventListener("click", startGame);
           ui.restartButton.addEventListener("click", startGame);
-          ui.copyButton.addEventListener("click", copyReport);
-          ui.copyResultButton.addEventListener("click", copyReport);
+          ui.copyResultButton.addEventListener("click", nextCourse);
           ui.muteTop.addEventListener("click", () => {
             muted = !muted;
             ui.muteTop.textContent = muted ? "×" : "♪";
@@ -1797,9 +2365,99 @@
           ctx.closePath();
         }
 
+        function validateContent() {
+          if (courses.length !== 12) throw new Error("赛段必须为 12 条");
+          if (new Set(courses.map((course) => course.id)).size !== courses.length) throw new Error("赛段 id 重复");
+          if (Object.keys(riders).length !== 3 || Object.keys(boards).length !== 3) throw new Error("滑手/雪板数据不完整");
+          if (courses.some((course) => course.length < 300 || course.par <= 0 || !course.terrain || course.terrain.length !== 7)) throw new Error("赛段配置无效");
+          return { courses: courses.length, riders: Object.keys(riders).length, boards: Object.keys(boards).length, uniqueCourses: new Set(courses.map((course) => course.id)).size };
+        }
+
+        function runReferenceCourse(index) {
+          profile.course = index;
+          const referenceCourse = currentCourse();
+          profile.rider = referenceCourse.challenge.type === "flips" ? "aerial" : referenceCourse.challenge.type === "rescue" ? "rescuer" : "scout";
+          profile.board = referenceCourse.challenge.type === "flips" ? "cloud" : referenceCourse.challenge.type === "rescue" ? "ridge" : "frost";
+          startGame({ testing: true });
+          let steps = 0;
+          let trickActive = false;
+          while (state === "running" && steps < 70000) {
+            steps += 1;
+            const course = currentCourse();
+            const threat = nearestThreat();
+            const rescue = run.items.find((item) => item.kind === "rescue" && !item.taken && item.x >= player.x);
+            const coin = run.items.find((item) => item.kind === "coin" && !item.taken && item.x >= player.x);
+            const ramp = run.items.find((item) => item.kind === "ramp" && !item.taken && item.x >= player.x);
+            const ridingToRescue = rescue && ramp && Math.abs(rescue.x - ramp.x - 125) < 2;
+            const threatEta = threat ? (threat.x - player.x) / Math.max(1, player.speed) : Infinity;
+            const coinEta = coin ? (coin.x - player.x) / Math.max(1, player.speed) : Infinity;
+
+            // Fixed ramps supply enough air for tricks and rescue lines. Manual jumps
+            // are reserved for obstacles and collectible arcs between those ramps.
+            if (player.grounded) {
+              const rampEta = ramp ? (ramp.x - player.x) / Math.max(1, player.speed) : Infinity;
+              const rampSoon = rampEta >= -0.05 && rampEta < 0.5;
+              const shouldArmTrick = Boolean(course.challenge.type === "flips" && run.flips < course.challenge.value && ramp && rampEta >= -0.05 && rampEta < 0.12);
+              trickActive = shouldArmTrick;
+              if (threatEta < 0.58 && (!rampSoon || threat.x < ramp.x - 36)) {
+                jumpOrSpin();
+              } else if (course.challenge.type === "coins" && coinEta < 0.48 && !rampSoon && (!threat || threat.x > coin.x + 180)) {
+                jumpOrSpin();
+              } else if (course.challenge.type !== "rescue" && rescue && !ridingToRescue) {
+                const rescueEta = (rescue.x - player.x) / Math.max(1, player.speed);
+                if (rescueEta < 0.48) jumpOrSpin();
+              }
+            }
+
+            input.left = false;
+            input.right = false;
+            input.steady = false;
+            if (!player.grounded) {
+              if (trickActive && player.pendingFlips === 0) {
+                if (player.flipProgress < Math.PI * 1.55) input.left = true;
+                else input.right = true;
+              }
+              else input.steady = true;
+            }
+            const preserveCoins = course.challenge.type === "coins" && run.coins < course.challenge.value;
+            if (!preserveCoins && run.coins >= currentBoard().boostCost && player.x - run.avalancheX < 360) useBoost();
+            updateRun(1 / 60);
+          }
+          if (steps >= 70000) throw new Error(`${courses[index].name} 参考滑手超时`);
+          return { id: currentCourse().id, won: Boolean(run.result?.won), stars: run.result?.stars || 0, time: run.time, distance: run.distance, flips: run.flips, coins: run.coins, rescued: run.rescued, crashes: run.crashes, gap: run.finishGap };
+        }
+
+        window.__snowRidgeTest = {
+          courses,
+          riders,
+          boards,
+          validateContent,
+          runReferenceCourse,
+          encodeArchive,
+          decodeArchive,
+          freshProfile,
+          begin(index = 0, rider = "scout", board = "frost", options = {}) {
+            profile.course = index;
+            profile.rider = rider;
+            profile.board = board;
+            startGame({ testing: Boolean(options.testing) });
+          },
+          advance(dt = 1 / 60, controls = {}) {
+            input.left = Boolean(controls.left);
+            input.right = Boolean(controls.right);
+            input.steady = Boolean(controls.steady);
+            if (controls.jump) jumpOrSpin();
+            if (controls.boost) useBoost();
+            updateRun(dt);
+          },
+          getState() {
+            return { state, course: profile.course, rider: profile.rider, board: profile.board, distance: run.distance, time: run.time, speed: player.speed, grounded: player.grounded, angle: player.angle, boost: run.boost, coins: run.coins, flips: run.flips, rescued: run.rescued, crashes: run.crashes, result: run.result };
+          }
+        };
+
         bindEvents();
         resizeCanvas();
-        updateUi();
+        prepareCourse();
         rafId = requestAnimationFrame(update);
         window.addEventListener("beforeunload", () => cancelAnimationFrame(rafId));
       })();

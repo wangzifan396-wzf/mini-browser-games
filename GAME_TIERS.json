@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-07-30",
+  "updatedAt": "2026-08-01",
   "tiers": {
     "SSS": [
       "ball-arena.html",
@@ -82,6 +82,7 @@
       "signal-caravan.html",
       "sky-hop.html",
       "skyline-planner.html",
+      "snow-ridge.html",
       "starline-route.html",
       "starship-suspects.html",
       "sudoku-studio.html",
@@ -96,8 +97,7 @@
     "B": [
       "forest-dash.html",
       "midnight-chess.html",
-      "radish-guard.html",
-      "snow-ridge.html"
+      "radish-guard.html"
     ],
     "C": [
       "branching-tales.html",
