@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta name="theme-color" content="#173f47" />
+    <title>叠色印局：十二张套印委托</title>
+    <style>
+      :root { color-scheme:light; --ink:#17343a; --muted:#617477; --paper:#f3f1e9; --white:#fffdfa; --deep:#173f47; --teal:#197178; --gold:#d6a32f; --red:#c75343; --line:#c7d1cb; --green:#3c805c; }
+      * { box-sizing:border-box; }
+      html,body { margin:0; min-height:100%; background:#dfe6df; color:var(--ink); font-family:"Segoe UI","Microsoft YaHei",system-ui,sans-serif; }
+      button,textarea { font:inherit; }
+      button { min-height:42px; border:1px solid #a6b8b2; border-radius:7px; color:var(--ink); background:var(--white); font-weight:800; cursor:pointer; }
+      button:hover { border-color:var(--teal); }
+      button:focus-visible,textarea:focus-visible { outline:3px solid rgba(214,163,47,.42); outline-offset:2px; }
+      button:disabled { opacity:.43; cursor:not-allowed; }
+      .topbar { min-height:68px; padding:10px clamp(12px,3vw,32px); display:flex; justify-content:space-between; align-items:center; gap:16px; color:white; background:var(--deep); border-bottom:4px solid var(--gold); }
+      .brand h1 { margin:0; font-size:clamp(20px,2.4vw,29px); letter-spacing:0; }
+      .brand p { margin:2px 0 0; color:#c7dfdc; font-size:13px; }
+      .top-actions { display:flex; gap:7px; }
+      .top-actions button { width:43px; min-height:40px; padding:0; color:white; background:#195a62; border-color:#71999a; font-size:18px; }
+      .workspace { width:min(1320px,100%); margin:0 auto; padding:clamp(10px,2vw,22px); display:grid; grid-template-columns:minmax(0,1fr) 360px; gap:clamp(12px,2vw,22px); align-items:start; }
+      .press-stage { overflow:hidden; border:1px solid #718b86; border-radius:8px; background:#143d44; box-shadow:0 12px 34px rgba(20,49,52,.15); }
+      .stage-head { min-height:76px; padding:13px 16px; display:flex; justify-content:space-between; align-items:center; gap:12px; color:white; background:#195a62; border-bottom:1px solid #71a29e; }
+      .kicker { margin:0 0 3px; color:#f0c766; font-size:12px; font-weight:800; }
+      .stage-head h2 { margin:0; font-size:clamp(19px,2vw,26px); letter-spacing:0; }
+      .stars { min-width:92px; color:#ffd55a; text-align:right; font-size:25px; }
+      .canvas-wrap { position:relative; min-height:570px; display:grid; place-items:center; padding:12px; background:#d7dfd9; }
+      canvas { display:block; width:100%; max-width:820px; height:auto; aspect-ratio:10/7; touch-action:none; }
+      .side { display:grid; gap:11px; }
+      .section { padding:13px; border-top:4px solid var(--teal); background:var(--white); box-shadow:0 5px 17px rgba(25,52,54,.07); }
+      .section h3 { margin:0 0 9px; font-size:15px; letter-spacing:0; }
+      .metrics { display:grid; grid-template-columns:repeat(3,1fr); border:1px solid var(--line); }
+      .metric { min-width:0; padding:9px 5px; text-align:center; border-right:1px solid var(--line); }
+      .metric:last-child { border-right:0; }
+      .metric b { display:block; color:var(--deep); font-size:19px; }
+      .metric span { display:block; margin-top:2px; color:var(--muted); font-size:10px; }
+      .brief { margin:9px 0 0; color:#496165; font-size:13px; line-height:1.5; }
+      .legend { display:flex; flex-wrap:wrap; gap:5px; margin-top:8px; }
+      .legend span { display:inline-flex; align-items:center; gap:4px; padding:3px 6px; border:1px solid #bdc8c1; border-radius:4px; color:var(--muted); font-size:10px; }
+      .color-dot { width:12px; height:12px; border-radius:3px; border:1px solid rgba(20,40,40,.25); }
+      .goals { display:grid; gap:6px; }
+      .goal { display:grid; grid-template-columns:24px 1fr auto; gap:7px; align-items:center; padding:8px; border-left:3px solid #9bada7; background:#edf1ec; font-size:12px; }
+      .goal.done { border-left-color:var(--green); background:#e5f1e7; }
+      .goal strong { font-size:13px; }
+      .goal b { color:var(--deep); }
+      .plate-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; }
+      .plate { position:relative; min-width:0; min-height:65px; padding:7px; display:grid; grid-template-columns:32px 1fr; align-items:center; gap:6px; text-align:left; }
+      .plate.active { border-color:var(--gold); box-shadow:inset 0 0 0 2px var(--gold); background:#fff7dc; }
+      .plate.used { opacity:.42; }
+      .plate-icon { width:30px; height:30px; display:grid; place-items:center; border-radius:5px; color:white; font-size:12px; font-weight:900; }
+      .plate strong { display:block; font-size:12px; }
+      .plate small { display:block; color:var(--muted); font-size:10px; }
+      .controls { margin-top:8px; display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
+      .controls button { min-width:0; padding:5px; font-size:12px; }
+      .controls .primary { color:white; background:var(--red); border-color:var(--red); }
+      .hint-line { min-height:20px; margin-top:7px; color:var(--muted); text-align:center; font-size:11px; }
+      dialog { width:min(900px,calc(100% - 24px)); max-height:calc(100vh - 24px); padding:0; border:1px solid #6f8985; border-radius:8px; color:var(--ink); background:var(--paper); box-shadow:0 24px 70px rgba(10,35,38,.38); }
+      dialog::backdrop { background:rgba(8,29,32,.72); }
+      .dialog-head { padding:15px 17px; display:flex; justify-content:space-between; align-items:center; gap:10px; color:white; background:var(--deep); border-bottom:4px solid var(--gold); }
+      .dialog-head h2 { margin:0; font-size:21px; }
+      .close { width:42px; min-height:38px; padding:0; color:white; border-color:#71999a; background:#195a62; font-size:21px; }
+      .dialog-body { padding:15px; overflow:auto; }
+      .contract-title { margin:15px 0 7px; color:var(--deep); font-size:14px; }
+      .contract-title:first-child { margin-top:0; }
+      .contract-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:7px; }
+      .contract-card { min-height:86px; padding:9px; display:grid; align-content:space-between; text-align:left; }
+      .contract-card.active { border-color:var(--gold); box-shadow:inset 0 0 0 2px var(--gold); }
+      .contract-card strong { font-size:13px; }
+      .contract-card span { color:var(--muted); font-size:10px; }
+      .contract-card em { color:#b1780a; font-size:16px; font-style:normal; }
+      .archive-note { margin:0 0 9px; color:var(--muted); line-height:1.55; }
+      .archive-box { width:100%; min-height:145px; resize:vertical; padding:10px; border:1px solid #9aaca6; border-radius:6px; background:white; color:var(--ink); word-break:break-all; }
+      .dialog-actions { margin-top:10px; display:flex; justify-content:flex-end; gap:7px; flex-wrap:wrap; }
+      .dialog-actions .primary { color:white; background:var(--teal); border-color:var(--teal); }
+      .result { text-align:center; }
+      .result h3 { margin:3px 0; font-size:25px; }
+      .result-stars { margin:8px 0; color:#d58b00; font-size:46px; line-height:1; }
+      .result p { color:var(--muted); }
+      @media(max-width:980px) { .workspace { grid-template-columns:1fr; } .canvas-wrap { min-height:0; } .side { grid-template-columns:repeat(2,minmax(0,1fr)); } .side .section:last-child { grid-column:1/-1; } }
+      @media(max-width:580px) { .brand h1 { font-size:17px; } .brand p { display:none; } .top-actions { gap:4px; } .top-actions button { width:40px; } .workspace { padding:8px; gap:8px; } .stage-head { min-height:64px; padding:10px 12px; } .canvas-wrap { padding:4px; } .side { grid-template-columns:1fr; gap:8px; } .side .section:last-child { grid-column:auto; } .section { padding:10px; } .contract-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="topbar"><div class="brand"><h1>叠色印局：十二张套印委托</h1><p>青 · 品红 · 黄减色套印谜题</p></div><div class="top-actions"><button id="contractButton" title="选择委托" aria-label="选择委托">▦</button><button id="archiveButton" title="印局档案" aria-label="印局档案">⇄</button><button id="muteButton" title="声音" aria-label="切换声音">♪</button></div></header>
+      <div class="workspace">
+        <section class="press-stage" aria-label="套印工作台"><div class="stage-head"><div><p class="kicker" id="chapterText"></p><h2 id="contractName"></h2></div><div class="stars" id="savedStars">☆☆☆</div></div><div class="canvas-wrap" id="canvasWrap"><canvas id="pressCanvas" width="1000" height="700" aria-label="当前印样与目标样张"></canvas></div></section>
+        <aside class="side">
+          <section class="section"><h3>印刷委托</h3><div class="metrics"><div class="metric"><b id="pressText">0/0</b><span>已用印版</span></div><div class="metric"><b id="matchText">0%</b><span>像素吻合</span></div><div class="metric"><b id="totalText">0/36</b><span>总星章</span></div></div><p class="brief" id="briefText"></p><div class="legend" id="legend"></div></section>
+          <section class="section"><h3>三星验收</h3><div class="goals" id="goals"></div></section>
+          <section class="section"><h3>印版架</h3><div class="plate-grid" id="plateGrid"></div><div class="controls"><button id="undoButton">↶ 撤回</button><button id="rotateButton">↻ 旋转</button><button id="hintButton">提示</button><button id="resetButton" class="primary">重开</button></div><div class="hint-line" id="hintLine">选择印版后，在左侧当前印样上确定落点</div></section>
+        </aside>
+      </div>
+    </main>
+    <dialog id="contractDialog"><div class="dialog-head"><h2>十二张固定套印委托</h2><button class="close" data-close="contractDialog" aria-label="关闭">×</button></div><div class="dialog-body" id="contractGrid"></div></dialog>
+    <dialog id="archiveDialog"><div class="dialog-head"><h2>PRESS2 印局档案</h2><button class="close" data-close="archiveDialog" aria-label="关闭">×</button></div><div class="dialog-body"><p class="archive-note" id="archiveMessage"></p><textarea class="archive-box" id="archiveText" aria-label="PRESS2 档案码"></textarea><div class="dialog-actions"><button id="copyArchive">复制</button><button id="importArchive">导入并校验</button><button class="primary" data-close="archiveDialog">返回印台</button></div></div></dialog>
+    <dialog id="resultDialog"><div class="dialog-head"><h2>样张验收</h2><button class="close" data-close="resultDialog" aria-label="关闭">×</button></div><div class="dialog-body result"><p class="kicker">套印完成</p><h3 id="resultTitle"></h3><div class="result-stars" id="resultStars"></div><p id="resultSummary"></p><div class="dialog-actions"><button id="retryResult">重新套印</button><button id="nextResult" class="primary">下一张</button></div></div></dialog>
+    <script>
+      (()=>{
+        "use strict";
+        const BITS={C:1,M:2,Y:4}, INKS={0:"#f3f0e7",1:"#22a7bb",2:"#d95387",3:"#3155a4",4:"#e5c53d",5:"#4b985c",6:"#d5503e",7:"#253437"}, NAMES={C:"青",M:"品红",Y:"黄"};
+        const SHAPES={dot:[[0,0]],bar2:[[0,0],[1,0]],bar3:[[0,0],[1,0],[2,0]],l3:[[0,0],[0,1],[1,1]],square:[[0,0],[1,0],[0,1],[1,1]],t4:[[0,0],[1,0],[2,0],[1,1]],zig4:[[1,0],[2,0],[0,1],[1,1]],plus5:[[1,0],[0,1],[1,1],[2,1],[1,2]]};
+        const SHAPE_NAMES={dot:"单点",bar2:"双格",bar3:"三联",l3:"折角",square:"方版",t4:"丁字",zig4:"错位",plus5:"十字"};
+        function makeContract(id,chapter,name,brief,w,h,specs,reference){return{id,chapter,name,brief,w,h,plates:specs.map(([color,shape],index)=>({id:`${id}-${index+1}`,color,shape})),reference:reference.map(([x,y,r],index)=>({plate:index,x,y,r}))}}
+        const contracts=[
+          makeContract("cross","第一辑 · 基础套色","三色交点","三块基础印版在中心形成蓝、红、黑的层级。",5,5,[["C","bar3"],["M","bar3"],["Y","dot"]],[[1,2,0],[2,1,1],[2,2,0]]),
+          makeContract("corner","第一辑 · 基础套色","折角窗花","方版与折角版共享边缘，黄色补出第三层。",5,5,[["C","square"],["M","l3"],["Y","bar2"]],[[0,0,0],[1,1,0],[1,2,0]]),
+          makeContract("ribbon","第一辑 · 基础套色","回转缎带","旋转折角，让三种油墨在中段交汇。",5,5,[["C","l3"],["M","bar3"],["Y","square"]],[[1,1,1],[0,2,0],[2,1,0]]),
+          makeContract("signal","第二辑 · 旋版训练","四色信号","四块印版形成连续色带，注意每块版只能使用一次。",6,5,[["C","bar3"],["M","bar2"],["Y","l3"],["C","dot"]],[[1,1,0],[2,0,1],[3,1,2],[4,2,0]]),
+          makeContract("pinwheel","第二辑 · 旋版训练","套色风车","三个折角围绕中心轮换方向，单点版补出复色轴心。",6,6,[["C","l3"],["M","l3"],["Y","l3"],["C","dot"],["M","dot"]],[[1,1,0],[3,1,1],[3,3,2],[3,2,0],[2,2,0]]),
+          makeContract("bridge","第二辑 · 旋版训练","桥面标线","三联版和错位版跨接两个色区。",6,5,[["C","bar3"],["M","zig4"],["Y","bar3"],["M","dot"],["C","bar2"]],[[0,1,0],[1,1,0],[2,2,0],[3,1,0],[4,0,1]]),
+          makeContract("garden","第三辑 · 复合图样","六瓣花圃","十字版是花心，外围短版构成复色花瓣。",7,6,[["C","plus5"],["M","bar3"],["Y","bar3"],["C","bar2"],["M","bar2"],["Y","dot"]],[[2,1,0],[1,2,0],[3,1,1],[1,4,0],[4,2,1],[2,2,0]]),
+          makeContract("metro","第三辑 · 复合图样","换乘线路","丁字版代表换乘站，三联版在不同方向穿过。",7,6,[["C","t4"],["M","bar3"],["Y","bar3"],["C","l3"],["Y","bar2"],["M","dot"]],[[2,2,0],[1,3,0],[4,1,1],[0,1,1],[4,4,0],[3,2,0]]),
+          makeContract("knot","第三辑 · 复合图样","三色绳结","错位版彼此咬合，单点版锁定复色结心。",7,6,[["C","zig4"],["M","zig4"],["Y","l3"],["C","bar2"],["M","bar2"],["Y","dot"]],[[1,1,0],[2,2,2],[3,1,1],[0,3,0],[4,3,1],[2,2,0]]),
+          makeContract("circuit","第四辑 · 总版校准","套色电路","七块版连接主线与支路，额外落墨会直接污染留白。",7,7,[["C","t4"],["M","bar3"],["Y","l3"],["C","square"],["M","bar2"],["Y","bar3"],["C","dot"]],[[2,1,0],[1,3,0],[4,2,1],[1,4,0],[4,4,1],[2,5,0],[3,3,0]]),
+          makeContract("lantern","第四辑 · 总版校准","七彩灯阵","方版、十字版与短版制造完整七色色阶。",7,7,[["C","square"],["M","plus5"],["Y","square"],["C","bar3"],["M","l3"],["Y","bar2"],["M","dot"]],[[1,1,0],[2,2,0],[3,1,0],[1,4,0],[4,4,2],[2,5,0],[2,2,0]]),
+          makeContract("master","第四辑 · 总版校准","主印终稿","八块版覆盖全套形状规则，完成最终无偏移套印。",7,7,[["C","plus5"],["M","t4"],["Y","zig4"],["C","bar3"],["M","square"],["Y","l3"],["C","bar2"],["Y","dot"]],[[2,1,0],[1,3,0],[3,2,1],[0,5,0],[4,4,0],[1,1,2],[4,0,1],[4,2,0]])
+        ];
+        const ui=Object.fromEntries([...document.querySelectorAll("[id]")].map((node)=>[node.id,node]));
+        const archivePrefix="PRESS2"; let profile=loadProfile(),game=null,muted=false,audioContext=null,dpr=1,drawWidth=800,drawHeight=560,geometry=null,hover=null;
+        function freshProfile(){return{version:2,contract:0,stars:Array(12).fill(0),bestPresses:Array(12).fill(0),clears:Array(12).fill(0)}}
+        function normalizeProfile(value){const base=freshProfile();if(!value||typeof value!=="object")return base;base.contract=clamp(Number(value.contract)||0,0,11);for(const key of["stars","bestPresses","clears"]){if(Array.isArray(value[key]))base[key]=base[key].map((_,index)=>clamp(Number(value[key][index])||0,0,key==="stars"?3:99999))}return base}
+        function loadProfile(){try{return normalizeProfile(JSON.parse(localStorage.getItem("chromatic_press_v2")||"null"))}catch{return freshProfile()}}
+        function saveProfile(){localStorage.setItem("chromatic_press_v2",JSON.stringify(profile))}
+        function checksum(text){let hash=2166136261;for(let index=0;index<text.length;index+=1){hash^=text.charCodeAt(index);hash=Math.imul(hash,16777619)}return(hash>>>0).toString(36)}
+        function encodeArchive(value=profile){const bytes=new TextEncoder().encode(JSON.stringify(normalizeProfile(value)));let binary="";bytes.forEach((byte)=>binary+=String.fromCharCode(byte));const payload=btoa(binary).replaceAll("+","-").replaceAll("/","_").replaceAll("=","");return`${archivePrefix}.${payload}.${checksum(payload)}`}
+        function decodeArchive(code){const[prefix,payload,signature,...extra]=String(code).trim().split(".");if(prefix!==archivePrefix||!payload||!signature||extra.length||checksum(payload)!==signature)throw new Error("档案校验失败");try{const padded=payload.replaceAll("-","+").replaceAll("_","/")+"=".repeat((4-payload.length%4)%4),bytes=Uint8Array.from(atob(padded),(char)=>char.charCodeAt(0));return normalizeProfile(JSON.parse(new TextDecoder().decode(bytes)))}catch{throw new Error("档案内容无效")}}
+        function clamp(value,min,max){return Math.max(min,Math.min(max,value))} function current(){return contracts[profile.contract]} function totalStars(){return profile.stars.reduce((sum,value)=>sum+value,0)} function unlocked(index){return index===0||(profile.stars[index-1]||0)>0}
+        function rotateCells(cells,rotation){let result=cells.map(([x,y])=>[x,y]);for(let turn=0;turn<rotation%4;turn+=1)result=result.map(([x,y])=>[-y,x]);const minX=Math.min(...result.map(([x])=>x)),minY=Math.min(...result.map(([,y])=>y));return result.map(([x,y])=>[x-minX,y-minY])}
+        function placementCells(contract,placement){const plate=contract.plates[placement.plate];return rotateCells(SHAPES[plate.shape],placement.r).map(([x,y])=>[x+placement.x,y+placement.y])}
+        function buildTarget(contract){const cells=Array(contract.w*contract.h).fill(0);for(const placement of contract.reference){const plate=contract.plates[placement.plate];for(const[x,y]of placementCells(contract,placement)){if(x<0||y<0||x>=contract.w||y>=contract.h)throw new Error(`${contract.name} 参考印版越界`);cells[y*contract.w+x]|=BITS[plate.color]}}return cells}
+        function freshGame(testing=false){return{ink:Array(current().w*current().h).fill(0),placements:[],used:new Set(),active:0,rotation:0,hints:0,complete:false,result:null,testing}}
+        function begin(index=profile.contract,options={}){profile.contract=clamp(index,0,11);game=freshGame(Boolean(options.testing));hover=null;if(!game.testing){saveProfile();updateUi();resize()}return game}
+        function recompute(){game.ink.fill(0);game.used.clear();for(const placement of game.placements){const plate=current().plates[placement.plate];game.used.add(placement.plate);for(const[x,y]of placementCells(current(),placement))game.ink[y*current().w+x]|=BITS[plate.color]}}
+        function canPlace(plateIndex,x,y,rotation){if(game.used.has(plateIndex)||plateIndex<0)return false;return placementCells(current(),{plate:plateIndex,x,y,r:rotation}).every(([cx,cy])=>cx>=0&&cy>=0&&cx<current().w&&cy<current().h)}
+        function applyPlate(plateIndex,x,y,rotation=game.rotation){if(game.complete||!canPlace(plateIndex,x,y,rotation))return false;game.placements.push({plate:plateIndex,x,y,r:rotation%4});recompute();game.active=current().plates.findIndex((_,index)=>!game.used.has(index));if(game.active<0)game.active=0;game.rotation=0;if(!game.testing){tone(280+plateIndex*35,.06,"triangle",.025);updateUi();draw()}if(isSolved())complete();return true}
+        function isSolved(){const target=buildTarget(current());return game.ink.every((value,index)=>value===target[index])}
+        function matchStats(){const target=buildTarget(current());let exact=0,targeted=0;for(let index=0;index<target.length;index+=1){if(game.ink[index]===target[index])exact+=1;if(target[index])targeted+=1}return{exact,total:target.length,percent:Math.round(exact/target.length*100),targeted}}
+        function undo(){if(!game.placements.length)return;game.complete=false;game.placements.pop();recompute();if(!game.testing){ui.resultDialog.close();updateUi();draw()}}
+        function reset(){begin(profile.contract);ui.hintLine.textContent="印台已清理"}
+        function hint(){const next=current().reference.find((placement)=>!game.used.has(placement.plate));if(!next){ui.hintLine.textContent="参考印版已全部提示，请检查落点";return}game.hints+=1;game.active=next.plate;game.rotation=next.r;ui.hintLine.textContent=`${NAMES[current().plates[next.plate].color]}${SHAPE_NAMES[current().plates[next.plate].shape]}：第 ${next.y+1} 行、第 ${next.x+1} 列，旋转 ${next.r*90}°`;updateUi();draw()}
+        function starsFor(){if(!isSolved())return 0;return 1+Number(game.placements.length<=current().reference.length)+Number(game.hints===0)}
+        function complete(){game.complete=true;const stars=starsFor();game.result={won:true,stars,presses:game.placements.length,hints:game.hints};if(game.testing)return;const index=profile.contract;profile.stars[index]=Math.max(profile.stars[index],stars);profile.bestPresses[index]=profile.bestPresses[index]?Math.min(profile.bestPresses[index],game.placements.length):game.placements.length;profile.clears[index]+=1;saveProfile();updateUi();draw();tone(523,.12,"triangle",.05);tone(659,.14,"triangle",.04,.12);ui.resultTitle.textContent=`${String(index+1).padStart(2,"0")} ${current().name}`;ui.resultStars.textContent="★".repeat(stars)+"☆".repeat(3-stars);ui.resultSummary.textContent=`${game.placements.length} 次落版 · ${game.hints?`使用 ${game.hints} 次提示`:"独立完成"} · 像素 100% 吻合`;ui.nextResult.textContent=index===11?"查看委托":"下一张";setTimeout(()=>ui.resultDialog.showModal(),120)}
+        function updateUi(){const contract=current(),stats=matchStats();ui.chapterText.textContent=contract.chapter;ui.contractName.textContent=`${String(profile.contract+1).padStart(2,"0")} ${contract.name}`;ui.savedStars.textContent="★".repeat(profile.stars[profile.contract])+"☆".repeat(3-profile.stars[profile.contract]);ui.pressText.textContent=`${game.placements.length}/${contract.plates.length}`;ui.matchText.textContent=`${stats.percent}%`;ui.totalText.textContent=`${totalStars()}/36`;ui.briefText.textContent=contract.brief;ui.legend.innerHTML=[[1,"青"],[2,"品红"],[4,"黄"],[3,"蓝"],[5,"绿"],[6,"红"],[7,"黑"]].map(([bit,name])=>`<span><i class="color-dot" style="background:${INKS[bit]}"></i>${name}</span>`).join("");ui.goals.innerHTML=[{icon:"准",label:"像素完全吻合",value:`${stats.percent}%`,done:game.complete},{icon:"版",label:`不超过 ${contract.reference.length} 次落版`,value:String(game.placements.length),done:game.complete&&game.placements.length<=contract.reference.length},{icon:"星",label:"不使用校版提示",value:game.hints?`${game.hints} 次`:"无提示",done:game.complete&&game.hints===0}].map((goal)=>`<div class="goal ${goal.done?"done":""}"><strong>${goal.icon}</strong><strong>${goal.label}</strong><b>${goal.value}</b></div>`).join("");renderPlates();renderContracts();ui.undoButton.disabled=!game.placements.length}
+        function renderPlates(){ui.plateGrid.innerHTML=current().plates.map((plate,index)=>`<button class="plate ${game.active===index?"active":""} ${game.used.has(index)?"used":""}" data-plate="${index}" ${game.used.has(index)?"disabled":""}><span class="plate-icon" style="background:${INKS[BITS[plate.color]]}">${NAMES[plate.color]}</span><span><strong>${SHAPE_NAMES[plate.shape]}</strong><small>${rotateCells(SHAPES[plate.shape],0).length} 格印面</small></span></button>`).join("");ui.plateGrid.querySelectorAll("[data-plate]").forEach((button)=>button.addEventListener("click",()=>{game.active=Number(button.dataset.plate);game.rotation=0;updateUi();draw()}))}
+        function renderContracts(){const chapters=[...new Set(contracts.map((contract)=>contract.chapter))];ui.contractGrid.innerHTML=chapters.map((chapter)=>`<h3 class="contract-title">${chapter}</h3><div class="contract-grid">${contracts.map((contract,index)=>({contract,index})).filter((entry)=>entry.contract.chapter===chapter).map(({contract,index})=>{const open=unlocked(index),stars=profile.stars[index]||0;return`<button class="contract-card ${profile.contract===index?"active":""}" data-contract="${index}" ${open?"":"disabled"}><strong>${String(index+1).padStart(2,"0")} ${contract.name}</strong><span>${open?`${contract.w}×${contract.h} · ${contract.plates.length} 块印版`:"完成上一张后解锁"}</span><em>${open?"★".repeat(stars)+"☆".repeat(3-stars):"锁定"}</em></button>`}).join("")}</div>`).join("");ui.contractGrid.querySelectorAll("[data-contract]").forEach((button)=>button.addEventListener("click",()=>{ui.contractDialog.close();begin(Number(button.dataset.contract))}))}
+        function showArchive(message=""){ui.archiveMessage.textContent=message||"档案包含十二张星级、最佳落版数与当前委托，可跨设备导入；篡改内容会被拒绝。";ui.archiveText.value=encodeArchive();if(!ui.archiveDialog.open)ui.archiveDialog.showModal()}
+        function ensureAudio(){if(!audioContext){const Audio=window.AudioContext||window.webkitAudioContext;if(Audio)audioContext=new Audio()}if(audioContext?.state==="suspended")audioContext.resume()}
+        function tone(frequency,duration,type="sine",volume=.025,delay=0){if(muted||game?.testing)return;ensureAudio();if(!audioContext)return;const oscillator=audioContext.createOscillator(),gain=audioContext.createGain(),start=audioContext.currentTime+delay;oscillator.type=type;oscillator.frequency.setValueAtTime(frequency,start);gain.gain.setValueAtTime(volume,start);gain.gain.exponentialRampToValueAtTime(.001,start+duration);oscillator.connect(gain);gain.connect(audioContext.destination);oscillator.start(start);oscillator.stop(start+duration)}
+        function resize(){const rect=ui.canvasWrap.getBoundingClientRect();drawWidth=Math.max(320,Math.min(820,rect.width-8));drawHeight=drawWidth*.7;dpr=Math.min(devicePixelRatio||1,2);ui.pressCanvas.width=Math.round(drawWidth*dpr);ui.pressCanvas.height=Math.round(drawHeight*dpr);ui.pressCanvas.style.width=`${drawWidth}px`;ui.pressCanvas.style.height=`${drawHeight}px`;ui.pressCanvas.getContext("2d").setTransform(dpr,0,0,dpr,0,0);draw()}
+        function draw(){if(!game)return;const ctx=ui.pressCanvas.getContext("2d"),contract=current(),gap=Math.max(22,drawWidth*.045),labelH=32,available=drawWidth-gap*3,cell=Math.min(available/(contract.w*2),(drawHeight-labelH-gap*2)/contract.h),gridW=cell*contract.w,gridH=cell*contract.h,oy=(drawHeight-gridH+labelH)/2,ox1=(drawWidth-gridW*2-gap)/2,ox2=ox1+gridW+gap;geometry={ox:ox1,oy,cell,w:contract.w,h:contract.h};ctx.clearRect(0,0,drawWidth,drawHeight);ctx.fillStyle="#cbd7d0";ctx.fillRect(0,0,drawWidth,drawHeight);drawGrid(ctx,ox1,oy,cell,contract.w,contract.h,game.ink,"当前印样");drawGrid(ctx,ox2,oy,cell,contract.w,contract.h,buildTarget(contract),"目标样张");if(hover&&canPlace(game.active,hover.x,hover.y,game.rotation)){const plate=contract.plates[game.active];ctx.globalAlpha=.48;ctx.fillStyle=INKS[BITS[plate.color]];for(const[x,y]of placementCells(contract,{plate:game.active,x:hover.x,y:hover.y,r:game.rotation}))ctx.fillRect(ox1+x*cell+2,oy+y*cell+2,cell-4,cell-4);ctx.globalAlpha=1}}
+        function drawGrid(ctx,ox,oy,cell,w,h,cells,label){ctx.fillStyle="#173f47";ctx.font=`800 ${Math.max(13,cell*.28)}px system-ui`;ctx.textAlign="left";ctx.fillText(label,ox,oy-10);ctx.fillStyle="#f8f5ec";ctx.fillRect(ox-3,oy-3,cell*w+6,cell*h+6);for(let y=0;y<h;y+=1)for(let x=0;x<w;x+=1){ctx.fillStyle=INKS[cells[y*w+x]];ctx.fillRect(ox+x*cell,oy+y*cell,cell,cell);ctx.strokeStyle="#aab8b1";ctx.lineWidth=1;ctx.strokeRect(ox+x*cell+.5,oy+y*cell+.5,cell-1,cell-1);if(cells[y*w+x]>2){ctx.fillStyle="rgba(255,255,255,.28)";ctx.beginPath();ctx.arc(ox+(x+.5)*cell,oy+(y+.5)*cell,Math.max(2,cell*.08),0,Math.PI*2);ctx.fill()}}}
+        function canvasCell(event){const rect=ui.pressCanvas.getBoundingClientRect(),scaleX=drawWidth/rect.width,scaleY=drawHeight/rect.height,x=(event.clientX-rect.left)*scaleX,y=(event.clientY-rect.top)*scaleY;if(!geometry)return null;const gx=Math.floor((x-geometry.ox)/geometry.cell),gy=Math.floor((y-geometry.oy)/geometry.cell);return gx>=0&&gy>=0&&gx<geometry.w&&gy<geometry.h?{x:gx,y:gy}:null}
+        function validateContent(){if(contracts.length!==12||new Set(contracts.map((contract)=>contract.id)).size!==12)throw new Error("必须配置十二张唯一委托");const targets=new Set();let plates=0,colored=0;for(const contract of contracts){if(contract.plates.length!==contract.reference.length)throw new Error(`${contract.name} 印版与参考数量不符`);const target=buildTarget(contract),key=target.join("");if(targets.has(key))throw new Error("目标样张重复");targets.add(key);plates+=contract.plates.length;colored+=target.filter(Boolean).length}return{contracts:12,chapters:new Set(contracts.map((contract)=>contract.chapter)).size,plates,coloredCells:colored,shapes:Object.keys(SHAPES).length,colors:Object.keys(BITS).length,uniqueTargets:targets.size}}
+        function runReferenceContract(index){const previousProfile=profile,previousGame=game;profile=freshProfile();profile.contract=index;begin(index,{testing:true});for(const placement of contracts[index].reference){if(!applyPlate(placement.plate,placement.x,placement.y,placement.r))throw new Error(`${contracts[index].name} 参考落版失败`)}const result={id:contracts[index].id,won:game.complete,stars:game.result?.stars||0,presses:game.placements.length,colors:new Set(game.ink.filter(Boolean)).size,target:buildTarget(contracts[index]).join("")};profile=previousProfile;game=previousGame;return result}
+        window.__chromaticPressTest={contracts,shapes:SHAPES,freshProfile,encodeArchive,decodeArchive,buildTarget,validateContent,runReferenceContract,begin(index=0,options={testing:true}){return begin(index,options)},apply:applyPlate,undo,getState(){return{contract:profile.contract,ink:[...game.ink],placements:game.placements.map((placement)=>({...placement})),used:[...game.used],active:game.active,rotation:game.rotation,hints:game.hints,complete:game.complete,result:game.result,geometry:{...geometry}}}};
+        ui.pressCanvas.addEventListener("pointermove",(event)=>{hover=canvasCell(event);draw()});ui.pressCanvas.addEventListener("pointerleave",()=>{hover=null;draw()});ui.pressCanvas.addEventListener("pointerdown",(event)=>{event.preventDefault();const at=canvasCell(event);if(at)applyPlate(game.active,at.x,at.y,game.rotation)});ui.undoButton.addEventListener("click",undo);ui.rotateButton.addEventListener("click",()=>{game.rotation=(game.rotation+1)%4;ui.hintLine.textContent=`当前印版旋转 ${game.rotation*90}°`;draw()});ui.hintButton.addEventListener("click",hint);ui.resetButton.addEventListener("click",reset);ui.contractButton.addEventListener("click",()=>{renderContracts();ui.contractDialog.showModal()});ui.archiveButton.addEventListener("click",()=>showArchive());ui.muteButton.addEventListener("click",()=>{muted=!muted;ui.muteButton.textContent=muted?"×":"♪";if(!muted)tone(440,.06)});document.querySelectorAll("[data-close]").forEach((button)=>button.addEventListener("click",()=>document.getElementById(button.dataset.close).close()));ui.copyArchive.addEventListener("click",async()=>{ui.archiveText.select();try{await navigator.clipboard.writeText(ui.archiveText.value)}catch{document.execCommand("copy")}showArchive("档案已复制")});ui.importArchive.addEventListener("click",()=>{try{profile=decodeArchive(ui.archiveText.value);saveProfile();begin(profile.contract);showArchive("档案已导入并通过校验")}catch(error){showArchive(error.message||"档案无效")}});ui.retryResult.addEventListener("click",()=>{ui.resultDialog.close();reset()});ui.nextResult.addEventListener("click",()=>{ui.resultDialog.close();if(profile.contract<11)begin(profile.contract+1);else{renderContracts();ui.contractDialog.showModal()}});window.addEventListener("resize",resize);begin(profile.contract);
+      })();
+    </script>
+  </body>
+</html>

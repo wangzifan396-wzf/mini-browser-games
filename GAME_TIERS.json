@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-01",
+  "updatedAt": "2026-08-02",
   "tiers": {
     "SSS": [
       "ball-arena.html",
@@ -45,6 +45,7 @@
       "bomb-grid.html",
       "bytebot-lab.html",
       "charm-reels.html",
+      "chromatic-press.html",
       "checkpoint-inspector.html",
       "cipher-relay.html",
       "claw-carnival.html",
