@@ -1,286 +1,592 @@
 <!doctype html>
 <html lang="zh-CN">
-  <meta charset="utf-8" /><meta
-    name="viewport"
-    content="width=device-width,initial-scale=1"
-  /><title>仓库推箱</title
-  ><style>
-    body {
-      margin: 0;
-      background: #171615;
-      color: #fff8e8;
-      font-family: system-ui;
-    }
-    .app {
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      padding: 12px;
-    }
-    .shell {
-      padding: 15px;
-      border: 1px solid #73634c;
-      border-radius: 18px;
-      background: #29251f;
-    }
-    .top {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-    }
-    .board {
-      display: grid;
-      gap: 3px;
-      margin-top: 12px;
-    }
-    .c {
-      width: min(8vw, 48px);
-      aspect-ratio: 1;
-      border-radius: 4px;
-      background: #3d372e;
-      display: grid;
-      place-items: center;
-      font-size: 24px;
-    }
-    .wall {
-      background: #766b59;
-    }
-    .goal {
-      box-shadow: inset 0 0 0 4px #ffd76b;
-    }
-    .box {
-      background: #a96b3d;
-    }
-    .player {
-      background: #5bbce5;
-      border-radius: 50%;
-    }
-    .row {
-      display: flex;
-      gap: 6px;
-      margin-top: 10px;
-      flex-wrap: wrap;
-    }
-    button {
-      padding: 9px;
-      border: 1px solid #8c795e;
-      border-radius: 8px;
-      background: #4b4134;
-      color: white;
-      font-weight: bold;
-    }
-    .pad {
-      display: grid;
-      grid-template-columns: repeat(3, 45px);
-    }
-    .pad button:first-child {
-      grid-column: 2;
-    }
-    .pad button:nth-child(2) {
-      grid-row: 2;
-      grid-column: 1;
-    }
-    .pad button:nth-child(3) {
-      grid-row: 2;
-      grid-column: 2;
-    }
-    .pad button:nth-child(4) {
-      grid-row: 2;
-      grid-column: 3;
-    }
-    .msg {
-      color: #dbc8aa;
-    }
-    @media (max-width: 650px) {
-      .app {
-        place-items: start center;
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta name="theme-color" content="#16343b" />
+    <title>仓库推箱：十二班调度</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #173238;
+        --muted: #5e7172;
+        --paper: #f4f1e8;
+        --panel: #fffdf7;
+        --line: #c9d2cc;
+        --teal: #176b70;
+        --teal-dark: #124c55;
+        --amber: #e5a52d;
+        --red: #c85645;
+        --green: #3c825f;
       }
-    }
-  </style>
-  <main class="app">
-    <div class="shell">
-      <div class="top">
-        <div>
-          <h1>仓库推箱</h1>
-          <div class="msg" id="msg"></div>
+      * { box-sizing: border-box; }
+      html, body { margin: 0; min-height: 100%; background: #dfe7df; color: var(--ink); font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif; }
+      body { min-height: 100vh; }
+      button, textarea { font: inherit; }
+      button { min-height: 42px; border: 1px solid #aabbb5; border-radius: 7px; background: #fffdf7; color: var(--ink); font-weight: 700; cursor: pointer; }
+      button:hover { border-color: var(--teal); }
+      button:focus-visible, textarea:focus-visible { outline: 3px solid rgba(229,165,45,.45); outline-offset: 2px; }
+      button:disabled { cursor: not-allowed; opacity: .45; }
+      .app { min-height: 100vh; display: grid; grid-template-rows: auto 1fr; }
+      .topbar { min-height: 66px; padding: 10px clamp(12px,3vw,32px); display: flex; align-items: center; justify-content: space-between; gap: 18px; background: var(--teal-dark); color: white; border-bottom: 4px solid var(--amber); }
+      .brand { min-width: 0; }
+      .brand h1 { margin: 0; font-size: clamp(19px,2.3vw,28px); letter-spacing: 0; }
+      .brand p { margin: 2px 0 0; color: #c9e2dd; font-size: 13px; }
+      .top-actions { display: flex; gap: 7px; flex: 0 0 auto; }
+      .top-actions button { width: 43px; min-height: 40px; padding: 0; border-color: #6f9a9b; background: #1b5e65; color: white; font-size: 18px; }
+      .workspace { width: min(1280px,100%); margin: 0 auto; padding: clamp(10px,2vw,22px); display: grid; grid-template-columns: minmax(0,1fr) 330px; gap: clamp(12px,2vw,22px); align-items: start; }
+      .stage { position: relative; min-width: 0; min-height: 640px; overflow: hidden; border: 1px solid #78918d; border-radius: 8px; background: #173f46; box-shadow: 0 12px 34px rgba(22,52,59,.16); }
+      .stage-head { min-height: 74px; padding: 13px 16px; display: flex; justify-content: space-between; align-items: center; gap: 12px; color: white; background: #1a5960; border-bottom: 1px solid #73a3a0; }
+      .kicker { margin: 0 0 3px; color: #efc76a; font-size: 12px; font-weight: 800; text-transform: uppercase; }
+      .stage-head h2 { margin: 0; font-size: clamp(19px,2vw,26px); letter-spacing: 0; }
+      .stars { min-width: 92px; text-align: right; color: #ffd65d; font-size: 25px; letter-spacing: 0; }
+      .canvas-wrap { position: relative; min-height: 516px; display: grid; place-items: center; padding: 14px; background: #cddbd3; }
+      canvas { display: block; width: 100%; max-width: 760px; height: auto; aspect-ratio: 8 / 7; touch-action: none; }
+      .toast { position: absolute; left: 50%; bottom: 20px; translate: -50% 12px; max-width: min(92%,560px); padding: 10px 14px; border-radius: 7px; background: rgba(18,54,59,.93); color: white; font-weight: 700; text-align: center; opacity: 0; pointer-events: none; transition: .18s ease; }
+      .toast.show { opacity: 1; translate: -50% 0; }
+      .side { display: grid; gap: 12px; }
+      .section { padding: 14px; border-top: 4px solid var(--teal); background: var(--panel); box-shadow: 0 5px 18px rgba(28,55,58,.08); }
+      .section h3 { margin: 0 0 10px; font-size: 15px; letter-spacing: 0; }
+      .metrics { display: grid; grid-template-columns: repeat(3,1fr); border: 1px solid var(--line); }
+      .metric { min-width: 0; padding: 10px 6px; text-align: center; border-right: 1px solid var(--line); }
+      .metric:last-child { border-right: 0; }
+      .metric b { display: block; font-size: 21px; color: var(--teal-dark); }
+      .metric span { display: block; margin-top: 2px; color: var(--muted); font-size: 11px; }
+      .brief { margin: 11px 0 0; color: #425d60; line-height: 1.55; font-size: 13px; }
+      .goals { display: grid; gap: 7px; }
+      .goal { display: grid; grid-template-columns: 24px 1fr auto; gap: 8px; align-items: center; padding: 8px; background: #edf1ea; border-left: 3px solid #8ea9a1; font-size: 12px; }
+      .goal strong { font-size: 13px; }
+      .goal .value { color: var(--teal-dark); font-weight: 800; white-space: nowrap; }
+      .goal.done { border-left-color: var(--green); background: #e5f2e7; }
+      .controls { display: grid; grid-template-columns: repeat(3,1fr); gap: 7px; }
+      .controls button.primary { border-color: var(--teal); background: var(--teal); color: white; }
+      .controls button.warn { color: #873f34; }
+      .pad { width: 174px; margin: 12px auto 0; display: grid; grid-template-columns: repeat(3,54px); grid-template-rows: repeat(2,48px); gap: 6px; }
+      .pad button { min-height: 48px; padding: 0; font-size: 20px; background: #e8efeb; }
+      .pad [data-dir="U"] { grid-column: 2; }
+      .pad [data-dir="L"] { grid-column: 1; grid-row: 2; }
+      .pad [data-dir="D"] { grid-column: 2; grid-row: 2; }
+      .pad [data-dir="R"] { grid-column: 3; grid-row: 2; }
+      .hint-line { min-height: 22px; margin-top: 9px; color: var(--muted); text-align: center; font-size: 12px; }
+      .status-line { display: flex; justify-content: space-between; gap: 10px; margin-top: 10px; color: var(--muted); font-size: 12px; }
+      dialog { width: min(860px,calc(100% - 24px)); max-height: calc(100vh - 24px); padding: 0; border: 1px solid #6e8b87; border-radius: 8px; color: var(--ink); background: var(--paper); box-shadow: 0 22px 70px rgba(15,43,48,.35); }
+      dialog::backdrop { background: rgba(9,31,34,.72); }
+      .dialog-head { padding: 16px 18px; display: flex; justify-content: space-between; align-items: center; gap: 12px; color: white; background: var(--teal-dark); border-bottom: 4px solid var(--amber); }
+      .dialog-head h2 { margin: 0; font-size: 21px; letter-spacing: 0; }
+      .icon-close { width: 42px; min-height: 38px; padding: 0; border-color: #71999a; background: #1b5e65; color: white; font-size: 21px; }
+      .dialog-body { padding: 16px; overflow: auto; }
+      .chapter-title { margin: 15px 0 7px; color: var(--teal-dark); font-size: 14px; }
+      .chapter-title:first-child { margin-top: 0; }
+      .level-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; }
+      .level-card { min-height: 86px; padding: 10px; text-align: left; display: grid; align-content: space-between; background: white; }
+      .level-card.active { border-color: var(--amber); box-shadow: inset 0 0 0 2px var(--amber); }
+      .level-card strong { display: block; font-size: 14px; }
+      .level-card span { color: var(--muted); font-size: 11px; }
+      .level-card .card-stars { color: #bd7d00; font-size: 17px; }
+      .archive-note { margin: 0 0 10px; color: var(--muted); line-height: 1.55; }
+      .archive-box { width: 100%; min-height: 145px; resize: vertical; padding: 10px; border: 1px solid #9fb1ac; border-radius: 6px; background: white; color: var(--ink); word-break: break-all; }
+      .dialog-actions { margin-top: 10px; display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+      .dialog-actions .primary { border-color: var(--teal); background: var(--teal); color: white; }
+      .result { text-align: center; padding: 4px 0; }
+      .result .result-stars { margin: 8px 0; color: #d58c00; font-size: 48px; line-height: 1; }
+      .result h3 { margin: 4px 0; font-size: 25px; }
+      .result p { color: var(--muted); }
+      @media (max-width: 900px) {
+        .workspace { grid-template-columns: 1fr; }
+        .stage { min-height: auto; }
+        .canvas-wrap { min-height: 0; }
+        .side { grid-template-columns: repeat(2,minmax(0,1fr)); }
+        .side .section:last-child { grid-column: 1 / -1; }
+      }
+      @media (max-width: 580px) {
+        .topbar { align-items: center; }
+        .brand p { display: none; }
+        .workspace { padding: 8px; gap: 8px; }
+        .stage-head { min-height: 64px; padding: 10px 12px; }
+        .canvas-wrap { padding: 5px; }
+        .side { grid-template-columns: 1fr; gap: 8px; }
+        .side .section:last-child { grid-column: auto; }
+        .section { padding: 11px; }
+        .brief { margin-top: 8px; }
+        .level-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+        .top-actions { gap: 4px; }
+        .top-actions button { width: 40px; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <header class="topbar">
+        <div class="brand"><h1>仓库推箱：十二班调度</h1><p>固定仓库 · 可解释提示 · SOKO2 调度档案</p></div>
+        <div class="top-actions">
+          <button id="levelButton" type="button" title="选择仓库" aria-label="选择仓库">▦</button>
+          <button id="archiveButton" type="button" title="调度档案" aria-label="调度档案">⇄</button>
+          <button id="muteButton" type="button" title="声音" aria-label="切换声音">♪</button>
         </div>
-        <div>关卡 <b id="lv">1</b>　步数 <b id="steps">0</b></div>
+      </header>
+      <div class="workspace">
+        <section class="stage" aria-label="仓库棋盘">
+          <div class="stage-head">
+            <div><p class="kicker" id="chapterText">第一章 · 入库训练</p><h2 id="levelName">01 直线入库</h2></div>
+            <div class="stars" id="savedStars" aria-label="当前最佳星级">☆☆☆</div>
+          </div>
+          <div class="canvas-wrap" id="canvasWrap">
+            <canvas id="gameCanvas" width="800" height="700" aria-label="推箱仓库"></canvas>
+            <div class="toast" id="toast" role="status"></div>
+          </div>
+        </section>
+
+        <aside class="side">
+          <section class="section">
+            <h3>本班调度</h3>
+            <div class="metrics">
+              <div class="metric"><b id="moveText">0</b><span>移动</span></div>
+              <div class="metric"><b id="pushText">0</b><span>推动</span></div>
+              <div class="metric"><b id="crateText">0/0</b><span>入库</span></div>
+            </div>
+            <p class="brief" id="briefText"></p>
+            <div class="status-line"><span id="bestText">最佳 --</span><span id="totalText">总星 0/36</span></div>
+          </section>
+
+          <section class="section">
+            <h3>三星验收</h3>
+            <div class="goals" id="goals"></div>
+          </section>
+
+          <section class="section">
+            <h3>调度台</h3>
+            <div class="controls">
+              <button id="undoButton" type="button" title="撤回一步">↶ 撤回</button>
+              <button id="resetButton" class="warn" type="button" title="重开本关">↻ 重开</button>
+              <button id="hintButton" class="primary" type="button" title="求解下一步">提示</button>
+            </div>
+            <div class="pad" aria-label="移动方向键">
+              <button data-dir="U" type="button" aria-label="向上">↑</button>
+              <button data-dir="L" type="button" aria-label="向左">←</button>
+              <button data-dir="D" type="button" aria-label="向下">↓</button>
+              <button data-dir="R" type="button" aria-label="向右">→</button>
+            </div>
+            <div class="hint-line" id="hintLine">方向键 / WASD 移动，Z 撤回，H 提示</div>
+          </section>
+        </aside>
       </div>
-      <div class="board" id="b"></div>
-      <div class="row">
-        <button id="undo">撤回</button><button id="resetBtn">重开</button
-        ><button id="prev">上一关</button><button id="next">下一关</button>
+    </main>
+
+    <dialog id="levelDialog">
+      <div class="dialog-head"><h2>十二班固定仓库</h2><button class="icon-close" data-close="levelDialog" aria-label="关闭">×</button></div>
+      <div class="dialog-body" id="levelGrid"></div>
+    </dialog>
+    <dialog id="archiveDialog">
+      <div class="dialog-head"><h2>SOKO2 调度档案</h2><button class="icon-close" data-close="archiveDialog" aria-label="关闭">×</button></div>
+      <div class="dialog-body">
+        <p class="archive-note" id="archiveMessage">档案包含十二班星级与最佳纪录，可跨设备导入；校验失败的内容会被拒绝。</p>
+        <textarea class="archive-box" id="archiveText" aria-label="SOKO2 档案码"></textarea>
+        <div class="dialog-actions"><button id="copyArchive">复制</button><button id="importArchive">导入并校验</button><button class="primary" data-close="archiveDialog">返回仓库</button></div>
       </div>
-      <div class="pad">
-        <button data-d="0,-1">▲</button><button data-d="-1,0">◀</button
-        ><button data-d="0,1">▼</button><button data-d="1,0">▶</button>
+    </dialog>
+    <dialog id="resultDialog">
+      <div class="dialog-head"><h2>本班验收</h2><button class="icon-close" data-close="resultDialog" aria-label="关闭">×</button></div>
+      <div class="dialog-body result">
+        <p class="kicker" id="resultKicker">调度完成</p>
+        <h3 id="resultTitle"></h3>
+        <div class="result-stars" id="resultStars">★★★</div>
+        <p id="resultSummary"></p>
+        <div class="dialog-actions"><button id="retryResult">再调度一次</button><button id="nextResult" class="primary">下一班</button></div>
       </div>
-    </div>
-  </main>
-  <script>
-    const levels = [
-      ["#######", "#..g..#", "#..b..#", "#..p..#", "#######"],
-      ["########", "#..g...#", "#..b#..#", "#.b.gp.#", "#......#", "########"],
-      ["########", "#g..#..#", "#b..#..#", "#...b.g#", "#..p...#", "########"],
-      ["########", "#..gg..#", "#..bb..#", "#.####.#", "#...p..#", "########"],
-      [
-        "#########",
-        "#g..#..g#",
-        "#b..#..b#",
-        "#...p...#",
-        "#.......#",
-        "#########",
-      ],
-      [
-        "#########",
-        "#..g.g..#",
-        "#..b.b..#",
-        "#...#...#",
-        "#...p...#",
-        "#########",
-      ],
-      [
-        "#########",
-        "#g.....g#",
-        "#b.###.b#",
-        "#...p...#",
-        "#.......#",
-        "#########",
-      ],
-      [
-        "##########",
-        "#..g..g..#",
-        "#..b##b..#",
-        "#...p....#",
-        "#........#",
-        "##########",
-      ],
-    ];
-    let q = { lv: 0, h: [] };
-    function load() {
-      let a = levels[q.lv],
-        h = a.length,
-        w = Math.max(...a.map((r) => r.length));
-      q = {
-        lv: q.lv,
-        h: [],
-        w,
-        hh: h,
-        walls: new Set(),
-        goals: new Set(),
-        boxes: new Set(),
-        p: null,
-        steps: 0,
-      };
-      a.forEach((r, y) =>
-        [...r].forEach((v, x) => {
-          let k = x + "," + y;
-          if (v === "#") q.walls.add(k);
-          if (v === "g") q.goals.add(k);
-          if (v === "b") q.boxes.add(k);
-          if (v === "p") q.p = { x, y };
-        }),
-      );
-      msg.textContent = "把所有箱子推到金色目标格";
-      draw();
-    }
-    function snap() {
-      q.h.push({ p: { ...q.p }, boxes: new Set(q.boxes), steps: q.steps });
-    }
-    function move(dx, dy) {
-      let x = q.p.x + dx,
-        y = q.p.y + dy,
-        k = x + "," + y;
-      if (q.walls.has(k)) return;
-      snap();
-      if (q.boxes.has(k)) {
-        let bx = x + dx,
-          by = y + dy,
-          bk = bx + "," + by;
-        if (q.walls.has(bk) || q.boxes.has(bk)) {
-          q.h.pop();
-          return;
+    </dialog>
+
+    <script>
+      (() => {
+        "use strict";
+        const DIRS = { U:[0,-1], D:[0,1], L:[-1,0], R:[1,0] };
+        const DIR_LABEL = { U:"向上", D:"向下", L:"向左", R:"向右" };
+        const levels = [
+          { id:"line", chapter:"第一章 · 入库训练", name:"直线入库", brief:"先确认箱体与库位的相对方向，一次推动完成入库。", map:["#######","#     #","# @$. #","#     #","#######"] },
+          { id:"turn", chapter:"第一章 · 入库训练", name:"转角换位", brief:"不能拉动货箱；先绕到货箱下方，再沿竖线推进。", map:["#######","#  .  #","#     #","# $@  #","#     #","#######"] },
+          { id:"twins", chapter:"第一章 · 入库训练", name:"双货分流", brief:"两只货箱共享作业区，错误的先后顺序会封住横向通道。", map:["########","# .  . #","#      #","# $$@  #","#      #","########"] },
+          { id:"pillar", chapter:"第二章 · 柱网货场", name:"中柱绕行", brief:"承重柱切断直线路径，规划工人的绕行空间后再推箱。", map:["########","# .  . #","#   #  #","# $  $ #","#   @  #","#      #","########"] },
+          { id:"split", chapter:"第二章 · 柱网货场", name:"双区接驳", brief:"隔墙把上层分成两个库区，底部通廊是唯一换边路线。", map:["#########","# .   . #","#   #   #","# $ # $ #","#   @   #","#       #","#########"] },
+          { id:"three", chapter:"第二章 · 柱网货场", name:"三列并仓", brief:"三只货箱必须重新排队，先释放左侧站位才能横向调度。", map:["#########","# . . . #","#       #","# $$$   #","#    @  #","#       #","#########"] },
+          { id:"alcove", chapter:"第三章 · 狭道夜班", name:"侧仓回转", brief:"凹槽边缘没有多余站位，把最深处库位留到最后处理。", map:["#########","# .#  . #","#  #    #","# $  $  #","#   # @ #","#       #","#########"] },
+          { id:"cross", chapter:"第三章 · 狭道夜班", name:"十字换轨", brief:"中央横道同时承担通行和换向，货箱进入前要留出回身空间。", map:["#########","# .   . #","#   #   #","# $   $ #","###   ###","#   @   #","#       #","#########"] },
+          { id:"lock", chapter:"第三章 · 狭道夜班", name:"顺序锁仓", brief:"三座库位排列紧密，从外向内推进会锁死入口。", map:["##########","# ...    #","#        #","# $$$ #  #","#     #@ #","#        #","##########"] },
+          { id:"bridge", chapter:"第四章 · 总库会战", name:"窄桥调头", brief:"单格桥口不允许并排会车，先在宽区完成货箱排序。", map:["##########","# . #  . #","#   #    #","# $   $  #","#   #    #","# @ #    #","#        #","##########"] },
+          { id:"four", chapter:"第四章 · 总库会战", name:"三库联调", brief:"三只货箱争用中央场地，边线库位与内线库位需要交替处理。", map:["##########","# .  . . #","#        #","# $ $ $  #","#   #    #","#    @   #","#        #","##########"] },
+          { id:"final", chapter:"第四章 · 总库会战", name:"零点总调", brief:"承重墙、狭道与四只货箱叠加；每次推动都应保留下一次站位。", map:["###########","# .  #  . #","#    #    #","# $     $ #","#   ###   #","# $  @  $ #","# .     . #","#         #","###########"] },
+        ];
+        const ui = Object.fromEntries([...document.querySelectorAll("[id]")].map((node) => [node.id,node]));
+        const archivePrefix = "SOKO2";
+        const cache = new Map();
+        let muted = false;
+        let audioContext = null;
+        let toastTimer = 0;
+        let dpr = 1;
+        let drawWidth = 800;
+        let drawHeight = 700;
+        let profile = loadProfile();
+        let game = null;
+
+        function freshProfile() {
+          return { version:2, level:0, stars:Array(12).fill(0), bestMoves:Array(12).fill(0), bestPushes:Array(12).fill(0), clears:Array(12).fill(0) };
         }
-        q.boxes.delete(k);
-        q.boxes.add(bk);
-      }
-      q.p = { x, y };
-      q.steps++;
-      if ([...q.boxes].every((x) => q.goals.has(x))) {
-        msg.textContent = "完成！可以进入下一关";
-        localStorage.setItem(
-          "sokoban_unlock",
-          Math.max(+localStorage.getItem("sokoban_unlock") || 1, q.lv + 2),
-        );
-      }
-      draw();
-    }
-    function draw() {
-      b.style.gridTemplateColumns = `repeat(${q.w},1fr)`;
-      b.innerHTML = "";
-      for (let y = 0; y < q.hh; y++)
-        for (let x = 0; x < q.w; x++) {
-          let k = x + "," + y,
-            d = document.createElement("div");
-          d.className =
-            "c " +
-            (q.walls.has(k) ? "wall " : "") +
-            (q.goals.has(k) ? "goal " : "") +
-            (q.boxes.has(k) ? "box " : "") +
-            (q.p.x === x && q.p.y === y ? "player" : "");
-          d.textContent = q.boxes.has(k)
-            ? "箱"
-            : q.p.x === x && q.p.y === y
-              ? "人"
-              : "";
-          b.append(d);
+        function normalizeProfile(value) {
+          const base = freshProfile();
+          if (!value || typeof value !== "object") return base;
+          base.level = clamp(Number(value.level)||0,0,11);
+          for (const key of ["stars","bestMoves","bestPushes","clears"]) {
+            if (Array.isArray(value[key])) base[key] = base[key].map((_,i) => clamp(Number(value[key][i])||0,0,key === "stars" ? 3 : 99999));
+          }
+          return base;
         }
-      lv.textContent = q.lv + 1;
-      steps.textContent = q.steps;
-    }
-    function dir(dx, dy) {
-      move(dx, dy);
-    }
-    addEventListener("keydown", (e) => {
-      let m = {
-        ArrowUp: [0, -1],
-        KeyW: [0, -1],
-        ArrowDown: [0, 1],
-        KeyS: [0, 1],
-        ArrowLeft: [-1, 0],
-        KeyA: [-1, 0],
-        ArrowRight: [1, 0],
-        KeyD: [1, 0],
-      };
-      if (m[e.code]) move(...m[e.code]);
-      if (e.code === "KeyZ") undo.click();
-    });
-    document
-      .querySelectorAll("[data-d]")
-      .forEach(
-        (e) => (e.onclick = () => dir(...e.dataset.d.split(",").map(Number))),
-      );
-    undo.onclick = () => {
-      let s = q.h.pop();
-      if (s) {
-        q.p = s.p;
-        q.boxes = s.boxes;
-        q.steps = s.steps;
-        draw();
-      }
-    };
-    resetBtn.onclick = load;
-    prev.onclick = () => {
-      q.lv = Math.max(0, q.lv - 1);
-      load();
-    };
-    next.onclick = () => {
-      let u = +localStorage.getItem("sokoban_unlock") || 1;
-      if (q.lv + 1 < u) {
-        q.lv = Math.min(levels.length - 1, q.lv + 1);
-        load();
-      }
-    };
-    load();
-  </script>
+        function loadProfile() {
+          try { return normalizeProfile(JSON.parse(localStorage.getItem("sokoban_quest_v2")||"null")); } catch { return freshProfile(); }
+        }
+        function saveProfile() { localStorage.setItem("sokoban_quest_v2",JSON.stringify(profile)); }
+        function checksum(text) {
+          let hash = 2166136261;
+          for (let i=0;i<text.length;i+=1) { hash ^= text.charCodeAt(i); hash = Math.imul(hash,16777619); }
+          return (hash>>>0).toString(36);
+        }
+        function encodeArchive(value=profile) {
+          const json = JSON.stringify(normalizeProfile(value));
+          const bytes = new TextEncoder().encode(json);
+          let binary = ""; bytes.forEach((byte) => { binary += String.fromCharCode(byte); });
+          const payload = btoa(binary).replaceAll("+","-").replaceAll("/","_").replaceAll("=","");
+          return `${archivePrefix}.${payload}.${checksum(payload)}`;
+        }
+        function decodeArchive(code) {
+          const [prefix,payload,signature,...extra] = String(code).trim().split(".");
+          if (prefix !== archivePrefix || !payload || !signature || extra.length || checksum(payload)!==signature) throw new Error("档案校验失败");
+          try {
+            const padded = payload.replaceAll("-","+").replaceAll("_","/") + "=".repeat((4-payload.length%4)%4);
+            const bytes = Uint8Array.from(atob(padded),(char)=>char.charCodeAt(0));
+            return normalizeProfile(JSON.parse(new TextDecoder().decode(bytes)));
+          } catch { throw new Error("档案内容无效"); }
+        }
+        function parseLevel(level) {
+          const height = level.map.length;
+          const width = Math.max(...level.map.map((row)=>row.length));
+          const walls = new Set(), floors = new Set(), goals = new Set(), boxes = new Set();
+          let player = "";
+          level.map.forEach((row,y) => [...row.padEnd(width," ")].forEach((char,x) => {
+            const key = cell(x,y);
+            if (char === "#") walls.add(key);
+            else floors.add(key);
+            if ([".","*","+"].includes(char)) goals.add(key);
+            if (["$","*"].includes(char)) boxes.add(key);
+            if (["@","+"].includes(char)) player = key;
+          }));
+          const dead = staticDeadSquares(width,height,walls,floors,goals);
+          return { width,height,walls,floors,goals,boxes,player,dead };
+        }
+        function staticDeadSquares(width,height,walls,floors,goals) {
+          const reachable = new Set(goals);
+          const queue = [...goals];
+          for (let at=0;at<queue.length;at+=1) {
+            const [bx,by] = point(queue[at]);
+            for (const [dx,dy] of Object.values(DIRS)) {
+              const previous = cell(bx-dx,by-dy), stand = cell(bx-2*dx,by-2*dy);
+              if (floors.has(previous) && floors.has(stand) && !reachable.has(previous)) { reachable.add(previous); queue.push(previous); }
+            }
+          }
+          return new Set([...floors].filter((key)=>!goals.has(key)&&!reachable.has(key)));
+        }
+        function initialState(index) {
+          const board = parseLevel(levels[index]);
+          return { ...board, player:board.player, boxes:new Set(board.boxes), moves:0, pushes:0, hints:0, history:[], complete:false, testing:false, lastDir:"", pulse:null };
+        }
+        function cell(x,y) { return `${x},${y}`; }
+        function point(key) { return key.split(",").map(Number); }
+        function stateKey(player,boxes) { return `${player}|${[...boxes].sort().join(";")}`; }
+        function transition(board,state,dir) {
+          const [dx,dy] = DIRS[dir];
+          const [px,py] = point(state.player);
+          const next = cell(px+dx,py+dy);
+          if (!board.floors.has(next)) return null;
+          const boxes = new Set(state.boxes);
+          let pushed = false;
+          if (boxes.has(next)) {
+            const beyond = cell(px+dx*2,py+dy*2);
+            if (!board.floors.has(beyond) || boxes.has(beyond)) return null;
+            boxes.delete(next); boxes.add(beyond); pushed = true;
+          }
+          return { player:next, boxes, pushed };
+        }
+        function isSolved(board,boxes) { return boxes.size === board.goals.size && [...boxes].every((key)=>board.goals.has(key)); }
+        function dynamicDeadlock(board,boxes) {
+          if ([...boxes].some((key)=>board.dead.has(key))) return true;
+          for (const key of boxes) {
+            const [x,y] = point(key);
+            for (const [ox,oy] of [[0,0],[-1,0],[0,-1],[-1,-1]]) {
+              const square = [cell(x+ox,y+oy),cell(x+ox+1,y+oy),cell(x+ox,y+oy+1),cell(x+ox+1,y+oy+1)];
+              if (square.every((k)=>board.walls.has(k)||boxes.has(k)) && square.some((k)=>boxes.has(k)&&!board.goals.has(k))) return true;
+            }
+          }
+          return false;
+        }
+        function solveState(board,player,boxes,maxNodes=220000) {
+          if (isSolved(board,boxes)) return { route:"",moves:0,pushes:0,nodes:1 };
+          const startKey = stateKey(player,boxes);
+          const queue = [{ player,boxes:new Set(boxes),route:"",pushes:0 }];
+          const seen = new Set([startKey]);
+          for (let at=0;at<queue.length && at<maxNodes;at+=1) {
+            const current = queue[at];
+            for (const dir of ["U","L","D","R"]) {
+              const next = transition(board,current,dir);
+              if (!next) continue;
+              const key = stateKey(next.player,next.boxes);
+              if (seen.has(key)) continue;
+              seen.add(key);
+              const route = current.route + dir;
+              const pushes = current.pushes + Number(next.pushed);
+              if (isSolved(board,next.boxes)) return { route,moves:route.length,pushes,nodes:seen.size };
+              if (!dynamicDeadlock(board,next.boxes)) queue.push({ player:next.player,boxes:next.boxes,route,pushes });
+            }
+          }
+          return null;
+        }
+        function referenceFor(index) {
+          if (!cache.has(index)) {
+            const board = initialState(index);
+            const solution = solveState(board,board.player,board.boxes,400000);
+            if (!solution) throw new Error(`${levels[index].name} 没有参考解`);
+            cache.set(index,{ ...solution,parMoves:Math.ceil(solution.moves*1.2)+1,parPushes:solution.pushes+1 });
+          }
+          return cache.get(index);
+        }
+        function unlocked(index) { return index === 0 || (profile.stars[index-1]||0)>0; }
+        function begin(index=profile.level,options={}) {
+          profile.level = clamp(index,0,levels.length-1);
+          game = initialState(profile.level);
+          game.testing = Boolean(options.testing);
+          if (!game.testing) { saveProfile(); updateUi(); draw(); }
+          return game;
+        }
+        function perform(dir,options={}) {
+          if (!game || game.complete || !DIRS[dir]) return false;
+          const next = transition(game,game,dir);
+          if (!next) { if (!game.testing && !options.silent) { tone(125,.06,"square",.025); showToast("这一步没有可用空间"); } return false; }
+          game.history.push({ player:game.player,boxes:new Set(game.boxes),moves:game.moves,pushes:game.pushes,lastDir:game.lastDir });
+          game.player = next.player; game.boxes = next.boxes; game.moves += 1; game.pushes += Number(next.pushed); game.lastDir = dir; game.pulse = { key:next.player,time:performance.now() };
+          if (!game.testing) tone(next.pushed ? 240 : 360,next.pushed ? .09 : .035,next.pushed ? "triangle" : "sine",next.pushed ? .04 : .018);
+          if (isSolved(game,game.boxes)) completeLevel();
+          else if (!game.testing && next.pushed && dynamicDeadlock(game,game.boxes)) showToast("检测到货箱死锁，可撤回这一步");
+          if (!game.testing) { updateUi(); draw(); }
+          return true;
+        }
+        function starCount(board=game) {
+          if (!isSolved(board,board.boxes)) return 0;
+          const ref = referenceFor(profile.level);
+          return 1 + Number(board.pushes<=ref.parPushes) + Number(board.moves<=ref.parMoves && board.hints===0);
+        }
+        function completeLevel() {
+          game.complete = true;
+          const stars = starCount(game);
+          if (!game.testing) {
+            const index = profile.level;
+            profile.stars[index] = Math.max(profile.stars[index]||0,stars);
+            profile.bestMoves[index] = profile.bestMoves[index] ? Math.min(profile.bestMoves[index],game.moves) : game.moves;
+            profile.bestPushes[index] = profile.bestPushes[index] ? Math.min(profile.bestPushes[index],game.pushes) : game.pushes;
+            profile.clears[index] += 1; saveProfile();
+            tone(523,.13,"triangle",.05); tone(659,.15,"triangle",.045,.12); tone(784,.2,"triangle",.04,.24);
+            updateUi(); draw();
+            ui.resultTitle.textContent = `${String(index+1).padStart(2,"0")} ${levels[index].name}`;
+            ui.resultStars.textContent = "★".repeat(stars)+"☆".repeat(3-stars);
+            ui.resultSummary.textContent = `${game.moves} 次移动 · ${game.pushes} 次推动 · ${game.hints ? `使用 ${game.hints} 次提示` : "独立完成"}`;
+            ui.nextResult.textContent = index===levels.length-1 ? "查看仓库" : "下一班";
+            setTimeout(()=>ui.resultDialog.showModal(),180);
+          }
+        }
+        function undo() {
+          if (!game || !game.history.length) { showToast("当前没有可撤回的步骤"); return; }
+          const previous = game.history.pop();
+          Object.assign(game,previous,{ complete:false,pulse:null });
+          ui.resultDialog.close(); tone(210,.06,"sine",.025); updateUi(); draw();
+        }
+        function requestHint() {
+          if (game.complete) return;
+          ui.hintButton.disabled = true;
+          ui.hintLine.textContent = "正在检查可行路线…";
+          requestAnimationFrame(()=>requestAnimationFrame(()=>{
+            const solution = solveState(game,game.player,game.boxes,260000);
+            ui.hintButton.disabled = false;
+            if (!solution) { ui.hintLine.textContent = "当前局面无法完成，请撤回或重开"; showToast("求解器确认当前局面已死锁"); return; }
+            if (!solution.route) return;
+            game.hints += 1;
+            const dir = solution.route[0];
+            game.hintDir = dir;
+            ui.hintLine.textContent = `建议${DIR_LABEL[dir]} · 尚有约 ${solution.moves} 步`;
+            showToast(`路线提示：下一步${DIR_LABEL[dir]}`); updateUi(); draw();
+          }));
+        }
+        function reset() { begin(profile.level); showToast("本班已重新调度"); }
+        function totalStars() { return profile.stars.reduce((sum,value)=>sum+value,0); }
+        function updateUi() {
+          if (!game) return;
+          const level = levels[profile.level], ref = referenceFor(profile.level);
+          const placed = [...game.boxes].filter((key)=>game.goals.has(key)).length;
+          ui.chapterText.textContent = level.chapter;
+          ui.levelName.textContent = `${String(profile.level+1).padStart(2,"0")} ${level.name}`;
+          ui.savedStars.textContent = "★".repeat(profile.stars[profile.level])+"☆".repeat(3-profile.stars[profile.level]);
+          ui.moveText.textContent = game.moves; ui.pushText.textContent = game.pushes; ui.crateText.textContent = `${placed}/${game.boxes.size}`;
+          ui.briefText.textContent = level.brief;
+          const bestMove = profile.bestMoves[profile.level], bestPush = profile.bestPushes[profile.level];
+          ui.bestText.textContent = bestMove ? `最佳 ${bestMove} 步 / ${bestPush} 推` : "最佳 --";
+          ui.totalText.textContent = `总星 ${totalStars()}/36`;
+          const goals = [
+            { icon:"✓",label:"全部货箱入库",value:`${placed}/${game.boxes.size}`,done:placed===game.boxes.size },
+            { icon:"箱",label:`推动不超过 ${ref.parPushes} 次`,value:String(game.pushes),done:game.complete&&game.pushes<=ref.parPushes },
+            { icon:"步",label:`无提示且 ${ref.parMoves} 步内`,value:game.hints ? `${game.hints} 次提示` : `${game.moves} 步`,done:game.complete&&game.hints===0&&game.moves<=ref.parMoves },
+          ];
+          ui.goals.innerHTML = goals.map((goal)=>`<div class="goal ${goal.done?"done":""}"><strong>${goal.icon}</strong><strong>${goal.label}</strong><span class="value">${goal.value}</span></div>`).join("");
+          ui.undoButton.disabled = !game.history.length;
+          renderLevelGrid();
+        }
+        function renderLevelGrid() {
+          const chapters = [...new Set(levels.map((level)=>level.chapter))];
+          ui.levelGrid.innerHTML = chapters.map((chapter)=>`<h3 class="chapter-title">${chapter}</h3><div class="level-grid">${levels.map((level,index)=>({level,index})).filter((entry)=>entry.level.chapter===chapter).map(({level,index})=>{
+            const open = unlocked(index), stars=profile.stars[index]||0;
+            return `<button class="level-card ${profile.level===index?"active":""}" data-level="${index}" ${open?"":"disabled"}><strong>${String(index+1).padStart(2,"0")} ${level.name}</strong><span>${open?level.brief:"完成上一班后解锁"}</span><span class="card-stars">${open?"★".repeat(stars)+"☆".repeat(3-stars):"锁定"}</span></button>`;
+          }).join("")}</div>`).join("");
+          ui.levelGrid.querySelectorAll("[data-level]").forEach((button)=>button.addEventListener("click",()=>{ ui.levelDialog.close(); begin(Number(button.dataset.level)); }));
+        }
+        function showArchive(message="") {
+          ui.archiveMessage.textContent = message || "档案包含十二班星级与最佳纪录，可跨设备导入；校验失败的内容会被拒绝。";
+          ui.archiveText.value = encodeArchive();
+          ui.archiveDialog.showModal();
+        }
+        function showToast(message) {
+          clearTimeout(toastTimer); ui.toast.textContent=message; ui.toast.classList.add("show");
+          toastTimer=setTimeout(()=>ui.toast.classList.remove("show"),1700);
+        }
+        function ensureAudio() {
+          if (!audioContext) { const Audio = window.AudioContext||window.webkitAudioContext; if (Audio) audioContext=new Audio(); }
+          if (audioContext?.state==="suspended") audioContext.resume();
+        }
+        function tone(frequency,duration,type="sine",volume=.03,delay=0) {
+          if (muted || game?.testing) return;
+          ensureAudio(); if (!audioContext) return;
+          const oscillator=audioContext.createOscillator(), gain=audioContext.createGain(), start=audioContext.currentTime+delay;
+          oscillator.type=type; oscillator.frequency.setValueAtTime(frequency,start); gain.gain.setValueAtTime(volume,start); gain.gain.exponentialRampToValueAtTime(.001,start+duration);
+          oscillator.connect(gain); gain.connect(audioContext.destination); oscillator.start(start); oscillator.stop(start+duration);
+        }
+        function clamp(value,min,max) { return Math.max(min,Math.min(max,value)); }
+
+        function resize() {
+          const rect = ui.canvasWrap.getBoundingClientRect();
+          drawWidth = Math.max(300,Math.min(800,rect.width-10)); drawHeight = drawWidth*7/8;
+          dpr = Math.min(window.devicePixelRatio||1,2);
+          ui.gameCanvas.width=Math.round(drawWidth*dpr); ui.gameCanvas.height=Math.round(drawHeight*dpr);
+          ui.gameCanvas.style.width=`${drawWidth}px`; ui.gameCanvas.style.height=`${drawHeight}px`;
+          const ctx=ui.gameCanvas.getContext("2d"); ctx.setTransform(dpr,0,0,dpr,0,0); draw();
+        }
+        function roundRect(ctx,x,y,w,h,r) { ctx.beginPath(); ctx.roundRect(x,y,w,h,r); }
+        function draw() {
+          if (!game) return;
+          const ctx=ui.gameCanvas.getContext("2d");
+          ctx.clearRect(0,0,drawWidth,drawHeight);
+          const margin=Math.max(12,drawWidth*.025);
+          const cellSize=Math.min((drawWidth-margin*2)/game.width,(drawHeight-margin*2)/game.height);
+          const ox=(drawWidth-cellSize*game.width)/2, oy=(drawHeight-cellSize*game.height)/2;
+          ctx.fillStyle="#b7c9bf"; ctx.fillRect(0,0,drawWidth,drawHeight);
+          ctx.fillStyle="rgba(255,255,255,.22)";
+          for (let i=0;i<20;i+=1) ctx.fillRect((i*71)%drawWidth,(i*43)%drawHeight,2,2);
+          for (let y=0;y<game.height;y+=1) for (let x=0;x<game.width;x+=1) {
+            const key=cell(x,y), px=ox+x*cellSize, py=oy+y*cellSize;
+            if (game.walls.has(key)) drawWall(ctx,px,py,cellSize,x,y);
+            else if (game.floors.has(key)) drawFloor(ctx,px,py,cellSize,key,x,y);
+          }
+          for (const key of game.boxes) { const [x,y]=point(key); drawBox(ctx,ox+x*cellSize,oy+y*cellSize,cellSize,game.goals.has(key)); }
+          const [px,py]=point(game.player); drawWorker(ctx,ox+(px+.5)*cellSize,oy+(py+.52)*cellSize,cellSize,game.lastDir);
+          if (game.hintDir) {
+            const [dx,dy]=DIRS[game.hintDir];
+            ctx.save(); ctx.translate(ox+(px+.5+dx*.34)*cellSize,oy+(py+.5+dy*.34)*cellSize); ctx.rotate({R:0,D:Math.PI/2,L:Math.PI,U:-Math.PI/2}[game.hintDir]);
+            ctx.fillStyle="#d35642"; ctx.beginPath(); ctx.moveTo(cellSize*.22,0); ctx.lineTo(-cellSize*.09,-cellSize*.14); ctx.lineTo(-cellSize*.09,cellSize*.14); ctx.closePath(); ctx.fill(); ctx.restore();
+          }
+        }
+        function drawFloor(ctx,x,y,size,key,gx,gy) {
+          ctx.fillStyle=(gx+gy)%2 ? "#e8e3d5" : "#eee9dc"; ctx.fillRect(x,y,size,size);
+          ctx.strokeStyle="#d4cdbd"; ctx.lineWidth=1; ctx.strokeRect(x+.5,y+.5,size-1,size-1);
+          if (game.goals.has(key)) {
+            ctx.fillStyle="#e7b63c"; ctx.beginPath(); ctx.arc(x+size/2,y+size/2,size*.29,0,Math.PI*2); ctx.fill();
+            ctx.fillStyle="#fff3b8"; ctx.beginPath(); ctx.arc(x+size/2,y+size/2,size*.17,0,Math.PI*2); ctx.fill();
+            ctx.strokeStyle="#9a6615"; ctx.lineWidth=Math.max(1,size*.025); ctx.beginPath(); ctx.moveTo(x+size*.34,y+size*.5); ctx.lineTo(x+size*.66,y+size*.5); ctx.moveTo(x+size*.5,y+size*.34); ctx.lineTo(x+size*.5,y+size*.66); ctx.stroke();
+          } else if (game.dead.has(key)) {
+            ctx.fillStyle="rgba(183,88,67,.11)"; ctx.fillRect(x+2,y+2,size-4,size-4);
+            ctx.fillStyle="rgba(137,70,55,.55)"; ctx.font=`700 ${Math.max(8,size*.14)}px system-ui`; ctx.textAlign="center"; ctx.fillText("死角",x+size/2,y+size*.57);
+          }
+        }
+        function drawWall(ctx,x,y,size,gx,gy) {
+          const gradient=ctx.createLinearGradient(x,y,x,y+size); gradient.addColorStop(0,(gx+gy)%2?"#426b6b":"#487675"); gradient.addColorStop(1,"#285252");
+          ctx.fillStyle=gradient; ctx.fillRect(x,y,size,size); ctx.strokeStyle="#1d4446"; ctx.lineWidth=1; ctx.strokeRect(x+.5,y+.5,size-1,size-1);
+          ctx.strokeStyle="rgba(219,235,225,.22)"; ctx.beginPath(); ctx.moveTo(x+3,y+size*.33); ctx.lineTo(x+size-3,y+size*.33); ctx.moveTo(x+3,y+size*.67); ctx.lineTo(x+size-3,y+size*.67); ctx.stroke();
+        }
+        function drawBox(ctx,x,y,size,onGoal) {
+          const pad=size*.11; ctx.save();
+          ctx.shadowColor="rgba(26,42,39,.28)"; ctx.shadowBlur=size*.08; ctx.shadowOffsetY=size*.05;
+          ctx.fillStyle=onGoal?"#4f946c":"#c87932"; roundRect(ctx,x+pad,y+pad,size-pad*2,size-pad*2,size*.07); ctx.fill(); ctx.shadowColor="transparent";
+          ctx.strokeStyle=onGoal?"#286849":"#85451d"; ctx.lineWidth=Math.max(2,size*.04); ctx.stroke();
+          ctx.strokeStyle=onGoal?"#a6d6b5":"#efb56b"; ctx.lineWidth=Math.max(2,size*.055); ctx.beginPath(); ctx.moveTo(x+size*.28,y+size*.28); ctx.lineTo(x+size*.72,y+size*.72); ctx.moveTo(x+size*.72,y+size*.28); ctx.lineTo(x+size*.28,y+size*.72); ctx.stroke();
+          ctx.fillStyle="rgba(255,255,255,.28)"; ctx.fillRect(x+size*.18,y+size*.18,size*.64,size*.06); ctx.restore();
+        }
+        function drawWorker(ctx,x,y,size,dir) {
+          ctx.save(); ctx.translate(x,y);
+          ctx.fillStyle="rgba(25,50,49,.2)"; ctx.beginPath(); ctx.ellipse(0,size*.3,size*.25,size*.09,0,0,Math.PI*2); ctx.fill();
+          ctx.fillStyle="#185f76"; roundRect(ctx,-size*.22,-size*.03,size*.44,size*.35,size*.08); ctx.fill();
+          ctx.fillStyle="#f0bd83"; ctx.beginPath(); ctx.arc(0,-size*.17,size*.18,0,Math.PI*2); ctx.fill();
+          ctx.fillStyle="#efb52f"; ctx.beginPath(); ctx.arc(0,-size*.22,size*.22,Math.PI,Math.PI*2); ctx.lineTo(size*.25,-size*.2); ctx.lineTo(-size*.25,-size*.2); ctx.closePath(); ctx.fill();
+          ctx.fillStyle="#183c43"; const look=dir==="L"?-1:dir==="R"?1:0; ctx.beginPath(); ctx.arc(-size*.06+look*size*.04,-size*.17,size*.022,0,Math.PI*2); ctx.arc(size*.06+look*size*.04,-size*.17,size*.022,0,Math.PI*2); ctx.fill();
+          ctx.restore();
+        }
+
+        function validateContent() {
+          const ids=new Set(levels.map((level)=>level.id));
+          if (levels.length!==12 || ids.size!==12) throw new Error("必须配置 12 个唯一仓库");
+          const results=levels.map((_,index)=>{
+            const board=initialState(index), reference=referenceFor(index);
+            if (board.boxes.size!==board.goals.size || !board.player) throw new Error(`${levels[index].name} 箱体与库位配置不匹配`);
+            return { id:levels[index].id,boxes:board.boxes.size,moves:reference.moves,pushes:reference.pushes,nodes:reference.nodes,dead:board.dead.size };
+          });
+          return { levels:levels.length,chapters:new Set(levels.map((level)=>level.chapter)).size,boxes:results.reduce((sum,item)=>sum+item.boxes,0),uniqueIds:ids.size,results };
+        }
+        function runReferenceLevel(index) {
+          const previousProfile=profile, previousGame=game;
+          profile=freshProfile(); profile.level=index; begin(index,{testing:true});
+          const solution=referenceFor(index);
+          for (const dir of solution.route) { if (!perform(dir,{silent:true})) throw new Error(`参考路线在 ${levels[index].name} 中断`); }
+          const result={ id:levels[index].id,won:game.complete,stars:starCount(game),moves:game.moves,pushes:game.pushes,route:solution.route,nodes:solution.nodes };
+          profile=previousProfile; game=previousGame; return result;
+        }
+        window.__sokobanQuestTest = {
+          levels,freshProfile,encodeArchive,decodeArchive,validateContent,runReferenceLevel,referenceFor,
+          begin(index=0,options={testing:true}) { return begin(index,options); },
+          move(dir) { return perform(dir,{silent:true}); },
+          undo,
+          solveCurrent() { return solveState(game,game.player,game.boxes,400000); },
+          getState() { return { level:profile.level,player:game.player,boxes:[...game.boxes].sort(),moves:game.moves,pushes:game.pushes,hints:game.hints,history:game.history.length,complete:game.complete,deadlocked:dynamicDeadlock(game,game.boxes) }; }
+        };
+
+        document.querySelectorAll("[data-dir]").forEach((button)=>button.addEventListener("click",()=>{ game.hintDir=""; perform(button.dataset.dir); }));
+        document.querySelectorAll("[data-close]").forEach((button)=>button.addEventListener("click",()=>document.getElementById(button.dataset.close).close()));
+        ui.undoButton.addEventListener("click",undo); ui.resetButton.addEventListener("click",reset); ui.hintButton.addEventListener("click",requestHint);
+        ui.levelButton.addEventListener("click",()=>{ renderLevelGrid(); ui.levelDialog.showModal(); });
+        ui.archiveButton.addEventListener("click",()=>showArchive());
+        ui.copyArchive.addEventListener("click",async()=>{ ui.archiveText.select(); try { await navigator.clipboard.writeText(ui.archiveText.value); showArchive("档案已复制"); } catch { document.execCommand("copy"); showArchive("档案已复制"); } });
+        ui.importArchive.addEventListener("click",()=>{ try { profile=decodeArchive(ui.archiveText.value); saveProfile(); begin(profile.level); showArchive("档案已导入并通过校验"); } catch (error) { showArchive(error.message||"档案无效"); } });
+        ui.retryResult.addEventListener("click",()=>{ ui.resultDialog.close(); reset(); });
+        ui.nextResult.addEventListener("click",()=>{ ui.resultDialog.close(); if (profile.level<levels.length-1) begin(profile.level+1); else { renderLevelGrid(); ui.levelDialog.showModal(); } });
+        ui.muteButton.addEventListener("click",()=>{ muted=!muted; ui.muteButton.textContent=muted?"×":"♪"; if (!muted) tone(440,.06,"sine",.03); });
+        document.addEventListener("keydown",(event)=>{
+          if (["TEXTAREA","INPUT"].includes(event.target.tagName)) return;
+          const map={ArrowUp:"U",KeyW:"U",ArrowDown:"D",KeyS:"D",ArrowLeft:"L",KeyA:"L",ArrowRight:"R",KeyD:"R"};
+          if (map[event.code]) { event.preventDefault(); game.hintDir=""; perform(map[event.code]); }
+          if (event.code==="KeyZ") { event.preventDefault(); undo(); }
+          if (event.code==="KeyR") { event.preventDefault(); reset(); }
+          if (event.code==="KeyH") { event.preventDefault(); requestHint(); }
+        });
+        window.addEventListener("resize",resize);
+        begin(profile.level); resize();
+      })();
+    </script>
+  </body>
 </html>
