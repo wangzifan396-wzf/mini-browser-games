@@ -47,6 +47,7 @@
       "charm-reels.html",
       "checkpoint-inspector.html",
       "cipher-relay.html",
+      "claw-carnival.html",
       "clean-slate.html",
       "clockwork-escape.html",
       "cozy-organizer.html",
@@ -101,7 +102,6 @@
     ],
     "C": [
       "branching-tales.html",
-      "claw-carnival.html",
       "crossword-cafe.html",
       "glyph-warden.html",
       "mosaic-jigsaw.html",

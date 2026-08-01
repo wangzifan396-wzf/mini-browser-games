@@ -1,272 +1,730 @@
 <!doctype html>
 <html lang="zh-CN">
-  <meta charset="utf-8" /><meta
-    name="viewport"
-    content="width=device-width,initial-scale=1"
-  /><title>爪爪嘉年华</title
-  ><style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      background: #281631;
-      color: #fff2fb;
-      font-family: system-ui, "Microsoft YaHei";
-    }
-    .app {
-      min-height: 100vh;
-      padding: 14px;
-      display: grid;
-      place-items: center;
-    }
-    .shell {
-      width: min(900px, 100%);
-      background: #4b2858;
-      border: 1px solid #9869a3;
-      border-radius: 25px;
-      padding: 18px;
-    }
-    .top,
-    .row {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .machine {
-      height: 470px;
-      margin: 12px 0;
-      border: 10px solid #d77cb5;
-      border-radius: 22px;
-      background: linear-gradient(#6bc4d9 0 70%, #9a638d 70%);
-      position: relative;
-      overflow: hidden;
-    }
-    .rail {
-      position: absolute;
-      left: 5%;
-      right: 5%;
-      top: 25px;
-      height: 10px;
-      background: #eee;
-      border-radius: 8px;
-    }
-    .claw {
-      position: absolute;
-      top: 28px;
-      font-size: 45px;
-      transition:
-        left 0.06s,
-        top 0.45s;
-    }
-    .prize {
-      position: absolute;
-      font-size: 48px;
-      transition:
-        top 0.5s,
-        left 0.5s;
-    }
-    .chute {
-      position: absolute;
-      left: 20px;
-      bottom: 10px;
-      width: 120px;
-      height: 90px;
-      border: 5px dashed white;
-      display: grid;
-      place-items: center;
-    }
-    .collection {
-      display: flex;
-      gap: 7px;
-      flex-wrap: wrap;
-    }
-    .tag {
-      padding: 6px 9px;
-      background: #633a70;
-      border-radius: 16px;
-    }
-    button {
-      padding: 10px 12px;
-      border: 1px solid #b17fbb;
-      border-radius: 9px;
-      background: #70427d;
-      color: white;
-      font-weight: bold;
-    }
-    .drop {
-      background: #b15e31;
-      font-size: 18px;
-    }
-    .help {
-      font-size: 13px;
-      color: #e1cbe5;
-    }
-    @media (max-width: 650px) {
-      .machine {
-        height: 380px;
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+    <meta name="theme-color" content="#102b36">
+    <title>万象爪局：十二柜收藏委托</title>
+    <style>
+      * { box-sizing: border-box; }
+      :root {
+        --ink: #10232d;
+        --muted: #58717a;
+        --paper: #f5f8f5;
+        --panel: #ffffff;
+        --line: #c8d7d7;
+        --teal: #176f78;
+        --teal-dark: #0f545d;
+        --coral: #d65f4a;
+        --gold: #d5a431;
+        --sky: #b9e0df;
       }
-      .app {
-        place-items: start center;
+      html, body { margin: 0; min-height: 100%; }
+      body {
+        color: var(--ink);
+        background-color: #102b36;
+        background-image: linear-gradient(#173b47 1px, transparent 1px), linear-gradient(90deg, #173b47 1px, transparent 1px);
+        background-size: 32px 32px;
+        font-family: system-ui, "Microsoft YaHei", sans-serif;
       }
-    }
-  </style>
-  <main class="app">
-    <section class="shell">
-      <div class="top">
+      button, textarea { font: inherit; letter-spacing: 0; }
+      button { cursor: pointer; }
+      button:disabled { cursor: not-allowed; opacity: .42; }
+      .app-shell { width: min(1380px, calc(100vw - 28px)); margin: 14px auto 24px; }
+      .topbar {
+        display: flex; align-items: center; justify-content: space-between; gap: 16px;
+        padding: 16px 20px; border: 1px solid var(--line); border-radius: 8px; background: #eef6f4;
+      }
+      .eyebrow { margin: 0 0 3px; color: #8a6410; font-size: 12px; font-weight: 900; }
+      h1 { margin: 0; font-size: clamp(30px, 4vw, 50px); line-height: 1; letter-spacing: 0; }
+      h2, h3, p { margin-top: 0; }
+      .top-actions, .button-row, .touch-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+      button {
+        min-height: 42px; border: 1px solid #8fa9aa; border-radius: 7px; padding: 9px 13px;
+        color: var(--ink); background: #fff; font-weight: 850;
+      }
+      button:hover:not(:disabled) { border-color: var(--teal); }
+      .primary { color: white; border-color: var(--teal); background: var(--teal); }
+      .primary:hover:not(:disabled) { background: var(--teal-dark); }
+      .accent { color: white; border-color: var(--coral); background: var(--coral); }
+      .icon-button { width: 44px; padding: 0; font-size: 22px; }
+      .contract-strip {
+        display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) auto; gap: 14px; align-items: center;
+        margin: 12px 0; padding: 12px 16px; border: 1px solid var(--line); border-radius: 8px; background: #fffdf7;
+      }
+      .contract-strip strong, .contract-strip span { display: block; }
+      .contract-strip span { margin-top: 2px; color: var(--muted); font-size: 13px; }
+      .contract-stars { color: #b88718; font-size: 22px; white-space: nowrap; }
+      .layout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 14px; align-items: start; }
+      .machine-panel {
+        position: relative; min-height: 650px; aspect-ratio: 16 / 10; overflow: hidden;
+        border: 1px solid #80a6a8; border-radius: 8px; background: #88c8cb;
+      }
+      canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+      .hud {
+        position: absolute; z-index: 3; left: 12px; right: 12px; top: 12px;
+        display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 7px; pointer-events: none;
+      }
+      .stat { min-width: 0; padding: 8px 10px; border-radius: 7px; color: white; background: rgba(16, 43, 54, .82); }
+      .stat span, .stat b { display: block; overflow-wrap: anywhere; }
+      .stat span { font-size: 11px; color: #d8eeee; }
+      .stat b { margin-top: 1px; font-size: 18px; }
+      .confidence {
+        position: absolute; z-index: 3; top: 84px; right: 12px; width: min(210px, 43%);
+        padding: 8px 10px; border: 1px solid rgba(255,255,255,.55); border-radius: 7px; color: white; background: rgba(16,43,54,.78);
+      }
+      .confidence div { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; font-weight: 850; }
+      .confidence meter { width: 100%; height: 8px; }
+      .touch-controls {
+        position: absolute; z-index: 4; left: 12px; right: 12px; bottom: 12px; justify-content: center;
+      }
+      .touch-controls button { flex: 1 1 90px; height: 50px; font-size: 24px; background: rgba(255,255,255,.94); }
+      .touch-controls .drop-button { flex: 1.4 1 130px; color: white; border-color: var(--coral); background: var(--coral); }
+      .overlay {
+        position: absolute; z-index: 7; inset: 0; display: grid; place-items: center; padding: 18px;
+        background: rgba(9, 30, 38, .63);
+      }
+      .overlay[hidden] { display: none; }
+      .dialog {
+        width: min(500px, 100%); max-height: 88%; overflow: auto; padding: 20px;
+        border: 1px solid #aac2c2; border-radius: 8px; background: #fffdf8;
+      }
+      .dialog h2 { margin-bottom: 8px; font-size: 26px; }
+      .result-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 14px 0; }
+      .result-grid div { padding: 10px; border: 1px solid #dfcf9b; border-radius: 7px; background: #fff8df; }
+      .result-grid span, .result-grid b { display: block; }
+      .result-grid span { color: var(--muted); font-size: 12px; }
+      .result-grid b { font-size: 20px; }
+      .side-panel { display: grid; gap: 12px; }
+      .board { padding: 15px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); }
+      .board h2 { margin-bottom: 12px; font-size: 22px; }
+      .record-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+      .record {
+        padding: 10px; border: 1px solid #dec98b; border-radius: 7px; background: #fff9e8;
+      }
+      .record span, .record b { display: block; }
+      .record span { color: #775f28; font-size: 11px; }
+      .record b { margin-top: 3px; font-size: 20px; }
+      .status { min-height: 42px; margin: 10px 0 0; color: var(--muted); font-weight: 750; }
+      .goal-list { display: grid; gap: 8px; }
+      .goal {
+        display: grid; grid-template-columns: 42px 1fr auto; gap: 9px; align-items: center;
+        padding: 9px; border: 1px solid #d8c78e; border-radius: 7px; background: #fffdf5;
+      }
+      .goal-icon { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 7px; background: #e5f1ef; font-size: 22px; }
+      .goal span { color: var(--muted); font-size: 12px; }
+      .goal b { font-size: 14px; }
+      .order-list { display: flex; flex-wrap: wrap; gap: 6px; }
+      .order-chip { padding: 5px 8px; border: 1px solid #aec4c3; border-radius: 6px; background: white; }
+      .order-chip.done { border-color: #679c79; background: #e5f2e7; }
+      .screen-modal {
+        position: fixed; z-index: 20; inset: 0; overflow: auto; padding: 18px; background: rgba(7,24,30,.76);
+      }
+      .screen-modal[hidden] { display: none; }
+      .screen-card { width: min(980px, 100%); margin: 0 auto; padding: 20px; border-radius: 8px; background: #f7faf7; }
+      .loadout-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+      .loadout-button { min-height: 92px; text-align: left; }
+      .loadout-button strong, .loadout-button span { display: block; }
+      .loadout-button span { margin-top: 5px; color: var(--muted); font-size: 12px; }
+      .loadout-button.active { border-color: var(--teal); box-shadow: inset 0 0 0 2px var(--teal); }
+      .cabinet-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+      .cabinet-card { min-height: 96px; text-align: left; }
+      .cabinet-card strong, .cabinet-card span { display: block; }
+      .cabinet-card span { margin-top: 5px; color: var(--muted); font-size: 12px; }
+      .cabinet-card.active { border-color: var(--coral); box-shadow: inset 0 0 0 2px var(--coral); }
+      .archive-box { width: 100%; min-height: 150px; resize: vertical; padding: 10px; border: 1px solid #9db5b5; border-radius: 7px; }
+      .collection { display: grid; grid-template-columns: repeat(8, 1fr); gap: 7px; }
+      .collection span { display: grid; place-items: center; min-height: 42px; border: 1px solid #c3d3d2; border-radius: 6px; background: white; font-size: 22px; }
+      .collection span.locked { filter: grayscale(1); opacity: .32; }
+      @media (max-width: 900px) {
+        .layout { grid-template-columns: 1fr; }
+        .machine-panel { min-height: 590px; }
+        .side-panel { grid-template-columns: 1fr 1fr; }
+      }
+      @media (max-width: 620px) {
+        .app-shell { width: min(100vw - 16px, 620px); margin: 8px auto 18px; }
+        .topbar { display: grid; padding: 13px; }
+        h1 { font-size: 34px; }
+        .top-actions { display: grid; grid-template-columns: repeat(3, 1fr); }
+        .top-actions button { width: auto; padding: 8px; }
+        .contract-strip { grid-template-columns: 1fr auto; }
+        .contract-strip > div:first-child { grid-column: 1 / -1; }
+        .machine-panel { height: 600px; min-height: 0; aspect-ratio: auto; }
+        .hud { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .confidence { top: 155px; }
+        .side-panel { grid-template-columns: 1fr; }
+        .loadout-grid, .cabinet-grid { grid-template-columns: 1fr; }
+        .collection { grid-template-columns: repeat(4, 1fr); }
+        .result-grid { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
         <div>
-          <h1 style="margin: 0">爪爪嘉年华</h1>
-          <div class="help">
-            左右移动机械爪，判断摆动位置后下爪；收集十二种奖品并升级爪力和稳定器。
+          <p class="eyebrow">固定机台 · 确定性抓力 · 收藏巡回</p>
+          <h1>万象爪局</h1>
+        </div>
+        <div class="top-actions">
+          <button id="cabinetButton" type="button">柜台</button>
+          <button id="archiveButton" type="button">档案</button>
+          <button id="startTop" class="primary" type="button">开局</button>
+          <button id="pauseButton" type="button">暂停</button>
+          <button id="muteButton" class="icon-button" type="button" title="音效" aria-label="音效">♪</button>
+        </div>
+      </header>
+
+      <section class="contract-strip" aria-label="当前收藏委托">
+        <div><strong id="cabinetName">1. 晨光软偶柜</strong><span id="cabinetRule">基础抓力与低摆幅教学</span></div>
+        <div><strong id="loadoutName">校准员 · 平衡爪</strong><span id="contractGoals">完成订单 · 参考币数 · 柜台挑战</span></div>
+        <div class="contract-stars" id="cabinetStars">☆☆☆</div>
+      </section>
+
+      <main class="layout">
+        <section class="machine-panel" id="machinePanel" aria-label="万象爪局抓取机台">
+          <canvas id="gameCanvas"></canvas>
+          <div class="hud">
+            <div class="stat"><span>代币</span><b id="tokenText">0</b></div>
+            <div class="stat"><span>委托</span><b id="orderText">0/0</b></div>
+            <div class="stat"><span>得分</span><b id="scoreText">0</b></div>
+            <div class="stat"><span>连抓</span><b id="comboText">x0</b></div>
+            <div class="stat"><span>摆幅</span><b id="swingText">稳</b></div>
           </div>
-        </div>
-        <div>
-          代币 <b id="tokens"></b>　图鉴 <b id="dex"></b>/12　连抓
-          <b id="combo"></b>
-        </div>
-      </div>
-      <div class="machine" id="machine">
-        <div class="rail"></div>
-        <div class="claw" id="claw">🪝</div>
-        <div class="chute">出口</div>
-      </div>
-      <div class="row">
-        <div>
-          <button id="left">◀ 左移</button
-          ><button class="drop" id="drop">下爪</button
-          ><button id="right">右移 ▶</button>
-        </div>
-        <div>
-          <button id="power">爪力升级（8）</button
-          ><button id="steady">稳定器（10）</button
-          ><button id="refill">补充代币（重开）</button>
-        </div>
-        <span id="msg"></span>
-      </div>
-      <div class="collection" id="collection"></div>
-    </section>
-  </main>
-  <script>
-    const P = [
-      "🧸",
-      "🐰",
-      "🐼",
-      "🦊",
-      "🐸",
-      "🐙",
-      "🦄",
-      "🐳",
-      "🐥",
-      "🐨",
-      "🐯",
-      "🐲",
-    ];
-    let q,
-      busy = false;
-    const $ = (x) => document.getElementById(x);
-    function fresh() {
-      return {
-        tokens: 18,
-        x: 50,
-        power: 1,
-        steady: 0,
-        combo: 0,
-        seen: {},
-        prizes: [],
-      };
-    }
-    function fill() {
-      while (q.prizes.length < 14)
-        q.prizes.push({
-          id: Math.floor(Math.random() * P.length),
-          x: 12 + Math.random() * 80,
-          y: 65 + Math.random() * 22,
-          caught: false,
-        });
-      draw();
-    }
-    function move(d) {
-      if (busy) return;
-      q.x = Math.max(5, Math.min(90, q.x + d * (q.steady ? 4 : 7)));
-      draw();
-    }
-    function grab() {
-      if (busy || q.tokens <= 0) return;
-      q.tokens--;
-      busy = true;
-      claw.style.top = "300px";
-      let candidates = q.prizes
-        .filter((p) => !p.caught && Math.abs(p.x - q.x) < 7 + q.power * 2)
-        .sort((a, b) => Math.abs(a.x - q.x) - Math.abs(b.x - q.x));
-      setTimeout(() => {
-        let p = candidates[0],
-          chance = 0.38 + q.power * 0.13 + (q.steady ? 0.12 : 0);
-        if (p && Math.random() < chance) {
-          p.caught = true;
-          q.seen[p.id] = (q.seen[p.id] || 0) + 1;
-          q.combo++;
-          msg.textContent = `抓到 ${P[p.id]}！连抓 ${q.combo}`;
-          setTimeout(() => {
-            q.prizes = q.prizes.filter((x) => x !== p);
-            fill();
-          }, 450);
-        } else {
-          q.combo = 0;
-          msg.textContent = "奖品滑落了，再调整位置。";
+          <div class="confidence">
+            <div><span>当前抓取余量</span><b id="confidenceText">--</b></div>
+            <meter id="confidenceMeter" min="0" max="1" value="0"></meter>
+          </div>
+          <div class="touch-controls">
+            <button id="leftButton" type="button" title="左移" aria-label="左移">←</button>
+            <button id="dropButton" class="drop-button" type="button" title="下爪" aria-label="下爪">↓</button>
+            <button id="rightButton" type="button" title="右移" aria-label="右移">→</button>
+            <button id="brakeButton" type="button" title="稳爪" aria-label="稳爪">◎</button>
+          </div>
+
+          <div class="overlay" id="readyOverlay">
+            <div class="dialog">
+              <p class="eyebrow">COLLECTION CONTRACT</p>
+              <h2 id="readyTitle">晨光软偶柜</h2>
+              <p id="readyText"></p>
+              <div class="button-row">
+                <button id="startButton" class="primary" type="button">投入代币</button>
+                <button id="selectButton" type="button">选择柜台</button>
+              </div>
+            </div>
+          </div>
+          <div class="overlay" id="pauseOverlay" hidden>
+            <div class="dialog"><h2>机台暂停</h2><p>机械爪已锁在导轨上。</p><div class="button-row"><button id="resumeButton" class="primary" type="button">继续</button><button id="restartPause" type="button">重开</button></div></div>
+          </div>
+          <div class="overlay" id="resultOverlay" hidden>
+            <div class="dialog">
+              <p class="eyebrow">CABINET REPORT</p><h2 id="resultTitle">委托结算</h2><p id="resultText"></p>
+              <div class="result-grid"><div><span>评价</span><b id="resultStars">☆☆☆</b></div><div><span>使用代币</span><b id="resultTurns">0</b></div><div><span>收藏分</span><b id="resultScore">0</b></div></div>
+              <div class="button-row"><button id="retryButton" class="primary" type="button">重抓本柜</button><button id="nextButton" type="button">下一柜</button></div>
+            </div>
+          </div>
+        </section>
+
+        <aside class="side-panel">
+          <section class="board">
+            <h2>巡回档案</h2>
+            <div class="record-grid">
+              <div class="record"><span>当前星章</span><b id="currentStars">0/3</b></div>
+              <div class="record"><span>最佳代币</span><b id="bestTurns">--</b></div>
+              <div class="record"><span>巡回星章</span><b id="totalStars">0/36</b></div>
+              <div class="record"><span>图鉴</span><b id="dexText">0/16</b></div>
+            </div>
+            <p class="status" id="statusText">固定柜台已装载。</p>
+          </section>
+          <section class="board">
+            <h2>本柜委托</h2>
+            <div class="order-list" id="orderList"></div>
+            <div class="goal-list" id="goalList"></div>
+          </section>
+          <section class="board">
+            <h2>万象图鉴</h2>
+            <div class="collection" id="collection"></div>
+          </section>
+        </aside>
+      </main>
+    </div>
+
+    <div class="screen-modal" id="screenModal" hidden role="dialog" aria-modal="true" aria-labelledby="screenTitle">
+      <section class="screen-card">
+        <p class="eyebrow" id="screenKicker">十二柜收藏巡回</p>
+        <h2 id="screenTitle">万象柜台</h2>
+        <div id="screenBody"></div>
+      </section>
+    </div>
+
+    <script>
+      (() => {
+        "use strict";
+        const $ = (id) => document.getElementById(id);
+        const canvas = $("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const panel = $("machinePanel");
+        const ui = {
+          cabinetName: $("cabinetName"), cabinetRule: $("cabinetRule"), loadoutName: $("loadoutName"), contractGoals: $("contractGoals"), cabinetStars: $("cabinetStars"),
+          tokenText: $("tokenText"), orderText: $("orderText"), scoreText: $("scoreText"), comboText: $("comboText"), swingText: $("swingText"), confidenceText: $("confidenceText"), confidenceMeter: $("confidenceMeter"),
+          readyOverlay: $("readyOverlay"), readyTitle: $("readyTitle"), readyText: $("readyText"), pauseOverlay: $("pauseOverlay"), resultOverlay: $("resultOverlay"), resultTitle: $("resultTitle"), resultText: $("resultText"), resultStars: $("resultStars"), resultTurns: $("resultTurns"), resultScore: $("resultScore"),
+          currentStars: $("currentStars"), bestTurns: $("bestTurns"), totalStars: $("totalStars"), dexText: $("dexText"), statusText: $("statusText"), orderList: $("orderList"), goalList: $("goalList"), collection: $("collection"),
+          screenModal: $("screenModal"), screenKicker: $("screenKicker"), screenTitle: $("screenTitle"), screenBody: $("screenBody")
+        };
+
+        const PRIZES = {
+          bear: { name: "麦穗熊", icon: "🧸", kind: "soft", weight: .48, friction: .88, hold: .48, value: 130, color: "#c88952" },
+          rabbit: { name: "月耳兔", icon: "🐰", kind: "soft", weight: .42, friction: .92, hold: .44, value: 140, color: "#f1c6cc" },
+          panda: { name: "墨团熊", icon: "🐼", kind: "soft", weight: .62, friction: .8, hold: .55, value: 180, color: "#d7ddd8" },
+          fox: { name: "赤尾狐", icon: "🦊", kind: "soft", weight: .5, friction: .84, hold: .5, value: 170, color: "#df7a48" },
+          frog: { name: "荷叶蛙", icon: "🐸", kind: "soft", weight: .44, friction: .9, hold: .46, value: 150, color: "#83bd69" },
+          octopus: { name: "潮汐章", icon: "🐙", kind: "soft", weight: .58, friction: .94, hold: .53, value: 210, color: "#d66b8a" },
+          unicorn: { name: "虹角兽", icon: "🦄", kind: "soft", weight: .54, friction: .82, hold: .53, value: 230, color: "#c89ed4" },
+          whale: { name: "蓝湾鲸", icon: "🐳", kind: "wide", weight: .72, friction: .76, hold: .64, value: 260, color: "#5f9dc5" },
+          chick: { name: "晨鸣鸟", icon: "🐥", kind: "soft", weight: .32, friction: .96, hold: .38, value: 110, color: "#edc84d" },
+          koala: { name: "银桉熊", icon: "🐨", kind: "soft", weight: .56, friction: .86, hold: .52, value: 190, color: "#9ea9aa" },
+          tiger: { name: "虎纹团", icon: "🐯", kind: "soft", weight: .64, friction: .79, hold: .58, value: 220, color: "#df9b3e" },
+          dragon: { name: "云鳞龙", icon: "🐲", kind: "wide", weight: .68, friction: .75, hold: .62, value: 280, color: "#58a776" },
+          moon: { name: "月球扭蛋", icon: "🌙", kind: "round", weight: .6, friction: .48, hold: .63, value: 240, color: "#e5c86b" },
+          gem: { name: "棱晶吊坠", icon: "💎", kind: "metal", weight: .52, friction: .4, hold: .66, value: 300, color: "#55b8d0" },
+          rocket: { name: "锡壳火箭", icon: "🚀", kind: "metal", weight: .7, friction: .43, hold: .72, value: 340, color: "#d35f52" },
+          crown: { name: "巡游王冠", icon: "👑", kind: "metal", weight: .76, friction: .38, hold: .78, value: 420, color: "#d6a72c" }
+        };
+        const prizeIds = Object.keys(PRIZES);
+        const operators = {
+          calibrator: { name: "校准员", desc: "抓力均衡，移动与稳爪窗口标准。", grip: 1.03, brake: 1, guide: 1 },
+          balancer: { name: "止摆师", desc: "稳爪效率更高，适合横风与窄位。", grip: .98, brake: 1.62, guide: 1.08 },
+          lifter: { name: "重载手", desc: "抓力更强，但移动会产生更大摆幅。", grip: 1.14, brake: .82, guide: .94 }
+        };
+        const heads = {
+          balanced: { name: "平衡爪", desc: "标准开口与抓力，适合软偶。", width: .061, grip: 1.02, magnet: 0, swing: 1 },
+          wide: { name: "展翼爪", desc: "开口更宽，重物抓力略低。", width: .079, grip: .95, magnet: 0, swing: .93 },
+          magnet: { name: "磁芯爪", desc: "金属奖品获得额外吸附，开口较窄。", width: .054, grip: .9, magnet: .48, swing: 1.05 }
+        };
+        const cabinets = [
+          { id: "morning-plush", region: "晨光街", name: "晨光软偶柜", seed: 1103, limit: 7, par: 3, grip: 1.02, drift: 0, density: .72, needs: ["bear", "chick"], challenge: { type: "clean", value: 0, label: "全程零滑落" }, rule: "低摆幅与松软奖品用于熟悉对位。", ref: ["calibrator", "balanced"] },
+          { id: "leaf-corner", region: "晨光街", name: "叶影窄角柜", seed: 2207, limit: 8, par: 4, grip: .98, drift: .08, density: .78, needs: ["rabbit", "frog", "panda"], challenge: { type: "precision", value: .78, label: "平均对位至少 78%" }, rule: "奖品间距缩窄，移动后要先压住摆幅。", ref: ["balancer", "wide"] },
+          { id: "moon-capsule", region: "晨光街", name: "月相扭蛋柜", seed: 3313, limit: 7, par: 3, grip: .94, drift: -.12, density: .8, needs: ["moon", "gem"], challenge: { type: "score", value: 520, label: "收藏分达到 520" }, rule: "圆壳低摩擦，磁芯爪能稳住棱晶。", ref: ["calibrator", "magnet"] },
+          { id: "tide-soft", region: "潮声港", name: "潮声软体柜", seed: 4421, limit: 8, par: 4, grip: .96, drift: .16, density: .86, needs: ["fox", "octopus", "koala"], challenge: { type: "combo", value: 3, label: "达成三连抓" }, rule: "导轨持续偏摆，软体摩擦高但重心不同。", ref: ["balancer", "balanced"] },
+          { id: "blue-heavy", region: "潮声港", name: "蓝湾重偶柜", seed: 5527, limit: 8, par: 4, grip: .9, drift: -.18, density: .9, needs: ["whale", "tiger"], challenge: { type: "clean", value: 0, label: "全程零滑落" }, rule: "大体积与高重量要求展翼爪和重载抓力。", ref: ["lifter", "wide"] },
+          { id: "rainbow-stack", region: "潮声港", name: "虹堆收藏柜", seed: 6637, limit: 9, par: 5, grip: .93, drift: .14, density: .96, needs: ["unicorn", "dragon", "chick"], challenge: { type: "score", value: 600, label: "收藏分达到 600" }, rule: "密集堆位会让错误目标先进入爪口。", ref: ["lifter", "wide"] },
+          { id: "iron-rocket", region: "机械巷", name: "铁壳火箭柜", seed: 7753, limit: 8, par: 4, grip: .87, drift: -.2, density: .88, needs: ["rocket", "gem"], challenge: { type: "precision", value: .82, label: "平均对位至少 82%" }, rule: "低摩擦金属必须利用磁吸并控制摆角。", ref: ["balancer", "magnet"] },
+          { id: "mixed-material", region: "机械巷", name: "混材试验柜", seed: 8861, limit: 9, par: 5, grip: .91, drift: .22, density: 1, needs: ["panda", "moon", "rocket"], challenge: { type: "combo", value: 3, label: "达成三连抓" }, rule: "软偶、圆壳与金属要求在通用抓力中取舍。", ref: ["lifter", "magnet"] },
+          { id: "narrow-rail", region: "机械巷", name: "窄轨校准柜", seed: 9973, limit: 9, par: 5, grip: .89, drift: -.25, density: 1.04, needs: ["rabbit", "fox", "gem"], challenge: { type: "clean", value: 0, label: "全程零滑落" }, rule: "导轨响应更快，停爪时机会直接改变落点。", ref: ["balancer", "balanced"] },
+          { id: "crown-vault", region: "巡游宫", name: "王冠秘藏柜", seed: 10091, limit: 9, par: 5, grip: .84, drift: .27, density: .98, needs: ["crown", "tiger"], challenge: { type: "score", value: 640, label: "收藏分达到 640" }, rule: "王冠又重又滑，磁吸只能补偿部分抓力。", ref: ["lifter", "magnet"] },
+          { id: "four-emblems", region: "巡游宫", name: "四象徽记柜", seed: 11213, limit: 10, par: 6, grip: .86, drift: -.28, density: 1.08, needs: ["dragon", "whale", "moon", "rocket"], challenge: { type: "precision", value: .8, label: "平均对位至少 80%" }, rule: "四类外形混排，拥挤位置考验目标识别。", ref: ["lifter", "wide"] },
+          { id: "grand-parade", region: "巡游宫", name: "万象终演柜", seed: 12347, limit: 11, par: 7, grip: .82, drift: .3, density: 1.12, needs: ["crown", "unicorn", "octopus", "panda"], challenge: { type: "combo", value: 4, label: "达成四连抓" }, rule: "最强摆幅与最低基础抓力验收整轮技巧。", ref: ["lifter", "magnet"] }
+        ];
+
+        const saveKey = "claw-carnival-campaign-v2";
+        const archivePrefix = "CLAW2";
+        let width = 1, height = 1, dpr = 1, lastTime = 0, raf = 0, audioCtx = null, muted = false;
+        let profile = loadProfile();
+        let mode = "ready";
+        let run = makeRun();
+        let claw = makeClaw();
+        const held = { left: false, right: false, brake: false };
+
+        function freshProfile() {
+          return { version: 2, cabinet: 0, operator: "calibrator", head: "balanced", stars: Array(cabinets.length).fill(0), bestTurns: Array(cabinets.length).fill(0), dex: {}, badges: [] };
         }
-        claw.style.top = "28px";
-        busy = false;
-        draw();
-      }, 520);
-    }
-    function upgrade(k, cost) {
-      if (q.tokens < cost) return;
-      q.tokens -= cost;
-      q[k]++;
-      draw();
-    }
-    function draw() {
-      tokens.textContent = q.tokens;
-      dex.textContent = Object.keys(q.seen).length;
-      combo.textContent = q.combo;
-      claw.style.left = q.x + "%";
-      machine.querySelectorAll(".prize").forEach((e) => e.remove());
-      q.prizes.forEach((p) => {
-        let e = document.createElement("span");
-        e.className = "prize";
-        e.textContent = P[p.id];
-        e.style.left = p.x + "%";
-        e.style.top = p.y + "%";
-        if (p.caught) {
-          e.style.left = "5%";
-          e.style.top = "78%";
+        function sanitizeProfile(value) {
+          const clean = freshProfile();
+          if (!value || typeof value !== "object") return clean;
+          clean.cabinet = clamp(Math.floor(Number(value.cabinet) || 0), 0, cabinets.length - 1);
+          clean.operator = operators[value.operator] ? value.operator : "calibrator";
+          clean.head = heads[value.head] ? value.head : "balanced";
+          clean.stars = clean.stars.map((_, i) => clamp(Math.floor(Number(value.stars?.[i]) || 0), 0, 3));
+          clean.bestTurns = clean.bestTurns.map((_, i) => Math.max(0, Math.floor(Number(value.bestTurns?.[i]) || 0)));
+          clean.dex = Object.fromEntries(Object.entries(value.dex || {}).filter(([id, count]) => PRIZES[id] && Number(count) > 0).map(([id, count]) => [id, Math.min(999, Math.floor(Number(count)))]));
+          clean.badges = Array.isArray(value.badges) ? [...new Set(value.badges.filter((id) => typeof id === "string"))].slice(0, 8) : [];
+          return clean;
         }
-        machine.append(e);
-      });
-      collection.innerHTML = P.map(
-        (p, i) =>
-          `<span class="tag">${q.seen[i] ? p : "❔"} ×${q.seen[i] || 0}</span>`,
-      ).join("");
-      power.textContent = `爪力 Lv.${q.power}（8）`;
-      steady.textContent = `稳定器 Lv.${q.steady}（10）`;
-    }
-    left.onclick = () => move(-1);
-    right.onclick = () => move(1);
-    drop.onclick = grab;
-    addEventListener("keydown", (e) => {
-      if (e.key === "ArrowLeft") move(-1);
-      if (e.key === "ArrowRight") move(1);
-      if (e.key === " ") grab();
-    });
-    power.onclick = () => upgrade("power", 8);
-    steady.onclick = () => upgrade("steady", 10);
-    refill.onclick = () => {
-      q = fresh();
-      fill();
-    };
-    q = fresh();
-    fill();
-  </script>
+        function checksum(text) {
+          let hash = 2166136261;
+          for (let i = 0; i < text.length; i += 1) { hash ^= text.charCodeAt(i); hash = Math.imul(hash, 16777619); }
+          return (hash >>> 0).toString(36);
+        }
+        function encodeArchive(value = profile) {
+          const bytes = new TextEncoder().encode(JSON.stringify(sanitizeProfile(value)));
+          let binary = "";
+          for (const byte of bytes) binary += String.fromCharCode(byte);
+          const payload = btoa(binary).replace(/=+$/g, "").replace(/\+/g, "-").replace(/\//g, "_");
+          return `${archivePrefix}.${payload}.${checksum(payload)}`;
+        }
+        function decodeArchive(code) {
+          const [prefix, payload, signature] = String(code || "").trim().split(".");
+          if (prefix !== archivePrefix || !payload || checksum(payload) !== signature) throw new Error("档案校验失败");
+          const padded = payload.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((payload.length + 3) % 4);
+          const bytes = Uint8Array.from(atob(padded), (char) => char.charCodeAt(0));
+          return sanitizeProfile(JSON.parse(new TextDecoder().decode(bytes)));
+        }
+        function loadProfile() {
+          try { return sanitizeProfile(JSON.parse(localStorage.getItem(saveKey) || "null")); } catch { return freshProfile(); }
+        }
+        function saveProfile() { localStorage.setItem(saveKey, JSON.stringify(profile)); }
+        function currentCabinet() { return cabinets[profile.cabinet] || cabinets[0]; }
+        function currentOperator() { return operators[profile.operator] || operators.calibrator; }
+        function currentHead() { return heads[profile.head] || heads.balanced; }
+        function totalStars() { return profile.stars.reduce((sum, value) => sum + value, 0); }
+        function isCabinetUnlocked(index) { return index === 0 || profile.stars[index - 1] > 0; }
+        function operatorUnlocked(id) { return id === "calibrator" || (id === "balancer" ? totalStars() >= 3 : totalStars() >= 9); }
+        function headUnlocked(id) { return id === "balanced" || (id === "wide" ? totalStars() >= 3 : totalStars() >= 6); }
+
+        function rng(seed) {
+          let value = seed >>> 0;
+          return () => { value = (value * 1664525 + 1013904223) >>> 0; return value / 4294967296; };
+        }
+        function buildPieces(cabinet) {
+          const random = rng(cabinet.seed);
+          const types = [...cabinet.needs];
+          while (types.length < 12) types.push(prizeIds[Math.floor(random() * prizeIds.length)]);
+          return types.map((type, index) => {
+            const column = index % 6;
+            const row = Math.floor(index / 6);
+            const spread = .137 / cabinet.density;
+            const x = clamp(.145 + column * spread + (random() - .5) * .018, .1, .9);
+            return { instance: `${cabinet.id}-${index}`, type, x, y: .7 + row * .14 + (random() - .5) * .018, tilt: (random() - .5) * .34, weightScale: .94 + random() * .12, caught: false, required: index < cabinet.needs.length };
+          }).sort((a, b) => a.x - b.x || a.y - b.y);
+        }
+        function makeRun(options = {}) {
+          const cabinet = currentCabinet();
+          return { tokens: cabinet.limit, attempts: 0, score: 0, combo: 0, bestCombo: 0, misses: 0, precisionSum: 0, precisionCount: 0, collected: {}, pieces: buildPieces(cabinet), animation: null, testing: Boolean(options.testing), result: null };
+        }
+        function makeClaw() { return { x: .5, vx: 0, swing: 0, swingV: 0, drop: 0 }; }
+        function resetRun(options = {}) { run = makeRun(options); claw = makeClaw(); releaseControls(); }
+
+        function requiredProgress() {
+          const need = currentCabinet().needs;
+          return need.filter((id) => (run.collected[id] || 0) > 0).length;
+        }
+        function orderComplete() { return requiredProgress() >= currentCabinet().needs.length; }
+        function challengeMet() {
+          const challenge = currentCabinet().challenge;
+          if (challenge.type === "clean") return run.misses <= challenge.value;
+          if (challenge.type === "precision") return run.precisionCount > 0 && run.precisionSum / run.precisionCount >= challenge.value;
+          if (challenge.type === "score") return run.score >= challenge.value;
+          if (challenge.type === "combo") return run.bestCombo >= challenge.value;
+          return false;
+        }
+        function scoreStars() { return 1 + (run.attempts <= currentCabinet().par ? 1 : 0) + (challengeMet() ? 1 : 0); }
+
+        function tipX() { return clamp(claw.x + Math.sin(claw.swing) * .055, .07, .93); }
+        function grabEvaluation(piece = nearestPiece()) {
+          if (!piece) return { success: false, confidence: 0, precision: 0, margin: -1, piece: null };
+          const prize = PRIZES[piece.type];
+          const operator = currentOperator();
+          const head = currentHead();
+          const dx = Math.abs(tipX() - piece.x);
+          const reach = head.width + (prize.kind === "wide" ? .012 : 0);
+          const precision = clamp(1 - dx / Math.max(.001, reach), 0, 1);
+          const material = prize.kind === "metal" ? head.magnet : prize.kind === "round" ? head.magnet * .28 : 0;
+          const strength = head.grip * operator.grip * currentCabinet().grip + prize.friction * .23 + precision * .31 + material;
+          const demand = prize.hold + prize.weight * piece.weightScale * .35 + Math.abs(claw.swing) * .62;
+          const margin = strength - demand;
+          return { success: dx <= reach && margin >= 0, confidence: clamp(.5 + margin * 1.25, 0, 1), precision, margin, piece };
+        }
+        function nearestPiece() {
+          const available = run.pieces.filter((piece) => !piece.caught);
+          return available.sort((a, b) => Math.abs(a.x - tipX()) - Math.abs(b.x - tipX()) || b.y - a.y)[0] || null;
+        }
+        function beginGrab() {
+          if (mode !== "running" || run.animation || run.tokens <= 0) return;
+          run.tokens -= 1;
+          run.attempts += 1;
+          const evaluation = grabEvaluation();
+          run.animation = { time: 0, evaluation };
+          beep(520, .05, "triangle", .035);
+          updateUi();
+        }
+        function applyGrab(evaluation) {
+          const { piece, success, precision } = evaluation;
+          if (success && piece && !piece.caught) {
+            piece.caught = true;
+            const prize = PRIZES[piece.type];
+            run.collected[piece.type] = (run.collected[piece.type] || 0) + 1;
+            run.combo += 1;
+            run.bestCombo = Math.max(run.bestCombo, run.combo);
+            run.precisionSum += precision;
+            run.precisionCount += 1;
+            run.score += Math.round(prize.value * (1 + Math.min(5, run.combo - 1) * .12) * (.8 + precision * .2));
+            ui.statusText.textContent = `抓稳 ${prize.icon}${prize.name}，当前 ${run.combo} 连抓。`;
+            if (!run.testing) {
+              profile.dex[piece.type] = (profile.dex[piece.type] || 0) + 1;
+              beep(760, .06, "triangle", .04);
+              beep(980, .08, "sine", .03, .06);
+            }
+          } else {
+            run.combo = 0;
+            run.misses += 1;
+            if (piece) { piece.x = clamp(piece.x + (piece.x < .5 ? .022 : -.022), .09, .91); piece.tilt *= -.7; }
+            ui.statusText.textContent = piece ? `${PRIZES[piece.type].name} 从爪口滑落，重新稳爪对位。` : "爪口落在空位。";
+            if (!run.testing) beep(190, .12, "square", .04);
+          }
+          if (orderComplete()) finishCabinet(true);
+          else if (run.tokens <= 0) finishCabinet(false);
+          else updateUi();
+        }
+        function finishCabinet(won) {
+          if (mode === "result") return;
+          mode = "result";
+          const stars = won ? scoreStars() : 0;
+          run.result = { won, stars, attempts: run.attempts, score: run.score, misses: run.misses, challenge: challengeMet() };
+          ui.resultOverlay.hidden = false;
+          ui.resultTitle.textContent = won ? `${currentCabinet().name} 委托完成` : "代币耗尽";
+          ui.resultText.textContent = won ? `订单已装箱，获得 ${stars} 枚星章。` : "订单尚未集齐，调整爪头与停爪节奏再试。";
+          ui.resultStars.textContent = "★".repeat(stars) + "☆".repeat(3 - stars);
+          ui.resultTurns.textContent = String(run.attempts);
+          ui.resultScore.textContent = String(run.score);
+          if (!run.testing && won) {
+            const index = profile.cabinet;
+            profile.stars[index] = Math.max(profile.stars[index], stars);
+            const best = profile.bestTurns[index];
+            profile.bestTurns[index] = best ? Math.min(best, run.attempts) : run.attempts;
+            if (!profile.badges.includes("first-catch")) profile.badges.push("first-catch");
+            if (profile.stars.every((value) => value > 0) && !profile.badges.includes("twelve-cabinets")) profile.badges.push("twelve-cabinets");
+            if (Object.keys(profile.dex).length === prizeIds.length && !profile.badges.includes("grand-dex")) profile.badges.push("grand-dex");
+            saveProfile();
+          }
+          if (!run.testing) updateUi();
+        }
+
+        function prepareCabinet() {
+          resetRun();
+          mode = "ready";
+          ui.readyOverlay.hidden = false; ui.pauseOverlay.hidden = true; ui.resultOverlay.hidden = true;
+          ui.readyTitle.textContent = currentCabinet().name;
+          ui.readyText.textContent = `${currentCabinet().rule} 本柜需要 ${currentCabinet().needs.map((id) => `${PRIZES[id].icon}${PRIZES[id].name}`).join("、")}。`;
+          ui.statusText.textContent = "固定柜台已装载。";
+          updateUi(); draw();
+        }
+        function startCabinet(options = {}) {
+          if (!options.testing) ensureAudio();
+          resetRun(options); mode = "running";
+          ui.readyOverlay.hidden = true; ui.pauseOverlay.hidden = true; ui.resultOverlay.hidden = true;
+          ui.statusText.textContent = `${currentCabinet().name} 已投入代币。`;
+          if (!run.testing) { beep(420, .06, "triangle", .035); updateUi(); }
+        }
+        function pause() { if (mode !== "running") return; mode = "paused"; ui.pauseOverlay.hidden = false; releaseControls(); }
+        function resume() { if (mode !== "paused") return; mode = "running"; ui.pauseOverlay.hidden = true; lastTime = performance.now(); }
+        function nextCabinet() {
+          const next = Math.min(cabinets.length - 1, profile.cabinet + 1);
+          if (next !== profile.cabinet && isCabinetUnlocked(next)) { profile.cabinet = next; saveProfile(); prepareCabinet(); }
+          else showCabinets();
+        }
+
+        function updatePhysics(dt) {
+          if (mode !== "running") return;
+          const operator = currentOperator();
+          const head = currentHead();
+          const direction = Number(held.right) - Number(held.left);
+          const accel = 1.72 * head.swing;
+          claw.vx += direction * accel * dt;
+          if (!direction) claw.vx *= Math.pow(.045, dt);
+          if (held.brake) claw.vx *= Math.pow(.003, dt);
+          claw.vx = clamp(claw.vx, -.42, .42);
+          claw.x += claw.vx * dt;
+          if (claw.x < .08 || claw.x > .92) { claw.x = clamp(claw.x, .08, .92); claw.vx *= -.18; }
+          claw.swingV += (-claw.swing * 8.8 - claw.vx * 5.8 + currentCabinet().drift * .22) * dt;
+          claw.swingV *= Math.pow(held.brake ? .018 / operator.brake : .46, dt);
+          claw.swing += claw.swingV * dt;
+          claw.swing = clamp(claw.swing, -.72, .72);
+          if (run.animation) {
+            run.animation.time += dt;
+            const t = run.animation.time;
+            claw.drop = t < .48 ? ease(t / .48) : t < .96 ? 1 - ease((t - .48) / .48) : 0;
+            if (t >= 1.02) { const evaluation = run.animation.evaluation; run.animation = null; claw.drop = 0; applyGrab(evaluation); }
+          }
+        }
+        function ease(t) { return 1 - Math.pow(1 - clamp(t, 0, 1), 3); }
+        function update(timestamp) {
+          if (!lastTime) lastTime = timestamp;
+          const dt = Math.min(.033, (timestamp - lastTime) / 1000 || 0);
+          lastTime = timestamp;
+          updatePhysics(dt); draw();
+          if (mode === "running" && !run.testing) updateUi();
+          raf = requestAnimationFrame(update);
+        }
+
+        function resize() {
+          const rect = panel.getBoundingClientRect();
+          dpr = Math.min(window.devicePixelRatio || 1, 2);
+          width = Math.max(320, Math.floor(rect.width));
+          height = Math.max(480, Math.floor(rect.height));
+          canvas.width = Math.floor(width * dpr); canvas.height = Math.floor(height * dpr);
+          canvas.style.width = `${width}px`; canvas.style.height = `${height}px`;
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0); draw();
+        }
+        function draw() {
+          ctx.clearRect(0, 0, width, height);
+          const sky = ctx.createLinearGradient(0, 0, 0, height);
+          sky.addColorStop(0, "#a8dcda"); sky.addColorStop(.65, "#d9eeea"); sky.addColorStop(1, "#e9dca8");
+          ctx.fillStyle = sky; ctx.fillRect(0, 0, width, height);
+          drawCabinet(); drawPieces(); drawClaw(); drawChute();
+        }
+        function drawCabinet() {
+          ctx.fillStyle = "#174a56"; ctx.fillRect(0, 0, width, 18);
+          ctx.fillStyle = "#f4f2e8"; ctx.fillRect(width * .07, height * .17, width * .86, 10);
+          ctx.fillStyle = "#3c777c"; ctx.fillRect(width * .08, height * .185, width * .84, 4);
+          ctx.fillStyle = "rgba(255,255,255,.2)"; ctx.fillRect(width * .07, height * .19, width * .012, height * .57);
+          ctx.fillStyle = "#5c7778"; ctx.fillRect(0, height * .89, width, height * .11);
+          ctx.fillStyle = "rgba(255,255,255,.18)";
+          for (let i = 0; i < 14; i += 1) { const x = ((i * 79 + currentCabinet().seed) % 1000) / 1000 * width; const y = height * (.25 + ((i * 47) % 500) / 1000); ctx.beginPath(); ctx.arc(x, y, 2 + i % 3, 0, Math.PI * 2); ctx.fill(); }
+        }
+        function drawPieces() {
+          const caught = run.animation?.evaluation.success ? run.animation.evaluation.piece : null;
+          for (const piece of run.pieces) {
+            if (piece.caught) continue;
+            let x = piece.x * width, y = piece.y * height;
+            if (piece === caught) { x = tipX() * width; y = height * (.24 + claw.drop * .46); }
+            const prize = PRIZES[piece.type];
+            ctx.save(); ctx.translate(x, y); ctx.rotate(piece.tilt);
+            ctx.fillStyle = "rgba(12,42,50,.14)"; ctx.beginPath(); ctx.ellipse(0, 24, 29, 8, 0, 0, Math.PI * 2); ctx.fill();
+            ctx.font = `${Math.max(34, Math.min(54, width * .052))}px "Segoe UI Emoji", sans-serif`;
+            ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(prize.icon, 0, 0);
+            if (piece.required && !(run.collected[piece.type] > 0)) { ctx.strokeStyle = "#d65f4a"; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(0, 1, 30, 0, Math.PI * 2); ctx.stroke(); }
+            ctx.restore();
+          }
+        }
+        function drawClaw() {
+          const railY = height * .17;
+          const anchorX = claw.x * width;
+          const cableLength = height * (.08 + claw.drop * .47);
+          const angle = claw.swing;
+          const tip = { x: anchorX + Math.sin(angle) * cableLength, y: railY + Math.cos(angle) * cableLength };
+          ctx.strokeStyle = "#27383d"; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(anchorX, railY); ctx.lineTo(tip.x, tip.y); ctx.stroke();
+          ctx.fillStyle = "#d7a92c"; roundRect(anchorX - 22, railY - 10, 44, 22, 5); ctx.fill();
+          ctx.save(); ctx.translate(tip.x, tip.y); ctx.rotate(-angle * .35);
+          ctx.strokeStyle = "#25363a"; ctx.lineWidth = 6; ctx.lineCap = "round";
+          ctx.beginPath(); ctx.moveTo(0, -7); ctx.lineTo(0, 12); ctx.moveTo(0, 8); ctx.quadraticCurveTo(-25, 14, -30, 34); ctx.moveTo(0, 8); ctx.quadraticCurveTo(25, 14, 30, 34); ctx.stroke();
+          if (profile.head === "magnet") { ctx.fillStyle = "#d65f4a"; ctx.fillRect(-10, 9, 20, 9); }
+          ctx.restore();
+          ctx.strokeStyle = "rgba(214,95,74,.75)"; ctx.lineWidth = 2; ctx.setLineDash([5, 5]); ctx.beginPath(); ctx.moveTo(tipX() * width, tip.y + 30); ctx.lineTo(tipX() * width, height * .87); ctx.stroke(); ctx.setLineDash([]);
+        }
+        function drawChute() {
+          const w = Math.min(130, width * .18), h = Math.min(82, height * .13), x = 18, y = height - h - 22;
+          ctx.fillStyle = "#173f49"; roundRect(x, y, w, h, 7); ctx.fill();
+          ctx.strokeStyle = "#f4d06a"; ctx.lineWidth = 3; ctx.stroke();
+          ctx.fillStyle = "white"; ctx.font = "700 15px system-ui"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText("取物口", x + w / 2, y + h / 2);
+        }
+        function roundRect(x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+
+        function challengeValue() {
+          const challenge = currentCabinet().challenge;
+          if (challenge.type === "clean") return run.misses === 0 ? 1 : 0;
+          if (challenge.type === "precision") return run.precisionCount ? run.precisionSum / run.precisionCount : 0;
+          if (challenge.type === "score") return run.score;
+          if (challenge.type === "combo") return run.bestCombo;
+          return 0;
+        }
+        function updateUi() {
+          const cabinet = currentCabinet();
+          const evaluation = grabEvaluation();
+          ui.cabinetName.textContent = `${profile.cabinet + 1}. ${cabinet.name}`;
+          ui.cabinetRule.textContent = cabinet.rule;
+          ui.loadoutName.textContent = `${currentOperator().name} · ${currentHead().name}`;
+          ui.contractGoals.textContent = `集齐 ${cabinet.needs.length} 件 · ${cabinet.par} 币内 · ${cabinet.challenge.label}`;
+          const savedStars = profile.stars[profile.cabinet] || 0;
+          ui.cabinetStars.textContent = "★".repeat(savedStars) + "☆".repeat(3 - savedStars);
+          ui.tokenText.textContent = String(run.tokens); ui.orderText.textContent = `${requiredProgress()}/${cabinet.needs.length}`; ui.scoreText.textContent = String(run.score); ui.comboText.textContent = `x${run.combo}`;
+          const swing = Math.abs(claw.swing); ui.swingText.textContent = swing < .08 ? "稳" : swing < .24 ? "微摆" : "大摆";
+          ui.confidenceMeter.value = evaluation.confidence; ui.confidenceText.textContent = evaluation.piece ? `${PRIZES[evaluation.piece.type].icon} ${Math.round(evaluation.confidence * 100)}%` : "--";
+          ui.currentStars.textContent = `${savedStars}/3`; ui.bestTurns.textContent = profile.bestTurns[profile.cabinet] || "--"; ui.totalStars.textContent = `${totalStars()}/36`; ui.dexText.textContent = `${Object.keys(profile.dex).length}/16`;
+          ui.orderList.innerHTML = cabinet.needs.map((id) => `<span class="order-chip ${(run.collected[id] || 0) > 0 ? "done" : ""}">${PRIZES[id].icon}${PRIZES[id].name}</span>`).join("");
+          const challenge = cabinet.challenge;
+          const challengeDisplay = challenge.type === "precision" ? `${Math.round(challengeValue() * 100)}%` : challenge.type === "clean" ? `${run.misses} 次滑落` : String(Math.round(challengeValue()));
+          ui.goalList.innerHTML = `
+            <div class="goal"><span class="goal-icon">箱</span><div><b>完成收藏订单</b><span>集齐本柜指定奖品</span></div><b>${requiredProgress()}/${cabinet.needs.length}</b></div>
+            <div class="goal"><span class="goal-icon">币</span><div><b>${cabinet.par} 枚代币内</b><span>减少空抓与滑落</span></div><b>${run.attempts}</b></div>
+            <div class="goal"><span class="goal-icon">星</span><div><b>${challenge.label}</b><span>本柜附加挑战</span></div><b>${challengeDisplay}</b></div>`;
+          ui.collection.innerHTML = prizeIds.map((id) => `<span class="${profile.dex[id] ? "" : "locked"}" title="${PRIZES[id].name}">${profile.dex[id] ? PRIZES[id].icon : "?"}</span>`).join("");
+        }
+
+        function showCabinets() {
+          ui.screenKicker.textContent = "操作员、爪头与十二台固定柜"; ui.screenTitle.textContent = "万象爪局巡回";
+          ui.screenBody.innerHTML = `
+            <h3>操作员</h3><div class="loadout-grid">${Object.entries(operators).map(([id, value]) => `<button class="loadout-button ${profile.operator === id ? "active" : ""}" data-operator="${id}" ${operatorUnlocked(id) ? "" : "disabled"}><strong>${value.name}</strong><span>${value.desc}${operatorUnlocked(id) ? "" : " · 星章不足"}</span></button>`).join("")}</div>
+            <h3>机械爪头</h3><div class="loadout-grid">${Object.entries(heads).map(([id, value]) => `<button class="loadout-button ${profile.head === id ? "active" : ""}" data-head="${id}" ${headUnlocked(id) ? "" : "disabled"}><strong>${value.name}</strong><span>${value.desc}${headUnlocked(id) ? "" : " · 星章不足"}</span></button>`).join("")}</div>
+            <h3>收藏柜台</h3><div class="cabinet-grid">${cabinets.map((cabinet, index) => `<button class="cabinet-card ${profile.cabinet === index ? "active" : ""}" data-cabinet="${index}" ${isCabinetUnlocked(index) ? "" : "disabled"}><strong>${index + 1}. ${cabinet.name}　${"★".repeat(profile.stars[index])}${"☆".repeat(3 - profile.stars[index])}</strong><span>${cabinet.region} · ${cabinet.rule}</span></button>`).join("")}</div>
+            <button id="closeScreen" class="primary" type="button">返回当前柜台</button>`;
+          ui.screenModal.hidden = false;
+          ui.screenBody.querySelectorAll("[data-operator]").forEach((button) => button.addEventListener("click", () => { profile.operator = button.dataset.operator; saveProfile(); prepareCabinet(); showCabinets(); }));
+          ui.screenBody.querySelectorAll("[data-head]").forEach((button) => button.addEventListener("click", () => { profile.head = button.dataset.head; saveProfile(); prepareCabinet(); showCabinets(); }));
+          ui.screenBody.querySelectorAll("[data-cabinet]").forEach((button) => button.addEventListener("click", () => { profile.cabinet = Number(button.dataset.cabinet); saveProfile(); ui.screenModal.hidden = true; prepareCabinet(); }));
+          $("closeScreen").addEventListener("click", () => { ui.screenModal.hidden = true; prepareCabinet(); });
+        }
+        function showArchive(message = "") {
+          ui.screenKicker.textContent = "跨设备收藏档案"; ui.screenTitle.textContent = "CLAW2 巡回档案";
+          ui.screenBody.innerHTML = `${message ? `<p><strong>${message}</strong></p>` : ""}<textarea class="archive-box" id="archiveText" aria-label="万象爪局档案码">${encodeArchive()}</textarea><div class="button-row"><button id="copyArchive" type="button">复制档案</button><button id="importArchive" type="button">导入档案</button><button id="closeArchive" class="primary" type="button">返回柜台</button></div>`;
+          ui.screenModal.hidden = false;
+          const input = $("archiveText");
+          $("copyArchive").addEventListener("click", async () => { input.select(); try { await navigator.clipboard.writeText(input.value); } catch { document.execCommand("copy"); } });
+          $("importArchive").addEventListener("click", () => { try { profile = decodeArchive(input.value); saveProfile(); prepareCabinet(); showArchive("档案已导入并通过校验"); } catch (error) { showArchive(error.message || "档案无效"); } });
+          $("closeArchive").addEventListener("click", () => { ui.screenModal.hidden = true; prepareCabinet(); });
+        }
+
+        function bindHold(button, key) {
+          button.addEventListener("pointerdown", (event) => { event.preventDefault(); button.setPointerCapture?.(event.pointerId); held[key] = true; });
+          const release = () => { held[key] = false; };
+          button.addEventListener("pointerup", release); button.addEventListener("pointercancel", release); button.addEventListener("lostpointercapture", release);
+        }
+        function releaseControls() { held.left = false; held.right = false; held.brake = false; }
+        function bindEvents() {
+          window.addEventListener("resize", resize);
+          $("cabinetButton").addEventListener("click", showCabinets); $("archiveButton").addEventListener("click", () => showArchive());
+          $("startTop").addEventListener("click", () => startCabinet()); $("startButton").addEventListener("click", () => startCabinet()); $("selectButton").addEventListener("click", showCabinets);
+          $("pauseButton").addEventListener("click", () => mode === "paused" ? resume() : pause()); $("resumeButton").addEventListener("click", resume); $("restartPause").addEventListener("click", () => startCabinet());
+          $("retryButton").addEventListener("click", () => startCabinet()); $("nextButton").addEventListener("click", nextCabinet); $("dropButton").addEventListener("click", beginGrab);
+          $("muteButton").addEventListener("click", () => { muted = !muted; $("muteButton").textContent = muted ? "×" : "♪"; ensureAudio(); });
+          bindHold($("leftButton"), "left"); bindHold($("rightButton"), "right"); bindHold($("brakeButton"), "brake");
+          canvas.addEventListener("pointerdown", (event) => { if (mode !== "running" || run.animation) return; const rect = canvas.getBoundingClientRect(); claw.x = clamp((event.clientX - rect.left) / rect.width, .08, .92); claw.vx = 0; claw.swingV += (claw.x - .5) * .18; });
+          document.addEventListener("keydown", (event) => {
+            const key = event.key.toLowerCase();
+            if (["arrowleft", "arrowright", "arrowdown", " "].includes(key)) event.preventDefault();
+            if (key === "arrowleft" || key === "a") held.left = true;
+            if (key === "arrowright" || key === "d") held.right = true;
+            if (key === "arrowdown" || key === "s") held.brake = true;
+            if ((key === " " || key === "arrowup" || key === "w") && !event.repeat) beginGrab();
+            if (key === "p" && !event.repeat) mode === "paused" ? resume() : pause();
+          });
+          document.addEventListener("keyup", (event) => { const key = event.key.toLowerCase(); if (key === "arrowleft" || key === "a") held.left = false; if (key === "arrowright" || key === "d") held.right = false; if (key === "arrowdown" || key === "s") held.brake = false; });
+        }
+        function ensureAudio() { if (!audioCtx) { const AudioContext = window.AudioContext || window.webkitAudioContext; if (AudioContext) audioCtx = new AudioContext(); } if (audioCtx?.state === "suspended") audioCtx.resume(); }
+        function beep(frequency, duration, type, gainValue, delay = 0) { if (muted || !audioCtx || run.testing) return; const oscillator = audioCtx.createOscillator(), gain = audioCtx.createGain(), start = audioCtx.currentTime + delay; oscillator.type = type; oscillator.frequency.setValueAtTime(frequency, start); gain.gain.setValueAtTime(gainValue, start); gain.gain.exponentialRampToValueAtTime(.001, start + duration); oscillator.connect(gain); gain.connect(audioCtx.destination); oscillator.start(start); oscillator.stop(start + duration); }
+        function clamp(value, min, max) { return Math.max(min, Math.min(max, value)); }
+
+        function validateContent() {
+          const generated = cabinets.map(buildPieces);
+          if (cabinets.length !== 12 || new Set(cabinets.map((cabinet) => cabinet.id)).size !== 12) throw new Error("柜台配置必须包含 12 个唯一 id");
+          if (prizeIds.length !== 16 || Object.keys(operators).length !== 3 || Object.keys(heads).length !== 3) throw new Error("图鉴或配置数据不完整");
+          if (generated.some((pieces) => pieces.length !== 12) || cabinets.some((cabinet) => cabinet.needs.some((id) => !PRIZES[id]))) throw new Error("固定奖品布局无效");
+          return { cabinets: cabinets.length, prizes: prizeIds.length, operators: Object.keys(operators).length, heads: Object.keys(heads).length, pieces: generated.reduce((sum, pieces) => sum + pieces.length, 0), uniqueSeeds: new Set(cabinets.map((cabinet) => cabinet.seed)).size };
+        }
+        function runReferenceCabinet(index) {
+          profile.cabinet = index;
+          [profile.operator, profile.head] = currentCabinet().ref;
+          startCabinet({ testing: true });
+          for (const type of currentCabinet().needs) {
+            const piece = run.pieces.find((item) => !item.caught && item.type === type);
+            if (!piece) throw new Error(`${currentCabinet().name} 缺少参考奖品 ${type}`);
+            claw.x = piece.x; claw.vx = 0; claw.swing = 0; claw.swingV = 0;
+            run.tokens -= 1; run.attempts += 1;
+            applyGrab(grabEvaluation(piece));
+          }
+          return { id: currentCabinet().id, won: Boolean(run.result?.won), stars: run.result?.stars || 0, attempts: run.attempts, score: run.score, misses: run.misses, combo: run.bestCombo, precision: run.precisionCount ? run.precisionSum / run.precisionCount : 0 };
+        }
+        window.__clawCarnivalTest = {
+          cabinets, prizes: PRIZES, operators, heads, freshProfile, encodeArchive, decodeArchive, validateContent, runReferenceCabinet,
+          begin(index = 0, operator = "calibrator", head = "balanced", options = {}) { profile.cabinet = index; profile.operator = operator; profile.head = head; startCabinet(options); },
+          aim(x) { claw.x = clamp(Number(x), .08, .92); claw.vx = 0; },
+          step(dt = 1 / 60, controls = {}) { held.left = Boolean(controls.left); held.right = Boolean(controls.right); held.brake = Boolean(controls.brake); updatePhysics(dt); },
+          dropInstant() { if (mode !== "running" || run.tokens <= 0) return null; run.tokens -= 1; run.attempts += 1; const evaluation = grabEvaluation(); applyGrab(evaluation); return { success: evaluation.success, confidence: evaluation.confidence, precision: evaluation.precision, type: evaluation.piece?.type || null }; },
+          getState() { return { mode, cabinet: profile.cabinet, operator: profile.operator, head: profile.head, x: claw.x, swing: claw.swing, tokens: run.tokens, attempts: run.attempts, score: run.score, combo: run.combo, misses: run.misses, collected: { ...run.collected }, result: run.result, pieces: run.pieces.map((piece) => ({ ...piece })) }; }
+        };
+
+        bindEvents(); resize(); prepareCabinet(); raf = requestAnimationFrame(update);
+        window.addEventListener("beforeunload", () => cancelAnimationFrame(raf));
+      })();
+    </script>
+  </body>
 </html>
