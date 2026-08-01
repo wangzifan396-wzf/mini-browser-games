@@ -1,241 +1,252 @@
 <!doctype html>
 <html lang="zh-CN">
-  <meta charset="utf-8" /><meta
-    name="viewport"
-    content="width=device-width,initial-scale=1"
-  /><title>星光造型师</title
-  ><style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      background: #25152d;
-      color: #fff0fa;
-      font-family: system-ui, "Microsoft YaHei";
-    }
-    .app {
-      min-height: 100vh;
-      padding: 14px;
-      display: grid;
-      place-items: center;
-    }
-    .shell {
-      width: min(930px, 100%);
-      background: #472653;
-      border: 1px solid #986ca0;
-      border-radius: 24px;
-      padding: 18px;
-    }
-    .top,
-    .row {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .layout {
-      display: grid;
-      grid-template-columns: 1fr 340px;
-      gap: 12px;
-      margin-top: 12px;
-    }
-    .stage {
-      min-height: 500px;
-      border-radius: 18px;
-      background: radial-gradient(circle, #f4b6dd, #6e397b 70%);
-      display: grid;
-      place-items: center;
-      text-align: center;
-    }
-    .model {
-      font-size: 120px;
-    }
-    .look {
-      font-size: 50px;
-      min-height: 70px;
-    }
-    .panel {
-      background: #321b3b;
-      border: 1px solid #785783;
-      border-radius: 11px;
-      padding: 10px;
-      margin-bottom: 9px;
-    }
-    .wardrobe {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 7px;
-    }
-    .piece {
-      min-height: 68px;
-    }
-    .piece.sel {
-      outline: 3px solid #ffe06b;
-    }
-    .theme {
-      color: #ffe073;
-    }
-    .log {
-      height: 80px;
-      overflow: auto;
-      color: #dfc4e2;
-      font-size: 13px;
-    }
-    button {
-      padding: 9px 11px;
-      border: 1px solid #a077a8;
-      border-radius: 8px;
-      background: #684273;
-      color: white;
-      font-weight: bold;
-    }
-    .submit {
-      background: #a45c31;
-    }
-    .help {
-      font-size: 13px;
-      color: #dfc7e2;
-    }
-    @media (max-width: 700px) {
-      .layout {
-        grid-template-columns: 1fr;
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta name="theme-color" content="#163d44" />
+    <title>镜前主编：十二期封面委托</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink:#17343a; --muted:#607376; --paper:#f4f2ec; --white:#fffdfa;
+        --teal:#176c72; --deep:#123e46; --red:#c65343; --gold:#dca52e; --line:#cbd4ce; --green:#3e805d;
       }
-      .stage {
-        min-height: 350px;
+      * { box-sizing:border-box; }
+      html,body { margin:0; min-height:100%; background:#dfe6df; color:var(--ink); font-family:"Segoe UI","Microsoft YaHei",system-ui,sans-serif; }
+      button,textarea { font:inherit; }
+      button { min-height:42px; border:1px solid #a9bbb5; border-radius:7px; background:var(--white); color:var(--ink); font-weight:700; cursor:pointer; }
+      button:hover { border-color:var(--teal); }
+      button:focus-visible,textarea:focus-visible { outline:3px solid rgba(220,165,46,.42); outline-offset:2px; }
+      button:disabled { opacity:.43; cursor:not-allowed; }
+      .app { min-height:100vh; }
+      .topbar { min-height:67px; padding:10px clamp(12px,3vw,32px); display:flex; align-items:center; justify-content:space-between; gap:16px; background:var(--deep); color:white; border-bottom:4px solid var(--gold); }
+      .brand h1 { margin:0; font-size:clamp(20px,2.4vw,29px); letter-spacing:0; }
+      .brand p { margin:2px 0 0; color:#c8e0dc; font-size:13px; }
+      .top-actions { display:flex; gap:7px; }
+      .top-actions button { width:43px; min-height:40px; padding:0; background:#185861; border-color:#6d9999; color:white; font-size:18px; }
+      .workspace { width:min(1320px,100%); margin:0 auto; padding:clamp(10px,2vw,22px); display:grid; grid-template-columns:minmax(360px,.82fr) minmax(520px,1.18fr); gap:clamp(12px,2vw,22px); align-items:start; }
+      .preview { overflow:hidden; border:1px solid #78918d; border-radius:8px; background:#153f46; box-shadow:0 12px 32px rgba(25,55,57,.14); }
+      .preview-head { min-height:77px; padding:13px 16px; display:flex; justify-content:space-between; align-items:center; gap:12px; color:white; background:#195b62; border-bottom:1px solid #76a3a0; }
+      .kicker { margin:0 0 3px; color:#f0c968; font-size:12px; font-weight:800; }
+      .preview-head h2 { margin:0; font-size:clamp(19px,2vw,26px); letter-spacing:0; }
+      .stars { min-width:92px; color:#ffd65b; text-align:right; font-size:25px; letter-spacing:0; }
+      .canvas-wrap { min-height:552px; display:grid; place-items:center; padding:10px; background:#d7e0d9; }
+      canvas { display:block; width:100%; max-width:560px; height:auto; aspect-ratio:4/5; }
+      .desk { display:grid; gap:11px; }
+      .section { padding:13px; border-top:4px solid var(--teal); background:var(--white); box-shadow:0 5px 17px rgba(27,54,56,.07); }
+      .section h3 { margin:0 0 9px; font-size:15px; letter-spacing:0; }
+      .brief-line { display:grid; grid-template-columns:repeat(3,1fr); border:1px solid var(--line); }
+      .brief-stat { min-width:0; padding:9px 6px; text-align:center; border-right:1px solid var(--line); }
+      .brief-stat:last-child { border-right:0; }
+      .brief-stat b { display:block; color:var(--deep); font-size:18px; }
+      .brief-stat span { display:block; margin-top:2px; color:var(--muted); font-size:11px; }
+      .brief-copy { margin:9px 0 0; color:#486165; line-height:1.5; font-size:13px; }
+      .chips { display:flex; flex-wrap:wrap; gap:5px; margin-top:8px; }
+      .chip { padding:4px 7px; border:1px solid #b5c5be; border-radius:4px; color:#36565a; background:#edf1ec; font-size:11px; }
+      .swatch { width:22px; height:22px; display:inline-block; border:2px solid white; outline:1px solid #aab6af; border-radius:4px; }
+      .score-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:5px; }
+      .score-item { min-width:0; padding:7px 4px; text-align:center; background:#edf1ec; border-bottom:3px solid #9eaea8; }
+      .score-item.good { background:#e4f1e7; border-bottom-color:var(--green); }
+      .score-item b { display:block; color:var(--deep); font-size:15px; }
+      .score-item span { color:var(--muted); font-size:10px; }
+      .score-total { margin-top:8px; display:flex; justify-content:space-between; gap:10px; color:var(--muted); font-size:12px; }
+      .score-total strong { color:var(--deep); font-size:18px; }
+      .tabs { display:grid; grid-template-columns:repeat(5,1fr); gap:5px; margin-bottom:8px; }
+      .tabs button { min-height:38px; padding:4px; font-size:12px; }
+      .tabs button.active { border-color:var(--teal); background:var(--teal); color:white; }
+      .wardrobe { min-height:222px; display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px; }
+      .piece { position:relative; min-width:0; min-height:103px; padding:8px 5px 6px; display:grid; align-content:center; justify-items:center; gap:2px; text-align:center; }
+      .piece.selected { border-color:var(--gold); box-shadow:inset 0 0 0 2px var(--gold); background:#fff7dd; }
+      .piece .icon { font-size:27px; line-height:1; }
+      .piece strong { max-width:100%; font-size:12px; overflow-wrap:anywhere; }
+      .piece small { color:var(--muted); font-size:10px; }
+      .piece .mini-swatch { position:absolute; top:6px; right:6px; width:12px; height:12px; border:1px solid rgba(20,40,40,.28); border-radius:3px; }
+      .actions { display:grid; grid-template-columns:1fr 1fr 1.3fr; gap:7px; margin-top:9px; }
+      .actions .primary { border-color:var(--red); background:var(--red); color:white; }
+      .hint-line { min-height:20px; margin-top:7px; color:var(--muted); text-align:center; font-size:12px; }
+      dialog { width:min(900px,calc(100% - 24px)); max-height:calc(100vh - 24px); padding:0; border:1px solid #6e8a86; border-radius:8px; color:var(--ink); background:var(--paper); box-shadow:0 24px 70px rgba(13,41,45,.38); }
+      dialog::backdrop { background:rgba(8,29,32,.72); }
+      .dialog-head { padding:15px 17px; display:flex; align-items:center; justify-content:space-between; gap:10px; color:white; background:var(--deep); border-bottom:4px solid var(--gold); }
+      .dialog-head h2 { margin:0; font-size:21px; letter-spacing:0; }
+      .close { width:42px; min-height:38px; padding:0; border-color:#72999a; background:#185861; color:white; font-size:21px; }
+      .dialog-body { padding:15px; overflow:auto; }
+      .issue-title { margin:15px 0 7px; color:var(--deep); font-size:14px; }
+      .issue-title:first-child { margin-top:0; }
+      .issue-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:7px; }
+      .issue { min-height:82px; padding:9px; display:grid; align-content:space-between; text-align:left; }
+      .issue.active { border-color:var(--gold); box-shadow:inset 0 0 0 2px var(--gold); }
+      .issue strong { font-size:13px; }
+      .issue span { color:var(--muted); font-size:10px; }
+      .issue em { color:#b67900; font-style:normal; font-size:16px; }
+      .archive-note { margin:0 0 9px; color:var(--muted); line-height:1.55; }
+      .archive-box { width:100%; min-height:145px; resize:vertical; padding:10px; border:1px solid #9eafa9; border-radius:6px; background:white; color:var(--ink); word-break:break-all; }
+      .dialog-actions { margin-top:10px; display:flex; justify-content:flex-end; gap:7px; flex-wrap:wrap; }
+      .dialog-actions .primary { border-color:var(--teal); background:var(--teal); color:white; }
+      .result { text-align:center; }
+      .result h3 { margin:3px 0; font-size:25px; }
+      .result-stars { margin:8px 0; color:#d68b00; font-size:45px; line-height:1; }
+      .breakdown { margin:12px 0; display:grid; grid-template-columns:repeat(5,1fr); gap:5px; }
+      .breakdown div { padding:8px 4px; background:#e9eee8; }
+      .breakdown b { display:block; color:var(--deep); }
+      .feedback { max-width:650px; margin:10px auto; color:var(--muted); line-height:1.55; }
+      @media(max-width:980px) {
+        .workspace { grid-template-columns:1fr; }
+        .canvas-wrap { min-height:0; }
+        .preview { width:min(650px,100%); margin:0 auto; }
       }
-      .app {
-        place-items: start center;
+      @media(max-width:560px) {
+        .brand h1 { font-size:16px; }
+        .brand p { display:none; }
+        .top-actions { gap:4px; }
+        .top-actions button { width:40px; }
+        .workspace { padding:8px; gap:8px; }
+        .preview-head { min-height:65px; padding:10px 12px; }
+        .canvas-wrap { padding:4px; }
+        .section { padding:10px; }
+        .score-grid { grid-template-columns:repeat(3,1fr); }
+        .score-grid .score-item:nth-child(4),.score-grid .score-item:nth-child(5) { grid-column:span 1; }
+        .tabs { grid-template-columns:repeat(5,1fr); }
+        .tabs button { padding:2px; font-size:11px; }
+        .wardrobe { grid-template-columns:repeat(2,minmax(0,1fr)); min-height:414px; }
+        .piece { min-height:96px; }
+        .issue-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+        .breakdown { grid-template-columns:repeat(3,1fr); }
       }
-    }
-  </style>
-  <main class="app">
-    <section class="shell">
-      <div class="top">
-        <div>
-          <h1 style="margin: 0">星光造型师</h1>
-          <div class="theme" id="theme"></div>
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <header class="topbar">
+        <div class="brand"><h1>镜前主编：十二期封面委托</h1><p>固定编辑简报 · 五轴透明评分 · STYLE2 主编档案</p></div>
+        <div class="top-actions">
+          <button id="issueButton" title="选择委托" aria-label="选择委托">▦</button>
+          <button id="archiveButton" title="主编档案" aria-label="主编档案">⇄</button>
+          <button id="muteButton" title="声音" aria-label="切换声音">♪</button>
         </div>
-        <div>
-          客户 <b id="client"></b>/10　声望 <b id="score"></b>　预算
-          <b id="budget"></b>
-        </div>
-      </div>
-      <div class="layout">
-        <div class="stage">
-          <div>
-            <div class="model">🧍‍♀️</div>
-            <div class="look" id="look"></div>
-            <h2 id="result"></h2>
-            <button class="submit" id="submit">完成造型</button>
-          </div>
-        </div>
-        <aside>
-          <div class="panel">
-            <b>衣橱</b>
-            <div class="wardrobe" id="wardrobe"></div>
-          </div>
-          <div class="panel">
-            <b>搭配提示</b>
-            <div class="help">
-              每件单品有风格标签。符合主题、颜色和预算会加分；三个不同类别都选择后才能提交。
+      </header>
+      <div class="workspace">
+        <section class="preview" aria-label="造型预览">
+          <div class="preview-head"><div><p class="kicker" id="chapterText"></p><h2 id="briefName"></h2></div><div class="stars" id="savedStars">☆☆☆</div></div>
+          <div class="canvas-wrap" id="canvasWrap"><canvas id="lookCanvas" width="640" height="800" aria-label="封面造型预览"></canvas></div>
+        </section>
+        <section class="desk">
+          <div class="section">
+            <h3>编辑简报</h3>
+            <div class="brief-line">
+              <div class="brief-stat"><b id="styleText">--</b><span>风格方向</span></div>
+              <div class="brief-stat"><b id="budgetText">0/0</b><span>制作预算</span></div>
+              <div class="brief-stat"><b id="totalStars">0/36</b><span>主编星章</span></div>
             </div>
+            <p class="brief-copy" id="briefCopy"></p>
+            <div class="chips" id="briefChips"></div>
           </div>
-          <div class="panel log" id="log"></div>
-          <button id="restart">新造型季</button>
-        </aside>
+          <div class="section">
+            <h3>实时审稿</h3>
+            <div class="score-grid" id="scoreGrid"></div>
+            <div class="score-total"><span id="selectionText">已选 0/5</span><span>预估 <strong id="scoreText">0</strong>/100</span></div>
+          </div>
+          <div class="section">
+            <h3>造型衣橱</h3>
+            <div class="tabs" id="slotTabs"></div>
+            <div class="wardrobe" id="wardrobe"></div>
+            <div class="actions"><button id="clearButton">清空</button><button id="hintButton">主编提示</button><button id="submitButton" class="primary">提交封面</button></div>
+            <div class="hint-line" id="hintLine">从五个类别各选一件单品</div>
+          </div>
+        </section>
       </div>
-    </section>
-  </main>
-  <script>
-    const I = [
-        ["礼服", "👗", "优雅", "红", 35, "dress"],
-        ["西装", "🤵", "正式", "黑", 40, "dress"],
-        ["夹克", "🧥", "街头", "蓝", 25, "dress"],
-        ["运动装", "🎽", "活力", "黄", 20, "dress"],
-        ["高跟鞋", "👠", "优雅", "红", 18, "shoe"],
-        ["皮鞋", "👞", "正式", "黑", 20, "shoe"],
-        ["球鞋", "👟", "街头", "白", 15, "shoe"],
-        ["短靴", "🥾", "冒险", "棕", 22, "shoe"],
-        ["皇冠", "👑", "华丽", "金", 30, "acc"],
-        ["墨镜", "🕶️", "街头", "黑", 12, "acc"],
-        ["领带", "👔", "正式", "蓝", 10, "acc"],
-        ["花束", "💐", "浪漫", "粉", 14, "acc"],
-      ],
-      themes = [
-        ["红毯首映", "优雅", "红", 80],
-        ["商业晚宴", "正式", "黑", 75],
-        ["街头音乐节", "街头", "蓝", 60],
-        ["运动广告", "活力", "黄", 55],
-        ["王室庆典", "华丽", "金", 95],
-        ["旅行大片", "冒险", "棕", 70],
-        ["浪漫约会", "浪漫", "粉", 60],
-        ["黑白封面", "正式", "黑", 80],
-        ["潮流发布", "街头", "白", 65],
-        ["年度盛典", "优雅", "金", 100],
-      ];
-    let q = { client: 0, score: 0, sel: {}, logs: [] };
-    const $ = (x) => document.getElementById(x);
-    function pick(i) {
-      let x = I[i];
-      q.sel[x[5]] = i;
-      draw();
-    }
-    function send() {
-      if (Object.keys(q.sel).length < 3) return;
-      let t = themes[q.client],
-        items = Object.values(q.sel).map((i) => I[i]),
-        cost = items.reduce((s, x) => s + x[4], 0),
-        points =
-          items.reduce(
-            (s, x) => s + (x[2] === t[1] ? 25 : 0) + (x[3] === t[2] ? 15 : 0),
-            0,
-          ) +
-          (cost <= t[3] ? 25 : -20) +
-          15;
-      q.score += points;
-      q.logs.unshift(`${t[0]}造型获得 ${points} 分，花费 ${cost}/${t[3]}。`);
-      result.textContent =
-        points >= 80
-          ? "惊艳全场！"
-          : points >= 55
-            ? "搭配成功"
-            : "主题契合不足";
-      q.client++;
-      q.sel = {};
-      if (q.client >= 10)
-        setTimeout(() => alert(`造型季结束！总声望 ${q.score}`), 50);
-      draw();
-    }
-    function draw() {
-      let t = themes[Math.min(9, q.client)];
-      client.textContent = Math.min(10, q.client + 1);
-      score.textContent = q.score;
-      budget.textContent = t[3];
-      theme.textContent = `本期主题：${t[0]} · 关键词 ${t[1]} / ${t[2]}`;
-      wardrobe.innerHTML = I.map(
-        (x, i) =>
-          `<button class="piece ${q.sel[x[5]] === i ? "sel" : ""}" data-i="${i}">${x[1]}<br><small>${x[2]}·${x[3]}·${x[4]}</small></button>`,
-      ).join("");
-      wardrobe
-        .querySelectorAll("[data-i]")
-        .forEach((e) => (e.onclick = () => pick(+e.dataset.i)));
-      look.textContent = Object.values(q.sel)
-        .map((i) => I[i][1])
-        .join(" ");
-      log.innerHTML = q.logs
-        .slice(0, 7)
-        .map((x) => `<div>• ${x}</div>`)
-        .join("");
-      submit.disabled = Object.keys(q.sel).length < 3 || q.client >= 10;
-    }
-    submit.onclick = send;
-    restart.onclick = () => {
-      q = { client: 0, score: 0, sel: {}, logs: [] };
-      result.textContent = "";
-      draw();
-    };
-    draw();
-  </script>
+    </main>
+
+    <dialog id="issueDialog"><div class="dialog-head"><h2>十二期固定委托</h2><button class="close" data-close="issueDialog" aria-label="关闭">×</button></div><div class="dialog-body" id="issueGrid"></div></dialog>
+    <dialog id="archiveDialog"><div class="dialog-head"><h2>STYLE2 主编档案</h2><button class="close" data-close="archiveDialog" aria-label="关闭">×</button></div><div class="dialog-body"><p class="archive-note" id="archiveMessage"></p><textarea class="archive-box" id="archiveText" aria-label="STYLE2 档案码"></textarea><div class="dialog-actions"><button id="copyArchive">复制</button><button id="importArchive">导入并校验</button><button class="primary" data-close="archiveDialog">返回编辑台</button></div></div></dialog>
+    <dialog id="resultDialog"><div class="dialog-head"><h2>封面审定</h2><button class="close" data-close="resultDialog" aria-label="关闭">×</button></div><div class="dialog-body result"><p class="kicker">本期审稿结果</p><h3 id="resultTitle"></h3><div class="result-stars" id="resultStars"></div><p><strong id="resultScore"></strong></p><div class="breakdown" id="resultBreakdown"></div><p class="feedback" id="resultFeedback"></p><div class="dialog-actions"><button id="retryResult">重新搭配</button><button id="nextResult" class="primary">下一期</button></div></div></dialog>
+
+    <script>
+      (()=>{
+        "use strict";
+        const COLORS={ 红:"#bd5144",黑:"#303638",白:"#f4f2e8",蓝:"#347b9c",黄:"#e3b432",金:"#c9972d",绿:"#4f8766",米:"#cdbb98",粉:"#d98fa6" };
+        const slots=[{id:"top",name:"上装"},{id:"bottom",name:"下装"},{id:"outer",name:"外套"},{id:"shoe",name:"鞋履"},{id:"acc",name:"配饰"}];
+        const items=[
+          ["silk-blouse","真丝衬衫","👚","top","粉",22,["优雅","浪漫"],"真丝","柔和"],["white-shirt","白色衬衣","👔","top","白",18,["正式","极简"],"棉","利落"],["neon-tee","霓虹短衫","👕","top","蓝",16,["街头","活力"],"机能","宽松"],["sport-top","竞速背心","🎽","top","黄",18,["活力","机能"],"机能","修身"],["velvet-top","丝绒上衣","👚","top","红",28,["华丽","优雅"],"丝绒","修身"],["linen-shirt","亚麻衬衫","👕","top","绿",20,["自然","冒险"],"亚麻","宽松"],["black-knit","黑色针织","👕","top","黑",24,["极简","正式"],"羊毛","修身"],["gold-cami","鎏金吊带","🎽","top","金",30,["华丽","派对"],"缎面","修身"],
+          ["satin-skirt","缎面长裙","👗","bottom","红",32,["优雅","浪漫"],"缎面","飘逸"],["tailored-trouser","裁剪长裤","👖","bottom","黑",30,["正式","极简"],"羊毛","利落"],["cargo-pants","工装长裤","👖","bottom","绿",24,["街头","机能"],"棉","宽松"],["sport-shorts","运动短裤","🩳","bottom","黄",16,["活力","街头"],"机能","修身"],["wide-jeans","阔腿牛仔","👖","bottom","蓝",22,["街头","自然"],"牛仔","宽松"],["linen-pants","亚麻阔裤","👖","bottom","米",25,["自然","冒险"],"亚麻","飘逸"],["sequin-skirt","亮片短裙","👗","bottom","金",34,["华丽","派对"],"亮片","修身"],["white-skirt","白色长裙","👗","bottom","白",26,["极简","优雅"],"棉","飘逸"],
+          ["red-coat","红色长衣","🧥","outer","红",45,["优雅","正式"],"羊毛","利落"],["black-blazer","黑色西装","🧥","outer","黑",38,["正式","极简"],"羊毛","利落"],["denim-jacket","牛仔夹克","🧥","outer","蓝",28,["街头","自然"],"牛仔","宽松"],["track-jacket","竞速外套","🧥","outer","黄",25,["活力","街头"],"机能","修身"],["leather-jacket","皮革夹克","🧥","outer","黑",42,["街头","派对"],"皮革","修身"],["trench","沙色风衣","🧥","outer","米",36,["冒险","正式"],"棉","利落"],["cape","鎏金披风","🦸","outer","金",48,["华丽","优雅"],"丝绒","飘逸"],["pink-cardigan","粉色开衫","🧥","outer","粉",27,["浪漫","自然"],"羊毛","宽松"],
+          ["red-heels","赤红高跟","👠","shoe","红",22,["优雅","华丽"],"皮革","修身"],["oxford","黑色牛津","👞","shoe","黑",20,["正式","极简"],"皮革","利落"],["sneaker","白色球鞋","👟","shoe","白",17,["街头","活力"],"机能","宽松"],["trail-boot","越野短靴","🥾","shoe","绿",26,["冒险","机能"],"皮革","硬朗"],["gold-pump","鎏金礼鞋","👠","shoe","金",27,["华丽","派对"],"缎面","修身"],["sandal","粉色凉鞋","👡","shoe","粉",19,["浪漫","自然"],"皮革","柔和"],["loafer","沙色便鞋","👞","shoe","米",21,["自然","正式"],"皮革","利落"],["blue-runner","蓝色跑鞋","👟","shoe","蓝",18,["活力","街头"],"机能","修身"],
+          ["pearl","珍珠耳饰","⚪","acc","白",18,["优雅","浪漫"],"珍珠","精致"],["tie","海蓝领带","👔","acc","蓝",12,["正式","极简"],"真丝","利落"],["visor","黑色墨镜","🕶️","acc","黑",14,["街头","活力"],"机能","锐利"],["utility-bag","机能挎包","🎒","acc","绿",16,["机能","冒险"],"帆布","硬朗"],["gold-crown","鎏金头饰","👑","acc","金",32,["华丽","派对"],"金属","醒目"],["pink-flower","粉色花饰","🌸","acc","粉",13,["浪漫","自然"],"花材","柔和"],["silver-watch","银色腕表","⌚","acc","白",20,["正式","活力"],"金属","精致"],["red-scarf","赤红丝巾","🧣","acc","红",15,["优雅","冒险"],"真丝","飘逸"]
+        ].map(([id,name,icon,slot,color,cost,styles,material,shape])=>({id,name,icon,slot,color,cost,styles,material,shape}));
+        const briefs=[
+          ["premiere","第一辑 · 城市封面","红毯首映","为夜间首映准备有镜头冲击力、但仍保持高级质感的全身造型。",["优雅","华丽"],["红","金","白"],155,[["top","material","丝绒"],["bottom","shape","飘逸"]],["velvet-top","satin-skirt","red-coat","red-heels","pearl"]],
+          ["boardroom","第一辑 · 城市封面","董事会特写","用克制线条建立可靠感，画面只保留冷静的黑白蓝。",["正式","极简"],["黑","白","蓝"],125,[["outer","material","羊毛"],["bottom","shape","利落"]],["white-shirt","tailored-trouser","black-blazer","oxford","tie"]],
+          ["festival","第一辑 · 城市封面","街声现场","音乐节抓拍需要自由动作感，蓝白黑构成清爽城市层次。",["街头","活力"],["蓝","白","黑"],105,[["outer","material","牛仔"],["shoe","material","机能"]],["neon-tee","wide-jeans","denim-jacket","sneaker","visor"]],
+          ["sprint","第二辑 · 动态企划","竞速广告","强调身体线条和运动机能，用黄蓝白形成高识别广告色。",["活力","街头"],["黄","蓝","白"],100,[["top","material","机能"],["outer","shape","修身"]],["sport-top","sport-shorts","track-jacket","blue-runner","silver-watch"]],
+          ["coast","第二辑 · 动态企划","海岸来信","午后海风主题需要自然松弛与柔和浪漫，避免厚重深色。",["自然","浪漫"],["粉","米","白"],116,[["bottom","material","亚麻"],["outer","shape","宽松"]],["silk-blouse","linen-pants","pink-cardigan","sandal","pearl"]],
+          ["expedition","第二辑 · 动态企划","远行者","户外故事要兼顾探索气质和真实装载能力，保持绿米黑大地色。",["冒险","机能"],["绿","米","黑"],130,[["shoe","material","皮革"],["outer","shape","利落"]],["linen-shirt","cargo-pants","trench","trail-boot","utility-bag"]],
+          ["mono","第三辑 · 银幕叙事","黑白默片","以极简结构复刻默片肖像，黑白画面中仍需保留优雅动态。",["极简","优雅"],["黑","白"],130,[["top","material","羊毛"],["bottom","shape","飘逸"]],["black-knit","white-skirt","black-blazer","oxford","pearl"]],
+          ["gala","第三辑 · 银幕叙事","午夜盛典","把华丽与派对感推到画面中心，金色材质必须经得住近景。",["华丽","派对"],["金","黑","红"],180,[["bottom","material","亮片"],["acc","material","金属"]],["gold-cami","sequin-skirt","cape","gold-pump","gold-crown"]],
+          ["urban","第三辑 · 银幕叙事","城市追光","夜行街拍要有硬朗机能层次，绿蓝黑保证街景中的统一。",["街头","机能"],["绿","蓝","黑"],130,[["outer","material","皮革"],["bottom","shape","宽松"]],["neon-tee","cargo-pants","leather-jacket","trail-boot","utility-bag"]],
+          ["heritage","第四辑 · 年度刊","旧城远游","旅行专题需要正式轮廓与冒险细节并存，材质要适合真实行走。",["正式","冒险"],["米","绿","红"],125,[["outer","material","棉"],["acc","material","真丝"]],["linen-shirt","linen-pants","trench","loafer","red-scarf"]],
+          ["romance","第四辑 · 年度刊","花信电影","浪漫电影海报以粉红白为主，让柔和材质与优雅线条共同入镜。",["浪漫","优雅"],["粉","红","白"],120,[["top","material","真丝"],["acc","material","花材"]],["silk-blouse","satin-skirt","pink-cardigan","red-heels","pink-flower"]],
+          ["finale","第四辑 · 年度刊","年度金刊","终刊封面需要同时完成华丽、优雅与材质特写，预算没有浪费空间。",["华丽","优雅"],["金","红","白"],160,[["outer","material","丝绒"],["shoe","material","缎面"]],["velvet-top","satin-skirt","cape","gold-pump","pearl"]]
+        ].map(([id,chapter,name,copy,styles,palette,budget,details,reference])=>({id,chapter,name,copy,styles,palette,budget,details:details.map(([slot,field,value])=>({slot,field,value})),reference}));
+        const byId=Object.fromEntries(items.map((item)=>[item.id,item]));
+        const ui=Object.fromEntries([...document.querySelectorAll("[id]")].map((node)=>[node.id,node]));
+        const archivePrefix="STYLE2";
+        let muted=false,audioContext=null,dpr=1,drawWidth=560,drawHeight=700;
+        let profile=loadProfile(),activeSlot="top",look=null;
+        function freshProfile(){return{version:2,issue:0,stars:Array(12).fill(0),bestScores:Array(12).fill(0),bestCosts:Array(12).fill(0),clears:Array(12).fill(0)}}
+        function normalizeProfile(value){const base=freshProfile();if(!value||typeof value!=="object")return base;base.issue=clamp(Number(value.issue)||0,0,11);for(const key of ["stars","bestScores","bestCosts","clears"]){if(Array.isArray(value[key]))base[key]=base[key].map((_,i)=>clamp(Number(value[key][i])||0,0,key==="stars"?3:99999))}return base}
+        function loadProfile(){try{return normalizeProfile(JSON.parse(localStorage.getItem("runway_stylist_v2")||"null"))}catch{return freshProfile()}}
+        function saveProfile(){localStorage.setItem("runway_stylist_v2",JSON.stringify(profile))}
+        function checksum(text){let hash=2166136261;for(let i=0;i<text.length;i+=1){hash^=text.charCodeAt(i);hash=Math.imul(hash,16777619)}return(hash>>>0).toString(36)}
+        function encodeArchive(value=profile){const json=JSON.stringify(normalizeProfile(value)),bytes=new TextEncoder().encode(json);let binary="";bytes.forEach((byte)=>binary+=String.fromCharCode(byte));const payload=btoa(binary).replaceAll("+","-").replaceAll("/","_").replaceAll("=","");return`${archivePrefix}.${payload}.${checksum(payload)}`}
+        function decodeArchive(code){const[prefix,payload,signature,...extra]=String(code).trim().split(".");if(prefix!==archivePrefix||!payload||!signature||extra.length||checksum(payload)!==signature)throw new Error("档案校验失败");try{const padded=payload.replaceAll("-","+").replaceAll("_","/")+"=".repeat((4-payload.length%4)%4),bytes=Uint8Array.from(atob(padded),(char)=>char.charCodeAt(0));return normalizeProfile(JSON.parse(new TextDecoder().decode(bytes)))}catch{throw new Error("档案内容无效")}}
+        function freshLook(testing=false){return{selection:{},hints:0,submitted:false,result:null,testing}}
+        function begin(index=profile.issue,options={}){profile.issue=clamp(index,0,11);look=freshLook(Boolean(options.testing));activeSlot="top";if(!look.testing){saveProfile();updateUi();draw()}return look}
+        function selectedItems(){return slots.map((slot)=>byId[look.selection[slot.id]]).filter(Boolean)}
+        function evaluate(selection=look.selection,index=profile.issue){
+          const brief=briefs[index],chosen=slots.map((slot)=>byId[selection[slot.id]]).filter(Boolean),complete=chosen.length===5,cost=chosen.reduce((sum,item)=>sum+item.cost,0);
+          const styleHits=brief.styles.map((style)=>chosen.some((item)=>item.styles.includes(style))),theme=Math.round(styleHits.filter(Boolean).length/brief.styles.length*30);
+          const paletteHits=chosen.filter((item)=>brief.palette.includes(item.color)).length,palette=paletteHits*4;
+          const detailHits=brief.details.map((rule)=>{const item=byId[selection[rule.slot]];return Boolean(item&&item[rule.field]===rule.value)}),details=detailHits.filter(Boolean).length*10;
+          const budget=complete?Math.max(0,15-Math.ceil(Math.max(0,cost-brief.budget)/3)):Math.round(15*chosen.length/5);
+          const coherent=chosen.filter((item)=>item.styles.some((style)=>brief.styles.includes(style))).length,cohesion=coherent*3;
+          const score=theme+palette+details+budget+cohesion;
+          return{score,cost,complete,theme,palette,details,budget,cohesion,styleHits,paletteHits,detailHits,coherent,passed:complete&&score>=70};
+        }
+        function starsFor(evaluation,hints=look.hints){if(!evaluation.passed)return 0;return 1+Number(evaluation.score>=85&&evaluation.cost<=briefs[profile.issue].budget)+Number(evaluation.score>=95&&hints===0)}
+        function selectItem(id){const item=byId[id];if(!item||look.submitted)return false;look.selection[item.slot]=id;activeSlot=item.slot;if(!look.testing){tone(360,.04,"sine",.02);updateUi();draw()}return true}
+        function clearLook(){look.selection={};look.hints=0;look.submitted=false;look.result=null;ui.hintLine.textContent="已清空当前造型";updateUi();draw()}
+        function hint(){if(look.submitted)return;const brief=briefs[profile.issue],missing=brief.reference.find((id)=>look.selection[byId[id].slot]!==id);if(!missing){ui.hintLine.textContent="当前搭配已经符合参考方向";return}look.hints+=1;selectItem(missing);activeSlot=byId[missing].slot;updateUi();ui.hintLine.textContent=`主编建议：${byId[missing].name}适合本期方向`;draw()}
+        function submit(){const evaluation=evaluate();if(!evaluation.complete){ui.hintLine.textContent="五个类别都选好后才能提交";tone(140,.06,"square",.025);return null}const stars=starsFor(evaluation);look.submitted=true;look.result={...evaluation,stars};if(!look.testing){const index=profile.issue;profile.clears[index]+=1;if(evaluation.passed){profile.stars[index]=Math.max(profile.stars[index],stars);profile.bestScores[index]=Math.max(profile.bestScores[index],evaluation.score);profile.bestCosts[index]=profile.bestCosts[index]?Math.min(profile.bestCosts[index],evaluation.cost):evaluation.cost}saveProfile();updateUi();draw();tone(evaluation.passed?523:175,.12,evaluation.passed?"triangle":"square",.04);showResult()}return look.result}
+        function unlocked(index){return index===0||(profile.stars[index-1]||0)>0}
+        function totalStars(){return profile.stars.reduce((sum,value)=>sum+value,0)}
+        function updateUi(){const brief=briefs[profile.issue],evaluation=evaluate();ui.chapterText.textContent=brief.chapter;ui.briefName.textContent=`${String(profile.issue+1).padStart(2,"0")} ${brief.name}`;ui.savedStars.textContent="★".repeat(profile.stars[profile.issue])+"☆".repeat(3-profile.stars[profile.issue]);ui.styleText.textContent=brief.styles.join(" / ");ui.budgetText.textContent=`${evaluation.cost}/${brief.budget}`;ui.totalStars.textContent=`${totalStars()}/36`;ui.briefCopy.textContent=brief.copy;ui.briefChips.innerHTML=`${brief.palette.map((color)=>`<span class="swatch" style="background:${COLORS[color]}" title="${color}"></span>`).join("")}${brief.details.map((rule)=>`<span class="chip">${slots.find((slot)=>slot.id===rule.slot).name} · ${rule.value}</span>`).join("")}`;
+          const scores=[{name:"风格",value:evaluation.theme,max:30},{name:"色盘",value:evaluation.palette,max:20},{name:"细节",value:evaluation.details,max:20},{name:"预算",value:evaluation.budget,max:15},{name:"统一",value:evaluation.cohesion,max:15}];ui.scoreGrid.innerHTML=scores.map((score)=>`<div class="score-item ${score.value===score.max?"good":""}"><b>${score.value}/${score.max}</b><span>${score.name}</span></div>`).join("");ui.selectionText.textContent=`已选 ${selectedItems().length}/5${look.hints?` · 提示 ${look.hints}`:""}`;ui.scoreText.textContent=evaluation.score;renderTabs();renderWardrobe();renderIssues();ui.submitButton.disabled=evaluation.complete===false||look.submitted}
+        function renderTabs(){ui.slotTabs.innerHTML=slots.map((slot)=>`<button data-slot="${slot.id}" class="${activeSlot===slot.id?"active":""}">${slot.name}${look.selection[slot.id]?" ✓":""}</button>`).join("");ui.slotTabs.querySelectorAll("[data-slot]").forEach((button)=>button.addEventListener("click",()=>{activeSlot=button.dataset.slot;updateUi()}))}
+        function renderWardrobe(){const brief=briefs[profile.issue];ui.wardrobe.innerHTML=items.filter((item)=>item.slot===activeSlot).map((item)=>`<button class="piece ${look.selection[item.slot]===item.id?"selected":""}" data-item="${item.id}"><span class="mini-swatch" style="background:${COLORS[item.color]}"></span><span class="icon">${item.icon}</span><strong>${item.name}</strong><small>${item.styles.join("/")} · ${item.cost}</small></button>`).join("");ui.wardrobe.querySelectorAll("[data-item]").forEach((button)=>button.addEventListener("click",()=>selectItem(button.dataset.item)));const current=byId[look.selection[activeSlot]];ui.hintLine.textContent=current?`${current.name} · ${current.material} · ${current.shape} · ${brief.palette.includes(current.color)?"在色盘内":"偏离本期色盘"}`:"从本类别选择一件单品"}
+        function renderIssues(){const chapters=[...new Set(briefs.map((brief)=>brief.chapter))];ui.issueGrid.innerHTML=chapters.map((chapter)=>`<h3 class="issue-title">${chapter}</h3><div class="issue-grid">${briefs.map((brief,index)=>({brief,index})).filter((entry)=>entry.brief.chapter===chapter).map(({brief,index})=>{const open=unlocked(index),stars=profile.stars[index]||0;return`<button class="issue ${profile.issue===index?"active":""}" data-issue="${index}" ${open?"":"disabled"}><strong>${String(index+1).padStart(2,"0")} ${brief.name}</strong><span>${open?brief.styles.join(" / "):"完成上一期后解锁"}</span><em>${open?"★".repeat(stars)+"☆".repeat(3-stars):"锁定"}</em></button>`}).join("")}</div>`).join("");ui.issueGrid.querySelectorAll("[data-issue]").forEach((button)=>button.addEventListener("click",()=>{ui.issueDialog.close();begin(Number(button.dataset.issue))}))}
+        function showResult(){const result=look.result,brief=briefs[profile.issue];ui.resultTitle.textContent=`${String(profile.issue+1).padStart(2,"0")} ${brief.name}`;ui.resultStars.textContent="★".repeat(result.stars)+"☆".repeat(3-result.stars);ui.resultScore.textContent=`${result.score} 分 · 制作成本 ${result.cost}/${brief.budget}`;ui.resultBreakdown.innerHTML=[["风格",result.theme,30],["色盘",result.palette,20],["细节",result.details,20],["预算",result.budget,15],["统一",result.cohesion,15]].map(([name,value,max])=>`<div><b>${value}/${max}</b><span>${name}</span></div>`).join("");const notes=[];if(!result.passed)notes.push("总分未达到 70 分的审定线");if(result.theme<30)notes.push("主题风格还未完整覆盖");if(result.palette<20)notes.push("有单品偏离指定色盘");if(result.details<20)notes.push("材质或版型特写未满足");if(result.cost>brief.budget)notes.push("制作成本超过预算");if(result.cohesion<15)notes.push("部分单品与本期主风格关联较弱");if(!notes.length)notes.push(look.hints?"所有编辑条件均满足；减少提示可冲击三星":"所有编辑条件均满足，造型可直接进入封面拍摄");ui.resultFeedback.textContent=notes.join("；")+"。";ui.nextResult.textContent=profile.issue===11?"查看刊期":"下一期";ui.resultDialog.showModal()}
+        function showArchive(message=""){ui.archiveMessage.textContent=message||"档案包含十二期星级、最高分和最低制作成本，可跨设备导入；篡改内容会被拒绝。";ui.archiveText.value=encodeArchive();if(!ui.archiveDialog.open)ui.archiveDialog.showModal()}
+        function ensureAudio(){if(!audioContext){const Audio=window.AudioContext||window.webkitAudioContext;if(Audio)audioContext=new Audio()}if(audioContext?.state==="suspended")audioContext.resume()}
+        function tone(frequency,duration,type="sine",volume=.025,delay=0){if(muted||look?.testing)return;ensureAudio();if(!audioContext)return;const oscillator=audioContext.createOscillator(),gain=audioContext.createGain(),start=audioContext.currentTime+delay;oscillator.type=type;oscillator.frequency.setValueAtTime(frequency,start);gain.gain.setValueAtTime(volume,start);gain.gain.exponentialRampToValueAtTime(.001,start+duration);oscillator.connect(gain);gain.connect(audioContext.destination);oscillator.start(start);oscillator.stop(start+duration)}
+        function clamp(value,min,max){return Math.max(min,Math.min(max,value))}
+        function resize(){const rect=ui.canvasWrap.getBoundingClientRect();drawWidth=Math.max(300,Math.min(560,rect.width-8));drawHeight=drawWidth*1.25;dpr=Math.min(devicePixelRatio||1,2);ui.lookCanvas.width=Math.round(drawWidth*dpr);ui.lookCanvas.height=Math.round(drawHeight*dpr);ui.lookCanvas.style.width=`${drawWidth}px`;ui.lookCanvas.style.height=`${drawHeight}px`;ui.lookCanvas.getContext("2d").setTransform(dpr,0,0,dpr,0,0);draw()}
+        function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.roundRect(x,y,w,h,r)}
+        function draw(){if(!look)return;const ctx=ui.lookCanvas.getContext("2d"),brief=briefs[profile.issue],selected=Object.fromEntries(slots.map((slot)=>[slot.id,byId[look.selection[slot.id]]]));ctx.clearRect(0,0,drawWidth,drawHeight);ctx.fillStyle="#e7e4dc";ctx.fillRect(0,0,drawWidth,drawHeight);ctx.fillStyle="#163f46";ctx.fillRect(0,0,drawWidth,drawHeight*.13);ctx.fillStyle="#fff";ctx.font=`800 ${Math.max(18,drawWidth*.055)}px system-ui`;ctx.textAlign="left";ctx.fillText("MIRROR EDIT",drawWidth*.06,drawHeight*.078);ctx.fillStyle="#d9a72e";ctx.fillRect(drawWidth*.06,drawHeight*.098,drawWidth*.28,4);ctx.fillStyle="#f9f7f0";ctx.fillRect(drawWidth*.06,drawHeight*.16,drawWidth*.88,drawHeight*.73);ctx.strokeStyle="#b8c3bb";ctx.lineWidth=1;ctx.strokeRect(drawWidth*.06+.5,drawHeight*.16+.5,drawWidth*.88-1,drawHeight*.73-1);
+          ctx.fillStyle="rgba(22,108,114,.08)";for(let i=0;i<8;i+=1){ctx.beginPath();ctx.arc(drawWidth*(.12+i*.11),drawHeight*.22,drawWidth*.025,0,Math.PI*2);ctx.fill()}
+          const cx=drawWidth*.5,top=drawHeight*.245,scale=drawWidth/560;ctx.fillStyle="rgba(30,55,55,.14)";ctx.beginPath();ctx.ellipse(cx,drawHeight*.825,drawWidth*.2,drawHeight*.025,0,0,Math.PI*2);ctx.fill();
+          ctx.strokeStyle="#b98569";ctx.lineWidth=12*scale;ctx.lineCap="round";ctx.beginPath();ctx.moveTo(cx-35*scale,top+170*scale);ctx.lineTo(cx-70*scale,top+300*scale);ctx.moveTo(cx+35*scale,top+170*scale);ctx.lineTo(cx+70*scale,top+300*scale);ctx.stroke();ctx.beginPath();ctx.moveTo(cx-26*scale,top+310*scale);ctx.lineTo(cx-35*scale,top+455*scale);ctx.moveTo(cx+26*scale,top+310*scale);ctx.lineTo(cx+35*scale,top+455*scale);ctx.stroke();
+          ctx.fillStyle="#b98569";ctx.beginPath();ctx.arc(cx,top+45*scale,36*scale,0,Math.PI*2);ctx.fill();ctx.fillStyle="#2d3738";ctx.beginPath();ctx.arc(cx,top+34*scale,38*scale,Math.PI,Math.PI*2);ctx.fill();
+          const topColor=COLORS[selected.top?.color||"白"],bottomColor=COLORS[selected.bottom?.color||"米"],outerColor=COLORS[selected.outer?.color||"白"],shoeColor=COLORS[selected.shoe?.color||"黑"];
+          ctx.fillStyle=topColor;roundRect(ctx,cx-48*scale,top+85*scale,96*scale,125*scale,18*scale);ctx.fill();ctx.fillStyle=bottomColor;ctx.beginPath();if(selected.bottom?.shape==="飘逸"){ctx.moveTo(cx-42*scale,top+202*scale);ctx.lineTo(cx+42*scale,top+202*scale);ctx.lineTo(cx+70*scale,top+342*scale);ctx.lineTo(cx-70*scale,top+342*scale)}else{ctx.rect(cx-48*scale,top+202*scale,42*scale,145*scale);ctx.rect(cx+6*scale,top+202*scale,42*scale,145*scale)}ctx.fill();
+          if(selected.outer){ctx.strokeStyle=outerColor;ctx.lineWidth=25*scale;ctx.beginPath();ctx.moveTo(cx-47*scale,top+103*scale);ctx.lineTo(cx-58*scale,top+250*scale);ctx.moveTo(cx+47*scale,top+103*scale);ctx.lineTo(cx+58*scale,top+250*scale);ctx.stroke();ctx.lineWidth=7*scale;ctx.beginPath();ctx.moveTo(cx-40*scale,top+85*scale);ctx.lineTo(cx,top+205*scale);ctx.lineTo(cx+40*scale,top+85*scale);ctx.stroke()}
+          ctx.fillStyle=shoeColor;roundRect(ctx,cx-57*scale,top+448*scale,43*scale,19*scale,7*scale);ctx.fill();roundRect(ctx,cx+14*scale,top+448*scale,43*scale,19*scale,7*scale);ctx.fill();
+          ctx.fillStyle=COLORS[selected.acc?.color||"白"];ctx.beginPath();ctx.arc(cx+39*scale,top+52*scale,9*scale,0,Math.PI*2);ctx.fill();ctx.strokeStyle="#fff";ctx.lineWidth=2;ctx.stroke();
+          ctx.fillStyle="#173e45";ctx.font=`700 ${Math.max(13,drawWidth*.03)}px system-ui`;ctx.textAlign="center";ctx.fillText(brief.name,cx,drawHeight*.925);ctx.fillStyle="#607376";ctx.font=`${Math.max(10,drawWidth*.022)}px system-ui`;ctx.fillText(selectedItems().length===5?selectedItems().map((item)=>item.name).join(" · "):"从五个类别各选一件单品",cx,drawHeight*.958);
+        }
+        function validateContent(){if(items.length!==40||briefs.length!==12||slots.length!==5)throw new Error("造型内容数量不完整");if(new Set(items.map((item)=>item.id)).size!==40||new Set(briefs.map((brief)=>brief.id)).size!==12)throw new Error("单品或委托 id 重复");const references=briefs.map((brief,index)=>{const selection=Object.fromEntries(brief.reference.map((id)=>[byId[id].slot,id])),evaluation=evaluate(selection,index);if(Object.keys(selection).length!==5||evaluation.score!==100||evaluation.cost>brief.budget)throw new Error(`${brief.name} 参考造型无效`);return{id:brief.id,score:evaluation.score,cost:evaluation.cost,budget:brief.budget}});return{briefs:12,chapters:new Set(briefs.map((brief)=>brief.chapter)).size,items:40,slots:5,styles:new Set(items.flatMap((item)=>item.styles)).size,materials:new Set(items.map((item)=>item.material)).size,references}}
+        function runReferenceBrief(index){const previousProfile=profile,previousLook=look;profile=freshProfile();profile.issue=index;begin(index,{testing:true});for(const id of briefs[index].reference)selectItem(id);const result=submit();profile=previousProfile;look=previousLook;return{id:briefs[index].id,passed:result.passed,stars:result.stars,score:result.score,cost:result.cost,budget:briefs[index].budget}}
+        window.__runwayStylistTest={items,briefs,slots,freshProfile,encodeArchive,decodeArchive,evaluate,validateContent,runReferenceBrief,begin(index=0,options={testing:true}){return begin(index,options)},select:selectItem,submit,getState(){const evaluation=evaluate();return{issue:profile.issue,selection:{...look.selection},hints:look.hints,submitted:look.submitted,evaluation,result:look.result}}};
+        ui.issueButton.addEventListener("click",()=>{renderIssues();ui.issueDialog.showModal()});ui.archiveButton.addEventListener("click",()=>showArchive());ui.clearButton.addEventListener("click",clearLook);ui.hintButton.addEventListener("click",hint);ui.submitButton.addEventListener("click",submit);ui.muteButton.addEventListener("click",()=>{muted=!muted;ui.muteButton.textContent=muted?"×":"♪";if(!muted)tone(440,.06)});document.querySelectorAll("[data-close]").forEach((button)=>button.addEventListener("click",()=>document.getElementById(button.dataset.close).close()));ui.copyArchive.addEventListener("click",async()=>{ui.archiveText.select();try{await navigator.clipboard.writeText(ui.archiveText.value)}catch{document.execCommand("copy")}showArchive("档案已复制")});ui.importArchive.addEventListener("click",()=>{try{profile=decodeArchive(ui.archiveText.value);saveProfile();begin(profile.issue);showArchive("档案已导入并通过校验")}catch(error){showArchive(error.message||"档案无效")}});ui.retryResult.addEventListener("click",()=>{ui.resultDialog.close();begin(profile.issue)});ui.nextResult.addEventListener("click",()=>{ui.resultDialog.close();if(profile.issue<11)begin(profile.issue+1);else{renderIssues();ui.issueDialog.showModal()}});window.addEventListener("resize",resize);begin(profile.issue);resize();
+      })();
+    </script>
+  </body>
 </html>
