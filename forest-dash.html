@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>松果快跑</title>
+    <title>松果快跑：十二径巡游</title>
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='8' fill='%2311181b'/%3E%3Cpath d='M16 44c3-17 11-27 22-30 10 7 13 20 8 34H18Z' fill='%23c77d3c'/%3E%3Cpath d='M22 18 13 10l3 13m25-8 10-6-5 13' fill='none' stroke='%23f0c96b' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='28' cy='34' r='3' fill='%2311181b'/%3E%3Ccircle cx='41' cy='34' r='3' fill='%2311181b'/%3E%3Cpath d='M30 44c4 3 8 3 12 0' stroke='%2311181b' stroke-width='4' stroke-linecap='round' fill='none'/%3E%3C/svg%3E">
     <style>
       :root {
@@ -506,6 +506,35 @@
         font-weight: 800;
       }
 
+      dialog {
+        width: min(920px, calc(100% - 24px));
+        max-height: calc(100vh - 24px);
+        padding: 0;
+        border: 1px solid #71877e;
+        border-radius: var(--radius);
+        color: var(--ink);
+        background: var(--paper);
+        box-shadow: 0 24px 70px rgba(7, 18, 20, 0.44);
+      }
+
+      dialog::backdrop { background: rgba(7, 17, 19, 0.72); }
+      .dialog-head { padding: 15px 17px; display: flex; justify-content: space-between; align-items: center; gap: 12px; color: white; background: var(--leaf-dark); border-bottom: 4px solid var(--gold); }
+      .dialog-head h2 { margin: 0; font-size: 22px; }
+      .dialog-close { width: 42px; min-height: 38px; padding: 0; border: 1px solid #80a99b; border-radius: var(--radius); color: white; background: #286b5b; font-size: 21px; font-weight: 900; }
+      .dialog-body { padding: 16px; overflow: auto; }
+      .route-chapter { margin: 15px 0 7px; color: var(--leaf-dark); font-size: 14px; }
+      .route-chapter:first-child { margin-top: 0; }
+      .route-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+      .route-card { min-height: 92px; padding: 10px; display: grid; align-content: space-between; text-align: left; border: 1px solid #a7b7ae; border-radius: var(--radius); background: #fffdf6; color: var(--ink); font-weight: 800; }
+      .route-card.active { border-color: var(--gold); box-shadow: inset 0 0 0 2px var(--gold); }
+      .route-card strong { font-size: 14px; }
+      .route-card span { color: var(--muted); font-size: 11px; font-weight: 700; }
+      .route-card em { color: #a9700c; font-size: 17px; font-style: normal; }
+      .archive-box { width: 100%; min-height: 145px; padding: 10px; resize: vertical; border: 1px solid #98aba2; border-radius: var(--radius); background: white; color: var(--ink); word-break: break-all; }
+      .archive-note { color: var(--muted); line-height: 1.55; }
+      .dialog-actions { margin-top: 10px; display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+      .result-stars { margin: 4px 0 0; color: #d19a21; font-size: 29px; font-weight: 900; }
+
       @media (max-width: 920px) {
         .app-shell {
           width: min(100vw - 16px, 680px);
@@ -572,6 +601,8 @@
         .skin-row {
           grid-template-columns: repeat(3, minmax(0, 1fr));
         }
+
+        .route-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       }
     </style>
   </head>
@@ -579,11 +610,13 @@
     <div class="app-shell">
       <header class="topbar">
         <div class="brand">
-          <p class="eyebrow">三车道原创跑酷</p>
+          <p class="eyebrow">四区十二径固定巡游</p>
           <h1>松果快跑</h1>
         </div>
         <div class="top-actions">
           <button class="primary-button" id="startTop" type="button">开始</button>
+          <button class="quiet-button" id="routeButton" type="button">路线</button>
+          <button class="quiet-button" id="archiveButton" type="button">档案</button>
           <button class="quiet-button" id="pauseTop" type="button">暂停</button>
           <button class="icon-button" id="muteTop" type="button" title="音效" aria-label="音效">♪</button>
         </div>
@@ -597,7 +630,7 @@
             <div class="stat"><span>距离</span><b id="distanceText">0m</b></div>
             <div class="stat"><span>松果</span><b id="coinText">0</b></div>
             <div class="stat"><span>速度</span><b id="speedText">1.0x</b></div>
-            <div class="stat"><span>最佳</span><b id="bestText">0m</b></div>
+            <div class="stat"><span>终点</span><b id="bestText">0m</b></div>
           </div>
 
           <div class="power-row">
@@ -610,11 +643,11 @@
 
           <div class="overlay" id="readyOverlay">
             <div class="modal">
-              <h2>穿过林间铁道</h2>
-              <p>收松果、躲木栏、钻枝门，越跑越快。</p>
+              <h2 id="readyTitle">穿过林间铁道</h2>
+              <p id="readyCopy">收松果、躲木栏、钻枝门，在终点前完成路线验收。</p>
               <div class="modal-actions">
                 <button class="primary-button" id="startButton" type="button">出发</button>
-                <button class="quiet-button" id="copyButton" type="button">复制战报</button>
+                <button class="quiet-button" id="selectReadyButton" type="button">选择路线</button>
               </div>
             </div>
           </div>
@@ -632,14 +665,16 @@
 
           <div class="overlay" id="gameOverOverlay" hidden>
             <div class="modal">
-              <h2>本轮结算</h2>
+              <h2 id="resultHeading">本轮结算</h2>
+              <div class="result-stars" id="resultStars">☆☆☆</div>
               <div class="result-grid">
-                <div class="result-item"><span>距离</span><b id="resultDistance">0m</b></div>
+                <div class="result-item"><span>用时</span><b id="resultDistance">0s</b></div>
                 <div class="result-item"><span>松果</span><b id="resultCoins">0</b></div>
                 <div class="result-item"><span>分数</span><b id="resultScore">0</b></div>
               </div>
               <div class="modal-actions">
                 <button class="primary-button" id="restartButton" type="button">再跑</button>
+                <button class="quiet-button" id="nextButton" type="button">下一径</button>
                 <button class="quiet-button" id="copyResultButton" type="button">复制战报</button>
               </div>
             </div>
@@ -655,31 +690,40 @@
 
         <aside class="side-panel">
           <section class="board">
-            <h2>本地战绩</h2>
+            <h2 id="routeLabel">当前路线</h2>
             <div class="record-grid">
-              <div class="record-tile"><span>最佳距离</span><b id="recordDistance">0m</b></div>
+              <div class="record-tile"><span>最佳时间</span><b id="recordDistance">--</b></div>
               <div class="record-tile"><span>最高分</span><b id="recordScore">0</b></div>
-              <div class="record-tile"><span>总松果</span><b id="recordTotalCoins">0</b></div>
+              <div class="record-tile"><span>总星章</span><b id="recordTotalCoins">0/36</b></div>
             </div>
             <p class="status-line" id="statusLine">今日赛道已就绪。</p>
           </section>
 
           <section class="board">
-            <h2>今日任务</h2>
+            <h2>路线验收</h2>
             <div class="mission-list" id="missionList"></div>
           </section>
 
           <section class="board">
-            <h2>角色</h2>
+            <h2>巡游跑者</h2>
             <div class="skin-row">
-              <button class="skin-button active" type="button" data-skin="cub"><span>栗</span><b>栗宝</b></button>
-              <button class="skin-button" type="button" data-skin="fox"><span>枫</span><b>枫枫</b></button>
-              <button class="skin-button" type="button" data-skin="mole"><span>矿</span><b>矿仔</b></button>
+              <button class="skin-button active" type="button" data-skin="cub" title="均衡得分"><span>栗</span><b>栗宝</b></button>
+              <button class="skin-button" type="button" data-skin="fox" title="换道更灵活，得分更高"><span>枫</span><b>枫枫</b></button>
+              <button class="skin-button" type="button" data-skin="mole" title="开局携带短时护盾"><span>矿</span><b>矿仔</b></button>
             </div>
           </section>
         </aside>
       </main>
     </div>
+
+    <dialog id="routeDialog">
+      <div class="dialog-head"><h2>十二径巡游路线</h2><button class="dialog-close" data-close="routeDialog" aria-label="关闭">×</button></div>
+      <div class="dialog-body" id="routeGrid"></div>
+    </dialog>
+    <dialog id="archiveDialog">
+      <div class="dialog-head"><h2>DASH2 巡游档案</h2><button class="dialog-close" data-close="archiveDialog" aria-label="关闭">×</button></div>
+      <div class="dialog-body"><p class="archive-note" id="archiveMessage">档案包含十二径星章、最佳时间、跑者与累计松果，篡改内容会被拒绝。</p><textarea class="archive-box" id="archiveText" aria-label="DASH2 档案码"></textarea><div class="dialog-actions"><button class="quiet-button" id="copyArchive" type="button">复制</button><button class="quiet-button" id="importArchive" type="button">导入并校验</button><button class="primary-button" data-close="archiveDialog" type="button">返回路线</button></div></div>
+    </dialog>
 
     <script>
       (() => {
@@ -691,14 +735,21 @@
 
         const ui = {
           startTop: document.getElementById("startTop"),
+          routeButton: document.getElementById("routeButton"),
+          archiveButton: document.getElementById("archiveButton"),
           pauseTop: document.getElementById("pauseTop"),
           muteTop: document.getElementById("muteTop"),
           startButton: document.getElementById("startButton"),
-          copyButton: document.getElementById("copyButton"),
+          selectReadyButton: document.getElementById("selectReadyButton"),
           resumeButton: document.getElementById("resumeButton"),
           restartPauseButton: document.getElementById("restartPauseButton"),
           restartButton: document.getElementById("restartButton"),
           copyResultButton: document.getElementById("copyResultButton"),
+          nextButton: document.getElementById("nextButton"),
+          readyTitle: document.getElementById("readyTitle"),
+          readyCopy: document.getElementById("readyCopy"),
+          resultHeading: document.getElementById("resultHeading"),
+          resultStars: document.getElementById("resultStars"),
           readyOverlay: document.getElementById("readyOverlay"),
           pauseOverlay: document.getElementById("pauseOverlay"),
           gameOverOverlay: document.getElementById("gameOverOverlay"),
@@ -712,6 +763,7 @@
           recordDistance: document.getElementById("recordDistance"),
           recordScore: document.getElementById("recordScore"),
           recordTotalCoins: document.getElementById("recordTotalCoins"),
+          routeLabel: document.getElementById("routeLabel"),
           statusLine: document.getElementById("statusLine"),
           missionList: document.getElementById("missionList"),
           magnetChip: document.getElementById("magnetChip"),
@@ -724,7 +776,8 @@
           downButton: document.getElementById("downButton")
         };
 
-        const storageKey = "forest-dash-records-v2";
+        const storageKey = "forest-dash-campaign-v3";
+        const archivePrefix = "DASH2";
         const startZ = 1660;
         const judgeZ = 0;
         const meterScale = 18;
@@ -735,15 +788,24 @@
           dodge: 0.58
         };
         const skins = {
-          cub: { body: "#c77d3c", belly: "#f1c67a", trim: "#63381c", cap: "#2f7a5e", glyph: "栗" },
-          fox: { body: "#d95f35", belly: "#ffe0a6", trim: "#4b2a1e", cap: "#675989", glyph: "枫" },
-          mole: { body: "#7a6558", belly: "#e1c09a", trim: "#2d2522", cap: "#2f6f91", glyph: "矿" }
+          cub: { name: "栗宝", body: "#c77d3c", belly: "#f1c67a", trim: "#63381c", cap: "#2f7a5e", glyph: "栗", pace: 1, score: 1, startShield: 0 },
+          fox: { name: "枫枫", body: "#d95f35", belly: "#ffe0a6", trim: "#4b2a1e", cap: "#675989", glyph: "枫", pace: 1.035, score: 1.08, startShield: 0 },
+          mole: { name: "矿仔", body: "#7a6558", belly: "#e1c09a", trim: "#2d2522", cap: "#2f6f91", glyph: "矿", pace: 0.97, score: 0.96, startShield: 5.5 }
         };
 
-        const missions = [
-          { id: "coins", icon: "◎", title: "收集 80 颗松果", target: 80, value: () => run.coins },
-          { id: "distance", icon: "↟", title: "跑到 900 米", target: 900, value: () => Math.floor(run.distance) },
-          { id: "slide", icon: "⌄", title: "钻过 12 道枝门", target: 12, value: () => run.slides }
+        const routes = [
+          { id: "fern", chapter: "第一章 · 苔灯林", name: "蕨径晨跑", copy: "短距离熟悉换道、跳跃与下滑。", seed: 73121, length: 420, pace: .92, density: .94, coins: 12, bonus: { type: "clean", target: 1, label: "零护盾碰撞" }, ref: "cub" },
+          { id: "brook", chapter: "第一章 · 苔灯林", name: "溪桥木栏", copy: "低矮木栏连续出现，保持起跳节奏。", seed: 18437, length: 470, pace: .95, density: .98, coins: 14, bonus: { type: "jumps", target: 2, label: "跃过 2 道木栏" }, ref: "cub" },
+          { id: "bough", chapter: "第一章 · 苔灯林", name: "低枝隧道", copy: "枝门压低视线，提前判断下滑窗口。", seed: 94513, length: 520, pace: .98, density: 1, coins: 16, bonus: { type: "slides", target: 2, label: "钻过 2 道枝门" }, ref: "cub" },
+          { id: "amber", chapter: "第二章 · 枫火坡", name: "赤叶换线", copy: "双障碍开始封线，松果会标出安全通道。", seed: 31777, length: 570, pace: 1, density: 1.02, coins: 18, bonus: { type: "near", target: 8, label: "完成 8 次错线闪避" }, ref: "fox" },
+          { id: "cart", chapter: "第二章 · 枫火坡", name: "矿车交会", copy: "矿车不能跳过，观察同排空轨再换道。", seed: 66209, length: 620, pace: 1.02, density: 1.05, coins: 20, bonus: { type: "powers", target: 2, label: "取得 2 件补给" }, ref: "fox" },
+          { id: "switch", chapter: "第二章 · 枫火坡", name: "折返信号", copy: "动作障碍与换线障碍交替，控制输入频率。", seed: 50891, length: 670, pace: 1.04, density: 1.07, coins: 22, bonus: { type: "score", target: 3500, label: "取得 3500 分" }, ref: "fox" },
+          { id: "mist", chapter: "第三章 · 雾杉线", name: "雾中跃木", copy: "更快的林线要求在提示出现前读取障碍轮廓。", seed: 82349, length: 720, pace: 1.05, density: 1.08, coins: 24, bonus: { type: "jumps", target: 4, label: "跃过 4 道木栏" }, ref: "cub" },
+          { id: "canopy", chapter: "第三章 · 雾杉线", name: "树冠低航", copy: "密集枝门考验连续下滑和落地衔接。", seed: 27103, length: 770, pace: 1.07, density: 1.1, coins: 25, bonus: { type: "slides", target: 4, label: "钻过 4 道枝门" }, ref: "cub" },
+          { id: "quarry", chapter: "第三章 · 雾杉线", name: "旧矿护送", copy: "补给能容错，但三星要求不消耗护盾挡撞。", seed: 75941, length: 820, pace: 1.08, density: 1.12, coins: 26, bonus: { type: "clean", target: 1, label: "零护盾碰撞" }, ref: "mole" },
+          { id: "storm", chapter: "第四章 · 风脊站", name: "风脊补给", copy: "高速路段要主动争取补给，不只被动躲避。", seed: 43667, length: 870, pace: 1.1, density: 1.14, coins: 28, bonus: { type: "powers", target: 3, label: "取得 3 件补给" }, ref: "fox" },
+          { id: "night", chapter: "第四章 · 风脊站", name: "夜灯错轨", copy: "多排障碍制造错线计数，持续寻找唯一空轨。", seed: 99083, length: 920, pace: 1.11, density: 1.17, coins: 30, bonus: { type: "near", target: 16, label: "完成 16 次错线闪避" }, ref: "fox" },
+          { id: "summit", chapter: "第四章 · 风脊站", name: "松塔终巡", copy: "最长路线汇总木栏、枝门、矿车与高速补给。", seed: 61529, length: 980, pace: 1.13, density: 1.2, coins: 32, bonus: { type: "score", target: 6100, label: "取得 6100 分" }, ref: "fox" }
         ];
 
         const obstacleKinds = {
@@ -764,32 +826,76 @@
         let cameraShake = 0;
         let swipeStart = null;
 
-        let records = loadRecords();
+        let profile = loadProfile();
+        selectedSkin = profile.runner;
         let state = "ready";
         let run = makeRun();
         let player = makePlayer();
 
-        function loadRecords() {
+        function freshProfile() {
+          return { version: 3, route: 0, runner: "cub", stars: Array(12).fill(0), bestTimes: Array(12).fill(0), bestScores: Array(12).fill(0), totalCoins: 0, clears: Array(12).fill(0) };
+        }
+
+        function normalizeProfile(value) {
+          const base = freshProfile();
+          if (!value || typeof value !== "object") return base;
+          base.route = clamp(Number(value.route) || 0, 0, 11);
+          base.runner = skins[value.runner] ? value.runner : "cub";
+          base.totalCoins = clamp(Number(value.totalCoins) || 0, 0, 99999999);
+          for (const key of ["stars", "bestTimes", "bestScores", "clears"]) {
+            if (Array.isArray(value[key])) base[key] = base[key].map((_, index) => clamp(Number(value[key][index]) || 0, 0, key === "stars" ? 3 : 99999999));
+          }
+          return base;
+        }
+
+        function loadProfile() {
           try {
-            const parsed = JSON.parse(localStorage.getItem(storageKey) || "{}");
-            return {
-              bestDistance: Number(parsed.bestDistance) || 0,
-              bestScore: Number(parsed.bestScore) || 0,
-              totalCoins: Number(parsed.totalCoins) || 0
-            };
-          } catch (error) {
-            return { bestDistance: 0, bestScore: 0, totalCoins: 0 };
+            return normalizeProfile(JSON.parse(localStorage.getItem(storageKey) || "null"));
+          } catch {
+            return freshProfile();
           }
         }
 
-        function saveRecords() {
-          localStorage.setItem(storageKey, JSON.stringify(records));
+        function saveProfile() {
+          localStorage.setItem(storageKey, JSON.stringify(profile));
         }
 
-        function makeRun() {
+        function checksum(text) {
+          let hash = 2166136261;
+          for (let index = 0; index < text.length; index += 1) { hash ^= text.charCodeAt(index); hash = Math.imul(hash, 16777619); }
+          return (hash >>> 0).toString(36);
+        }
+
+        function encodeArchive(value = profile) {
+          const json = JSON.stringify(normalizeProfile(value));
+          const bytes = new TextEncoder().encode(json);
+          let binary = "";
+          bytes.forEach((byte) => { binary += String.fromCharCode(byte); });
+          const payload = btoa(binary).replaceAll("+", "-").replaceAll("/", "_").replaceAll("=", "");
+          return `${archivePrefix}.${payload}.${checksum(payload)}`;
+        }
+
+        function decodeArchive(code) {
+          const [prefix, payload, signature, ...extra] = String(code).trim().split(".");
+          if (prefix !== archivePrefix || !payload || !signature || extra.length || checksum(payload) !== signature) throw new Error("档案校验失败");
+          try {
+            const padded = payload.replaceAll("-", "+").replaceAll("_", "/") + "=".repeat((4 - payload.length % 4) % 4);
+            const bytes = Uint8Array.from(atob(padded), (char) => char.charCodeAt(0));
+            return normalizeProfile(JSON.parse(new TextDecoder().decode(bytes)));
+          } catch { throw new Error("档案内容无效"); }
+        }
+
+        function currentRoute() { return routes[profile.route]; }
+        function totalStars() { return profile.stars.reduce((sum, value) => sum + value, 0); }
+        function routeUnlocked(index) { return index === 0 || (profile.stars[index - 1] || 0) > 0; }
+        function clamp(value, min, max) { return Math.max(min, Math.min(max, value)); }
+
+        function makeRun(testing = false) {
+          const route = currentRoute();
           return {
             distance: 0,
             worldDistance: 0,
+            time: 0,
             coins: 0,
             score: 0,
             speed: 500,
@@ -802,15 +908,19 @@
             particles: [],
             scenery: [],
             magnet: 0,
-            shield: 0,
+            shield: skins[selectedSkin].startShield,
             boost: 0,
             multiplier: 1,
             slides: 0,
             nearMisses: 0,
             savedHits: 0,
+            jumps: 0,
+            powersTaken: 0,
             patternIndex: 0,
             lastCue: "",
-            seed: seedFromDate()
+            seed: route.seed,
+            result: null,
+            testing
           };
         }
 
@@ -824,11 +934,6 @@
             bob: 0,
             blink: 0
           };
-        }
-
-        function seedFromDate() {
-          const now = new Date();
-          return now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
         }
 
         function seededRandom() {
@@ -848,20 +953,23 @@
           ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         }
 
-        function startGame() {
-          ensureAudio();
-          run = makeRun();
+        function startGame(options = {}) {
+          const testing = Boolean(options.testing);
+          if (!testing) ensureAudio();
+          run = makeRun(testing);
           player = makePlayer();
           state = "running";
           cameraShake = 0;
-          ui.readyOverlay.hidden = true;
-          ui.pauseOverlay.hidden = true;
-          ui.gameOverOverlay.hidden = true;
-          ui.statusLine.textContent = "林间铁道开跑。";
           spawnOpening();
-          beep(440, 0.06, "triangle", 0.04);
-          beep(660, 0.08, "triangle", 0.035, 0.07);
-          updateAllUi();
+          if (!testing) {
+            ui.readyOverlay.hidden = true;
+            ui.pauseOverlay.hidden = true;
+            ui.gameOverOverlay.hidden = true;
+            ui.statusLine.textContent = `${currentRoute().name}开跑。`;
+            beep(440, 0.06, "triangle", 0.04);
+            beep(660, 0.08, "triangle", 0.035, 0.07);
+            updateAllUi();
+          }
         }
 
         function pauseGame() {
@@ -882,22 +990,57 @@
 
         function endGame() {
           state = "gameover";
+          run.result = { won: false, stars: 0, distance: Math.floor(run.distance), time: run.time, coins: run.coins, score: Math.floor(run.score), challenge: challengeValue() };
+          if (run.testing) return;
+          showResult("巡游中断", 0);
+          ui.statusLine.textContent = `在 ${Math.floor(run.distance)}m 处碰撞，路线尚未完成。`;
+          updateAllUi(); beep(180, 0.18, "sawtooth", 0.05);
+        }
+
+        function challengeValue() {
+          const type = currentRoute().bonus.type;
+          if (type === "clean") return run.savedHits === 0 ? 1 : 0;
+          if (type === "jumps") return run.jumps;
+          if (type === "slides") return run.slides;
+          if (type === "near") return run.nearMisses;
+          if (type === "powers") return run.powersTaken;
+          if (type === "score") return Math.floor(run.score);
+          return 0;
+        }
+
+        function calculateStars() {
+          if (!run.result?.won && state !== "completed") return 0;
+          const route = currentRoute();
+          return 1 + Number(run.coins >= route.coins) + Number(challengeValue() >= route.bonus.target);
+        }
+
+        function completeRoute() {
+          if (state !== "running") return;
+          state = "completed";
+          run.distance = currentRoute().length;
+          run.result = { won: true, stars: 0, distance: currentRoute().length, time: Math.round(run.time * 100) / 100, coins: run.coins, score: Math.floor(run.score), challenge: challengeValue() };
+          run.result.stars = calculateStars();
+          if (run.testing) return;
+          const index = profile.route;
+          profile.stars[index] = Math.max(profile.stars[index], run.result.stars);
+          profile.bestTimes[index] = profile.bestTimes[index] ? Math.min(profile.bestTimes[index], run.result.time) : run.result.time;
+          profile.bestScores[index] = Math.max(profile.bestScores[index], run.result.score);
+          profile.totalCoins += run.coins;
+          profile.clears[index] += 1;
+          saveProfile();
+          showResult("抵达终点", run.result.stars);
+          ui.statusLine.textContent = `${currentRoute().name}完成，取得 ${run.result.stars} 星。`;
+          updateAllUi(); beep(523, .12, "triangle", .05); beep(659, .14, "triangle", .04, .12); beep(784, .18, "triangle", .04, .24);
+        }
+
+        function showResult(heading, stars) {
           ui.gameOverOverlay.hidden = false;
-          ui.resultDistance.textContent = `${Math.floor(run.distance)}m`;
+          ui.resultHeading.textContent = heading;
+          ui.resultStars.textContent = "★".repeat(stars) + "☆".repeat(3 - stars);
+          ui.resultDistance.textContent = `${run.time.toFixed(1)}s`;
           ui.resultCoins.textContent = String(run.coins);
           ui.resultScore.textContent = String(Math.floor(run.score));
-
-          const bestDistance = Math.max(records.bestDistance, Math.floor(run.distance));
-          const bestScore = Math.max(records.bestScore, Math.floor(run.score));
-          records = {
-            bestDistance,
-            bestScore,
-            totalCoins: records.totalCoins + run.coins
-          };
-          saveRecords();
-          ui.statusLine.textContent = bestDistance === Math.floor(run.distance) ? "新的最佳距离。" : "本轮结算完成。";
-          updateAllUi();
-          beep(180, 0.18, "sawtooth", 0.05);
+          ui.nextButton.disabled = !run.result?.won || profile.route >= routes.length - 1;
         }
 
         function spawnOpening() {
@@ -925,11 +1068,13 @@
         }
 
         function updateRun(dt) {
-          const difficulty = Math.min(1, run.distance / 1200);
-          run.speed = (500 + difficulty * 230) * (run.boost > 0 ? 1.24 : 1);
+          const route = currentRoute();
+          const difficulty = Math.min(1, run.distance / Math.max(1, route.length));
+          run.speed = (500 * route.pace + difficulty * 190) * skins[selectedSkin].pace * (run.boost > 0 ? 1.24 : 1);
+          run.time += dt;
           run.worldDistance += run.speed * dt;
           run.distance = run.worldDistance / meterScale;
-          run.score += run.speed * dt * 0.2 * run.multiplier;
+          run.score += run.speed * dt * 0.2 * run.multiplier * skins[selectedSkin].score;
           player.bob += dt * (run.speed / 70);
           player.xLane += (player.lane - player.xLane) * Math.min(1, dt * 13);
 
@@ -959,7 +1104,8 @@
           checkPowers();
           checkObstacles();
           cleanupEntities();
-          updateAllUi();
+          if (state === "running" && run.distance >= route.length) completeRoute();
+          if (!run.testing) updateAllUi();
         }
 
         function moveEntities(list, dt) {
@@ -986,7 +1132,7 @@
 
           if (run.spawnClock <= 0) {
             spawnPattern();
-            run.spawnClock = 560 - difficulty * 120 + seededRandom() * 180;
+            run.spawnClock = (560 - difficulty * 120 + seededRandom() * 180) / currentRoute().density;
           }
 
           if (run.coinClock <= 0) {
@@ -1129,6 +1275,7 @@
             const magnet = run.magnet > 0 && power.z < 330 && Math.abs(power.lane - player.lane) <= 1;
             if ((sameLane && close) || magnet) {
               power.taken = true;
+              run.powersTaken += 1;
               if (power.type === "magnet") run.magnet = 9;
               if (power.type === "shield") run.shield = 10;
               if (power.type === "boost") run.boost = 6.5;
@@ -1173,6 +1320,7 @@
               if (!obstacle.scored) {
                 obstacle.scored = true;
                 run.score += 120;
+                if (obstacle.type === "log") run.jumps += 1;
                 if (obstacle.type === "gate") run.slides += 1;
               }
               continue;
@@ -1821,18 +1969,23 @@
         }
 
         function updateAllUi() {
+          const route = currentRoute();
           ui.distanceText.textContent = `${Math.floor(run.distance)}m`;
           ui.coinText.textContent = String(run.coins);
           ui.speedText.textContent = `${(run.speed / 500).toFixed(1)}x`;
-          ui.bestText.textContent = `${Math.floor(records.bestDistance)}m`;
-          ui.recordDistance.textContent = `${Math.floor(records.bestDistance)}m`;
-          ui.recordScore.textContent = String(Math.floor(records.bestScore));
-          ui.recordTotalCoins.textContent = String(Math.floor(records.totalCoins));
+          ui.bestText.textContent = `${route.length}m`;
+          ui.routeLabel.textContent = `${String(profile.route + 1).padStart(2, "0")} ${route.name}`;
+          ui.recordDistance.textContent = profile.bestTimes[profile.route] ? `${profile.bestTimes[profile.route].toFixed(1)}s` : "--";
+          ui.recordScore.textContent = String(Math.floor(profile.bestScores[profile.route]));
+          ui.recordTotalCoins.textContent = `${totalStars()}/36`;
+          ui.readyTitle.textContent = route.name;
+          ui.readyCopy.textContent = `${route.copy} · ${route.length}m · 目标 ${route.coins} 松果`;
           updatePowerChip(ui.magnetChip, run.magnet);
           updatePowerChip(ui.shieldChip, run.shield);
           updatePowerChip(ui.boostChip, run.boost);
           updateActionCue();
           renderMissions();
+          document.querySelectorAll(".skin-button").forEach((button) => button.classList.toggle("active", button.dataset.skin === selectedSkin));
         }
 
         function updatePowerChip(chip, value) {
@@ -1873,6 +2026,12 @@
 
         function renderMissions() {
           ui.missionList.innerHTML = "";
+          const route = currentRoute();
+          const missions = [
+            { icon: "↟", title: `抵达 ${route.length}m 终点`, target: route.length, value: () => Math.min(route.length, Math.floor(run.distance)) },
+            { icon: "◎", title: `收集 ${route.coins} 颗松果`, target: route.coins, value: () => run.coins },
+            { icon: "★", title: route.bonus.label, target: route.bonus.target, value: challengeValue }
+          ];
           for (const mission of missions) {
             const value = Math.min(mission.target, mission.value());
             const item = document.createElement("div");
@@ -1914,7 +2073,8 @@
         }
 
         function copyReport() {
-          const text = `我在《松果快跑》跑了 ${Math.floor(run.distance)}m，收集 ${run.coins} 颗松果，分数 ${Math.floor(run.score)}。`;
+          const stars = run.result?.stars || 0;
+          const text = `我在《松果快跑：十二径巡游》的「${currentRoute().name}」跑了 ${Math.floor(run.distance)}m，收集 ${run.coins} 颗松果，取得 ${stars} 星、${Math.floor(run.score)} 分。`;
           const done = () => {
             ui.statusLine.textContent = "战报已复制。";
           };
@@ -1942,6 +2102,104 @@
             input.remove();
           }
         }
+
+        function selectRoute(index) {
+          if (!routeUnlocked(index)) return false;
+          profile.route = clamp(index, 0, routes.length - 1);
+          saveProfile();
+          state = "ready";
+          run = makeRun(); player = makePlayer();
+          ui.readyOverlay.hidden = false; ui.pauseOverlay.hidden = true; ui.gameOverOverlay.hidden = true;
+          spawnOpening(); updateAllUi(); draw();
+          return true;
+        }
+
+        function renderRouteGrid() {
+          const chapters = [...new Set(routes.map((route) => route.chapter))];
+          document.getElementById("routeGrid").innerHTML = chapters.map((chapter) => `<h3 class="route-chapter">${chapter}</h3><div class="route-grid">${routes.map((route, index) => ({ route, index })).filter((entry) => entry.route.chapter === chapter).map(({ route, index }) => {
+            const open = routeUnlocked(index), stars = profile.stars[index] || 0;
+            return `<button class="route-card ${profile.route === index ? "active" : ""}" data-route="${index}" ${open ? "" : "disabled"}><strong>${String(index + 1).padStart(2, "0")} ${route.name}</strong><span>${open ? `${route.length}m · ${route.copy}` : "完成上一径后解锁"}</span><em>${open ? "★".repeat(stars) + "☆".repeat(3 - stars) : "锁定"}</em></button>`;
+          }).join("")}</div>`).join("");
+          document.querySelectorAll("[data-route]").forEach((button) => button.addEventListener("click", () => { document.getElementById("routeDialog").close(); selectRoute(Number(button.dataset.route)); }));
+        }
+
+        function showRoutes() { renderRouteGrid(); document.getElementById("routeDialog").showModal(); }
+        function showArchive(message = "") {
+          const dialog = document.getElementById("archiveDialog");
+          document.getElementById("archiveMessage").textContent = message || "档案包含十二径星章、最佳时间、跑者与累计松果，篡改内容会被拒绝。";
+          document.getElementById("archiveText").value = encodeArchive();
+          if (!dialog.open) dialog.showModal();
+        }
+
+        function nextRoute() {
+          if (!run.result?.won || profile.route >= routes.length - 1) return;
+          selectRoute(profile.route + 1); startGame();
+        }
+
+        function moveToLane(target) {
+          while (player.lane < target) laneChange(1);
+          while (player.lane > target) laneChange(-1);
+        }
+
+        function laneRisk(lane, maxZ = 280) {
+          return run.obstacles.filter((obstacle) => !obstacle.judged && obstacle.z > -25 && obstacle.z < maxZ && obstacle.lane === lane).reduce((sum, obstacle) => sum + (maxZ - obstacle.z + 30), 0);
+        }
+
+        function referenceControl() {
+          const route = currentRoute();
+          const live = run.obstacles.filter((obstacle) => !obstacle.judged && obstacle.z > -30 && obstacle.z < 430).sort((a, b) => a.z - b.z);
+          const desiredType = route.bonus.type === "jumps" ? "log" : route.bonus.type === "slides" ? "gate" : "";
+          if (desiredType && challengeValue() < route.bonus.target) {
+            const target = live.find((obstacle) => obstacle.type === desiredType && obstacle.z > 70 && !live.some((other) => other !== obstacle && other.lane === obstacle.lane && Math.abs(other.z - obstacle.z) < 430));
+            if (target) moveToLane(target.lane);
+          }
+          const threat = live.find((obstacle) => obstacle.lane === player.lane);
+          if (threat && threat.z < 290) {
+            const need = obstacleKinds[threat.type].need;
+            const followup = live.some((other) => other !== threat && other.lane === threat.lane && other.z > threat.z && other.z - threat.z < 400);
+            const escape = () => {
+              const target = laneList.slice().sort((a, b) => laneRisk(a, 480) - laneRisk(b, 480))[0];
+              moveToLane(target);
+            };
+            if (followup) escape();
+            else if (need === "jump" && threat.z < 235 && player.jumpY === 0) jump();
+            else if (need === "slide" && threat.z < 210 && player.jumpY < 30) slide();
+            else if (need === "slide" && threat.z < 185 && player.jumpY >= 30) escape();
+            else if (need === "dodge" && threat.z < 245) {
+              escape();
+            }
+            return;
+          }
+          const wantsPower = route.bonus.type === "powers" && run.powersTaken < route.bonus.target;
+          const power = run.powers.filter((item) => !item.taken && item.z > 35 && item.z < (wantsPower ? 310 : 180)).sort((a, b) => a.z - b.z)[0];
+          if (power && laneRisk(power.lane, power.z + 30) === 0) { moveToLane(power.lane); return; }
+          const coin = run.coinsList.filter((item) => !item.taken && item.z > 35 && item.z < 230).sort((a, b) => a.z - b.z)[0];
+          if (coin && laneRisk(coin.lane, coin.z + 20) === 0) moveToLane(coin.lane);
+        }
+
+        function validateContent() {
+          if (routes.length !== 12 || new Set(routes.map((route) => route.id)).size !== 12 || new Set(routes.map((route) => route.seed)).size !== 12) throw new Error("必须配置 12 条唯一固定路线");
+          if (Object.keys(skins).length !== 3 || routes.some((route) => !skins[route.ref] || route.length < 400 || route.coins < 10)) throw new Error("跑者或路线参数无效");
+          return { routes: routes.length, chapters: new Set(routes.map((route) => route.chapter)).size, runners: Object.keys(skins).length, uniqueSeeds: new Set(routes.map((route) => route.seed)).size, totalMeters: routes.reduce((sum, route) => sum + route.length, 0), targetCoins: routes.reduce((sum, route) => sum + route.coins, 0) };
+        }
+
+        function runReferenceRoute(index) {
+          const previous = { profile, selectedSkin, run, player, state };
+          profile = freshProfile(); profile.route = index; selectedSkin = routes[index].ref;
+          startGame({ testing: true });
+          let frames = 0;
+          while (state === "running" && frames < 120000) { referenceControl(); updateRun(1 / 60); frames += 1; }
+          const result = { id: routes[index].id, runner: selectedSkin, frames, won: Boolean(run.result?.won), stars: run.result?.stars || 0, time: run.result?.time || run.time, coins: run.coins, score: Math.floor(run.score), jumps: run.jumps, slides: run.slides, near: run.nearMisses, powers: run.powersTaken, savedHits: run.savedHits, challenge: challengeValue() };
+          ({ profile, selectedSkin, run, player, state } = previous);
+          return result;
+        }
+
+        window.__forestDashTest = {
+          routes, runners: skins, freshProfile, encodeArchive, decodeArchive, validateContent, runReferenceRoute,
+          begin(index = 0, runner = "cub", options = { testing: true }) { profile.route = index; selectedSkin = skins[runner] ? runner : "cub"; startGame(options); },
+          step(dt = 1 / 60, controls = {}) { if (controls.left) laneChange(-1); if (controls.right) laneChange(1); if (controls.jump) jump(); if (controls.slide) slide(); updateRun(dt); },
+          snapshot() { return { state, route: profile.route, runner: selectedSkin, distance: run.distance, time: run.time, coins: run.coins, score: run.score, lane: player.lane, jumpY: player.jumpY, slide: player.slide, obstacles: run.obstacles.map(({ type, lane, z }) => [type, lane, Math.round(z)]), powers: run.powers.map(({ type, lane, z }) => [type, lane, Math.round(z)]), result: run.result }; }
+        };
 
         function bindEvents() {
           window.addEventListener("resize", resizeCanvas);
@@ -1973,11 +2231,14 @@
 
           ui.startTop.addEventListener("click", startGame);
           ui.startButton.addEventListener("click", startGame);
+          ui.routeButton.addEventListener("click", showRoutes);
+          ui.archiveButton.addEventListener("click", () => showArchive());
+          ui.selectReadyButton.addEventListener("click", showRoutes);
           ui.pauseTop.addEventListener("click", () => (state === "paused" ? resumeGame() : pauseGame()));
           ui.resumeButton.addEventListener("click", resumeGame);
           ui.restartPauseButton.addEventListener("click", startGame);
           ui.restartButton.addEventListener("click", startGame);
-          ui.copyButton.addEventListener("click", copyReport);
+          ui.nextButton.addEventListener("click", nextRoute);
           ui.copyResultButton.addEventListener("click", copyReport);
           ui.muteTop.addEventListener("click", () => {
             muted = !muted;
@@ -2028,9 +2289,23 @@
           document.querySelectorAll(".skin-button").forEach((button) => {
             button.addEventListener("click", () => {
               selectedSkin = button.dataset.skin;
+              profile.runner = selectedSkin;
+              saveProfile();
               document.querySelectorAll(".skin-button").forEach((item) => item.classList.toggle("active", item === button));
-              ui.statusLine.textContent = `${skins[selectedSkin].glyph} 已上场。`;
+              ui.statusLine.textContent = `${skins[selectedSkin].name} 已上场。`;
             });
+          });
+
+          document.querySelectorAll("[data-close]").forEach((button) => button.addEventListener("click", () => document.getElementById(button.dataset.close).close()));
+          document.getElementById("copyArchive").addEventListener("click", async () => {
+            const input = document.getElementById("archiveText"); input.select();
+            try { await navigator.clipboard.writeText(input.value); } catch { document.execCommand("copy"); }
+            showArchive("档案已复制。");
+          });
+          document.getElementById("importArchive").addEventListener("click", () => {
+            try {
+              profile = decodeArchive(document.getElementById("archiveText").value); selectedSkin = profile.runner; saveProfile(); selectRoute(profile.route); showArchive("档案已导入并通过校验。");
+            } catch (error) { showArchive(error.message || "档案无效"); }
           });
         }
 
