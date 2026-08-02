@@ -43,6 +43,7 @@
       "backpack-arena.html",
       "block-forge.html",
       "bomb-grid.html",
+      "branching-tales.html",
       "bytebot-lab.html",
       "charm-reels.html",
       "chromatic-press.html",
@@ -105,7 +106,6 @@
       "radish-guard.html"
     ],
     "C": [
-      "branching-tales.html",
       "crossword-cafe.html",
       "mosaic-jigsaw.html",
       "solitaire-classic.html"

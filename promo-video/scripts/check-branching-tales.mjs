@@ -1,0 +1,37 @@
+import assert from "node:assert/strict";
+import { createReadStream } from "node:fs";
+import { mkdir, stat } from "node:fs/promises";
+import http from "node:http";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { chromium } from "playwright";
+
+const here=path.dirname(fileURLToPath(import.meta.url)),rootDir=path.resolve(here,"..",".."),outputDir=path.join(rootDir,"output"),port=4222;
+await mkdir(outputDir,{recursive:true});
+const server=http.createServer(async(request,response)=>{try{const pathname=decodeURIComponent(new URL(request.url,"http://local").pathname);if(pathname==="/favicon.ico")return response.writeHead(204).end();const target=path.resolve(rootDir,pathname.slice(1));if(!target.startsWith(rootDir+path.sep))return response.writeHead(403).end("Forbidden");const info=await stat(target);if(!info.isFile())throw new Error("Not a file");response.writeHead(200,{"content-type":"text/html; charset=utf-8","cache-control":"no-store"});createReadStream(target).pipe(response)}catch{response.writeHead(404).end("Not found")}});
+await new Promise((resolve)=>server.listen(port,"127.0.0.1",resolve));
+
+let browser;const errors=[];
+function observe(page,label){page.on("pageerror",(error)=>errors.push(label+": "+error.message));page.on("console",(message)=>{if(message.type()==="error")errors.push(label+": "+message.text())})}
+async function assertLayout(page,label){const layout=await page.evaluate(()=>({clientWidth:document.documentElement.clientWidth,scrollWidth:document.documentElement.scrollWidth,textLength:document.body.innerText.replace(/\s+/g,"").length,outside:[...document.querySelectorAll("body *")].filter((element)=>{const rect=element.getBoundingClientRect();return rect.left<-4||rect.right>document.documentElement.clientWidth+4}).slice(0,8).map((element)=>({tag:element.tagName,id:element.id,className:element.className,left:element.getBoundingClientRect().left,right:element.getBoundingClientRect().right}))}));assert.equal(layout.scrollWidth<=layout.clientWidth+4,true,label+" horizontal overflow: "+JSON.stringify(layout.outside));assert.equal(layout.textLength>260,true,label+" rendered narrative content")}
+async function assertCanvas(page,label){const pixels=await page.locator("#routeCanvas").evaluate((canvas)=>{const context=canvas.getContext("2d"),colors=new Set();let opaque=0;for(let y=0;y<canvas.height;y+=Math.max(1,Math.floor(canvas.height/19)))for(let x=0;x<canvas.width;x+=Math.max(1,Math.floor(canvas.width/21))){const data=context.getImageData(x,y,1,1).data;if(data[3])opaque+=1;colors.add(data[0]+","+data[1]+","+data[2]+","+data[3])}return{opaque,colors:colors.size}});assert.equal(pixels.opaque>300,true,label+" canvas is nonblank");assert.equal(pixels.colors>=5,true,label+" canvas has rendered detail")}
+async function open(page,label){const response=await page.goto("http://127.0.0.1:"+port+"/branching-tales.html",{waitUntil:"load"});assert.equal(response?.status(),200,label+" response");await page.waitForFunction(()=>Boolean(window.__branchingTalesTest));await assertLayout(page,label);await assertCanvas(page,label)}
+
+try{
+  try{browser=await chromium.launch({channel:"msedge",headless:true})}catch{browser=await chromium.launch({headless:true})}
+  const desktop=await browser.newContext({viewport:{width:1365,height:900}}),page=await desktop.newPage();observe(page,"tales-desktop");await open(page,"tales desktop");
+  const content=await page.evaluate(()=>window.__branchingTalesTest.validateContent());
+  assert.equal(content.nights,12);assert.equal(content.chapters,5);assert.equal(content.transmissions,24);assert.equal(content.options,72);assert.equal(content.senders>=12,true);assert.equal(content.flags>=15,true);assert.equal(content.endings,8);assert.equal(content.referenceWins,3);assert.equal(content.referenceThreeStars,3);
+  assert.equal(content.references.every((result)=>result.successes===12&&result.choices===24&&result.h>=55&&result.t+result.v>=125),true,"reference route quality");
+  const archive=await page.evaluate(()=>{const test=window.__branchingTalesTest,profile=test.freshProfile();profile.operator="engineer";profile.bestStars=3;profile.bestScore=444;profile.runs=2;profile.endings=["dawn","truth"];return test.encodeArchive(profile)});
+  assert.equal(archive.startsWith("LETTER2."),true);const restored=await page.evaluate((code)=>window.__branchingTalesTest.decodeArchive(code),archive);assert.equal(restored.operator,"engineer");assert.equal(restored.bestStars,3);assert.equal(restored.endings.length,2);await assert.rejects(()=>page.evaluate((code)=>window.__branchingTalesTest.decodeArchive(code+"x"),archive));
+  const modelFlow=await page.evaluate(()=>{const test=window.__branchingTalesTest;test.start("decoder",true);const before=test.getState();test.choose(0);const middle=test.getState();test.choose(1);const resolved=test.getState();test.advance();return{before,middle,resolved,next:test.getState()}});
+  assert.equal(modelFlow.before.bandwidth,3);assert.equal(modelFlow.middle.bandwidth,1);assert.equal(modelFlow.middle.event,1);assert.equal(modelFlow.resolved.phase,"resolution");assert.equal(modelFlow.resolved.successes,1);assert.equal(modelFlow.next.night,1);assert.equal(modelFlow.next.bandwidth,3);
+
+  await page.reload({waitUntil:"load"});await page.waitForFunction(()=>Boolean(window.__branchingTalesTest));await page.locator("#campaignDialog").waitFor({state:"visible"});await page.locator("#startCampaign").click();await page.locator('[data-choice="0"]').click();assert.equal(await page.locator(".band-dot.on").count(),1,"bandwidth after first response");await page.locator('[data-choice="1"]').click();await page.locator("#resolution:not([hidden])").waitFor();assert.match(await page.locator("#resolutionTitle").textContent(),/处置完成/);await page.locator("#advanceButton").click();assert.match(await page.locator("#nightName").textContent(),/第 02 夜/);await assertCanvas(page,"tales desktop after night");await page.screenshot({path:path.join(outputDir,"branching-tales-v2-desktop.png"),fullPage:true});await page.close();await desktop.close();
+
+  const mobile=await browser.newContext({viewport:{width:390,height:844},screen:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:2}),phone=await mobile.newPage();observe(phone,"tales-mobile");await open(phone,"tales mobile");await phone.locator("#campaignDialog").waitFor({state:"visible"});await phone.locator('[data-operator="envoy"]').tap();await phone.locator("#startCampaign").tap();await phone.locator('[data-choice="0"]').tap();await phone.locator('[data-choice="1"]').tap();await phone.locator("#resolution:not([hidden])").waitFor();assert.equal(await phone.evaluate(()=>window.__branchingTalesTest.getState().successes),1);await assertLayout(phone,"tales mobile after choices");await assertCanvas(phone,"tales mobile after choices");await phone.screenshot({path:path.join(outputDir,"branching-tales-v2-mobile.png"),fullPage:true});await phone.close();await mobile.close();
+
+  assert.deepEqual(errors,[],"browser errors: "+errors.join(" | "));
+  console.log(JSON.stringify({checks:"PASS",games:1,nights:content.nights,chapters:content.chapters,transmissions:content.transmissions,options:content.options,senders:content.senders,flags:content.flags,endings:content.endings,referenceWins:content.referenceWins,referenceThreeStars:content.referenceThreeStars,screenshots:2,references:content.references},null,2));
+}finally{if(browser)await browser.close();server.close()}

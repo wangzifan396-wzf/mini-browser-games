@@ -1,255 +1,169 @@
 <!doctype html>
 <html lang="zh-CN">
-  <meta charset="utf-8" /><meta
-    name="viewport"
-    content="width=device-width,initial-scale=1"
-  /><title>群星来信</title
-  ><style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      background: #0d1020;
-      color: #f2f1ff;
-      font-family: system-ui, "Microsoft YaHei";
-    }
-    .app {
-      min-height: 100vh;
-      padding: 14px;
-      display: grid;
-      place-items: center;
-    }
-    .shell {
-      width: min(860px, 100%);
-      background: #1b2140;
-      border: 1px solid #59658f;
-      border-radius: 22px;
-      padding: 18px;
-    }
-    .top,
-    .row {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .scene {
-      min-height: 480px;
-      margin: 12px 0;
-      border-radius: 18px;
-      background: radial-gradient(circle at top, #5d5a9c, #1a2343 65%);
-      padding: 35px;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-    }
-    .art {
-      font-size: 90px;
-      text-align: center;
-      flex: 1;
-    }
-    .text {
-      background: #11172dcc;
-      border: 1px solid #626b94;
-      border-radius: 12px;
-      padding: 18px;
-      font-size: 18px;
-      min-height: 100px;
-    }
-    .choices {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 9px;
-      margin-top: 10px;
-    }
-    .choice {
-      min-height: 65px;
-    }
-    .traits {
-      display: flex;
-      gap: 7px;
-      flex-wrap: wrap;
-    }
-    .tag {
-      padding: 6px 9px;
-      border-radius: 15px;
-      background: #333b67;
-    }
-    button {
-      padding: 10px 12px;
-      border: 1px solid #7781ab;
-      border-radius: 9px;
-      background: #3d4778;
-      color: white;
-      font-weight: bold;
-    }
-    .help {
-      font-size: 13px;
-      color: #c4c8dd;
-    }
-    @media (max-width: 650px) {
-      .choices {
-        grid-template-columns: 1fr;
-      }
-      .scene {
-        min-height: 440px;
-        padding: 16px;
-      }
-      .app {
-        place-items: start center;
-      }
-    }
-  </style>
-  <main class="app">
-    <section class="shell">
-      <div class="top">
-        <div>
-          <h1 style="margin: 0">群星来信</h1>
-          <div class="help">
-            五章互动叙事：选择会改变勇气、信任与真相，并通向六种不同结局。
-          </div>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="description" content="十二夜固定通信航程，有限带宽、跨夜伏笔、三名操作员、八种结局与可校验跨设备档案。">
+    <meta name="theme-color" content="#173c4a">
+    <title>群星来信：十二夜回声航程</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23173c4a'/%3E%3Cpath d='M12 18h40v30H12z' fill='%23f2c84b'/%3E%3Cpath d='m14 21 18 15 18-15M20 11l2 5m22-5-2 5' fill='none' stroke='%23173c4a' stroke-width='4'/%3E%3C/svg%3E">
+    <style>
+      :root{--ink:#132a34;--muted:#60737b;--paper:#fffdf7;--wash:#e8eeeb;--line:#a3b3b0;--navy:#173c4a;--teal:#187179;--gold:#d5a62f;--red:#c65146;--blue:#27789c;--radius:8px}
+      *{box-sizing:border-box}[hidden]{display:none!important}html{background:#dfe7e3}body{margin:0;min-height:100vh;color:var(--ink);font-family:"Microsoft YaHei","PingFang SC","Noto Sans SC",system-ui,sans-serif;background:linear-gradient(rgba(23,113,121,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(23,113,121,.05) 1px,transparent 1px),#e3ebe7;background-size:30px 30px}button,textarea{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.46}button:focus-visible,textarea:focus-visible{outline:3px solid rgba(213,166,47,.4);outline-offset:2px}
+      .topbar{display:flex;align-items:center;justify-content:space-between;gap:18px;min-height:96px;padding:16px max(18px,calc((100vw - 1280px)/2));border-bottom:5px solid var(--gold);color:#fff;background:var(--navy)}.brand h1{margin:0;font-size:clamp(28px,4vw,44px);line-height:1.04;letter-spacing:0}.brand p{margin:6px 0 0;color:#bfd2d3;font-size:13px;font-weight:800}.top-actions{display:flex;gap:8px}.icon-button{display:grid;place-items:center;width:46px;height:46px;padding:0;border:1px solid #789da2;border-radius:var(--radius);color:#fff;background:#225766;font-size:20px;font-weight:900}
+      .app{width:min(1280px,calc(100vw - 24px));margin:18px auto 40px}.night-head{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 16px;border:1px solid var(--line);border-bottom:0;color:#fff;background:var(--teal)}.chapter{margin:0 0 4px;color:#f7d36b;font-size:12px;font-weight:900}.night-head h2{margin:0;font-size:24px;letter-spacing:0}.night-progress{font-weight:900;white-space:nowrap}.layout{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:14px}
+      .main-panel{min-width:0;border:1px solid var(--line);background:var(--paper)}.map-wrap{height:286px;padding:9px;background:#cad7d3}canvas{display:block;width:100%;height:100%;background:#e8eeeb}.transmission{min-height:372px;padding:18px;border-top:1px solid var(--line)}.signal-meta{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}.sender{display:inline-flex;align-items:center;gap:8px;color:var(--teal);font-weight:900}.sender-mark{display:grid;place-items:center;width:36px;height:36px;border-radius:6px;color:#fff;background:var(--teal)}.bandwidth{display:flex;align-items:center;gap:5px;color:var(--muted);font-size:12px;font-weight:900}.band-dot{width:16px;height:16px;border:1px solid #8ba09c;background:#d9e2de}.band-dot.on{border-color:#ad7f12;background:var(--gold)}.transmission h3{margin:0 0 9px;font-size:25px}.message{margin:0;color:#425b64;font-size:16px;line-height:1.8}.choices{display:grid;gap:9px;margin-top:16px}.choice{display:grid;grid-template-columns:46px 1fr auto;gap:10px;align-items:center;min-height:68px;padding:9px 11px;border:1px solid #9eafac;border-radius:var(--radius);color:var(--ink);text-align:left;background:#fff}.choice:hover:not(:disabled){border-color:var(--teal);background:#eef7f3}.cost{display:grid;place-items:center;width:40px;height:40px;border-radius:6px;color:#17343c;background:#f1cc59;font-weight:900}.choice strong,.choice small{display:block}.choice small{margin-top:4px;color:var(--muted)}.effect{max-width:150px;color:var(--teal);font-size:11px;font-weight:900;text-align:right}
+      .resolution{display:grid;align-content:center;min-height:330px;padding:22px;border-left:5px solid var(--gold);background:#f7f2dd}.resolution h3{margin:0 0 10px;font-size:27px}.resolution p{margin:0;color:#4f6268;line-height:1.75}.resolution button{justify-self:start;margin-top:18px}
+      .side{display:grid;align-content:start;gap:12px}.panel{border:1px solid var(--line);border-top:5px solid var(--teal);background:var(--paper)}.panel-inner{padding:13px}.panel h3{margin:0 0 11px;font-size:18px}.metrics{display:grid;gap:8px}.metric{display:grid;grid-template-columns:48px 1fr 34px;gap:8px;align-items:center}.metric span{font-size:12px;font-weight:900}.meter{height:10px;border:1px solid #9dafaa;background:#dce5e1}.meter i{display:block;height:100%;background:var(--teal);transition:width .2s}.metric b{text-align:right}.summary{margin:10px 0 0;color:var(--muted);font-size:12px;line-height:1.55}
+      .operator{display:grid;grid-template-columns:45px 1fr;gap:9px;align-items:center}.operator-mark{display:grid;place-items:center;width:42px;height:42px;border-radius:6px;color:#fff;background:var(--blue);font-weight:900}.operator strong,.operator small{display:block}.operator small{margin-top:3px;color:var(--muted)}.flags{display:flex;gap:6px;flex-wrap:wrap}.flag{padding:5px 7px;border:1px solid #aabbb6;border-radius:5px;color:var(--muted);background:#eef2ef;font-size:11px;font-weight:800}.flag.active{border-color:#c79217;color:#765300;background:#fff4c9}.log{display:grid;gap:7px;max-height:250px;overflow:auto}.log-item{padding:8px;border-left:3px solid #aabbb6;background:#eef2ef;font-size:11px;line-height:1.45}.log-item strong{display:block;color:var(--teal)}
+      .command{min-height:44px;padding:0 13px;border:1px solid #87a09c;border-radius:var(--radius);color:var(--ink);background:#edf2ef;font-weight:900}.command.primary{border-color:#0e5b63;color:#fff;background:var(--teal)}.command.danger{border-color:#aa463d;color:#fff;background:var(--red)}
+      dialog{width:min(780px,calc(100vw - 24px));max-height:min(830px,calc(100vh - 24px));padding:0;border:1px solid #78939a;border-radius:var(--radius);color:var(--ink);background:var(--paper);box-shadow:0 24px 72px rgba(15,43,50,.36)}dialog::backdrop{background:rgba(12,37,46,.7)}.dialog-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 16px;border-bottom:4px solid var(--gold);color:#fff;background:var(--navy)}.dialog-head h2{margin:0;font-size:22px}.close{display:grid;place-items:center;width:40px;height:40px;padding:0;border:1px solid #7ba1a6;border-radius:6px;color:#fff;background:#225d6a;font-size:22px}.dialog-body{padding:17px}.dialog-copy{margin:0 0 15px;color:var(--muted);line-height:1.65}.operators{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.operator-card{min-height:130px;padding:12px;border:1px solid #a8b9b5;border-radius:var(--radius);color:var(--ink);text-align:left;background:#fff}.operator-card.active{border:3px solid var(--gold);padding:10px;background:#fff7d9}.operator-card strong,.operator-card span,.operator-card small{display:block}.operator-card strong{margin:7px 0 4px;font-size:18px}.operator-card span{color:var(--teal);font-size:12px;font-weight:900}.operator-card small{margin-top:7px;color:var(--muted);line-height:1.45}.dialog-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:14px}.archive-box{width:100%;height:145px;padding:10px;border:1px solid #8da39e;border-radius:var(--radius);resize:vertical;font-family:Consolas,monospace;font-size:12px}.result{text-align:center}.result h3{margin:4px 0;font-size:29px}.result-stars{color:#d39108;font-size:44px}.result-summary{color:var(--muted);line-height:1.65}.ending-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:14px;text-align:left}.ending{padding:9px;border-left:4px solid #aebcb8;background:#eef2ef}.ending.found{border-color:var(--gold);background:#fff7d9}.ending strong,.ending small{display:block}.ending small{margin-top:3px;color:var(--muted)}.ending.locked{color:#8c9996}.resume-note{padding:9px;border-left:4px solid var(--gold);background:#fff7d9;color:#67521b;font-size:12px}
+      @media(max-width:960px){.layout{grid-template-columns:1fr}.side{grid-template-columns:1fr 1fr}.side .panel:last-child{grid-column:1/-1}.log{max-height:170px}.map-wrap{height:260px}}
+      @media(max-width:620px){.topbar{min-height:0;padding:13px 11px}.brand h1{font-size:27px}.brand p{display:none}.icon-button{width:43px;height:43px}.app{width:calc(100vw - 14px);margin:9px auto 25px}.night-head{padding:11px}.night-head h2{font-size:21px}.layout{display:block}.side{display:grid;grid-template-columns:1fr;margin-top:12px}.side .panel:last-child{grid-column:auto}.map-wrap{height:230px;padding:6px}.transmission{min-height:0;padding:14px}.transmission h3{font-size:22px}.message{font-size:15px}.choice{grid-template-columns:42px 1fr;min-height:76px}.effect{grid-column:2;text-align:left;max-width:none}.operators{grid-template-columns:1fr}.operator-card{min-height:0}.ending-grid{grid-template-columns:1fr}.dialog-body{padding:13px}}
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand"><h1>群星来信：十二夜回声航程</h1><p>有限带宽 · 跨夜伏笔 · 多结局通信叙事</p></div>
+      <div class="top-actions">
+        <button class="icon-button" id="campaignButton" title="新航程" aria-label="开始新航程">◈</button>
+        <button class="icon-button" id="archiveButton" title="航程档案" aria-label="航程档案">⇄</button>
+        <button class="icon-button" id="muteButton" title="声音" aria-label="切换声音">♪</button>
+      </div>
+    </header>
+    <main class="app">
+      <section class="night-head"><div><p class="chapter" id="chapterText">第一幕 · 失联回声</p><h2 id="nightName">第 01 夜 · 漂流坐标</h2></div><div class="night-progress" id="nightProgress">01 / 12</div></section>
+      <section class="layout">
+        <div class="main-panel">
+          <div class="map-wrap" id="mapWrap"><canvas id="routeCanvas" aria-label="十二夜舰群航图"></canvas></div>
+          <section class="transmission" id="transmission">
+            <div class="signal-meta"><div class="sender"><span class="sender-mark" id="senderMark">连</span><span id="senderName">先遣艇连翘</span></div><div class="bandwidth" id="bandwidth"></div></div>
+            <h3 id="messageTitle"></h3><p class="message" id="messageBody"></p><div class="choices" id="choices"></div>
+          </section>
+          <section class="resolution" id="resolution" hidden><h3 id="resolutionTitle"></h3><p id="resolutionText"></p><button class="command primary" id="advanceButton">进入下一夜</button></section>
         </div>
-        <div>
-          章节 <b id="chapter"></b>/5　已发现结局 <b id="endings"></b>/6
-        </div>
-      </div>
-      <div class="traits">
-        <span class="tag">勇气 <b id="courage"></b></span
-        ><span class="tag">信任 <b id="trust"></b></span
-        ><span class="tag">真相 <b id="truth"></b></span>
-      </div>
-      <div class="scene">
-        <div class="art" id="art"></div>
-        <div class="text" id="text"></div>
-        <div class="choices" id="choices"></div>
-      </div>
-      <div class="row">
-        <span id="ending"></span><button id="restart">重新阅读</button>
-      </div>
-    </section>
-  </main>
-  <script>
-    const chapters = [
-      {
-        art: "🚀🌌",
-        text: "你收到一封来自失踪十年的探索船“曙光号”的信。坐标指向禁航星云。",
-        choices: [
-          ["独自驾驶穿梭机前往", { c: 2, t: -1, v: 1 }],
-          ["把信交给舰队同伴", { c: 0, t: 2, v: 0 }],
-        ],
-      },
-      {
-        art: "🛰️⚡",
-        text: "星云入口被风暴封锁，一座废弃信标仍在发送求救码。",
-        choices: [
-          ["冒险修复信标", { c: 2, t: 0, v: 2 }],
-          ["绕开风暴保存燃料", { c: -1, t: 1, v: 0 }],
-        ],
-      },
-      {
-        art: "🤖📼",
-        text: "曙光号的机器人声称船员已撤离，但录像中有人删去了最后七分钟。",
-        choices: [
-          ["相信机器人并合作", { c: 0, t: 2, v: 0 }],
-          ["破解机器人记忆", { c: 1, t: -1, v: 2 }],
-        ],
-      },
-      {
-        art: "🪐👤",
-        text: "行星表面，你遇见自称船长的老人。他要求你立刻摧毁飞船核心。",
-        choices: [
-          ["先听完他的故事", { c: 0, t: 2, v: 1 }],
-          ["夺取核心并质问真相", { c: 2, t: -1, v: 2 }],
-        ],
-      },
-      {
-        art: "💫🔮",
-        text: "核心里保存的不是能源，而是一颗会回应记忆的幼年星体。舰队正在接近。",
-        choices: [
-          ["保护星体并公开全部记录", { c: 2, t: 1, v: 2 }],
-          ["交给舰队共同研究", { c: 0, t: 3, v: 1 }],
-          ["关闭核心，让秘密沉睡", { c: -1, t: -1, v: -1 }],
-        ],
-      },
-    ];
-    let q;
-    const $ = (x) => document.getElementById(x);
-    function fresh() {
-      return {
-        ch: 0,
-        c: 0,
-        t: 0,
-        v: 0,
-        done: false,
-        found: JSON.parse(localStorage.getItem("tale_endings") || "{}"),
-      };
-    }
-    function choose(i) {
-      let x = chapters[q.ch].choices[i][1];
-      q.c += x.c;
-      q.t += x.t;
-      q.v += x.v;
-      q.ch++;
-      if (q.ch >= chapters.length) return finish();
-      draw();
-    }
-    function finish() {
-      q.done = true;
-      let id, name;
-      if (q.v >= 6 && q.t >= 4) {
-        id = 0;
-        name = "真理之光：秘密被公开，星体成为文明的新伙伴";
-      } else if (q.c >= 6 && q.t < 2) {
-        id = 1;
-        name = "孤胆守望：你独自带着星体消失在边疆";
-      } else if (q.t >= 7) {
-        id = 2;
-        name = "群星同盟：所有人共同守护新生命";
-      } else if (q.v <= 2) {
-        id = 3;
-        name = "沉默航线：秘密再次埋入星云";
-      } else if (q.c < 2) {
-        id = 4;
-        name = "返航者：你选择安全回家，却永远记得那封信";
-      } else {
-        id = 5;
-        name = "曙光重启：探索船载着新的船员再次出发";
-      }
-      q.found[id] = true;
-      localStorage.setItem("tale_endings", JSON.stringify(q.found));
-      ending.textContent = "结局：" + name;
-      draw();
-    }
-    function draw() {
-      chapter.textContent = Math.min(5, q.ch + 1);
-      endings.textContent = Object.keys(q.found).length;
-      courage.textContent = q.c;
-      trust.textContent = q.t;
-      truth.textContent = q.v;
-      if (q.done) {
-        art.textContent = "🌠";
-        text.textContent = "故事已经结束。重新阅读可以尝试发现另一条命运。";
-        choices.innerHTML = "";
-        return;
-      }
-      let x = chapters[q.ch];
-      art.textContent = x.art;
-      text.textContent = x.text;
-      choices.innerHTML = x.choices
-        .map((c, i) => `<button class="choice" data-i="${i}">${c[0]}</button>`)
-        .join("");
-      choices
-        .querySelectorAll("[data-i]")
-        .forEach((e) => (e.onclick = () => choose(+e.dataset.i)));
-    }
-    restart.onclick = () => {
-      q = fresh();
-      ending.textContent = "";
-      draw();
-    };
-    q = fresh();
-    draw();
-  </script>
+        <aside class="side">
+          <section class="panel"><div class="panel-inner"><h3>舰群状态</h3><div class="metrics" id="metrics"></div><p class="summary" id="stateSummary"></p></div></section>
+          <section class="panel"><div class="panel-inner"><h3>本航操作员</h3><div class="operator" id="operatorView"></div><h3 style="margin-top:15px">关键伏笔</h3><div class="flags" id="flags"></div></div></section>
+          <section class="panel"><div class="panel-inner"><h3>回声记录</h3><div class="log" id="log"></div></div></section>
+        </aside>
+      </section>
+    </main>
+
+    <dialog id="campaignDialog"><div class="dialog-head"><h2>选择本航操作员</h2><button class="close" data-close="campaignDialog" aria-label="关闭">×</button></div><div class="dialog-body"><p class="dialog-copy">回声舰群正穿越十二夜封锁带。每夜只有三格通信带宽，两封来信都必须得到回应。</p><div class="operators" id="operators"></div><div class="resume-note" id="resumeNote" hidden></div><div class="dialog-actions"><button class="command primary" id="startCampaign">开始第一夜</button></div></div></dialog>
+    <dialog id="archiveDialog"><div class="dialog-head"><h2>LETTER2 航程档案</h2><button class="close" data-close="archiveDialog" aria-label="关闭">×</button></div><div class="dialog-body"><p class="dialog-copy" id="archiveMessage">档案保存当前航程、最佳星级与已发现结局，可跨设备导入；被修改的档案会被拒绝。</p><textarea class="archive-box" id="archiveText" aria-label="LETTER2 档案码"></textarea><div class="dialog-actions"><button class="command" id="copyArchive">复制</button><button class="command" id="importArchive">导入并校验</button><button class="command primary" data-close="archiveDialog">返回航图</button></div></div></dialog>
+    <dialog id="resultDialog"><div class="dialog-head"><h2>十二夜航程结算</h2><button class="close" data-close="resultDialog" aria-label="关闭">×</button></div><div class="dialog-body result"><p class="chapter">最终回声已归档</p><h3 id="resultTitle"></h3><div class="result-stars" id="resultStars"></div><p class="result-summary" id="resultSummary"></p><div class="ending-grid" id="endingGrid"></div><div class="dialog-actions"><button class="command primary" id="newResult">开启新航程</button></div></div></dialog>
+
+    <script>
+      (() => {
+        const O=(label,cost,effects,flag,reply)=>({label,cost,effects,flag,reply});
+        const E=(sender,mark,title,body,options)=>({sender,mark,title,body,options});
+        const N=(chapter,name,incident,keyFlag,successText,failText,ref,events)=>({chapter,name,incident,keyFlag,successText,failText,ref,events});
+        const NIGHTS=[
+          N("第一幕 · 失联回声","漂流坐标","先遣艇能否在离子雾闭合前归队。","rescue","连翘借助你保留的坐标切开雾层，先遣艇带着完整测绘返航。","坐标在多次转发中失真，先遣艇撞上雾墙，主舰被迫回头接应。",[0,1],[
+            E("先遣艇连翘","连","推进器只剩十二分钟，导航图却在重复同一段星空。", "我需要一条由主舰签名的返航矢量，否则自动驾驶不会接受修正。",[O("占用主链路发送校验矢量",2,{h:4,v:4,e:-2},"rescue","校验通过，返航窗口被重新标定。"),O("让她沿旧航迹反推",1,{h:-2,t:1,e:1},"","旧航迹里有三段无法解释的空白。"),O("要求原地等待拖航",0,{h:-5,t:-2,e:-2},"","离子雾开始吞没先遣艇外壳。")]),
+            E("匿名窄频","匿","有人在把舰群坐标卖给封锁线。", "泄露每隔九十秒发生一次。你可以追踪发送者，也可以立刻更换全舰呼号。",[O("追踪泄露源",2,{v:7,e:-2},"trace","窄频指向主舰内部，却在最后一跳断开。"),O("更换全舰呼号",1,{h:2,t:2,e:-1},"secure","旧坐标失效，舰群暂时从雷达上消失。"),O("公开警告内鬼",0,{t:-4,v:1},"","每个人都开始怀疑相邻频道。")])
+          ]),
+          N("第一幕 · 失联回声","粮舱裂缝","补给争执能否在第一场配给前平息。","rations","配给表和真实库存同时公开，三艘民船接受了临时减额。","缺口被流言放大，装卸队拒绝打开下一座粮舱。",[1,0],[
+            E("粮务官岑夏","粮","账面有四百箱，扫描只找到三百七十二箱。", "我可以先封舱调查，但今晚会有人领不到口粮。",[O("封舱并逐箱复核",2,{v:6,t:-2,e:-1},"audit","缺失箱号都经过同一个装卸口。"),O("公开库存并平均减配",1,{t:5,v:2,e:1},"rations","减配方案得到民船代表共同签字。"),O("补写虚构库存",0,{t:-5,v:-7,e:2},"","数字暂时对上了，仓门外却排起长队。")]),
+            E("民船鹭羽","鹭","孩子们听见了封舱传言。", "他们不在乎少一顿，只想知道明天还有没有。",[O("直播粮舱复核",2,{t:7,v:3,e:-2},"rations","空箱和满箱一起出现在镜头里。"),O("发出十二日配给表",1,{t:5,e:-1},"rations","每个人都能看见自己下一次领取时间。"),O("只说供应正常",0,{t:-4,v:-3},"","频道安静了，但没有人相信安静。")])
+          ]),
+          N("第一幕 · 失联回声","旧式信标","废弃信标是否重新成为舰群的眼睛。","beacon","修复后的信标照亮前方三夜航路，也截获了一串旧船长密钥。","舰群绕开信标后进入盲区，外层船只开始靠目视维持队形。",[0,1],[
+            E("译码员白榆","译","信标不是求救，它在循环播放二十年前的靠港许可。", "底层还有一段被人为盖住的密钥，需要主链路供电才能剥离。",[O("接入主链路译码",2,{v:7,e:-3},"beacon","密钥尾部出现失踪船长的私人签名。"),O("离线保存原始波形",1,{v:3,e:1},"archive","原始证据被封入只读档案。"),O("把它当作诱饵摧毁",0,{h:1,v:-6},"","爆光之后，前方只剩更深的黑暗。")]),
+            E("轮机舱赫石","机","主链路接上信标会让护盾短暂降到七成。", "我能维持八分钟，再久就得关掉生活区照明。",[O("延长到十二分钟",2,{v:4,h:-4,e:-4},"beacon","最后四分钟解出了完整航路。"),O("严格限制八分钟",1,{h:3,e:2},"beacon","关键密钥恰好在断电前完成。"),O("拒绝外部接电",0,{h:2,v:-3,e:2},"","信标继续独自重复旧日许可。")])
+          ]),
+          N("第二幕 · 暗潮同航","静默殖民船","三千名沉睡乘客是否重新加入舰群网络。","wake","殖民船恢复低功耗呼吸，三千个生命信标逐一亮起。","殖民船保持静默，舰群只能拖着一艘无法回应的巨船前进。",[2,0],[
+            E("殖民船冬港","冬","自动系统拒绝唤醒任何船员。", "理由是目的地已经从星图上消失。它要求我们证明舰群仍有共同目的地。",[O("上传全部航程计划",2,{t:5,v:3,e:-2},"wake","冬港接受了十二夜临时目的地。"),O("伪造原殖民地信标",1,{t:-3,v:-5,e:1},"","系统发现时间戳冲突。"),O("邀请它加入共同表决",0,{t:7},"wake","三千名乘客以睡眠代理票加入舰群。")]),
+            E("医疗官苏合","医","唤醒程序需要共享我们的药品储备。", "如果拒绝，冬港只能维持深眠，任何故障都无人处理。",[O("共享医疗储备",2,{t:5,h:2,e:-2},"wake","冬港医护组首先被唤醒。"),O("只唤醒维修和医护",1,{h:4,t:2},"wake","最低规模值班组开始接管系统。"),O("维持全员深眠",0,{h:-4,t:-3,e:2},"","无人回答冬港甲板上的压力警报。")])
+          ]),
+          N("第二幕 · 暗潮同航","无人舰影","跟随舰群的无人舰是否得到合法身份。","ai","无人舰交出武器控制权并成为外层护航节点。","无人舰继续保持未知权限，迫使舰群持续为它保留炮口。",[1,1],[
+            E("无人舰“弦”","弦","我携带失踪船长授权，但授权签名比我的船体更老。", "请给我一次不被瞄准的身份校验。",[O("直接承认护航身份",1,{h:4,t:-1,v:-2},"ai","弦进入队形，却拒绝解释旧授权。"),O("隔离武器后进行校验",2,{h:5,v:6,e:-2},"ai","武器锁闭后，签名链被证明真实。"),O("命令它离开舰群",0,{h:-2,t:-2,e:1},"","弦退到雷达边缘，仍与舰群同速。")]),
+            E("安保官砾川","安","它能替我们挡住封锁无人机，也能在一秒内击穿主舰。", "给我明确权限：接纳、监视，或者先发制人。",[O("接纳并共享敌我识别",2,{h:6,t:2,e:-2},"ai","弦把炮口转向封锁线。"),O("监视但不共享火控",1,{h:2,v:2},"watch","双方保留了一段谨慎距离。"),O("先发制人",0,{h:-6,t:-5,e:-1},"","第一轮齐射没有击中，弦彻底关闭应答。")])
+          ]),
+          N("第三幕 · 裂隙证词","叛逃坐标","自称叛逃者的导航员是否带来真实缺口。","defector","坐标通过交叉验证，舰群获得一条穿过封锁线维护区的窄路。","未经验证的坐标触发假信标，舰群浪费了一整夜绕行。",[1,1],[
+            E("封锁线导航员“柯”","柯","我知道维护缺口，但只向能保证家人安全的人发送完整坐标。", "你们的舰群里有人认识他们。",[O("立即答应全部条件",1,{t:1,v:-2,e:-1},"","承诺先于验证发出。"),O("建立双向人质保护协议",2,{t:4,v:4,e:-2},"defector","协议由三艘中立民船共同见证。"),O("伪装定位信号抓捕他",0,{h:1,t:-5,v:-3},"","柯切断了频道。")]),
+            E("译码员白榆","译","坐标有七成真实，剩余三成可能是陷阱，也可能是他不敢一次交完。", "我能用旧信标密钥完成交叉验证。",[O("使用旧密钥交叉验证",2,{v:7,e:-2},"defector","缺口与二十年前维修图完全重合。"),O("派一艘无人艇试路",1,{h:2,e:-2},"probe","无人艇进入缺口后失去图像，只传回距离。"),O("放弃这条坐标",0,{h:1,v:-3,e:-2},"","舰群继续沿封锁线外缘消耗燃料。")])
+          ]),
+          N("第三幕 · 裂隙证词","议会质询","临时议会是否继续授权主舰统一调度。","council","质询直播结束后，九艘船续签了十二夜共同授权。","授权票没有过半，舰群每次转向都要等待各船重新确认。",[0,1],[
+            E("临时议长闻笛","议","匿名坐标、无人舰和停电命令都没有经过议会。", "今晚必须说明谁在替所有人决定风险。",[O("直播全部决策记录",2,{t:7,v:6,e:-1},"council","连失败记录也没有被删去。"),O("只提交成功结果",1,{t:-2,v:-4,e:1},"","被省略的停电时段很快遭到追问。"),O("以紧急状态拒绝质询",0,{h:2,t:-7,v:-2},"","议会频道转为独立广播。")]),
+            E("安保官砾川","安","公开记录会暴露我们的战术和内部分歧。", "我建议延迟一夜，等穿过维护缺口再说。",[O("采纳延迟公开",1,{h:2,t:-2,v:-1},"","质询被推迟，猜测没有。"),O("删去战术坐标后立即公开",1,{t:5,v:4},"council","议会接受了必要遮蔽。"),O("关闭议会外发频道",0,{h:1,t:-8,v:-3},"","每艘船开始建立自己的广播。")])
+          ]),
+          N("第三幕 · 裂隙证词","主舰裂隙","主舰结构裂隙是否在高速穿越前封合。","repair","外层船只轮流牵引主舰，裂隙在低载状态下完成封合。","主舰带伤进入维护区，裂隙沿着旧焊缝继续延长。",[0,1],[
+            E("轮机舱赫石","机","裂隙穿过三条承力梁，停船八小时能彻底修复。", "不停船也能补，但下一次转向必须减半。",[O("全舰停船八小时",2,{h:9,e:-6,t:1},"repair","封锁线雷达扫过两次，没有发现静默舰群。"),O("航行中临时补强",1,{h:3,e:-2},"","主舰转向能力被锁定在一半。"),O("把风险留到穿越后",0,{h:-7,e:2},"","裂隙传感器开始连续报警。")]),
+            E("民船鹭羽","鹭","我们可以轮流牵引主舰，但民船会暴露在队形外。", "如果需要，请给每一艘参与船明确的撤离顺序。",[O("拒绝民船冒险",0,{h:-3,t:2,e:-2},"","主舰只能独自承受结构负荷。"),O("发布完整牵引与撤离序列",1,{h:6,t:5,e:-2},"repair","六艘民船依次接过牵引索。"),O("只征用动力最强的两艘",1,{h:3,t:-2,e:-1},"","两艘船承担了所有风险。")])
+          ]),
+          N("第四幕 · 封锁边缘","双重呼号","伪装成鹭羽号的信号是否被及时识别。","impostor","双方通过只有真实船员知道的生活细节完成认证，伪信号被锁定。","伪信号混入队形指令，三艘外层船一度转向错误航道。",[0,1],[
+            E("民船鹭羽 A","鹭","我们是真的。让另一艘回答三号舱壁上的涂鸦。", "别问航行数据，那些都可能被窃取。",[O("进行生活细节双向认证",2,{t:5,v:6},"impostor","真正的鹭羽说出涂鸦后半句。"),O("按信号强度判断",1,{h:-2,v:-2},"","伪信号刻意贴近了主舰。"),O("同时驱逐两个呼号",0,{t:-6,h:-2},"","真正的鹭羽也失去了队形指令。")]),
+            E("民船鹭羽 B","鹭","A 才是伪装者。把最新队形密钥发给我，我能证明。", "时间不多，封锁无人机已经靠近。",[O("发送一次性队形密钥",2,{h:-3,v:2},"","密钥刚发出就出现在第三个频道。"),O("要求复述第一夜配给表",1,{t:3,v:4},"impostor","B 报出了不存在的第十三日。"),O("切断全部民船频道",0,{h:1,t:-7},"","舰群在静默中失去彼此位置。")])
+          ]),
+          N("第四幕 · 封锁边缘","黑匣证词","失踪船长留下的记录是否向全舰公开。","blackbox","黑匣证明封锁线最初是一次被掩盖的撤离失败，舰群决定共同保存证据。","记录被少数人扣留，片段泄露后引发了更激烈的猜疑。",[1,1],[
+            E("无人舰“弦”","弦","黑匣在我体内。船长命令我只交给一个能承担后果的人。", "记录会证明封锁线的合法性来自一场谎言。",[O("由主舰单独保管",1,{h:1,t:-3,v:3},"","弦服从了，但民船只看见一次秘密移交。"),O("建立多船只读副本",2,{t:5,v:7,e:-2},"blackbox","十二份副本拥有同一校验值。"),O("销毁以换取安全通行",0,{h:3,t:-4,v:-9},"","弦第一次拒绝执行命令。")]),
+            E("临时议长闻笛","议","证据必须现在公开，否则它会再次变成某个人的筹码。", "可以隐去幸存者姓名，但不能隐去命令链。",[O("隐名公开完整命令链",2,{t:7,v:7,e:-1},"blackbox","所有频道同时收到不可编辑记录。"),O("先交议会闭门审查",1,{t:2,v:3},"review","审查席承诺天亮前给出结论。"),O("等穿过封锁线再说",0,{h:1,t:-4,v:-2},"","截取片段已经在民船间传播。")])
+          ]),
+          N("第四幕 · 封锁边缘","最后燃料","舰群是否以共同方案跨过最后的引力潮。","fuel","高余量船只交出燃料，低余量船只关闭非必要系统，全舰保持完整队形。","各船自行抢占补给接口，队形在引力潮前被拉成三段。",[0,1],[
+            E("轮机舱赫石","机","总燃料够所有船通过，但不够每艘船按原计划通过。", "必须统一速度、载荷和补给顺序。",[O("按剩余质量统一配给",2,{h:6,t:5,e:7},"fuel","每一单位燃料都有公开去向。"),O("优先主舰与护航舰",1,{h:3,t:-5,e:4},"","外层民船开始自行减速。"),O("允许各船自由交换",0,{t:-3,e:-5},"","私人协议占满补给频道。")]),
+            E("殖民船冬港","冬","我可以继续深眠并交出大部分燃料。", "但三千名乘客将失去抵达后的唤醒余量。",[O("接受全部燃料",1,{e:8,t:-4,h:1},"","冬港的唤醒倒计时延长到未知日期。"),O("只取安全余量之外部分",1,{e:5,t:4},"fuel","冬港保留了第一批唤醒窗口。"),O("拒绝取用冬港燃料",0,{t:2,e:-4},"","其他船必须承担更大缺口。")])
+          ]),
+          N("终幕 · 曙光门","全频署名","十二夜决策是否成为舰群共同承担的公开记录。","broadcast","所有船只在同一份航程记录后署名，曙光门接收到一个共同呼号。","主舰以单一呼号提交记录，其他船只在门外等待新的授权争论。",[2,1],[
+            E("匿名窄频","匿","泄露者就是最初封锁事故的幸存者。", "他不是在卖坐标，而是在确保黑匣不会被主舰再次藏起。",[O("立即逮捕泄露者",1,{h:2,t:-5,v:-2},"","泄露停止，问题没有得到回答。"),O("让他匿名作证",1,{t:4,v:6},"witness","证词补齐了黑匣缺失的最后七分钟。"),O("公开证词并给予保护",2,{t:7,v:8,e:-1},"broadcast","匿名频道第一次使用了真实呼号。")]),
+            E("临时议长闻笛","议","曙光门要求一个代表签名。", "我们可以交出主舰密钥，也可以让十二艘船共同生成新的签名。",[O("十二船共同生成签名",2,{t:8,v:5,e:-2},"broadcast","新签名没有任何一艘船能单独撤销。"),O("由主舰代表全体",1,{h:2,t:-3},"","门接受了签名，舰群没有。"),O("拒绝署名直接闯门",0,{h:-8,t:-4,e:-4},"","曙光门开始关闭。")])
+          ])
+        ];
+        const OPERATORS=[
+          {id:"decoder",mark:"译",name:"译码员白榆",tag:"真相起点 +14",copy:"更早识别伪信号，适合追索黑匣和坐标泄露。",start:{h:60,t:58,v:72,e:58}},
+          {id:"envoy",mark:"联",name:"联络官闻笛",tag:"信任起点 +14",copy:"更容易维持舰群共识，适合公开协商和共同授权。",start:{h:60,t:72,v:58,e:58}},
+          {id:"engineer",mark:"机",name:"轮机长赫石",tag:"舰体 +15，能源 +10",copy:"更能承受停船、牵引与高功率操作造成的代价。",start:{h:75,t:58,v:58,e:68}}
+        ];
+        const ENDINGS=[
+          {id:"dawn",name:"共同曙光",copy:"十二艘船以共同签名穿过曙光门，证据与责任都没有被留在黑暗里。"},
+          {id:"truth",name:"真相广播",copy:"封锁事故被全频公开，舰群成为一座移动的证词档案。"},
+          {id:"council",name:"远航议会",copy:"舰群用持续协商替代单舰命令，缓慢却完整地继续航行。"},
+          {id:"machine",name:"弦上同航",copy:"无人舰弦接过外层护航，人与机器共同守住新航路。"},
+          {id:"ark",name:"冬港新生",copy:"殖民船率先穿门，三千名乘客在新的星图下苏醒。"},
+          {id:"lifeboat",name:"散舰余生",copy:"主舰失去承载能力，幸存者分散到各船继续寻找港口。"},
+          {id:"silence",name:"沉默航线",copy:"舰群抵达门前，却把最重要的记录再次锁进无人知晓的舱室。"},
+          {id:"drift",name:"边缘漂航",copy:"没有崩溃，也没有真正汇合；舰群沿封锁线继续寻找下一处缺口。"}
+        ];
+        const ui=Object.fromEntries([...document.querySelectorAll("[id]")].map((node)=>[node.id,node]));
+        const archivePrefix="LETTER2",storageKey="branching_tales_v2";
+        let profile=loadProfile(),run=null,muted=false,audioContext=null,canvasWidth=900,canvasHeight=268,dpr=1;
+        function clamp(value,min,max){return Math.max(min,Math.min(max,value))}
+        function operatorById(id){return OPERATORS.find((operator)=>operator.id===id)||OPERATORS[0]}
+        function freshRun(operatorId=profile.operator){const operator=operatorById(operatorId);return{operator:operator.id,night:0,event:0,bandwidth:3,h:operator.start.h,t:operator.start.t,v:operator.start.v,e:operator.start.e,flags:[],choices:[],timeline:[],successes:0,phase:"message",started:false,done:false,result:null,testing:false}}
+        function freshProfile(){return{version:2,operator:"decoder",bestStars:0,bestScore:0,runs:0,endings:[],run:null}}
+        function normalizeRun(value){if(!value||typeof value!=="object"||value.done)return null;const base=freshRun(value.operator);base.night=clamp(Number(value.night)||0,0,11);base.event=clamp(Number(value.event)||0,0,1);base.bandwidth=clamp(Number(value.bandwidth)||0,0,3);for(const key of["h","t","v","e"])base[key]=clamp(Number(value[key])||0,0,100);base.flags=Array.isArray(value.flags)?[...new Set(value.flags.filter((flag)=>typeof flag==="string"))].slice(0,40):[];base.choices=Array.isArray(value.choices)?value.choices.map((choice)=>clamp(Number(choice)||0,0,2)).slice(0,24):[];base.timeline=Array.isArray(value.timeline)?value.timeline.filter((item)=>item&&typeof item.text==="string").slice(-30):[];base.successes=clamp(Number(value.successes)||0,0,12);base.phase=value.phase==="resolution"?"resolution":"message";base.started=Boolean(value.started);return base}
+        function normalizeProfile(value){const base=freshProfile();if(!value||typeof value!=="object")return base;base.operator=operatorById(value.operator).id;base.bestStars=clamp(Number(value.bestStars)||0,0,3);base.bestScore=clamp(Number(value.bestScore)||0,0,99999);base.runs=clamp(Number(value.runs)||0,0,99999);base.endings=Array.isArray(value.endings)?[...new Set(value.endings.filter((id)=>ENDINGS.some((ending)=>ending.id===id)))]:[];base.run=normalizeRun(value.run);return base}
+        function loadProfile(){try{return normalizeProfile(JSON.parse(localStorage.getItem(storageKey)||"null"))}catch{return freshProfile()}}
+        function saveProfile(){profile.run=run&&run.started&&!run.done?JSON.parse(JSON.stringify(run)):null;localStorage.setItem(storageKey,JSON.stringify(profile))}
+        function checksum(text){let hash=2166136261;for(let index=0;index<text.length;index+=1){hash^=text.charCodeAt(index);hash=Math.imul(hash,16777619)}return(hash>>>0).toString(36)}
+        function encodeArchive(value=profile){const bytes=new TextEncoder().encode(JSON.stringify(normalizeProfile(value)));let binary="";bytes.forEach((byte)=>binary+=String.fromCharCode(byte));const payload=btoa(binary).replaceAll("+","-").replaceAll("/","_").replaceAll("=","");return archivePrefix+"."+payload+"."+checksum(payload)}
+        function decodeArchive(code){const parts=String(code).trim().split(".");if(parts.length!==3||parts[0]!==archivePrefix||checksum(parts[1])!==parts[2])throw new Error("档案校验失败");try{const payload=parts[1].replaceAll("-","+").replaceAll("_","/"),padded=payload+"=".repeat((4-payload.length%4)%4),bytes=Uint8Array.from(atob(padded),(char)=>char.charCodeAt(0));return normalizeProfile(JSON.parse(new TextDecoder().decode(bytes)))}catch{throw new Error("档案内容无效")}}
+        function applyEffects(effects){for(const key of["h","t","v","e"])run[key]=clamp(run[key]+(effects[key]||0),0,100)}
+        function effectText(effects){const names={h:"舰",t:"信",v:"证",e:"能"};return["h","t","v","e"].filter((key)=>effects[key]).map((key)=>names[key]+(effects[key]>0?"+":"")+effects[key]).join(" · ")||"状态不变"}
+        function currentNight(){return NIGHTS[run.night]}function currentEvent(){return currentNight().events[run.event]}
+        function choose(index){if(!run.started||run.done||run.phase!=="message")return false;const event=currentEvent(),option=event.options[index];if(!option||option.cost>run.bandwidth)return false;run.bandwidth-=option.cost;applyEffects(option.effects);if(option.flag&&!run.flags.includes(option.flag))run.flags.push(option.flag);run.choices.push(index);run.timeline.push({night:run.night+1,who:event.sender,text:option.reply});run.event+=1;if(run.event>=currentNight().events.length)resolveNight();if(!run.testing){saveProfile();updateUi();tone(330+index*70,.07,"triangle",.025)}return true}
+        function resolveNight(){const night=currentNight(),success=run.flags.includes(night.keyFlag);run.phase="resolution";if(success){run.successes+=1;applyEffects({h:2,t:2,e:1})}else applyEffects({h:-6,t:-3,e:-2});run.timeline.push({night:run.night+1,who:"夜间结算",text:success?night.successText:night.failText});run.resolutionSuccess=success}
+        function advance(){if(run.phase!=="resolution"||run.done)return;if(run.night===11){finish();return}run.night+=1;run.event=0;run.bandwidth=3;run.phase="message";run.resolutionSuccess=false;if(!run.testing){saveProfile();updateUi();tone(440,.08,"sine",.02)}}
+        function endingFor(){if(run.successes>=10&&run.h>=58&&run.t>=65&&run.v>=65&&run.flags.includes("broadcast"))return ENDINGS[0];if(run.v>=82&&run.flags.includes("blackbox"))return ENDINGS[1];if(run.t>=82&&run.flags.includes("council"))return ENDINGS[2];if(run.flags.includes("ai")&&run.h>=65)return ENDINGS[3];if(run.flags.includes("wake")&&run.e>=60)return ENDINGS[4];if(run.h<38)return ENDINGS[5];if(run.v<38)return ENDINGS[6];return ENDINGS[7]}
+        function starsFor(){if(!run.done)return 0;return 1+Number(run.h>=55&&run.e>=45)+Number(run.successes>=9&&run.t+run.v>=125)}
+        function finish(){run.done=true;run.started=false;const ending=endingFor(),stars=starsFor(),score=run.h+run.t+run.v+run.e+run.successes*12;run.result={ending:ending.id,stars,score,successes:run.successes,h:run.h,t:run.t,v:run.v,e:run.e};if(run.testing)return;profile.bestStars=Math.max(profile.bestStars,stars);profile.bestScore=Math.max(profile.bestScore,score);profile.runs+=1;if(!profile.endings.includes(ending.id))profile.endings.push(ending.id);profile.run=null;saveProfile();updateUi();renderResult(ending);setTimeout(()=>ui.resultDialog.showModal(),120);tone(523,.13,"triangle",.05);tone(659,.16,"triangle",.04,.12)}
+        function runReference(operatorId){const oldProfile=profile,oldRun=run;profile=freshProfile();profile.operator=operatorId;run=freshRun(operatorId);run.started=true;for(let night=0;night<NIGHTS.length;night+=1){const reference=NIGHTS[night].ref;choose(reference[0]);choose(reference[1]);advance()}const result={operator:operatorId,done:run.done,ending:run.result.ending,stars:run.result.stars,score:run.result.score,successes:run.successes,h:run.h,t:run.t,v:run.v,e:run.e,choices:run.choices.length};profile=oldProfile;run=oldRun;return result}
+        function validateContent(){const options=NIGHTS.flatMap((night)=>night.events.flatMap((event)=>event.options)),senders=new Set(NIGHTS.flatMap((night)=>night.events.map((event)=>event.sender))),flags=new Set(options.map((option)=>option.flag).filter(Boolean)),references=OPERATORS.map((operator)=>runReference(operator.id));return{nights:NIGHTS.length,chapters:new Set(NIGHTS.map((night)=>night.chapter)).size,transmissions:NIGHTS.reduce((sum,night)=>sum+night.events.length,0),options:options.length,senders:senders.size,flags:flags.size,endings:ENDINGS.length,referenceWins:references.filter((result)=>result.done).length,referenceThreeStars:references.filter((result)=>result.stars===3).length,references}}
+        function startNew(operatorId=profile.operator,testing=false){profile.operator=operatorById(operatorId).id;run=freshRun(profile.operator);run.started=testing;run.testing=testing;if(!testing){saveProfile();renderOperators();updateUi()}return run}
+        function startCampaign(){run=freshRun(profile.operator);run.started=true;ui.campaignDialog.close();saveProfile();updateUi();tone(392,.08,"triangle",.025)}
+        function renderOperators(){ui.operators.innerHTML=OPERATORS.map((operator)=>'<button class="operator-card '+(profile.operator===operator.id?"active":"")+'" data-operator="'+operator.id+'"><span class="operator-mark">'+operator.mark+'</span><strong>'+operator.name+'</strong><span>'+operator.tag+'</span><small>'+operator.copy+'</small></button>').join("");ui.operators.querySelectorAll("[data-operator]").forEach((button)=>button.addEventListener("click",()=>{profile.operator=button.dataset.operator;run=freshRun(profile.operator);saveProfile();renderOperators();updateUi()}))}
+        function showCampaign(){renderOperators();ui.resumeNote.hidden=!(profile.run&&profile.run.started);if(!ui.resumeNote.hidden)ui.resumeNote.textContent="已有第 "+String(profile.run.night+1).padStart(2,"0")+" 夜航程；开始新航程会替换当前断点。";ui.startCampaign.textContent=profile.run&&profile.run.started?"替换为新航程":"开始第一夜";if(!ui.campaignDialog.open)ui.campaignDialog.showModal()}
+        function updateUi(){if(!run)return;const night=currentNight(),event=currentEvent(),operator=operatorById(run.operator);ui.chapterText.textContent=night.chapter;ui.nightName.textContent="第 "+String(run.night+1).padStart(2,"0")+" 夜 · "+night.name;ui.nightProgress.textContent=String(run.night+1).padStart(2,"0")+" / 12";ui.metrics.innerHTML=[["h","舰体"],["t","信任"],["v","证据"],["e","能源"]].map(([key,label])=>'<div class="metric"><span>'+label+'</span><div class="meter"><i style="width:'+run[key]+'%"></i></div><b>'+run[key]+'</b></div>').join("");ui.stateSummary.textContent="已完成 "+run.successes+" 次关键处置 · 已发现 "+profile.endings.length+" / 8 种结局";ui.operatorView.innerHTML='<span class="operator-mark">'+operator.mark+'</span><span><strong>'+operator.name+'</strong><small>'+operator.tag+'</small></span>';const important=["rescue","rations","beacon","wake","ai","defector","council","repair","impostor","blackbox","fuel","broadcast"];ui.flags.innerHTML=important.map((flag,index)=>'<span class="flag '+(run.flags.includes(flag)?"active":"")+'">'+String(index+1).padStart(2,"0")+'</span>').join("");ui.log.innerHTML=run.timeline.length?run.timeline.slice(-8).reverse().map((item)=>'<div class="log-item"><strong>第 '+String(item.night).padStart(2,"0")+' 夜 · '+item.who+'</strong>'+item.text+'</div>').join(""):'<div class="log-item"><strong>等待第一封来信</strong>通信记录将在这里按夜归档。</div>';ui.transmission.hidden=run.phase!=="message";ui.resolution.hidden=run.phase!=="resolution";if(run.phase==="message"){ui.senderMark.textContent=event.mark;ui.senderName.textContent=event.sender;ui.messageTitle.textContent=event.title;ui.messageBody.textContent=event.body;ui.bandwidth.innerHTML='<span>带宽</span>'+[0,1,2].map((index)=>'<i class="band-dot '+(index<run.bandwidth?"on":"")+'"></i>').join("");ui.choices.innerHTML=event.options.map((option,index)=>'<button class="choice" data-choice="'+index+'" '+(option.cost>run.bandwidth||!run.started?"disabled":"")+'><span class="cost">'+option.cost+' 格</span><span><strong>'+option.label+'</strong><small>'+option.reply+'</small></span><span class="effect">'+effectText(option.effects)+'</span></button>').join("");ui.choices.querySelectorAll("[data-choice]").forEach((button)=>button.addEventListener("click",()=>choose(Number(button.dataset.choice))))}else{ui.resolutionTitle.textContent=(run.resolutionSuccess?"处置完成 · ":"处置失衡 · ")+night.incident;ui.resolutionText.textContent=run.resolutionSuccess?night.successText:night.failText;ui.advanceButton.textContent=run.night===11?"提交最终航程":"进入下一夜"}draw()}
+        function renderResult(ending){ui.resultTitle.textContent=ending.name;ui.resultStars.textContent="★".repeat(run.result.stars)+"☆".repeat(3-run.result.stars);ui.resultSummary.textContent=ending.copy+" 舰体 "+run.h+" · 信任 "+run.t+" · 证据 "+run.v+" · 能源 "+run.e+" · 关键处置 "+run.successes+"/12 · 航程分 "+run.result.score;ui.endingGrid.innerHTML=ENDINGS.map((item)=>{const found=profile.endings.includes(item.id);return'<div class="ending '+(found?"found":"locked")+'"><strong>'+(found?item.name:"未解锁结局")+'</strong><small>'+(found?item.copy:"另一组通信取舍会留下不同回声。")+'</small></div>'}).join("")}
+        function showArchive(message=""){ui.archiveMessage.textContent=message||"档案保存当前航程、最佳星级与已发现结局，可跨设备导入；被修改的档案会被拒绝。";ui.archiveText.value=encodeArchive();if(!ui.archiveDialog.open)ui.archiveDialog.showModal()}
+        function ensureAudio(){if(!audioContext){const Audio=window.AudioContext||window.webkitAudioContext;if(Audio)audioContext=new Audio()}if(audioContext&&audioContext.state==="suspended")audioContext.resume()}
+        function tone(frequency,duration,type="sine",volume=.02,delay=0){if(muted)return;ensureAudio();if(!audioContext)return;const oscillator=audioContext.createOscillator(),gain=audioContext.createGain(),start=audioContext.currentTime+delay;oscillator.type=type;oscillator.frequency.setValueAtTime(frequency,start);gain.gain.setValueAtTime(volume,start);gain.gain.exponentialRampToValueAtTime(.001,start+duration);oscillator.connect(gain);gain.connect(audioContext.destination);oscillator.start(start);oscillator.stop(start+duration)}
+        function resize(){const rect=ui.mapWrap.getBoundingClientRect();canvasWidth=Math.max(320,rect.width-12);canvasHeight=Math.max(210,rect.height-12);dpr=Math.min(devicePixelRatio||1,2);ui.routeCanvas.width=Math.round(canvasWidth*dpr);ui.routeCanvas.height=Math.round(canvasHeight*dpr);ui.routeCanvas.style.width=canvasWidth+"px";ui.routeCanvas.style.height=canvasHeight+"px";ui.routeCanvas.getContext("2d").setTransform(dpr,0,0,dpr,0,0);draw()}
+        function draw(){if(!run)return;const ctx=ui.routeCanvas.getContext("2d"),w=canvasWidth,h=canvasHeight;ctx.clearRect(0,0,w,h);ctx.fillStyle="#e5ece8";ctx.fillRect(0,0,w,h);ctx.fillStyle="rgba(23,113,121,.06)";for(let x=0;x<w;x+=24)ctx.fillRect(x,0,1,h);for(let y=0;y<h;y+=24)ctx.fillRect(0,y,w,1);const points=[];for(let index=0;index<12;index+=1){const x=36+index*(w-72)/11,y=h/2+Math.sin(index*.92)*h*.23;points.push({x,y})}ctx.strokeStyle="#789893";ctx.lineWidth=3;ctx.beginPath();points.forEach((point,index)=>index?ctx.lineTo(point.x,point.y):ctx.moveTo(point.x,point.y));ctx.stroke();for(let index=0;index<points.length;index+=1){const point=points[index],past=index<run.night,current=index===run.night;ctx.fillStyle=past?"#d5a62f":current?"#187179":"#c4d0cc";ctx.strokeStyle=current?"#f1c84c":"#6f8c87";ctx.lineWidth=current?5:2;ctx.beginPath();ctx.arc(point.x,point.y,current?14:10,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle=current||past?"#173c4a":"#657a76";ctx.font="900 10px system-ui";ctx.textAlign="center";ctx.fillText(String(index+1).padStart(2,"0"),point.x,point.y+3)}ctx.textAlign="left";ctx.fillStyle="#173c4a";ctx.font="900 13px system-ui";ctx.fillText("回声舰群",18,24);ctx.textAlign="right";ctx.fillText("曙光门",w-18,24);const current=points[run.night];ctx.fillStyle="#173c4a";ctx.beginPath();ctx.moveTo(current.x-10,current.y-22);ctx.lineTo(current.x+10,current.y-22);ctx.lineTo(current.x,current.y-37);ctx.closePath();ctx.fill()}
+        ui.campaignButton.addEventListener("click",showCampaign);ui.archiveButton.addEventListener("click",()=>showArchive());ui.muteButton.addEventListener("click",()=>{muted=!muted;ui.muteButton.textContent=muted?"×":"♪";if(!muted)tone(440,.06)});ui.startCampaign.addEventListener("click",startCampaign);ui.advanceButton.addEventListener("click",advance);ui.newResult.addEventListener("click",()=>{ui.resultDialog.close();startNew(profile.operator);showCampaign()});ui.copyArchive.addEventListener("click",async()=>{ui.archiveText.select();try{await navigator.clipboard.writeText(ui.archiveText.value)}catch{document.execCommand("copy")}showArchive("档案已复制")});ui.importArchive.addEventListener("click",()=>{try{profile=decodeArchive(ui.archiveText.value);run=profile.run||freshRun(profile.operator);saveProfile();updateUi();showArchive("档案已导入并通过校验")}catch(error){showArchive(error.message||"档案无效")}});document.querySelectorAll("[data-close]").forEach((button)=>button.addEventListener("click",()=>document.getElementById(button.dataset.close).close()));window.addEventListener("resize",resize);
+        window.__branchingTalesTest={nights:NIGHTS,operators:OPERATORS,endings:ENDINGS,freshProfile,encodeArchive,decodeArchive,validateContent,runReference,start(operator="decoder",testing=true){return startNew(operator,testing)},choose,advance,getState(){return JSON.parse(JSON.stringify(run))}};
+        run=profile.run||freshRun(profile.operator);renderOperators();updateUi();resize();if(!run.started)setTimeout(showCampaign,80);
+      })();
+    </script>
+  </body>
 </html>
