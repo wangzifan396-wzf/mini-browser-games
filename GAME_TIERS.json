@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-02",
+  "updatedAt": "2026-08-03",
   "tiers": {
     "SSS": [
       "ball-arena.html",
@@ -86,6 +86,7 @@
       "prism-breaker.html",
       "prism-orchard.html",
       "pulse-studio.html",
+      "radish-guard.html",
       "runway-stylist.html",
       "signal-caravan.html",
       "sky-hop.html",
@@ -104,8 +105,7 @@
       "wonder-park.html"
     ],
     "B": [
-      "midnight-chess.html",
-      "radish-guard.html"
+      "midnight-chess.html"
     ],
     "C": [
       "crossword-cafe.html",

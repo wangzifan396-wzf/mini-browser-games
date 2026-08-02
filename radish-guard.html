@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>萝卜边境</title>
+    <title>萝卜边境：十二线守望</title>
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23111914'/%3E%3Cpath d='M34 10c13 9 17 24 9 38-7 12-21 11-25-2-4-14 2-28 16-36Z' fill='%23f3f0dd'/%3E%3Cpath d='M32 12c1-7 6-9 12-7-1 7-5 10-12 7Z' fill='%2378b763'/%3E%3Cpath d='M24 31h15M23 40h13' stroke='%23d88b5c' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
     <style>
       :root {
@@ -35,9 +35,8 @@
         background:
           linear-gradient(rgba(244, 239, 221, 0.05) 1px, transparent 1px),
           linear-gradient(90deg, rgba(244, 239, 221, 0.05) 1px, transparent 1px),
-          radial-gradient(circle at 16% 8%, rgba(120, 183, 99, 0.17), transparent 34%),
           #0d1a13;
-        background-size: 32px 32px, 32px 32px, auto, auto;
+        background-size: 32px 32px;
       }
 
       button {
@@ -57,7 +56,7 @@
         padding: 18px 24px;
         border: 1px solid var(--line);
         border-radius: var(--radius);
-        background: linear-gradient(90deg, rgba(47, 122, 94, 0.16), rgba(215, 169, 71, 0.15)), var(--paper);
+        background: var(--paper);
         box-shadow: 0 18px 40px var(--shadow);
       }
 
@@ -78,8 +77,8 @@
 
       h1 {
         margin: 0;
-        font-size: clamp(38px, 7vw, 74px);
-        line-height: 0.95;
+        font-size: clamp(34px, 5vw, 54px);
+        line-height: 1;
         letter-spacing: 0;
       }
 
@@ -294,7 +293,6 @@
         gap: 8px;
       }
 
-      .difficulty-grid,
       .action-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
@@ -441,6 +439,18 @@
         line-height: 1.65;
       }
 
+      .archive-code {
+        width: 100%;
+        min-height: 108px;
+        padding: 10px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        color: var(--ink);
+        background: #f8f2e3;
+        font: 12px/1.5 ui-monospace, Consolas, monospace;
+        resize: vertical;
+      }
+
       @media (max-width: 1120px) {
         .game-layout {
           grid-template-columns: 1fr;
@@ -496,12 +506,15 @@
           grid-column: 1 / -1;
         }
 
-        .map-grid,
-        .difficulty-grid,
         .ability-grid,
         .action-grid,
         .shop-grid {
           grid-template-columns: 1fr;
+        }
+
+        .map-grid,
+        .difficulty-grid {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
         }
 
         canvas {
@@ -515,12 +528,13 @@
     <div class="app-shell">
       <header class="topbar">
         <div>
-          <p class="eyebrow">传统防守方塔防</p>
-          <h1>萝卜边境</h1>
+          <p class="eyebrow">四区十二线固定塔防战役</p>
+          <h1>萝卜边境：十二线守望</h1>
         </div>
         <div class="top-actions">
+          <button id="archiveButton" class="quiet-button" type="button">档案</button>
           <button id="helpButton" class="quiet-button" type="button">规则</button>
-          <button id="resetButton" class="quiet-button" type="button">新局</button>
+          <button id="resetButton" class="quiet-button" type="button">重开</button>
         </div>
       </header>
 
@@ -558,16 +572,16 @@
         <aside class="command-panel">
           <section class="panel-section">
             <div class="section-title">
-              <h2>地图</h2>
-              <span id="mapLockHint" class="tag">开波前可换</span>
+              <h2>战役合同</h2>
+              <span id="mapLockHint" class="tag">十二线</span>
             </div>
             <div id="mapButtons" class="map-grid"></div>
           </section>
 
           <section class="panel-section">
             <div class="section-title">
-              <h2>难度</h2>
-              <span class="tag">渐进经济</span>
+              <h2>守边人</h2>
+              <span class="tag">被动专长</span>
             </div>
             <div id="difficultyButtons" class="difficulty-grid"></div>
           </section>
@@ -629,8 +643,6 @@
     <script>
       const W = 960;
       const H = 600;
-      const MAX_WAVES = 8;
-
       const canvas = document.getElementById("gameCanvas");
       const ctx = canvas.getContext("2d");
 
@@ -654,17 +666,19 @@
         pauseButton: document.getElementById("pauseButton"),
         log: document.getElementById("logList"),
         reset: document.getElementById("resetButton"),
+        archive: document.getElementById("archiveButton"),
         help: document.getElementById("helpButton"),
+        mapLockHint: document.getElementById("mapLockHint"),
         modal: document.getElementById("modal"),
         modalKicker: document.getElementById("modalKicker"),
         modalTitle: document.getElementById("modalTitle"),
         modalBody: document.getElementById("modalBody")
       };
 
-      const difficulties = {
-        easy: { name: "轻松", gold: 145, lives: 24, hp: 0.86, speed: 0.94, reward: 1.08 },
-        normal: { name: "普通", gold: 125, lives: 20, hp: 1, speed: 1, reward: 1 },
-        hard: { name: "挑战", gold: 108, lives: 16, hp: 1.14, speed: 1.06, reward: 0.94 }
+      const commanders = {
+        steward: { name: "园务官", short: "务", cost: 0.9, obstacle: 1.2, range: 1, damage: 1, lives: 0, cooldown: 1, guard: 1, desc: "建造和升级九折，清障奖励提高 20%。" },
+        scout: { name: "瞭望员", short: "望", cost: 1, obstacle: 1, range: 1.12, damage: 1.05, lives: 0, cooldown: 1, guard: 1, desc: "炮塔射程提高 12%，伤害提高 5%。" },
+        keeper: { name: "守门人", short: "守", cost: 1, obstacle: 1, range: 1, damage: 1, lives: 4, cooldown: 0.78, guard: 1.22, desc: "额外 4 点生命，技能冷却缩短 22%，芽兵更强。" }
       };
 
       const maps = {
@@ -838,16 +852,41 @@
         boss: { mark: "王", name: "菜园巨像", hp: 430, speed: 30, armor: 4, reward: 35, damage: 5, boss: true, color: "#8d3d45" }
       };
 
-      const waves = [
-        [{ type: "nibble", count: 6, gap: 0.94 }],
-        [{ type: "nibble", count: 10, gap: 0.72 }, { type: "runner", count: 4, gap: 0.95, delay: 1.2 }],
-        [{ type: "nibble", count: 12, gap: 0.62 }, { type: "shell", count: 3, gap: 1.25, delay: 1 }],
-        [{ type: "runner", count: 8, gap: 0.72 }, { type: "flyer", count: 6, gap: 0.82, delay: 1.4 }],
-        [{ type: "shell", count: 7, gap: 0.95 }, { type: "healer", count: 3, gap: 1.25, delay: 1.1 }, { type: "nibble", count: 10, gap: 0.5, delay: 1 }],
-        [{ type: "flyer", count: 9, gap: 0.68 }, { type: "runner", count: 12, gap: 0.52, delay: 1.2 }, { type: "shell", count: 5, gap: 1, delay: 1.4 }],
-        [{ type: "healer", count: 5, gap: 1 }, { type: "shell", count: 9, gap: 0.72, delay: 0.7 }, { type: "flyer", count: 8, gap: 0.65, delay: 1.2 }],
-        [{ type: "nibble", count: 16, gap: 0.42 }, { type: "runner", count: 12, gap: 0.48, delay: 0.8 }, { type: "boss", count: 1, gap: 1.2, delay: 1.6 }, { type: "flyer", count: 10, gap: 0.55, delay: 2 }]
+      function makeContractWaves(index, focus) {
+        const tier = Math.floor(index / 3);
+        return Array.from({ length: 6 }, (_, wave) => {
+          const groups = [{ type: "nibble", count: 5 + wave * 2 + tier, gap: Math.max(0.42, 0.84 - wave * 0.055) }];
+          const amount = 2 + wave + Math.floor(tier / 2);
+          if (wave >= 1 && (focus === "rush" || focus === "mixed" || focus === "siege")) groups.push({ type: "runner", count: amount + (focus === "rush" ? 2 : 0), gap: 0.66, delay: 0.8 });
+          if (wave >= 2 && (focus === "armor" || focus === "mixed" || focus === "siege")) groups.push({ type: "shell", count: Math.max(2, amount - 1), gap: 0.92, delay: 0.9 });
+          if (wave >= 2 && (focus === "air" || (focus === "mixed" && wave >= 4))) groups.push({ type: "flyer", count: amount + (focus === "air" ? 2 : 0), gap: 0.7, delay: 1 });
+          if (wave >= 3 && (focus === "heal" || focus === "siege" || (focus === "mixed" && wave === 5))) groups.push({ type: "healer", count: Math.max(2, Math.floor(amount / 2)), gap: 1.05, delay: 1 });
+          if (focus === "swarm" && wave >= 2) groups.push({ type: wave % 2 ? "runner" : "nibble", count: amount + 3, gap: 0.46, delay: 0.65 });
+          if (wave === 5) groups.push({ type: "boss", count: index >= 9 ? 2 : 1, gap: 1.2, delay: 1.2 });
+          return groups;
+        });
+      }
+
+      const CONTRACT_DATA = [
+        ["morning", "晨巡溪桥", "晨巡", "brook", "swarm", 174, 24, 0.82, 0.94, 1.14, 28, 0.96, 0.88, 22, 2, "清障阳光充足，先熟悉弯道火力。"],
+        ["windpost", "风信急递", "风信", "windmill", "rush", 166, 23, 0.88, 1.00, 1.11, 27, 0.98, 0.92, 20, 2, "疾跑敌群提前出现，减速塔价值更高。"],
+        ["shellbank", "梯田硬甲", "硬甲", "terrace", "armor", 162, 22, 0.93, 0.96, 1.08, 27, 1.00, 0.92, 19, 2, "硬壳甲虫成队推进，需要魔法或重炮。"],
+        ["paperwing", "雨桥纸翼", "纸翼", "brook", "air", 158, 22, 0.98, 1.01, 1.07, 26, 1.00, 0.96, 19, 2, "空中目标穿过兵营，保留对空射界。"],
+        ["spring", "风车回春", "回春", "windmill", "heal", 156, 21, 1.01, 0.99, 1.06, 26, 1.00, 0.94, 18, 2, "回春芽会修复邻军，集中火力优先处理。"],
+        ["night", "梯田夜潮", "夜潮", "terrace", "mixed", 154, 21, 1.04, 1.01, 1.05, 25, 1.00, 0.96, 18, 2, "地面、硬甲与空军交替，塔型必须互补。"],
+        ["harvest", "丰桥群袭", "群袭", "brook", "swarm", 152, 20, 1.07, 1.02, 1.04, 25, 1.02, 1.00, 17, 2, "密集敌潮压缩清障时间，溅射决定效率。"],
+        ["ironmill", "铁磨围线", "铁磨", "windmill", "armor", 150, 20, 1.10, 1.01, 1.03, 24, 1.02, 1.00, 17, 2, "高耐久敌军持续推进，升级节奏比铺塔更重要。"],
+        ["skyfield", "天田折翼", "折翼", "terrace", "air", 150, 20, 1.11, 1.04, 1.03, 24, 1.03, 1.00, 17, 2, "纸翼蛾数量增加，错误塔位会留下对空盲区。"],
+        ["thorn", "棘桥复苏", "复苏", "brook", "heal", 148, 19, 1.13, 1.03, 1.02, 24, 1.04, 1.02, 16, 1, "治疗队列护送双巨像，技能需要留给关键窗口。"],
+        ["gale", "风车追猎", "追猎", "windmill", "rush", 146, 19, 1.15, 1.06, 1.02, 23, 1.05, 1.03, 16, 1, "高速长队减少反应时间，必须预先控制弯道。"],
+        ["crown", "王冠终线", "终线", "terrace", "siege", 148, 18, 1.17, 1.04, 1.02, 24, 1.05, 1.04, 18, 1, "双巨像与治疗、硬甲共同压境，完成最终验收。"]
       ];
+
+      const CONTRACTS = CONTRACT_DATA.map((data, index) => {
+        const [id, name, short, map, focus, gold, lives, hp, enemySpeed, reward, waveBonus, towerCost, abilityCooldown, starLives, starAbilities, rule] = data;
+        const recommended = focus === "swarm" || focus === "heal" ? "steward" : focus === "mixed" || focus === "siege" ? "keeper" : "scout";
+        return { id, name, short, map, focus, gold, lives, hp, enemySpeed, reward, waveBonus, towerCost, abilityCooldown, starLives, starAbilities, rule, recommended, index, seed: 4109 + index * 977, chapter: Math.floor(index / 3), waves: makeContractWaves(index, focus) };
+      });
 
       const abilities = {
         sprouts: {
@@ -864,8 +903,55 @@
         }
       };
 
-      let selectedMap = "brook";
-      let selectedDifficulty = "normal";
+      function freshProfile() {
+        return { version: 2, unlocked: 0, stars: Array(12).fill(0), bestLives: Array(12).fill(0), clears: Array(12).fill(0), commander: "steward" };
+      }
+
+      function normalizeProfile(value) {
+        const next = freshProfile();
+        if (!value || typeof value !== "object") return next;
+        next.unlocked = Math.floor(clamp(Number(value.unlocked) || 0, 0, 11));
+        if (Array.isArray(value.stars)) next.stars = next.stars.map((fallback, index) => Math.floor(clamp(Number(value.stars[index]) || fallback, 0, 3)));
+        if (Array.isArray(value.bestLives)) next.bestLives = next.bestLives.map((fallback, index) => Math.floor(clamp(Number(value.bestLives[index]) || fallback, 0, 99)));
+        if (Array.isArray(value.clears)) next.clears = next.clears.map((fallback, index) => Math.floor(clamp(Number(value.clears[index]) || fallback, 0, 999)));
+        if (commanders[value.commander]) next.commander = value.commander;
+        return next;
+      }
+
+      function archiveHash(text) {
+        let hash = 2166136261;
+        for (let i = 0; i < text.length; i += 1) {
+          hash ^= text.charCodeAt(i);
+          hash = Math.imul(hash, 16777619);
+        }
+        return (hash >>> 0).toString(36);
+      }
+
+      function encodeArchive(value = profile) {
+        const body = btoa(JSON.stringify(normalizeProfile(value)));
+        return `RADISH2.${body}.${archiveHash(body)}`;
+      }
+
+      function decodeArchive(code) {
+        const parts = String(code).trim().split(".");
+        if (parts.length !== 3 || parts[0] !== "RADISH2" || archiveHash(parts[1]) !== parts[2]) throw Error("档案码校验失败");
+        let value;
+        try { value = JSON.parse(atob(parts[1])); } catch { throw Error("档案内容损坏"); }
+        if (value.version !== 2 || !Array.isArray(value.stars) || value.stars.length !== 12) throw Error("档案版本或长度不正确");
+        return normalizeProfile(value);
+      }
+
+      function loadProfile() {
+        try { return normalizeProfile(JSON.parse(localStorage.getItem("radish_guard_v2"))); } catch { return freshProfile(); }
+      }
+
+      function saveProfile() {
+        localStorage.setItem("radish_guard_v2", JSON.stringify(profile));
+      }
+
+      let profile = loadProfile();
+      let selectedContract = Math.min(profile.unlocked, 11);
+      let selectedCommander = profile.commander;
       let state;
       let dpr = 1;
       let lastTime = 0;
@@ -875,22 +961,25 @@
         return JSON.parse(JSON.stringify(value));
       }
 
-      function createState() {
-        const diff = difficulties[selectedDifficulty];
-        const map = clone(maps[selectedMap]);
+      function createState(testing = false) {
+        const contract = CONTRACTS[selectedContract];
+        const commander = commanders[selectedCommander];
+        const map = clone(maps[contract.map]);
         const path = preparePath(map.path);
         return {
+          contract,
+          commander: selectedCommander,
           map,
           path,
-          difficulty: selectedDifficulty,
           mode: "planning",
           paused: false,
           speed: 1,
-          gold: diff.gold,
-          lives: diff.lives,
-          maxLives: diff.lives,
+          gold: contract.gold,
+          lives: contract.lives + commander.lives,
+          maxLives: contract.lives + commander.lives,
           wave: 0,
           waveTime: 0,
+          elapsed: 0,
           spawnQueue: [],
           spawnIndex: 0,
           selectedSlot: null,
@@ -906,6 +995,11 @@
           obstacles: map.obstacles.map((item) => ({ ...item, maxHp: item.hp, dead: false })),
           kills: 0,
           leaks: 0,
+          abilitiesUsed: 0,
+          buildActions: 0,
+          rngSeed: contract.seed >>> 0,
+          result: null,
+          testing,
           nextId: 1,
           logs: []
         };
@@ -924,10 +1018,16 @@
         return { points, segments, total };
       }
 
-      function newGame() {
-        state = createState();
-        addLog(`${maps[selectedMap].name} 已布防，选择地基建塔。`);
+      function newGame(options = {}) {
+        state = createState(Boolean(options.testing));
+        addLog(`${state.contract.name} 已布防：${state.contract.rule}`);
+        addLog(`${commanders[state.commander].name} 到岗，选择地基建塔。`, "good");
         renderUi();
+      }
+
+      function nextRandom(min = 0, max = 1) {
+        state.rngSeed = (Math.imul(state.rngSeed, 1664525) + 1013904223) >>> 0;
+        return min + (state.rngSeed / 4294967296) * (max - min);
       }
 
       function nextId() {
@@ -970,20 +1070,20 @@
       }
 
       function startWave() {
-        if (state.mode === "running" || state.wave >= MAX_WAVES) return;
+        if (state.mode === "running" || state.wave >= state.contract.waves.length) return;
         state.wave += 1;
         state.mode = "running";
         state.waveTime = 0;
         state.spawnIndex = 0;
         state.spawnQueue = buildSpawnQueue(state.wave);
-        addLog(`第 ${state.wave} 波开始。`, "good");
-        renderUi();
+        addLog(`第 ${state.wave} 波开始：${describeWave(state.contract.waves[state.wave - 1])}。`, "good");
+        if (!state.testing) renderUi();
       }
 
       function buildSpawnQueue(waveNumber) {
         const queue = [];
         let t = 0.8;
-        for (const group of waves[waveNumber - 1]) {
+        for (const group of state.contract.waves[waveNumber - 1]) {
           t += group.delay || 0;
           for (let i = 0; i < group.count; i += 1) {
             queue.push({ time: t, type: group.type });
@@ -994,11 +1094,14 @@
         return queue;
       }
 
+      function describeWave(groups) {
+        return groups.map((group) => `${enemies[group.type].mark}${group.count}`).join(" · ");
+      }
+
       function spawnEnemy(type) {
         const base = enemies[type];
-        const diff = difficulties[state.difficulty];
         const waveScale = 1 + (state.wave - 1) * 0.075;
-        const hp = Math.round(base.hp * diff.hp * waveScale);
+        const hp = Math.round(base.hp * state.contract.hp * waveScale);
         const start = pointAt(0);
         state.enemies.push({
           id: nextId(),
@@ -1010,9 +1113,9 @@
           y: start.y,
           hp,
           maxHp: hp,
-          speed: base.speed * diff.speed,
+          speed: base.speed * state.contract.enemySpeed,
           armor: base.armor || 0,
-          reward: Math.max(1, Math.round(base.reward * diff.reward)),
+          reward: Math.max(1, Math.round(base.reward * state.contract.reward)),
           damage: base.damage,
           air: Boolean(base.air),
           boss: Boolean(base.boss),
@@ -1028,6 +1131,7 @@
       function update(dt) {
         if (!state || state.paused || state.mode === "victory" || state.mode === "defeat") return;
         const step = dt * state.speed;
+        state.elapsed += step;
         state.cooldowns.sprouts = Math.max(0, state.cooldowns.sprouts - step);
         state.cooldowns.rocket = Math.max(0, state.cooldowns.rocket - step);
 
@@ -1063,7 +1167,7 @@
           finishWave();
         }
 
-        syncStats();
+        if (!state.testing) syncStats();
       }
 
       function updateEnemies(dt) {
@@ -1093,7 +1197,7 @@
           enemy.dist += enemy.speed * slowFactor * blockFactor * dt;
           const pos = pointAt(enemy.dist);
           enemy.x = pos.x;
-          enemy.y = pos.y + (enemy.air ? Math.sin(performance.now() / 180 + enemy.id) * 8 : 0);
+          enemy.y = pos.y + (enemy.air ? Math.sin(state.elapsed * 5.55 + enemy.id) * 8 : 0);
 
           if (enemy.dist >= state.path.total) {
             enemy.dead = true;
@@ -1180,10 +1284,11 @@
       function towerStats(tower) {
         const base = towers[tower.type];
         const level = tower.level || 1;
+        const commander = commanders[state.commander];
         return {
-          range: base.range + (level - 1) * 11,
+          range: (base.range + (level - 1) * 11) * commander.range,
           cd: Math.max(0.22, base.cd * (1 - (level - 1) * 0.12)),
-          damage: Math.round(base.damage * (1 + (level - 1) * 0.52)),
+          damage: Math.round(base.damage * (1 + (level - 1) * 0.52) * commander.damage),
           splash: base.splash ? base.splash + (level - 1) * 8 : 0,
           slow: base.slow || 0,
           magic: Boolean(base.magic),
@@ -1194,7 +1299,11 @@
 
       function upgradeCost(tower) {
         if (!tower || tower.level >= 3) return 0;
-        return Math.round(towers[tower.type].cost * (0.72 + tower.level * 0.42));
+        return Math.round(towers[tower.type].cost * state.contract.towerCost * commanders[state.commander].cost * (0.72 + tower.level * 0.42));
+      }
+
+      function towerCost(type) {
+        return Math.round(towers[type].cost * state.contract.towerCost * commanders[state.commander].cost);
       }
 
       function findTarget(slot, tower, stats) {
@@ -1277,11 +1386,12 @@
         obstacle.hp -= amount;
         if (obstacle.hp <= 0) {
           obstacle.dead = true;
-          state.gold += obstacle.reward;
+          const reward = Math.round(obstacle.reward * commanders[state.commander].obstacle);
+          state.gold += reward;
           addEffect({ type: "burst", x: obstacle.x, y: obstacle.y, r: obstacle.r + 18, color: "rgba(215, 169, 71, 0.3)", life: 0.35 });
-          addFloater(obstacle.x, obstacle.y - 20, `+${obstacle.reward}`, "#d7a947");
-          addLog(`清理了${obstacleName(obstacle.kind)}，获得 ${obstacle.reward} 阳光。`, "good");
-          renderUi();
+          addFloater(obstacle.x, obstacle.y - 20, `+${reward}`, "#d7a947");
+          addLog(`清理了${obstacleName(obstacle.kind)}，获得 ${reward} 阳光。`, "good");
+          if (!state.testing) renderUi();
         }
       }
 
@@ -1299,8 +1409,8 @@
           homeX: rally.x + (index - 0.5) * 18,
           homeY: rally.y + (index % 2 ? 14 : -14),
           range: 36 + tower.level * 4,
-          damage: Math.round(towerStats(tower).damage * 0.72),
-          attackCd: random(0, 0.4),
+          damage: Math.round(towerStats(tower).damage * 0.72 * commanders[state.commander].guard),
+          attackCd: nextRandom(0, 0.4),
           life: 9999,
           color: "#b49254"
         });
@@ -1333,7 +1443,7 @@
               homeX: point.x + (i ? 16 : -16),
               homeY: point.y + (i ? 12 : -12),
               range: 40,
-              damage: 10 + state.wave * 2,
+              damage: Math.round((10 + state.wave * 2) * commanders[state.commander].guard),
               attackCd: 0,
               life: 9,
               color: "#78b763"
@@ -1342,35 +1452,59 @@
           addEffect({ type: "ring", x: point.x, y: point.y, r: 54, color: "rgba(120, 183, 99, 0.25)", life: 0.4 });
           addLog("萝卜援兵在路边扎根。", "good");
         }
-        state.cooldowns[key] = ability.cooldown;
+        state.cooldowns[key] = ability.cooldown * state.contract.abilityCooldown * commanders[state.commander].cooldown;
+        state.abilitiesUsed += 1;
         state.abilityMode = null;
-        renderUi();
+        if (!state.testing) renderUi();
       }
 
       function finishWave() {
         if (state.lives <= 0) return;
-        if (state.wave >= MAX_WAVES) {
+        if (state.wave >= state.contract.waves.length) {
           endGame(true);
           return;
         }
         state.mode = "planning";
-        const bonus = 18 + state.wave * 5 + (state.leaks === 0 ? 8 : 0);
+        const bonus = state.contract.waveBonus + state.wave * 4 + (state.leaks === 0 ? 8 : 0);
         state.gold += bonus;
         addLog(`第 ${state.wave} 波守住了，奖励 ${bonus} 阳光。`, "good");
-        renderUi();
+        if (!state.testing) renderUi();
+      }
+
+      function scoreRun(won) {
+        const stars = won ? 1 + (state.lives >= state.contract.starLives ? 1 : 0) + (state.abilitiesUsed <= state.contract.starAbilities ? 1 : 0) : 0;
+        return { won, stars, lives: state.lives, abilitiesUsed: state.abilitiesUsed, kills: state.kills, waves: state.wave };
       }
 
       function endGame(won) {
         state.mode = won ? "victory" : "defeat";
+        state.result = scoreRun(won);
+        if (state.testing) return;
+        if (won) {
+          const index = state.contract.index;
+          profile.stars[index] = Math.max(profile.stars[index], state.result.stars);
+          profile.bestLives[index] = Math.max(profile.bestLives[index], state.lives);
+          profile.clears[index] += 1;
+          profile.unlocked = Math.max(profile.unlocked, Math.min(11, index + 1));
+          profile.commander = selectedCommander;
+          saveProfile();
+        }
         ui.modalKicker.textContent = won ? "胜利" : "萝卜被啃";
-        ui.modalTitle.textContent = won ? "萝卜边境守住了" : "防线失守";
+        ui.modalTitle.textContent = won ? `${state.contract.name}守住了` : "防线失守";
         ui.modalBody.innerHTML = `
-          <p>${won ? `你守过了 ${MAX_WAVES} 波，剩余生命 ${state.lives}。` : "怪物啃穿了最后的萝卜叶子。调整地基、先清障或多建减速塔再试一次。"}</p>
-          <button class="primary-button" type="button" id="modalRestart">再来一局</button>
+          <p>${won ? `六波验收完成，剩余生命 ${state.lives}，使用技能 ${state.abilitiesUsed} 次。` : "怪物啃穿了最后的萝卜叶子。调整地基、先清障或多建减速塔再试一次。"}</p>
+          ${won ? `<p><strong>${"★".repeat(state.result.stars)}${"☆".repeat(3 - state.result.stars)}</strong>　通关星、生命线 ${state.contract.starLives}、技能预算 ${state.contract.starAbilities}。</p>` : ""}
+          <div class="action-grid"><button class="tool-button" type="button" id="modalRestart">重新布防</button>${won && state.contract.index < 11 ? '<button class="primary-button" type="button" id="modalNext">下一合同</button>' : ""}</div>
         `;
         ui.modal.classList.remove("hidden");
         document.getElementById("modalRestart").addEventListener("click", () => {
           ui.modal.classList.add("hidden");
+          newGame();
+        });
+        const nextButton = document.getElementById("modalNext");
+        if (nextButton) nextButton.addEventListener("click", () => {
+          ui.modal.classList.add("hidden");
+          selectedContract = Math.min(11, state.contract.index + 1);
           newGame();
         });
         renderUi();
@@ -1378,40 +1512,56 @@
 
       function buildTower(type) {
         const slot = selectedSlot();
-        if (!slot || slot.tower || isSlotLocked(slot)) return;
+        if (!slot) return;
+        buildTowerAt(slot.id, type);
+      }
+
+      function buildTowerAt(slotId, type) {
+        const slot = state.slots[slotId];
+        const cost = towerCost(type);
+        if (!slot || slot.tower || isSlotLocked(slot) || !isTowerUnlocked(type) || state.gold < cost || state.mode !== "planning") return false;
         const def = towers[type];
-        if (!isTowerUnlocked(type) || state.gold < def.cost) return;
-        state.gold -= def.cost;
+        state.gold -= cost;
         slot.tower = {
           id: nextId(),
           type,
           level: 1,
-          cooldown: random(0.05, 0.35)
+          cooldown: nextRandom(0.05, 0.35)
         };
+        state.buildActions += 1;
         addLog(`建造 ${def.name}。`);
-        renderUi();
+        if (!state.testing) renderUi();
+        return true;
       }
 
       function upgradeSelected() {
         const slot = selectedSlot();
-        if (!slot || !slot.tower) return;
+        if (!slot) return;
+        upgradeTowerAt(slot.id);
+      }
+
+      function upgradeTowerAt(slotId) {
+        const slot = state.slots[slotId];
+        if (!slot || !slot.tower || state.mode !== "planning") return false;
         const cost = upgradeCost(slot.tower);
-        if (!cost || state.gold < cost) return;
+        if (!cost || state.gold < cost) return false;
         state.gold -= cost;
         slot.tower.level += 1;
+        state.buildActions += 1;
         addFloater(slot.x, slot.y - 32, `Lv.${slot.tower.level}`, "#d7a947");
         addLog(`${towers[slot.tower.type].name} 升到 Lv.${slot.tower.level}。`, "good");
         if (slot.tower.type === "barracks") {
           state.guards = state.guards.filter((guard) => guard.towerId !== slot.tower.id);
         }
-        renderUi();
+        if (!state.testing) renderUi();
+        return true;
       }
 
       function sellSelected() {
         const slot = selectedSlot();
         if (!slot || !slot.tower) return;
         const tower = slot.tower;
-        const refund = Math.round(towers[tower.type].cost * (0.58 + (tower.level - 1) * 0.2));
+        const refund = Math.round(towerCost(tower.type) * (0.58 + (tower.level - 1) * 0.2));
         state.gold += refund;
         state.guards = state.guards.filter((guard) => guard.towerId !== tower.id);
         slot.tower = null;
@@ -1440,12 +1590,12 @@
       }
 
       function syncStats() {
-        ui.wave.textContent = `${state.wave}/${MAX_WAVES}`;
+        ui.wave.textContent = `${state.wave}/${state.contract.waves.length}`;
         ui.gold.textContent = Math.floor(state.gold);
         ui.life.textContent = state.lives;
         const cleared = state.obstacles.filter((item) => item.dead).length;
         ui.clear.textContent = `${cleared}/${state.obstacles.length}`;
-        const starCount = state.lives <= 0 ? 0 : state.lives >= Math.ceil(state.maxLives * 0.72) ? 3 : state.lives >= Math.ceil(state.maxLives * 0.38) ? 2 : 1;
+        const starCount = state.result?.stars ?? (state.lives <= 0 ? 0 : 1 + (state.lives >= state.contract.starLives ? 1 : 0) + (state.abilitiesUsed <= state.contract.starAbilities ? 1 : 0));
         ui.stars.textContent = "★".repeat(starCount) + "☆".repeat(3 - starCount);
         ui.speedTag.textContent = `${state.speed}x`;
       }
@@ -1463,14 +1613,15 @@
 
       function renderMapButtons() {
         const locked = state.wave > 0 || state.mode === "running";
-        ui.mapButtons.innerHTML = Object.entries(maps).map(([key, map]) => `
-          <button class="map-button ${selectedMap === key ? "active" : ""}" type="button" data-map="${key}" ${locked ? "disabled" : ""}>
-            ${map.short}
+        ui.mapLockHint.textContent = `第 ${state.contract.chapter + 1} 区 · ${maps[state.contract.map].short}`;
+        ui.mapButtons.innerHTML = CONTRACTS.map((contract, index) => `
+          <button class="map-button ${selectedContract === index ? "active" : ""}" type="button" data-contract="${index}" title="${contract.name}：${contract.rule}" ${locked || index > profile.unlocked ? "disabled" : ""}>
+            ${String(index + 1).padStart(2, "0")} ${contract.short}<br>${index > profile.unlocked ? "锁定" : `${"★".repeat(profile.stars[index])}${"☆".repeat(3 - profile.stars[index])}`}
           </button>
         `).join("");
-        ui.mapButtons.querySelectorAll("[data-map]").forEach((button) => {
+        ui.mapButtons.querySelectorAll("[data-contract]").forEach((button) => {
           button.addEventListener("click", () => {
-            selectedMap = button.dataset.map;
+            selectedContract = Number(button.dataset.contract);
             newGame();
           });
         });
@@ -1478,14 +1629,16 @@
 
       function renderDifficultyButtons() {
         const locked = state.wave > 0 || state.mode === "running";
-        ui.difficultyButtons.innerHTML = Object.entries(difficulties).map(([key, diff]) => `
-          <button class="danger-button ${selectedDifficulty === key ? "active" : ""}" type="button" data-difficulty="${key}" ${locked ? "disabled" : ""}>
-            ${diff.name}
+        ui.difficultyButtons.innerHTML = Object.entries(commanders).map(([key, commander]) => `
+          <button class="danger-button ${selectedCommander === key ? "active" : ""}" type="button" data-commander="${key}" title="${commander.desc}" ${locked ? "disabled" : ""}>
+            ${commander.short} ${commander.name}
           </button>
         `).join("");
-        ui.difficultyButtons.querySelectorAll("[data-difficulty]").forEach((button) => {
+        ui.difficultyButtons.querySelectorAll("[data-commander]").forEach((button) => {
           button.addEventListener("click", () => {
-            selectedDifficulty = button.dataset.difficulty;
+            selectedCommander = button.dataset.commander;
+            profile.commander = selectedCommander;
+            saveProfile();
             newGame();
           });
         });
@@ -1493,16 +1646,17 @@
 
       function renderShop() {
         const slot = selectedSlot();
-        const canBuild = slot && !slot.tower && !isSlotLocked(slot) && state.mode !== "running";
+        const canBuild = slot && !slot.tower && !isSlotLocked(slot) && state.mode === "planning";
         ui.slotHint.textContent = slot ? (isSlotLocked(slot) ? "被障碍挡住" : slot.tower ? "已建塔" : "可建造") : "先点地基";
         ui.towerShop.innerHTML = Object.entries(towers).map(([key, tower]) => {
           const unlocked = isTowerUnlocked(key);
-          const disabled = !canBuild || !unlocked || state.gold < tower.cost;
+          const cost = towerCost(key);
+          const disabled = !canBuild || !unlocked || state.gold < cost;
           return `
             <button class="shop-card ${!disabled ? "available" : ""} ${!unlocked ? "locked" : ""}" type="button" data-build="${key}" ${disabled ? "disabled" : ""}>
               <span class="tower-mark">${tower.mark}</span>
               <span>
-                <span class="shop-title"><strong>${tower.name}</strong><span class="cost">${unlocked ? tower.cost : `第${tower.unlockWave}波`}</span></span>
+                <span class="shop-title"><strong>${tower.name}</strong><span class="cost">${unlocked ? cost : `第${tower.unlockWave}波`}</span></span>
                 <p>${tower.desc}</p>
               </span>
             </button>
@@ -1523,7 +1677,7 @@
         if (isSlotLocked(slot)) {
           const obstacle = state.obstacles.find((item) => item.id === slot.lockedBy);
           ui.selectedTag.textContent = "被占用";
-          ui.selected.innerHTML = `<strong>地基被${obstacleName(obstacle.kind)}挡住</strong><p>附近炮塔会在空闲时清理它。清理后返还 ${obstacle.reward} 阳光并解锁该地基。</p>`;
+          ui.selected.innerHTML = `<strong>地基被${obstacleName(obstacle.kind)}挡住</strong><p>附近炮塔会在空闲时清理它。清理后返还 ${Math.round(obstacle.reward * commanders[state.commander].obstacle)} 阳光并解锁该地基。</p>`;
           return;
         }
         if (!slot.tower) {
@@ -1549,7 +1703,7 @@
       }
 
       function renderAbilities() {
-        ui.abilityHint.textContent = state.abilityMode ? `${abilities[state.abilityMode].name} 待选点` : "点后选位置";
+        ui.abilityHint.textContent = state.abilityMode ? `${abilities[state.abilityMode].name} 待选点` : `三星预算 ${state.abilitiesUsed}/${state.contract.starAbilities}`;
         ui.abilities.innerHTML = Object.entries(abilities).map(([key, ability]) => {
           const cd = Math.ceil(state.cooldowns[key]);
           const disabled = state.mode !== "running" || cd > 0;
@@ -1612,7 +1766,7 @@
           state.selectedSlot = null;
           state.selectedObstacle = obstacle.id;
           ui.selectedTag.textContent = "障碍";
-          ui.selected.innerHTML = `<strong>${obstacleName(obstacle.kind)}</strong><p>耐久 ${Math.max(0, Math.ceil(obstacle.hp))}/${obstacle.maxHp}，清理奖励 ${obstacle.reward} 阳光。炮塔空闲时会自动攻击障碍物。</p>`;
+          ui.selected.innerHTML = `<strong>${obstacleName(obstacle.kind)}</strong><p>耐久 ${Math.max(0, Math.ceil(obstacle.hp))}/${obstacle.maxHp}，清理奖励 ${Math.round(obstacle.reward * commanders[state.commander].obstacle)} 阳光。炮塔空闲时会自动攻击障碍物。</p>`;
           return;
         }
         state.selectedSlot = null;
@@ -1911,9 +2065,9 @@
           ctx.fillStyle = "#fffaf0";
           ctx.font = "900 26px sans-serif";
           ctx.textAlign = "center";
-          ctx.fillText(state.wave === 0 ? "建塔，守住萝卜" : `准备第 ${state.wave + 1} 波`, 480, 276);
+          ctx.fillText(state.wave === 0 ? state.contract.name : `准备第 ${state.wave + 1} 波`, 480, 276);
           ctx.font = "700 14px sans-serif";
-          ctx.fillText("清障拿阳光，升级关键弯道炮塔。", 480, 310);
+          ctx.fillText(`生命线 ${state.contract.starLives} · 技能预算 ${state.contract.starAbilities}`, 480, 310);
           ctx.restore();
         }
       }
@@ -1990,16 +2144,129 @@
       }
 
       function showHelp() {
-        ui.modalKicker.textContent = "规则";
-        ui.modalTitle.textContent = "萝卜怎么守";
+        ui.modalKicker.textContent = "十二线规则";
+        ui.modalTitle.textContent = "固定合同怎么守";
         ui.modalBody.innerHTML = `
-          <p>目标是守住右侧萝卜。开局资源只够建少量炮塔，先利用长路和弯道建立基础火力。</p>
+          <p>十二份合同各自固定地图、六波敌群、初始阳光、生命和敌军倍率，相同守边人与操作会得到相同结果。完成当前合同才能解锁下一条防线。</p>
           <p>炮塔会优先攻击敌人；没有敌人时会清理范围内障碍物。清障会给阳光，有些障碍物还会解锁地基。</p>
-          <p>豌豆弩稳定，泡泡塔减速，南瓜炮清群，灵符塔破甲打空中，稻草兵营能在路上阻挡地面怪。主动技能可以救急，但有冷却。</p>
+          <p>豌豆弩稳定，泡泡塔减速，南瓜炮清群，灵符塔破甲打空中，稻草兵营能在路上阻挡地面怪。三星分别要求通关、达到公开生命线、技能使用不超过预算。</p>
+          <p>园务官擅长经济，瞭望员强化射界，守门人提高容错与技能效率；三名守边人会形成不同布防路线。</p>
           <button class="primary-button" type="button" id="closeHelp">明白了</button>
         `;
         ui.modal.classList.remove("hidden");
         document.getElementById("closeHelp").addEventListener("click", () => ui.modal.classList.add("hidden"));
+      }
+
+      function showArchive() {
+        const totalStars = profile.stars.reduce((sum, value) => sum + value, 0);
+        ui.modalKicker.textContent = "RADISH2";
+        ui.modalTitle.textContent = "守望战役档案";
+        ui.modalBody.innerHTML = `
+          <p>已解锁 ${profile.unlocked + 1}/12 条防线，累计 ${totalStars}/36 星。档案码带校验，可跨设备恢复合同、星级、最佳生命和守边人。</p>
+          <textarea id="archiveExport" class="archive-code" readonly>${encodeArchive()}</textarea>
+          <div class="action-grid" style="margin:8px 0 14px"><button class="tool-button" id="copyArchive" type="button">复制档案</button><button class="tool-button" id="closeArchive" type="button">关闭</button></div>
+          <textarea id="archiveImport" class="archive-code" placeholder="粘贴 RADISH2 档案码"></textarea>
+          <button class="primary-button" id="importArchive" type="button" style="margin-top:8px">校验并导入</button>
+        `;
+        ui.modal.classList.remove("hidden");
+        document.getElementById("closeArchive").addEventListener("click", () => ui.modal.classList.add("hidden"));
+        document.getElementById("copyArchive").addEventListener("click", async () => {
+          const field = document.getElementById("archiveExport");
+          try { await navigator.clipboard.writeText(field.value); } catch { field.select(); }
+        });
+        document.getElementById("importArchive").addEventListener("click", () => {
+          try {
+            profile = decodeArchive(document.getElementById("archiveImport").value);
+            saveProfile();
+            selectedContract = profile.unlocked;
+            selectedCommander = profile.commander;
+            ui.modal.classList.add("hidden");
+            newGame();
+          } catch (error) {
+            document.getElementById("archiveImport").value = error.message;
+          }
+        });
+      }
+
+      const REFERENCE_SLOTS = {
+        brook: [1, 4, 2, 0, 6, 3, 5],
+        windmill: [1, 2, 4, 0, 6, 3, 5],
+        terrace: [2, 4, 0, 6, 3, 1, 5]
+      };
+
+      const REFERENCE_TYPES = {
+        swarm: ["mortar", "bubble", "pea", "charm", "barracks", "mortar", "pea"],
+        rush: ["bubble", "pea", "mortar", "charm", "barracks", "pea", "mortar"],
+        armor: ["mortar", "pea", "charm", "bubble", "barracks", "charm", "pea"],
+        air: ["pea", "bubble", "charm", "pea", "mortar", "charm", "pea"],
+        heal: ["mortar", "pea", "charm", "bubble", "barracks", "mortar", "pea"],
+        mixed: ["mortar", "bubble", "pea", "charm", "barracks", "mortar", "pea"],
+        siege: ["mortar", "charm", "bubble", "pea", "barracks", "mortar", "charm"]
+      };
+
+      function referencePlan() {
+        const slots = REFERENCE_SLOTS[state.contract.map];
+        const types = REFERENCE_TYPES[state.contract.focus];
+        return slots.map((slot, index) => ({ slot, type: types[index] }));
+      }
+
+      function prepareReferenceDefense() {
+        const plan = referencePlan();
+        let towerCount = state.slots.filter((slot) => slot.tower).length;
+        const targetCount = Math.min(2 + state.wave, 6);
+        for (const item of plan) {
+          if (towerCount >= targetCount) break;
+          const slot = state.slots[item.slot];
+          if (slot.tower || isSlotLocked(slot) || !isTowerUnlocked(item.type)) continue;
+          if (buildTowerAt(item.slot, item.type)) towerCount += 1;
+        }
+        for (let level = 1; level <= 2; level += 1) {
+          for (const item of plan) {
+            const tower = state.slots[item.slot].tower;
+            if (tower && tower.level === level) upgradeTowerAt(item.slot);
+          }
+        }
+      }
+
+      function beginTest(index = 0, commander = CONTRACTS[index].recommended) {
+        selectedContract = index;
+        selectedCommander = commander;
+        newGame({ testing: true });
+        return state;
+      }
+
+      function simulateReference(index, commander = CONTRACTS[index].recommended) {
+        beginTest(index, commander);
+        let guard = 0;
+        while (state.mode !== "victory" && state.mode !== "defeat" && guard < 12) {
+          prepareReferenceDefense();
+          startWave();
+          let frames = 0;
+          while (state.mode === "running" && frames < 9000) {
+            update(0.04);
+            frames += 1;
+          }
+          if (frames >= 9000) throw Error(`参考布防超时：${state.contract.name}`);
+          guard += 1;
+        }
+        return { id: state.contract.id, name: state.contract.name, commander: state.commander, won: state.mode === "victory", stars: state.result?.stars || 0, lives: state.lives, abilitiesUsed: state.abilitiesUsed, kills: state.kills, waves: state.wave, towers: state.slots.filter((slot) => slot.tower).length, buildActions: state.buildActions, gold: Math.floor(state.gold) };
+      }
+
+      function validateContent() {
+        const allWaves = CONTRACTS.flatMap((contract) => contract.waves);
+        const deployments = allWaves.reduce((total, wave) => total + wave.reduce((sum, group) => sum + group.count, 0), 0);
+        return {
+          contracts: CONTRACTS.length,
+          chapters: new Set(CONTRACTS.map((contract) => contract.chapter)).size,
+          waves: allWaves.length,
+          deployments,
+          towerTypes: Object.keys(towers).length,
+          enemyTypes: Object.keys(enemies).length,
+          commanders: Object.keys(commanders).length,
+          maps: Object.keys(maps).length,
+          uniqueSeeds: new Set(CONTRACTS.map((contract) => contract.seed)).size,
+          uniqueWaveSets: new Set(CONTRACTS.map((contract) => JSON.stringify(contract.waves))).size
+        };
       }
 
       function distance(ax, ay, bx, by) {
@@ -2012,10 +2279,6 @@
 
       function clamp(value, min, max) {
         return Math.max(min, Math.min(max, value));
-      }
-
-      function random(min, max) {
-        return min + Math.random() * (max - min);
       }
 
       function roundRect(x, y, w, h, r) {
@@ -2053,8 +2316,28 @@
         ui.modal.classList.add("hidden");
         newGame();
       });
+      ui.archive.addEventListener("click", showArchive);
       ui.help.addEventListener("click", showHelp);
       window.addEventListener("resize", resizeCanvas);
+
+      window.__radishGuardTest = {
+        contracts: CONTRACTS,
+        commanders,
+        towers,
+        enemies,
+        freshProfile,
+        encodeArchive,
+        decodeArchive,
+        validateContent,
+        beginTest,
+        simulateReference,
+        prepareReferenceDefense,
+        buildTowerAt,
+        upgradeTowerAt,
+        startWave,
+        step: update,
+        getState: () => clone(state)
+      };
 
       newGame();
       resizeCanvas();
