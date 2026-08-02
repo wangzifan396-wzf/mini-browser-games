@@ -1,0 +1,38 @@
+import assert from "node:assert/strict";
+import { createReadStream } from "node:fs";
+import { mkdir, stat } from "node:fs/promises";
+import http from "node:http";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { chromium } from "playwright";
+
+const here=path.dirname(fileURLToPath(import.meta.url)),rootDir=path.resolve(here,"..",".."),outputDir=path.join(rootDir,"output"),port=4221;
+await mkdir(outputDir,{recursive:true});
+const server=http.createServer(async(request,response)=>{try{const pathname=decodeURIComponent(new URL(request.url,"http://local").pathname);if(pathname==="/favicon.ico")return response.writeHead(204).end();const target=path.resolve(rootDir,pathname.slice(1));if(!target.startsWith(rootDir+path.sep))return response.writeHead(403).end("Forbidden");const info=await stat(target);if(!info.isFile())throw new Error("Not a file");response.writeHead(200,{"content-type":"text/html; charset=utf-8","cache-control":"no-store"});createReadStream(target).pipe(response)}catch{response.writeHead(404).end("Not found")}});
+await new Promise((resolve)=>server.listen(port,"127.0.0.1",resolve));
+
+let browser;const errors=[];
+function observe(page,label){page.on("pageerror",(error)=>errors.push(label+": "+error.message));page.on("console",(message)=>{if(message.type()==="error")errors.push(label+": "+message.text())})}
+async function assertLayout(page,label){const layout=await page.evaluate(()=>({clientWidth:document.documentElement.clientWidth,scrollWidth:document.documentElement.scrollWidth,textLength:document.body.innerText.replace(/\s+/g,"").length,outside:[...document.querySelectorAll("body *")].filter((element)=>{const rect=element.getBoundingClientRect();return rect.left<-4||rect.right>document.documentElement.clientWidth+4}).slice(0,8).map((element)=>({tag:element.tagName,id:element.id,className:element.className,left:element.getBoundingClientRect().left,right:element.getBoundingClientRect().right}))}));assert.equal(layout.scrollWidth<=layout.clientWidth+4,true,label+" horizontal overflow: "+JSON.stringify(layout.outside));assert.equal(layout.textLength>180,true,label+" rendered content")}
+async function assertCanvas(page,label){const pixels=await page.locator("#glyphCanvas").evaluate((canvas)=>{const context=canvas.getContext("2d"),colors=new Set();let opaque=0;for(let y=0;y<canvas.height;y+=Math.max(1,Math.floor(canvas.height/19)))for(let x=0;x<canvas.width;x+=Math.max(1,Math.floor(canvas.width/21))){const data=context.getImageData(x,y,1,1).data;if(data[3])opaque+=1;colors.add(data[0]+","+data[1]+","+data[2]+","+data[3])}return{opaque,colors:colors.size}});assert.equal(pixels.opaque>300,true,label+" canvas is nonblank");assert.equal(pixels.colors>=5,true,label+" canvas has rendered detail")}
+async function open(page,label){const response=await page.goto("http://127.0.0.1:"+port+"/glyph-warden.html",{waitUntil:"load"});assert.equal(response?.status(),200,label+" response");await page.waitForFunction(()=>Boolean(window.__glyphWardenTest));await assertLayout(page,label);await assertCanvas(page,label)}
+async function waitForEnemy(page){await page.waitForFunction(()=>window.__glyphWardenTest.getState().enemies.length>0)}
+
+try{
+  try{browser=await chromium.launch({channel:"msedge",headless:true})}catch{browser=await chromium.launch({headless:true})}
+  const desktop=await browser.newContext({viewport:{width:1365,height:900}}),page=await desktop.newPage();observe(page,"glyph-desktop");await open(page,"glyph desktop");
+  const content=await page.evaluate(()=>window.__glyphWardenTest.validateContent());
+  assert.deepEqual({missions:content.missions,chapters:content.chapters,words:content.words,scheduledEnemies:content.scheduledEnemies,types:content.types,uniqueSchedules:content.uniqueSchedules,referenceWins:content.referenceWins,referenceThreeStars:content.referenceThreeStars},{missions:12,chapters:4,words:48,scheduledEnemies:134,types:4,uniqueSchedules:12,referenceWins:12,referenceThreeStars:12});
+  assert.equal(content.maxReferenceTime<25,true,"reference campaign timing");
+  assert.equal(content.references.every((result)=>result.errors===0&&result.integrity>=65),true,"reference guard quality");
+  const archive=await page.evaluate(()=>{const test=window.__glyphWardenTest,profile=test.freshProfile();profile.mission=6;profile.warden="seal";profile.stars[0]=3;profile.bestIntegrity[0]=100;profile.bestCombo[0]=48;profile.clears[0]=2;return test.encodeArchive(profile)});
+  assert.equal(archive.startsWith("GLYPH2."),true);const restored=await page.evaluate((code)=>window.__glyphWardenTest.decodeArchive(code),archive);assert.equal(restored.mission,6);assert.equal(restored.warden,"seal");assert.equal(restored.stars[0],3);await assert.rejects(()=>page.evaluate((code)=>window.__glyphWardenTest.decodeArchive(code+"x"),archive));
+  const modelFlow=await page.evaluate(()=>{const test=window.__glyphWardenTest;test.begin(0,{testing:true,warden:"scribe"});test.tick(.8);const first=test.getState().enemies[0];for(const letter of first.py)test.letter(letter);const afterKill=test.getState();test.letter("z");return{afterKill,afterError:test.getState()}});
+  assert.equal(modelFlow.afterKill.kills,1);assert.equal(modelFlow.afterKill.combo>0,true);assert.equal(modelFlow.afterKill.charge>0,true);assert.equal(modelFlow.afterError.errors,1);assert.equal(modelFlow.afterError.combo,0);
+  await page.reload({waitUntil:"load"});await page.waitForFunction(()=>Boolean(window.__glyphWardenTest));await page.locator("#startBattle").click();await waitForEnemy(page);const firstWord=await page.evaluate(()=>window.__glyphWardenTest.getState().enemies[0].py);await page.keyboard.type(firstWord,{delay:18});assert.equal(await page.evaluate(()=>window.__glyphWardenTest.getState().kills),1,"desktop physical typing");await page.locator("#pauseButton").click();assert.equal(await page.evaluate(()=>window.__glyphWardenTest.getState().paused),true);await page.locator("#pauseButton").click();await page.locator("#missionButton").click();assert.equal(await page.locator("[data-mission]").count(),12);await page.locator("[data-close='missionDialog']").click();await assertCanvas(page,"glyph desktop after typing");await page.screenshot({path:path.join(outputDir,"glyph-warden-v2-desktop.png"),fullPage:true});await page.close();await desktop.close();
+
+  const mobile=await browser.newContext({viewport:{width:390,height:844},screen:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:2}),phone=await mobile.newPage();observe(phone,"glyph-mobile");await open(phone,"glyph mobile");await phone.locator("#startBattle").tap();await waitForEnemy(phone);const touchWord=await phone.evaluate(()=>window.__glyphWardenTest.getState().enemies[0].py);for(const letter of touchWord)await phone.locator('[data-key="'+letter+'"]').tap();assert.equal(await phone.evaluate(()=>window.__glyphWardenTest.getState().kills),1,"mobile touch keyboard");await assertLayout(phone,"glyph mobile after touch");await assertCanvas(phone,"glyph mobile after touch");await phone.screenshot({path:path.join(outputDir,"glyph-warden-v2-mobile.png"),fullPage:true});await phone.close();await mobile.close();
+
+  assert.deepEqual(errors,[],"browser errors: "+errors.join(" | "));
+  console.log(JSON.stringify({checks:"PASS",games:1,missions:content.missions,chapters:content.chapters,words:content.words,scheduledEnemies:content.scheduledEnemies,enemyTypes:content.types,referenceWins:content.referenceWins,referenceThreeStars:content.referenceThreeStars,maxReferenceTime:content.maxReferenceTime,desktopOverflow:false,mobileOverflow:false,screenshots:2},null,2));
+}finally{if(browser)await browser.close();server.close()}

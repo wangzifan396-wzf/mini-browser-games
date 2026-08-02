@@ -2,464 +2,154 @@
 <html lang="zh-CN">
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>字灵守门</title>
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23131b20'/%3E%3Cpath d='M14 50V14h36v36H14Z' fill='%23f4d36b'/%3E%3Cpath d='M24 25h16M24 34h16M32 18v28' stroke='%23131b20' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="description" content="十二卷固定拼音输入防守战役，三名守卷人、四类字灵、触屏键盘、三星与跨设备档案。">
+    <meta name="theme-color" content="#173f47">
+    <title>字灵守门：十二卷声韵战线</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23173f47'/%3E%3Cpath d='M14 50V14h36v36H14Z' fill='%23f0c84b'/%3E%3Cpath d='M24 25h16M24 34h16M32 18v28' stroke='%23173f47' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
     <style>
-      :root {
-        --ink: #10191d;
-        --panel: #fffdf4;
-        --line: #879a94;
-        --teal: #287569;
-        --gold: #d6a43e;
-        --red: #be5048;
-        --blue: #356f91;
-        --shadow: rgba(5, 12, 14, 0.28);
-        --radius: 8px;
-      }
-
-      * { box-sizing: border-box; }
-
-      body {
-        margin: 0;
-        min-height: 100vh;
-        color: var(--ink);
-        font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
-        background:
-          linear-gradient(rgba(255,255,245,.06) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(255,255,245,.06) 1px, transparent 1px),
-          linear-gradient(135deg, #102025, #173b3c 45%, #3f3a57);
-        background-size: 30px 30px, 30px 30px, auto;
-      }
-
-      button, input { font: inherit; }
-
-      .app { width: min(1380px, calc(100vw - 28px)); margin: 14px auto; }
-
-      .topbar, .panel {
-        border: 1px solid var(--line);
-        border-radius: var(--radius);
-        background: rgba(255, 253, 244, .97);
-        box-shadow: 0 16px 36px var(--shadow);
-      }
-
-      .topbar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 14px;
-        padding: 16px 20px;
-      }
-
-      .eyebrow { margin: 0 0 5px; color: #856219; font-size: 12px; font-weight: 900; }
-      h1 { margin: 0; font-size: clamp(26px, 4vw, 44px); line-height: 1; }
-
-      .actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
-      .btn {
-        min-height: 42px;
-        padding: 0 14px;
-        border: 1px solid #24544d;
-        border-radius: var(--radius);
-        color: #fffdf6;
-        background: var(--teal);
-        font-weight: 900;
-        cursor: pointer;
-      }
-      .btn.secondary { color: var(--ink); background: #f1d27c; border-color: #9b7522; }
-
-      .layout { display: grid; grid-template-columns: minmax(0, 1fr) 318px; gap: 14px; margin-top: 14px; }
-      .stage { position: relative; overflow: hidden; min-height: 620px; }
-      canvas { display: block; width: 100%; height: 620px; touch-action: none; }
-      .side { padding: 16px; }
-
-      .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-      .stat { padding: 10px; border: 1px solid #9ba79e; border-radius: var(--radius); background: #f9f7eb; }
-      .stat b { display: block; font-size: 24px; line-height: 1.1; }
-      .stat small { color: #5d6c66; font-weight: 800; }
-
-      .typing {
-        display: grid;
-        gap: 10px;
-        padding: 12px;
-        border: 1px solid #9ba79e;
-        border-radius: var(--radius);
-        background: #fff8e7;
-      }
-      .typing input {
-        width: 100%;
-        min-height: 54px;
-        padding: 0 14px;
-        border: 1px solid #778981;
-        border-radius: var(--radius);
-        font-size: 26px;
-        font-weight: 900;
-        outline: none;
-      }
-      .typing input:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(40,117,105,.18); }
-      .hint { margin: 14px 0 0; color: #566861; line-height: 1.55; font-weight: 700; }
-
-      .overlay {
-        position: absolute;
-        inset: 0;
-        display: grid;
-        place-items: center;
-        padding: 24px;
-        background: rgba(16, 28, 31, .52);
-      }
-      .modal {
-        width: min(460px, 100%);
-        padding: 22px;
-        border: 1px solid #a4b4ad;
-        border-radius: var(--radius);
-        background: #fffdf6;
-        box-shadow: 0 24px 52px rgba(0,0,0,.32);
-      }
-      .modal h2 { margin: 0 0 10px; font-size: 28px; }
-      .modal p { margin: 0 0 16px; color: #53635f; line-height: 1.6; }
-      .hidden { display: none; }
-
-      @media (max-width: 940px) {
-        .layout { grid-template-columns: 1fr; }
-        .side { order: -1; }
-        .stage { min-height: 540px; }
-        canvas { height: 540px; }
-      }
-
-      @media (max-width: 620px) {
-        .app { width: min(100vw - 16px, 1380px); margin-top: 8px; }
-        .topbar { display: block; padding: 14px; }
-        .actions { margin-top: 12px; justify-content: stretch; }
-        .btn { flex: 1 1 auto; }
-        .stage { min-height: 500px; }
-        canvas { height: 500px; }
-      }
+      :root{--ink:#132d33;--muted:#617378;--paper:#fffdf6;--wash:#e5ece7;--line:#9aada7;--teal:#176d72;--gold:#d7a72f;--red:#c95143;--blue:#28759a;--violet:#71588b;--radius:8px}
+      *{box-sizing:border-box}html{background:#d9e3dd}body{margin:0;min-height:100vh;color:var(--ink);font-family:"Microsoft YaHei","PingFang SC","Noto Sans SC",system-ui,sans-serif;background:linear-gradient(90deg,rgba(23,109,114,.05) 1px,transparent 1px),linear-gradient(rgba(23,109,114,.05) 1px,transparent 1px),#dfe8e2;background-size:28px 28px}button,textarea{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.48}button:focus-visible,textarea:focus-visible{outline:3px solid rgba(215,167,47,.4);outline-offset:2px}
+      .topbar{display:flex;align-items:center;justify-content:space-between;gap:18px;min-height:92px;padding:15px max(18px,calc((100vw - 1320px)/2));border-bottom:5px solid var(--gold);color:#fff;background:#173f47}.brand h1{margin:0;font-size:clamp(27px,4vw,44px);line-height:1.05;letter-spacing:0}.brand p{margin:6px 0 0;color:#bed2cd;font-size:13px;font-weight:800}.top-actions{display:flex;gap:8px}.icon-button{display:grid;place-items:center;width:46px;height:46px;padding:0;border:1px solid #7ea39d;border-radius:var(--radius);color:#fff;background:#1f5960;font-size:20px;font-weight:900}
+      .app{width:min(1320px,calc(100vw - 24px));margin:18px auto 40px}.mission-head{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 16px;border:1px solid var(--line);border-bottom:0;color:#fff;background:var(--teal)}.chapter{margin:0 0 4px;color:#f8d76d;font-size:12px;font-weight:900}.mission-head h2{margin:0;font-size:24px;letter-spacing:0}.saved-stars{color:#f5cb3d;font-size:28px;white-space:nowrap}
+      .layout{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:14px}.battle{min-width:0;border:1px solid var(--line);background:var(--paper)}.canvas-wrap{height:520px;padding:10px;background:#cad8d0}canvas{display:block;width:100%;height:100%;background:#e7eee8;touch-action:none}.target-strip{display:grid;grid-template-columns:160px 1fr auto;gap:12px;align-items:center;min-height:78px;padding:12px 15px;border-top:1px solid var(--line);background:#fffdf6}.target-label{color:var(--muted);font-size:12px;font-weight:900}.target-word{font-size:25px;font-weight:900}.target-progress{min-width:0;color:var(--teal);font-family:Consolas,monospace;font-size:21px;font-weight:900;overflow-wrap:anywhere}.charge{min-width:118px}.charge b{display:block;margin-bottom:5px;font-size:13px}.charge-track{height:10px;border:1px solid #8b9e98;background:#dce5df}.charge-fill{height:100%;width:0;background:var(--gold);transition:width .12s}
+      .side{display:grid;align-content:start;gap:12px}.panel{border:1px solid var(--line);border-top:5px solid var(--teal);background:var(--paper)}.panel-inner{padding:13px}.panel h3{margin:0 0 12px;font-size:18px}.stats{display:grid;grid-template-columns:repeat(2,1fr);border:1px solid #b7c5c0}.stat{min-width:0;padding:10px;text-align:center}.stat:nth-child(odd){border-right:1px solid #b7c5c0}.stat:nth-child(-n+2){border-bottom:1px solid #b7c5c0}.stat b{display:block;font-size:22px}.stat span{color:var(--muted);font-size:11px;font-weight:800}.brief{margin:10px 0 0;color:var(--muted);font-size:13px;line-height:1.55}
+      .goals{display:grid;gap:7px}.goal{display:grid;grid-template-columns:30px 1fr auto;gap:8px;align-items:center;padding:9px;border-left:4px solid #9eb1aa;background:#edf2ee}.goal.done{border-color:var(--gold);background:#fff7d9}.goal strong:first-child{color:var(--teal)}.goal b{white-space:nowrap}
+      .wardens{display:grid;gap:7px}.warden{display:grid;grid-template-columns:42px 1fr;gap:9px;align-items:center;min-height:58px;padding:7px 9px;border:1px solid #aebeb8;border-radius:var(--radius);color:var(--ink);text-align:left;background:#fff}.warden.active{border:3px solid var(--gold);padding:5px 7px;background:#fff7d9}.warden-mark{display:grid;place-items:center;width:38px;height:38px;border-radius:6px;color:#fff;background:var(--teal);font-weight:900}.warden strong,.warden small{display:block}.warden small{margin-top:2px;color:var(--muted);font-size:11px}
+      .controls{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}.command{min-height:44px;padding:0 8px;border:1px solid #87a19a;border-radius:var(--radius);color:var(--ink);background:#edf2ee;font-weight:900}.command.primary{border-color:#0d565c;color:#fff;background:var(--teal)}.command.danger{border-color:#ad493e;color:#fff;background:var(--red)}.status-line{min-height:20px;margin:9px 0 0;color:var(--muted);font-size:12px;text-align:center}
+      .keyboard-panel{margin-top:14px;padding:12px;border:1px solid var(--line);border-top:5px solid var(--teal);background:var(--paper)}.keyboard{display:grid;grid-template-columns:repeat(13,minmax(0,1fr));gap:6px}.key{height:44px;padding:0;border:1px solid #9caea8;border-radius:6px;color:var(--ink);background:#edf2ee;font-weight:900;text-transform:uppercase}.key:active{transform:translateY(1px);background:#d4e5dd}.key.burst{grid-column:span 2;color:#fff;background:var(--gold);border-color:#a77a10}.keyboard-note{margin:9px 0 0;color:var(--muted);font-size:12px;text-align:center}
+      dialog{width:min(760px,calc(100vw - 24px));max-height:min(820px,calc(100vh - 24px));padding:0;border:1px solid #77928c;border-radius:var(--radius);color:var(--ink);background:var(--paper);box-shadow:0 22px 70px rgba(17,40,44,.34)}dialog::backdrop{background:rgba(11,35,39,.68)}.dialog-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 16px;border-bottom:4px solid var(--gold);color:#fff;background:#173f47}.dialog-head h2{margin:0;font-size:22px}.close{display:grid;place-items:center;width:40px;height:40px;padding:0;border:1px solid #76a19b;border-radius:6px;color:#fff;background:#24636a;font-size:22px}.dialog-body{padding:16px}.dialog-copy{margin:0 0 14px;color:var(--muted);line-height:1.6}.mission-title{margin:16px 0 8px;color:var(--teal);font-size:15px}.mission-title:first-child{margin-top:0}.mission-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.mission-card{min-height:88px;padding:10px;border:1px solid #a9bbb5;border-radius:var(--radius);color:var(--ink);text-align:left;background:#fff}.mission-card.active{border:3px solid var(--gold);padding:8px;background:#fff8dc}.mission-card strong,.mission-card span,.mission-card em{display:block}.mission-card span{margin:5px 0;color:var(--muted);font-size:11px}.mission-card em{color:#ba8819;font-style:normal}.archive-box{width:100%;height:145px;padding:10px;border:1px solid #8da39c;border-radius:var(--radius);resize:vertical;font-family:Consolas,monospace;font-size:12px}.dialog-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:12px}.result{text-align:center}.result h3{margin:4px 0;font-size:28px}.result-stars{color:#d39108;font-size:44px;letter-spacing:0}.result-summary{color:var(--muted);line-height:1.6}.brief-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:14px 0}.brief-item{padding:10px;border-left:4px solid var(--teal);background:#edf2ee}.brief-item strong,.brief-item span{display:block}.brief-item span{margin-top:4px;color:var(--muted);font-size:12px}
+      @media(max-width:980px){.layout{grid-template-columns:1fr}.side{grid-template-columns:1fr 1fr}.side .panel:last-child{grid-column:1/-1}.canvas-wrap{height:480px}.keyboard{grid-template-columns:repeat(10,minmax(0,1fr))}.key.burst{grid-column:span 4}}
+      @media(max-width:620px){.topbar{min-height:0;padding:13px 12px}.brand h1{font-size:27px}.brand p{display:none}.icon-button{width:43px;height:43px}.app{width:calc(100vw - 14px);margin:9px auto 24px}.mission-head{padding:11px}.mission-head h2{font-size:21px}.saved-stars{font-size:23px}.side{grid-template-columns:1fr}.side .panel:last-child{grid-column:auto}.canvas-wrap{height:360px;padding:6px}.target-strip{grid-template-columns:1fr auto;min-height:92px}.target-strip>div:first-child{grid-column:1/-1}.target-word{font-size:21px}.target-progress{font-size:18px}.keyboard-panel{padding:8px}.keyboard{grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}.key{height:43px}.key.burst{grid-column:span 2}.mission-grid{grid-template-columns:1fr 1fr}.brief-grid{grid-template-columns:1fr}.dialog-body{padding:13px}}
     </style>
   </head>
   <body>
+    <header class="topbar">
+      <div class="brand"><h1>字灵守门：十二卷声韵战线</h1><p>拼音直输 · 三线守卷 · 固定战役</p></div>
+      <div class="top-actions">
+        <button class="icon-button" id="missionButton" title="选择战卷" aria-label="选择战卷">▦</button>
+        <button class="icon-button" id="archiveButton" title="守卷档案" aria-label="守卷档案">⇄</button>
+        <button class="icon-button" id="muteButton" title="声音" aria-label="切换声音">♪</button>
+      </div>
+    </header>
     <main class="app">
-      <header class="topbar">
-        <div>
-          <p class="eyebrow">TYPING DEFENSE</p>
-          <h1>字灵守门</h1>
-        </div>
-        <div class="actions">
-          <button class="btn" id="startBtn">开始</button>
-          <button class="btn secondary" id="burstBtn">清场</button>
-          <button class="btn secondary" id="resetBtn">重开</button>
-        </div>
-      </header>
-
+      <section class="mission-head">
+        <div><p class="chapter" id="chapterText">第一章 · 听风入门</p><h2 id="missionName">01 青山初响</h2></div>
+        <div class="saved-stars" id="savedStars">☆☆☆</div>
+      </section>
       <section class="layout">
-        <div class="panel stage">
-          <canvas id="gameCanvas" aria-label="字灵守门游戏画面"></canvas>
-          <div class="overlay" id="overlay">
-            <div class="modal">
-              <h2 id="overlayTitle">守住字门</h2>
-              <p id="overlayText">输入靠近城门的字灵拼音，完整命中后会把它驱散。连击会给清场充能。</p>
-              <button class="btn" id="overlayBtn">开始守门</button>
-            </div>
+        <div class="battle">
+          <div class="canvas-wrap" id="canvasWrap"><canvas id="glyphCanvas" aria-label="三线字灵防守战场"></canvas></div>
+          <div class="target-strip">
+            <div><div class="target-label">当前锁定</div><div class="target-word" id="targetWord">等待字灵</div></div>
+            <div class="target-progress" id="targetProgress">键入拼音首字母自动锁定最近目标</div>
+            <div class="charge"><b id="chargeText">墨势 0%</b><div class="charge-track"><div class="charge-fill" id="chargeFill"></div></div></div>
           </div>
         </div>
-
-        <aside class="panel side">
-          <div class="stats">
-            <div class="stat"><b id="scoreText">0</b><small>分数</small></div>
-            <div class="stat"><b id="comboText">0</b><small>连击</small></div>
-            <div class="stat"><b id="livesText">6</b><small>门耐久</small></div>
-            <div class="stat"><b id="bestText">0</b><small>最佳</small></div>
-          </div>
-          <div class="typing">
-            <input id="typeInput" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="latin" placeholder="输入字灵，例如 feng">
-            <button class="btn" id="submitBtn">击退</button>
-          </div>
-          <p class="hint" id="hintText">Enter 提交，空格释放清场。点画面中的字灵可把单词填入输入框。</p>
+        <aside class="side">
+          <section class="panel"><div class="panel-inner"><h3>守门战况</h3><div class="stats">
+            <div class="stat"><b id="integrityText">100</b><span>门印完整</span></div>
+            <div class="stat"><b id="scoreText">0</b><span>校勘分</span></div>
+            <div class="stat"><b id="comboText">0</b><span>最高连字</span></div>
+            <div class="stat"><b id="progressText">0/8</b><span>已净字灵</span></div>
+          </div><p class="brief" id="briefText"></p></div></section>
+          <section class="panel"><div class="panel-inner"><h3>三星验收</h3><div class="goals" id="goals"></div></div></section>
+          <section class="panel"><div class="panel-inner"><h3>守卷人</h3><div class="wardens" id="wardens"></div><div class="controls">
+            <button class="command primary" id="pauseButton">暂停</button>
+            <button class="command" id="burstButton">墨震</button>
+            <button class="command danger" id="retryButton">重开</button>
+          </div><p class="status-line" id="statusLine">选择守卷人后开始本卷</p></div></section>
         </aside>
+      </section>
+      <section class="keyboard-panel">
+        <div class="keyboard" id="keyboard" aria-label="触屏拼音键盘"></div>
+        <p class="keyboard-note">实体键盘直接输入 A–Z；空格释放满充墨震，Esc 暂停。错误字母会中断连字，但不会吞掉后续输入。</p>
       </section>
     </main>
 
+    <dialog id="missionDialog"><div class="dialog-head"><h2>十二卷声韵战线</h2><button class="close" data-close="missionDialog" aria-label="关闭">×</button></div><div class="dialog-body" id="missionGrid"></div></dialog>
+    <dialog id="archiveDialog"><div class="dialog-head"><h2>GLYPH2 守卷档案</h2><button class="close" data-close="archiveDialog" aria-label="关闭">×</button></div><div class="dialog-body"><p class="dialog-copy" id="archiveMessage">档案保存十二卷星级、守门纪录与当前守卷人，可跨设备导入；被修改的档案会被拒绝。</p><textarea class="archive-box" id="archiveText" aria-label="GLYPH2 档案码"></textarea><div class="dialog-actions"><button class="command" id="copyArchive">复制</button><button class="command" id="importArchive">导入并校验</button><button class="command primary" data-close="archiveDialog">返回战场</button></div></div></dialog>
+    <dialog id="briefDialog"><div class="dialog-head"><h2 id="briefTitle">战卷简报</h2><button class="close" data-close="briefDialog" aria-label="关闭">×</button></div><div class="dialog-body"><p class="dialog-copy" id="briefDialogText"></p><div class="brief-grid" id="briefGrid"></div><div class="dialog-actions"><button class="command primary" id="startBattle">开始守卷</button></div></div></dialog>
+    <dialog id="resultDialog"><div class="dialog-head"><h2>守卷验收</h2><button class="close" data-close="resultDialog" aria-label="关闭">×</button></div><div class="dialog-body result"><p class="chapter" id="resultChapter"></p><h3 id="resultTitle"></h3><div class="result-stars" id="resultStars">★★★</div><p class="result-summary" id="resultSummary"></p><div class="dialog-actions"><button class="command" id="retryResult">再守一卷</button><button class="command primary" id="nextResult">下一卷</button></div></div></dialog>
+
     <script>
       (() => {
-        const canvas = document.getElementById("gameCanvas");
-        const ctx = canvas.getContext("2d");
-        const overlay = document.getElementById("overlay");
-        const overlayTitle = document.getElementById("overlayTitle");
-        const overlayText = document.getElementById("overlayText");
-        const overlayBtn = document.getElementById("overlayBtn");
-        const startBtn = document.getElementById("startBtn");
-        const resetBtn = document.getElementById("resetBtn");
-        const burstBtn = document.getElementById("burstBtn");
-        const submitBtn = document.getElementById("submitBtn");
-        const typeInput = document.getElementById("typeInput");
-        const scoreText = document.getElementById("scoreText");
-        const comboText = document.getElementById("comboText");
-        const livesText = document.getElementById("livesText");
-        const bestText = document.getElementById("bestText");
-        const hintText = document.getElementById("hintText");
-        const storageKey = "miniGlyphWardenRecords";
-        const words = ["mu", "lan", "feng", "yu", "bei", "shan", "yun", "xing", "qiu", "guang", "hai", "ye", "lin", "chuan", "huo", "shi", "zhu", "yue"];
-
-        let w = 900, h = 620, dpr = 1;
-        let state = makeState();
-        let lastFrame = 0;
-        let loopToken = 0;
-
-        function loadBest() {
-          try { return JSON.parse(localStorage.getItem(storageKey) || "{}").best || 0; }
-          catch (error) { return 0; }
-        }
-
-        function saveBest(score) {
-          const best = Math.max(loadBest(), score);
-          localStorage.setItem(storageKey, JSON.stringify({ best }));
-          return best;
-        }
-
-        function makeState() {
-          return {
-            mode: "menu",
-            time: 0,
-            duration: 90000,
-            nextSpawn: 400,
-            score: 0,
-            combo: 0,
-            lives: 6,
-            charge: 0,
-            enemies: [],
-            particles: [],
-            best: loadBest()
-          };
-        }
-
-        function resizeCanvas() {
-          const rect = canvas.getBoundingClientRect();
-          dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
-          w = Math.max(320, rect.width);
-          h = Math.max(480, rect.height);
-          canvas.width = Math.floor(w * dpr);
-          canvas.height = Math.floor(h * dpr);
-          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-          draw();
-        }
-
-        function startGame() {
-          loopToken += 1;
-          state = makeState();
-          state.mode = "running";
-          typeInput.value = "";
-          overlay.classList.add("hidden");
-          lastFrame = performance.now();
-          updateHud();
-          typeInput.focus({ preventScroll: true });
-          requestAnimationFrame((time) => loop(time, loopToken));
-        }
-
-        function finishGame() {
-          if (state.mode === "over") return;
-          state.mode = "over";
-          state.best = saveBest(state.score);
-          overlayTitle.textContent = "城门收声";
-          overlayText.textContent = `击退 ${state.score} 分，最高连击 ${state.combo}。`;
-          overlayBtn.textContent = "再守一局";
-          overlay.classList.remove("hidden");
-          updateHud();
-        }
-
-        function spawnEnemy() {
-          const word = words[Math.floor(Math.random() * words.length)];
-          const y = 86 + Math.random() * (h - 160);
-          const speed = 36 + Math.random() * 18 + state.time / 6500;
-          state.enemies.push({ word, x: w - 58, y, speed, r: 26 + word.length * 3, wobble: Math.random() * Math.PI * 2 });
-          state.nextSpawn = state.time + Math.max(620, 1700 - state.time / 95);
-        }
-
-        function submitWord() {
-          if (state.mode !== "running") return;
-          const value = typeInput.value.trim().toLowerCase();
-          if (!value) return;
-          let targetIndex = -1;
-          let minX = Infinity;
-          state.enemies.forEach((enemy, index) => {
-            if (enemy.word === value && enemy.x < minX) {
-              minX = enemy.x;
-              targetIndex = index;
-            }
-          });
-          if (targetIndex >= 0) {
-            const enemy = state.enemies.splice(targetIndex, 1)[0];
-            state.combo += 1;
-            state.charge = Math.min(100, state.charge + 12 + enemy.word.length);
-            const gain = 80 + enemy.word.length * 25 + state.combo * 6;
-            state.score += gain;
-            pop(enemy.x, enemy.y, `+${gain}`, "#d6a43e");
-            typeInput.value = "";
-          } else {
-            state.combo = 0;
-            pop(120, h - 60, "错字", "#be5048");
-          }
-          updateHud();
-        }
-
-        function burst() {
-          if (state.mode !== "running" || state.charge < 100) return;
-          const count = state.enemies.length;
-          state.score += count * 60;
-          state.enemies.forEach((enemy) => pop(enemy.x, enemy.y, "散", "#356f91"));
-          state.enemies = [];
-          state.charge = 0;
-          updateHud();
-        }
-
-        function pop(x, y, text, color) {
-          state.particles.push({ x, y, text, color, life: 1 });
-        }
-
-        function update(dt) {
-          state.time += dt * 1000;
-          if (state.time >= state.duration) finishGame();
-          while (state.time >= state.nextSpawn) spawnEnemy();
-          for (let i = state.enemies.length - 1; i >= 0; i -= 1) {
-            const enemy = state.enemies[i];
-            enemy.x -= enemy.speed * dt;
-            enemy.wobble += dt * 3;
-            if (enemy.x < 74) {
-              state.enemies.splice(i, 1);
-              state.lives -= 1;
-              state.combo = 0;
-              pop(82, enemy.y, "-1", "#be5048");
-              if (state.lives <= 0) finishGame();
-            }
-          }
-          state.particles = state.particles.filter((p) => {
-            p.y -= dt * 38;
-            p.life -= dt * 0.85;
-            return p.life > 0;
-          });
-          updateHud();
-        }
-
-        function loop(now, token) {
-          if (token !== loopToken || state.mode !== "running") return;
-          const dt = Math.min(0.05, (now - lastFrame) / 1000 || 0.016);
-          lastFrame = now;
-          update(dt);
-          draw();
-          if (state.mode === "running") requestAnimationFrame((time) => loop(time, token));
-        }
-
-        function roundRect(x, y, width, height, radius, fill, stroke) {
-          radius = Math.min(radius, width / 2, height / 2);
-          ctx.beginPath();
-          ctx.moveTo(x + radius, y);
-          ctx.arcTo(x + width, y, x + width, y + height, radius);
-          ctx.arcTo(x + width, y + height, x, y + height, radius);
-          ctx.arcTo(x, y + height, x, y, radius);
-          ctx.arcTo(x, y, x + width, y, radius);
-          if (fill) { ctx.fillStyle = fill; ctx.fill(); }
-          if (stroke) { ctx.strokeStyle = stroke; ctx.stroke(); }
-        }
-
-        function draw() {
-          ctx.clearRect(0, 0, w, h);
-          const grad = ctx.createLinearGradient(0, 0, 0, h);
-          grad.addColorStop(0, "#fff7e5");
-          grad.addColorStop(.58, "#edf7ee");
-          grad.addColorStop(1, "#d9c69e");
-          ctx.fillStyle = grad;
-          ctx.fillRect(0, 0, w, h);
-
-          ctx.fillStyle = "#263638";
-          ctx.fillRect(32, 44, 34, h - 88);
-          ctx.fillStyle = "#d6a43e";
-          ctx.fillRect(58, 62, 8, h - 124);
-          ctx.fillStyle = "rgba(40,117,105,.08)";
-          for (let y = 70; y < h - 60; y += 46) ctx.fillRect(66, y, w - 100, 1);
-
-          for (const enemy of state.enemies) {
-            const bob = Math.sin(enemy.wobble) * 4;
-            ctx.save();
-            ctx.translate(enemy.x, enemy.y + bob);
-            ctx.shadowColor = "rgba(0,0,0,.22)";
-            ctx.shadowBlur = 12;
-            ctx.fillStyle = "#fffdf4";
-            ctx.beginPath();
-            ctx.arc(0, 0, enemy.r, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.shadowBlur = 0;
-            ctx.strokeStyle = enemy.x < 190 ? "#be5048" : "#287569";
-            ctx.lineWidth = 3;
-            ctx.stroke();
-            ctx.fillStyle = "#10191d";
-            ctx.font = "900 18px system-ui";
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-            ctx.fillText(enemy.word, 0, 1);
-            ctx.restore();
-          }
-
-          const left = Math.max(0, Math.ceil((state.duration - state.time) / 1000));
-          roundRect(w - 142, 22, 112, 48, 8, "rgba(255,253,244,.92)", "#879a94");
-          ctx.fillStyle = "#10191d";
-          ctx.font = "900 22px system-ui";
-          ctx.textAlign = "center";
-          ctx.fillText(`${left}s`, w - 86, 53);
-
-          roundRect(96, h - 54, w - 130, 18, 999, "#e9eadc", "#879a94");
-          ctx.fillStyle = "#287569";
-          ctx.fillRect(97, h - 53, (w - 132) * state.charge / 100, 16);
-
-          for (const p of state.particles) {
-            ctx.globalAlpha = p.life;
-            ctx.fillStyle = p.color;
-            ctx.font = "900 22px system-ui";
-            ctx.textAlign = "center";
-            ctx.fillText(p.text, p.x, p.y);
-            ctx.globalAlpha = 1;
-          }
-        }
-
-        function updateHud() {
-          scoreText.textContent = state.score.toString();
-          comboText.textContent = state.combo.toString();
-          livesText.textContent = state.lives.toString();
-          bestText.textContent = Math.max(state.best, state.score).toString();
-          burstBtn.textContent = state.charge >= 100 ? "清场" : `充能 ${Math.round(state.charge)}%`;
-          hintText.textContent = state.mode === "running" ? "优先输入最靠近城门的字灵；连击越高分数越多。" : "Enter 提交，空格释放清场。点画面中的字灵可把单词填入输入框。";
-        }
-
-        function pickEnemy(event) {
-          const rect = canvas.getBoundingClientRect();
-          const x = event.clientX - rect.left;
-          const y = event.clientY - rect.top;
-          const hit = state.enemies.find((enemy) => Math.hypot(enemy.x - x, enemy.y - y) < enemy.r + 10);
-          if (hit) {
-            typeInput.value = hit.word;
-            typeInput.focus({ preventScroll: true });
-            submitWord();
-          }
-        }
-
-        startBtn.addEventListener("click", startGame);
-        resetBtn.addEventListener("click", startGame);
-        overlayBtn.addEventListener("click", startGame);
-        submitBtn.addEventListener("click", submitWord);
-        burstBtn.addEventListener("click", burst);
-        canvas.addEventListener("pointerdown", pickEnemy);
-        typeInput.addEventListener("input", () => {
-          const value = typeInput.value.trim().toLowerCase();
-          if (state.enemies.some((enemy) => enemy.word === value)) submitWord();
-        });
-        document.addEventListener("keydown", (event) => {
-          if (event.code === "Enter") submitWord();
-          if (event.code === "Space" && document.activeElement !== typeInput) {
-            event.preventDefault();
-            burst();
-          }
-          if (event.code === "KeyR" && event.ctrlKey) startGame();
-        });
-        window.addEventListener("resize", resizeCanvas);
-        resizeCanvas();
-        updateHud();
-        draw();
+        const WORDS=[
+          ["青山","qingshan"],["明月","mingyue"],["长风","changfeng"],["星河","xinghe"],["云海","yunhai"],["松涛","songtao"],["秋水","qiushui"],["晨光","chenguang"],
+          ["夜雨","yeyu"],["霜华","shuanghua"],["流火","liuhuo"],["归舟","guizhou"],["天问","tianwen"],["墨韵","moyun"],["竹影","zhuying"],["远岫","yuanxiu"],
+          ["惊雷","jinglei"],["潮声","chaosheng"],["飞雪","feixue"],["孤灯","gudeng"],["山河","shanhe"],["清梦","qingmeng"],["落霞","luoxia"],["雁阵","yanzhen"],
+          ["春潮","chunchao"],["夏木","xiamu"],["金石","jinshi"],["苍穹","cangqiong"],["赤壁","chibi"],["玄门","xuanmen"],["北斗","beidou"],["南枝","nanzhi"],
+          ["东风","dongfeng"],["西楼","xilou"],["海棠","haitang"],["兰舟","lanzhou"],["风骨","fenggu"],["星火","xinghuo"],["千秋","qianqiu"],["万象","wanxiang"],
+          ["知音","zhiyin"],["守正","shouzheng"],["开卷","kaijuan"],["破阵","pozhen"],["问道","wendao"],["行云","xingyun"],["止水","zhishui"],["流光","liuguang"]
+        ];
+        const TYPES={
+          ink:{name:"墨",speed:1,hits:1,damage:11,color:"#28759a"},
+          rush:{name:"疾",speed:1.3,hits:1,damage:13,color:"#c95143"},
+          armor:{name:"甲",speed:.9,hits:2,damage:18,color:"#71588b"},
+          weave:{name:"游",speed:1.08,hits:1,damage:15,color:"#268a66"}
+        };
+        const WARDENS=[
+          {id:"scribe",mark:"笔",name:"连锋",copy:"得分 +15%，正确字母墨势 +25%",speed:1,score:1.15,charge:1.25,integrity:100,damage:1},
+          {id:"bell",mark:"钟",name:"缓声",copy:"全部字灵行进速度降低 12%",speed:.88,score:1,charge:1,integrity:100,damage:1},
+          {id:"seal",mark:"印",name:"镇门",copy:"门印 120，受损降低 30%",speed:.98,score:1,charge:1,integrity:120,damage:.7}
+        ];
+        const MISSIONS=[
+          {chapter:"第一章 · 听风入门",name:"青山初响",brief:"单线墨灵依次入卷，先熟悉首字母锁定和连续拼音。",seed:131,count:8,interval:1.5,travel:12.8,kinds:["ink"],integrity:85,combo:24},
+          {chapter:"第一章 · 听风入门",name:"双径回声",brief:"两线交替来字，红色疾灵会更快逼近门印。",seed:227,count:9,interval:1.4,travel:12.3,kinds:["ink","rush"],integrity:82,combo:28},
+          {chapter:"第一章 · 听风入门",name:"重墨门环",brief:"甲灵需要完整校勘两遍，第一次命中会把它震退。",seed:349,count:9,interval:1.35,travel:12.1,kinds:["ink","armor"],integrity:80,combo:32},
+          {chapter:"第二章 · 三径并书",name:"雁阵分行",brief:"三条声径同时开启，首字母会锁定最靠近门印的合法目标。",seed:463,count:10,interval:1.28,travel:11.8,kinds:["ink","rush","armor"],integrity:78,combo:36},
+          {chapter:"第二章 · 三径并书",name:"游字换轨",brief:"绿色游灵越过半程会换线，锁定后仍可继续输入原拼音。",seed:587,count:10,interval:1.22,travel:11.6,kinds:["ink","weave","rush"],integrity:76,combo:40},
+          {chapter:"第二章 · 三径并书",name:"急羽叠声",brief:"疾灵与甲灵交错到达，满充墨震可把全场字灵推回。",seed:691,count:11,interval:1.18,travel:11.4,kinds:["rush","armor","ink"],integrity:75,combo:44},
+          {chapter:"第三章 · 异字校场",name:"霜甲连简",brief:"高比例甲灵考验持续输入，错误字母会清空当前锁定。",seed:823,count:11,interval:1.14,travel:11.2,kinds:["armor","ink","weave"],integrity:74,combo:48},
+          {chapter:"第三章 · 异字校场",name:"流火穿卷",brief:"快速字灵成组入场，观察三线距离再决定先敲哪个首字母。",seed:947,count:12,interval:1.08,travel:11,kinds:["rush","rush","ink","weave"],integrity:72,combo:52},
+          {chapter:"第三章 · 异字校场",name:"回锋错简",brief:"四类字灵混编，游灵换线不会解除已经建立的声韵锁定。",seed:1061,count:12,interval:1.04,travel:10.8,kinds:["ink","rush","armor","weave"],integrity:70,combo:56},
+          {chapter:"第四章 · 总卷守门",name:"北斗七校",brief:"密集混编进入总校，合理保留墨震处理同时抵门的字灵。",seed:1193,count:13,interval:1,travel:10.6,kinds:["ink","rush","armor","weave"],integrity:68,combo:60},
+          {chapter:"第四章 · 总卷守门",name:"万象合声",brief:"甲灵和疾灵共享三线，连续长拼音会迅速积攒第二次墨震。",seed:1307,count:14,interval:.96,travel:10.4,kinds:["rush","armor","weave","ink"],integrity:66,combo:64},
+          {chapter:"第四章 · 总卷守门",name:"正字终门",brief:"十五只固定字灵完成终卷验收，四类规则全部进入最高密度。",seed:1429,count:15,interval:.92,travel:10.2,kinds:["ink","rush","armor","weave"],integrity:65,combo:70}
+        ];
+        const ui=Object.fromEntries([...document.querySelectorAll("[id]")].map((node)=>[node.id,node]));
+        const archivePrefix="GLYPH2",storageKey="glyph_warden_v2";
+        let profile=loadProfile(),game=null,muted=false,audioContext=null,canvasWidth=900,canvasHeight=500,dpr=1,lastFrame=performance.now(),enemyId=1;
+        function clamp(value,min,max){return Math.max(min,Math.min(max,value))}
+        function freshProfile(){return{version:2,mission:0,warden:"scribe",stars:Array(12).fill(0),bestIntegrity:Array(12).fill(0),bestCombo:Array(12).fill(0),clears:Array(12).fill(0)}}
+        function normalizeProfile(value){const base=freshProfile();if(!value||typeof value!=="object")return base;base.mission=clamp(Number(value.mission)||0,0,11);base.warden=WARDENS.some((warden)=>warden.id===value.warden)?value.warden:"scribe";for(const key of["stars","bestIntegrity","bestCombo","clears"]){if(Array.isArray(value[key]))base[key]=base[key].map((_,index)=>clamp(Number(value[key][index])||0,0,key==="stars"?3:99999))}return base}
+        function loadProfile(){try{return normalizeProfile(JSON.parse(localStorage.getItem(storageKey)||"null"))}catch{return freshProfile()}}
+        function saveProfile(){localStorage.setItem(storageKey,JSON.stringify(profile))}
+        function checksum(text){let hash=2166136261;for(let index=0;index<text.length;index+=1){hash^=text.charCodeAt(index);hash=Math.imul(hash,16777619)}return(hash>>>0).toString(36)}
+        function encodeArchive(value=profile){const bytes=new TextEncoder().encode(JSON.stringify(normalizeProfile(value)));let binary="";bytes.forEach((byte)=>binary+=String.fromCharCode(byte));const payload=btoa(binary).replaceAll("+","-").replaceAll("/","_").replaceAll("=","");return archivePrefix+"."+payload+"."+checksum(payload)}
+        function decodeArchive(code){const parts=String(code).trim().split(".");if(parts.length!==3||parts[0]!==archivePrefix||checksum(parts[1])!==parts[2])throw new Error("档案校验失败");try{const payload=parts[1].replaceAll("-","+").replaceAll("_","/"),padded=payload+"=".repeat((4-payload.length%4)%4),bytes=Uint8Array.from(atob(padded),(char)=>char.charCodeAt(0));return normalizeProfile(JSON.parse(new TextDecoder().decode(bytes)))}catch{throw new Error("档案内容无效")}}
+        function lcg(seed){let value=seed>>>0;return()=>{value=(Math.imul(value,1664525)+1013904223)>>>0;return value/4294967296}}
+        function buildSchedule(index){const mission=MISSIONS[index],random=lcg(mission.seed),schedule=[];let time=.75;for(let order=0;order<mission.count;order+=1){const wordIndex=(mission.seed+order*11+Math.floor(random()*WORDS.length))%WORDS.length,type=mission.kinds[Math.floor(random()*mission.kinds.length)],lane=Math.floor(random()*3);schedule.push({order,at:Number(time.toFixed(2)),lane,type,word:wordIndex});time+=mission.interval*(.86+random()*.28)}return schedule}
+        function selectedWarden(){return WARDENS.find((warden)=>warden.id===profile.warden)||WARDENS[0]}
+        function makeGame(index,testing=false,preview=false){const warden=selectedWarden();return{mission:index,schedule:buildSchedule(index),spawnIndex:0,enemies:[],time:0,integrity:warden.integrity,maxIntegrity:warden.integrity,score:0,combo:0,maxCombo:0,charge:0,kills:0,errors:0,lockId:null,typed:"",running:!preview,paused:false,finished:false,won:false,result:null,testing,effects:[]}}
+        function begin(index=profile.mission,options={}){profile.mission=clamp(index,0,11);if(options.warden&&WARDENS.some((warden)=>warden.id===options.warden))profile.warden=options.warden;game=makeGame(profile.mission,Boolean(options.testing),Boolean(options.preview));enemyId=1;if(!game.testing){saveProfile();updateUi();resize();if(options.preview)showBrief()}return game}
+        function spawn(entry){const word=WORDS[entry.word],type=TYPES[entry.type];game.enemies.push({id:enemyId++,order:entry.order,lane:entry.lane,startLane:entry.lane,type:entry.type,word:word[0],py:word[1],progress:0,hits:type.hits,maxHits:type.hits,switched:false})}
+        function enemyById(id){return game.enemies.find((enemy)=>enemy.id===id)}
+        function tick(dt){if(!game||!game.running||game.paused||game.finished)return;const mission=MISSIONS[game.mission],warden=selectedWarden();game.time+=dt;while(game.spawnIndex<game.schedule.length&&game.schedule[game.spawnIndex].at<=game.time){spawn(game.schedule[game.spawnIndex]);game.spawnIndex+=1}for(const enemy of game.enemies){enemy.progress+=dt/mission.travel*TYPES[enemy.type].speed*warden.speed;if(enemy.type==="weave"&&enemy.progress>=.5&&!enemy.switched){enemy.switched=true;enemy.lane=(enemy.lane+1+(enemy.order%2))%3}}const escaped=game.enemies.filter((enemy)=>enemy.progress>=1);if(escaped.length){for(const enemy of escaped){game.integrity=Math.max(0,game.integrity-Math.round(TYPES[enemy.type].damage*warden.damage));if(game.lockId===enemy.id){game.lockId=null;game.typed=""}}game.enemies=game.enemies.filter((enemy)=>enemy.progress<1);game.combo=0;if(!game.testing)tone(120,.12,"sawtooth",.025)}if(game.integrity<=0){finish(false);return}if(game.spawnIndex===game.schedule.length&&!game.enemies.length)finish(true);if(!game.testing)updateUi()}
+        function chooseLock(letter){const candidates=game.enemies.filter((enemy)=>enemy.py[0]===letter).sort((a,b)=>b.progress-a.progress||a.order-b.order);if(candidates.length){game.lockId=candidates[0].id;game.typed=""}return candidates[0]||null}
+        function handleLetter(raw){if(!game||!game.running||game.paused||game.finished)return false;const letter=String(raw).toLowerCase();if(!/^[a-z]$/.test(letter))return false;let enemy=enemyById(game.lockId);if(!enemy)enemy=chooseLock(letter);const expected=enemy?enemy.py[game.typed.length]:"";if(!enemy||expected!==letter){game.errors+=1;game.combo=0;game.lockId=null;game.typed="";if(!game.testing){ui.statusLine.textContent=enemy?"声韵断开，重新从首字母锁定":"当前没有以 "+letter.toUpperCase()+" 开头的字灵";tone(150,.05,"square",.018);updateUi()}return false}game.typed+=letter;game.combo+=1;game.maxCombo=Math.max(game.maxCombo,game.combo);game.charge=clamp(game.charge+2.4*selectedWarden().charge,0,100);game.score+=Math.round((8+game.combo*.18)*selectedWarden().score);if(game.typed.length===enemy.py.length){enemy.hits-=1;if(enemy.hits>0){enemy.progress=Math.max(0,enemy.progress-.12);game.typed="";if(!game.testing)tone(330,.06,"triangle",.025)}else{game.enemies=game.enemies.filter((target)=>target.id!==enemy.id);game.kills+=1;game.score+=Math.round((70+enemy.py.length*9+game.combo)*selectedWarden().score);game.lockId=null;game.typed="";if(!game.testing)tone(520,.07,"triangle",.03)}}else if(!game.testing)tone(250+game.typed.length*18,.035,"sine",.012);if(!game.testing)updateUi();return true}
+        function burst(){if(!game||!game.running||game.paused||game.charge<99.5)return false;game.charge=0;for(const enemy of game.enemies)enemy.progress=Math.max(0,enemy.progress-.2);game.effects.push({life:.5});if(!game.testing){ui.statusLine.textContent="墨震展开：全场字灵退回两成行程";tone(180,.18,"sawtooth",.045);tone(360,.2,"triangle",.03,.05);updateUi()}return true}
+        function starsFor(){if(!game.won)return 0;const mission=MISSIONS[game.mission];return 1+Number(game.integrity>=mission.integrity)+Number(game.maxCombo>=mission.combo)}
+        function finish(won){if(game.finished)return;game.finished=true;game.running=false;game.won=won;const stars=starsFor();game.result={won,stars,integrity:game.integrity,maxCombo:game.maxCombo,kills:game.kills,errors:game.errors,time:Number(game.time.toFixed(2))};if(game.testing)return;const index=game.mission;if(won){profile.stars[index]=Math.max(profile.stars[index],stars);profile.bestIntegrity[index]=Math.max(profile.bestIntegrity[index],game.integrity);profile.bestCombo[index]=Math.max(profile.bestCombo[index],game.maxCombo);profile.clears[index]+=1;saveProfile()}updateUi();draw();ui.resultChapter.textContent=MISSIONS[index].chapter;ui.resultTitle.textContent=(won?"守卷完成 · ":"门印失守 · ")+MISSIONS[index].name;ui.resultStars.textContent="★".repeat(stars)+"☆".repeat(3-stars);ui.resultSummary.textContent=(won?"净化 "+game.kills+" 只字灵":"完成 "+game.kills+" / "+MISSIONS[index].count+" 个固定来字")+" · 门印 "+game.integrity+" · 最高连字 "+game.maxCombo+" · 错字 "+game.errors;ui.nextResult.textContent=index===11?"查看战卷":"下一卷";setTimeout(()=>ui.resultDialog.showModal(),120);if(won){tone(523,.12,"triangle",.05);tone(659,.15,"triangle",.04,.12)}}
+        function runReference(index){const oldProfile=profile,oldGame=game;profile=freshProfile();profile.mission=index;profile.warden="bell";begin(index,{testing:true,warden:"bell"});let steps=0;while(!game.finished&&steps<20000){tick(.045);let enemy=enemyById(game.lockId);if(!enemy&&game.enemies.length)enemy=[...game.enemies].sort((a,b)=>b.progress-a.progress||a.order-b.order)[0];if(enemy){const position=game.lockId===enemy.id?game.typed.length:0;handleLetter(enemy.py[position])}steps+=1}const result={id:index,won:game.won,stars:game.result?game.result.stars:0,integrity:game.integrity,maxCombo:game.maxCombo,kills:game.kills,errors:game.errors,time:Number(game.time.toFixed(2)),steps};profile=oldProfile;game=oldGame;return result}
+        function validateContent(){const schedules=MISSIONS.map((_,index)=>buildSchedule(index)),signatures=new Set(schedules.map((schedule)=>schedule.map((entry)=>entry.at+":"+entry.lane+":"+entry.type+":"+entry.word).join("|"))),types=new Set(schedules.flat().map((entry)=>entry.type)),references=MISSIONS.map((_,index)=>runReference(index));return{missions:MISSIONS.length,chapters:new Set(MISSIONS.map((mission)=>mission.chapter)).size,words:WORDS.length,scheduledEnemies:schedules.flat().length,types:types.size,uniqueSchedules:signatures.size,referenceWins:references.filter((result)=>result.won).length,referenceThreeStars:references.filter((result)=>result.stars===3).length,maxReferenceTime:Math.max(...references.map((result)=>result.time)),references}}
+        function unlocked(index){return index===0||(profile.stars[index-1]||0)>0}
+        function showBrief(){const mission=MISSIONS[profile.mission],warden=selectedWarden();ui.briefTitle.textContent=String(profile.mission+1).padStart(2,"0")+" "+mission.name;ui.briefDialogText.textContent=mission.brief;ui.briefGrid.innerHTML='<div class="brief-item"><strong>'+mission.count+' 只固定字灵</strong><span>同一战卷的来字、线路和类型完全可复现</span></div><div class="brief-item"><strong>门印 ≥ '+mission.integrity+'</strong><span>第二颗星验收目标</span></div><div class="brief-item"><strong>连字 ≥ '+mission.combo+'</strong><span>第三颗星验收目标</span></div><div class="brief-item"><strong>'+warden.name+'守卷</strong><span>'+warden.copy+'</span></div>';if(!ui.briefDialog.open)ui.briefDialog.showModal()}
+        function renderMissions(){const chapters=[...new Set(MISSIONS.map((mission)=>mission.chapter))];ui.missionGrid.innerHTML=chapters.map((chapter)=>'<h3 class="mission-title">'+chapter+'</h3><div class="mission-grid">'+MISSIONS.map((mission,index)=>({mission,index})).filter((entry)=>entry.mission.chapter===chapter).map(({mission,index})=>{const open=unlocked(index),stars=profile.stars[index]||0;return'<button class="mission-card '+(profile.mission===index?"active":"")+'" data-mission="'+index+'" '+(open?"":"disabled")+'><strong>'+String(index+1).padStart(2,"0")+" "+mission.name+'</strong><span>'+(open?mission.count+" 只固定字灵":"完成上一卷后解锁")+'</span><em>'+(open?"★".repeat(stars)+"☆".repeat(3-stars):"锁定")+'</em></button>'}).join("")+'</div>').join("");ui.missionGrid.querySelectorAll("[data-mission]").forEach((button)=>button.addEventListener("click",()=>{ui.missionDialog.close();begin(Number(button.dataset.mission),{preview:true})}))}
+        function renderWardens(){ui.wardens.innerHTML=WARDENS.map((warden)=>'<button class="warden '+(profile.warden===warden.id?"active":"")+'" data-warden="'+warden.id+'" '+(game&&game.running?"disabled":"")+'><span class="warden-mark">'+warden.mark+'</span><span><strong>'+warden.name+'</strong><small>'+warden.copy+'</small></span></button>').join("");ui.wardens.querySelectorAll("[data-warden]").forEach((button)=>button.addEventListener("click",()=>{profile.warden=button.dataset.warden;saveProfile();begin(profile.mission,{preview:true})}))}
+        function updateUi(){if(!game)return;const mission=MISSIONS[game.mission],enemy=enemyById(game.lockId),stars=profile.stars[game.mission]||0;ui.chapterText.textContent=mission.chapter;ui.missionName.textContent=String(game.mission+1).padStart(2,"0")+" "+mission.name;ui.savedStars.textContent="★".repeat(stars)+"☆".repeat(3-stars);ui.integrityText.textContent=game.integrity;ui.scoreText.textContent=game.score;ui.comboText.textContent=game.maxCombo;ui.progressText.textContent=game.kills+"/"+mission.count;ui.briefText.textContent=mission.brief;ui.chargeText.textContent="墨势 "+Math.floor(game.charge)+"%";ui.chargeFill.style.width=game.charge+"%";ui.burstButton.disabled=game.charge<99.5||!game.running;if(enemy){ui.targetWord.textContent=enemy.word+(enemy.hits<enemy.maxHits?" · 破甲":"");ui.targetProgress.innerHTML='<span style="color:#d19a1e">'+game.typed+'</span>'+enemy.py.slice(game.typed.length)}else{ui.targetWord.textContent=game.running?"等待首字母":"战卷待启";ui.targetProgress.textContent=game.running?"键入拼音首字母自动锁定最近目标":"在简报中开始本卷"}ui.goals.innerHTML=[{mark:"守",label:"净化全部固定字灵",value:game.kills+"/"+mission.count,done:game.won},{mark:"印",label:"门印不低于 "+mission.integrity,value:String(game.integrity),done:game.won&&game.integrity>=mission.integrity},{mark:"连",label:"最高连续正确 "+mission.combo,value:String(game.maxCombo),done:game.won&&game.maxCombo>=mission.combo}].map((goal)=>'<div class="goal '+(goal.done?"done":"")+'"><strong>'+goal.mark+'</strong><strong>'+goal.label+'</strong><b>'+goal.value+'</b></div>').join("");ui.pauseButton.textContent=game.paused?"继续":"暂停";ui.pauseButton.disabled=!game.running;renderWardens()}
+        function showArchive(message=""){ui.archiveMessage.textContent=message||"档案保存十二卷星级、守门纪录与当前守卷人，可跨设备导入；被修改的档案会被拒绝。";ui.archiveText.value=encodeArchive();if(!ui.archiveDialog.open)ui.archiveDialog.showModal()}
+        function togglePause(){if(!game||!game.running)return;game.paused=!game.paused;ui.statusLine.textContent=game.paused?"战卷已暂停":"声韵继续推进";updateUi()}
+        function ensureAudio(){if(!audioContext){const Audio=window.AudioContext||window.webkitAudioContext;if(Audio)audioContext=new Audio()}if(audioContext&&audioContext.state==="suspended")audioContext.resume()}
+        function tone(frequency,duration,type="sine",volume=.02,delay=0){if(muted||game&&game.testing)return;ensureAudio();if(!audioContext)return;const oscillator=audioContext.createOscillator(),gain=audioContext.createGain(),start=audioContext.currentTime+delay;oscillator.type=type;oscillator.frequency.setValueAtTime(frequency,start);gain.gain.setValueAtTime(volume,start);gain.gain.exponentialRampToValueAtTime(.001,start+duration);oscillator.connect(gain);gain.connect(audioContext.destination);oscillator.start(start);oscillator.stop(start+duration)}
+        function resize(){const rect=ui.canvasWrap.getBoundingClientRect();canvasWidth=Math.max(320,rect.width-12);canvasHeight=Math.max(320,rect.height-12);dpr=Math.min(devicePixelRatio||1,2);ui.glyphCanvas.width=Math.round(canvasWidth*dpr);ui.glyphCanvas.height=Math.round(canvasHeight*dpr);ui.glyphCanvas.style.width=canvasWidth+"px";ui.glyphCanvas.style.height=canvasHeight+"px";ui.glyphCanvas.getContext("2d").setTransform(dpr,0,0,dpr,0,0);draw()}
+        function rounded(ctx,x,y,w,h,r){ctx.beginPath();ctx.roundRect(x,y,w,h,r)}
+        function draw(){if(!game)return;const ctx=ui.glyphCanvas.getContext("2d"),w=canvasWidth,h=canvasHeight,gateX=w-76,laneTop=72,laneGap=(h-130)/3;ctx.clearRect(0,0,w,h);ctx.fillStyle="#e4ebe5";ctx.fillRect(0,0,w,h);ctx.fillStyle="rgba(23,109,114,.055)";for(let x=0;x<w;x+=26)ctx.fillRect(x,0,1,h);for(let y=0;y<h;y+=26)ctx.fillRect(0,y,w,1);ctx.fillStyle="#173f47";ctx.font="900 14px system-ui";ctx.fillText("声韵来向",20,28);ctx.textAlign="right";ctx.fillText("门印",w-22,28);ctx.textAlign="left";for(let lane=0;lane<3;lane+=1){const y=laneTop+lane*laneGap;ctx.strokeStyle="#91aaa2";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(25,y);ctx.lineTo(gateX,y);ctx.stroke();ctx.fillStyle="#6b8079";ctx.font="800 12px system-ui";ctx.fillText("第 "+(lane+1)+" 径",24,y-12)}ctx.fillStyle="#173f47";ctx.fillRect(gateX,45,48,h-82);ctx.fillStyle="#f0c84b";ctx.fillRect(gateX+8,57,32,h-106);ctx.fillStyle="#173f47";ctx.font="900 22px system-ui";ctx.textAlign="center";ctx.fillText("字",gateX+24,h/2-10);ctx.fillText("门",gateX+24,h/2+24);const locked=enemyById(game.lockId);for(const enemy of game.enemies){const type=TYPES[enemy.type],x=35+enemy.progress*(gateX-145),y=laneTop+enemy.lane*laneGap-31,width=104,height=62;ctx.fillStyle=type.color;rounded(ctx,x,y,width,height,7);ctx.fill();if(locked&&locked.id===enemy.id){ctx.strokeStyle="#efbf2f";ctx.lineWidth=4;ctx.stroke()}ctx.fillStyle="#fff";ctx.font="900 18px system-ui";ctx.textAlign="center";ctx.fillText(enemy.word,x+width/2,y+23);ctx.font="800 11px Consolas";ctx.fillText(enemy.py,x+width/2,y+42);ctx.fillStyle="#fff4c8";ctx.font="900 10px system-ui";ctx.textAlign="left";ctx.fillText(type.name,x+6,y+13);if(enemy.maxHits>1){ctx.textAlign="right";ctx.fillText("印 "+enemy.hits,x+width-6,y+13)}}ctx.textAlign="left";const ratio=game.integrity/game.maxIntegrity;ctx.fillStyle="#c7d4ce";ctx.fillRect(20,h-32,w-120,12);ctx.fillStyle=ratio>.45?"#218267":"#c95143";ctx.fillRect(20,h-32,(w-120)*ratio,12);ctx.fillStyle="#173f47";ctx.font="800 11px system-ui";ctx.fillText("门印 "+game.integrity+"/"+game.maxIntegrity,20,h-39);if(game.paused){ctx.fillStyle="rgba(14,48,52,.68)";ctx.fillRect(0,0,w,h);ctx.fillStyle="#fff";ctx.font="900 32px system-ui";ctx.textAlign="center";ctx.fillText("战卷暂停",w/2,h/2)}}
+        function frame(now){const dt=Math.min(.05,(now-lastFrame)/1000);lastFrame=now;if(game&&game.running&&!game.testing&&!game.paused)tick(dt);if(game&&!game.testing)draw();requestAnimationFrame(frame)}
+        function renderKeyboard(){const letters="qwertyuiopasdfghjklzxcvbnm".split("");ui.keyboard.innerHTML=letters.map((letter)=>'<button class="key" data-key="'+letter+'" aria-label="字母 '+letter.toUpperCase()+'">'+letter+'</button>').join("")+'<button class="key burst" id="touchBurst">墨震</button>';ui.keyboard.querySelectorAll("[data-key]").forEach((button)=>button.addEventListener("pointerdown",(event)=>{event.preventDefault();handleLetter(button.dataset.key)}));document.getElementById("touchBurst").addEventListener("click",burst)}
+        ui.missionButton.addEventListener("click",()=>{renderMissions();ui.missionDialog.showModal()});ui.archiveButton.addEventListener("click",()=>showArchive());ui.muteButton.addEventListener("click",()=>{muted=!muted;ui.muteButton.textContent=muted?"×":"♪";if(!muted)tone(440,.06)});ui.pauseButton.addEventListener("click",togglePause);ui.burstButton.addEventListener("click",burst);ui.retryButton.addEventListener("click",()=>begin(profile.mission,{preview:true}));ui.startBattle.addEventListener("click",()=>{ui.briefDialog.close();begin(profile.mission);ui.statusLine.textContent="声韵入卷，输入首字母锁定目标"});ui.retryResult.addEventListener("click",()=>{ui.resultDialog.close();begin(profile.mission,{preview:true})});ui.nextResult.addEventListener("click",()=>{ui.resultDialog.close();if(profile.mission<11)begin(profile.mission+1,{preview:true});else{renderMissions();ui.missionDialog.showModal()}});ui.copyArchive.addEventListener("click",async()=>{ui.archiveText.select();try{await navigator.clipboard.writeText(ui.archiveText.value)}catch{document.execCommand("copy")}showArchive("档案已复制")});ui.importArchive.addEventListener("click",()=>{try{profile=decodeArchive(ui.archiveText.value);saveProfile();begin(profile.mission,{preview:true});showArchive("档案已导入并通过校验")}catch(error){showArchive(error.message||"档案无效")}});document.querySelectorAll("[data-close]").forEach((button)=>button.addEventListener("click",()=>document.getElementById(button.dataset.close).close()));window.addEventListener("keydown",(event)=>{if(event.target instanceof HTMLTextAreaElement)return;if(event.key==="Escape"){event.preventDefault();togglePause()}else if(event.code==="Space"){event.preventDefault();burst()}else if(/^[a-zA-Z]$/.test(event.key)){event.preventDefault();handleLetter(event.key)}});window.addEventListener("resize",resize);
+        window.__glyphWardenTest={missions:MISSIONS,words:WORDS,types:TYPES,wardens:WARDENS,buildSchedule,validateContent,runReference,freshProfile,encodeArchive,decodeArchive,begin(index=0,options={testing:true}){return begin(index,options)},tick,letter:handleLetter,burst,getState(){return{mission:game.mission,time:game.time,integrity:game.integrity,maxIntegrity:game.maxIntegrity,score:game.score,combo:game.combo,maxCombo:game.maxCombo,charge:game.charge,kills:game.kills,errors:game.errors,spawnIndex:game.spawnIndex,enemies:game.enemies.map((enemy)=>({...enemy})),lockId:game.lockId,typed:game.typed,running:game.running,paused:game.paused,finished:game.finished,won:game.won,result:game.result}}};
+        renderKeyboard();begin(profile.mission,{preview:true});requestAnimationFrame(frame);
       })();
     </script>
   </body>
