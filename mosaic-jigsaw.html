@@ -1,177 +1,86 @@
 <!doctype html>
 <html lang="zh-CN">
-  <meta charset="utf-8" /><meta
-    name="viewport"
-    content="width=device-width,initial-scale=1"
-  /><title>彩窗拼图</title
-  ><style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      background: #11182a;
-      color: #f0f4ff;
-      font-family: system-ui, "Microsoft YaHei";
-    }
-    .app {
-      min-height: 100vh;
-      padding: 14px;
-      display: grid;
-      place-items: center;
-    }
-    .shell {
-      width: min(850px, 100%);
-      background: #1e2944;
-      border: 1px solid #5d6e94;
-      border-radius: 20px;
-      padding: 16px;
-    }
-    .top,
-    .row {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .board {
-      display: grid;
-      gap: 3px;
-      margin: 14px auto;
-      width: min(620px, 100%);
-      aspect-ratio: 1;
-      background: #0d1427;
-      padding: 6px;
-    }
-    .piece {
-      border: 1px solid #ffffff44;
-      display: grid;
-      place-items: center;
-      font-size: 22px;
-      background-image:
-        radial-gradient(circle at 25% 25%, #ffd26a, transparent 30%),
-        radial-gradient(circle at 70% 35%, #e85e87, transparent 35%),
-        radial-gradient(circle at 40% 80%, #51b9e9, transparent 35%),
-        linear-gradient(135deg, #533a9d, #1a694e);
-      background-size: 400% 400%;
-      color: white;
-      text-shadow: 0 1px 3px #000;
-    }
-    .piece.sel {
-      outline: 4px solid white;
-      z-index: 2;
-    }
-    .sizes button.active {
-      outline: 3px solid #ffe06b;
-    }
-    button {
-      padding: 9px 11px;
-      border: 1px solid #7181a5;
-      border-radius: 8px;
-      background: #3a4c75;
-      color: white;
-      font-weight: bold;
-    }
-    .help {
-      font-size: 13px;
-      color: #c1c9dc;
-    }
-    @media (max-width: 650px) {
-      .app {
-        place-items: start center;
-      }
-    }
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#153f43">
+  <title>彩窗修复：十二扇光纹委托</title>
+  <style>
+    :root{--ink:#173238;--muted:#64767a;--paper:#fffdf7;--wash:#e7efec;--line:#aebfba;--lead:#27474c;--teal:#167a76;--gold:#d79a1f;--red:#bf5547;--blue:#2b78a0;--shadow:0 10px 28px rgba(21,53,57,.12);--radius:7px}
+    *{box-sizing:border-box}[hidden]{display:none!important}html{background:#dfe9e5}body{margin:0;min-height:100vh;color:var(--ink);font-family:"Microsoft YaHei","PingFang SC","Noto Sans SC",system-ui,sans-serif;background:linear-gradient(90deg,rgba(39,71,76,.045) 1px,transparent 1px),linear-gradient(rgba(39,71,76,.045) 1px,transparent 1px),#e7efec;background-size:32px 32px}button,textarea{font:inherit}button{color:inherit}button:focus-visible,textarea:focus-visible{outline:3px solid rgba(43,120,160,.3);outline-offset:2px}.topbar{color:#fff;background:#153f43;border-bottom:5px solid var(--gold)}.top-inner{width:min(1320px,calc(100vw - 28px));min-height:100px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:20px}.brand h1{margin:0;font-size:clamp(26px,4vw,43px);line-height:1.06;letter-spacing:0}.brand p{margin:7px 0 0;color:#bcd4d1;font-size:13px;font-weight:800}.top-actions{display:flex;gap:8px}.icon-button{width:46px;height:46px;border:1px solid #4d7779;border-radius:var(--radius);color:#fff;background:#23585b;font-size:22px;font-weight:900;cursor:pointer}.icon-button:hover{background:#2e696a}.layout{width:min(1320px,calc(100vw - 28px));margin:20px auto 38px;display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:14px;align-items:start}.workbench,.panel{border:1px solid var(--line);background:var(--paper);box-shadow:var(--shadow)}.mission-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 18px;color:#fff;background:#176b6a;border-bottom:4px solid var(--gold)}.mission-head small{display:block;color:#c8e3df;font-weight:900}.mission-head h2{margin:3px 0 0;font-size:24px;letter-spacing:0}.mission-stars{color:#ffd15a;font-size:29px;letter-spacing:0;white-space:nowrap}.board-wrap{padding:15px;background:#dce8e4}.brief{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 auto 12px;max-width:760px;color:#3f5b60;font-size:13px}.brief b{color:var(--ink)}.board{--cols:3;--rows:3;width:min(100%,760px);aspect-ratio:var(--cols)/var(--rows);margin:auto;display:grid;grid-template-columns:repeat(var(--cols),1fr);grid-template-rows:repeat(var(--rows),1fr);gap:5px;padding:5px;border:5px solid var(--lead);background:var(--lead);box-shadow:inset 0 0 0 2px #d8a22c}.cell,.tray-tile{position:relative;min-width:0;border:0;overflow:hidden;cursor:pointer;background:#f1f4ef}.cell{min-height:54px}.cell:hover,.cell.selected{box-shadow:inset 0 0 0 4px var(--gold)}.cell.wrong{box-shadow:inset 0 0 0 4px var(--red)}.empty-cell{position:absolute;inset:0;display:grid;place-items:center;color:#92a3a0;font-size:clamp(18px,4vw,35px);font-weight:900}.empty-cell em{font-style:normal;font-size:.62em}.glass-core{position:absolute;inset:12%;display:grid;place-items:center;border:1px solid rgba(23,50,56,.22);color:#173238;background:#f6d66f;font-size:clamp(19px,3vw,34px);font-weight:900;text-shadow:0 1px #fff}.edge{position:absolute;z-index:2;background:var(--edge)}.edge.top,.edge.bottom{left:12%;right:12%;height:10%}.edge.left,.edge.right{top:12%;bottom:12%;width:10%}.edge.top{top:0}.edge.right{right:0}.edge.bottom{bottom:0}.edge.left{left:0}.edge.zero{background:var(--lead)}.orient{position:absolute;z-index:3;top:14%;left:50%;width:7px;height:7px;border-radius:50%;background:#fff;transform:translateX(-50%);box-shadow:0 0 0 2px var(--lead)}.tile-id{position:absolute;z-index:4;right:4px;bottom:2px;padding:1px 3px;color:#fff;background:rgba(23,50,56,.75);font-size:9px;font-weight:900}.mark{position:absolute;z-index:4;left:4px;bottom:3px;color:#fff;background:#9a6a0d;padding:1px 4px;border-radius:3px;font-size:10px;font-weight:900}.tray-section{padding:15px 16px 17px;border-top:1px solid var(--line)}.section-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}.section-title h3{margin:0;font-size:20px}.section-title span{color:var(--muted);font-size:12px;font-weight:900}.tray{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}.tray-tile{aspect-ratio:1;border:1px solid var(--line);border-radius:var(--radius)}.tray-tile:hover,.tray-tile.selected{border-color:var(--gold);box-shadow:0 0 0 3px rgba(215,154,31,.28)}.tray-tile .glass-core{font-size:22px}.sidebar{display:grid;gap:12px}.panel{border-top:5px solid var(--teal);padding:14px}.panel h3{margin:0 0 12px;font-size:19px}.metrics{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line)}.metric{padding:11px 8px;text-align:center;background:#f4f5ef}.metric:nth-child(odd){border-right:1px solid var(--line)}.metric:nth-child(-n+2){border-bottom:1px solid var(--line)}.metric b{display:block;font-size:24px}.metric span{color:var(--muted);font-size:11px;font-weight:900}.checks{margin-top:10px;display:grid;gap:6px}.check{display:flex;justify-content:space-between;gap:10px;padding:8px 9px;border-left:4px solid var(--line);background:#edf2ef;font-size:12px}.check.good{border-color:var(--teal)}.check.bad{border-color:var(--red)}.check b{color:var(--muted)}.controls{display:grid;grid-template-columns:1fr 1fr;gap:8px}.command{min-height:44px;border:1px solid #8ea6a3;border-radius:var(--radius);background:#edf3ef;font-weight:900;cursor:pointer}.command:hover:not(:disabled){border-color:var(--teal);background:#dcece7}.command:disabled{opacity:.45;cursor:not-allowed}.command.danger{color:#fff;border-color:var(--red);background:var(--red)}.command.primary{color:#fff;border-color:var(--teal);background:var(--teal)}.control-note{margin:10px 0 0;color:var(--muted);font-size:11px;line-height:1.55;text-align:center}.legend{display:grid;gap:8px}.legend-row{display:grid;grid-template-columns:26px 1fr;gap:9px;align-items:center;font-size:12px}.swatch{width:26px;height:26px;border:4px solid var(--lead);background:#f0c94b}.legend-row b{display:block}.legend-row small{display:block;color:var(--muted)}.toast{position:fixed;z-index:20;left:50%;bottom:24px;max-width:min(480px,calc(100vw - 24px));padding:11px 16px;border-radius:var(--radius);color:#fff;background:#173f43;box-shadow:var(--shadow);font-weight:900;transform:translateX(-50%)}dialog{width:min(760px,calc(100vw - 24px));max-height:88vh;padding:0;border:1px solid #71908d;border-radius:var(--radius);color:var(--ink);background:var(--paper);box-shadow:0 24px 70px rgba(16,42,45,.35)}dialog::backdrop{background:rgba(13,42,45,.72)}.dialog-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;color:#fff;background:#174f52;border-bottom:4px solid var(--gold)}.dialog-head h2{margin:0;font-size:21px}.close{width:39px;height:39px;border:1px solid #7ea4a3;border-radius:var(--radius);color:#fff;background:#27686a;font-size:20px;font-weight:900;cursor:pointer}.dialog-body{padding:16px;overflow:auto}.contract-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.contract-card{min-height:105px;padding:11px;border:1px solid var(--line);border-radius:var(--radius);text-align:left;background:#f3f5ef;cursor:pointer}.contract-card.current{border-color:var(--teal);box-shadow:inset 0 0 0 2px var(--teal)}.contract-card:disabled{opacity:.48;cursor:not-allowed}.contract-card small,.contract-card span{display:block;color:var(--muted);font-size:11px;font-weight:800}.contract-card b{display:block;margin:5px 0;font-size:15px}.card-stars{color:#d28d08!important;font-size:17px!important}.archive-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.archive-grid section{min-width:0}.archive-grid h3{margin:0 0 8px}.archive-code{width:100%;min-height:130px;padding:10px;border:1px solid var(--line);border-radius:var(--radius);resize:vertical;color:#173238;background:#f3f5ef;font-family:ui-monospace,Consolas,monospace;font-size:11px}.archive-actions{display:flex;gap:8px;margin-top:8px}.result{text-align:center;padding:19px}.result .big-stars{color:#d8950e;font-size:45px;line-height:1}.result h2{margin:8px 0}.result p{color:var(--muted)}.result-actions{display:flex;justify-content:center;gap:8px;margin-top:16px}.result-actions button{min-width:110px}.chapter-label{margin:13px 0 7px;color:var(--teal);font-size:12px;font-weight:900}.chapter-label:first-child{margin-top:0}@media(max-width:980px){.layout{grid-template-columns:1fr}.sidebar{grid-template-columns:repeat(2,minmax(0,1fr))}.panel.rules{grid-column:1/-1}.tray{grid-template-columns:repeat(6,minmax(0,1fr))}}@media(max-width:620px){body{background-size:24px 24px}.top-inner{width:calc(100vw - 18px);min-height:92px}.brand h1{max-width:235px;font-size:27px}.brand p{display:none}.icon-button{width:43px;height:43px}.layout{width:calc(100vw - 16px);margin-top:12px;gap:10px}.mission-head{padding:12px}.mission-head h2{font-size:20px}.mission-stars{font-size:22px}.board-wrap{padding:8px}.brief{font-size:11px}.board{gap:3px;padding:3px;border-width:4px}.cell{min-height:48px}.glass-core{font-size:clamp(17px,7vw,28px)}.edge.top,.edge.bottom{height:9%}.edge.left,.edge.right{width:9%}.tray-section{padding:12px}.tray{grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}.tray-tile .glass-core{font-size:19px}.sidebar{grid-template-columns:1fr}.panel.rules{grid-column:auto}.contract-grid{grid-template-columns:1fr 1fr}.archive-grid{grid-template-columns:1fr}.result-actions{display:grid}.result-actions button{width:100%}}
   </style>
-  <main class="app">
-    <section class="shell">
-      <div class="top">
-        <div>
-          <h1 style="margin: 0">彩窗拼图</h1>
-          <div class="help">
-            依次点击两块碎片交换位置；从 3×3 到 6×6，恢复完整彩色玻璃图案。
-          </div>
-        </div>
-        <div>
-          难度 <b id="sizeText"></b>　移动 <b id="moves"></b>　最佳
-          <b id="best"></b>
-        </div>
-      </div>
-      <div class="board" id="board"></div>
-      <div class="row">
-        <div class="sizes">
-          <button data-s="3">3×3</button><button data-s="4">4×4</button
-          ><button data-s="5">5×5</button><button data-s="6">6×6</button>
-        </div>
-        <button id="shuffle">重新打乱</button><button id="peek">查看原图</button
-        ><span id="msg"></span>
-      </div>
+</head>
+<body>
+  <header class="topbar"><div class="top-inner"><div class="brand"><h1>彩窗修复：十二扇光纹委托</h1><p>釉色接缝 · 旋转装片 · 铭印校勘</p></div><div class="top-actions"><button class="icon-button" id="contractsButton" title="打开委托簿" aria-label="打开委托簿">▦</button><button class="icon-button" id="archiveButton" title="管理彩窗档案" aria-label="管理彩窗档案">⇄</button><button class="icon-button" id="soundButton" title="切换声音" aria-label="切换声音">♪</button></div></div></header>
+  <main class="layout">
+    <section class="workbench">
+      <div class="mission-head"><div><small id="chapterText"></small><h2 id="contractTitle"></h2></div><div class="mission-stars" id="missionStars">☆☆☆</div></div>
+      <div class="board-wrap"><div class="brief"><span id="briefText"></span><b id="sealText"></b></div><div class="board" id="board" aria-label="彩窗装配台"></div></div>
+      <section class="tray-section"><div class="section-title"><h3>待修玻璃片</h3><span id="trayCount"></span></div><div class="tray" id="tray"></div></section>
     </section>
+    <aside class="sidebar">
+      <section class="panel"><h3>实时校勘</h3><div class="metrics"><div class="metric"><b id="placedStat">0</b><span>已装玻璃</span></div><div class="metric"><b id="matchStat">0</b><span>吻合接缝</span></div><div class="metric"><b id="moveStat">0</b><span>校勘步数</span></div><div class="metric"><b id="hintStat">0</b><span>提示次数</span></div></div><div class="checks"><div class="check" id="borderCheck"><span>边框封铅</span><b>待验</b></div><div class="check" id="edgeCheck"><span>相邻釉色</span><b>待验</b></div><div class="check" id="markCheck"><span>铭印位置</span><b>待验</b></div></div></section>
+      <section class="panel"><h3>修复操作</h3><div class="controls"><button class="command" id="rotateButton">旋转</button><button class="command" id="removeButton">取下</button><button class="command" id="undoButton">撤回</button><button class="command" id="hintButton">提示</button><button class="command danger" id="clearButton">清空</button><button class="command primary" id="verifyButton">验收</button></div><p class="control-note">先选择玻璃片，再点装配位。`R` 旋转，`Z` 撤回，`H` 提示。</p></section>
+      <section class="panel rules"><h3>修复规则</h3><div class="legend"><div class="legend-row"><span class="swatch"></span><div><b>釉色相接</b><small>相邻边必须使用同一种釉色</small></div></div><div class="legend-row"><span class="swatch" style="background:#f7f4e9;border-color:#27474c"></span><div><b>深铅封边</b><small>窗框四周只能朝向深色铅边</small></div></div><div class="legend-row"><span class="swatch" style="background:#d79a1f;border-color:#9a6a0d"></span><div><b>铭印归位</b><small>带印位置要求纹章与朝向同时正确</small></div></div></div></section>
+    </aside>
   </main>
+  <div class="toast" id="toast" hidden></div>
+  <dialog id="contractsDialog"><div class="dialog-head"><h2>十二扇彩窗委托</h2><button class="close" data-close="contractsDialog" aria-label="关闭">×</button></div><div class="dialog-body" id="contractList"></div></dialog>
+  <dialog id="archiveDialog"><div class="dialog-head"><h2>彩窗修复档案</h2><button class="close" data-close="archiveDialog" aria-label="关闭">×</button></div><div class="dialog-body"><div class="archive-grid"><section><h3>导出档案</h3><textarea class="archive-code" id="exportCode" readonly></textarea><div class="archive-actions"><button class="command primary" id="copyButton">复制档案码</button></div></section><section><h3>导入档案</h3><textarea class="archive-code" id="importCode" placeholder="粘贴 GLASS2 档案码"></textarea><div class="archive-actions"><button class="command" id="importButton">校验并导入</button></div></section></div></div></dialog>
+  <dialog id="resultDialog"><div class="dialog-head"><h2>彩窗验收</h2><button class="close" data-close="resultDialog" aria-label="关闭">×</button></div><div class="result"><div class="big-stars" id="resultStars"></div><h2 id="resultTitle"></h2><p id="resultSummary"></p><div class="result-actions"><button class="command" id="retryButton">重新修复</button><button class="command primary" id="nextButton">下一扇</button></div></div></dialog>
   <script>
-    let q,
-      selected = null,
-      peeking = false;
-    const $ = (x) => document.getElementById(x);
-    function start(n = 3) {
-      let a = Array.from({ length: n * n }, (_, i) => i);
-      do {
-        a.sort(() => Math.random() - 0.5);
-      } while (a.every((x, i) => x === i));
-      q = { n, a, moves: 0 };
-      selected = null;
-      draw();
-    }
-    function click(i) {
-      if (peeking) return;
-      if (selected === null) {
-        selected = i;
-        draw();
-        return;
-      }
-      [q.a[selected], q.a[i]] = [q.a[i], q.a[selected]];
-      q.moves++;
-      selected = null;
-      if (q.a.every((x, i) => x === i)) {
-        let key = "jigsaw_best_" + q.n,
-          b = +localStorage.getItem(key) || 999;
-        localStorage.setItem(key, Math.min(b, q.moves));
-        msg.textContent = `拼图完成！共 ${q.moves} 次交换。`;
-      }
-      draw();
-    }
-    function draw() {
-      let n = q.n;
-      sizeText.textContent = `${n}×${n}`;
-      moves.textContent = q.moves;
-      best.textContent = localStorage.getItem("jigsaw_best_" + n) || "—";
-      board.style.gridTemplateColumns = `repeat(${n},1fr)`;
-      let arr = peeking ? Array.from({ length: n * n }, (_, i) => i) : q.a;
-      board.innerHTML = arr
-        .map(
-          (v, i) =>
-            `<button class="piece ${selected === i && !peeking ? "sel" : ""}" data-i="${i}" style="background-position:${((v % n) / (n - 1)) * 100}% ${(Math.floor(v / n) / (n - 1)) * 100}%">${peeking ? "" : v + 1}</button>`,
-        )
-        .join("");
-      board
-        .querySelectorAll("[data-i]")
-        .forEach((e) => (e.onclick = () => click(+e.dataset.i)));
-      document
-        .querySelectorAll("[data-s]")
-        .forEach((e) => e.classList.toggle("active", +e.dataset.s === n));
-    }
-    document
-      .querySelectorAll("[data-s]")
-      .forEach((e) => (e.onclick = () => start(+e.dataset.s)));
-    shuffle.onclick = () => start(q.n);
-    peek.onpointerdown = () => {
-      peeking = true;
-      draw();
-    };
-    peek.onpointerup = peek.onpointerleave = () => {
-      peeking = false;
-      draw();
-    };
-    start();
+  (()=>{
+    "use strict";
+    const GLAZES=["#27474c","#d85645","#2d85aa","#e0a21e","#2f916f","#a85b92","#7659a8"],MOTIFS=["✦","◆","●","✤","✚","⬟","☼","❖"],CHAPTERS=["第一辑 · 晨廊描铅","第二辑 · 玫窗合色","第三辑 · 回廊谱纹","第四辑 · 穹顶终验"],DEFS=[
+      ["clover","晨钟四叶",3,3,1103,2],["honey","蜜色风琴",3,3,1709,3],["harbor","港灯回声",3,3,2017,4],
+      ["rose","玫瑰潮汐",4,3,2801,3],["orchard","果园午祷",4,3,3253,4],["rain","雨线长廊",4,3,4019,5],
+      ["atlas","星图校页",4,4,4787,4],["heron","鹭羽回旋",4,4,5323,5],["choir","六色合唱",4,4,6151,6],
+      ["archive","旧城穹影",5,4,7013,5],["eclipse","月蚀花冠",5,4,7879,6],["master","百年终窗",5,4,8803,7]
+    ];
+    const $=id=>document.getElementById(id);let profile,contract,state,audioOn=true,audioContext,toastTimer;
+    function random(seed){let a=seed>>>0;return()=>{a|=0;a=a+0x6d2b79f5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+    function shuffled(values,rnd){const out=[...values];for(let i=out.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[out[i],out[j]]=[out[j],out[i]]}return out}
+    function makeContract(def,index){const[id,name,cols,rows,seed,markCount]=def,rnd=random(seed),tiles=[];for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const pos=r*cols+c,top=r?tiles[pos-cols].edges[2]:0,left=c?tiles[pos-1].edges[1]:0,right=c===cols-1?0:1+Math.floor(rnd()*6),bottom=r===rows-1?0:1+Math.floor(rnd()*6);tiles.push({id:id+"-"+(pos+1),number:pos+1,edges:[top,right,bottom,left],motif:MOTIFS[Math.floor(rnd()*MOTIFS.length)],tone:1+Math.floor(rnd()*6)})}const marked=shuffled(tiles.map((_,i)=>i),rnd).slice(0,markCount),marks=Object.fromEntries(marked.map(pos=>[pos,tiles[pos].motif])),order=shuffled(tiles.map(tile=>tile.id),rnd),rotations={};for(const tile of tiles)rotations[tile.id]=Math.floor(rnd()*4);if(order.every((id,i)=>id===tiles[i].id)&&Object.values(rotations).every(rot=>rot===0))rotations[order[0]]=1;const targetMoves=tiles.length+Object.values(rotations).reduce((sum,rot)=>sum+(4-rot)%4,0)+2;return{id,name,index,chapter:Math.floor(index/3),cols,rows,seed,tiles,marks,order,rotations,targetMoves,brief:["先封边，再追踪相邻釉色","铭印会同时锁定纹章与正向","重复釉色增多，先找稀有接缝","终验窗面更宽，分区完成更稳"][Math.floor(index/3)]}}
+    const CONTRACTS=DEFS.map(makeContract),tileMap=new Map(CONTRACTS.flatMap(item=>item.tiles.map(tile=>[tile.id,tile])));
+    function freshProfile(){return{version:2,contract:0,stars:Array(12).fill(0),bestMoves:Array(12).fill(0),clears:Array(12).fill(0)}}
+    function normalizeProfile(value){const next=freshProfile();if(!value||typeof value!=="object")return next;next.contract=Math.max(0,Math.min(11,Number(value.contract)||0));for(const key of["stars","bestMoves","clears"])if(Array.isArray(value[key]))next[key]=next[key].map((fallback,i)=>Math.max(0,Number(value[key][i])||fallback));return next}
+    function hash(text){let h=2166136261;for(let i=0;i<text.length;i++){h^=text.charCodeAt(i);h=Math.imul(h,16777619)}return(h>>>0).toString(36)}
+    function encodeArchive(value=profile){const body=btoa(JSON.stringify(normalizeProfile(value)));return"GLASS2."+body+"."+hash(body)}
+    function decodeArchive(code){const parts=String(code).trim().split(".");if(parts.length!==3||parts[0]!=="GLASS2"||hash(parts[1])!==parts[2])throw Error("档案码校验失败");let value;try{value=JSON.parse(atob(parts[1]))}catch{throw Error("档案码内容损坏")}if(value.version!==2||!Array.isArray(value.stars)||value.stars.length!==12)throw Error("档案版本或长度不正确");return normalizeProfile(value)}
+    function loadProfile(){try{return normalizeProfile(JSON.parse(localStorage.getItem("glass_restorer_v2")))}catch{return freshProfile()}}
+    function saveProfile(){localStorage.setItem("glass_restorer_v2",JSON.stringify(profile))}
+    function rotated(edges,rot){const out=[];for(let i=0;i<4;i++)out[(i+rot)%4]=edges[i];return out}
+    function tileAt(c,id){return c.tiles.find(tile=>tile.id===id)}
+    function evaluate(c,placements,moves=0,hints=0){let borderOk=0,borderTotal=0,edgeOk=0,edgeTotal=0,markOk=0,markTotal=Object.keys(c.marks).length,complete=true;for(let pos=0;pos<placements.length;pos++){const p=placements[pos];if(!p){complete=false;continue}const r=Math.floor(pos/c.cols),col=pos%c.cols,tile=tileAt(c,p.id),edges=rotated(tile.edges,p.rot);if(r===0){borderTotal++;if(edges[0]===0)borderOk++}if(col===c.cols-1){borderTotal++;if(edges[1]===0)borderOk++}if(r===c.rows-1){borderTotal++;if(edges[2]===0)borderOk++}if(col===0){borderTotal++;if(edges[3]===0)borderOk++}if(col<c.cols-1&&placements[pos+1]){edgeTotal++;const other=rotated(tileAt(c,placements[pos+1].id).edges,placements[pos+1].rot);if(edges[1]===other[3]&&edges[1]!==0)edgeOk++}if(r<c.rows-1&&placements[pos+c.cols]){edgeTotal++;const other=rotated(tileAt(c,placements[pos+c.cols].id).edges,placements[pos+c.cols].rot);if(edges[2]===other[0]&&edges[2]!==0)edgeOk++}if(c.marks[pos]){const needed=c.marks[pos];if(tile.motif===needed&&p.rot===0)markOk++}}
+      const errors=(borderTotal-borderOk)+(edgeTotal-edgeOk)+(markTotal-markOk),won=complete&&errors===0,stars=won?1+(moves<=c.targetMoves?1:0)+(hints===0?1:0):0;return{complete,won,stars,errors,borderOk,borderTotal,edgeOk,edgeTotal,markOk,markTotal,matches:borderOk+edgeOk+markOk,total:borderTotal+edgeTotal+markTotal}}
+    function referenceResult(c){return evaluate(c,c.tiles.map(tile=>({id:tile.id,rot:0})),c.tiles.length,0)}
+    function snapshot(){return{placements:state.placements.map(item=>item&&{...item}),trayRotations:{...state.trayRotations},moves:state.moves,hints:state.hints}}
+    function restore(value){state.placements=value.placements.map(item=>item&&{...item});state.trayRotations={...value.trayRotations};state.moves=value.moves;state.hints=value.hints;state.selected=null}
+    function pushHistory(){state.history.push(snapshot());if(state.history.length>80)state.history.shift()}
+    function begin(index=0,options={}){contract=CONTRACTS[index];if(!options.testing&&index>profile.contract)return false;state={placements:Array(contract.tiles.length).fill(null),trayRotations:{...contract.rotations},selected:null,moves:0,hints:0,history:[],result:null,testing:Boolean(options.testing)};render();return true}
+    function findPlaced(id){return state.placements.findIndex(item=>item?.id===id)}
+    function selectTile(id,from=findPlaced(id)){const rot=from>=0?state.placements[from].rot:state.trayRotations[id]||0;state.selected={id,from,rot};render()}
+    function placeCell(pos){if(!state.selected)return toast("请先选择一块玻璃片");pushHistory();const selected={id:state.selected.id,rot:state.selected.rot},from=findPlaced(selected.id),displaced=state.placements[pos]&&{...state.placements[pos]};if(from>=0&&from!==pos)state.placements[from]=displaced;else if(from<0&&displaced)state.trayRotations[displaced.id]=displaced.rot;state.placements[pos]=selected;state.trayRotations[selected.id]=selected.rot;state.moves++;state.selected={id:selected.id,from:pos,rot:selected.rot};tone(420);render()}
+    function rotateSelected(){if(!state.selected)return toast("先选择需要旋转的玻璃片");pushHistory();const next=(state.selected.rot+1)%4,statePos=findPlaced(state.selected.id);state.selected.rot=next;if(statePos>=0)state.placements[statePos].rot=next;else state.trayRotations[state.selected.id]=next;state.moves++;tone(520);render()}
+    function removeSelected(){if(!state.selected)return toast("先选择已经装入的玻璃片");const pos=findPlaced(state.selected.id);if(pos<0)return toast("这块玻璃片还在料盘中");pushHistory();state.trayRotations[state.selected.id]=state.placements[pos].rot;state.placements[pos]=null;state.moves++;state.selected={id:state.selected.id,from:-1,rot:state.trayRotations[state.selected.id]};render()}
+    function undo(){const previous=state.history.pop();if(!previous)return toast("没有可撤回的操作");restore(previous);tone(300);render()}
+    function clearBoard(){if(!state.placements.some(Boolean))return;pushHistory();for(const item of state.placements)if(item)state.trayRotations[item.id]=item.rot;state.placements.fill(null);state.selected=null;state.moves++;render()}
+    function hint(){const target=contract.tiles.findIndex((tile,pos)=>state.placements[pos]?.id!==tile.id||state.placements[pos]?.rot!==0);if(target<0)return toast("所有玻璃片已经在参考位置");pushHistory();const wanted=contract.tiles[target],from=findPlaced(wanted.id),displaced=state.placements[target]&&{...state.placements[target]};if(from>=0&&from!==target)state.placements[from]=displaced;else if(displaced)state.trayRotations[displaced.id]=displaced.rot;state.placements[target]={id:wanted.id,rot:0};state.trayRotations[wanted.id]=0;state.hints++;state.moves++;state.selected={id:wanted.id,from:target,rot:0};tone(650);toast("校勘员已归位第 "+(target+1)+" 块参考玻璃");render()}
+    function testPlace(pos,id,rot=0){if(!state.testing)throw Error("testPlace requires testing state");pushHistory();const from=findPlaced(id);if(from>=0)state.placements[from]=null;const displaced=state.placements[pos];if(displaced)state.trayRotations[displaced.id]=displaced.rot;state.placements[pos]={id,rot};state.moves++;state.selected={id,from:pos,rot};render();return evaluate(contract,state.placements,state.moves,state.hints)}
+    function verify(){const result=evaluate(contract,state.placements,state.moves,state.hints);state.result=result;if(!result.won){document.querySelectorAll(".cell").forEach((cell,pos)=>cell.classList.toggle("wrong",Boolean(state.placements[pos])));tone(170);return toast(result.complete?"还有 "+result.errors+" 处接缝或铭印没有通过":"仍有玻璃片尚未装入")}
+      const i=contract.index;profile.stars[i]=Math.max(profile.stars[i],result.stars);profile.bestMoves[i]=profile.bestMoves[i]?Math.min(profile.bestMoves[i],state.moves):state.moves;profile.clears[i]++;profile.contract=Math.max(profile.contract,Math.min(11,i+1));saveProfile();$("resultStars").textContent="★".repeat(result.stars)+"☆".repeat(3-result.stars);$("resultTitle").textContent=contract.name+" · 验收通过";$("resultSummary").textContent="共 "+state.moves+" 步，吻合 "+result.total+" 项接缝与铭印，提示 "+state.hints+" 次。";$("nextButton").hidden=i===11;$("resultDialog").showModal();tone(820);render()}
+    function tileMarkup(tile,rot,marked=false){const e=rotated(tile.edges,rot);return e.map((color,i)=>`<span class="edge ${["top","right","bottom","left"][i]} ${color===0?"zero":""}" style="--edge:${GLAZES[color]}"></span>`).join("")+`<span class="glass-core" style="background:${GLAZES[tile.tone]}">${tile.motif}</span><span class="orient"></span><span class="tile-id">${tile.number}</span>${marked?'<span class="mark">印</span>':""}`}
+    function renderBoard(){const board=$("board");board.style.setProperty("--cols",contract.cols);board.style.setProperty("--rows",contract.rows);board.replaceChildren();for(let pos=0;pos<state.placements.length;pos++){const button=document.createElement("button"),item=state.placements[pos],mark=contract.marks[pos];button.className="cell";button.dataset.cell=pos;button.setAttribute("aria-label","装配位 "+(pos+1));if(item){const tile=tileAt(contract,item.id);button.innerHTML=tileMarkup(tile,item.rot,Boolean(mark));button.addEventListener("click",()=>selectTile(item.id,pos));if(state.selected?.id===item.id)button.classList.add("selected")}else{button.innerHTML=`<span class="empty-cell">${mark?mark+"<em>↑</em>":pos+1}</span>`;button.addEventListener("click",()=>placeCell(pos))}board.append(button)}}
+    function renderTray(){const tray=$("tray"),placed=new Set(state.placements.filter(Boolean).map(item=>item.id));tray.replaceChildren();let count=0;for(const id of contract.order){if(placed.has(id))continue;count++;const tile=tileAt(contract,id),button=document.createElement("button");button.className="tray-tile"+(state.selected?.id===id?" selected":"");button.dataset.tile=id;button.setAttribute("aria-label","玻璃片 "+tile.number);button.innerHTML=tileMarkup(tile,state.trayRotations[id]||0,false);button.addEventListener("click",()=>selectTile(id,-1));tray.append(button)}$("trayCount").textContent="剩余 "+count+" / "+contract.tiles.length+" 块"}
+    function setCheck(id,ok,total,label){const node=$(id);node.className="check "+(total&&ok===total?"good":ok<total&&total?"bad":"");node.querySelector("b").textContent=total?ok+" / "+total:label}
+    function render(){if(!contract||!state)return;const rating=profile.stars[contract.index]||0,report=evaluate(contract,state.placements,state.moves,state.hints),placed=state.placements.filter(Boolean).length;$("chapterText").textContent=CHAPTERS[contract.chapter];$("contractTitle").textContent=String(contract.index+1).padStart(2,"0")+" "+contract.name;$("missionStars").textContent="★".repeat(rating)+"☆".repeat(3-rating);$("briefText").textContent=contract.cols+"×"+contract.rows+" · 三星 "+contract.targetMoves+" 步 · "+contract.brief;$("sealText").textContent=Object.keys(contract.marks).length+" 处铭印";renderBoard();renderTray();$("placedStat").textContent=placed+"/"+contract.tiles.length;$("matchStat").textContent=report.matches+"/"+report.total;$("moveStat").textContent=state.moves;$("hintStat").textContent=state.hints;setCheck("borderCheck",report.borderOk,report.borderTotal,"待装");setCheck("edgeCheck",report.edgeOk,report.edgeTotal,"待装");setCheck("markCheck",report.markOk,report.markTotal,"待装");$("rotateButton").disabled=!state.selected;$("removeButton").disabled=!state.selected||findPlaced(state.selected.id)<0;$("undoButton").disabled=!state.history.length;renderContractList()}
+    function renderContractList(){const list=$("contractList");list.replaceChildren();for(let chapter=0;chapter<4;chapter++){const label=document.createElement("div");label.className="chapter-label";label.textContent=CHAPTERS[chapter];list.append(label);const grid=document.createElement("div");grid.className="contract-grid";for(const item of CONTRACTS.filter(c=>c.chapter===chapter)){const stars=profile.stars[item.index]||0,button=document.createElement("button");button.className="contract-card"+(contract?.index===item.index?" current":"");button.disabled=item.index>profile.contract;button.innerHTML=`<small>${item.cols}×${item.rows} · ${item.tiles.length} 块 · ${Object.keys(item.marks).length} 印</small><b>${String(item.index+1).padStart(2,"0")} ${item.name}</b><span class="card-stars">${item.index>profile.contract?"未解锁":"★".repeat(stars)+"☆".repeat(3-stars)}</span><span>${profile.bestMoves[item.index]?"最佳 "+profile.bestMoves[item.index]+" 步":"等待修复"}</span>`;button.addEventListener("click",()=>{$("contractsDialog").close();begin(item.index)});grid.append(button)}list.append(grid)}}
+    function toast(message){clearTimeout(toastTimer);$("toast").textContent=message;$("toast").hidden=false;toastTimer=setTimeout(()=>$("toast").hidden=true,2300)}
+    function tone(frequency){if(!audioOn)return;try{audioContext??=new(window.AudioContext||window.webkitAudioContext)();const osc=audioContext.createOscillator(),gain=audioContext.createGain();osc.frequency.value=frequency;osc.type="sine";gain.gain.setValueAtTime(.045,audioContext.currentTime);gain.gain.exponentialRampToValueAtTime(.001,audioContext.currentTime+.09);osc.connect(gain).connect(audioContext.destination);osc.start();osc.stop(audioContext.currentTime+.1)}catch{}}
+    function validateContent(){const references=CONTRACTS.map(c=>referenceResult(c));return{contracts:CONTRACTS.length,chapters:new Set(CONTRACTS.map(c=>c.chapter)).size,tiles:CONTRACTS.reduce((n,c)=>n+c.tiles.length,0),marks:CONTRACTS.reduce((n,c)=>n+Object.keys(c.marks).length,0),glazes:GLAZES.length-1,motifs:MOTIFS.length,uniqueIds:new Set(CONTRACTS.flatMap(c=>c.tiles.map(t=>t.id))).size,referenceWins:references.filter(r=>r.won).length,referenceThreeStars:references.filter(r=>r.stars===3).length,references}}
+    $("contractsButton").addEventListener("click",()=>{renderContractList();$("contractsDialog").showModal()});$("archiveButton").addEventListener("click",()=>{$("exportCode").value=encodeArchive();$("importCode").value="";$("archiveDialog").showModal()});$("soundButton").addEventListener("click",()=>{audioOn=!audioOn;$("soundButton").textContent=audioOn?"♪":"×";toast(audioOn?"声音已开启":"声音已关闭")});document.querySelectorAll("[data-close]").forEach(button=>button.addEventListener("click",()=>$(button.dataset.close).close()));$("rotateButton").addEventListener("click",rotateSelected);$("removeButton").addEventListener("click",removeSelected);$("undoButton").addEventListener("click",undo);$("hintButton").addEventListener("click",hint);$("clearButton").addEventListener("click",clearBoard);$("verifyButton").addEventListener("click",verify);$("retryButton").addEventListener("click",()=>{$("resultDialog").close();begin(contract.index,{testing:state.testing})});$("nextButton").addEventListener("click",()=>{$("resultDialog").close();begin(Math.min(11,contract.index+1))});$("copyButton").addEventListener("click",async()=>{try{await navigator.clipboard.writeText($("exportCode").value);toast("档案码已复制")}catch{$("exportCode").select();toast("已选中档案码")}});$("importButton").addEventListener("click",()=>{try{profile=decodeArchive($("importCode").value);saveProfile();$("archiveDialog").close();begin(profile.contract);toast("档案导入成功")}catch(error){toast(error.message)}});window.addEventListener("keydown",event=>{if(document.querySelector("dialog[open]")||event.ctrlKey||event.metaKey)return;const key=event.key.toLowerCase();if(key==="r"){event.preventDefault();rotateSelected()}else if(key==="z"){event.preventDefault();undo()}else if(key==="h"){event.preventDefault();hint()}else if(key==="delete"||key==="backspace"){event.preventDefault();removeSelected()}else if(key==="escape"){state.selected=null;render()}});
+    profile=loadProfile();begin(Math.min(profile.contract,11));window.__mosaicRestorerTest={contracts:CONTRACTS,freshProfile,encodeArchive,decodeArchive,validateContent,begin,testPlace,rotateSelected,undo,hint,evaluate,getState:()=>JSON.parse(JSON.stringify(state)),referenceResult};
+  })();
   </script>
+</body>
 </html>

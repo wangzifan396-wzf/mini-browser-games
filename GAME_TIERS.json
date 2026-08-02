@@ -75,6 +75,7 @@
       "mine-matrix.html",
       "monster-horde.html",
       "monster-tamer.html",
+      "mosaic-jigsaw.html",
       "noodle-shift.html",
       "pathogen-protocol.html",
       "photo-safari.html",
@@ -108,7 +109,6 @@
     ],
     "C": [
       "crossword-cafe.html",
-      "mosaic-jigsaw.html",
       "solitaire-classic.html"
     ],
     "D": [],
