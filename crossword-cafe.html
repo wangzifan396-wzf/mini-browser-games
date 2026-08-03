@@ -1,245 +1,87 @@
 <!doctype html>
 <html lang="zh-CN">
-  <meta charset="utf-8" /><meta
-    name="viewport"
-    content="width=device-width,initial-scale=1"
-  /><title>十字词咖啡馆</title
-  ><style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      background: #3a2b25;
-      color: #fff5e9;
-      font-family: system-ui, "Microsoft YaHei";
-    }
-    .app {
-      min-height: 100vh;
-      padding: 14px;
-      display: grid;
-      place-items: center;
-    }
-    .shell {
-      width: min(900px, 100%);
-      background: #5b4236;
-      border: 1px solid #a8846f;
-      border-radius: 20px;
-      padding: 16px;
-    }
-    .top,
-    .row {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .layout {
-      display: grid;
-      grid-template-columns: 1fr 320px;
-      gap: 14px;
-      margin-top: 12px;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(9, 1fr);
-      gap: 2px;
-      background: #2c211d;
-      padding: 5px;
-    }
-    .cell {
-      aspect-ratio: 1;
-      min-width: 0;
-      text-transform: uppercase;
-      text-align: center;
-      font-size: 22px;
-      font-weight: bold;
-      border: 0;
-    }
-    .block {
-      background: #2c211d;
-    }
-    .panel {
-      background: #3f2e27;
-      border: 1px solid #806354;
-      border-radius: 10px;
-      padding: 10px;
-    }
-    .clue {
-      padding: 6px;
-      border-bottom: 1px solid #ffffff18;
-    }
-    .done {
-      color: #78e19c;
-    }
-    button {
-      padding: 9px 11px;
-      border: 1px solid #a17f69;
-      border-radius: 8px;
-      background: #765444;
-      color: white;
-      font-weight: bold;
-    }
-    .help {
-      font-size: 13px;
-      color: #ddc9bb;
-    }
-    @media (max-width: 680px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
-      .app {
-        place-items: start center;
-      }
-    }
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="四辑十二张固定主题英文词盘，确定性布局、横纵焦点、查错提示、触屏键盘、三星与跨设备档案。">
+  <meta name="theme-color" content="#173f3a">
+  <title>十字词咖啡：十二桌主题词盘</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23173f3a'/%3E%3Cpath d='M14 19h32v22a13 13 0 01-13 13h-6a13 13 0 01-13-13V19z' fill='%23f5e8c8'/%3E%3Cpath d='M46 25h5a8 8 0 010 16h-5' fill='none' stroke='%23d8a62d' stroke-width='5'/%3E%3Cpath d='M22 11c-4 5 4 6 0 11M33 9c-4 5 4 7 0 12' fill='none' stroke='%23d8a62d' stroke-width='3'/%3E%3C/svg%3E">
+  <style>
+    :root{--ink:#18322f;--muted:#64736f;--paper:#fffdf6;--wash:#e9eee9;--line:#a6b3af;--dark:#173f3a;--green:#2d7669;--gold:#d8a62d;--red:#bb5048;--blue:#2d7896;--radius:8px}
+    *{box-sizing:border-box}[hidden]{display:none!important}html{background:#dfe6e0}body{margin:0;min-height:100vh;color:var(--ink);font-family:"Microsoft YaHei","PingFang SC","Noto Sans SC",system-ui,sans-serif;background:#e6ebe6}button,textarea{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.45}button:focus-visible,textarea:focus-visible{outline:3px solid rgba(216,166,45,.42);outline-offset:2px}
+    .topbar{display:flex;align-items:center;justify-content:space-between;gap:18px;min-height:94px;padding:15px max(18px,calc((100vw - 1320px)/2));border-bottom:5px solid var(--gold);color:#fff;background:var(--dark)}.brand h1{margin:0;font-size:clamp(28px,4vw,43px);line-height:1.06;letter-spacing:0}.brand p{margin:6px 0 0;color:#c9d9d4;font-size:13px;font-weight:800}.top-actions{display:flex;gap:8px}.icon-button{display:grid;place-items:center;width:46px;height:46px;padding:0;border:1px solid #79a198;border-radius:var(--radius);color:#fff;background:#245f57;font-size:20px;font-weight:900}
+    .app{width:min(1320px,calc(100vw - 24px));margin:18px auto 40px}.puzzle-head{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 16px;border:1px solid #145248;border-bottom:0;color:#fff;background:var(--green)}.chapter{margin:0 0 4px;color:#ffdb75;font-size:12px;font-weight:900}.puzzle-head h2{margin:0;font-size:24px}.saved-stars{color:#ffdc61;font-size:28px;white-space:nowrap}.layout{display:grid;grid-template-columns:minmax(0,1fr) 390px;gap:14px;align-items:start}.workbench{min-width:0;border:1px solid var(--line);background:var(--paper)}.board-zone{display:grid;place-items:center;min-height:520px;padding:16px;background:#d7e2dc}.grid{display:grid;width:min(100%,650px);border:5px solid var(--dark);background:var(--dark);gap:2px;box-shadow:0 12px 30px rgba(23,63,58,.16)}.cell{position:relative;display:grid;place-items:center;aspect-ratio:1;min-width:0;padding:0;border:0;color:var(--ink);background:#fff;font-size:clamp(14px,2.2vw,24px);font-weight:900;text-transform:uppercase}.cell.word-active{background:#e4f0eb}.cell.active{outline:4px solid var(--gold);outline-offset:-4px;background:#fff6d8}.cell.wrong{color:#9d322d;background:#f8d9d5}.cell.revealed{color:#176b61}.cell-number{position:absolute;left:2px;top:1px;font-size:8px;line-height:1;color:#52645f}.block{aspect-ratio:1;background:#173f3a}.keyboard-zone{padding:13px;border-top:1px solid var(--line)}.keyboard{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:5px}.key{height:42px;padding:0;border:1px solid #9fadaa;border-radius:6px;color:var(--ink);background:#eef2ed;font-weight:900}.key.wide{grid-column:span 2;color:#fff;background:var(--red)}.selection-line{min-height:22px;margin:8px 0 0;color:var(--muted);font-size:12px;text-align:center}
+    .side{display:grid;align-content:start;gap:12px}.panel{border:1px solid var(--line);border-top:5px solid var(--green);background:var(--paper)}.panel-inner{padding:13px}.panel h3{margin:0 0 10px;font-size:18px}.metrics{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid #b4c0bc}.metric{padding:10px 5px;text-align:center}.metric+.metric{border-left:1px solid #b4c0bc}.metric b{display:block;font-size:21px}.metric span{color:var(--muted);font-size:10px;font-weight:800}.brief{margin:9px 0 0;color:var(--muted);font-size:12px;line-height:1.55}.clue-columns{display:grid;grid-template-columns:1fr 1fr;gap:9px}.clue-title{margin:0 0 6px;color:var(--green);font-size:13px}.clues{display:grid;gap:5px}.clue{width:100%;min-height:48px;padding:7px;border:1px solid #aab8b3;border-left:4px solid #aab8b3;color:var(--ink);text-align:left;background:#fff;font-size:11px;line-height:1.35}.clue.active{border-left-color:var(--gold);background:#fff7d8}.clue.done{border-left-color:var(--green);color:#24665c;background:#eaf3ee}.clue b{display:block;font-size:12px}.goals{display:grid;gap:7px}.goal{display:grid;grid-template-columns:31px 1fr auto;gap:8px;align-items:center;padding:9px;border-left:4px solid #a3b1ad;background:#edf1ec}.goal.done{border-color:var(--gold);background:#fff7d8}.goal strong:first-child{color:var(--green)}.goal b{white-space:nowrap}.controls{display:grid;grid-template-columns:1fr 1fr;gap:7px}.command{min-height:43px;padding:0 9px;border:1px solid #8ca09b;border-radius:var(--radius);color:var(--ink);background:#edf1ec;font-weight:900}.command.primary{border-color:#11584f;color:#fff;background:var(--green)}.command.danger{border-color:#9e443e;color:#fff;background:var(--red)}.status-line{min-height:38px;margin:9px 0 0;color:var(--muted);font-size:12px;line-height:1.45;text-align:center}
+    dialog{width:min(820px,calc(100vw - 24px));max-height:min(840px,calc(100vh - 24px));padding:0;border:1px solid #78918b;border-radius:var(--radius);color:var(--ink);background:var(--paper);box-shadow:0 24px 72px rgba(16,43,39,.36)}dialog::backdrop{background:rgba(10,35,31,.72)}.dialog-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 16px;border-bottom:4px solid var(--gold);color:#fff;background:var(--dark)}.dialog-head h2{margin:0;font-size:22px}.close{display:grid;place-items:center;width:40px;height:40px;padding:0;border:1px solid #79a198;border-radius:6px;color:#fff;background:#245f57;font-size:22px}.dialog-body{padding:16px}.dialog-copy{margin:0 0 14px;color:var(--muted);line-height:1.6}.puzzle-title{margin:16px 0 8px;color:var(--green);font-size:15px}.puzzle-title:first-child{margin-top:0}.puzzle-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.puzzle-card{min-height:90px;padding:10px;border:1px solid #a9b8b3;border-radius:var(--radius);color:var(--ink);text-align:left;background:#fff}.puzzle-card.active{border:3px solid var(--gold);padding:8px;background:#fff7d8}.puzzle-card strong,.puzzle-card span,.puzzle-card em{display:block}.puzzle-card span{margin:5px 0;color:var(--muted);font-size:11px}.puzzle-card em{color:#b37c0c;font-style:normal}.archive-box{width:100%;height:145px;padding:10px;border:1px solid #8da19b;border-radius:var(--radius);resize:vertical;font-family:Consolas,monospace;font-size:12px}.dialog-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:12px}.result{text-align:center}.result h3{margin:4px 0;font-size:28px}.result-stars{color:#d18e08;font-size:44px}.result-summary{color:var(--muted);line-height:1.65}
+    @media(max-width:1000px){.layout{grid-template-columns:1fr}.side{grid-template-columns:1fr 1fr}.side .panel:first-child,.side .panel:nth-child(2){grid-column:1/-1}.board-zone{min-height:470px}}
+    @media(max-width:620px){.topbar{min-height:0;padding:13px 11px}.brand h1{font-size:26px}.brand p{display:none}.icon-button{width:43px;height:43px}.app{width:calc(100vw - 14px);margin:9px auto 26px}.puzzle-head{padding:11px}.puzzle-head h2{font-size:20px}.saved-stars{font-size:23px}.layout{display:block}.side{display:grid;grid-template-columns:1fr;margin-top:12px}.side .panel:first-child,.side .panel:nth-child(2){grid-column:auto}.board-zone{min-height:355px;padding:8px}.grid{border-width:3px;gap:1px}.cell-number{font-size:7px}.keyboard{grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}.key{height:42px}.key.wide{grid-column:span 2}.clue-columns{grid-template-columns:1fr}.puzzle-grid{grid-template-columns:1fr 1fr}.dialog-body{padding:13px}}
   </style>
-  <main class="app">
-    <section class="shell">
-      <div class="top">
-        <div>
-          <h1 style="margin: 0">十字词咖啡馆</h1>
-          <div class="help">
-            根据横向与纵向提示填写英文单词；交叉字母会互相验证，共五张主题词盘。
-          </div>
-        </div>
-        <div>
-          词盘 <b id="level"></b>/5　正确 <b id="correct"></b>/<b id="total"></b
-          >　提示 <b id="hints"></b>
-        </div>
-      </div>
-      <div class="layout">
-        <div>
-          <div class="grid" id="grid"></div>
-          <div class="row" style="margin-top: 9px">
-            <button id="check">检查答案</button
-            ><button id="hint">填一个字母</button
-            ><button id="reset">清空</button>
-          </div>
-        </div>
-        <aside>
-          <div class="panel">
-            <b>提示</b>
-            <div id="clues"></div>
-          </div>
-        </aside>
-      </div>
-    </section>
-  </main>
+</head>
+<body>
+  <header class="topbar"><div class="brand"><h1>十字词咖啡：十二桌主题词盘</h1><p>横纵交叉 · 主题词库 · 查错提示 · 每桌三星</p></div><div class="top-actions"><button class="icon-button" id="puzzleButton" title="选择词盘" aria-label="选择词盘">▦</button><button class="icon-button" id="archiveButton" title="咖啡档案" aria-label="咖啡档案">⇄</button><button class="icon-button" id="muteButton" title="声音" aria-label="切换声音">♪</button></div></header>
+  <main class="app"><section class="puzzle-head"><div><p class="chapter" id="chapterText"></p><h2 id="puzzleName"></h2></div><div class="saved-stars" id="savedStars">☆☆☆</div></section><section class="layout">
+    <div class="workbench"><div class="board-zone"><div class="grid" id="grid" aria-label="十字词盘"></div></div><div class="keyboard-zone"><div class="keyboard" id="keyboard"></div><p class="selection-line" id="selectionLine"></p></div></div>
+    <aside class="side"><section class="panel"><div class="panel-inner"><h3>词盘进度</h3><div class="metrics"><div class="metric"><b id="wordText">0/0</b><span>完成单词</span></div><div class="metric"><b id="mistakeText">0</b><span>查错字母</span></div><div class="metric"><b id="totalText">0/36</b><span>咖啡星章</span></div></div><p class="brief" id="briefText"></p></div></section>
+    <section class="panel"><div class="panel-inner"><h3>横纵线索</h3><div class="clue-columns"><div><h4 class="clue-title">横向</h4><div class="clues" id="acrossClues"></div></div><div><h4 class="clue-title">纵向</h4><div class="clues" id="downClues"></div></div></div></div></section>
+    <section class="panel"><div class="panel-inner"><h3>三星验收</h3><div class="goals" id="goals"></div></div></section>
+    <section class="panel"><div class="panel-inner"><h3>咖啡操作</h3><div class="controls"><button class="command" id="checkButton">查错</button><button class="command" id="hintButton">字母提示</button><button class="command" id="undoButton">撤回</button><button class="command danger" id="clearButton">清空</button></div><p class="status-line" id="statusLine">点击白格或线索后输入字母，交叉格可再次点击切换方向</p></div></section></aside>
+  </section></main>
+  <dialog id="puzzleDialog"><div class="dialog-head"><h2>十二桌主题词盘</h2><button class="close" data-close="puzzleDialog" aria-label="关闭">×</button></div><div class="dialog-body" id="puzzleGrid"></div></dialog>
+  <dialog id="archiveDialog"><div class="dialog-head"><h2>CROSS2 咖啡档案</h2><button class="close" data-close="archiveDialog" aria-label="关闭">×</button></div><div class="dialog-body"><p class="dialog-copy" id="archiveMessage">档案保存十二桌星级、最佳查错数与当前词盘，可跨设备导入；被修改的档案会被拒绝。</p><textarea class="archive-box" id="archiveText" aria-label="CROSS2 档案码"></textarea><div class="dialog-actions"><button class="command" id="copyArchive">复制</button><button class="command" id="importArchive">导入并校验</button><button class="command primary" data-close="archiveDialog">返回咖啡馆</button></div></div></dialog>
+  <dialog id="resultDialog"><div class="dialog-head"><h2>词盘结账</h2><button class="close" data-close="resultDialog" aria-label="关闭">×</button></div><div class="dialog-body result"><p class="chapter" id="resultChapter"></p><h3 id="resultTitle"></h3><div class="result-stars" id="resultStars"></div><p class="result-summary" id="resultSummary"></p><div class="dialog-actions"><button class="command" id="retryResult">重新填写</button><button class="command primary" id="nextResult">下一桌</button></div></div></dialog>
   <script>
-    const P = [
-      [
-        ["GAME", 1, 1, "H", "游戏"],
-        ["GLOW", 1, 1, "V", "发光"],
-        ["CODE", 4, 2, "H", "代码"],
-        ["CAFE", 4, 2, "V", "咖啡馆"],
-      ],
-      [
-        ["STAR", 1, 1, "H", "星星"],
-        ["SPACE", 1, 1, "V", "太空"],
-        ["PLANET", 4, 2, "H", "行星"],
-        ["PLUTO", 4, 2, "V", "冥王星"],
-      ],
-      [
-        ["WAVE", 1, 1, "H", "波浪"],
-        ["WATER", 1, 1, "V", "水"],
-        ["RIVER", 4, 2, "H", "河流"],
-        ["REEF", 4, 2, "V", "珊瑚礁"],
-      ],
-      [
-        ["TREE", 1, 1, "H", "树"],
-        ["TRAIL", 1, 1, "V", "小径"],
-        ["LEAF", 4, 2, "H", "叶子"],
-        ["LAKE", 4, 2, "V", "湖泊"],
-      ],
-      [
-        ["BYTE", 1, 1, "H", "字节"],
-        ["BOARD", 1, 1, "V", "棋盘"],
-        ["ROBOT", 4, 2, "H", "机器人"],
-        ["RIVER", 4, 2, "V", "河流"],
-      ],
+  (()=>{
+    const W=(word,clue)=>({word,clue}),D=(id,chapter,name,brief,words)=>({id,chapter,name,brief,words});
+    const DEFINITIONS=[
+      D("coffee","第一辑 · 晨间菜单","晨烘咖啡","从咖啡豆、烘焙到奶泡，先熟悉交叉格与横纵切换。",[W("LATTE","拿铁"),W("BEAN","咖啡豆"),W("ROAST","烘焙"),W("MUG","马克杯"),W("CREAM","奶油"),W("AROMA","香气"),W("CAFE","咖啡馆")]),
+      D("bakery","第一辑 · 晨间菜单","面包橱窗","烘焙原料与成品共享许多常见字母，适合练习沿词自动前进。",[W("BREAD","面包"),W("OVEN","烤箱"),W("FLOUR","面粉"),W("YEAST","酵母"),W("TART","挞"),W("CAKE","蛋糕"),W("ROLL","餐包")]),
+      D("city","第一辑 · 晨间菜单","街角城市","交通、建筑与公共空间组成第一张较长路线词盘。",[W("METRO","地铁"),W("PLAZA","广场"),W("TOWER","塔楼"),W("STREET","街道"),W("PARK","公园"),W("HOTEL","酒店"),W("TAXI","出租车")]),
+      D("ocean","第二辑 · 窗边旅行","潮声海岸","海岸词汇引入更多纵向长词，点击交叉格可切换填写方向。",[W("CORAL","珊瑚"),W("TIDE","潮汐"),W("SHELL","贝壳"),W("REEF","礁石"),W("WAVE","波浪"),W("OCEAN","海洋"),W("SAND","沙滩")]),
+      D("forest","第二辑 · 窗边旅行","林径薄雾","林地、植物与路径词汇形成紧凑交叉。",[W("MAPLE","枫树"),W("TRAIL","小径"),W("MOSS","苔藓"),W("PINE","松树"),W("RIVER","河流"),W("OWL","猫头鹰"),W("LEAF","叶片")]),
+      D("space","第二辑 · 窗边旅行","星台夜班","天体与轨道词汇长度差异更大，优先填写确信的长词。",[W("ORBIT","轨道"),W("COMET","彗星"),W("STAR","恒星"),W("LUNAR","月球的"),W("PLANET","行星"),W("NOVA","新星"),W("SOLAR","太阳的")]),
+      D("code","第三辑 · 午后专栏","代码工位","开发常用词组成技术主题词盘，查错只标出当前错误字母。",[W("SCRIPT","脚本"),W("ARRAY","数组"),W("LOOP","循环"),W("DEBUG","调试"),W("CLASS","类"),W("TOKEN","令牌"),W("CACHE","缓存")]),
+      D("music","第三辑 · 午后专栏","节拍唱片","乐器、节拍与乐理词汇在中央形成多重交叉。",[W("PIANO","钢琴"),W("RHYTHM","节奏"),W("CHORD","和弦"),W("TEMPO","速度"),W("SCALE","音阶"),W("DRUM","鼓"),W("NOTE","音符")]),
+      D("travel","第三辑 · 午后专栏","远行票夹","从车票到港口，多个路线词会在同一格相遇。",[W("TRAIN","火车"),W("TICKET","车票"),W("ROUTE","路线"),W("HOTEL","酒店"),W("GUIDE","向导"),W("MAP","地图"),W("PORT","港口")]),
+      D("science","第四辑 · 夜间特调","实验记录","基础科学词汇混合短词与长词，错误检查预算开始收紧。",[W("ATOM","原子"),W("LASER","激光"),W("CELL","细胞"),W("ENERGY","能量"),W("FIELD","场"),W("LAB","实验室"),W("MODEL","模型")]),
+      D("craft","第四辑 · 夜间特调","织物工桌","纺织与修补主题拥有相近拼写，交叉字母能排除误填。",[W("THREAD","线"),W("CLOTH","布料"),W("NEEDLE","针"),W("WOOL","羊毛"),W("LOOM","织机"),W("DYE","染料"),W("PATCH","补丁")]),
+      D("finale","第四辑 · 夜间特调","百味终桌","收束项目常见主题，八个词构成全馆最大词盘。",[W("SIGNAL","信号"),W("BRIDGE","桥梁"),W("GEAR","齿轮"),W("LOGIC","逻辑"),W("CANVAS","画布"),W("GAME","游戏"),W("CODE","代码"),W("STAR","星星")])
     ];
-    let q = { lv: 0, hints: 3 };
-    const $ = (x) => document.getElementById(x);
-    function solution() {
-      let cells = {};
-      for (const [w, r, c, d] of P[q.lv])
-        for (let i = 0; i < w.length; i++)
-          cells[(r + (d === "V" ? i : 0)) * 9 + c + (d === "H" ? i : 0)] = w[i];
-      return cells;
-    }
-    function draw() {
-      let sol = solution();
-      level.textContent = q.lv + 1;
-      hints.textContent = q.hints;
-      grid.innerHTML = "";
-      for (let i = 0; i < 81; i++) {
-        let e;
-        if (sol[i]) {
-          e = document.createElement("input");
-          e.maxLength = 1;
-          e.className = "cell";
-          e.dataset.i = i;
-          e.value = q.values?.[i] || "";
-          e.oninput = () => {
-            q.values = q.values || {};
-            q.values[i] = e.value.toUpperCase();
-          };
-        } else {
-          e = document.createElement("div");
-          e.className = "cell block";
-        }
-        grid.append(e);
-      }
-      clues.innerHTML = P[q.lv]
-        .map(
-          (x, i) =>
-            `<div class="clue">${i + 1}. ${x[3] === "H" ? "横" : "纵"}：${x[4]}（${x[0].length}）</div>`,
-        )
-        .join("");
-      updateCount();
-    }
-    function updateCount() {
-      let sol = solution(),
-        ok = Object.keys(sol).filter(
-          (i) => (q.values?.[i] || "") === sol[i],
-        ).length;
-      correct.textContent = ok;
-      total.textContent = Object.keys(sol).length;
-      if (ok === Object.keys(sol).length) {
-        if (q.lv < 4)
-          setTimeout(() => {
-            q.lv++;
-            q.values = {};
-            q.hints = 3;
-            draw();
-          }, 650);
-        else setTimeout(() => alert("五张十字词盘全部完成！"), 50);
-      }
-    }
-    check.onclick = () => {
-      for (const e of grid.querySelectorAll("input"))
-        e.style.background =
-          e.value.toUpperCase() === solution()[e.dataset.i]
-            ? "#c9f0d4"
-            : "#f3baba";
-      updateCount();
-    };
-    hint.onclick = () => {
-      if (q.hints <= 0) return;
-      let sol = solution(),
-        empty = Object.keys(sol).find((i) => (q.values?.[i] || "") !== sol[i]);
-      if (empty !== undefined) {
-        q.hints--;
-        q.values = q.values || {};
-        q.values[empty] = sol[empty];
-        draw();
-      }
-    };
-    reset.onclick = () => {
-      q.values = {};
-      draw();
-    };
-    draw();
+    const cellKey=(r,c)=>r+","+c;
+    function cloneState(state){return{cells:new Map([...state.cells].map(([key,value])=>[key,{char:value.char,dirs:new Set(value.dirs)}])),placements:state.placements.map(value=>({...value}))}}
+    function canPlace(state,word,row,col,dir,size,first=false){const dr=dir==="D"?1:0,dc=dir==="A"?1:0,endR=row+dr*(word.length-1),endC=col+dc*(word.length-1);if(row<0||col<0||endR>=size||endC>=size)return null;const before=cellKey(row-dr,col-dc),after=cellKey(endR+dr,endC+dc);if(state.cells.has(before)||state.cells.has(after))return null;let crosses=0;for(let i=0;i<word.length;i+=1){const r=row+dr*i,c=col+dc*i,key=cellKey(r,c),existing=state.cells.get(key);if(existing){if(existing.char!==word[i]||existing.dirs.has(dir))return null;crosses+=1}else{const sides=dir==="A"?[[r-1,c],[r+1,c]]:[[r,c-1],[r,c+1]];if(sides.some(([sr,sc])=>state.cells.has(cellKey(sr,sc))))return null}}if(!first&&!crosses)return null;return{row,col,dir,crosses}}
+    function candidatesFor(state,entry,size){const found=[];for(const [key,cell] of state.cells){for(let i=0;i<entry.word.length;i+=1){if(entry.word[i]!==cell.char)continue;const[r,c]=key.split(",").map(Number);for(const dir of["A","D"]){const dr=dir==="D"?1:0,dc=dir==="A"?1:0,result=canPlace(state,entry.word,r-dr*i,c-dc*i,dir,size);if(result)found.push(result)}}}return found.sort((a,b)=>b.crosses-a.crosses||(Math.abs(a.row-size/2)+Math.abs(a.col-size/2))-(Math.abs(b.row-size/2)+Math.abs(b.col-size/2)))}
+    function applyPlacement(state,entry,index,placement){const next=cloneState(state),dr=placement.dir==="D"?1:0,dc=placement.dir==="A"?1:0;for(let i=0;i<entry.word.length;i+=1){const key=cellKey(placement.row+dr*i,placement.col+dc*i),cell=next.cells.get(key)||{char:entry.word[i],dirs:new Set()};cell.dirs.add(placement.dir);next.cells.set(key,cell)}next.placements.push({word:entry.word,clue:entry.clue,source:index,...placement});return next}
+    function generate(definition){const size=13,entries=definition.words.map((entry,index)=>({...entry,index})).sort((a,b)=>b.word.length-a.word.length),firstEntry=entries[0],first={row:Math.floor(size/2),col:Math.floor((size-firstEntry.word.length)/2),dir:"A",crosses:0};let state=applyPlacement({cells:new Map(),placements:[]},firstEntry,firstEntry.index,first),remaining=entries.slice(1),visits=0;function search(current,left){visits+=1;if(visits>50000)return null;if(!left.length)return current;const choices=left.map(entry=>({entry,candidates:candidatesFor(current,entry,size)})).filter(choice=>choice.candidates.length).sort((a,b)=>a.candidates.length-b.candidates.length||b.entry.word.length-a.entry.word.length);for(const choice of choices){const rest=left.filter(entry=>entry!==choice.entry);for(const placement of choice.candidates.slice(0,30)){const solved=search(applyPlacement(current,choice.entry,choice.entry.index,placement),rest);if(solved)return solved}}return null}state=search(state,remaining);if(!state)throw new Error(definition.name+" 无法生成完整词盘");const rows=[...state.cells.keys()].map(key=>Number(key.split(",")[0])),cols=[...state.cells.keys()].map(key=>Number(key.split(",")[1])),minR=Math.min(...rows),minC=Math.min(...cols),maxR=Math.max(...rows),maxC=Math.max(...cols),placements=state.placements.map(value=>({...value,row:value.row-minR+1,col:value.col-minC+1})),height=maxR-minR+3,width=maxC-minC+3,cells=new Map();for(const placement of placements){const dr=placement.dir==="D"?1:0,dc=placement.dir==="A"?1:0;for(let i=0;i<placement.word.length;i+=1){const key=cellKey(placement.row+dr*i,placement.col+dc*i),cell=cells.get(key)||{char:placement.word[i],words:[]};cell.words.push(placement.source);cells.set(key,cell)}}const starts=new Map(),ordered=[...placements].sort((a,b)=>a.row-b.row||a.col-b.col||a.dir.localeCompare(b.dir));let number=0;for(const placement of ordered){const key=cellKey(placement.row,placement.col);if(!starts.has(key))starts.set(key,++number);placement.number=starts.get(key)}placements.sort((a,b)=>a.source-b.source);return{...definition,width,height,cells,placements,starts,visits}}
+    const PUZZLES=DEFINITIONS.map(generate),archivePrefix="CROSS2",storageKey="crossword_cafe_v2";
+    let profile=loadProfile(),game,audioContext=null,muted=false;
+    const ui={};["chapterText","puzzleName","savedStars","grid","keyboard","selectionLine","wordText","mistakeText","totalText","briefText","acrossClues","downClues","goals","checkButton","hintButton","undoButton","clearButton","statusLine","puzzleButton","archiveButton","muteButton","puzzleDialog","puzzleGrid","archiveDialog","archiveMessage","archiveText","copyArchive","importArchive","resultDialog","resultChapter","resultTitle","resultStars","resultSummary","retryResult","nextResult"].forEach(id=>ui[id]=document.getElementById(id));
+    function clamp(value,min,max){return Math.max(min,Math.min(max,Number(value)||0))}function freshProfile(){return{version:2,puzzle:0,stars:Array(12).fill(0),bestMistakes:Array(12).fill(99),clears:Array(12).fill(0)}}function normalizeProfile(value){const clean=freshProfile();if(!value||typeof value!=="object")return clean;clean.puzzle=clamp(value.puzzle,0,11);for(let i=0;i<12;i+=1){clean.stars[i]=clamp(value.stars?.[i],0,3);clean.bestMistakes[i]=clamp(value.bestMistakes?.[i],0,99);clean.clears[i]=clamp(value.clears?.[i],0,999)}return clean}function loadProfile(){try{return normalizeProfile(JSON.parse(localStorage.getItem(storageKey)))}catch{return freshProfile()}}function saveProfile(){try{localStorage.setItem(storageKey,JSON.stringify(profile))}catch{}}function checksum(text){let hash=2166136261;for(let i=0;i<text.length;i+=1){hash^=text.charCodeAt(i);hash=Math.imul(hash,16777619)}return(hash>>>0).toString(36)}function encodeArchive(value=profile){const bytes=new TextEncoder().encode(JSON.stringify(normalizeProfile(value)));let binary="";bytes.forEach(byte=>binary+=String.fromCharCode(byte));const payload=btoa(binary).replaceAll("+","-").replaceAll("/","_").replaceAll("=","");return archivePrefix+"."+payload+"."+checksum(payload)}function decodeArchive(code){const parts=String(code).trim().split(".");if(parts.length!==3||parts[0]!==archivePrefix||checksum(parts[1])!==parts[2])throw new Error("档案校验失败");try{const payload=parts[1].replaceAll("-","+").replaceAll("_","/"),padded=payload+"=".repeat((4-payload.length%4)%4),bytes=Uint8Array.from(atob(padded),char=>char.charCodeAt(0));return normalizeProfile(JSON.parse(new TextDecoder().decode(bytes)))}catch{throw new Error("档案内容无效")}}
+    function current(){return PUZZLES[profile.puzzle]}function totalStars(){return profile.stars.reduce((sum,value)=>sum+value,0)}function unlocked(index){return index===0||profile.stars[index-1]>0}function freshGame(testing=false){return{values:{},activeWord:0,activeCell:null,hints:0,mistakes:0,wrong:new Set(),revealed:new Set(),history:[],complete:false,result:null,testing}}function begin(index=profile.puzzle,options={}){profile.puzzle=clamp(index,0,11);game=freshGame(Boolean(options.testing));const placement=current().placements[0];game.activeWord=placement.source;game.activeCell=cellKey(placement.row,placement.col);if(!game.testing){saveProfile();updateUi()}return game}
+    function activePlacement(){return current().placements.find(placement=>placement.source===game.activeWord)||current().placements[0]}function placementKeys(placement){const dr=placement.dir==="D"?1:0,dc=placement.dir==="A"?1:0;return Array.from({length:placement.word.length},(_,index)=>cellKey(placement.row+dr*index,placement.col+dc*index))}function wordDone(placement){return placementKeys(placement).every((key,index)=>game.values[key]===placement.word[index])}function completeWords(){return current().placements.filter(wordDone).length}function solved(){return[...current().cells].every(([key,cell])=>game.values[key]===cell.char)}function snapshot(){return{values:{...game.values},activeWord:game.activeWord,activeCell:game.activeCell}}function pushHistory(){game.history.push(snapshot());if(game.history.length>120)game.history.shift()}
+    function selectWord(source,preferredCell=null){const placement=current().placements.find(item=>item.source===source);if(!placement)return false;game.activeWord=source;const keys=placementKeys(placement);game.activeCell=preferredCell&&keys.includes(preferredCell)?preferredCell:keys.find(key=>game.values[key]!==current().cells.get(key).char)||keys[0];if(!game.testing)updateUi();return true}
+    function selectCell(key){const cell=current().cells.get(key);if(!cell)return false;const placement=activePlacement(),same=placementKeys(placement).includes(key);let source=cell.words[0];if(same&&cell.words.length>1){const index=cell.words.indexOf(game.activeWord);source=cell.words[(index+1)%cell.words.length]}else if(cell.words.includes(game.activeWord))source=game.activeWord;return selectWord(source,key)}
+    function move(step){const keys=placementKeys(activePlacement()),index=Math.max(0,keys.indexOf(game.activeCell)),next=Math.max(0,Math.min(keys.length-1,index+step));game.activeCell=keys[next]}
+    function typeLetter(letter){if(game.complete||!/^[A-Z]$/.test(letter)||!game.activeCell)return false;pushHistory();game.values[game.activeCell]=letter;game.wrong.delete(game.activeCell);move(1);if(!game.testing){tone(260+letter.charCodeAt(0)*3,.035,"triangle",.012);updateUi()}if(solved())finish();return true}
+    function backspace(){if(!game.activeCell)return false;pushHistory();if(game.values[game.activeCell])delete game.values[game.activeCell];else{move(-1);delete game.values[game.activeCell]}game.wrong.delete(game.activeCell);if(!game.testing)updateUi();return true}
+    function undo(){if(!game.history.length)return false;const previous=game.history.pop();game.values={...previous.values};game.activeWord=previous.activeWord;game.activeCell=previous.activeCell;game.wrong.clear();if(!game.testing)updateUi();return true}
+    function checkErrors(){const wrong=[...current().cells].filter(([key,cell])=>game.values[key]&&game.values[key]!==cell.char).map(([key])=>key);wrong.forEach(key=>game.wrong.add(key));game.mistakes+=wrong.length;if(!game.testing){ui.statusLine.textContent=wrong.length?"标出 "+wrong.length+" 个错误字母":"当前已填字母全部正确";tone(wrong.length?150:520,.07,"square",.018);updateUi()}return wrong}
+    function hint(){const placement=activePlacement(),keys=placementKeys(placement);let key=keys.find(item=>game.values[item]!==current().cells.get(item).char);if(!key)key=[...current().cells.keys()].find(item=>game.values[item]!==current().cells.get(item).char);if(!key)return false;pushHistory();game.values[key]=current().cells.get(key).char;game.activeCell=key;game.hints+=1;game.revealed.add(key);game.wrong.delete(key);if(!game.testing){ui.statusLine.textContent="咖啡师补写了一个交叉字母";updateUi();tone(610,.08,"triangle",.02)}if(solved())finish();return true}
+    function clearAll(){if(!Object.keys(game.values).length)return false;pushHistory();game.values={};game.wrong.clear();if(!game.testing)updateUi();return true}
+    function starsFor(){return solved()?1+Number(game.mistakes<=2)+Number(game.hints===0):0}function finish(){if(game.complete)return;game.complete=true;const stars=starsFor();game.result={won:true,stars,mistakes:game.mistakes,hints:game.hints,words:current().placements.length};if(game.testing)return;const index=profile.puzzle;profile.stars[index]=Math.max(profile.stars[index],stars);profile.bestMistakes[index]=Math.min(profile.bestMistakes[index],game.mistakes);profile.clears[index]+=1;saveProfile();updateUi();ui.resultChapter.textContent=current().chapter;ui.resultTitle.textContent=String(index+1).padStart(2,"0")+" "+current().name;ui.resultStars.textContent="★".repeat(stars)+"☆".repeat(3-stars);ui.resultSummary.textContent=current().placements.length+" 个主题词全部交叉吻合 · "+(game.mistakes?game.mistakes+" 个查错字母":"零查错")+" · "+(game.hints?game.hints+" 次提示":"独立完成");ui.nextResult.textContent=index===11?"查看词盘":"下一桌";setTimeout(()=>ui.resultDialog.showModal(),120);tone(523,.12,"triangle",.05);tone(659,.15,"triangle",.04,.12)}
+    function runReference(index){const oldProfile=profile,oldGame=game;profile=freshProfile();profile.puzzle=index;begin(index,{testing:true});for(const[key,cell]of PUZZLES[index].cells){game.activeCell=key;typeLetter(cell.char)}const result={id:PUZZLES[index].id,won:game.complete,stars:game.result?.stars||0,words:PUZZLES[index].placements.length,cells:PUZZLES[index].cells.size,width:PUZZLES[index].width,height:PUZZLES[index].height,visits:PUZZLES[index].visits};profile=oldProfile;game=oldGame;return result}
+    function placementKeysFor(puzzle,placement){const dr=placement.dir==="D"?1:0,dc=placement.dir==="A"?1:0;return Array.from({length:placement.word.length},(_,index)=>cellKey(placement.row+dr*index,placement.col+dc*index))}
+    function validateContent(){const references=PUZZLES.map((_,index)=>runReference(index)),words=PUZZLES.flatMap(puzzle=>puzzle.placements.map(placement=>placement.word)),allConnected=PUZZLES.every(puzzle=>puzzle.placements.filter(placement=>placement.crosses===0).length===1&&puzzle.placements.filter(placement=>placement.crosses>0).length===puzzle.placements.length-1),allConsistent=PUZZLES.every(puzzle=>[...puzzle.cells].every(([key,cell])=>cell.words.every(source=>{const placement=puzzle.placements.find(item=>item.source===source),keys=placementKeysFor(puzzle,placement),index=keys.indexOf(key);return index>=0&&placement.word[index]===cell.char})));return{puzzles:PUZZLES.length,chapters:new Set(PUZZLES.map(puzzle=>puzzle.chapter)).size,words:words.length,uniqueWords:new Set(words).size,cells:PUZZLES.reduce((sum,puzzle)=>sum+puzzle.cells.size,0),crossings:PUZZLES.reduce((sum,puzzle)=>sum+[...puzzle.cells.values()].filter(cell=>cell.words.length>1).length,0),maxWidth:Math.max(...PUZZLES.map(puzzle=>puzzle.width)),maxHeight:Math.max(...PUZZLES.map(puzzle=>puzzle.height)),allConnected,allConsistent,referenceWins:references.filter(result=>result.won).length,referenceThreeStars:references.filter(result=>result.stars===3).length,references}}
+    function updateUi(){const puzzle=current(),active=activePlacement(),done=completeWords();ui.chapterText.textContent=puzzle.chapter;ui.puzzleName.textContent=String(profile.puzzle+1).padStart(2,"0")+" "+puzzle.name;ui.savedStars.textContent="★".repeat(profile.stars[profile.puzzle])+"☆".repeat(3-profile.stars[profile.puzzle]);ui.wordText.textContent=done+"/"+puzzle.placements.length;ui.mistakeText.textContent=game.mistakes;ui.totalText.textContent=totalStars()+"/36";ui.briefText.textContent=puzzle.brief;ui.selectionLine.textContent=active.number+" "+(active.dir==="A"?"横":"纵")+" · "+active.clue+" · "+active.word.length+" 格";renderBoard();renderClues();ui.goals.innerHTML=[{icon:"词",label:"完成全部 "+puzzle.placements.length+" 个主题词",value:done+"/"+puzzle.placements.length,done:game.complete},{icon:"查",label:"查错字母不超过 2 个",value:String(game.mistakes),done:game.complete&&game.mistakes<=2},{icon:"独",label:"不使用字母提示",value:game.hints?game.hints+" 次":"无提示",done:game.complete&&game.hints===0}].map(goal=>'<div class="goal '+(goal.done?'done':'')+'"><strong>'+goal.icon+'</strong><strong>'+goal.label+'</strong><b>'+goal.value+'</b></div>').join("");ui.undoButton.disabled=!game.history.length;renderPuzzles()}
+    function renderBoard(){const puzzle=current(),activeKeys=new Set(placementKeys(activePlacement()));ui.grid.style.gridTemplateColumns="repeat("+puzzle.width+",1fr)";ui.grid.innerHTML="";for(let row=0;row<puzzle.height;row+=1)for(let col=0;col<puzzle.width;col+=1){const key=cellKey(row,col),cell=puzzle.cells.get(key);if(!cell){const block=document.createElement("div");block.className="block";ui.grid.append(block);continue}const button=document.createElement("button");button.className="cell"+(activeKeys.has(key)?" word-active":"")+(game.activeCell===key?" active":"")+(game.wrong.has(key)?" wrong":"")+(game.revealed.has(key)?" revealed":"");button.dataset.cell=key;button.textContent=game.values[key]||"";const number=puzzle.starts.get(key);if(number){const label=document.createElement("span");label.className="cell-number";label.textContent=number;button.append(label)}button.addEventListener("click",()=>selectCell(key));ui.grid.append(button)}}
+    function renderClues(){for(const [dir,target]of[["A",ui.acrossClues],["D",ui.downClues]]){target.innerHTML=current().placements.filter(placement=>placement.dir===dir).sort((a,b)=>a.number-b.number).map(placement=>'<button class="clue '+(game.activeWord===placement.source?'active ':'')+(wordDone(placement)?'done':'')+'" data-word="'+placement.source+'"><b>'+placement.number+' '+(dir==="A"?"横":"纵")+' · '+placement.word.length+' 格</b>'+placement.clue+'</button>').join("");target.querySelectorAll("[data-word]").forEach(button=>button.addEventListener("click",()=>selectWord(Number(button.dataset.word))))}}
+    function renderPuzzles(){const chapters=[...new Set(PUZZLES.map(puzzle=>puzzle.chapter))];ui.puzzleGrid.innerHTML=chapters.map(chapter=>'<h3 class="puzzle-title">'+chapter+'</h3><div class="puzzle-grid">'+PUZZLES.map((puzzle,index)=>({puzzle,index})).filter(entry=>entry.puzzle.chapter===chapter).map(({puzzle,index})=>{const open=unlocked(index),stars=profile.stars[index]||0;return'<button class="puzzle-card '+(profile.puzzle===index?'active':'')+'" data-puzzle="'+index+'" '+(open?'':'disabled')+'><strong>'+String(index+1).padStart(2,"0")+' '+puzzle.name+'</strong><span>'+(open?puzzle.placements.length+' 词 · '+puzzle.width+'×'+puzzle.height:'完成上一桌后解锁')+'</span><em>'+(open?'★'.repeat(stars)+'☆'.repeat(3-stars):'锁定')+'</em></button>'}).join("")+'</div>').join("");ui.puzzleGrid.querySelectorAll("[data-puzzle]").forEach(button=>button.addEventListener("click",()=>{ui.puzzleDialog.close();begin(Number(button.dataset.puzzle))}))}
+    function showArchive(message=""){ui.archiveMessage.textContent=message||"档案保存十二桌星级、最佳查错数与当前词盘，可跨设备导入；被修改的档案会被拒绝。";ui.archiveText.value=encodeArchive();if(!ui.archiveDialog.open)ui.archiveDialog.showModal()}function ensureAudio(){if(!audioContext){const Audio=window.AudioContext||window.webkitAudioContext;if(Audio)audioContext=new Audio()}if(audioContext?.state==="suspended")audioContext.resume()}function tone(frequency,duration,type="sine",volume=.02,delay=0){if(muted||game?.testing)return;ensureAudio();if(!audioContext)return;const oscillator=audioContext.createOscillator(),gain=audioContext.createGain(),start=audioContext.currentTime+delay;oscillator.type=type;oscillator.frequency.setValueAtTime(frequency,start);gain.gain.setValueAtTime(volume,start);gain.gain.exponentialRampToValueAtTime(.001,start+duration);oscillator.connect(gain);gain.connect(audioContext.destination);oscillator.start(start);oscillator.stop(start+duration)}
+    ui.keyboard.innerHTML="ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").map(letter=>'<button class="key" data-key="'+letter+'">'+letter+'</button>').join("")+'<button class="key wide" data-key="BACK">⌫</button>';ui.keyboard.querySelectorAll("[data-key]").forEach(button=>button.addEventListener("click",()=>button.dataset.key==="BACK"?backspace():typeLetter(button.dataset.key)));document.addEventListener("keydown",event=>{if(document.querySelector("dialog[open]")||event.ctrlKey||event.metaKey||event.altKey)return;if(/^[a-zA-Z]$/.test(event.key)){event.preventDefault();typeLetter(event.key.toUpperCase())}else if(event.key==="Backspace"){event.preventDefault();backspace()}else if(event.key==="ArrowLeft"||event.key==="ArrowUp"){event.preventDefault();move(-1);updateUi()}else if(event.key==="ArrowRight"||event.key==="ArrowDown"){event.preventDefault();move(1);updateUi()}});
+    ui.checkButton.addEventListener("click",checkErrors);ui.hintButton.addEventListener("click",hint);ui.undoButton.addEventListener("click",undo);ui.clearButton.addEventListener("click",clearAll);ui.puzzleButton.addEventListener("click",()=>{renderPuzzles();ui.puzzleDialog.showModal()});ui.archiveButton.addEventListener("click",()=>showArchive());ui.muteButton.addEventListener("click",()=>{muted=!muted;ui.muteButton.textContent=muted?"×":"♪";if(!muted)tone(440,.06)});document.querySelectorAll("[data-close]").forEach(button=>button.addEventListener("click",()=>document.getElementById(button.dataset.close).close()));ui.copyArchive.addEventListener("click",async()=>{ui.archiveText.select();try{await navigator.clipboard.writeText(ui.archiveText.value)}catch{document.execCommand("copy")}showArchive("档案已复制")});ui.importArchive.addEventListener("click",()=>{try{profile=decodeArchive(ui.archiveText.value);saveProfile();begin(profile.puzzle);showArchive("档案已导入并通过校验")}catch(error){showArchive(error.message||"档案无效")}});ui.retryResult.addEventListener("click",()=>{ui.resultDialog.close();begin(profile.puzzle)});ui.nextResult.addEventListener("click",()=>{ui.resultDialog.close();if(profile.puzzle<11)begin(profile.puzzle+1);else{renderPuzzles();ui.puzzleDialog.showModal()}});
+    window.__crosswordCafeTest={puzzles:PUZZLES,freshProfile,encodeArchive,decodeArchive,generate,validateContent,runReference,begin(index=0,options={testing:true}){return begin(index,options)},selectWord,selectCell,typeLetter,backspace,undo,checkErrors,hint,clearAll,getState(){return{puzzle:profile.puzzle,values:{...game.values},activeWord:game.activeWord,activeCell:game.activeCell,hints:game.hints,mistakes:game.mistakes,wrong:[...game.wrong],revealed:[...game.revealed],complete:game.complete,result:game.result,completedWords:completeWords()}}};
+    begin(profile.puzzle);
+  })();
   </script>
+</body>
 </html>

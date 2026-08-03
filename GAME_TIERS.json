@@ -53,6 +53,7 @@
       "clean-slate.html",
       "clockwork-escape.html",
       "cozy-organizer.html",
+      "crossword-cafe.html",
       "courier-grid.html",
       "detective-desk.html",
       "dojo-duel.html",
@@ -109,7 +110,6 @@
       "midnight-chess.html"
     ],
     "C": [
-      "crossword-cafe.html",
       "solitaire-classic.html"
     ],
     "D": [],
