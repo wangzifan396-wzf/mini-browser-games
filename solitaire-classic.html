@@ -1,411 +1,97 @@
 <!doctype html>
 <html lang="zh-CN">
-  <meta charset="utf-8" /><meta
-    name="viewport"
-    content="width=device-width,initial-scale=1"
-  /><title>静夜纸牌</title
-  ><style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      background: radial-gradient(circle at top, #18584b, #092c29);
-      color: #fff;
-      font-family: system-ui, "Microsoft YaHei";
-    }
-    .app {
-      min-height: 100vh;
-      padding: 12px;
-    }
-    .top {
-      max-width: 1020px;
-      margin: auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-    .stats {
-      display: flex;
-      gap: 16px;
-    }
-    button {
-      background: #d7b45c;
-      color: #241b08;
-      border: 0;
-      border-radius: 8px;
-      padding: 9px 13px;
-      font-weight: bold;
-    }
-    .table {
-      max-width: 1020px;
-      margin: 12px auto;
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 10px;
-    }
-    .pile {
-      min-height: 132px;
-      border: 2px dashed #ffffff38;
-      border-radius: 10px;
-      position: relative;
-    }
-    .stock {
-      grid-column: 1;
-    }
-    .waste {
-      grid-column: 2;
-    }
-    .foundation {
-      grid-row: 1;
-    }
-    .f0 {
-      grid-column: 4;
-    }
-    .f1 {
-      grid-column: 5;
-    }
-    .f2 {
-      grid-column: 6;
-    }
-    .f3 {
-      grid-column: 7;
-    }
-    .tab {
-      grid-row: 2;
-      min-height: 520px;
-    }
-    .card {
-      position: absolute;
-      left: 2%;
-      width: 96%;
-      height: 126px;
-      border-radius: 9px;
-      background: #fff;
-      color: #161616;
-      border: 1px solid #aaa;
-      padding: 7px;
-      font-weight: 800;
-      font-size: 20px;
-      box-shadow: 0 2px 6px #0006;
-      cursor: pointer;
-      user-select: none;
-    }
-    .card.red {
-      color: #c62937;
-    }
-    .card.back {
-      background: repeating-linear-gradient(
-        45deg,
-        #273d83 0 7px,
-        #4260b0 7px 14px
-      );
-      border: 5px solid white;
-      color: transparent;
-    }
-    .card.sel {
-      outline: 4px solid #ffd95e;
-      transform: translateY(-3px);
-    }
-    .label {
-      position: absolute;
-      inset: 0;
-      display: grid;
-      place-items: center;
-      color: #ffffff55;
-      font-size: 34px;
-    }
-    .help {
-      color: #c5e6df;
-      font-size: 13px;
-    }
-    @media (max-width: 650px) {
-      .table {
-        gap: 4px;
-      }
-      .pile {
-        min-height: 92px;
-      }
-      .card {
-        height: 88px;
-        font-size: 15px;
-        padding: 4px;
-      }
-      .tab {
-        min-height: 410px;
-      }
-      .stats {
-        font-size: 12px;
-        gap: 7px;
-      }
-    }
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#173d37">
+  <meta name="description" content="静夜纸牌：十二局星图残局与可复现 Klondike 自由牌局。">
+  <title>静夜纸牌：十二局星图残局</title>
+  <style>
+    :root{--bg:#edf1ee;--paper:#fffefa;--ink:#17302f;--muted:#657573;--line:#bdcbc7;--deep:#173d37;--felt:#25634f;--blue:#176b91;--gold:#d2a13d;--red:#b84f55;--black:#273842;--radius:8px;--shadow:0 10px 28px rgba(16,48,42,.11)}*{box-sizing:border-box}[hidden]{display:none!important}body{margin:0;min-height:100vh;color:var(--ink);font-family:"Microsoft YaHei","PingFang SC","Noto Sans SC",system-ui,sans-serif;background:var(--bg)}button,input,select{font:inherit}button{cursor:pointer}.shell{width:min(1260px,calc(100vw - 28px));margin:0 auto}.top{padding:22px 0 18px;color:#fff;background:var(--deep);border-bottom:5px solid var(--gold)}.top-inner{display:flex;align-items:flex-start;justify-content:space-between;gap:22px}.eyebrow{margin:0 0 6px;color:#f1ce78;font-size:12px;font-weight:900}.top h1{margin:0;font-size:clamp(29px,5vw,48px);line-height:1.08}.top p{max-width:720px;margin:8px 0 0;color:#d6e6e0;font-size:13px;line-height:1.6}.top-links{display:flex;gap:8px;flex-wrap:wrap}.top-links a{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 13px;border:1px solid #85aaa2;border-radius:var(--radius);color:#fff;text-decoration:none;font-weight:900;background:#225448}.top-links a.primary{border-color:#f1ce78;color:#20312c;background:#f1ce78}.layout{display:grid;grid-template-columns:282px minmax(0,1fr);gap:16px;padding:18px 0 34px}.panel{border:1px solid var(--line);border-radius:var(--radius);background:var(--paper);box-shadow:var(--shadow)}.campaign{padding:15px}.panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 10px}.panel-head h2{margin:0;font-size:17px}.chapter{margin:11px 0 6px;color:var(--muted);font-size:11px;font-weight:900}.challenge-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}.challenge{min-width:0;min-height:49px;padding:7px;border:1px solid #acbeb9;border-radius:6px;color:var(--ink);background:#f0f6f3;text-align:left}.challenge strong{display:block;color:var(--blue);font-size:11px}.challenge small{display:block;margin-top:4px;color:var(--muted);font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.challenge.active{border-color:var(--blue);background:#dfeef0;box-shadow:inset 3px 0 var(--felt)}.challenge.done{border-left:4px solid var(--felt)}.archive-note{margin:13px 0 0;padding-top:12px;border-top:1px solid var(--line);color:var(--muted);font-size:10px;line-height:1.55}.game{min-width:0;overflow:hidden}.game-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:14px 15px 12px}.game-head h2{margin:0;font-size:22px}.game-head p{margin:4px 0 0;color:var(--muted);font-size:12px}.metrics{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}.metric{min-width:82px;padding:7px 9px;border:1px solid var(--line);border-radius:6px;text-align:right;background:#f2f6f3}.metric b{display:block;color:var(--blue);font-size:15px}.metric span{color:var(--muted);font-size:9px;font-weight:900}.mode-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 15px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:#f1f5f2}.segments{display:flex;gap:4px;padding:3px;border:1px solid #aabbb6;border-radius:7px;background:#dfe8e4}.segment{min-height:34px;padding:0 12px;border:0;border-radius:5px;color:#405653;background:transparent;font-weight:900}.segment.active{color:#fff;background:var(--blue)}.free-settings{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.free-settings input,.free-settings select{height:36px;border:1px solid #9fb3ad;border-radius:6px;color:var(--ink);background:#fff}.free-settings input{width:118px;padding:0 9px}.free-settings select{padding:0 7px}.small-btn{height:36px;padding:0 10px;border:1px solid #9fb3ad;border-radius:6px;color:var(--ink);background:#fff;font-weight:900}.board-wrap{padding:13px;background:var(--felt)}.board-top,.tableau{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}.board-top{margin-bottom:13px}.slot{position:relative;min-width:0;aspect-ratio:.72;border:2px dashed rgba(255,255,255,.28);border-radius:7px;background:rgba(5,36,28,.15)}.slot.spacer{border-color:transparent;background:transparent}.slot-label{position:absolute;inset:0;display:grid;place-items:center;color:rgba(255,255,255,.38);font-size:24px;font-weight:900}.stock-slot{border-style:solid}.stock-count{position:absolute;right:4px;bottom:3px;z-index:5;padding:2px 4px;border-radius:4px;color:#fff;background:rgba(8,36,31,.72);font-size:9px;font-weight:900}.tableau-pile{position:relative;min-width:0;min-height:440px;border-radius:7px;background:rgba(6,43,33,.12)}.empty-target{position:absolute;inset:0 0 auto;height:92px;border:2px dashed rgba(255,255,255,.2);border-radius:7px;background:transparent}.card{display:block;position:absolute;left:0;width:100%;aspect-ratio:.72;padding:4px;border:1px solid #83908c;border-radius:7px;color:var(--black);background:#fffefa;box-shadow:0 2px 5px rgba(5,28,23,.24);text-align:left;font-weight:900;line-height:1}.card.red{color:var(--red)}.card.back{border:3px solid #e5cf8a;background:#284d6a;box-shadow:inset 0 0 0 3px #477794,0 2px 5px rgba(5,28,23,.24)}.card.back:after{content:"";position:absolute;inset:7px;border:1px solid #e5cf8a;border-radius:4px;background:repeating-linear-gradient(45deg,transparent 0 5px,rgba(255,255,255,.13) 5px 7px)}.card .rank{position:absolute;left:5px;top:5px;font-size:clamp(11px,1.55vw,18px)}.card .suit{position:absolute;left:0;right:0;top:40%;font-size:clamp(18px,3vw,34px);text-align:center}.card.selected{outline:3px solid #f6c951;outline-offset:-2px;transform:translateY(-3px)}.card.hint{animation:pulse 1s ease-in-out 2}.foundation-card,.waste-card{inset:0}.actions{display:flex;gap:7px;flex-wrap:wrap;padding:12px 15px;border-top:1px solid var(--line)}.action{min-height:40px;padding:0 12px;border:1px solid #a5b7b2;border-radius:6px;color:var(--ink);background:#edf3f0;font-weight:900}.action.primary{border-color:var(--blue);color:#fff;background:var(--blue)}.status{min-height:34px;padding:0 15px 12px;color:var(--muted);font-size:12px;font-weight:900}.status.good{color:var(--felt)}.status.bad{color:var(--red)}.archive{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:7px;padding:12px 15px 15px;border-top:1px solid var(--line)}.archive input{min-width:0;height:39px;padding:0 10px;border:1px solid #a5b7b2;border-radius:6px;background:#fff}.archive button{height:39px;padding:0 10px;border:1px solid #a5b7b2;border-radius:6px;background:#edf3f0;font-weight:900}dialog{width:min(520px,calc(100vw - 28px));padding:0;border:1px solid var(--line);border-radius:var(--radius);color:var(--ink);background:var(--paper);box-shadow:0 20px 55px rgba(7,30,25,.32)}dialog::backdrop{background:rgba(8,29,25,.48)}.dialog-inner{padding:20px}.dialog-inner h3{margin:0 0 8px}.dialog-inner p{margin:7px 0;color:var(--muted);font-size:13px;line-height:1.6}.dialog-close{float:right;min-height:36px;padding:0 11px;border:1px solid #a5b7b2;border-radius:6px;background:#edf3f0;font-weight:900}@keyframes pulse{50%{filter:brightness(1.35);box-shadow:0 0 0 4px rgba(246,201,81,.45)}}@media(max-width:900px){.layout{grid-template-columns:1fr}.campaign{order:2}.challenge-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.archive-note{display:none}}@media(max-width:620px){.shell{width:calc(100vw - 18px)}.top-inner{display:block}.top-links{margin-top:14px}.top-links a{flex:1}.layout{padding-top:10px;gap:10px}.game-head{display:block;padding:12px}.metrics{justify-content:flex-start;margin-top:9px}.metric{flex:1;min-width:0;text-align:left}.mode-bar{display:block;padding:9px 12px}.segments{width:100%}.segment{flex:1}.free-settings{margin-top:8px}.free-settings input{flex:1;width:auto;min-width:90px}.board-wrap{padding:7px}.board-top,.tableau{gap:4px}.tableau-pile{min-height:355px}.card{padding:3px;border-radius:5px}.card.back{border-width:2px}.card.back:after{inset:5px}.actions{padding:10px 12px}.action{flex:1;padding:0 8px}.archive{grid-template-columns:1fr 1fr;padding:10px 12px 12px}.archive input{grid-column:1/-1}.archive button{width:100%}.challenge-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.campaign{padding:12px}}
   </style>
-  <main class="app">
-    <header class="top">
-      <div>
-        <h1 style="margin: 0">静夜纸牌</h1>
-        <div class="help">
-          单击选牌与目标牌堆；也可双击自动收入基础堆。支持翻三张、撤回和连胜记录。
-        </div>
-      </div>
-      <div class="stats">
-        <span>得分 <b id="score">0</b></span
-        ><span>步数 <b id="moves">0</b></span
-        ><span>连胜 <b id="streak">0</b></span
-        ><button id="undo">撤回</button><button id="newGame">新局</button>
-      </div>
-    </header>
-    <section class="table" id="table">
-      <div class="pile stock" id="stock"></div>
-      <div class="pile waste" id="waste"></div>
-      <div class="pile foundation f0" data-f="0">
-        <span class="label">♥</span>
-      </div>
-      <div class="pile foundation f1" data-f="1">
-        <span class="label">♦</span>
-      </div>
-      <div class="pile foundation f2" data-f="2">
-        <span class="label">♣</span>
-      </div>
-      <div class="pile foundation f3" data-f="3">
-        <span class="label">♠</span>
-      </div>
+</head>
+<body>
+  <header class="top"><div class="shell top-inner"><div><p class="eyebrow">KLONDIKE ARCHIVE · SOL2</p><h1>静夜纸牌</h1><p>十二局星图残局与可复现自由牌局。每一步都遵循标准红黑交替、递减列与同花升序基础堆。</p></div><nav class="top-links" aria-label="项目链接"><a class="primary" href="index.html">游戏目录</a><a href="https://github.com/wangzifan396-wzf/mini-browser-games">GitHub</a></nav></div></header>
+  <main class="shell layout">
+    <aside class="panel campaign"><div class="panel-head"><h2>星图残局</h2><strong id="progressText">0 / 12</strong></div><div id="challengeList"></div><p class="archive-note">自由牌局使用完整 52 张牌；星图残局从短牌序逐步扩展到完整牌组，规则状态与参考求解完全同源。</p></aside>
+    <section class="panel game">
+      <div class="game-head"><div><h2 id="gameTitle">载入牌局</h2><p id="gameBrief">正在整理牌桌。</p></div><div class="metrics"><div class="metric"><b id="moveMetric">0</b><span>当前步数</span></div><div class="metric"><b id="parMetric">--</b><span>参考步数</span></div><div class="metric"><b id="starMetric">--</b><span>当前星级</span></div></div></div>
+      <div class="mode-bar"><div class="segments"><button class="segment active" id="campaignMode">星图残局</button><button class="segment" id="freeMode">自由牌局</button></div><div class="free-settings" id="freeSettings" hidden><input id="seedInput" inputmode="numeric" aria-label="牌局种子"><select id="drawSelect" aria-label="抽牌规则"><option value="1">翻一张</option><option value="3">翻三张</option></select><button class="small-btn" id="dailyButton">今日牌局</button><button class="small-btn" id="dealButton">发牌</button></div></div>
+      <div class="board-wrap"><div class="board-top" id="boardTop"></div><div class="tableau" id="tableau"></div></div>
+      <div class="actions"><button class="action primary" id="drawButton">抽牌</button><button class="action" id="autoButton" title="把一张安全牌收入基础堆">自动收牌</button><button class="action" id="hintButton" title="执行一手参考动作">方法提示</button><button class="action" id="undoButton" title="撤回上一步">撤回</button><button class="action" id="resetButton" title="重置当前牌局">重置</button></div>
+      <div class="status" id="statusText">选择牌或点击牌库。</div>
+      <div class="archive"><input id="archiveCode" placeholder="SOL2. 跨设备档案码" aria-label="SOL2 档案码"><button id="exportButton">导出档案</button><button id="importButton">导入档案</button></div>
     </section>
   </main>
+  <dialog id="resultDialog"><div class="dialog-inner"><button class="dialog-close" id="closeDialog">关闭</button><h3 id="dialogTitle">牌局完成</h3><p id="dialogSummary"></p><p id="dialogDetail"></p></div></dialog>
   <script>
-    const suits = ["♥", "♦", "♣", "♠"],
-      red = (s) => s < 2;
-    let q,
-      sel = null,
-      hist = [];
-    const $ = (x) => document.getElementById(x);
-    function fresh() {
-      let d = [];
-      for (let s = 0; s < 4; s++)
-        for (let n = 1; n <= 13; n++) d.push({ s, n, up: false });
-      for (let i = d.length - 1; i; i--) {
-        let j = Math.floor(Math.random() * (i + 1));
-        [d[i], d[j]] = [d[j], d[i]];
-      }
-      let tabs = Array.from({ length: 7 }, () => []);
-      for (let i = 0; i < 7; i++)
-        for (let j = 0; j <= i; j++) {
-          let c = d.pop();
-          c.up = j === i;
-          tabs[i].push(c);
-        }
-      return {
-        stock: d,
-        waste: [],
-        f: [[], [], [], []],
-        tabs,
-        score: 0,
-        moves: 0,
-        streak: +localStorage.getItem("solitaire_streak") || 0,
-      };
-    }
-    function clone() {
-      return JSON.parse(JSON.stringify(q));
-    }
-    function snap() {
-      hist.push(clone());
-      hist = hist.slice(-60);
-    }
-    function val(n) {
-      return n === 1
-        ? "A"
-        : n === 11
-          ? "J"
-          : n === 12
-            ? "Q"
-            : n === 13
-              ? "K"
-              : n;
-    }
-    function source() {
-      if (!sel) return null;
-      if (sel.kind === "w") return q.waste.slice(-1);
-      if (sel.kind === "t") return q.tabs[sel.i].slice(sel.k);
-      if (sel.kind === "f") return q.f[sel.i].slice(-1);
-    }
-    function validTab(cards, i) {
-      let top = q.tabs[i].at(-1),
-        c = cards[0];
-      return top
-        ? top.up && red(top.s) !== red(c.s) && top.n === c.n + 1
-        : c.n === 13;
-    }
-    function validF(c, i) {
-      let top = q.f[i].at(-1);
-      return c.s === i && (!top ? c.n === 1 : top.n === c.n - 1);
-    }
-    function removeSel() {
-      if (sel.kind === "w") q.waste.pop();
-      if (sel.kind === "t") {
-        q.tabs[sel.i].splice(sel.k);
-        let t = q.tabs[sel.i].at(-1);
-        if (t && !t.up) {
-          t.up = true;
-          q.score += 5;
-        }
-      }
-      if (sel.kind === "f") q.f[sel.i].pop();
-    }
-    function moveTab(i) {
-      let a = source();
-      if (!a || !validTab(a, i) || (sel.kind === "t" && sel.i === i)) return;
-      snap();
-      removeSel();
-      q.tabs[i].push(...a);
-      q.moves++;
-      q.score += 5;
-      sel = null;
-      win();
-      draw();
-    }
-    function moveF(i) {
-      let a = source();
-      if (!a || a.length !== 1 || !validF(a[0], i)) return;
-      snap();
-      removeSel();
-      q.f[i].push(a[0]);
-      q.moves++;
-      q.score += 10;
-      sel = null;
-      win();
-      draw();
-    }
-    function choose(kind, i, k) {
-      if (sel) {
-        if (kind === "t") return moveTab(i);
-        if (kind === "f") return moveF(i);
-      }
-      sel = { kind, i, k };
-      draw();
-    }
-    function card(c, top, click, dbl) {
-      let e = document.createElement("div");
-      e.className = "card " + (!c.up ? "back" : red(c.s) ? "red" : "");
-      e.style.top = top + "px";
-      if (c.up)
-        e.innerHTML = `${val(c.n)}${suits[c.s]}<div style="font-size:34px;text-align:center">${suits[c.s]}</div>`;
-      e.onclick = (x) => {
-        x.stopPropagation();
-        click();
-      };
-      if (dbl)
-        e.ondblclick = (x) => {
-          x.stopPropagation();
-          dbl();
-        };
-      return e;
-    }
-    function auto(kind, i, k) {
-      sel = { kind, i, k };
-      let a = source();
-      if (a) moveF(a[0].s);
-    }
-    function draw() {
-      score.textContent = q.score;
-      moves.textContent = q.moves;
-      streak.textContent = q.streak;
-      stock.innerHTML = q.stock.length
-        ? '<div class="card back"></div>'
-        : '<span class="label">↻</span>';
-      waste.innerHTML = "";
-      q.waste.slice(-3).forEach((c, j, a) =>
-        waste.append(
-          card(
-            c,
-            j * 15,
-            () => choose("w"),
-            () => auto("w"),
-          ),
-        ),
-      );
-      document.querySelectorAll(".foundation").forEach((p, i) => {
-        p.querySelectorAll(".card").forEach((x) => x.remove());
-        let c = q.f[i].at(-1);
-        if (c) {
-          let e = card(c, 0, () => choose("f", i), null);
-          if (sel?.kind === "f" && sel.i === i) e.classList.add("sel");
-          p.append(e);
-        }
-        p.onclick = () => moveF(i);
-      });
-      document.querySelectorAll(".tab").forEach((x) => x.remove());
-      q.tabs.forEach((a, i) => {
-        let p = document.createElement("div");
-        p.className = "pile tab";
-        p.onclick = () => moveTab(i);
-        a.forEach((c, k) => {
-          let y = a.slice(0, k).reduce((v, x) => v + (x.up ? 30 : 14), 0),
-            e = card(
-              c,
-              y,
-              () => c.up && choose("t", i, k),
-              () => c.up && k === a.length - 1 && auto("t", i, k),
-            );
-          if (sel?.kind === "t" && sel.i === i && sel.k === k)
-            e.classList.add("sel");
-          p.append(e);
-        });
-        table.append(p);
-      });
-      save();
-    }
-    function save() {
-      localStorage.setItem("solitaire_active", JSON.stringify(q));
-    }
-    function win() {
-      if (q.f.every((x) => x.length === 13)) {
-        q.streak++;
-        localStorage.setItem("solitaire_streak", q.streak);
-        setTimeout(
-          () => alert(`完成！本局 ${q.moves} 步，连胜 ${q.streak}`),
-          50,
-        );
-      }
-    }
-    stock.onclick = () => {
-      snap();
-      sel = null;
-      if (q.stock.length) {
-        let n = Math.min(3, q.stock.length);
-        while (n--) {
-          let c = q.stock.pop();
-          c.up = true;
-          q.waste.push(c);
-        }
-      } else {
-        q.stock = q.waste.reverse().map((c) => ({ ...c, up: false }));
-        q.waste = [];
-        q.score = Math.max(0, q.score - 20);
-      }
-      q.moves++;
-      draw();
-    };
-    undo.onclick = () => {
-      if (hist.length) {
-        q = hist.pop();
-        sel = null;
-        draw();
-      }
-    };
-    newGame.onclick = () => {
-      if (confirm("开始一局新牌？")) {
-        q = fresh();
-        hist = [];
-        draw();
-      }
-    };
-    try {
-      q = JSON.parse(localStorage.getItem("solitaire_active")) || fresh();
-    } catch {
-      q = fresh();
-    }
-    draw();
+  (()=>{
+    const SUITS=["♥","♦","♣","♠"],CHAPTERS=["入夜校牌","月相移列","长夜回收","天明终局"],ARCHIVE="SOL2";
+    const CHALLENGES=[
+      {id:"first-light",chapter:0,title:"初灯四列",brief:"短牌序熟悉基础堆节奏。",maxRank:4,stockLayers:0,draw:1,hidden:[0,0,0,0],variant:0},
+      {id:"ace-cache",chapter:0,title:"藏起四 A",brief:"先从牌库取回四张起始牌。",maxRank:5,stockLayers:1,draw:1,hidden:[0,1,0,1],variant:1},
+      {id:"three-draw",chapter:0,title:"三翻月影",brief:"翻三张时从废牌顶依次收牌。",maxRank:6,stockLayers:1,draw:3,hidden:[1,0,1,0],variant:2},
+      {id:"covered",chapter:1,title:"暗列初醒",brief:"移走明牌后逐层翻开暗牌。",maxRank:7,stockLayers:1,draw:1,hidden:[2,1,2,1],variant:3},
+      {id:"double-cache",chapter:1,title:"双层牌库",brief:"两层低点牌都在牌库中。",maxRank:8,stockLayers:2,draw:3,hidden:[1,2,1,2],variant:0},
+      {id:"deep-columns",chapter:1,title:"深列交替",brief:"完整红黑长列考验收牌顺序。",maxRank:9,stockLayers:0,draw:1,hidden:[3,2,3,2],variant:1},
+      {id:"slow-orbit",chapter:2,title:"缓行三星",brief:"控制抽牌次数和总步数。",maxRank:10,stockLayers:3,draw:1,hidden:[2,3,2,3],variant:2},
+      {id:"triple-orbit",chapter:2,title:"三翻回环",brief:"连续三翻仍需保持花色同步。",maxRank:11,stockLayers:2,draw:3,hidden:[3,2,4,3],variant:3},
+      {id:"queen-line",chapter:2,title:"后冠长列",brief:"十二点牌序接近完整牌组。",maxRank:12,stockLayers:3,draw:1,hidden:[4,3,4,3],variant:0},
+      {id:"full-deck",chapter:3,title:"完整星盘",brief:"完整 52 张牌的翻三残局。",maxRank:13,stockLayers:3,draw:3,hidden:[4,4,3,3],variant:1},
+      {id:"sealed-kings",chapter:3,title:"封存王列",brief:"完整牌组与更深暗列。",maxRank:13,stockLayers:1,draw:1,hidden:[6,5,4,3],variant:2},
+      {id:"dawn",chapter:3,title:"天明终验",brief:"完整牌组、四层牌库与翻三规则。",maxRank:13,stockLayers:4,draw:3,hidden:[5,4,4,3],variant:3},
+    ];
+    const $=id=>document.getElementById(id),clone=value=>JSON.parse(JSON.stringify(value)),red=s=>s<2,key=c=>`${c.s}-${c.n}`,card=(s,n,up=true)=>({s,n,up});
+    let profile=freshProfile(),q=null,history=[],selected=null,hintMark="",mode="campaign";
+    function hash(text){let h=2166136261;for(let i=0;i<text.length;i++){h^=text.charCodeAt(i);h=Math.imul(h,16777619)}return(h>>>0).toString(16).padStart(8,"0")}
+    function to64(text){const bytes=new TextEncoder().encode(text);let raw="";for(const byte of bytes)raw+=String.fromCharCode(byte);return btoa(raw).replace(/=+$/g,"").replace(/\+/g,"-").replace(/\//g,"_")}
+    function from64(code){const raw=atob(code.replace(/-/g,"+").replace(/_/g,"/")+"===".slice((code.length+3)%4));return new TextDecoder().decode(Uint8Array.from(raw,c=>c.charCodeAt(0)))}
+    function freshProfile(){return{challenge:0,stars:Array(CHALLENGES.length).fill(0),bestMoves:Array(CHALLENGES.length).fill(null),clears:Array(CHALLENGES.length).fill(0),dailyStreak:0,lastDaily:""}}
+    function suitMap(variant,offset){const maps=[[[2,3,0,1],[0,1,2,3]],[[3,2,1,0],[1,0,3,2]],[[0,1,2,3],[2,3,0,1]],[[1,0,3,2],[3,2,1,0]]];return maps[variant%4][offset%2]}
+    function buildChallenge(index){const spec=CHALLENGES[index],tabs=Array.from({length:7},()=>[]);for(let n=spec.maxRank;n>=1;n--){const map=suitMap(spec.variant,spec.maxRank-n);for(let col=0;col<4;col++)tabs[col].push(card(map[col],n,true))}const desired=[];for(let layer=1;layer<=spec.stockLayers;layer++){const row=[];for(let col=0;col<4;col++){const c=tabs[col].pop();if(!c||c.n!==layer)throw Error("残局构造失败");row.push(c)}const shift=(spec.variant+layer)%4;desired.push(...row.slice(shift),...row.slice(0,shift))}for(let col=0;col<4;col++){const hidden=Math.min(spec.hidden[col]||0,Math.max(0,tabs[col].length-1));for(let i=0;i<hidden;i++)tabs[col][i].up=false}const pop=[];for(let i=0;i<desired.length;i+=spec.draw){const chunk=desired.slice(i,i+spec.draw);pop.push(...chunk.reverse())}const stock=pop.reverse().map(c=>({...c,up:false}));return{kind:"campaign",challenge:index,rules:{draw:spec.draw,redealLimit:2,maxRank:spec.maxRank},stock,waste:[],f:[[],[],[],[]],tabs,moves:0,draws:0,redeals:0,hints:0,won:false,par:0}}
+    function rng(seed){let a=seed>>>0;return()=>{a|=0;a=a+0x6d2b79f5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+    function seedNumber(value){const text=String(value||"1");let n=2166136261;for(const ch of text){n^=ch.charCodeAt(0);n=Math.imul(n,16777619)}return n>>>0}
+    function buildFree(seed,draw=1){const random=rng(seedNumber(seed)),deck=[];for(let s=0;s<4;s++)for(let n=1;n<=13;n++)deck.push(card(s,n,false));for(let i=deck.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[deck[i],deck[j]]=[deck[j],deck[i]]}const tabs=Array.from({length:7},()=>[]);for(let col=0;col<7;col++)for(let row=0;row<=col;row++){const c=deck.pop();c.up=row===col;tabs[col].push(c)}return{kind:"free",seed:String(seed),rules:{draw:Number(draw),redealLimit:Number(draw)===3?3:99,maxRank:13},stock:deck,waste:[],f:[[],[],[],[]],tabs,moves:0,draws:0,redeals:0,hints:0,won:false,par:0}}
+    function sourceCards(st,from){if(from.kind==="w")return st.waste.length?[st.waste.at(-1)]:[];if(from.kind==="f")return st.f[from.i].length?[st.f[from.i].length-1]:[];if(from.kind==="t")return st.tabs[from.i].slice(from.k);return[]}
+    function validStack(cards){return cards.length>0&&cards.every((c,i)=>c.up&&(!i||(cards[i-1].n===c.n+1&&red(cards[i-1].s)!==red(c.s))))}
+    function validFoundation(st,c,i){const top=st.f[i].at(-1);return c.s===i&&(!top?c.n===1:top.n===c.n-1)}
+    function validTableau(st,cards,i){if(!validStack(cards))return false;const top=st.tabs[i].at(-1),first=cards[0];return top?top.up&&top.n===first.n+1&&red(top.s)!==red(first.s):first.n===st.rules.maxRank}
+    function canPerform(st,action){if(action.type==="draw")return st.stock.length>0||(st.waste.length>0&&st.redeals<st.rules.redealLimit);if(action.type!=="move")return false;const cards=sourceCards(st,action.from);if(!cards.length)return false;if(action.from.kind==="t"&&action.to.kind==="t"&&action.from.i===action.to.i)return false;if(action.from.kind==="f"&&action.to.kind==="f")return false;if(action.to.kind==="f")return cards.length===1&&validFoundation(st,cards[0],action.to.i);if(action.to.kind==="t")return validTableau(st,cards,action.to.i);return false}
+    function removeSource(st,from){if(from.kind==="w")return[st.waste.pop()];if(from.kind==="f")return[st.f[from.i].pop()];const cards=st.tabs[from.i].splice(from.k),top=st.tabs[from.i].at(-1);if(top&&!top.up)top.up=true;return cards}
+    function perform(st,action){if(!canPerform(st,action))return false;if(action.type==="draw"){if(st.stock.length){let count=Math.min(st.rules.draw,st.stock.length);while(count--){const c=st.stock.pop();c.up=true;st.waste.push(c)}st.draws++}else{st.stock=st.waste.reverse().map(c=>({...c,up:false}));st.waste=[];st.redeals++}st.moves++;return true}const cards=removeSource(st,action.from);if(action.to.kind==="f")st.f[action.to.i].push(cards[0]);else st.tabs[action.to.i].push(...cards);st.moves++;return true}
+    function isWon(st){return st.f.every(pile=>pile.length===st.rules.maxRank)}
+    function homeActions(st){const out=[];if(st.waste.length){const c=st.waste.at(-1);if(validFoundation(st,c,c.s))out.push({type:"move",from:{kind:"w"},to:{kind:"f",i:c.s}})}st.tabs.forEach((pile,i)=>{const c=pile.at(-1);if(c?.up&&validFoundation(st,c,c.s))out.push({type:"move",from:{kind:"t",i,k:pile.length-1},to:{kind:"f",i:c.s}})});return out.sort((a,b)=>sourceCards(st,a.from)[0].n-sourceCards(st,b.from)[0].n)}
+    function suggest(st){const homes=homeActions(st);if(homes.length)return homes[0];if(st.stock.length||st.waste.length&&st.redeals<st.rules.redealLimit)return{type:"draw"};for(let i=0;i<st.tabs.length;i++)for(let k=0;k<st.tabs[i].length;k++)if(st.tabs[i][k].up)for(let j=0;j<st.tabs.length;j++){const action={type:"move",from:{kind:"t",i,k},to:{kind:"t",i:j}};if(canPerform(st,action))return action}return null}
+    function solveState(initial){const st=clone(initial),actions=[];for(let guard=0;guard<500&&!isWon(st);guard++){const action=suggest(st);if(!action||!perform(st,action))break;actions.push(action)}return{won:isWon(st),moves:st.moves,actions,state:st}}
+    const REFERENCES=CHALLENGES.map((_,index)=>{const initial=buildChallenge(index),result=solveState(initial);return result});
+    function starsFor(st){if(!isWon(st))return 0;let stars=1;if(st.moves<=st.par+4)stars=2;if(st.moves<=st.par&&st.hints===0)stars=3;return stars}
+    function actionKey(action){if(!action)return"";if(action.type==="draw")return"stock";return action.from.kind+(action.from.i??"")+"-"+(action.from.k??"")}
+    function setStatus(text,tone=""){const node=$("statusText");node.textContent=text;node.className=`status ${tone}`}
+    function snapshot(){return clone(q)}
+    function commit(action,asHint=false){if(!canPerform(q,action)){setStatus("这一步不符合当前牌局规则。","bad");return false}history.push(snapshot());if(history.length>120)history.shift();if(asHint)q.hints++;perform(q,action);selected=null;hintMark=actionKey(action);afterMove();return true}
+    function afterMove(){if(isWon(q)&&!q.won){q.won=true;if(q.kind==="campaign"){const stars=starsFor(q),index=q.challenge;profile.stars[index]=Math.max(profile.stars[index],stars);profile.bestMoves[index]=profile.bestMoves[index]===null?q.moves:Math.min(profile.bestMoves[index],q.moves);profile.clears[index]++;saveProfile();showResult(stars)}else{const today=todaySeed();if(q.seed===today&&profile.lastDaily!==today){profile.dailyStreak++;profile.lastDaily=today;saveProfile()}showResult(0)}}render()}
+    function beginChallenge(index){mode="campaign";profile.challenge=Math.max(0,Math.min(CHALLENGES.length-1,index));q=buildChallenge(profile.challenge);q.par=REFERENCES[profile.challenge].moves;history=[];selected=null;hintMark="";saveProfile();render()}
+    function beginFree(seed=$("seedInput").value||todaySeed(),draw=$("drawSelect").value){mode="free";q=buildFree(seed,draw);history=[];selected=null;hintMark="";render()}
+    function todaySeed(){const d=new Date();return`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}`}
+    function choose(from){if(selected&&JSON.stringify(selected)===JSON.stringify(from)){selected=null;render();return}selected=from;hintMark="";render()}
+    function target(to){if(!selected){setStatus("先选择一张明牌。","bad");return}commit({type:"move",from:selected,to})}
+    function autoHome(){const action=homeActions(q)[0];if(action)commit(action);else setStatus("当前没有可安全收入基础堆的牌。","bad")}
+    function hint(){if(q.kind!=="campaign"){const action=suggest(q);if(action)commit(action,true);else setStatus("当前局面没有发现直接推进动作。","bad");return}const result=solveState(q);if(result.won&&result.actions[0])commit(result.actions[0],true);else setStatus("当前分支无法由参考策略继续，请撤回一步。","bad")}
+    function reset(){q=q.kind==="campaign"?buildChallenge(q.challenge):buildFree(q.seed,q.rules.draw);if(q.kind==="campaign")q.par=REFERENCES[q.challenge].moves;history=[];selected=null;hintMark="";render()}
+    function val(n){return n===1?"A":n===11?"J":n===12?"Q":n===13?"K":String(n)}
+    function cardNode(c,from,extra=""){const node=document.createElement("button");node.className=`card${red(c.s)?" red":""}${c.up?"":" back"} ${extra}`;node.type="button";node.dataset.card=key(c);if(!c.up){node.disabled=true;node.setAttribute("aria-label","暗牌");return node}node.innerHTML=`<span class="rank">${val(c.n)}${SUITS[c.s]}</span><span class="suit">${SUITS[c.s]}</span>`;node.setAttribute("aria-label",`${val(c.n)}${SUITS[c.s]}`);if(selected&&JSON.stringify(selected)===JSON.stringify(from))node.classList.add("selected");if(hintMark===actionKey({type:"move",from}))node.classList.add("hint");node.addEventListener("click",event=>{event.stopPropagation();choose(from)});node.addEventListener("dblclick",event=>{event.stopPropagation();const action={type:"move",from,to:{kind:"f",i:c.s}};if(canPerform(q,action))commit(action)});return node}
+    function renderBoard(){const top=$("boardTop");top.replaceChildren();const stock=document.createElement("button");stock.className="slot stock-slot";stock.type="button";stock.setAttribute("aria-label",q.stock.length?"抽牌":"回收废牌");if(q.stock.length){const back=document.createElement("span");back.className="card back foundation-card";stock.append(back)}else{stock.innerHTML='<span class="slot-label">↻</span>'}stock.insertAdjacentHTML("beforeend",`<span class="stock-count">${q.stock.length}</span>`);stock.addEventListener("click",()=>commit({type:"draw"}));top.append(stock);const waste=document.createElement("div");waste.className="slot";if(q.waste.length)waste.append(cardNode(q.waste.at(-1),{kind:"w"},"waste-card"));else waste.innerHTML='<span class="slot-label">W</span>';top.append(waste);const spacer=document.createElement("div");spacer.className="slot spacer";top.append(spacer);for(let i=0;i<4;i++){const pile=document.createElement("div");pile.className="slot";pile.addEventListener("click",()=>target({kind:"f",i}));const c=q.f[i].at(-1);if(c)pile.append(cardNode(c,{kind:"f",i},"foundation-card"));else pile.innerHTML=`<span class="slot-label">${SUITS[i]}</span>`;top.append(pile)}const host=$("tableau");host.replaceChildren();const mobile=innerWidth<=620,upStep=mobile?25:34,downStep=mobile?13:17;q.tabs.forEach((cards,i)=>{const pile=document.createElement("div");pile.className="tableau-pile";pile.addEventListener("click",()=>target({kind:"t",i}));if(!cards.length){const empty=document.createElement("div");empty.className="empty-target";pile.append(empty)}let offset=0;cards.forEach((c,k)=>{const node=cardNode(c,{kind:"t",i,k});node.style.top=`${offset}px`;node.style.zIndex=String(k+1);pile.append(node);offset+=c.up?upStep:downStep});host.append(pile)})}
+    function renderChallenges(){const host=$("challengeList");host.replaceChildren();CHAPTERS.forEach((chapter,chapterIndex)=>{const label=document.createElement("div");label.className="chapter";label.textContent=chapter;host.append(label);const grid=document.createElement("div");grid.className="challenge-grid";CHALLENGES.filter(item=>item.chapter===chapterIndex).forEach(spec=>{const index=CHALLENGES.indexOf(spec),button=document.createElement("button");button.className=`challenge${mode==="campaign"&&q.challenge===index?" active":""}${profile.stars[index]>=3?" done":""}`;button.innerHTML=`<strong>${String(index+1).padStart(2,"0")} · ${spec.title}</strong><small>${profile.stars[index]?"★".repeat(profile.stars[index])+" · ":""}${spec.maxRank*4} 张</small>`;button.addEventListener("click",()=>beginChallenge(index));grid.append(button)});host.append(grid)});$("progressText").textContent=`${profile.stars.filter(Boolean).length} / ${CHALLENGES.length}`}
+    function render(){const campaign=q.kind==="campaign",spec=campaign?CHALLENGES[q.challenge]:null;$("gameTitle").textContent=campaign?`${String(q.challenge+1).padStart(2,"0")} · ${spec.title}`:`自由牌局 · ${q.seed}`;$("gameBrief").textContent=campaign?spec.brief:`${q.rules.draw===1?"翻一张":"翻三张"} · 已回收 ${q.redeals}/${q.rules.redealLimit===99?"∞":q.rules.redealLimit}`;$("moveMetric").textContent=q.moves;$("parMetric").textContent=campaign?q.par:"自由";$("starMetric").textContent=isWon(q)?"★".repeat(starsFor(q)):"—";$("campaignMode").classList.toggle("active",campaign);$("freeMode").classList.toggle("active",!campaign);$("freeSettings").hidden=campaign;$("hintButton").textContent=campaign?"方法提示":"推进提示";$("drawButton").textContent=q.stock.length?`抽牌 · ${q.stock.length}`:q.waste.length?"回收废牌":"牌库已清空";renderBoard();renderChallenges();saveCurrent();if(!q.won)setStatus(selected?"已选择牌，点击目标牌堆。":"选择牌或点击牌库。")}
+    function showResult(stars){$("dialogTitle").textContent=q.kind==="campaign"?"星图残局完成":"自由牌局完成";$("dialogSummary").textContent=q.kind==="campaign"?`获得 ${stars} 星；使用 ${q.moves} 步，参考步数 ${q.par}。`:`完成种子 ${q.seed}，共使用 ${q.moves} 步。`;$("dialogDetail").textContent=q.hints?`本局使用 ${q.hints} 次提示。再次挑战可争取无提示三星。`:"本局未使用提示。";$("resultDialog").showModal()}
+    function saveProfile(){localStorage.setItem("solitaire-star-profile",JSON.stringify(profile))}
+    function saveCurrent(){localStorage.setItem("solitaire-star-current",JSON.stringify(q))}
+    function load(){try{const saved=JSON.parse(localStorage.getItem("solitaire-star-profile")||"null");if(saved?.stars?.length===CHALLENGES.length)profile={...freshProfile(),...saved}}catch{}try{const current=JSON.parse(localStorage.getItem("solitaire-star-current")||"null");if(current?.tabs?.length===7&&current?.f?.length===4)q=current}catch{}if(!q){q=buildChallenge(profile.challenge);q.par=REFERENCES[profile.challenge].moves}mode=q.kind}
+    function encodeArchive(value=profile){const data={challenge:value.challenge,stars:value.stars,bestMoves:value.bestMoves,clears:value.clears,dailyStreak:value.dailyStreak,lastDaily:value.lastDaily},body=JSON.stringify(data);return`${ARCHIVE}.${to64(JSON.stringify({...data,check:hash(body)}))}`}
+    function decodeArchive(code){if(typeof code!=="string"||!code.startsWith(`${ARCHIVE}.`))throw Error("档案前缀错误");const payload=JSON.parse(from64(code.slice(ARCHIVE.length+1))),{check,...data}=payload;if(check!==hash(JSON.stringify(data)))throw Error("档案校验失败");if(!Array.isArray(data.stars)||data.stars.length!==CHALLENGES.length)throw Error("档案内容错误");return data}
+    $("campaignMode").addEventListener("click",()=>beginChallenge(profile.challenge));$("freeMode").addEventListener("click",()=>{const seed=$("seedInput").value||todaySeed();beginFree(seed,$("drawSelect").value)});$("dealButton").addEventListener("click",()=>beginFree($("seedInput").value||Date.now(),$("drawSelect").value));$("dailyButton").addEventListener("click",()=>{$("seedInput").value=todaySeed();beginFree(todaySeed(),$("drawSelect").value)});$("drawButton").addEventListener("click",()=>commit({type:"draw"}));$("autoButton").addEventListener("click",autoHome);$("hintButton").addEventListener("click",hint);$("undoButton").addEventListener("click",()=>{if(history.length){q=history.pop();selected=null;hintMark="";render()}else setStatus("没有可以撤回的步骤。","bad")});$("resetButton").addEventListener("click",reset);$("exportButton").addEventListener("click",()=>{$("archiveCode").value=encodeArchive();setStatus("档案码已生成。","good")});$("importButton").addEventListener("click",()=>{try{profile={...freshProfile(),...decodeArchive($("archiveCode").value.trim())};saveProfile();beginChallenge(profile.challenge);setStatus("档案导入成功。","good")}catch(error){setStatus(`导入失败：${error.message}`,"bad")}});$("closeDialog").addEventListener("click",()=>$("resultDialog").close());addEventListener("resize",()=>renderBoard());$("seedInput").value=todaySeed();
+    load();window.__solitaireTest={challenges:CHALLENGES,chapters:CHAPTERS,buildChallenge,buildFree,solveChallenge:index=>solveState(buildChallenge(index)),solveState,perform,canPerform,isWon,getState:()=>clone(q),freshProfile,beginChallenge,beginFree,encodeArchive,decodeArchive,validateContent:()=>{const references=CHALLENGES.map((spec,index)=>{const initial=buildChallenge(index),result=solveState(initial),cards=[...initial.stock,...initial.waste,...initial.f.flat(),...initial.tabs.flat()];return{id:spec.id,won:result.won,moves:result.moves,actions:result.actions.length,cards:cards.length,uniqueCards:new Set(cards.map(key)).size,maxRank:spec.maxRank,draw:spec.draw,stockLayers:spec.stockLayers,hidden:initial.tabs.flat().filter(c=>!c.up).length}});return{challenges:CHALLENGES.length,chapters:CHAPTERS.length,fullDeckChallenges:references.filter(item=>item.cards===52).length,totalCards:references.reduce((sum,item)=>sum+item.cards,0),referenceWins:references.filter(item=>item.won).length,uniqueRules:new Set(CHALLENGES.map(item=>`${item.maxRank}/${item.stockLayers}/${item.draw}/${item.hidden.join("-")}`)).size,references}}};render();
+  })();
   </script>
+</body>
 </html>

@@ -95,6 +95,7 @@
       "skyline-planner.html",
       "snow-ridge.html",
       "sokoban-quest.html",
+      "solitaire-classic.html",
       "spectrum-console.html",
       "starline-route.html",
       "starship-suspects.html",
@@ -111,9 +112,7 @@
     "B": [
       "midnight-chess.html"
     ],
-    "C": [
-      "solitaire-classic.html"
-    ],
+    "C": [],
     "D": [],
     "E": [
       "blackjack-table.html",
