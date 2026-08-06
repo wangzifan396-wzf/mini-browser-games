@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-03",
+  "updatedAt": "2026-08-05",
   "tiers": {
     "SSS": [
       "ball-arena.html",
@@ -69,6 +69,7 @@
       "glyph-warden.html",
       "hive-sovereign.html",
       "island-survival.html",
+      "lockmaster-shift.html",
       "market-pulse.html",
       "maze-chase.html",
       "merge-orbit.html",
