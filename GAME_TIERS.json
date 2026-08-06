@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-05",
+  "updatedAt": "2026-08-06",
   "tiers": {
     "SSS": [
       "ball-arena.html",
@@ -74,6 +74,7 @@
       "maze-chase.html",
       "merge-orbit.html",
       "metro-weaver.html",
+      "midnight-chess.html",
       "midnight-monitor.html",
       "mine-matrix.html",
       "monster-horde.html",
@@ -110,9 +111,7 @@
       "truss-workshop.html",
       "wonder-park.html"
     ],
-    "B": [
-      "midnight-chess.html"
-    ],
+    "B": [],
     "C": [],
     "D": [],
     "E": [
