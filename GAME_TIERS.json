@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-06",
+  "updatedAt": "2026-08-07",
   "tiers": {
     "SSS": [
       "ball-arena.html",
@@ -91,6 +91,7 @@
       "prism-orchard.html",
       "pulse-studio.html",
       "radish-guard.html",
+      "relay-coordination.html",
       "runway-stylist.html",
       "signal-caravan.html",
       "sky-hop.html",
