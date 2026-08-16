@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-16",
+  "updatedAt": "2026-08-17",
   "tiers": {
     "SSS": [
       "ball-arena.html",
@@ -63,6 +63,7 @@
       "fishing-harbor.html",
       "fleet-duel.html",
       "forest-dash.html",
+      "frequency-bureau.html",
       "frontier-command.html",
       "fruit-slice.html",
       "gear-calibrator.html",
@@ -82,6 +83,7 @@
       "monster-tamer.html",
       "mosaic-jigsaw.html",
       "noodle-shift.html",
+      "orbital-stowage.html",
       "pathogen-protocol.html",
       "photo-safari.html",
       "pixel-clues.html",
