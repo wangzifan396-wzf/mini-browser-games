@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-07",
+  "updatedAt": "2026-08-16",
   "tiers": {
     "SSS": [
       "ball-arena.html",
@@ -77,6 +77,7 @@
       "midnight-chess.html",
       "midnight-monitor.html",
       "mine-matrix.html",
+      "mist-valley-herbarium.html",
       "monster-horde.html",
       "monster-tamer.html",
       "mosaic-jigsaw.html",
