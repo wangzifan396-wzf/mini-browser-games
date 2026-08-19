@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-17",
+  "updatedAt": "2026-08-19",
   "tiers": {
     "SSS": [
       "ball-arena.html",
@@ -42,6 +42,7 @@
       "auction-fever.html",
       "backpack-arena.html",
       "battery-cycle.html",
+      "basin-control.html",
       "block-forge.html",
       "bomb-grid.html",
       "branching-tales.html",
