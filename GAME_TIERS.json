@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-19",
+  "updatedAt": "2026-08-20",
   "tiers": {
     "SSS": [
       "ball-arena.html",
@@ -104,6 +104,7 @@
       "relay-coordination.html",
       "runway-stylist.html",
       "signal-caravan.html",
+      "silent-rescue.html",
       "sky-hop.html",
       "skyline-planner.html",
       "snow-ridge.html",
