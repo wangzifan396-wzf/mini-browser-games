@@ -10,5 +10,6 @@ Thumbs.db
 
 # Generated verification artifacts
 output/
+star-cluster-arena-desktop/
 ball-modes-*.png
 *.log

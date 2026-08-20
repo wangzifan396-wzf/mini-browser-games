@@ -509,6 +509,36 @@
     background: rgba(43, 158, 130, 0.28);
   }
 
+  .online-entry {
+    grid-column: 1 / -1;
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 9px 14px;
+    border: 1px solid rgba(88, 237, 200, 0.62);
+    border-radius: 8px;
+    color: #f3f8ff;
+    text-decoration: none;
+    background: linear-gradient(135deg, rgba(43, 158, 130, 0.34), rgba(59, 130, 246, 0.2));
+    box-shadow: inset 0 0 0 1px rgba(88, 237, 200, 0.12), 0 10px 26px rgba(0, 0, 0, 0.2);
+  }
+
+  .online-entry:hover {
+    border-color: rgba(88, 237, 200, 0.9);
+    background: linear-gradient(135deg, rgba(43, 158, 130, 0.46), rgba(59, 130, 246, 0.28));
+  }
+
+  .online-entry strong {
+    font-size: 14px;
+  }
+
+  .online-entry span {
+    color: rgba(222, 235, 246, 0.72);
+    font-size: 11px;
+  }
+
   .mode-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));

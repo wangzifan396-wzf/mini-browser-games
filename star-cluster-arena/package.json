@@ -1,10 +1,13 @@
 {
   "name": "star-cluster-arena",
-  "version": "2.2.0",
+  "productName": "星团大作战",
+  "version": "3.2.0",
   "private": true,
   "type": "module",
-  "description": "前后端分离、WebGL 硬件加速的高性能多人吞噬竞技游戏",
+  "main": "desktop/main.mjs",
+  "description": "支持局域网联机和 Windows 桌面封装的高性能浏览器吞噬竞技游戏",
   "license": "MIT",
+  "author": "Star Cluster Arena",
   "repository": {
     "type": "git",
     "url": "https://github.com/wangzifan396-wzf/mini-browser-games.git",
@@ -12,17 +15,42 @@
   },
   "keywords": [
     "browser-game",
+    "multiplayer",
+    "websocket",
+    "electron",
     "webgl2",
-    "canvas",
-    "nodejs",
     "arena"
   ],
   "scripts": {
     "start": "node backend/server.mjs",
     "dev": "node --watch backend/server.mjs",
-    "check": "node --check backend/server.mjs && node --check frontend/js/gpu-renderer.js && node --check frontend/js/game.js"
+    "check": "node scripts/check-project.mjs",
+    "test": "node --test test/*.test.mjs",
+    "test:integration": "node --test test/integration.test.mjs",
+    "test:lan-harness": "node scripts/dual-lan-harness.mjs",
+    "test:soak": "node scripts/multiplayer-soak.mjs",
+    "desktop": "electron-forge start",
+    "package:desktop": "electron-forge package",
+    "make:desktop": "electron-forge make && node scripts/organize-desktop-artifacts.mjs"
+  },
+  "dependencies": {
+    "electron-squirrel-startup": "^1.0.1",
+    "ws": "^8.18.3"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^7.10.2",
+    "@electron-forge/maker-squirrel": "^7.10.2",
+    "@electron-forge/maker-zip": "^7.10.2",
+    "electron": "^39.2.7"
   },
   "engines": {
     "node": ">=20"
+  },
+  "allowScripts": {
+    "electron": true,
+    "electron-winstaller": true
+  },
+  "config": {
+    "forge": "./desktop/forge.config.mjs"
   }
 }

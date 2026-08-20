@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+  <meta name="theme-color" content="#071015">
+  <title>星团大作战 · 局域网联机</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./css/multiplayer.css">
+</head>
+<body>
+  <div class="space-layer" aria-hidden="true"></div>
+
+  <header class="topbar" id="topbar">
+    <a class="back-link" href="./index.html" aria-label="返回单机大厅">← 单机大厅</a>
+    <div class="brand-lockup">
+      <span class="brand-orb"></span>
+      <div>
+        <strong>星团大作战</strong>
+        <small>局域网联机测试 · 服务器权威</small>
+      </div>
+    </div>
+    <div class="connection-pill" id="connectionPill" data-state="idle">
+      <span></span><b id="connectionText">正在检查服务</b>
+    </div>
+  </header>
+
+  <main class="lobby-shell" id="lobbyView">
+    <section class="hero-card">
+      <div class="eyebrow">LAN MULTIPLAYER / SCA-LAN-V2</div>
+      <h1>和同一网络里的朋友<br>进入同一个星团</h1>
+      <p>无需输入 IP。创建房间后，其他玩家会在局域网房间列表中自动看到它。</p>
+      <div class="notice-line">
+        <span>10 种模式均可联机</span>
+        <span>2～8 名真人</span>
+        <span>AI 自动补位</span>
+      </div>
+    </section>
+
+    <section class="setup-grid">
+      <article class="panel create-panel">
+        <div class="panel-heading">
+          <div>
+            <span class="step">01</span>
+            <h2>玩家身份</h2>
+          </div>
+          <small>保存在本机</small>
+        </div>
+        <label class="field-label" for="nicknameInput">昵称</label>
+        <input id="nicknameInput" class="text-input" maxlength="16" autocomplete="nickname" placeholder="输入你的昵称" value="星友">
+        <label class="field-label mode-field-label" for="modeSelect">游戏模式</label>
+        <select id="modeSelect" class="select-input mode-select" aria-describedby="modeDescription">
+          <option value="solo" selected>自由竞技</option>
+          <option value="team">团队战</option>
+          <option value="survival">生存模式</option>
+          <option value="battle">大逃杀</option>
+          <option value="blitz">闪电乱斗</option>
+          <option value="spore">孢子风暴</option>
+          <option value="screen">霸屏模式</option>
+          <option value="control">据点战</option>
+          <option value="giant">巨行星霸屏</option>
+          <option value="demon">魔王模式</option>
+        </select>
+        <p class="mode-description" id="modeDescription">吞噬、成长并争夺质量排名，倒计时结束时质量最高者获胜。</p>
+        <div class="field-row">
+          <label>
+            <span class="field-label">真人上限</span>
+            <select id="maxPlayersSelect" class="select-input">
+              <option value="4">4 人</option>
+              <option value="6">6 人</option>
+              <option value="8" selected>8 人</option>
+            </select>
+          </label>
+          <label>
+            <span class="field-label">AI 数量</span>
+            <select id="botCountSelect" class="select-input">
+              <option value="0">不添加</option>
+              <option value="2">2 个</option>
+              <option value="4">4 个</option>
+              <option value="6" selected>6 个</option>
+              <option value="8">8 个</option>
+              <option value="12">12 个</option>
+            </select>
+          </label>
+        </div>
+        <button class="primary-button" id="createRoomBtn" type="button">
+          <span>创建局域网房间</span><b>＋</b>
+        </button>
+        <p class="firewall-note">首次创建时，Windows 可能询问网络权限；只需允许“专用网络”。</p>
+      </article>
+
+      <article class="panel discover-panel">
+        <div class="panel-heading">
+          <div>
+            <span class="step">02</span>
+            <h2>发现房间</h2>
+          </div>
+          <button class="icon-button" id="refreshRoomsBtn" type="button" title="刷新局域网房间">↻</button>
+        </div>
+        <div class="join-code-row">
+          <input id="roomCodeInput" class="text-input code-input" maxlength="6" inputmode="text" autocomplete="off" placeholder="输入 6 位房间码">
+          <button class="secondary-button" id="joinCodeBtn" type="button">加入</button>
+        </div>
+        <div class="discovery-status" id="discoveryStatus">正在扫描局域网…</div>
+        <div class="network-warning" id="networkWarning" data-state="unknown" hidden>
+          <div><strong id="networkWarningTitle">网络诊断</strong><span id="networkWarningText"></span></div>
+          <button class="secondary-button" id="openFirewallSettingsBtn" type="button" hidden>打开防火墙设置</button>
+        </div>
+        <div class="room-list" id="roomList" aria-live="polite"></div>
+      </article>
+    </section>
+  </main>
+
+  <main class="room-shell" id="roomView" hidden>
+    <section class="room-card">
+      <div class="room-header">
+        <div>
+          <div class="eyebrow">WAITING ROOM</div>
+          <h1 id="roomName">局域网房间</h1>
+        </div>
+        <button class="room-code" id="copyRoomCodeBtn" type="button" title="复制房间码">
+          <small>房间码</small><strong id="roomCode">------</strong>
+        </button>
+      </div>
+      <div class="room-meta">
+        <span id="roomMode">自由竞技</span>
+        <span id="roomCapacity">0 / 8 真人</span>
+        <span id="roomBots">6 个 AI</span>
+      </div>
+      <section class="room-settings" id="roomSettingsPanel" aria-labelledby="roomSettingsTitle">
+        <div class="room-settings-heading">
+          <div>
+            <small>房间配置</small>
+            <strong id="roomSettingsTitle">开局前可调整</strong>
+          </div>
+          <span id="roomSettingsNote">仅房主可修改</span>
+        </div>
+        <div class="field-row room-settings-fields">
+          <label>
+            <span class="field-label">游戏模式</span>
+            <select id="roomModeSelect" class="select-input" aria-describedby="roomModeDescription">
+              <option value="solo" selected>自由竞技</option>
+              <option value="team">团队战</option>
+              <option value="survival">生存模式</option>
+              <option value="battle">大逃杀</option>
+              <option value="blitz">闪电乱斗</option>
+              <option value="spore">孢子风暴</option>
+              <option value="screen">霸屏模式</option>
+              <option value="control">据点战</option>
+              <option value="giant">巨行星霸屏</option>
+              <option value="demon">魔王模式</option>
+            </select>
+          </label>
+          <label>
+            <span class="field-label">AI 数量</span>
+            <select id="roomBotCountSelect" class="select-input">
+              <option value="0">不添加</option>
+              <option value="2">2 个</option>
+              <option value="4">4 个</option>
+              <option value="6" selected>6 个</option>
+              <option value="8">8 个</option>
+              <option value="12">12 个</option>
+            </select>
+          </label>
+        </div>
+        <p class="mode-description room-mode-description" id="roomModeDescription" aria-live="polite">吞噬、成长并争夺质量排名，倒计时结束时质量最高者获胜。</p>
+      </section>
+      <div class="player-list" id="playerList"></div>
+      <div class="room-actions">
+        <button class="secondary-button danger" id="leaveRoomBtn" type="button">离开房间</button>
+        <button class="secondary-button" id="readyBtn" type="button">准备</button>
+        <button class="primary-button" id="startMatchBtn" type="button" hidden>开始游戏</button>
+      </div>
+      <p class="room-hint" id="roomHint">等待至少两名真人加入并准备。</p>
+    </section>
+  </main>
+
+  <main class="game-shell" id="gameView" hidden>
+    <canvas id="multiplayerCanvas" aria-label="星团大作战局域网联机画面"></canvas>
+    <section class="game-hud stats-hud">
+      <div><small>质量</small><strong id="gameMass">0</strong></div>
+      <div><small>排名</small><strong id="gameRank">-</strong></div>
+      <div><small>击杀</small><strong id="gameKills">0</strong></div>
+      <div><small>延迟</small><strong id="gameLatency">--</strong></div>
+    </section>
+    <section class="game-hud rank-hud">
+      <header><span>星团排名</span><b id="gameTimer">05:00</b></header>
+      <ol id="gameRanking"></ol>
+    </section>
+    <section class="game-hud objective-hud" aria-live="polite" aria-atomic="true">
+      <small id="gameModeName">自由竞技</small>
+      <strong id="gameObjective">争夺质量第一</strong>
+    </section>
+    <section class="game-hud room-hud">
+      <span id="gameRoomCode">房间 ------</span>
+      <b id="gameNetworkState">已连接</b>
+      <span class="network-detail" id="gameNetworkDetail">快照 -- Hz · 抖动 -- ms · 缓冲 -- ms</span>
+      <button id="exitMatchBtn" type="button">退出</button>
+    </section>
+    <div class="game-tip" id="gameTip">移动鼠标控制方向 · 空格分裂 · 按住 W 吐球 · A 快速合体 · D 模式技能</div>
+    <div class="touch-actions" aria-label="游戏操作">
+      <button id="touchQuickMergeBtn" class="skill-action" type="button" title="快速合体（A）" aria-label="快速合体，键盘 A 键">
+        <span>A</span><small>速合</small>
+      </button>
+      <button id="touchSpecialBtn" class="skill-action" type="button" title="使用模式技能（D）" aria-label="使用模式技能，键盘 D 键">
+        <span>D</span><small>技能</small>
+      </button>
+      <button id="touchSplitBtn" type="button" title="分裂（空格）" aria-label="分裂，键盘空格键">分</button>
+      <button id="touchEjectBtn" type="button" title="吐球（W）" aria-label="吐球，键盘 W 键">吐</button>
+    </div>
+    <div class="reconnect-overlay" id="reconnectOverlay" hidden>
+      <div class="spinner"></div>
+      <strong>正在重新连接房间</strong>
+      <span id="reconnectText">剩余 15 秒</span>
+    </div>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="./js/snapshot-wire.js" defer></script>
+  <script src="./js/snapshot-buffer.js" defer></script>
+  <script src="./js/local-predictor.js" defer></script>
+  <script src="./js/multiplayer.js" defer></script>
+</body>
+</html>
