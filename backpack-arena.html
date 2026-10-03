@@ -44,14 +44,39 @@ function validateSave(data){
 }
 function load(){try{const data=validateSave(JSON.parse(localStorage.getItem(SAVE)));q=data.q;profile=data.profile}catch{}}
 function checksum(s){let h=0;for(let i=0;i<s.length;i++)h=(Math.imul(h,31)+s.charCodeAt(i))>>>0;return h.toString(36)}function exportCode(){const b=btoa(unescape(encodeURIComponent(JSON.stringify({v:3,q,profile}))));return`BA3-${b}-${checksum(b)}`}function importCode(x){if(fighting())throw Error('战斗中不能替换赛季');const m=String(x).trim().match(/^BA3-(.+)-([a-z0-9]+)$/i);if(!m||m[1].length>200000||checksum(m[1])!==m[2])throw Error('存档码校验失败');const d=JSON.parse(decodeURIComponent(escape(atob(m[1]))));if(d.v!==3)throw Error('版本不兼容');const clean=validateSave(d);q=clean.q;profile=clean.profile;runtime=null;save();if(q)draw();else $('classOverlay').classList.remove('hidden')}
-function cellsFor(id,start,rot=0){const r=Math.floor(start/COLS),c=start%COLS;return shape(id,rot).map(([x,y])=>(r+y)*COLS+c+x)}function fits(id,start,rot=0,ignore=null){const raw=shape(id,rot),r=Math.floor(start/COLS),c=start%COLS;if(raw.some(([x,y])=>r+y<0||r+y>=ROWS||c+x<0||c+x>=COLS))return false;const cells=cellsFor(id,start,rot);return !q.items.some(it=>it.uid!==ignore&&it.cells.some(x=>cells.includes(x)))}
+function cellsFor(id,start,rot=0){const r=Math.floor(start/COLS),c=start%COLS;return shape(id,rot).map(([x,y])=>(r+y)*COLS+c+x)}
+function fits(id,start,rot=0,ignore=null){
+ const raw=shape(id,rot),r=Math.floor(start/COLS),c=start%COLS;
+ if(raw.some(([x,y])=>r+y<0||r+y>=ROWS||c+x<0||c+x>=COLS))return false;
+ const cells=cellsFor(id,start,rot),ignored=Array.isArray(ignore)?ignore:[ignore];
+ return !q.items.some(it=>!ignored.includes(it.uid)&&it.cells.some(x=>cells.includes(x)));
+}
 function place(start){if(!editable())return;if(selectedOffer!=null){const id=q.shop[selectedOffer];if(!id||!fits(id,start,rotation))return hint('这里放不下，旋转或腾出空间后再试');const d=ITEMS[id];if(q.gold<d.cost)return hint('金币不足');q.gold-=d.cost;q.items.push({uid:uid(),id,rot:rotation,cells:cellsFor(id,start,rotation),level:1});q.shop[selectedOffer]=null;discover(id);selectedOffer=null;rotation=0;hint(`购入 ${d.n}`);draw();return}if(selectedItem){const it=q.items.find(x=>x.uid===selectedItem);if(it&&fits(it.id,start,it.rot,it.uid)){it.cells=cellsFor(it.id,start,it.rot);selectedItem=null;hint(`移动 ${ITEMS[it.id].n}`);draw()}}}
 function discover(id){profile.seen.push(id);profile.seen=[...new Set(profile.seen)]}function hint(s){$('hint').textContent=s;if(q){q.log.unshift(s);q.log=q.log.slice(0,12)}save()}
 function rarityRoll(){const x=Math.random(),max=q.round;return x<Math.min(.08,max*.005)?'epic':x<Math.min(.3,.12+max*.012)?'rare':x<.65?'uncommon':'common'}function makeOffer(){const r=rarityRoll(),pool=Object.keys(ITEMS).filter(id=>ITEMS[id].r===r);return pool[Math.floor(Math.random()*pool.length)]}function roll(free=false){if(!editable())return;if(!free){if(q.gold<1)return hint('金币不足');q.gold--}q.shop=Array.from({length:4},makeOffer);selectedOffer=null;draw()}
 function adjacency(){const map={};q.items.forEach(a=>{map[a.uid]=[];q.items.forEach(b=>{if(a===b)return;const near=a.cells.some(x=>{const r=Math.floor(x/COLS),c=x%COLS;return b.cells.some(y=>{const rr=Math.floor(y/COLS),cc=y%COLS;return Math.abs(r-rr)+Math.abs(c-cc)===1})});if(near)map[a.uid].push(b)})});return map}
 function buildStats(){const adj=adjacency(),s={hp:55+(q.perks.includes('expand')?15:0),shield:0,stamina:10,regen:3,weapons:[],reflect:0,resist:0,poison:0,tickHeal:0,heals:[],damagePct:0,speed:0,amp:q.perks.includes('expand')?.05:0};q.items.forEach(it=>{const d=ITEMS[it.id],mult=1+(it.level-1)*.35+(s.amp||0);s.hp+=(d.hp||0)*mult;s.shield+=(d.armor||0)*mult;s.stamina+=(d.stamina||0);s.regen+=(d.regen||0)*3;s.reflect+=(d.reflect||0);s.resist=Math.max(s.resist,d.resist||0);s.poison+=d.poison||0;s.tickHeal+=(d.tickHeal||0);s.damagePct+=d.damagePct||0;s.speed+=d.haste||0;if(d.heal)s.heals.push({value:d.heal*mult,used:0,haste:d.haste||0});if(d.type==='weapon'){let damage=d.dmg*mult,cd=d.cd;adj[it.uid].forEach(n=>{const x=ITEMS[n.id];if(x.adj==='weapon'||x.adj==='all'){const perk=q.perks.includes('craft')?1.3:1;damage+=(x.bonus||0)*perk;cd*=1-(x.speed||0)*perk;damage*=1+(x.amp||0)}});s.weapons.push({uid:it.uid,id:it.id,damage,cd,stam:d.stam,crit:d.crit||0,lifesteal:d.lifesteal||0,burst:d.burst||0,count:0,t:0})}});if(q.cls==='ranger')s.weapons.filter(w=>ITEMS[w.id].t.includes('远射')).forEach(w=>w.cd*=.88);if(q.perks.includes('tempo'))s.weapons.forEach(w=>w.cd*=.9);if(q.perks.includes('guard'))s.shield+=q.items.filter(x=>ITEMS[x.id].type==='armor').length*4;if(q.perks.includes('brew'))s.heals.forEach(x=>x.value*=1.3);if(q.perks.includes('stamina')){s.stamina+=4;s.regen+=.36}s.damagePct+=q.perks.includes('last')?0:0;return s}
 function enemyStats(){const e=ENEMIES[(q.round-1)%ENEMIES.length],scale=1+(q.round-1)*.105,s={...e,hp:Math.round((48+q.round*5)*scale),shield:Math.round((q.round%3)*7+q.round*1.4),stamina:10,regen:3,weapons:[],reflect:e.style==='反击'?3:0,resist:e.style==='壁垒'?.1:0,poison:e.style==='炼金'?2:0,tickHeal:0,heals:e.style==='炼金'?[{value:15+q.round,used:0}]:[],damagePct:0,speed:0};e.gear.slice(0,2+Math.floor(q.round/5)).forEach(id=>{const d=ITEMS[id];if(d.dmg)s.weapons.push({uid:uid(),id,damage:d.dmg*scale,cd:d.cd,stam:d.stam,crit:d.crit||0,lifesteal:0,burst:d.burst||0,count:0,t:0});s.shield+=(d.armor||0);s.hp+=(d.hp||0)});if(!s.weapons.length)s.weapons.push({uid:uid(),id:'dagger',damage:7*scale,cd:1.8,stam:2,crit:0,count:0,t:0});return s}
-function forge(){if(!editable())return;for(const[a,b,out]of RECIPES){const x=q.items.find(it=>it.id===a),y=q.items.find(it=>it!==x&&it.id===b);if(x&&y){x.id=out;x.level=1;const newShape=shape(out,x.rot);const start=Math.min(...x.cells);q.items=q.items.filter(it=>it!==y);if(fits(out,start,x.rot,x.uid))x.cells=cellsFor(out,start,x.rot);else{x.id=a;q.items.push(y);continue}discover(out);selectedItem=null;hint(`百炼成功：${ITEMS[out].n}`);draw();return}}const pair=q.items.find(x=>q.items.some(y=>y!==x&&y.id===x.id&&y.level===x.level));if(pair){const y=q.items.find(z=>z!==pair&&z.id===pair.id&&z.level===pair.level);pair.level++;q.items=q.items.filter(z=>z!==y);hint(`${ITEMS[pair.id].n} 强化到 +${pair.level}`);draw();return}hint('没有可用配方：尝试两件同名装备，或利刃+磨刀石等组合')}
+function forge(){
+ if(!editable())return;
+ for(const[a,b,out]of RECIPES){
+  const x=q.items.find(it=>it.id===a),y=q.items.find(it=>it!==x&&it.id===b);
+  if(!x||!y)continue;
+  const start=Math.min(...x.cells);
+  // Both materials free their old cells, but nothing changes until the output fits.
+  if(!fits(out,start,x.rot,[x.uid,y.uid]))continue;
+  x.id=out;x.level=1;x.cells=cellsFor(out,start,x.rot);
+  q.items=q.items.filter(it=>it!==y);
+  discover(out);selectedItem=null;hint(`百炼成功：${ITEMS[out].n}`);draw();return;
+ }
+ const pair=q.items.find(x=>x.level<20&&q.items.some(y=>y!==x&&y.id===x.id&&y.level===x.level));
+ if(pair){
+  const y=q.items.find(z=>z!==pair&&z.id===pair.id&&z.level===pair.level);
+  pair.level++;q.items=q.items.filter(z=>z!==y);
+  hint(`${ITEMS[pair.id].n} 强化到 +${pair.level}`);draw();return;
+ }
+ hint('没有可用或可放置的配方：请为合成结果腾出空间，或使用两件未满级同名装备');
+}
 function startBattle(){if(fighting()){if(!battleTimer){battleTimer=setInterval(stepBattle,250);syncControls()}return}if(!editable())return;if(!q.items.some(x=>ITEMS[x.id].type==='weapon'))return hint('至少装备一件武器');selectedItem=null;selectedOffer=null;const p=buildStats(),e=enemyStats();runtime={time:0,finished:false,p:{...p,max:p.hp,cur:p.hp,shieldCur:p.shield,stamCur:p.stamina},e:{...e,max:e.hp,cur:e.hp,shieldCur:e.shield,stamCur:e.stamina},feed:[]};battleTimer=setInterval(stepBattle,250);draw();drawBattle();syncControls()}
 function pauseBattle(){if(!fighting()||!battleTimer)return;clearInterval(battleTimer);battleTimer=null;syncControls();$('hint').textContent='战斗已暂停，点击继续战斗；暂停期间不能改变构筑。'}
 function damage(from,to,amount,label){let dmg=amount*(1-(to.resist||0));if(from===runtime.p&&q.cls==='berserker')dmg*=1+(1-from.cur/from.max)*.5;if(from===runtime.p&&q.perks.includes('last')&&from.cur/from.max<.35)dmg*=1.25;dmg*=1+from.damagePct;dmg=Math.round(dmg);const blocked=Math.min(to.shieldCur,dmg);to.shieldCur-=blocked;to.cur-=dmg-blocked;if(to.reflect&&dmg>0)from.cur-=to.reflect;runtime.feed.unshift(`${label}造成 ${dmg} 伤害${blocked?`（格挡${blocked}）`:''}`);runtime.feed=runtime.feed.slice(0,12)}

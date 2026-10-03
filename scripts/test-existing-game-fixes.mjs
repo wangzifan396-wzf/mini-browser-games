@@ -88,6 +88,13 @@ test('backpack: recipe forging keeps the grid anchor after every rotation', () =
   }
 });
 
+test('backpack: blocked recipe is atomic and does not erase upgraded component levels', () => {
+  const g=backpack(),s=g.fresh('ranger');
+  s.items=[{uid:'blade',id:'sword',rot:0,cells:[4,5,6],level:3},{uid:'stone',id:'stone',rot:0,cells:[0],level:1},{uid:'blocker',id:'herb',rot:0,cells:[13],level:1}];
+  const inventory=()=>JSON.stringify({items:s.items,gold:s.gold,lives:s.lives,wins:s.wins});
+  g.set(s);const before=inventory();g.forge();assert.equal(inventory(),before,'not enough output space must not mutate items, their levels, order or money; a feedback log is allowed');
+});
+
 test('backpack: expansion gives its promised 15 maximum HP', () => {
   const g = backpack(); const s = g.fresh('ranger'); s.perks = ['expand']; g.set(s);
   assert.equal(g.buildStats().hp, 70);
