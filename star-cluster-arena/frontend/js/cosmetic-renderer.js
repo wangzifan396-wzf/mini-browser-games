@@ -270,5 +270,116 @@
     return true;
   }
 
-  globalScope.ScaCosmeticRenderer = Object.freeze({ drawTrail, drawHalo, drawSkin });
+  function lighten(hex, amount) {
+    const color = /^#[\da-f]{6}$/i.test(hex) ? hex.slice(1) : "44d7b6";
+    return `#${[0, 2, 4].map(index => clamp(parseInt(color.slice(index, index + 2), 16) + amount, 0, 255).toString(16).padStart(2, "0")).join("")}`;
+  }
+
+  function drawCellBody(options) {
+    const { context: c, x, y, radius: r, color, own, lowQuality, now = 0, lineScale = 1 } = options;
+    const worldRadius = options.worldRadius || r;
+    const simple = lowQuality && !own && worldRadius < 44;
+    c.save();
+    if (!lowQuality || own) {
+      c.shadowColor = color;
+      c.shadowBlur = (lowQuality ? 6 : own ? 20 : 13) * lineScale;
+    }
+    if (simple) c.fillStyle = color;
+    else {
+      const gradient = c.createRadialGradient(x - r * .28, y - r * .35, r * .08, x, y, r);
+      gradient.addColorStop(0, lighten(color, own ? 56 : 36));
+      gradient.addColorStop(.48, color);
+      gradient.addColorStop(1, lighten(color, -42));
+      c.fillStyle = gradient;
+    }
+    c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); c.fill();
+    c.shadowBlur = 0;
+    c.lineWidth = (own ? 4 : 2.4) * lineScale;
+    c.strokeStyle = own ? "rgba(255,255,255,.74)" : "rgba(255,255,255,.34)";
+    c.stroke();
+    if (options.invincibleRemaining > 0) {
+      c.strokeStyle = `rgba(103,232,249,${.34 + Math.sin(now / 120) * .12})`;
+      c.lineWidth = 4 * lineScale; c.beginPath();
+      c.arc(x, y, r + (10 + Math.sin(now / 160) * 4) * lineScale, 0, Math.PI * 2); c.stroke();
+      if (own && worldRadius > 34) {
+        c.font = `800 ${clamp(worldRadius * .18, 11, 18) * lineScale}px Microsoft YaHei, Segoe UI, sans-serif`;
+        c.textAlign = "center"; c.textBaseline = "middle"; c.fillStyle = "rgba(224,242,254,.9)";
+        c.fillText(`${Math.ceil(options.invincibleRemaining)}s`, x, y - r * .62);
+      }
+    }
+    c.globalAlpha = .13; c.strokeStyle = "#ffffff"; c.lineWidth = 2 * lineScale;
+    const count = lowQuality ? (worldRadius > 64 || own ? 2 : 0) : 4;
+    for (let i = 0; i < count; i++) {
+      c.beginPath(); c.arc(x, y, r * (.32 + i * .15), now / 1600 + i, Math.PI * 1.2 + now / 1600 + i); c.stroke();
+    }
+    c.globalAlpha = 1;
+    if (options.mergeDelay > 0) {
+      c.strokeStyle = `rgba(255,209,102,${.18 + Math.sin(now / 120) * .1})`;
+      c.lineWidth = 4 * lineScale; c.beginPath(); c.arc(x, y, r + 6 * (r / worldRadius), 0, Math.PI * 2); c.stroke();
+      if (own) {
+        const ready = clamp(1 - options.mergeDelay / Math.max(options.mergeMax || 0, options.mergeDelay, .1), 0, 1);
+        c.strokeStyle = "rgba(255,255,255,.48)"; c.lineWidth = 2.2 * lineScale; c.beginPath();
+        c.arc(x, y, r + 13 * (r / worldRadius), -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * ready); c.stroke();
+        if (worldRadius > 30) {
+          c.font = `800 ${clamp(worldRadius * .22, 11, 18) * lineScale}px Microsoft YaHei, Segoe UI, sans-serif`;
+          c.textAlign = "center"; c.textBaseline = "middle"; c.fillStyle = "rgba(255,245,210,.92)";
+          c.fillText(`${Math.ceil(options.mergeDelay)}s`, x, y + r * .58);
+        }
+      }
+    }
+    c.restore();
+  }
+
+  function drawCellLabel(options) {
+    const { context: c, x, y, radius: r, worldRadius = r, name = "", mass = 0, own = false, lineScale = 1, showName = true } = options;
+    if (worldRadius < 14) return false;
+    const ratio = r / Math.max(1, worldRadius);
+    const size = Math.max(own ? 10 * lineScale : 0, clamp(worldRadius * .34, 13, 34) * ratio);
+    if (size < 8 * lineScale) return false;
+    c.save(); c.textAlign = "center"; c.textBaseline = "middle";
+    if (showName) {
+      c.font = `800 ${size}px Microsoft YaHei, Segoe UI, sans-serif`;
+      c.lineWidth = 5 * lineScale; c.strokeStyle = "rgba(0,0,0,.38)";
+      c.strokeText(name, x, y); c.fillStyle = own ? "#ffffff" : "rgba(255,255,255,.92)"; c.fillText(name, x, y);
+    }
+    if (worldRadius > 32) {
+      c.font = `700 ${Math.max(8 * lineScale, size * .48)}px Microsoft YaHei, Segoe UI, sans-serif`;
+      c.fillStyle = "rgba(255,255,255,.72)"; c.fillText(Math.round(mass), x, y + (showName ? size * .88 : 0));
+    }
+    c.restore(); return true;
+  }
+
+  function drawEjected(options) {
+    const { context: c, x, y, radius: r, color, pattern = "round", accent = "#ffffff", lineScale = 1, lowQuality } = options;
+    c.save(); c.globalAlpha = .94; c.fillStyle = color;
+    c.shadowColor = color; c.shadowBlur = lowQuality ? 0 : 12 * lineScale;
+    c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); c.fill();
+    c.strokeStyle = "rgba(255,255,255,.34)"; c.lineWidth = 1.5 * lineScale; c.stroke();
+    c.shadowBlur = 0; c.strokeStyle = accent; c.fillStyle = accent; c.lineWidth = 1.4 * lineScale; c.globalAlpha = .72;
+    if (!lowQuality && pattern !== "round") {
+      c.beginPath();
+      if (pattern === "bubble") {
+        c.arc(x - r * .18, y - r * .2, r * .34, 0, Math.PI * 2); c.stroke();
+        c.globalAlpha = .35; c.beginPath(); c.arc(x + r * .25, y + r * .18, r * .18, 0, Math.PI * 2); c.stroke();
+      } else if (pattern === "meteor" || pattern === "aurora") {
+        c.moveTo(x - r * .58, y + r * .1); c.lineTo(x + r * .48, y - r * .22); c.stroke();
+        c.globalAlpha = .46; c.beginPath(); c.moveTo(x - r * .2, y + r * .44); c.lineTo(x + r * .42, y + r * .08); c.stroke();
+      } else if (pattern === "spark") {
+        c.moveTo(x - r * .45, y - r * .1); c.lineTo(x, y + r * .02); c.lineTo(x - r * .12, y + r * .42); c.lineTo(x + r * .48, y - r * .18); c.stroke();
+      } else if (pattern === "vine") {
+        c.arc(x, y, r * .48, Math.PI * .08, Math.PI * 1.35); c.stroke();
+        c.beginPath(); c.ellipse(x + r * .2, y - r * .2, r * .18, r * .09, -.65, 0, Math.PI * 2); c.fill();
+      } else if (pattern === "royal") {
+        for (let i = 0; i < 5; i++) {
+          const a = -Math.PI / 2 + i / 5 * Math.PI * 2, length = r * (i % 2 === 0 ? .5 : .2);
+          const px = x + Math.cos(a) * length, py = y + Math.sin(a) * length;
+          i ? c.lineTo(px, py) : c.moveTo(px, py);
+        }
+        c.closePath(); c.stroke();
+      }
+    }
+    c.restore();
+  }
+
+  globalScope.ScaCosmeticRenderer = Object.freeze({ drawTrail, drawHalo, drawSkin, drawCellBody, drawCellLabel, drawEjected });
 })(typeof globalThis !== "undefined" ? globalThis : window);

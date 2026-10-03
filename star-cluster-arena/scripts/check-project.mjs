@@ -6,8 +6,11 @@ import { fileURLToPath } from "node:url";
 const projectRoot = dirname(dirname(fileURLToPath(import.meta.url)));
 const requiredFiles = [
   "backend/server.mjs",
+  "backend/network-policy.mjs",
   "desktop/main.mjs",
   "desktop/preload.cjs",
+  "desktop/profile-store.mjs",
+  "desktop/safe-console.mjs",
   "desktop/external-links.mjs",
   "desktop/forge.config.mjs",
   "desktop/electron-builder.yml",
@@ -17,6 +20,11 @@ const requiredFiles = [
   "frontend/js/cosmetic-catalog.js",
   "frontend/js/cosmetic-renderer.js",
   "frontend/js/page-transition.js",
+  "frontend/js/safe-storage.js",
+  "frontend/js/audio.js",
+  "frontend/js/progression.js",
+  "frontend/js/match-guide.js",
+  "frontend/js/connection-profile.js",
   "frontend/js/canonical-game-content.js",
   "frontend/js/gameplay-core.js",
   "frontend/js/game-mode-catalog.js",
@@ -38,7 +46,17 @@ const requiredFiles = [
   "docs/SDD-PLAYABILITY-PARITY-BETA-V3.7.md",
   "docs/SDD-CANONICAL-ENGINE-REBUILD-V3.8.md",
   "docs/RELEASE-NOTES-V3.7.0-BETA.2.md",
-  "docs/RELEASE-NOTES-V4.0.0.md"
+  "docs/RELEASE-NOTES-V4.0.0.md",
+  "docs/SDD-RELEASE-1.0.md",
+  "docs/RELEASE-NOTES-1.0.0.md",
+  "docs/INTERNET-MULTIPLAYER.md",
+  "docs/QA-1.0.0.md",
+  "docs/STEAM-RELEASE-CHECKLIST.md",
+  "Dockerfile",
+  "deploy/compose.yml",
+  "deploy/Caddyfile",
+  "LICENSE",
+  "THIRD-PARTY-NOTICES.md"
 ];
 
 async function recurse(relativeDirectory) {

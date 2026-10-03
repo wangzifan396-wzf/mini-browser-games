@@ -1,0 +1,231 @@
+{
+  "version": "1.0.0",
+  "generatedAt": "2026-10-03T12:38:55.004Z",
+  "durationSeconds": 16,
+  "passed": true,
+  "note": "Sequential fresh Electron processes on this machine; multiplayer uses two local clients, not a cross-city test. nativeStart/nativeEnd identify foreground and display conditions.",
+  "results": [
+    {
+      "session": "single",
+      "mode": "solo",
+      "activeSamples": 4,
+      "averageFps": 66,
+      "steadyAverageFps": 62,
+      "steadyMinimumFps": 54,
+      "minimumFps": 54,
+      "maximumWorkMs": 1.2,
+      "maximumLongFrames": 1,
+      "refresh": 160,
+      "renderer": "硬件加速已启用：ANGLE (NVIDIA, NVIDIA GeForce RTX 5070 Ti (0x00002C05) Direct3D11 vs_5_0 ps_5_0, D3D11)｜渲染倍率 1.09x｜物理 60Hz｜画质预算 160 FPS",
+      "nativeStart": {
+        "focused": true,
+        "visible": true,
+        "bounds": {
+          "x": 0,
+          "y": 0,
+          "width": 2195,
+          "height": 1235
+        },
+        "display": {
+          "accelerometerSupport": "unknown",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 2195,
+            "height": 1235
+          },
+          "colorDepth": 30,
+          "colorSpace": "{primaries:P3, transfer:SRGB, matrix:RGB, range:FULL}",
+          "depthPerComponent": 10,
+          "detected": true,
+          "displayFrequency": 160,
+          "id": 689880643,
+          "internal": false,
+          "label": "Mi Monitor",
+          "maximumCursorSize": {
+            "width": 0,
+            "height": 0
+          },
+          "monochrome": false,
+          "nativeOrigin": {
+            "x": 0,
+            "y": 0
+          },
+          "rotation": 0,
+          "scaleFactor": 1.75,
+          "size": {
+            "width": 2195,
+            "height": 1235
+          },
+          "workArea": {
+            "x": 0,
+            "y": 0,
+            "width": 2195,
+            "height": 1187
+          },
+          "workAreaSize": {
+            "width": 2195,
+            "height": 1187
+          },
+          "touchSupport": "unknown"
+        }
+      },
+      "nativeEnd": {
+        "focused": true,
+        "visible": true,
+        "bounds": {
+          "x": 0,
+          "y": 0,
+          "width": 2195,
+          "height": 1235
+        }
+      },
+      "samples": [
+        {
+          "elapsed": 4,
+          "over": false,
+          "paused": false,
+          "menu": false,
+          "playerCells": 1,
+          "alive": 99,
+          "fps": 77,
+          "avgFrame": 13,
+          "avgWork": 1,
+          "maxFrame": 119,
+          "longFrames": 1,
+          "lowQuality": true,
+          "pixelRatio": 1.09,
+          "backingStoreResizes": 0,
+          "renderedFrames": 263,
+          "skippedRenderFrames": 0,
+          "drawnFood": 120,
+          "drawnCells": 17,
+          "foodCount": 2206,
+          "leaderMass": 577,
+          "totalMass": 21053,
+          "totalKills": 2,
+          "renderer": {
+            "active": true,
+            "backend": "WebGL2",
+            "device": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5070 Ti (0x00002C05) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+            "pixelRatio": 0.9,
+            "spriteBatching": true,
+            "webgpuAvailable": true,
+            "contextLost": false,
+            "contextLosses": 0,
+            "contextRestores": 0,
+            "lastContextLossAt": 0
+          }
+        },
+        {
+          "elapsed": 8,
+          "over": false,
+          "paused": false,
+          "menu": false,
+          "playerCells": 1,
+          "alive": 100,
+          "fps": 68,
+          "avgFrame": 14.7,
+          "avgWork": 1.1,
+          "maxFrame": 119,
+          "longFrames": 1,
+          "lowQuality": true,
+          "pixelRatio": 1.09,
+          "backingStoreResizes": 0,
+          "renderedFrames": 501,
+          "skippedRenderFrames": 0,
+          "drawnFood": 117,
+          "drawnCells": 20,
+          "foodCount": 2220,
+          "leaderMass": 593,
+          "totalMass": 21996,
+          "totalKills": 2,
+          "renderer": {
+            "active": true,
+            "backend": "WebGL2",
+            "device": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5070 Ti (0x00002C05) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+            "pixelRatio": 0.9,
+            "spriteBatching": true,
+            "webgpuAvailable": true,
+            "contextLost": false,
+            "contextLosses": 0,
+            "contextRestores": 0,
+            "lastContextLossAt": 0
+          }
+        },
+        {
+          "elapsed": 12,
+          "over": false,
+          "paused": false,
+          "menu": false,
+          "playerCells": 1,
+          "alive": 100,
+          "fps": 54,
+          "avgFrame": 18.6,
+          "avgWork": 1.2,
+          "maxFrame": 119,
+          "longFrames": 1,
+          "lowQuality": true,
+          "pixelRatio": 1.09,
+          "backingStoreResizes": 0,
+          "renderedFrames": 752,
+          "skippedRenderFrames": 0,
+          "drawnFood": 121,
+          "drawnCells": 24,
+          "foodCount": 2250,
+          "leaderMass": 604,
+          "totalMass": 22082,
+          "totalKills": 2,
+          "renderer": {
+            "active": true,
+            "backend": "WebGL2",
+            "device": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5070 Ti (0x00002C05) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+            "pixelRatio": 0.9,
+            "spriteBatching": true,
+            "webgpuAvailable": true,
+            "contextLost": false,
+            "contextLosses": 0,
+            "contextRestores": 0,
+            "lastContextLossAt": 0
+          }
+        },
+        {
+          "elapsed": 16,
+          "over": false,
+          "paused": false,
+          "menu": false,
+          "playerCells": 1,
+          "alive": 99,
+          "fps": 64,
+          "avgFrame": 15.7,
+          "avgWork": 1.2,
+          "maxFrame": 119,
+          "longFrames": 1,
+          "lowQuality": true,
+          "pixelRatio": 1.09,
+          "backingStoreResizes": 0,
+          "renderedFrames": 1004,
+          "skippedRenderFrames": 1,
+          "drawnFood": 119,
+          "drawnCells": 27,
+          "foodCount": 2280,
+          "leaderMass": 866,
+          "totalMass": 22444,
+          "totalKills": 3,
+          "renderer": {
+            "active": true,
+            "backend": "WebGL2",
+            "device": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5070 Ti (0x00002C05) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+            "pixelRatio": 0.9,
+            "spriteBatching": true,
+            "webgpuAvailable": true,
+            "contextLost": false,
+            "contextLosses": 0,
+            "contextRestores": 0,
+            "lastContextLossAt": 0
+          }
+        }
+      ]
+    }
+  ]
+}

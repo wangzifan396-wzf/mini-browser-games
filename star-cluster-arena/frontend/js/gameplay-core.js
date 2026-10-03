@@ -442,6 +442,49 @@
     return discrete ? 0.9 : 0.75;
   }
 
+  // One camera rule for local and network sessions: split cells must stay in view.
+  function cameraStep(camera, sourceCells, options = {}) {
+    const cells = (sourceCells || []).filter(cell => !cell.dead);
+    if (!cells.length) return { ...camera, viewPressure: 0, spreadRatio: 1 };
+    const config = options.config || {};
+    const mass = cells.reduce((sum, cell) => sum + cell.mass, 0);
+    const centerX = cells.reduce((sum, cell) => sum + cell.x * cell.mass, 0) / Math.max(1, mass);
+    const centerY = cells.reduce((sum, cell) => sum + cell.y * cell.mass, 0) / Math.max(1, mass);
+    const largest = Math.max(...cells.map(cell => cell.radius));
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity, spread = largest;
+    for (const cell of cells) {
+      minX = Math.min(minX, cell.x - cell.radius);
+      minY = Math.min(minY, cell.y - cell.radius);
+      maxX = Math.max(maxX, cell.x + cell.radius);
+      maxY = Math.max(maxY, cell.y + cell.radius);
+      spread = Math.max(spread, Math.hypot(cell.x - centerX, cell.y - centerY) + cell.radius);
+    }
+    const spreadRatio = spread / Math.max(1, largest);
+    const splitPressure = clamp((cells.length - 1) / Math.max(6, finite(options.maxCells, config.maxCells || 16) * 0.34), 0, 1);
+    const spreadPressure = clamp((spreadRatio - 1.55) / 4.2, 0, 1);
+    const viewPressure = clamp(Math.max(spreadPressure, splitPressure * 0.52 + spreadPressure * 0.48), 0, 1);
+    const targetX = centerX + ((minX + maxX) / 2 - centerX) * viewPressure * 0.72;
+    const targetY = centerY + ((minY + maxY) / 2 - centerY) * viewPressure * 0.72;
+    const dt = clamp(finite(options.dt, 1 / 60), 0, 0.1);
+    const blend = 1 - Math.exp(-(config.domination ? 4.7 : 4.2) * dt);
+    const baseMinZoom = config.minZoom || 0.34;
+    const splitMinZoom = config.splitMinZoom || Math.max(0.16, baseMinZoom * 0.62);
+    const minZoom = baseMinZoom + (splitMinZoom - baseMinZoom) * viewPressure;
+    const margin = Math.max(360, largest * 2.1, Math.sqrt(mass) * 1.2);
+    const boundsZoom = Math.min(options.width / (Math.max(1, maxX - minX) + margin), options.height / (Math.max(1, maxY - minY) + margin));
+    const massSpan = config.domination ? Math.max(760, largest * 3.25 + 430) : Math.max(620, largest * 9.6);
+    const massZoom = Math.min(options.width, options.height) / massSpan;
+    const wantedZoom = cells.length > 1 || spreadRatio > 1.8 ? Math.min(massZoom, boundsZoom) : massZoom;
+    const zoom = finite(camera.zoom, 1);
+    const targetZoom = clamp(wantedZoom, minZoom, 1.08);
+    return {
+      x: camera.x + (targetX - camera.x) * blend,
+      y: camera.y + (targetY - camera.y) * blend,
+      zoom: zoom + (targetZoom - zoom) * (1 - Math.exp(-(wantedZoom < zoom ? 3.8 : 2.35) * dt)),
+      viewPressure, spreadRatio
+    };
+  }
+
   const api = Object.freeze({
     MOVEMENT,
     MODE_SPEED,
@@ -472,7 +515,8 @@
     splitVelocity,
     advanceRenderCadence,
     renderBudgetFor,
-    gpuPixelRatioCeiling
+    gpuPixelRatioCeiling,
+    cameraStep
   });
 
   globalScope.ScaGameplayCore = api;

@@ -18,7 +18,7 @@ export default {
       : {}),
     win32metadata: {
       CompanyName: "Star Cluster Arena",
-      FileDescription: "星团大作战局域网联机版",
+      FileDescription: "星团大作战 · 单人及好友联机",
       InternalName: "StarClusterArena",
       OriginalFilename: "StarClusterArena.exe",
       ProductName: "星团大作战"

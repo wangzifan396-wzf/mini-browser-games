@@ -10,6 +10,7 @@
 <link rel="icon" href="./favicon.svg" type="image/svg+xml">
 <title>星团大作战</title>
 <link rel="stylesheet" href="./css/game.css">
+<link rel="stylesheet" href="./css/match-guide.css">
 </head>
 <body>
   <canvas id="gpuCanvas" aria-hidden="true"></canvas>
@@ -68,7 +69,7 @@
       <button class="icon-btn" id="pauseBtn" title="暂停或继续 P" aria-label="暂停或继续">停</button>
       <button class="icon-btn" id="musicBtn" title="BGM 开关" aria-label="BGM 开关">音</button>
       <button class="icon-btn" id="menuBtn" title="返回主界面" aria-label="返回主界面">厅</button>
-      <button class="icon-btn" id="restartBtn" title="重新开始 R" aria-label="重新开始">新</button>
+      <button class="icon-btn" id="restartBtn" title="打开暂停菜单，确认重新开始 R" aria-label="暂停与重新开始">新</button>
     </nav>
   </div>
 
@@ -82,7 +83,7 @@
         </div>
         <nav class="title-nav" aria-label="主菜单">
           <button class="title-action primary" id="titleSingleBtn" type="button"><span>单人游戏</span><small>10 种完整模式</small></button>
-          <button class="title-action online" id="titleOnlineBtn" type="button"><span>局域网联机 <em class="beta-inline">正式</em></span><small>创建或加入房间</small></button>
+          <button class="title-action online" id="titleOnlineBtn" type="button"><span>联机游戏</span><small>局域网 / 互联网房间</small></button>
           <button class="title-action" id="titleProfileBtn" type="button"><span>个人中心</span><small>外观、成长、商店与锻造</small></button>
           <button class="title-action" type="button" data-title-open="settings"><span>设置</span><small>画面与网络</small></button>
           <button class="title-action" type="button" data-title-open="controls"><span>操作方式</span><small>键鼠与触屏</small></button>
@@ -94,11 +95,11 @@
       <section class="title-content">
         <div class="title-panel active" data-title-panel="home">
           <div class="hero-orbit" aria-hidden="true"><i></i><i></i><i></i></div>
-          <span class="hero-label">v4.0.0 · CANONICAL MULTIPLAYER</span>
-          <h2>从同一个世界<br>开始每一场战斗</h2>
-          <p>单人与联机直接执行同一份十模式玩法源码，真人替换对应参与者槽位，其余人数由原单机 AI 自动补齐。</p>
+          <span class="hero-label">1.0 · STAR CLUSTER ARENA</span>
+          <h2>吞下万千星光<br>成为星域之王</h2>
+          <p>从一颗小星团开始，吞噬星尘、分裂追击，与朋友一起争夺星域。十种战场，十种制胜方式。</p>
           <div class="hero-chips" aria-label="版本特性">
-            <span>最高 240 FPS</span><span>100 人大逃杀</span><span>局域网房间</span><span>硬件加速</span>
+            <span>240 FPS 可选</span><span>百人 AI 战场</span><span>好友联机</span><span>硬件加速</span>
           </div>
           <button class="hero-start" id="heroStartBtn" type="button">进入单人大厅 <b>→</b></button>
         </div>
@@ -113,6 +114,9 @@
             <label><span>联机缓冲<small>低延迟更灵敏，稳定档更抗抖动</small></span><select name="networkBuffer"><option value="low">低延迟</option><option value="balanced">均衡</option><option value="stable">稳定</option></select></label>
             <label class="toggle-row"><span>显示性能信息<small>显示图形 FPS、渲染器和权威 Hz</small></span><input type="checkbox" name="showPerformance"></label>
             <label class="toggle-row"><span>屏幕震动<small>关闭后仍保留击中反馈</small></span><input type="checkbox" name="screenShake"></label>
+            <label><span>主音量<small>0 代表静音；所有声音均为原创合成音</small></span><input type="range" name="masterVolume" min="0" max="1" step="0.05"></label>
+            <label><span>背景音乐<small>大厅 / 对局的 BGM 按钮独立开关</small></span><input type="range" name="musicVolume" min="0" max="1" step="0.05"></label>
+            <label><span>音效音量<small>吞噬、分裂、吐球和技能反馈</small></span><input type="range" name="effectsVolume" min="0" max="1" step="0.05"></label>
             <div class="settings-note" id="displayRefreshNote">正在检测显示器刷新率…</div>
             <div class="settings-actions"><button type="button" data-title-back>取消</button><button class="save" type="submit">保存并应用</button></div>
           </form>
@@ -126,14 +130,14 @@
             <article><kbd>W</kbd><div><strong>吐球</strong><p>按住连续吐出孢子，为队友补给或推动刺球。</p></div></article>
             <article><kbd>A</kbd><div><strong>快速合体</strong><p>在支持的模式中触发快速合球。</p></div></article>
             <article><kbd>D</kbd><div><strong>模式技能</strong><p>在霸屏等模式中释放专属技能。</p></div></article>
-            <article><kbd>P / Esc</kbd><div><strong>暂停 / 返回</strong><p>单人对局可暂停；Esc 逐级返回菜单。</p></div></article>
+            <article><kbd>P / Esc</kbd><div><strong>暂停 / 对局菜单</strong><p>单人对局暂停并保留进度；联机只打开菜单，其他玩家继续比赛。</p></div></article>
           </div>
         </div>
 
         <div class="title-panel" data-title-panel="about" hidden>
           <header class="title-panel-head"><div><span>ABOUT</span><h2>关于游戏</h2></div><button type="button" data-title-back>返回</button></header>
           <div class="about-card">
-            <strong>星团大作战 v4.0.0</strong>
+            <strong>星团大作战 1.0</strong>
             <p>这是一个开源的浏览器与 Windows 桌面吞噬竞技游戏。前后端源码、桌面封装配置和测试脚本放在同一个工程中，单 HTML 版保持独立。</p>
             <div class="about-links">
               <a data-external href="https://github.com/wangzifan396-wzf/mini-browser-games" target="_blank" rel="noreferrer">GitHub 开源项目 <span>↗</span></a>
@@ -170,7 +174,7 @@
         <button type="button" id="musicLobbyBtn">BGM 关</button>
         <button type="button" id="randomLookBtn">随机已拥有外观</button>
         <a class="online-entry" href="./multiplayer.html">
-          <strong>局域网联机</strong>
+          <strong>好友联机</strong>
           <span>创建房间并选择 10 种模式</span>
         </a>
       </div>
@@ -247,15 +251,30 @@
       <section class="lobby-panel" data-lobby-panel="growth">
         <div class="progress-panel" id="progressPanel"></div>
       </section>
-      <button id="playAgainBtn">再来一局</button>
+      <div class="lobby-start-bar"><span id="selectedModeHint">选择战场，开始对局</span><button id="playAgainBtn">再来一局</button></div>
     </div>
   </div>
 
+  <div class="single-session-menu" id="singleSessionMenu" hidden role="dialog" aria-modal="true" aria-labelledby="singleSessionTitle">
+    <section class="single-session-card">
+      <small>星团大作战</small><h2 id="singleSessionTitle">已暂停</h2>
+      <p id="singleSessionDescription">对局时间已冻结，休息一下再继续。</p>
+      <div class="session-controls"><span>鼠标移动</span><span>Space 分裂</span><span>W 吐球 / 喂刺</span><span>A / D 模式技能</span></div>
+      <button id="singleResumeBtn" class="primary" type="button">继续游戏</button>
+      <button id="singleRestartBtn" type="button">重新开始本模式</button>
+      <button id="singleLeaveBtn" type="button">结束本局，返回主菜单</button>
+    </section>
+  </div>
+
+<script src="./js/safe-storage.js" defer></script>
 <script src="./js/game-settings.js" defer></script>
+<script src="./js/audio.js" defer></script>
 <script src="./js/page-transition.js" defer></script>
 <script src="./js/cosmetic-catalog.js" defer></script>
 <script src="./js/cosmetic-renderer.js" defer></script>
 <script src="./js/game-mode-catalog.js" defer></script>
+<script src="./js/match-guide.js" defer></script>
+<script src="./js/progression.js" defer></script>
 <script src="./js/canonical-game-content.js" defer></script>
 <script src="./js/gameplay-core.js" defer></script>
 <script src="./js/gpu-renderer.js" defer></script>

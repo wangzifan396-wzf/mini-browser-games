@@ -9,6 +9,8 @@ files:
   - frontend/**/*
   - desktop/**/*
   - package.json
+  - LICENSE
+  - THIRD-PARTY-NOTICES.md
   - '!desktop/forge.config.mjs'
   - '!desktop/electron-builder.yml'
 win:

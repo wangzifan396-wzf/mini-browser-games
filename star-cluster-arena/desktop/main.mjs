@@ -2,7 +2,9 @@ import { appendFile, mkdir } from "node:fs/promises";
 import { connect } from "node:net";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { app, BrowserWindow, Menu, clipboard, ipcMain, screen, session, shell } from "electron";
+import { app, BrowserWindow, Menu, clipboard, contentTracing, ipcMain, screen, session, shell } from "electron";
+import { createProfileStore } from "./profile-store.mjs";
+import { createSafeConsole } from "./safe-console.mjs";
 import electronSquirrelStartup from "electron-squirrel-startup";
 import { startServer } from "../backend/server.mjs";
 import { inspectWindowsFirewall } from "../backend/multiplayer/windows-network-diagnostics.mjs";
@@ -11,12 +13,16 @@ import { createDisplayModeController, readDisplayState } from "./display-mode.mj
 
 const PROJECT_ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const SMOKE_MODE = process.env.SCA_DESKTOP_SMOKE === "1";
+const SMOKE_MANUAL = SMOKE_MODE && process.env.SCA_QA_MANUAL === "1";
+if (SMOKE_MODE) app.setPath("userData", join(app.getPath("temp"), `sca-desktop-smoke-${process.pid}`));
 const SMOKE_MULTIPLAYER = process.env.SCA_DESKTOP_SMOKE_PATH === "multiplayer";
-const SMOKE_GAMEPLAY = process.env.SCA_DESKTOP_SMOKE_GAMEPLAY === "1";
+const SMOKE_RELEASE = process.env.SCA_DESKTOP_SMOKE_RELEASE === "1";
+const SMOKE_GAMEPLAY = process.env.SCA_DESKTOP_SMOKE_GAMEPLAY === "1" || SMOKE_RELEASE;
 const SMOKE_DISPLAY = process.env.SCA_DESKTOP_SMOKE_DISPLAY === "1";
 const SMOKE_VISUAL = process.env.SCA_DESKTOP_SMOKE_VISUAL === "1";
+const SMOKE_FORCE_DISPLAY = process.env.SCA_DESKTOP_SMOKE_GAMEPLAY_DISPLAY_MODE === "borderless-fullscreen";
 const SMOKE_NAVIGATION = process.env.SCA_DESKTOP_SMOKE_NAVIGATION === "1";
-const SMOKE_VISUAL_DISPLAY_MODE = process.env.SCA_DESKTOP_SMOKE_VISUAL_DISPLAY_MODE === "borderless-fullscreen"
+const SMOKE_VISUAL_DISPLAY_MODE = SMOKE_FORCE_DISPLAY || process.env.SCA_DESKTOP_SMOKE_VISUAL_DISPLAY_MODE === "borderless-fullscreen"
   ? "borderless-fullscreen"
   : "windowed";
 const SMOKE_GAMEPLAY_MODE = ["solo", "team", "survival", "battle", "blitz", "spore", "screen", "control", "giant", "demon"].includes(process.env.SCA_DESKTOP_SMOKE_GAMEPLAY_MODE)
@@ -24,13 +30,16 @@ const SMOKE_GAMEPLAY_MODE = ["solo", "team", "survival", "battle", "blitz", "spo
   : "solo";
 const SMOKE_MIN_FPS = Math.max(0, Number(process.env.SCA_DESKTOP_SMOKE_MIN_FPS) || 0);
 const SMOKE_LOW_POWER_GPU = SMOKE_GAMEPLAY && process.env.SCA_DESKTOP_SMOKE_LOW_POWER_GPU === "1";
-const SMOKE_GAMEPLAY_DURATION = Math.min(SMOKE_VISUAL ? 300 : 60, Math.max(8, Math.round(Number(process.env.SCA_DESKTOP_SMOKE_DURATION) || 16)));
+const SMOKE_VISIBLE = SMOKE_GAMEPLAY && process.env.SCA_PERF_VISIBLE === "1";
+const SMOKE_GAMEPLAY_DURATION = Math.min(300, Math.max(8, Math.round(Number(process.env.SCA_DESKTOP_SMOKE_DURATION) || 16)));
 let mainWindow = null;
 let serverController = null;
+let profileStore = null;
 let stopping = false;
 let logFile = null;
 let desktopRefreshRate = 60;
 let displayModeController = null;
+const writeConsole = createSafeConsole(process.stdout, process.stderr);
 app.commandLine.appendSwitch(SMOKE_LOW_POWER_GPU ? "force_low_power_gpu" : "force_high_performance_gpu");
 app.commandLine.appendSwitch("enable-gpu-rasterization");
 app.commandLine.appendSwitch("enable-zero-copy");
@@ -43,9 +52,7 @@ if (SMOKE_GAMEPLAY) {
 async function writeLog(level, values) {
   const message = values.map(value => value instanceof Error ? value.stack || value.message : String(value)).join(" ");
   const line = `${new Date().toISOString()} [${level}] ${message}\n`;
-  if (level === "error") console.error(message);
-  else if (level === "warn") console.warn(message);
-  else console.log(message);
+  writeConsole(level, message);
   if (!logFile) return;
   try {
     await appendFile(logFile, line, "utf8");
@@ -313,16 +320,23 @@ function tcpPortHasListener(port, timeoutMs = 280) {
 async function collectGameplaySmoke(smokeWindow) {
   return smokeWindow.webContents.executeJavaScript(`(async () => {
     const mode = ${JSON.stringify(SMOKE_GAMEPLAY_MODE)};
+    document.getElementById('titleSingleBtn')?.click();
     document.querySelector('[data-mode="' + mode + '"]')?.click();
     document.getElementById('playAgainBtn')?.click();
+    if (document.getElementById('titleScreen')?.hidden !== true || getComputedStyle(document.getElementById('overlay')).display !== 'none') throw new Error('性能测试未进入可见的纯游戏画面');
+    window.__ballArenaDebug?.protectPerfProbe?.(${JSON.stringify(SMOKE_GAMEPLAY_DURATION + 5)});
     const samples = [];
     for (let elapsed = 4; elapsed <= ${JSON.stringify(SMOKE_GAMEPLAY_DURATION)}; elapsed += 4) {
       await new Promise(resolve => setTimeout(resolve, 4000));
       const state = window.__ballArenaDebug?.snapshot?.();
       if (!state) throw new Error('单机调试采样接口不可用');
+      if (state.paused) throw new Error('性能采样因失焦或输入而暂停，请保持测试窗口状态稳定，不要将暂停帧计入性能结果');
       samples.push({
         elapsed,
         over: state.over,
+        paused: state.paused,
+        menu: state.menu,
+        playerCells: state.playerCells,
         alive: state.alive,
         fps: Math.round(1000 / Math.max(1, state.avgFrame)),
         avgFrame: state.avgFrame,
@@ -342,6 +356,7 @@ async function collectGameplaySmoke(smokeWindow) {
         totalKills: state.totalKills,
         renderer: state.renderer
       });
+      if (${JSON.stringify(process.env.SCA_PERF_STREAM === "1")}) console.info('SCA_PERF_SAMPLE ' + JSON.stringify(samples[samples.length - 1]));
     }
     const activeSamples = samples.filter(sample => !sample.over);
     const steadySamples = activeSamples.filter(sample => sample.elapsed >= 8);
@@ -362,7 +377,7 @@ async function collectGameplaySmoke(smokeWindow) {
 }
 
 async function collectMultiplayerGameplaySmoke(smokeWindow) {
-  return smokeWindow.webContents.executeJavaScript(`(async () => {
+  return evaluateSmoke(smokeWindow, `(async () => {
     const mode = ${JSON.stringify(SMOKE_GAMEPLAY_MODE)};
     const duration = ${JSON.stringify(SMOKE_GAMEPLAY_DURATION)};
     const waitFor = async (predicate, label, timeout = 12000) => {
@@ -381,13 +396,19 @@ async function collectMultiplayerGameplaySmoke(smokeWindow) {
     await waitFor(() => document.getElementById('roomView')?.hidden === false, '创建房间');
     const roomCode = document.getElementById('roomCode').textContent.trim();
     const initialBots = document.getElementById('roomBots').textContent.trim();
+    if (${JSON.stringify(SMOKE_RELEASE)}) {
+      for (const id of ['readyBtn', 'startMatchBtn']) {
+        const rect = document.getElementById(id).getBoundingClientRect();
+        if (rect.bottom > innerHeight || rect.top < 0) throw new Error('等待房间按钮超出窗口：' + id);
+      }
+    }
     const endpoint = location.origin.replace(/^http/, 'ws') + '/ws?room=' + encodeURIComponent(roomCode);
     const guest = new WebSocket(endpoint);
     await new Promise((resolve, reject) => {
       const timer = setTimeout(() => reject(new Error('性能采样访客加入超时')), 8000);
       guest.addEventListener('open', () => guest.send(JSON.stringify({
         type: 'join',
-        protocol: 'sca-lan-v6',
+        protocol: 'sca-v1',
         name: '桌面性能访客',
         cosmetics: { skin: 'dragon', spore: 'royal', halo: 'gravity', trail: 'demon-trail' }
       })));
@@ -403,7 +424,7 @@ async function collectMultiplayerGameplaySmoke(smokeWindow) {
       guest.addEventListener('error', () => reject(new Error('性能采样访客连接失败')), { once: true });
     });
 
-    await waitFor(() => document.getElementById('roomCapacity').textContent.includes('2 / 8 真人'), '第二名玩家进入房间');
+    await waitFor(() => document.getElementById('roomCapacity').textContent.includes('2 / '), '第二名玩家进入房间');
     const filledBots = document.getElementById('roomBots').textContent.trim();
     document.getElementById('readyBtn').click();
     await waitFor(() => !document.getElementById('startMatchBtn').disabled, '双方准备');
@@ -430,7 +451,8 @@ async function collectMultiplayerGameplaySmoke(smokeWindow) {
         totalKills: debug.totalKills
       });
     }
-    guest.close(1000, 'smoke-complete');
+    if (${JSON.stringify(SMOKE_RELEASE)}) window.__scaSmokeGuest = guest;
+    else guest.close(1000, 'smoke-complete');
     const steadySamples = samples.filter(sample => sample.elapsed >= 8 && sample.snapshotHz > 0);
     return {
       mode,
@@ -448,6 +470,125 @@ async function collectMultiplayerGameplaySmoke(smokeWindow) {
       }
     };
   })()`);
+}
+
+async function evaluateSmoke(window, source) {
+  const outcome = await window.webContents.executeJavaScript(`(async () => {
+    try { return { ok: true, value: await (${source}) }; }
+    catch (error) { return { ok: false, error: error.stack || error.message }; }
+  })()`);
+  if (!outcome.ok) throw new Error(`Smoke 执行失败：${outcome.error}`);
+  return outcome.value;
+}
+
+async function collectReleaseInteractionSmoke(window) {
+  const single = await evaluateSmoke(window, `(async () => {
+    const assert = (condition, label) => { if (!condition) throw new Error('正式版单人流程：' + label); };
+    const debug = window.__ballArenaDebug;
+    document.getElementById('titleSingleBtn').click();
+    document.querySelector('[data-mode="screen"]').click();
+    document.getElementById('playAgainBtn').click();
+    await new Promise(resolve => setTimeout(resolve, 250));
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    const before = debug.snapshot();
+    assert(before.paused && !document.getElementById('singleSessionMenu').hidden, 'Esc 应暂停并显示菜单');
+    for (const [key, code] of [[' ', 'Space'], ['w', 'KeyW'], ['a', 'KeyA'], ['d', 'KeyD']]) document.dispatchEvent(new KeyboardEvent('keydown', { key, code, bubbles: true }));
+    await new Promise(resolve => setTimeout(resolve, 1300));
+    const after = debug.snapshot();
+    assert(after.timeLeft === before.timeLeft && after.playerCells === before.playerCells && !after.ejectHeld, '暂停应冻结时间并拒绝游戏操作');
+    document.getElementById('singleResumeBtn').click();
+    assert(!debug.snapshot().paused, '继续应恢复原比赛');
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'r', bubbles: true }));
+    assert(debug.snapshot().paused, 'R 不应意外重开');
+    document.getElementById('singleLeaveBtn').click();
+    assert(debug.snapshot().menu, '退出应返回主页');
+    debug.startMode('blitz'); const result = debug.forceTimeEnd();
+    assert(result.snapshot.over && result.title, '单人限时结算');
+    document.getElementById('playAgainBtn').click();
+    assert(!debug.snapshot().over && !debug.snapshot().menu, '再来一局应可开始');
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    document.getElementById('singleLeaveBtn').click();
+    return { pausedSeconds: 1.3, mode: before.mode, frozenTimeLeft: before.timeLeft, resultTitle: result.title, restart: true };
+  })()`);
+  await window.loadURL(desktopGameUrl('/multiplayer.html'));
+  await new Promise(resolveDelay => setTimeout(resolveDelay, 1000));
+  const connection = await evaluateSmoke(window, `(async () => {
+    const assert = (condition, label) => { if (!condition) throw new Error(label); };
+    const select = document.getElementById('connectionMode');
+    select.value = 'internet'; select.dispatchEvent(new Event('change', { bubbles: true }));
+    const debug = window.__starClusterMultiplayerDebug;
+    assert(debug.snapshot().connectionMode === 'internet', '互联网选择未切换实际连接状态');
+    assert(!document.getElementById('internetServer').hidden, '互联网地址不可见');
+    document.getElementById('createRoomBtn').click();
+    await new Promise(resolve => setTimeout(resolve, 250));
+    assert(document.getElementById('roomView').hidden, '空公网地址不能偷偷创建局域网房间');
+    document.getElementById('internetServer').value = location.origin;
+    document.getElementById('applyConnectionBtn').click();
+    const began = performance.now();
+    while (!document.getElementById('connectionText').textContent.includes('服务正常') || debug.snapshot().serviceOrigin !== location.origin) {
+      if (performance.now() - began > 8000) throw new Error('互联网地址检查超时');
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+    document.getElementById('internetServer').value = 'http://127.0.0.1:9';
+    document.getElementById('createRoomBtn').click();
+    await new Promise(resolve => setTimeout(resolve, 250));
+    assert(document.getElementById('roomView').hidden, '修改地址后未检查不应连接旧服务');
+    document.getElementById('internetServer').value = location.origin;
+    return { internetSelected: true, emptyAddressBlocked: true, changedAddressBlocked: true };
+  })()`);
+  // Keep idle lifecycle probes alive until the explicit survivor fixture.
+  // Ordinary matches never receive this smoke-only protection.
+  const protectedMatches = new Set();
+  const protectLifecycleProbe = () => {
+    for (const room of serverController.roomManager.rooms.values()) {
+      if (!room.simulation || protectedMatches.has(room.matchId)) continue;
+      protectedMatches.add(room.matchId);
+      for (const player of room.players.values()) room.simulation.runtime.setGroupFixture(player.id, { invincibleSeconds: SMOKE_GAMEPLAY_DURATION + 10 });
+      room.simulation.cachedSnapshot = null;
+    }
+  };
+  serverController.roomManager.on("rooms-changed", protectLifecycleProbe);
+  let multiplayer;
+  try { multiplayer = await collectMultiplayerGameplaySmoke(window); }
+  finally { serverController.roomManager.off("rooms-changed", protectLifecycleProbe); }
+  const code = multiplayer.roomCode;
+  const room = serverController.roomManager.rooms.get(code);
+  if (!room?.simulation) throw new Error('正式版联机测试房间缺失');
+  const host = [...room.players.values()].find(player => player.host);
+  const guest = [...room.players.values()].find(player => !player.host);
+  const bot = room.simulation.snapshot({ foodMode: 'none' }).groups.find(group => !group.human && !group.dead && group.cells.length);
+  if (!bot) throw new Error('生命周期夹具需要一名仍存活的 AI');
+  room.simulation.runtime.setGroupFixture(bot.id, { mass: 512, invincibleSeconds: 3 });
+  room.simulation.runtime.setSurvivors([guest.id, bot.id]);
+  room.simulation.cachedSnapshot = null;
+  await new Promise(resolveDelay => setTimeout(resolveDelay, 700));
+  const spectating = await evaluateSmoke(window, `(() => {
+    const debug = window.__starClusterMultiplayerDebug;
+    if (document.getElementById('spectateBtn').hidden || !debug.snapshot().spectatorId) throw new Error('阵亡后未进入观战');
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true }));
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'w', bubbles: true }));
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    const state = debug.snapshot();
+    if (document.getElementById('sessionMenu').hidden || !state.inputSuspended || state.input.eject) throw new Error('联机菜单未释放输入');
+    document.getElementById('sessionContinueBtn').click();
+    if (debug.snapshot().inputSuspended) throw new Error('联机继续未恢复输入');
+    return { spectatorId: state.spectatorId, inputReleased: true };
+  })()`);
+  room.simulation.runtime.setSurvivors([guest.id]); room.simulation.cachedSnapshot = null;
+  await new Promise(resolveDelay => setTimeout(resolveDelay, 700));
+  const result = await window.webContents.executeJavaScript(`({ visible: !document.getElementById('matchResult').hidden, text: document.getElementById('matchResultTitle').textContent + ' · ' + document.getElementById('matchResultSummary').textContent })`);
+  if (!result.visible || !result.text.includes('桌面性能访客')) throw new Error('联机结算没有显示真实访客胜者：' + result.text);
+  await new Promise(resolveDelay => setTimeout(resolveDelay, 4200));
+  const returned = await evaluateSmoke(window, `(() => {
+    if (document.getElementById('roomView').hidden || document.getElementById('matchResult').hidden) throw new Error('返回房间应保留可读结算');
+    document.getElementById('matchResultContinue').click();
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    if (document.getElementById('sessionMenu').hidden) throw new Error('等待房间 Esc 无效');
+    document.getElementById('sessionLeaveBtn').click();
+    window.__scaSmokeGuest?.close();
+    return true;
+  })()`);
+  return { single, connection, multiplayer, spectating, result, returned };
 }
 
 function createMenu() {
@@ -483,7 +624,7 @@ async function createMainWindow() {
     minHeight: 640,
     fullscreenable: true,
     show: SMOKE_GAMEPLAY || SMOKE_DISPLAY,
-    ...((SMOKE_GAMEPLAY || SMOKE_DISPLAY) ? { x: -10_000, y: -10_000, skipTaskbar: true } : {}),
+    ...((SMOKE_GAMEPLAY || SMOKE_DISPLAY) && !SMOKE_VISIBLE ? { x: -10_000, y: -10_000, skipTaskbar: true } : {}),
     ...(SMOKE_DISPLAY ? { opacity: 0 } : {}),
     backgroundColor: "#07111f",
     title: "星团大作战",
@@ -526,9 +667,16 @@ async function createMainWindow() {
   mainWindow.webContents.on("preload-error", (_event, preloadPath, error) => {
     logger.error(`桌面桥接加载失败：${preloadPath}`, error);
   });
+  if (SMOKE_MODE) mainWindow.webContents.on("console-message", event => {
+    const details = event;
+    if (details?.message?.startsWith('SCA_PERF_SAMPLE ')) logger.info(details.message);
+    else if (details && ["warning", "error"].includes(details.level)) {
+      logger.error(`Smoke 网页 ${details.level}：${details.message} (${details.sourceId}:${details.lineNumber})`);
+    }
+  });
 
   mainWindow.once("ready-to-show", () => {
-    if (!SMOKE_MODE) mainWindow?.show();
+    if (!SMOKE_MODE || SMOKE_MANUAL) mainWindow?.show();
   });
   mainWindow.on("enter-full-screen", emitDisplayState);
   mainWindow.on("leave-full-screen", emitDisplayState);
@@ -541,12 +689,12 @@ async function createMainWindow() {
   desktopRefreshRate = Math.min(240, Math.max(60, Math.round(Number(activeDisplay.displayFrequency) || 60)));
   logger.info(`显示器刷新率：${desktopRefreshRate} Hz；已请求${SMOKE_LOW_POWER_GPU ? "低功耗" : "高性能"} GPU`);
 
-  if (SMOKE_MODE) {
+  if (SMOKE_MODE && !SMOKE_MANUAL) {
     const smokeWindow = mainWindow;
     mainWindow.webContents.once("did-finish-load", () => {
       setTimeout(async () => {
         try {
-          if (SMOKE_VISUAL) {
+          if (SMOKE_VISUAL || SMOKE_FORCE_DISPLAY) {
             await smokeWindow.webContents.executeJavaScript(`(() => {
               const current = window.ScaGameSettings?.load?.() || {};
               window.ScaGameSettings?.save?.({ ...current, displayMode: ${JSON.stringify(SMOKE_VISUAL_DISPLAY_MODE)}, windowSize: 'current' });
@@ -555,20 +703,36 @@ async function createMainWindow() {
             await new Promise(resolveDelay => setTimeout(resolveDelay, 250));
           }
           const stopVisualMonitor = SMOKE_VISUAL || SMOKE_NAVIGATION ? startVisualFrameMonitor(smokeWindow) : null;
+          if (SMOKE_VISIBLE) {
+            smokeWindow.show();
+            smokeWindow.focus();
+          }
+          const nativeStart = {
+            focused: smokeWindow.isFocused(), visible: smokeWindow.isVisible(),
+            bounds: smokeWindow.getBounds(),
+            display: screen.getDisplayMatching(smokeWindow.getBounds())
+          };
           let gameplay = null;
           let visual = null;
           let navigation = null;
+          const tracePath = SMOKE_GAMEPLAY ? process.env.SCA_PERF_TRACE : null;
+          if (tracePath) await contentTracing.startRecording({ included_categories: ['gpu', 'viz', 'cc', 'toplevel', 'benchmark', 'disabled-by-default-gpu.service'] });
           try {
             navigation = SMOKE_NAVIGATION ? await collectNavigationSmoke(smokeWindow) : null;
-            gameplay = SMOKE_GAMEPLAY
+            gameplay = SMOKE_RELEASE ? await collectReleaseInteractionSmoke(smokeWindow) : SMOKE_GAMEPLAY
               ? (SMOKE_MULTIPLAYER ? await collectMultiplayerGameplaySmoke(smokeWindow) : await collectGameplaySmoke(smokeWindow))
               : null;
           } finally {
             visual = stopVisualMonitor?.() || null;
+            if (tracePath) logger.info(`PERF_TRACE ${await contentTracing.stopRecording(tracePath)}`);
           }
           const display = SMOKE_DISPLAY ? await collectDisplayInteractionSmoke(smokeWindow) : null;
           const state = await smokeWindow.webContents.executeJavaScript(`({ title: document.title, connection: document.getElementById("connectionText")?.textContent || "", warning: document.getElementById("networkWarning")?.hidden === false, renderer: document.getElementById("renderBadge")?.title || "", refresh: new URLSearchParams(location.search).get("refresh"), desktopApi: Boolean(window.starClusterDesktop?.desktop) })`);
           state.gameplay = gameplay;
+          state.runtime = { electron: process.versions.electron, chromium: process.versions.chrome, node: process.versions.node };
+          state.nativeStart = nativeStart;
+          state.nativeEnd = { focused: smokeWindow.isFocused(), visible: smokeWindow.isVisible(), bounds: smokeWindow.getBounds() };
+          if (SMOKE_VISIBLE && (!nativeStart.focused || !state.nativeEnd.focused)) throw new Error('前台性能采样失去窗口焦点，不能作为玩家帧率结果');
           state.display = display;
           state.visual = visual;
           state.navigation = navigation;
@@ -591,15 +755,16 @@ async function createMainWindow() {
           )) {
             throw new Error(`桌面全屏状态异常：${JSON.stringify(display)}`);
           }
-          if (gameplay && gameplay.samples.filter(sample => !sample.over).length < 2) throw new Error(`性能采样缺少有效对局帧：${gameplay.mode}`);
-          if (gameplay && gameplay.samples.some(sample => Number.isFinite(sample.backingStoreResizes) && sample.backingStoreResizes !== 0)) {
+          if (gameplay && !SMOKE_RELEASE && gameplay.samples.filter(sample => !sample.over).length < 2) throw new Error(`性能采样缺少有效对局帧：${gameplay.mode}`);
+          if (gameplay && !SMOKE_RELEASE && gameplay.samples.some(sample => Number.isFinite(sample.backingStoreResizes) && sample.backingStoreResizes !== 0)) {
             throw new Error(`固定窗口对局期间发生 Canvas 后备缓冲重建：${JSON.stringify({ samples: gameplay.samples, visual })}`);
           }
-          if (gameplay && SMOKE_MULTIPLAYER && gameplay.samples.some(sample => sample.world && (sample.world.width !== 7600 || sample.world.height !== 7600))) {
+          if (gameplay && !SMOKE_RELEASE && SMOKE_MULTIPLAYER && gameplay.samples.some(sample => sample.world && (sample.world.width !== 7600 || sample.world.height !== 7600))) {
             throw new Error(`联机世界尺寸回退：${JSON.stringify(gameplay.samples)}`);
           }
-          if (gameplay && SMOKE_MIN_FPS > 0 && gameplay.summary.steadyAverageFps < SMOKE_MIN_FPS) {
-            throw new Error(`性能采样低于门槛：${gameplay.summary.steadyAverageFps} < ${SMOKE_MIN_FPS} FPS`);
+          if (gameplay && !SMOKE_RELEASE && SMOKE_MIN_FPS > 0 && gameplay.summary.steadyAverageFps < SMOKE_MIN_FPS) {
+            logger.info(`DESKTOP_SMOKE_FAILED ${JSON.stringify(state)}`);
+            throw new Error(`性能采样低于门槛：${gameplay.summary.steadyAverageFps} < ${SMOKE_MIN_FPS} FPS；${JSON.stringify(gameplay.summary)}`);
           }
           if (visual?.suspiciousFrames?.length) {
             throw new Error(`检测到疑似白屏合成帧：${JSON.stringify(visual)}`);
@@ -663,6 +828,7 @@ async function stopDesktop() {
   if (stopping) return;
   stopping = true;
   try {
+    await profileStore?.flush();
     await serverController?.close();
     logger.info("内置游戏服务已停止");
   } catch (error) {
@@ -691,6 +857,16 @@ if (electronSquirrelStartup) {
     });
     app.on("window-all-closed", () => app.quit());
     app.whenReady().then(async () => {
+      profileStore = await createProfileStore(app.getPath("userData"), { logger });
+      if (SMOKE_MODE && SMOKE_GAMEPLAY && ['auto', 'performance', 'balanced', 'high'].includes(process.env.SCA_PERF_QUALITY)) {
+        profileStore.set('starClusterGameSettingsV1', JSON.stringify({ quality: process.env.SCA_PERF_QUALITY }));
+      }
+      ipcMain.on("desktop:load-profile", event => {
+        event.returnValue = mainWindow && event.sender === mainWindow.webContents ? profileStore.snapshot() : {};
+      });
+      ipcMain.on("desktop:save-profile-value", (event, key, value) => {
+        if (mainWindow && event.sender === mainWindow.webContents) profileStore.set(key, value);
+      });
       session.defaultSession.setPermissionRequestHandler((_webContents, _permission, callback) => callback(false));
       ipcMain.handle("desktop:open-firewall-settings", async event => {
         if (!mainWindow || event.sender !== mainWindow.webContents) return false;

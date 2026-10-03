@@ -18,7 +18,10 @@
     windowSize: "1440x900",
     showPerformance: true,
     networkBuffer: "balanced",
-    screenShake: true
+    screenShake: true,
+    masterVolume: 0.7,
+    musicVolume: 0.35,
+    effectsVolume: 0.55
   });
   const QUALITY_PRESETS = Object.freeze({
     auto: Object.freeze({ pixelBudget: 3_200_000, maximumDpr: 1.25 }),
@@ -46,13 +49,20 @@
       windowSize: inList(source.windowSize, WINDOW_SIZE_VALUES, DEFAULTS.windowSize),
       showPerformance: source.showPerformance !== false,
       networkBuffer: inList(source.networkBuffer, NETWORK_VALUES, DEFAULTS.networkBuffer),
-      screenShake: source.screenShake !== false
+      screenShake: source.screenShake !== false,
+      masterVolume: volume(source.masterVolume, DEFAULTS.masterVolume),
+      musicVolume: volume(source.musicVolume, DEFAULTS.musicVolume),
+      effectsVolume: volume(source.effectsVolume, DEFAULTS.effectsVolume)
     });
+  }
+
+  function volume(value, fallback) {
+    return value != null && Number.isFinite(Number(value)) ? Math.max(0, Math.min(1, Number(value))) : fallback;
   }
 
   function storage() {
     try {
-      return root.localStorage || null;
+      return root.ScaStorage || root.localStorage || null;
     } catch {
       return null;
     }

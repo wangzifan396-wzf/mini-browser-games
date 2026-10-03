@@ -4,6 +4,8 @@ contextBridge.exposeInMainWorld("starClusterDesktop", Object.freeze({
   desktop: true,
   platform: process.platform,
   electron: process.versions.electron,
+  loadProfile: () => ipcRenderer.sendSync("desktop:load-profile"),
+  saveProfileValue: (key, value) => ipcRenderer.send("desktop:save-profile-value", key, value),
   openFirewallSettings: () => ipcRenderer.invoke("desktop:open-firewall-settings"),
   openExternal: url => ipcRenderer.invoke("desktop:open-external", url),
   copyText: value => ipcRenderer.invoke("desktop:copy-text", value),

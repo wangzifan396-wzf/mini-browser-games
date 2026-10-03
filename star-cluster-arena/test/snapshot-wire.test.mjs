@@ -118,8 +118,8 @@ function throughJson(snapshot) {
   return decodeSnapshot(packet);
 }
 
-test("wire v3 indices are locked and browser/server contracts agree", () => {
-  assert.equal(SNAPSHOT_WIRE_VERSION, 3);
+test("wire v4 indices are locked and browser/server contracts agree", () => {
+  assert.equal(SNAPSHOT_WIRE_VERSION, 4);
   assert.deepEqual(SNAPSHOT_INDEX, {
     TICK: 0, SERVER_TIME: 1, SERVER_HZ: 2, MODE: 3, PHASE: 4, FINISHED: 5,
     FINISH_REASON: 6, WINNER_ID: 7, WORLD: 8, ARENA: 9, REMAINING: 10,
@@ -134,12 +134,12 @@ test("wire v3 indices are locked and browser/server contracts agree", () => {
   }
   assert.equal(WORLD_INDEX.LENGTH, 2);
   assert.equal(ARENA_INDEX.LENGTH, 5);
-  assert.equal(SAFE_ZONE_INDEX.LENGTH, 4);
-  assert.equal(GROUP_INDEX.LENGTH, 17);
-  assert.equal(CELL_INDEX.LENGTH, 6);
+  assert.equal(SAFE_ZONE_INDEX.LENGTH, 6);
+  assert.equal(GROUP_INDEX.LENGTH, 18);
+  assert.equal(CELL_INDEX.LENGTH, 9);
   assert.equal(EJECTED_INDEX.LENGTH, 10);
-  assert.equal(FOOD_INDEX.LENGTH, 5);
-  assert.equal(VIRUS_INDEX.LENGTH, 6);
+  assert.equal(FOOD_INDEX.LENGTH, 7);
+  assert.equal(VIRUS_INDEX.LENGTH, 7);
   assert.equal(DELTA_INDEX.LENGTH, 5);
   assert.equal(RANKING_INDEX.LENGTH, 12);
   assert.equal(TEAM_INDEX.LENGTH, 8);
@@ -218,4 +218,14 @@ test("16 groups with 16 cells stay below the 24 KiB dynamic JSON budget", () => 
 test("legacy object snapshots pass through unchanged", () => {
   const legacy = { type: "snapshot", tick: 1, groups: [] };
   assert.equal(decodeSnapshot(legacy), legacy);
+});
+
+test("wire preserves precise mass, merge state, shields and mode visuals", () => {
+  const source = createSnapshot();
+  source.groups[0].invincibleRemaining = 2.1;
+  Object.assign(source.groups[0].cells[0], { mass: 123.4, mergeDelay: 6.4, mergeMax: 12 });
+  Object.assign(source.safeZone, { phase: 3, shrinking: true });
+  source.foods = [{ id: "rich", x: 10, y: 20, radius: 8, color: "#ffd166", rich: true, pulse: 1.25 }];
+  source.viruses = [{ id: "seed", x: 20, y: 30, radius: 42, color: "#5eea80", kind: "small", spore: false, tactical: true }];
+  assert.deepEqual(throughJson(source), { ...source, type: "snapshot" });
 });

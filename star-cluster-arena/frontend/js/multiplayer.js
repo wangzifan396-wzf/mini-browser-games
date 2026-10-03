@@ -1,9 +1,10 @@
 (function () {
   "use strict";
+  const localStorage = window.ScaStorage || window.localStorage;
 
-  const PROTOCOL_VERSION = "sca-lan-v6";
+  const PROTOCOL_VERSION = "sca-v1";
   const RECONNECT_GRACE_MS = 15_000;
-  const CONNECT_TIMEOUT_MS = 1800;
+  const CONNECT_TIMEOUT_MS = 6500;
   const MAX_ENDPOINTS = 3;
   const INPUT_INTERVAL_MS = 1000 / 60;
   const HUD_INTERVAL_MS = 160;
@@ -32,6 +33,8 @@
   const settingsApi = window.ScaGameSettings;
   if (!settingsApi) throw new Error("Shared game settings failed to load");
   const gameSettings = settingsApi.load();
+  const connectionApi = window.ScaConnectionProfile;
+  const connectionProfile = connectionApi.load();
   const displayRefresh = settingsApi.displayRefresh();
   const targetRenderFps = settingsApi.targetFps(gameSettings, displayRefresh);
   const targetRenderInterval = 1000 / targetRenderFps;
@@ -114,6 +117,8 @@
     maximumExtrapolationMs: networkPreset.maximumExtrapolationMs
   });
   const state = {
+    connectionMode: connectionProfile.mode,
+    serviceOrigin: connectionProfile.mode === "internet" ? connectionProfile.origin : "",
     view: "lobby",
     rooms: [],
     roomListSignature: "",
@@ -148,6 +153,7 @@
     snapshotBuffer,
     latency: 0,
     inputSeq: 0,
+    inputSuspended: false,
     input: {
       dx: 0,
       dy: 0,
@@ -165,6 +171,7 @@
     inputTimer: null,
     pingTimer: null,
     camera: { x: 2600, y: 2600, zoom: 0.8 },
+    spectatorId: "",
     pointer: { x: window.innerWidth / 2, y: window.innerHeight / 2 },
     toastTimer: null,
     roomRefreshTimer: null,
@@ -172,8 +179,13 @@
     nextRenderAt: 0,
     lastRenderAt: 0,
     lastHudAt: 0,
+    personalPeakMass: 0,
+    lastMinimapAt: 0,
     smoothedFps: 60
   };
+  const foodRenderBatches = new Map();
+  const cellRenderBuffer = [];
+  let backgroundGradient = null;
 
   function clamp(value, minimum, maximum) {
     return Math.max(minimum, Math.min(maximum, value));
@@ -198,6 +210,14 @@
 
   function setView(view) {
     state.view = view;
+    if (view === "game") {
+      state.inputSuspended = false;
+      state.spectatorId = "";
+      document.getElementById("matchResult").hidden = true;
+      window.ScaAudio?.reset();
+      window.ScaAudio?.setMusic(localStorage.getItem("ballArenaMusic") === "on");
+    }
+    if (view === "lobby") document.getElementById("matchResult").hidden = true;
     if (elements.sessionMenu) elements.sessionMenu.hidden = true;
     elements.lobbyView.hidden = view !== "lobby";
     elements.roomView.hidden = view !== "room";
@@ -220,10 +240,16 @@
 
   function closeSessionMenu() {
     if (elements.sessionMenu) elements.sessionMenu.hidden = true;
+    state.inputSuspended = false;
     elements.canvas?.focus?.({ preventScroll: true });
   }
 
   function openSessionMenu() {
+    state.inputSuspended = true;
+    state.input.eject = false;
+    state.input.split = false;
+    state.input.quickMerge = false;
+    state.input.special = false;
     if (state.view === "lobby") {
       goToMainMenu();
       return;
@@ -244,10 +270,19 @@
   }
 
   async function jsonRequest(url, options) {
-    const response = await fetch(url, { cache: "no-store", ...options });
-    const value = response.status === 204 ? null : await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(value?.message || value?.error || `请求失败 (${response.status})`);
-    return value;
+    if (state.connectionMode === "internet" && !state.serviceOrigin) throw new Error("请先填写互联网服务器地址，再检查连接");
+    if (state.connectionMode === "internet" && connectionApi.serverOrigin(document.getElementById("internetServer").value) !== state.serviceOrigin) throw new Error("地址已修改，请先点击检查连接再创建或加入房间");
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 8000);
+    try {
+      const response = await fetch(state.serviceOrigin ? new URL(url, state.serviceOrigin).href : url, { cache: "no-store", ...options, signal: controller.signal });
+      const value = response.status === 204 ? null : await response.json();
+      if (!response.ok) throw new Error(value?.message || value?.error || `请求失败 (${response.status})`);
+      return value;
+    } catch (error) {
+      if (controller.signal.aborted) throw new Error("服务响应超时，请检查服务器地址或稍后重试");
+      throw error;
+    } finally { clearTimeout(timer); }
   }
 
   function modeInfo(key) {
@@ -296,6 +331,10 @@
     elements.modeDescription.textContent = modeInfo(elements.modeSelect.value).description;
     const target = modeInfo(elements.modeSelect.value).targetParticipants || modeInfo(elements.modeSelect.value).canonical?.participants || 8;
     if (elements.autoFillPreview) elements.autoFillPreview.textContent = `真人优先，自动补足到 ${target} 个参赛者`;
+    const maximumHumans = modeInfo(elements.modeSelect.value).maximumHumans || (elements.modeSelect.value === "demon" ? 4 : 8);
+    for (const option of elements.maxPlayers.options) option.disabled = Number(option.value) > maximumHumans;
+    if (Number(elements.maxPlayers.value) > maximumHumans) elements.maxPlayers.value = String(maximumHumans);
+    if (elements.modeSelect.value === "demon") elements.modeDescription.textContent += " 最多 4 名真人勇者，不会替换魔王席位。";
   }
 
   async function loadModes() {
@@ -322,6 +361,7 @@
   }
 
   function renderNetworkDiagnostics() {
+    if (state.connectionMode === "internet") { elements.networkWarning.hidden = true; return; }
     const firewall = state.diagnostics?.firewall;
     const discoveryFailed = state.discovery && (!state.discovery.listening || state.discovery.lastError);
     const loopbackOnly = ["127.0.0.1", "::1", "localhost"].includes(String(state.bindHost).toLowerCase());
@@ -382,7 +422,7 @@
     if (!joinable.length) {
       const empty = document.createElement("div");
       empty.className = "room-empty";
-      empty.textContent = "暂未发现房间。让房主先创建房间，或检查双方是否连接到同一个局域网。";
+      empty.textContent = state.connectionMode === "internet" ? "还没有等待中的房间。创建一个房间，分享邀请链接给朋友。" : "暂未发现房间。让房主先创建房间，或检查双方是否连接到同一个局域网。";
       elements.roomList.append(empty);
       return;
     }
@@ -410,8 +450,13 @@
     state.refreshing = true;
     elements.refreshRooms.classList.add("busy");
     if (probe) setConnection("busy", "正在主动扫描");
+    const originAtStart = state.serviceOrigin;
+    const modeAtStart = state.connectionMode;
     try {
-      const value = await jsonRequest(probe ? "/api/lan/probe" : "/api/lan/rooms", probe ? { method: "POST" } : undefined);
+      const internet = state.connectionMode === "internet";
+      const value = await jsonRequest(internet ? "/api/rooms" : probe ? "/api/lan/probe" : "/api/lan/rooms", !internet && probe ? { method: "POST" } : undefined);
+      if (originAtStart !== state.serviceOrigin || modeAtStart !== state.connectionMode) return;
+      if (value.protocol !== PROTOCOL_VERSION) throw new Error("服务版本不兼容，请更新游戏或服务器");
       state.rooms = Array.isArray(value.rooms) ? value.rooms : [];
       state.discovery = value.discovery || null;
       state.diagnostics = value.diagnostics || null;
@@ -420,6 +465,11 @@
       state.bindHost = String(value.bindHost || "");
       renderRoomList();
       renderNetworkDiagnostics();
+      if (internet) {
+        elements.discoveryStatus.textContent = `互联网服务已连接 · ${state.rooms.length} 个房间`;
+        setConnection("online", "互联网服务正常");
+        return;
+      }
       const discovered = state.rooms.filter(room => room.source === "lan").length;
       const local = state.rooms.filter(room => room.source === "local").length;
       const warning = state.discovery?.lastError ? ` · 发现服务提示：${state.discovery.lastError}` : "";
@@ -428,7 +478,8 @@
       elements.discoveryStatus.textContent = `已扫描：${discovered} 个局域网房间，${local} 个本机房间${ports}${addresses}${warning}`;
       setConnection("online", "联机服务正常");
     } catch (error) {
-      elements.discoveryStatus.textContent = "无法连接本机联机服务，请通过启动器或桌面版打开游戏。";
+      if (originAtStart !== state.serviceOrigin || modeAtStart !== state.connectionMode) return;
+      elements.discoveryStatus.textContent = state.connectionMode === "internet" ? "无法连接互联网服务，请检查服务地址或网络。" : "无法连接本机联机服务，请通过启动器或桌面版打开游戏。";
       setConnection("error", "联机服务不可用");
       if (showErrors) showToast(error.message, true);
     } finally {
@@ -453,7 +504,8 @@
           name,
           roomName: `${name}的星团`,
           mode: elements.modeSelect?.value || "solo",
-          maxPlayers: Number(elements.maxPlayers.value)
+          maxPlayers: Number(elements.maxPlayers.value),
+          private: state.connectionMode === "internet" && document.getElementById("privateRoom").checked
         })
       });
       state.hostToken = value.hostToken;
@@ -480,10 +532,28 @@
   }
 
   async function joinByCode() {
-    const code = normalizeCode(elements.roomCodeInput.value);
+    let invitation;
+    try { invitation = connectionApi.parseInvite(elements.roomCodeInput.value); }
+    catch (error) { showToast(error.message || "请输入完整房间码或邀请链接", true); return; }
+    if (invitation.origin) {
+      state.connectionMode = "internet";
+      state.serviceOrigin = invitation.origin;
+      connectionApi.save({ mode: "internet", origin: invitation.origin });
+      syncConnectionControls();
+    }
+    const code = invitation.code;
     elements.roomCodeInput.value = code;
     if (code.length !== 6) {
       showToast("请输入完整的 6 位房间码", true);
+      return;
+    }
+    if (state.connectionMode === "internet") {
+      try {
+        const found = await jsonRequest(`/api/rooms/${code}`);
+        if (found.protocol !== PROTOCOL_VERSION) throw new Error("服务版本不兼容，请更新游戏或服务器");
+        if (found.room.state !== "lobby") throw new Error("房间已经开始，请等待下一局");
+        await connectRoom([found.endpoint], code);
+      } catch (error) { showToast(error.message, true); }
       return;
     }
     await refreshRooms(true, true);
@@ -617,7 +687,7 @@
     for (let index = 0; index < candidates.length; index += 1) {
       if (generation !== state.connectionGeneration) throw new Error("连接已取消");
       state.connectionAttempt += 1;
-      setConnection("busy", `正在尝试房主 ${index + 1}/${candidates.length}`);
+      setConnection("busy", `正在连接${state.connectionMode === "internet" ? "服务" : "房主"} ${index + 1}/${candidates.length}`);
       try {
         const welcome = await connectEndpoint(candidates[index], generation, { reconnect, hostToken });
         if (generation === state.connectionGeneration) setJoining(false);
@@ -627,7 +697,10 @@
       }
     }
     if (generation === state.connectionGeneration) setJoining(false);
-    throw new Error(`已尝试 ${candidates.length} 条连接路径仍无法加入；请让房主检查 Windows 防火墙是否允许专用网络。${lastError ? `（${lastError.message}）` : ""}`);
+    const advice = state.connectionMode === "internet"
+      ? "请检查服务地址、HTTPS 证书及服务器版本，并确认房间仍存在"
+      : "请让房主检查 Windows 防火墙是否允许专用网络";
+    throw new Error(`已尝试 ${candidates.length} 条连接路径仍无法加入；${advice}。${lastError ? `（${lastError.message}）` : ""}`);
   }
 
   function handleServerMessage(message) {
@@ -674,12 +747,14 @@
         state.matchId = message.matchId || "";
         state.baselineId = message.baselineId || "";
         state.lastHudAt = 0;
+        state.personalPeakMass = 0;
         state.camera = { x: message.world.width / 2, y: message.world.height / 2, zoom: 0.8 };
         elements.gameRoomCode.textContent = `房间 ${state.roomCode}`;
         elements.networkState.textContent = message.resumed ? "已恢复" : "已连接";
         if (elements.gameModeName) elements.gameModeName.textContent = modeLabel(message.mode || state.room?.settings?.mode || "solo");
         configureModeControls(message.mode || state.room?.settings?.mode || "solo");
         setView("game");
+        if (!message.resumed) window.ScaMatchGuide?.show(message.mode || state.room?.settings?.mode || "solo", { multiplayer: true });
         break;
       case "snapshot":
         message = globalThis.ScaSnapshotWire?.decodeSnapshot(message) || message;
@@ -732,6 +807,7 @@
         break;
       case "error":
         showToast(message.message || "联机服务发生错误", true);
+        if (state.view === "room" && state.room) renderWaitingRoom();
         if (["host-left", "host-closed", "server-shutdown", "match-finished"].includes(message.code)) returnToLobby(false);
         break;
       default:
@@ -755,8 +831,11 @@
     } else if (event === "match-finished") {
       if (state.matchFinishedHandled) return;
       state.matchFinishedHandled = true;
-      const winner = data.ranking?.[0];
-      showToast(winner ? `对局结束：${winner.name} 获得第一，即将返回房间` : "对局结束，即将返回房间");
+      const winner = data.winnerId ? data.ranking?.find(entry => entry.id === data.winnerId) || state.latestSnapshot?.groups?.find(group => group.id === data.winnerId) : null;
+      const mode = window.ScaModeCatalog.MODES[state.room?.settings?.mode || "solo"];
+      const winnerText = winner ? mode.teams ? `${winner.team === 0 && mode.demon ? "勇者阵营" : winner.team === 1 && mode.demon ? "魔王阵营" : `第 ${winner.team + 1} 队`} 获胜` : `${winner.name} 获胜` : "本局没有胜者";
+      showToast(`对局结束：${winnerText}，即将返回房间`);
+      showMatchResult(data, winnerText);
     }
   }
 
@@ -923,6 +1002,16 @@
 
   function sendInput() {
     if (state.view !== "game") return;
+    if (state.inputSuspended) {
+      const player = state.latestSnapshot?.groups?.find(group => group.id === state.playerId);
+      const cells = player?.cells || [];
+      const mass = cells.reduce((sum, cell) => sum + cell.mass, 0);
+      if (mass > 0) {
+        state.input.targetX = cells.reduce((sum, cell) => sum + cell.x * cell.mass, 0) / mass;
+        state.input.targetY = cells.reduce((sum, cell) => sum + cell.y * cell.mass, 0) / mass;
+      }
+      Object.assign(state.input, { dx: 0, dy: 0, split: false, eject: false, quickMerge: false, special: false });
+    }
     state.inputSeq += 1;
     const input = {
       type: "input",
@@ -937,6 +1026,8 @@
       special: state.input.special
     };
     if (send(input)) {
+      if (input.eject) window.ScaAudio?.play("eject");
+      if (input.quickMerge || input.special) window.ScaAudio?.play("skill");
       state.inputHistory.push({ ...input, sentAt: performance.now() });
       if (state.inputHistory.length > 120) state.inputHistory.splice(0, state.inputHistory.length - 120);
     }
@@ -946,6 +1037,7 @@
   }
 
   function resizeCanvas() {
+    backgroundGradient = null;
     const pixelBudget = qualityPreset.pixelBudget;
     const budgetRatio = Math.sqrt(pixelBudget / Math.max(1, window.innerWidth * window.innerHeight));
     const ratio = clamp(Math.min(window.devicePixelRatio || 1, qualityPreset.maximumDpr, budgetRatio), 0.65, qualityPreset.maximumDpr);
@@ -972,26 +1064,21 @@
   }
 
   function updateCamera(snapshot, elapsedMs) {
-    const player = snapshot.groups.find(group => group.id === state.playerId);
-    if (!player?.cells.length) return;
-    let mass = 0;
-    let x = 0;
-    let y = 0;
-    let largest = 1;
-    for (const cell of player.cells) {
-      mass += cell.mass;
-      x += cell.x * cell.mass;
-      y += cell.y * cell.mass;
-      largest = Math.max(largest, cell.radius);
+    let player = snapshot.groups.find(group => group.id === state.playerId);
+    const spectating = Boolean(player?.dead && player.respawnRemaining <= 0);
+    const button = document.getElementById("spectateBtn");
+    button.hidden = !spectating;
+    if (spectating) {
+      const alive = snapshot.groups.filter(group => !group.dead && group.cells.length);
+      player = alive.find(group => group.id === state.spectatorId) || alive.find(group => group.human) || alive[0];
+      state.spectatorId = player?.id || "";
+      button.textContent = player ? `观战 ${player.name} · Tab 切换` : "等待对局结束";
     }
-    const targetX = x / Math.max(1, mass);
-    const targetY = y / Math.max(1, mass);
-    const targetZoom = clamp(Math.min(window.innerWidth, window.innerHeight) / (largest * 8 + 560), 0.3, 1.05);
-    const positionBlend = 1 - Math.exp(-7.6 * clamp(elapsedMs, 0, 50) / 1000);
-    const zoomBlend = 1 - Math.exp(-5 * clamp(elapsedMs, 0, 50) / 1000);
-    state.camera.x += (targetX - state.camera.x) * positionBlend;
-    state.camera.y += (targetY - state.camera.y) * positionBlend;
-    state.camera.zoom += (targetZoom - state.camera.zoom) * zoomBlend;
+    if (!player?.cells.length) return;
+    Object.assign(state.camera, gameplayCore.cameraStep(state.camera, player.cells, {
+      config: window.ScaModeCatalog.MODES[snapshot.mode],
+      width: window.innerWidth, height: window.innerHeight, dt: elapsedMs / 1000
+    }));
   }
 
   function worldToScreen(x, y) {
@@ -1012,10 +1099,12 @@
   function drawBackground(snapshot) {
     const width = window.innerWidth;
     const height = window.innerHeight;
-    const gradient = context.createRadialGradient(width * 0.5, height * 0.45, 0, width * 0.5, height * 0.45, Math.max(width, height));
-    gradient.addColorStop(0, "#0a1c22");
-    gradient.addColorStop(1, "#030a0e");
-    context.fillStyle = gradient;
+    if (!backgroundGradient) {
+      backgroundGradient = context.createRadialGradient(width * 0.5, height * 0.45, 0, width * 0.5, height * 0.45, Math.max(width, height));
+      backgroundGradient.addColorStop(0, "#0a1c22");
+      backgroundGradient.addColorStop(1, "#030a0e");
+    }
+    context.fillStyle = backgroundGradient;
     context.fillRect(0, 0, width, height);
     const spacing = 120 * state.camera.zoom;
     if (spacing > 18) {
@@ -1060,7 +1149,7 @@
   }
 
   function drawCosmeticTrail(group, cell, point, radius, now) {
-    if (!group.human || radius < 22) return;
+    if (!group.human) return;
     {
       const definition = cosmeticCatalog.definition("trail", group.cosmetics?.trail);
       return cosmeticRenderer.drawTrail({
@@ -1079,45 +1168,10 @@
         baseColor: group.color
       });
     }
-    const trail = cosmeticCatalog.definition("trail", group.cosmetics?.trail);
-    if (!trail?.pattern || trail.key === "none") return;
-    const speed = Math.hypot(cell.vx || 0, cell.vy || 0);
-    if (speed < 16) return;
-    const dx = -(cell.vx || 0) / speed;
-    const dy = -(cell.vy || 0) / speed;
-    const sideX = -dy;
-    const sideY = dx;
-    context.save();
-    context.globalAlpha = 0.34;
-    context.fillStyle = trail.color || group.color;
-    context.strokeStyle = trail.accent || "#ffffff";
-    context.lineWidth = 1.3;
-    for (let index = 1; index <= 3; index += 1) {
-      const distance = radius * (0.7 + index * 0.42);
-      const wobble = Math.sin(now / 220 + index * 1.7) * radius * 0.1;
-      const x = point.x + dx * distance + sideX * wobble;
-      const y = point.y + dy * distance + sideY * wobble;
-      const size = Math.max(2.5, radius * (0.15 - index * 0.022));
-      context.beginPath();
-      if (["arc", "rift"].includes(trail.pattern)) {
-        context.moveTo(x - sideX * size, y - sideY * size);
-        context.lineTo(x + sideX * size, y + sideY * size);
-        context.stroke();
-      } else if (["ribbon", "flame"].includes(trail.pattern)) {
-        context.ellipse(x, y, size * 1.4, size * 0.45, Math.atan2(dy, dx), 0, Math.PI * 2);
-        context.fill();
-      } else if (trail.pattern === "squares") {
-        context.fillRect(x - size * 0.5, y - size * 0.5, size, size);
-      } else {
-        context.arc(x, y, size, 0, Math.PI * 2);
-        trail.pattern === "bubbles" ? context.stroke() : context.fill();
-      }
-    }
-    context.restore();
   }
 
   function drawCosmeticHalo(group, point, radius, now) {
-    if (!group.human || radius < 24) return;
+    if (!group.human) return;
     {
       const definition = cosmeticCatalog.definition("halo", group.cosmetics?.halo);
       return cosmeticRenderer.drawHalo({
@@ -1134,34 +1188,10 @@
         baseColor: group.color
       });
     }
-    const halo = cosmeticCatalog.definition("halo", group.cosmetics?.halo);
-    if (!halo?.pattern || halo.key === "none") return;
-    const outer = radius + 9;
-    const spin = now / 1500;
-    context.save();
-    context.globalAlpha = 0.58;
-    context.strokeStyle = halo.accent || halo.color || "#ffffff";
-    context.fillStyle = halo.color || group.color;
-    context.lineWidth = 2.2;
-    if (halo.pattern === "frost") context.setLineDash([5, 7]);
-    context.beginPath();
-    if (["orbit", "gravity"].includes(halo.pattern)) context.arc(point.x, point.y, outer, spin, spin + Math.PI * 1.55);
-    else context.arc(point.x, point.y, outer + (halo.pattern === "pulse" ? Math.sin(spin * 2) * 2 : 0), 0, Math.PI * 2);
-    context.stroke();
-    context.setLineDash([]);
-    if (["sun", "crown"].includes(halo.pattern)) {
-      for (let index = 0; index < 6; index += 1) {
-        const angle = spin * 0.6 + index / 6 * Math.PI * 2;
-        context.beginPath();
-        context.arc(point.x + Math.cos(angle) * (outer + 2), point.y + Math.sin(angle) * (outer + 2), 2.5, 0, Math.PI * 2);
-        context.fill();
-      }
-    }
-    context.restore();
   }
 
   function drawCosmeticSkin(group, point, radius, now) {
-    if (!group.human || radius < 18) return;
+    if (!group.human) return;
     {
       const definition = cosmeticCatalog.definition("skin", group.cosmetics?.skin);
       return cosmeticRenderer.drawSkin({
@@ -1178,66 +1208,6 @@
         baseColor: group.color
       });
     }
-    const skin = cosmeticCatalog.definition("skin", group.cosmetics?.skin);
-    if (!skin?.pattern) return;
-    const spin = now / 1600;
-    const accent = skin.accent || "#ffffff";
-    context.save();
-    context.beginPath();
-    context.arc(point.x, point.y, radius * 0.94, 0, Math.PI * 2);
-    context.clip();
-    context.globalAlpha = 0.3;
-    context.strokeStyle = accent;
-    context.fillStyle = accent;
-    context.lineWidth = Math.max(1.5, radius * 0.055);
-    if (skin.pattern === "comet") {
-      for (let index = -2; index <= 2; index += 1) {
-        context.beginPath();
-        context.moveTo(point.x - radius, point.y + index * radius * 0.26 + radius * 0.35);
-        context.lineTo(point.x + radius, point.y + index * radius * 0.26 - radius * 0.35);
-        context.stroke();
-      }
-    } else if (skin.pattern === "mecha") {
-      for (let ring = 1; ring <= 3; ring += 1) {
-        const rr = radius * (0.2 + ring * 0.18);
-        context.beginPath();
-        for (let side = 0; side < 6; side += 1) {
-          const angle = spin * 0.35 + side / 6 * Math.PI * 2;
-          const x = point.x + Math.cos(angle) * rr;
-          const y = point.y + Math.sin(angle) * rr;
-          side ? context.lineTo(x, y) : context.moveTo(x, y);
-        }
-        context.closePath();
-        context.stroke();
-      }
-    } else if (skin.pattern === "tide") {
-      for (let row = -2; row <= 2; row += 1) {
-        context.beginPath();
-        for (let step = 0; step <= 12; step += 1) {
-          const x = point.x - radius + step / 12 * radius * 2;
-          const y = point.y + row * radius * 0.24 + Math.sin(step * 0.9 + spin * 2 + row) * radius * 0.08;
-          step ? context.lineTo(x, y) : context.moveTo(x, y);
-        }
-        context.stroke();
-      }
-    } else if (skin.pattern === "abyss") {
-      const gradient = context.createRadialGradient(point.x, point.y, radius * 0.08, point.x, point.y, radius * 0.75);
-      gradient.addColorStop(0, "rgba(0,0,0,0.78)");
-      gradient.addColorStop(1, accent);
-      context.fillStyle = gradient;
-      context.beginPath();
-      context.arc(point.x, point.y, radius * 0.74, 0, Math.PI * 2);
-      context.fill();
-    } else {
-      const count = skin.pattern === "crown" ? 6 : 10;
-      for (let index = 0; index < count; index += 1) {
-        const angle = spin + index / count * Math.PI * 2;
-        context.beginPath();
-        context.arc(point.x + Math.cos(angle) * radius * 0.46, point.y + Math.sin(angle) * radius * 0.46, radius * 0.16, 0, Math.PI * 2);
-        context.fill();
-      }
-    }
-    context.restore();
   }
 
   function drawWorld(snapshot, now) {
@@ -1287,7 +1257,8 @@
       context.fill();
       context.globalAlpha = 1;
     }
-    const foodBatches = new Map();
+    const foodBatches = foodRenderBatches;
+    for (const values of foodBatches.values()) values.length = 0;
     for (const food of snapshot.foods || []) {
       if (state.confirmedRemovedFoodIds.has(food.id)) continue;
       const color = typeof food.color === "number"
@@ -1317,25 +1288,16 @@
       const point = worldToScreen(item.x, item.y);
       const radius = Math.max(3, item.radius * state.camera.zoom);
       if (!visible(point, radius)) continue;
-      context.beginPath();
-      context.fillStyle = item.color;
-      context.arc(point.x, point.y, radius, 0, Math.PI * 2);
-      context.fill();
-      context.strokeStyle = "rgba(255,255,255,0.45)";
-      context.lineWidth = 1;
-      context.stroke();
-      const spore = cosmeticCatalog.definition("spore", item.spore);
-      if (spore?.accent && radius > 3) {
-        context.beginPath();
-        context.fillStyle = spore.accent;
-        context.globalAlpha = 0.58;
-        context.arc(point.x - radius * 0.28, point.y - radius * 0.3, Math.max(1, radius * 0.2), 0, Math.PI * 2);
-        context.fill();
-        context.globalAlpha = 1;
-      }
+      cosmeticRenderer.drawEjected({ context, x: point.x, y: point.y, radius,
+        color: item.color, pattern: item.spore, accent: item.accent, lowQuality: gameSettings.quality === "performance" });
     }
-    const cells = [];
-    for (const group of snapshot.groups || []) for (const cell of group.cells || []) cells.push({ group, cell });
+    const cells = cellRenderBuffer;
+    let cellCount = 0;
+    for (const group of snapshot.groups || []) for (const cell of group.cells || []) {
+      const entry = cells[cellCount] || (cells[cellCount] = {});
+      entry.group = group; entry.cell = cell; cellCount += 1;
+    }
+    cells.length = cellCount;
     cells.sort((a, b) => a.cell.radius - b.cell.radius);
     for (const { group, cell } of cells) {
       const point = worldToScreen(cell.x, cell.y);
@@ -1343,34 +1305,13 @@
       if (!visible(point, radius)) continue;
       drawCosmeticTrail(group, cell, point, radius, now);
       drawCosmeticHalo(group, point, radius, now);
-      context.beginPath();
-      context.arc(point.x, point.y, radius, 0, Math.PI * 2);
-      context.fillStyle = group.color;
-      context.globalAlpha = group.dead ? 0.35 : 0.9;
-      context.fill();
-      context.globalAlpha = 1;
-      context.lineWidth = group.id === state.playerId ? 3 : 1.5;
-      context.strokeStyle = group.id === state.playerId ? "#ecfff9" : "rgba(255,255,255,0.5)";
-      context.stroke();
+      cosmeticRenderer.drawCellBody({ context, x: point.x, y: point.y, radius, worldRadius: cell.radius,
+        color: group.color, own: group.id === state.playerId, now, lowQuality: gameSettings.quality === "performance",
+        invincibleRemaining: group.invincibleRemaining, mergeDelay: cell.mergeDelay, mergeMax: cell.mergeMax });
       drawCosmeticSkin(group, point, radius, now);
-      if (radius > 12) {
-        context.beginPath();
-        context.arc(point.x - radius * 0.3, point.y - radius * 0.32, Math.max(2, radius * 0.12), 0, Math.PI * 2);
-        context.fillStyle = "rgba(255,255,255,0.42)";
-        context.fill();
-      }
-      if (radius > 16) {
-        context.fillStyle = "#f8fbff";
-        context.textAlign = "center";
-        context.textBaseline = "middle";
-        context.font = `700 ${clamp(radius * 0.25, 9, 18)}px "Microsoft YaHei UI", sans-serif`;
-        context.fillText(group.name, point.x, point.y - 2);
-        if (radius > 34) {
-          context.fillStyle = "rgba(244,251,253,0.72)";
-          context.font = `600 ${clamp(radius * 0.16, 8, 12)}px ui-monospace, monospace`;
-          context.fillText(Math.round(cell.mass), point.x, point.y + clamp(radius * 0.2, 10, 18));
-        }
-      }
+      cosmeticRenderer.drawCellLabel({ context, x: point.x, y: point.y, radius, worldRadius: cell.radius,
+        name: group.name, mass: cell.mass, own: group.id === state.playerId,
+        showName: group.cells.length <= 4 || cell.radius >= 64 });
     }
   }
 
@@ -1419,6 +1360,8 @@
 
   function updateHud(snapshot) {
     const player = snapshot.groups.find(group => group.id === state.playerId);
+    state.personalPeakMass = Math.max(state.personalPeakMass, player?.mass || 0);
+    window.ScaAudio?.observe(player);
     elements.mass.textContent = player ? Math.round(player.mass) : "0";
     elements.rank.textContent = player ? `#${player.rank}` : "-";
     elements.kills.textContent = player?.kills || 0;
@@ -1500,7 +1443,10 @@
         updateCamera(snapshot, elapsed);
         drawBackground(snapshot);
         drawWorld(snapshot, now);
-        drawMinimap(snapshot);
+        if (now - state.lastMinimapAt >= 130) {
+          state.lastMinimapAt = now;
+          drawMinimap(snapshot);
+        }
         if (now - state.lastHudAt >= HUD_INTERVAL_MS) {
           state.lastHudAt = now;
           updateHud(snapshot);
@@ -1509,14 +1455,16 @@
         context.fillStyle = "#051014";
         context.fillRect(0, 0, window.innerWidth, window.innerHeight);
       }
-      const dx = state.pointer.x - window.innerWidth / 2;
-      const dy = state.pointer.y - window.innerHeight / 2;
-      const length = Math.hypot(dx, dy) || 1;
-      state.input.dx = dx / length;
-      state.input.dy = dy / length;
-      const target = pointerWorldTarget();
-      state.input.targetX = target.x;
-      state.input.targetY = target.y;
+      if (!state.inputSuspended) {
+        const dx = state.pointer.x - window.innerWidth / 2;
+        const dy = state.pointer.y - window.innerHeight / 2;
+        const length = Math.hypot(dx, dy) || 1;
+        state.input.dx = dx / length;
+        state.input.dy = dy / length;
+        const target = pointerWorldTarget();
+        state.input.targetX = target.x;
+        state.input.targetY = target.y;
+      }
     }
     state.renderFrame = requestAnimationFrame(render);
   }
@@ -1526,6 +1474,39 @@
     state.pointer.y = event.clientY;
   }
 
+  function cycleSpectator() {
+    const alive = state.latestSnapshot?.groups?.filter(group => !group.dead && group.cells.length) || [];
+    const index = alive.findIndex(group => group.id === state.spectatorId);
+    state.spectatorId = alive[(index + 1) % Math.max(1, alive.length)]?.id || "";
+  }
+
+  function showMatchResult(data, winnerText) {
+    window.ScaMatchGuide?.hide();
+    const dialog = document.getElementById("matchResult");
+    document.getElementById("matchResultTitle").textContent = winnerText;
+    const latest = state.latestSnapshot?.groups?.find(group => group.id === state.playerId);
+    const own = data.ranking?.find(entry => entry.id === state.playerId) || latest;
+    const mode = state.room?.settings.mode || "solo";
+    const winner = data.ranking?.find(entry => entry.id === data.winnerId) || state.latestSnapshot?.groups?.find(group => group.id === data.winnerId);
+    const reward = data.reason === "server-simulation-error" ? 0 : window.ScaProgression.grantLocalReward(localStorage, state.matchId, {
+      rank: latest?.teamRank || latest?.rank || 99, peakMass: state.personalPeakMass, kills: own?.kills || 0,
+      controlScore: mode === "control" ? own?.score || 0 : 0, demon: mode === "demon", demonWin: winner?.team === 0
+    });
+    document.getElementById("matchResultSummary").textContent = `${modeLabel(mode)} · ${data.reason || "比赛结束"} · 你的最高质量 ${Math.round(state.personalPeakMass)} / 淘汰 ${own?.kills || 0}${reward ? ` · 星尘 +${reward}` : ""}`;
+    const list = document.getElementById("matchResultRanking");
+    list.replaceChildren();
+    for (const [index, entry] of (data.ranking || []).slice(0, 5).entries()) {
+      const row = document.createElement("li");
+      row.textContent = `${index + 1}. ${entry.name}　${Math.round(entry.mass)}　${entry.kills || 0} 淘汰`;
+      list.append(row);
+    }
+    dialog.hidden = false;
+    state.inputSuspended = true;
+    document.getElementById("matchResultContinue").focus({ preventScroll: true });
+  }
+  document.getElementById("spectateBtn").addEventListener("click", cycleSpectator);
+  document.getElementById("matchResultContinue").addEventListener("click", () => { document.getElementById("matchResult").hidden = true; });
+
   elements.nickname.value = localStorage.getItem("starClusterPlayerName") || "星友";
   elements.nickname.addEventListener("change", () => localStorage.setItem("starClusterPlayerName", playerName()));
   elements.modeSelect?.addEventListener("change", updateModeDescription);
@@ -1534,7 +1515,44 @@
   });
   elements.createRoom.addEventListener("click", createRoom);
   elements.refreshRooms.addEventListener("click", () => refreshRooms(true, true));
-  elements.roomCodeInput.addEventListener("input", () => { elements.roomCodeInput.value = normalizeCode(elements.roomCodeInput.value); });
+  function syncConnectionControls() {
+    document.getElementById("privateRoomField").hidden = state.connectionMode !== "internet";
+    document.getElementById("connectionFootnote").textContent = state.connectionMode === "internet" ? "公网服务运行对局，朋友无需开放家用路由器端口。邀请链接只发给信任的人。" : "首次创建时，Windows 可能询问网络权限；只需允许专用网络。";
+    document.getElementById("connectionMode").value = state.connectionMode;
+    const serverInput = document.getElementById("internetServer");
+    serverInput.hidden = state.connectionMode !== "internet";
+    serverInput.value = state.serviceOrigin;
+    document.getElementById("connectionHelp").textContent = state.connectionMode === "internet"
+      ? "朋友连接同一个服务即可异地游玩。尚未配置公共服务时，可自行部署；需要主机与域名。"
+      : "同一网络的朋友可以直接创建并发现房间。";
+  }
+  document.getElementById("connectionMode")?.addEventListener("change", event => {
+    state.connectionMode = event.target.value;
+    state.serviceOrigin = state.connectionMode === "internet" ? connectionApi.load().origin : "";
+    state.rooms = []; state.roomListSignature = ""; state.diagnostics = null;
+    connectionApi.save({ mode: state.connectionMode, origin: state.serviceOrigin });
+    syncConnectionControls(); renderRoomList(); renderNetworkDiagnostics();
+    elements.discoveryStatus.textContent = state.connectionMode === "internet" ? "填写服务器地址并检查连接后开始。" : "正在发现局域网房间。";
+    setConnection("idle", state.connectionMode === "internet" ? "请配置互联网服务" : "正在扫描");
+    if (state.connectionMode === "lan" || state.serviceOrigin) { void loadModes(); void refreshRooms(); }
+  });
+  document.getElementById("internetServer")?.addEventListener("input", () => {
+    if (state.connectionMode === "internet") { setConnection("idle", "检查连接后生效"); state.rooms = []; state.roomListSignature = ""; renderRoomList(); }
+  });
+  document.getElementById("applyConnectionBtn")?.addEventListener("click", async () => {
+    try {
+      const mode = document.getElementById("connectionMode").value;
+      const origin = mode === "internet" ? connectionApi.serverOrigin(document.getElementById("internetServer").value) : "";
+      state.connectionMode = mode;
+      state.serviceOrigin = origin;
+      state.rooms = [];
+      state.roomListSignature = "";
+      connectionApi.save({ mode, origin });
+      syncConnectionControls();
+      await loadModes();
+      await refreshRooms(true, true);
+    } catch (error) { showToast(error.message, true); }
+  });
   elements.roomCodeInput.addEventListener("keydown", event => { if (event.key === "Enter") joinByCode(); });
   elements.joinCode.addEventListener("click", joinByCode);
   elements.openFirewallSettings.addEventListener("click", async () => {
@@ -1546,8 +1564,10 @@
   });
   elements.copyRoomCode.addEventListener("click", async () => {
     try {
-      await navigator.clipboard.writeText(state.roomCode);
-      showToast(`房间码 ${state.roomCode} 已复制`);
+      const value = state.connectionMode === "internet" ? connectionApi.inviteLink(state.serviceOrigin, state.roomCode) : state.roomCode;
+      if (window.starClusterDesktop?.copyText) await window.starClusterDesktop.copyText(value);
+      else await navigator.clipboard.writeText(value);
+      showToast(state.connectionMode === "internet" ? "邀请链接已复制，发给朋友即可加入" : `房间码 ${state.roomCode} 已复制`);
     } catch {
       showToast(`房间码：${state.roomCode}`);
     }
@@ -1583,14 +1603,33 @@
     elements.touchEject.addEventListener(eventName, event => { event.preventDefault(); state.input.eject = false; });
   }
   window.addEventListener("pointerup", () => { state.input.eject = false; });
+  const releaseInput = () => {
+    state.inputSuspended = true;
+    state.input.eject = false;
+    state.input.split = false;
+    state.input.quickMerge = false;
+    state.input.special = false;
+    state.input.dx = 0;
+    state.input.dy = 0;
+    const player = state.latestSnapshot?.groups?.find(group => group.id === state.playerId);
+    const cell = player?.cells?.[0];
+    if (cell) { state.input.targetX = cell.x; state.input.targetY = cell.y; }
+    if (state.view === "game") send({ type: "input", seq: ++state.inputSeq, ...state.input });
+  };
+  window.addEventListener("blur", releaseInput);
+  window.addEventListener("focus", () => { state.inputSuspended = Boolean(elements.sessionMenu && !elements.sessionMenu.hidden); });
+  document.addEventListener("visibilitychange", () => { if (document.hidden) releaseInput(); });
   document.addEventListener("keydown", event => {
     if (event.key === "Escape") {
       event.preventDefault();
+      if (!document.getElementById("matchResult").hidden) { document.getElementById("matchResult").hidden = true; return; }
       if (elements.sessionMenu && !elements.sessionMenu.hidden) closeSessionMenu();
       else openSessionMenu();
       return;
     }
     if (state.view !== "game") return;
+    if (event.key === "Tab" && !document.getElementById("spectateBtn").hidden) { event.preventDefault(); cycleSpectator(); return; }
+    if (state.matchFinishedHandled) return;
     if (elements.sessionMenu && !elements.sessionMenu.hidden) return;
     if (event.code === "Space" && !event.repeat) {
       event.preventDefault();
@@ -1638,6 +1677,13 @@
           inputHz: Math.round(1000 / INPUT_INTERVAL_MS),
           settings: { ...gameSettings },
           view: state.view,
+          connectionMode: state.connectionMode,
+          serviceOrigin: state.serviceOrigin,
+          playerId: state.playerId,
+          roomCode: state.roomCode,
+          spectatorId: state.spectatorId,
+          inputSuspended: state.inputSuspended,
+          input: { ...state.input },
           measuredFps: Math.round(state.smoothedFps),
           synchronization: state.snapshotBuffer.getStats(),
           world: snapshot?.world || null,
@@ -1647,6 +1693,15 @@
         };
       }
     });
+  }
+  syncConnectionControls();
+  const invitedRoom = new URLSearchParams(location.search).get("room");
+  if (invitedRoom && /^[A-Za-z0-9]{6}$/.test(invitedRoom)) {
+    state.connectionMode = "internet";
+    state.serviceOrigin = location.origin;
+    syncConnectionControls();
+    elements.roomCodeInput.value = invitedRoom;
+    showToast("邀请已填入。输入昵称后点击加入房间。");
   }
   loadModes();
   refreshRooms(false, true);

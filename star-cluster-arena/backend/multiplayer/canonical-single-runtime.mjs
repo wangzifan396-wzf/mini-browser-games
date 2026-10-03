@@ -5,11 +5,14 @@ import vm from "node:vm";
 
 const PROJECT_ROOT = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
 const SCRIPT_ORDER = [
+  "frontend/js/safe-storage.js",
   "frontend/js/game-settings.js",
+  "frontend/js/audio.js",
   "frontend/js/page-transition.js",
   "frontend/js/cosmetic-catalog.js",
   "frontend/js/cosmetic-renderer.js",
   "frontend/js/game-mode-catalog.js",
+  "frontend/js/progression.js",
   "frontend/js/canonical-game-content.js",
   "frontend/js/gameplay-core.js",
   "frontend/js/game.js"
@@ -132,8 +135,8 @@ function createHeadlessDocument() {
   };
 }
 
-function createStorage() {
-  const values = new Map();
+function createStorage(initialStorage = {}) {
+  const values = new Map(Object.entries(initialStorage));
   return {
     getItem: key => values.has(String(key)) ? values.get(String(key)) : null,
     setItem: (key, value) => values.set(String(key), String(value)),
@@ -142,7 +145,7 @@ function createStorage() {
   };
 }
 
-function createContext(seed, initialNow = 0) {
+function createContext(seed, initialNow = 0, initialStorage = {}) {
   const document = createHeadlessDocument();
   const seededMath = Object.create(Math);
   seededMath.random = mulberry32(seed);
@@ -152,7 +155,7 @@ function createContext(seed, initialNow = 0) {
     ...eventTarget,
     console,
     document,
-    localStorage: createStorage(),
+    localStorage: createStorage(initialStorage),
     location: { protocol: "headless:", href: "headless://star-cluster/?debug", search: "?debug" },
     navigator: { userAgent: "StarClusterCanonicalHeadless", sendBeacon: null },
     performance: { now: () => clock.now },
@@ -197,8 +200,8 @@ function createContext(seed, initialNow = 0) {
   };
 }
 
-export function createCanonicalSingleRuntime({ seed = 1, now = 0 } = {}) {
-  const headless = createContext(seed >>> 0, now);
+export function createCanonicalSingleRuntime({ seed = 1, now = 0, initialStorage = {} } = {}) {
+  const headless = createContext(seed >>> 0, now, initialStorage);
   const { context } = headless;
   for (const script of SCRIPT_SOURCES) {
     vm.runInContext(script.source, context, { filename: join(PROJECT_ROOT, script.relative) });
@@ -208,15 +211,22 @@ export function createCanonicalSingleRuntime({ seed = 1, now = 0 } = {}) {
   return Object.freeze({
     source: "frontend/js/game.js",
     startMode: mode => structuredClone(debug.startMode(mode)),
+    progressSnapshot: () => structuredClone(debug.progressSnapshot()),
     startAuthorityMode: (mode, players) => structuredClone(debug.startAuthorityMode(mode, players)),
     configurePlayers: players => structuredClone(debug.configureAuthorityPlayers(players)),
     setInput: (playerId, input) => debug.setAuthorityInput(playerId, input),
     setConnected: (playerId, connected) => debug.setAuthorityConnected(playerId, connected),
     step: seconds => structuredClone(debug.step(seconds)),
     authorityStep: ticks => structuredClone(debug.authorityStep(ticks)),
+    advance: ticks => structuredClone(debug.authorityAdvance(ticks)),
     authoritySnapshot: () => structuredClone(debug.authoritySnapshot()),
     ranking: () => structuredClone(debug.authorityRanking()),
+    setGroupFixture: (id, values) => structuredClone(debug.setGroupFixture(id, values)),
+    probeEjectedRules: (id, values) => structuredClone(debug.probeEjectedRules(id, values)),
+    setSurvivors: ids => structuredClone(debug.setSurvivors(ids)),
     snapshot: () => structuredClone(debug.snapshot()),
+    setPaused: paused => structuredClone(debug.setPaused(paused)),
+    advanceWall: milliseconds => { headless.clock.now += milliseconds; return structuredClone(debug.renderFrame(headless.clock.now)); },
     triggerEvent: key => structuredClone(debug.triggerEvent(key)),
     virusHitPlayer: (mass, kind) => structuredClone(debug.virusHitPlayer(mass, kind)),
     virusHitRole: (role, mass, kind) => structuredClone(debug.authorityVirusHitRole(role, mass, kind)),
@@ -253,6 +263,15 @@ export class CanonicalSingleAuthority {
     this.refreshPublicState();
   }
 
+  get current() {
+    if (!this.cachedSnapshot) this.cachedSnapshot = this.runtime.authoritySnapshot();
+    return this.cachedSnapshot;
+  }
+
+  set current(value) {
+    this.cachedSnapshot = value;
+  }
+
   refreshPublicState() {
     this.tick = this.current.tick;
     this.serverTime = this.current.serverTime;
@@ -262,9 +281,15 @@ export class CanonicalSingleAuthority {
   }
 
   step() {
-    this.current = this.runtime.authorityStep(1);
-    this.refreshPublicState();
-    return this.current;
+    const frame = this.runtime.advance(1);
+    this.cachedSnapshot = null;
+    this.tick = frame.tick;
+    this.serverTime = frame.serverTime;
+    this.finished = frame.finished;
+    this.finishReason = frame.finishReason;
+    this.winnerId = frame.winnerId;
+    if (this.finished && !this.winnerId) this.winnerId = this.current.winnerId;
+    return frame;
   }
 
   setInput(playerId, input) {
@@ -291,9 +316,11 @@ export class CanonicalSingleAuthority {
   }
 
   snapshot({ foodMode = "full" } = {}) {
-    const snapshot = structuredClone(this.current);
-    snapshot.foodRevision = this.current.tick;
-    snapshot.virusRevision = this.current.tick;
+    const current = this.current;
+    const { foods, viruses, ...dynamic } = current;
+    const snapshot = structuredClone(dynamic);
+    snapshot.foodRevision = current.tick;
+    snapshot.virusRevision = current.tick;
     if (foodMode === "none") {
       delete snapshot.foods;
       delete snapshot.viruses;
@@ -302,8 +329,8 @@ export class CanonicalSingleAuthority {
       return snapshot;
     }
     if (foodMode === "delta") {
-      const food = entityDelta(this.deltaBase.foods, this.current.foods);
-      const virus = entityDelta(this.deltaBase.viruses, this.current.viruses, { updated: true });
+      const food = entityDelta(this.deltaBase.foods, foods);
+      const virus = entityDelta(this.deltaBase.viruses, viruses, { updated: true });
       delete snapshot.foods;
       delete snapshot.viruses;
       snapshot.foodBaseline = false;
@@ -320,6 +347,8 @@ export class CanonicalSingleAuthority {
       };
       return snapshot;
     }
+    snapshot.foods = structuredClone(foods);
+    snapshot.viruses = structuredClone(viruses);
     snapshot.foodBaseline = true;
     snapshot.virusBaseline = true;
     return snapshot;

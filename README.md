@@ -283,7 +283,7 @@
 
 | 项目 | 技术与内容 | 启动方式 |
 | --- | --- | --- |
-| [Star Cluster Arena（星团大作战）](star-cluster-arena/README.md) | v4.0 将单机十模式源码直接用于局域网权威联机；另提供 Windows 安装版与便携版，支持高刷新率、100 人 AI 竞技和局域网房间 | 进入 `star-cluster-arena/` 后运行 `node backend/server.mjs`；普通玩家可从 GitHub Release 下载 Windows 成品 |
+| [Star Cluster Arena（星团大作战）](star-cluster-arena/README.md) | 1.0 发布候选：十模式同源单人 / 好友联机，Windows 安装与便携版；补满 AI、暂停 / 观战 / 结算、稳定存档；支持 LAN 及自部署 HTTPS/WSS 异地房间，完整正式验收仍有待办 | 进入 `star-cluster-arena/` 后运行 `node backend/server.mjs`；普通玩家从 [1.0 候选 Release](https://github.com/wangzifan396-wzf/mini-browser-games/releases/tag/sca-v1.0.0-rc.1) 下载 Windows 成品 |
 | [Starforge Nexus（星炉工坊）](starforge-nexus/README.md) | `starforge-idle.html` 的前后端高性能版本；WebGL2 程序化星炉、30Hz 固定模拟、GPU 缓存、DOM 降频与高刷新率动画 | 进入 `starforge-nexus/` 后运行 `node backend/server.mjs`；Windows 可直接双击 `start.cmd` |
 
 ## 项目宣传片

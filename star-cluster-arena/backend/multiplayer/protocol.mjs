@@ -2,7 +2,7 @@ import { randomBytes } from "node:crypto";
 import { MODE_KEYS, normalizeMode } from "./modes.mjs";
 import "../../frontend/js/cosmetic-catalog.js";
 
-export const PROTOCOL_VERSION = "sca-lan-v6";
+export const PROTOCOL_VERSION = "sca-v1";
 export const DISCOVERY_MAGIC = "SCA-LAN";
 export const DISCOVERY_VERSION = 1;
 export const MAX_CLIENT_MESSAGE_BYTES = 64 * 1024;

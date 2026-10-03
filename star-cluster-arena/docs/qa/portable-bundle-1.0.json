@@ -1,0 +1,248 @@
+{
+  "version": "1.0.0",
+  "generatedAt": "2026-10-03T13:51:06.281Z",
+  "passed": true,
+  "note": "Static byte-for-byte comparison against current runtime source; not a foreground FPS, clean-machine installation, or cross-city test.",
+  "executable": "D:\\GameTest\\star-cluster-arena-desktop\\v1.0.0\\StarClusterArena-Portable-1.0.0-win-x64\\StarClusterArena.exe",
+  "archiveSha256": "a6b97eb682ed6331b0b90927a9f6e8db50c3959e7fc17c9dd2c9a5f330a015e4",
+  "metadataChecked": true,
+  "requiredRuntime": [
+    "StarClusterArena.exe",
+    "resources/app.asar",
+    "icudtl.dat",
+    "resources.pak",
+    "v8_context_snapshot.bin",
+    "ffmpeg.dll",
+    "d3dcompiler_47.dll",
+    "locales/zh-CN.pak",
+    "LICENSE.electron.txt",
+    "LICENSES.chromium.html"
+  ],
+  "checked": [
+    {
+      "file": "LICENSE",
+      "bytes": 1073,
+      "sha256": "bf4366a33723f2514cecef18c9d0e5c4d090ac4855b2b8ae04507302c4d50e66"
+    },
+    {
+      "file": "THIRD-PARTY-NOTICES.md",
+      "bytes": 1334,
+      "sha256": "746f15b3eb6ecc13537f761154c615e61b63028380e897e56e3d7784e54a67f4"
+    },
+    {
+      "file": "backend/multiplayer/canonical-single-runtime.mjs",
+      "bytes": 11805,
+      "sha256": "f90ec9017e929e7db984bee0ac8ac40f16ec74a09bd4b27ab8526ab698ce1b80"
+    },
+    {
+      "file": "backend/multiplayer/lan-discovery.mjs",
+      "bytes": 11677,
+      "sha256": "06098b57f20202ef906e6ed0e0f8367d362024b30497503284e48bf7664f7a81"
+    },
+    {
+      "file": "backend/multiplayer/modes.mjs",
+      "bytes": 9519,
+      "sha256": "0951bc31c8428c79b0728e05d5174e07de86366d4c5491b7b81527c1bba78cb7"
+    },
+    {
+      "file": "backend/multiplayer/protocol.mjs",
+      "bytes": 5978,
+      "sha256": "0039a4aceff1881440390e856f5640270911c7931ce751e9f9df92b83d40f52e"
+    },
+    {
+      "file": "backend/multiplayer/room-manager.mjs",
+      "bytes": 25498,
+      "sha256": "a90ade274eb22b4cbd50ffe458747fd1cad16d8162c2010e51d980cb6a1a8e77"
+    },
+    {
+      "file": "backend/multiplayer/simulation-v2.mjs",
+      "bytes": 62508,
+      "sha256": "49035610267564bb71c1a4e7ff7e3d47fa36e6aa92191c7694f2e0674ac81413"
+    },
+    {
+      "file": "backend/multiplayer/simulation.mjs",
+      "bytes": 463,
+      "sha256": "d008252fa27828323ac4f95696bf728f2a8e072d70aeeab60117b1f6c948d3eb"
+    },
+    {
+      "file": "backend/multiplayer/snapshot-wire.mjs",
+      "bytes": 8383,
+      "sha256": "28b017f03725ae1dc380fc7c5e720abc88bf9d6db726a0772649b6c0fce72761"
+    },
+    {
+      "file": "backend/multiplayer/windows-network-diagnostics.mjs",
+      "bytes": 4415,
+      "sha256": "e18a3acd0749a6d9eb86f70b28b41ce3bd7dfc295506743226e4cbfbe0c41b36"
+    },
+    {
+      "file": "backend/network-policy.mjs",
+      "bytes": 1490,
+      "sha256": "81da3de8fdd1e610a88bd1cffdd479cc544ea7677fb79fc2bab62f0ebc7abfdd"
+    },
+    {
+      "file": "backend/server.mjs",
+      "bytes": 22068,
+      "sha256": "0ec0bb07b425823e84ac7e6106295b0fdc9b343fc813134988745c09df501611"
+    },
+    {
+      "file": "desktop/assets/icon.ico",
+      "bytes": 24105,
+      "sha256": "a4a4ebeb080309fbd21051bb124eb8e7dedca6e7cf91ef00d851ad2f7119b9ae"
+    },
+    {
+      "file": "desktop/assets/icon.png",
+      "bytes": 24083,
+      "sha256": "44dc1f29fa0f143650bcd79b0b3ddf73073c89510baeb7287a01436b072bad19"
+    },
+    {
+      "file": "desktop/display-mode.mjs",
+      "bytes": 4918,
+      "sha256": "7c577f8bd9a4d2130282c7f0bd5270352b6fdfab95733da09f402a3587db77c1"
+    },
+    {
+      "file": "desktop/external-links.mjs",
+      "bytes": 569,
+      "sha256": "f58f608410d3bbfccdb575f66e3c0a2d5f7c0d316985f93abd2c67c97b30c100"
+    },
+    {
+      "file": "desktop/main.mjs",
+      "bytes": 45590,
+      "sha256": "5e91eeb0339a087ea7b4abe3b0e28b487216e59fe415489e2d4c99b36c4f6aa4"
+    },
+    {
+      "file": "desktop/preload.cjs",
+      "bytes": 1183,
+      "sha256": "43a6302d51cf0e9a51c23086a5e9fb29aa9de04c37da3854b4fea78e70fd111a"
+    },
+    {
+      "file": "desktop/profile-store.mjs",
+      "bytes": 2760,
+      "sha256": "8e8df39028831080659af326bc9b99a315ea0fdc634147f86ad67294a5a81cd2"
+    },
+    {
+      "file": "desktop/safe-console.mjs",
+      "bytes": 769,
+      "sha256": "7a7a3152572fea5130906bc6f4c7f0b06daea862d0044a6b6812197355905a88"
+    },
+    {
+      "file": "frontend/css/game.css",
+      "bytes": 33798,
+      "sha256": "642543906d3e53e797cdf05aaa4bb982bf9a211e118ac438c6c958f2edfcac20"
+    },
+    {
+      "file": "frontend/css/match-guide.css",
+      "bytes": 848,
+      "sha256": "68339f9c76f98f0ba2165607f03198286d654c67061a57eeec229e2a7cda5c0a"
+    },
+    {
+      "file": "frontend/css/multiplayer.css",
+      "bytes": 21771,
+      "sha256": "5a3b235ad75d90f31a62469db0aefaf39c06bc8cfbf503a9a81e7cd18142ebd1"
+    },
+    {
+      "file": "frontend/favicon.svg",
+      "bytes": 587,
+      "sha256": "30d15ef043005b3cf276f052992cdf9432cd3061e90b7ecb1d4551d29bfad7bf"
+    },
+    {
+      "file": "frontend/index.html",
+      "bytes": 17978,
+      "sha256": "0684bf3f297a0e4c9ccdd9422f48429a533a4ee9748868bec9ff24ef281bd0c4"
+    },
+    {
+      "file": "frontend/js/audio.js",
+      "bytes": 4040,
+      "sha256": "4ffcb8223a79b5056b4046931bc4b7f477d703b5342a6b151138978cf130e8c1"
+    },
+    {
+      "file": "frontend/js/canonical-game-content.js",
+      "bytes": 5075,
+      "sha256": "fd3279ce342fd2a849531f9e50426e008ba0502dd8c829a0f6f42d4dde916c4d"
+    },
+    {
+      "file": "frontend/js/connection-profile.js",
+      "bytes": 2087,
+      "sha256": "66557ca11e44f7bcc992b67d0ebd065f8afc25fea1392ec25723144412380424"
+    },
+    {
+      "file": "frontend/js/cosmetic-catalog.js",
+      "bytes": 16620,
+      "sha256": "042c5952ba8bc70f45f54fce27e54736f63a071bbf8646908b1ae0e71db8623c"
+    },
+    {
+      "file": "frontend/js/cosmetic-renderer.js",
+      "bytes": 17404,
+      "sha256": "e51770b3acced90b67deb509f6804630f7440754c221de03e6f1c6aa07e44b32"
+    },
+    {
+      "file": "frontend/js/game-mode-catalog.js",
+      "bytes": 7905,
+      "sha256": "3371f8d1f7c056c68da55363cbcffd199f63ab9b276141cbbe3dc12ef7453351"
+    },
+    {
+      "file": "frontend/js/game-settings.js",
+      "bytes": 4739,
+      "sha256": "0c32fc9adba8becbc3052282955982021557f3c0fb6df9d7eb3d35ec9ddc4e1b"
+    },
+    {
+      "file": "frontend/js/game.js",
+      "bytes": 311738,
+      "sha256": "79e558c4c98ab39566acc65bbd33a1776d442365eb620c35c4fbcc405806f69f"
+    },
+    {
+      "file": "frontend/js/gameplay-core.js",
+      "bytes": 22181,
+      "sha256": "0e3812e02a372f0decc2b5eb2afdc9d27b854b430d02317c2d0334bae5278d2c"
+    },
+    {
+      "file": "frontend/js/gpu-renderer.js",
+      "bytes": 18218,
+      "sha256": "42f4b41610e89e1dfabbd857b84773702b2fc72537acd628b76d65c801778994"
+    },
+    {
+      "file": "frontend/js/local-predictor.js",
+      "bytes": 4693,
+      "sha256": "19b316969056dbc1e151daaa29a95c1308e4c413e31aede44d7882b951c38e6f"
+    },
+    {
+      "file": "frontend/js/match-guide.js",
+      "bytes": 2677,
+      "sha256": "6fe125664da9192730a09a94bfda8c2b8f13852b1f845ec8d3dd41bec1bb9228"
+    },
+    {
+      "file": "frontend/js/multiplayer.js",
+      "bytes": 78673,
+      "sha256": "f343e47f055b5de1588a2513efd73edf0ece57d08b5ef37790802212cc7c280a"
+    },
+    {
+      "file": "frontend/js/page-transition.js",
+      "bytes": 1568,
+      "sha256": "554df40492583a48ffdced428b8e1a668569d6980d5caa85c54ce45bf6780688"
+    },
+    {
+      "file": "frontend/js/progression.js",
+      "bytes": 1935,
+      "sha256": "68222baad0f12d698bb87f091c37a50a9f4a5ea61686f4829c94260a99d97e03"
+    },
+    {
+      "file": "frontend/js/safe-storage.js",
+      "bytes": 1199,
+      "sha256": "e045c92a558552ad7d821ca235912e0cc4e196b4479287fdbc1aacc7652ceba0"
+    },
+    {
+      "file": "frontend/js/snapshot-buffer.js",
+      "bytes": 16986,
+      "sha256": "13a87a353513b5aba3c2a9ef78401cb20e65f209ad421c43ba8027a32df1ee97"
+    },
+    {
+      "file": "frontend/js/snapshot-wire.js",
+      "bytes": 11004,
+      "sha256": "84a6091d807714020c19947f8e5d538c720018dd5cf9dbef092fd7e57c2fce26"
+    },
+    {
+      "file": "frontend/multiplayer.html",
+      "bytes": 13531,
+      "sha256": "15c1487bc8bd0c7c98a50fdff3f38a0ab49b242673a919e90823d203fb664ed3"
+    }
+  ]
+}

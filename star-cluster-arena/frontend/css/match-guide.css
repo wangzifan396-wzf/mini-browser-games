@@ -1,0 +1,7 @@
+.match-guide { position: fixed; left: 50%; bottom: 88px; transform: translateX(-50%); width: min(560px, calc(100vw - 36px)); z-index: 12; padding: 15px 18px; border: 1px solid #58edc855; border-radius: 12px; background: #08151fee; color: #e9fbff; box-shadow: 0 12px 32px #0008; font: 14px/1.5 system-ui, sans-serif; pointer-events: none; }
+.match-guide[hidden] { display: none; }
+.match-guide strong { color: #58edc8; }
+.match-guide p { margin: 5px 0; }
+.match-guide small { display: block; color: #a4bac8; font-size: 11px; }
+.match-guide button { position: absolute; right: 14px; top: 10px; border: 1px solid #58edc844; border-radius: 6px; padding: 4px 8px; background: #163431; color: #b2ffea; font: inherit; font-size: 11px; cursor: pointer; pointer-events: auto; }
+@media (max-width: 600px) { .match-guide { bottom: 146px; font-size: 12px; } }

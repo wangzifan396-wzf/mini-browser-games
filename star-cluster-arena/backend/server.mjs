@@ -9,6 +9,8 @@ import { LanDiscovery } from "./multiplayer/lan-discovery.mjs";
 import { publicModeCatalog } from "./multiplayer/modes.mjs";
 import { PROTOCOL_VERSION, ProtocolError, normalizeRoomCode } from "./multiplayer/protocol.mjs";
 import { RoomManager } from "./multiplayer/room-manager.mjs";
+import { CANONICAL_AUTHORITY_CONSTANTS } from "./multiplayer/canonical-single-runtime.mjs";
+import { normalizePublicUrl, originAllowed, socketEndpoint } from "./network-policy.mjs";
 
 const compressBrotli = promisify(brotliCompress);
 const compressGzip = promisify(gzip);
@@ -17,7 +19,7 @@ const DEFAULT_FRONTEND_ROOT = resolve(HERE, "../frontend");
 const DEFAULT_HOST = process.env.HOST || "0.0.0.0";
 const requestedPort = Number.parseInt(process.env.PORT || "25555", 10);
 const DEFAULT_PORT = Number.isInteger(requestedPort) && requestedPort >= 0 && requestedPort < 65536 ? requestedPort : 25555;
-const VERSION = "4.0.0-lan";
+const VERSION = "1.0.0";
 const MAX_TELEMETRY_BYTES = 16 * 1024;
 const MAX_API_BODY_BYTES = 24 * 1024;
 
@@ -37,7 +39,7 @@ const mimeTypes = new Map([
 
 function securityHeaders() {
   return {
-    "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self' ws: wss:; img-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'",
+    "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self' http: https: ws: wss:; img-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'",
     "Cross-Origin-Embedder-Policy": "require-corp",
     "Cross-Origin-Opener-Policy": "same-origin",
     "Cross-Origin-Resource-Policy": "same-origin",
@@ -81,29 +83,14 @@ function requestHost(request, actualPort) {
   return `127.0.0.1:${actualPort}`;
 }
 
-function websocketEndpoint(request, roomCode, actualPort) {
-  return `ws://${requestHost(request, actualPort)}/ws?room=${roomCode}`;
-}
-
-function allowedWebSocketOrigin(origin, request) {
-  if (!origin || origin === "null") return true;
-  let parsed;
-  try {
-    parsed = new URL(origin);
-  } catch {
-    return false;
-  }
-  if (!["http:", "https:", "app:"].includes(parsed.protocol)) return false;
-  const hostname = parsed.hostname.toLowerCase();
-  if (["127.0.0.1", "localhost", "::1"].includes(hostname)) return true;
-  const requestedHostname = String(request.headers.host || "").split(":")[0].replace(/^\[|\]$/g, "").toLowerCase();
-  return hostname === requestedHostname || /^10\.|^192\.168\.|^172\.(1[6-9]|2\d|3[01])\./.test(hostname);
-}
-
 function createSlidingWindowLimiter({ maximum = 8, windowMs = 60_000 } = {}) {
   const entries = new Map();
   return address => {
     const now = Date.now();
+    if (entries.size >= 4096) {
+      for (const [key, item] of entries) if (now - item.startedAt >= windowMs) entries.delete(key);
+      if (entries.size >= 4096 && !entries.has(address)) return false;
+    }
     const entry = entries.get(address);
     if (!entry || now - entry.startedAt >= windowMs) {
       entries.set(address, { startedAt: now, count: 1 });
@@ -119,6 +106,8 @@ function createTelemetry() {
 }
 
 export async function startServer(options = {}) {
+  const publicUrl = normalizePublicUrl(options.publicUrl ?? process.env.PUBLIC_URL);
+  const allowedOrigins = (options.allowedOrigins ?? String(process.env.ALLOWED_ORIGINS || "").split(",")).filter(Boolean).map(normalizePublicUrl);
   const host = options.host ?? DEFAULT_HOST;
   const port = options.port ?? DEFAULT_PORT;
   const frontendRoot = resolve(options.frontendRoot || DEFAULT_FRONTEND_ROOT);
@@ -127,12 +116,14 @@ export async function startServer(options = {}) {
   const telemetry = createTelemetry();
   const roomManager = options.roomManager || new RoomManager({
     logger,
-    allowSinglePlayerStart: Boolean(options.allowSinglePlayerStart)
+    allowSinglePlayerStart: Boolean(options.allowSinglePlayerStart),
+    maxRooms: options.maxRooms ?? Number(process.env.MAX_ROOMS || (publicUrl ? 8 : 32))
   });
   const canCreateRoom = createSlidingWindowLimiter({ maximum: options.roomCreatesPerMinute || 8 });
   let actualPort = 0;
   let closing = false;
   let broadcastRoomChanges = null;
+  const endpointFor = (request, code) => socketEndpoint(publicUrl || `http://${requestHost(request, actualPort)}`, code);
 
   function diagnosticsSnapshot() {
     const value = typeof options.networkDiagnostics === "function" ? options.networkDiagnostics() : options.networkDiagnostics;
@@ -142,7 +133,7 @@ export async function startServer(options = {}) {
   }
 
   function lanRoomsPayload(request, discovery) {
-    const localRooms = roomManager.roomList(room => websocketEndpoint(request, room.code, actualPort))
+    const localRooms = roomManager.roomList(room => endpointFor(request, room.code))
       .map(room => ({
         ...room,
         instanceId: discovery.instanceId || "local",
@@ -214,18 +205,19 @@ export async function startServer(options = {}) {
         name: "star-cluster-arena",
         version: VERSION,
         protocol: PROTOCOL_VERSION,
-        origin: `http://${requestHost(request, actualPort)}`,
+        origin: publicUrl || `http://${requestHost(request, actualPort)}`,
         multiplayer: {
           enabled: true,
           discovery: discovery.status(),
           maxHumanPlayers: 8,
           authoritativeServer: true,
-          simulationHz: 30,
-          snapshotHz: 30,
+          simulationHz: CANONICAL_AUTHORITY_CONSTANTS.SERVER_HZ,
+          snapshotHz: CANONICAL_AUTHORITY_CONSTANTS.SNAPSHOT_HZ,
           inputHz: 60,
           snapshotInterpolation: "adaptive-history",
           modes: publicModeCatalog()
         },
+        connection: { mode: publicUrl ? "internet" : "lan", publicUrl, inviteLinks: true },
         renderer: { preferred: "webgl2", fallback: "canvas2d", powerPreference: "high-performance" },
         tuning: {
           adaptivePixelRatio: true,
@@ -312,6 +304,11 @@ export async function startServer(options = {}) {
       return true;
     }
 
+    if (request.method === "GET" && url.pathname === "/api/rooms") {
+      sendJson(response, 200, { protocol: PROTOCOL_VERSION, rooms: roomManager.roomList(room => endpointFor(request, room.code)) });
+      return true;
+    }
+
     if (request.method === "POST" && url.pathname === "/api/rooms") {
       if (!canCreateRoom(remoteAddress(request))) {
         sendJson(response, 429, { error: "rate-limited", message: "创建房间过于频繁，请稍后再试" });
@@ -323,14 +320,14 @@ export async function startServer(options = {}) {
         sendJson(response, 201, {
           ...created,
           protocol: PROTOCOL_VERSION,
-          endpoint: websocketEndpoint(request, created.code, actualPort),
-          endpoints: [websocketEndpoint(request, created.code, actualPort)],
+          endpoint: endpointFor(request, created.code),
+          endpoints: [endpointFor(request, created.code)],
           diagnostics: diagnosticsSnapshot()
         });
       } catch (error) {
-        sendJson(response, error.message === "payload-too-large" ? 413 : 400, {
-          error: "invalid-room-request",
-          message: "创建房间参数无效"
+        sendJson(response, error.code === "server-full" ? 503 : error.message === "payload-too-large" ? 413 : 400, {
+          error: error.code || "invalid-room-request",
+          message: error instanceof ProtocolError ? error.message : "创建房间参数无效"
         });
       }
       return true;
@@ -340,7 +337,7 @@ export async function startServer(options = {}) {
     if (roomMatch && request.method === "GET") {
       const room = roomManager.getRoom(roomMatch[1]);
       if (!room) sendJson(response, 404, { error: "room-not-found" });
-      else sendJson(response, 200, { room: roomManager.publicLobby(room), protocol: PROTOCOL_VERSION });
+      else sendJson(response, 200, { room: roomManager.publicLobby(room), endpoint: endpointFor(request, room.code), protocol: PROTOCOL_VERSION });
       return true;
     }
 
@@ -404,7 +401,7 @@ export async function startServer(options = {}) {
         "Content-Type": type,
         "Content-Length": encoded.body.length,
         ETag: entry.etag,
-        Vary: "Accept-Encoding"
+        Vary: request.headers.origin ? "Origin, Accept-Encoding" : "Accept-Encoding"
       };
       if (encoded.encoding) headers["Content-Encoding"] = encoded.encoding;
       response.writeHead(200, headers);
@@ -419,10 +416,32 @@ export async function startServer(options = {}) {
     }
   }
 
-  const wss = new WebSocketServer({ noServer: true, maxPayload: 64 * 1024, perMessageDeflate: false, clientTracking: false });
+  const wss = new WebSocketServer({ noServer: true, maxPayload: 64 * 1024, perMessageDeflate: false, clientTracking: true });
+  const heartbeat = setInterval(() => {
+    for (const socket of wss.clients) {
+      if (!socket.isAlive) { socket.terminate(); continue; }
+      socket.isAlive = false;
+      socket.ping();
+    }
+  }, 15_000);
+  heartbeat.unref();
   let discovery;
   const server = createServer(async (request, response) => {
     try {
+      const origin = request.headers.origin;
+      if (!originAllowed(origin, { publicUrl, allowedOrigins })) {
+        sendJson(response, 403, { error: "origin-not-allowed" });
+        return;
+      }
+      if (origin) {
+        response.setHeader("Access-Control-Allow-Origin", origin);
+        response.setHeader("Vary", "Origin");
+      }
+      if (request.method === "OPTIONS") {
+        response.writeHead(204, { "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS", "Access-Control-Allow-Headers": "Content-Type, Authorization", "Access-Control-Max-Age": "600" });
+        response.end();
+        return;
+      }
       const url = new URL(request.url || "/", `http://${requestHost(request, actualPort || port || 25555)}`);
       if (await handleApi(request, response, url, discovery)) return;
       await serveStatic(request, response, url);
@@ -433,9 +452,18 @@ export async function startServer(options = {}) {
     }
   });
 
+  server.headersTimeout = 10_000;
+  server.requestTimeout = 15_000;
+  server.keepAliveTimeout = 5000;
+
   server.on("upgrade", (request, socket, head) => {
     try {
       socket.setNoDelay?.(true);
+      if (wss.clients.size >= roomManager.maxRooms * 8 + 16) {
+        socket.write("HTTP/1.1 503 Service Unavailable\r\nConnection: close\r\n\r\n");
+        socket.destroy();
+        return;
+      }
       const url = new URL(request.url || "/", `http://${requestHost(request, actualPort || port || 25555)}`);
       const code = normalizeRoomCode(url.searchParams.get("room"));
       if (url.pathname !== "/ws" || code.length !== 6 || !roomManager.getRoom(code)) {
@@ -443,13 +471,18 @@ export async function startServer(options = {}) {
         socket.destroy();
         return;
       }
-      if (!allowedWebSocketOrigin(request.headers.origin, request)) {
+      if (!originAllowed(request.headers.origin, { publicUrl, allowedOrigins })) {
         socket.write("HTTP/1.1 403 Forbidden\r\nConnection: close\r\n\r\n");
         socket.destroy();
         return;
       }
       wss.handleUpgrade(request, socket, head, webSocket => {
-        roomManager.connectSocket(webSocket, code, { remoteAddress: remoteAddress(request) });
+        webSocket.isAlive = true;
+        webSocket.on("pong", () => { webSocket.isAlive = true; });
+        const connection = roomManager.connectSocket(webSocket, code, { remoteAddress: remoteAddress(request) });
+        const joinDeadline = setTimeout(() => { if (!connection?.joined) webSocket.terminate(); }, 8000);
+        joinDeadline.unref();
+        webSocket.on("close", () => clearTimeout(joinDeadline));
       });
     } catch {
       socket.destroy();
@@ -473,7 +506,7 @@ export async function startServer(options = {}) {
   actualPort = typeof address === "object" && address ? address.port : port;
 
   discovery = options.discovery || new LanDiscovery({
-    enabled: options.discoveryEnabled !== false,
+    enabled: options.discoveryEnabled !== false && !publicUrl,
     port: options.discoveryPort,
     roomProvider: () => roomManager.discoveryRooms(),
     servicePortProvider: () => actualPort,
@@ -498,6 +531,8 @@ export async function startServer(options = {}) {
     async close() {
       if (closing) return;
       closing = true;
+      clearInterval(heartbeat);
+      for (const socket of wss.clients) socket.terminate();
       await roomManager.close();
       if (broadcastRoomChanges) roomManager.off("rooms-changed", broadcastRoomChanges);
       await new Promise(resolveDelay => setTimeout(resolveDelay, 25));

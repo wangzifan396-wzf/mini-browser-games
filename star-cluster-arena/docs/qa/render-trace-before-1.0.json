@@ -1,0 +1,326 @@
+{
+  "generatedAt": "2026-10-03T12:41:02.123Z",
+  "note": "Electron contentTracing, selected Chromium GPU/compositor categories. Durations are inclusive, nested and multi-threaded; do not sum them as frame time. Tracing adds overhead, so this is diagnosis, not an FPS benchmark.",
+  "events": [
+    {
+      "name": "toplevel:ThreadControllerImpl::RunTask",
+      "count": 37279,
+      "totalMs": 34797.201,
+      "meanMs": 0.933,
+      "p95Ms": 6.257,
+      "maximumMs": 113.74
+    },
+    {
+      "name": "gpu,toplevel.flow:Scheduler::RunTask",
+      "count": 3335,
+      "totalMs": 15457.109,
+      "meanMs": 4.635,
+      "p95Ms": 32.602,
+      "maximumMs": 55.346
+    },
+    {
+      "name": "gpu:GpuChannel::ExecuteDeferredRequest",
+      "count": 1964,
+      "totalMs": 15037.934,
+      "meanMs": 7.657,
+      "p95Ms": 34.658,
+      "maximumMs": 55.341
+    },
+    {
+      "name": "gpu,toplevel.flow:CommandBuffer::Flush",
+      "count": 1924,
+      "totalMs": 15013.727,
+      "meanMs": 7.803,
+      "p95Ms": 34.664,
+      "maximumMs": 55.329
+    },
+    {
+      "name": "gpu:CommandBufferStub::OnAsyncFlush",
+      "count": 1924,
+      "totalMs": 15012.083,
+      "meanMs": 7.803,
+      "p95Ms": 34.664,
+      "maximumMs": 55.328
+    },
+    {
+      "name": "gpu:CommandBufferService:PutChanged",
+      "count": 1924,
+      "totalMs": 15003.625,
+      "meanMs": 7.798,
+      "p95Ms": 34.66,
+      "maximumMs": 55.324
+    },
+    {
+      "name": "gpu:D3DImageBacking::PresentSwapChain",
+      "count": 1517,
+      "totalMs": 14149.632,
+      "meanMs": 9.327,
+      "p95Ms": 35.293,
+      "maximumMs": 54.466
+    },
+    {
+      "name": "gpu:RendererMainThread",
+      "count": 1143,
+      "totalMs": 11897.64,
+      "meanMs": 10.409,
+      "p95Ms": 36.299,
+      "maximumMs": 55.329
+    },
+    {
+      "name": "gpu:RasterDecoderImpl::DoEndRasterCHROMIUM",
+      "count": 1237,
+      "totalMs": 11682.715,
+      "meanMs": 9.444,
+      "p95Ms": 35.816,
+      "maximumMs": 54.96
+    },
+    {
+      "name": "gpu:WebGL",
+      "count": 626,
+      "totalMs": 2955.262,
+      "meanMs": 4.721,
+      "p95Ms": 32.085,
+      "maximumMs": 52.714
+    },
+    {
+      "name": "base,toplevel:MessagePumpForUI DispatchMessage",
+      "count": 36431,
+      "totalMs": 1477.74,
+      "meanMs": 0.041,
+      "p95Ms": 0.051,
+      "maximumMs": 4.04
+    },
+    {
+      "name": "cc,benchmark:ProxyMain::BeginMainFrame",
+      "count": 1007,
+      "totalMs": 1458.25,
+      "meanMs": 1.448,
+      "p95Ms": 3.319,
+      "maximumMs": 14.823
+    },
+    {
+      "name": "toplevel:ThreadPool_RunTask",
+      "count": 3332,
+      "totalMs": 799.543,
+      "meanMs": 0.24,
+      "p95Ms": 0.891,
+      "maximumMs": 21.868
+    },
+    {
+      "name": "viz,benchmark,graphics.pipeline:Graphics.Pipeline",
+      "count": 12669,
+      "totalMs": 605.421,
+      "meanMs": 0.048,
+      "p95Ms": 0.21,
+      "maximumMs": 32.442
+    },
+    {
+      "name": "gpu:RasterDecoderImpl::DoEndRasterCHROMIUM::Flush",
+      "count": 1238,
+      "totalMs": 480.102,
+      "meanMs": 0.388,
+      "p95Ms": 0.675,
+      "maximumMs": 5.014
+    },
+    {
+      "name": "toplevel:SimpleWatcher::OnHandleReady",
+      "count": 14028,
+      "totalMs": 432.302,
+      "meanMs": 0.031,
+      "p95Ms": 0.061,
+      "maximumMs": 113.737
+    },
+    {
+      "name": "toplevel,mojom:Receive mojo message",
+      "count": 14607,
+      "totalMs": 423.968,
+      "meanMs": 0.029,
+      "p95Ms": 0.049,
+      "maximumMs": 113.729
+    },
+    {
+      "name": "gpu:RasterImplementation::RasterCHROMIUM",
+      "count": 1239,
+      "totalMs": 404.993,
+      "meanMs": 0.327,
+      "p95Ms": 0.825,
+      "maximumMs": 4.666
+    },
+    {
+      "name": "gpu:RasterDecoderImpl::DoRasterCHROMIUM",
+      "count": 1238,
+      "totalMs": 293.357,
+      "meanMs": 0.237,
+      "p95Ms": 0.421,
+      "maximumMs": 2.478
+    },
+    {
+      "name": "gpu:RasterDecoderImpl::DoRasterCHROMIUM::Deserializing",
+      "count": 1238,
+      "totalMs": 290.094,
+      "meanMs": 0.234,
+      "p95Ms": 0.415,
+      "maximumMs": 2.475
+    },
+    {
+      "name": "base,toplevel:IOHandler::OnIOCompleted",
+      "count": 30818,
+      "totalMs": 279.198,
+      "meanMs": 0.009,
+      "p95Ms": 0.027,
+      "maximumMs": 0.346
+    },
+    {
+      "name": "viz:SkiaOutputSurfaceImplOnGpu::SwapBuffers",
+      "count": 635,
+      "totalMs": 227.578,
+      "meanMs": 0.358,
+      "p95Ms": 0.378,
+      "maximumMs": 32.462
+    },
+    {
+      "name": "gpu:DCompPresenter::Present",
+      "count": 635,
+      "totalMs": 210.211,
+      "meanMs": 0.331,
+      "p95Ms": 0.349,
+      "maximumMs": 32.434
+    },
+    {
+      "name": "viz:SkiaOutputSurfaceImplOnGpu::FinishPaintRenderPass",
+      "count": 628,
+      "totalMs": 167.054,
+      "meanMs": 0.266,
+      "p95Ms": 0.46,
+      "maximumMs": 3.808
+    },
+    {
+      "name": "gpu:RendererRasterWorker",
+      "count": 164,
+      "totalMs": 163.338,
+      "meanMs": 0.996,
+      "p95Ms": 2.372,
+      "maximumMs": 5.115
+    },
+    {
+      "name": "viz,input.scrolling:DisplayScheduler::OnBeginFrameDeadline",
+      "count": 1039,
+      "totalMs": 158.453,
+      "meanMs": 0.153,
+      "p95Ms": 0.347,
+      "maximumMs": 0.616
+    },
+    {
+      "name": "viz:DisplayScheduler::DrawAndSwap",
+      "count": 636,
+      "totalMs": 156.767,
+      "meanMs": 0.246,
+      "p95Ms": 0.378,
+      "maximumMs": 0.615
+    },
+    {
+      "name": "viz:Display::DrawAndSwap",
+      "count": 636,
+      "totalMs": 155.869,
+      "meanMs": 0.245,
+      "p95Ms": 0.376,
+      "maximumMs": 0.614
+    },
+    {
+      "name": "gpu:GpuChannelHost::VerifyFlush",
+      "count": 1609,
+      "totalMs": 125.451,
+      "meanMs": 0.078,
+      "p95Ms": 0.117,
+      "maximumMs": 0.32
+    },
+    {
+      "name": "gpu:DCLayerTree::CommitAndClearPendingOverlays",
+      "count": 635,
+      "totalMs": 111.775,
+      "meanMs": 0.176,
+      "p95Ms": 0.308,
+      "maximumMs": 0.772
+    },
+    {
+      "name": "gpu:DCLayerTree::CommitAndClearPendingOverlays::Commit",
+      "count": 628,
+      "totalMs": 101.653,
+      "meanMs": 0.162,
+      "p95Ms": 0.292,
+      "maximumMs": 0.747
+    },
+    {
+      "name": "viz,input.scrolling:ExternalBeginFrameSource::OnBeginFrame",
+      "count": 2119,
+      "totalMs": 87.908,
+      "meanMs": 0.041,
+      "p95Ms": 0.086,
+      "maximumMs": 0.353
+    },
+    {
+      "name": "viz,benchmark:DirectRenderer::DrawFrame",
+      "count": 636,
+      "totalMs": 82.532,
+      "meanMs": 0.13,
+      "p95Ms": 0.206,
+      "maximumMs": 0.394
+    },
+    {
+      "name": "gpu:WinVSyncProvider::GetVSyncIntervalIfAvailable",
+      "count": 2576,
+      "totalMs": 77.409,
+      "meanMs": 0.03,
+      "p95Ms": 0.126,
+      "maximumMs": 0.561
+    },
+    {
+      "name": "blink,benchmark:LocalFrameView::RunAccessibilitySteps",
+      "count": 1006,
+      "totalMs": 61.355,
+      "meanMs": 0.061,
+      "p95Ms": 0.615,
+      "maximumMs": 2.623
+    },
+    {
+      "name": "viz:DirectRenderer::DrawRenderPass",
+      "count": 629,
+      "totalMs": 58.311,
+      "meanMs": 0.093,
+      "p95Ms": 0.148,
+      "maximumMs": 0.311
+    },
+    {
+      "name": "ui,toplevel:HWNDMessageHandler::OnWndProc",
+      "count": 4342,
+      "totalMs": 57.823,
+      "meanMs": 0.013,
+      "p95Ms": 0.033,
+      "maximumMs": 0.265
+    },
+    {
+      "name": "blink,benchmark:LocalFrameView::RunStyleAndLayoutLifecyclePhases",
+      "count": 1110,
+      "totalMs": 55.845,
+      "meanMs": 0.05,
+      "p95Ms": 0.361,
+      "maximumMs": 8.468
+    },
+    {
+      "name": "gpu:RasterDecoderImpl::DoBeginRasterCHROMIUM",
+      "count": 1238,
+      "totalMs": 46.768,
+      "meanMs": 0.038,
+      "p95Ms": 0.103,
+      "maximumMs": 0.242
+    },
+    {
+      "name": "blink,benchmark:LocalFrameView::layout",
+      "count": 103,
+      "totalMs": 46.237,
+      "meanMs": 0.449,
+      "p95Ms": 0.743,
+      "maximumMs": 8.433
+    }
+  ]
+}

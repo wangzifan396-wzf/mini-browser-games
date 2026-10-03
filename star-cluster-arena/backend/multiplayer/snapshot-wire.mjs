@@ -1,4 +1,4 @@
-export const SNAPSHOT_WIRE_VERSION = 3;
+export const SNAPSHOT_WIRE_VERSION = 4;
 
 // The wire contract deliberately uses fixed-position arrays. Keep every index
 // in this module so a protocol change is explicit, reviewable, and testable.
@@ -38,7 +38,7 @@ export const SNAPSHOT_INDEX = Object.freeze({
 
 export const WORLD_INDEX = Object.freeze({ WIDTH: 0, HEIGHT: 1, LENGTH: 2 });
 export const ARENA_INDEX = Object.freeze({ TYPE: 0, X: 1, Y: 2, WIDTH: 3, HEIGHT: 4, LENGTH: 5 });
-export const SAFE_ZONE_INDEX = Object.freeze({ X: 0, Y: 1, RADIUS: 2, TARGET_RADIUS: 3, LENGTH: 4 });
+export const SAFE_ZONE_INDEX = Object.freeze({ X: 0, Y: 1, RADIUS: 2, TARGET_RADIUS: 3, PHASE: 4, SHRINKING: 5, LENGTH: 6 });
 export const GROUP_INDEX = Object.freeze({
   ID: 0,
   NAME: 1,
@@ -57,13 +57,14 @@ export const GROUP_INDEX = Object.freeze({
   MASS: 14,
   COSMETICS: 15,
   CELLS: 16,
-  LENGTH: 17
+  INVINCIBLE_REMAINING: 17,
+  LENGTH: 18
 });
 export const GROUP_FLAGS = Object.freeze({ HUMAN: 1, CONNECTED: 2, DEAD: 4, ELIMINATED: 8 });
-export const CELL_INDEX = Object.freeze({ ID: 0, X: 1, Y: 2, VX: 3, VY: 4, RADIUS: 5, LENGTH: 6 });
+export const CELL_INDEX = Object.freeze({ ID: 0, X: 1, Y: 2, VX: 3, VY: 4, RADIUS: 5, MASS: 6, MERGE_DELAY: 7, MERGE_MAX: 8, LENGTH: 9 });
 export const EJECTED_INDEX = Object.freeze({ ID: 0, X: 1, Y: 2, VX: 3, VY: 4, RADIUS: 5, COLOR: 6, OWNER_ID: 7, SPORE: 8, ACCENT: 9, LENGTH: 10 });
-export const FOOD_INDEX = Object.freeze({ ID: 0, X: 1, Y: 2, RADIUS: 3, COLOR: 4, LENGTH: 5 });
-export const VIRUS_INDEX = Object.freeze({ ID: 0, X: 1, Y: 2, RADIUS: 3, COLOR: 4, KIND: 5, LENGTH: 6 });
+export const FOOD_INDEX = Object.freeze({ ID: 0, X: 1, Y: 2, RADIUS: 3, COLOR: 4, RICH: 5, PULSE: 6, LENGTH: 7 });
+export const VIRUS_INDEX = Object.freeze({ ID: 0, X: 1, Y: 2, RADIUS: 3, COLOR: 4, KIND: 5, TACTICAL: 6, LENGTH: 7 });
 export const DELTA_INDEX = Object.freeze({
   FROM_REVISION: 0,
   TO_REVISION: 1,
@@ -134,11 +135,11 @@ function compactArena(arena) {
 }
 
 function compactSafeZone(safeZone) {
-  return safeZone == null ? null : [safeZone.x, safeZone.y, safeZone.radius, safeZone.targetRadius];
+  return safeZone == null ? null : [safeZone.x, safeZone.y, safeZone.radius, safeZone.targetRadius, safeZone.phase, safeZone.shrinking];
 }
 
 function compactCell(cell) {
-  return [cell.id, cell.x, cell.y, cell.vx, cell.vy, cell.radius];
+  return [cell.id, cell.x, cell.y, cell.vx, cell.vy, cell.radius, cell.mass, cell.mergeDelay, cell.mergeMax];
 }
 
 function compactGroup(group) {
@@ -164,7 +165,8 @@ function compactGroup(group) {
     group.rank,
     group.mass,
     [group.cosmetics?.skin, group.cosmetics?.spore, group.cosmetics?.halo, group.cosmetics?.trail],
-    (group.cells || []).map(compactCell)
+    (group.cells || []).map(compactCell),
+    group.invincibleRemaining
   ];
 }
 
@@ -173,11 +175,11 @@ function compactEjected(item) {
 }
 
 function compactFood(food) {
-  return [food.id, food.x, food.y, food.radius, food.color];
+  return [food.id, food.x, food.y, food.radius, food.color, food.rich, food.pulse];
 }
 
 function compactVirus(virus) {
-  return [virus.id, virus.x, virus.y, virus.radius, virus.color, virus.kind || (virus.spore ? "spore" : "small")];
+  return [virus.id, virus.x, virus.y, virus.radius, virus.color, virus.kind || (virus.spore ? "spore" : "small"), virus.tactical];
 }
 
 function compactDelta(delta, compactEntity) {

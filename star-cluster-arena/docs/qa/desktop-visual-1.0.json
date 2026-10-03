@@ -1,0 +1,49 @@
+{
+  "version": "1.0.0",
+  "generatedAt": "2026-10-03T12:07:42.096Z",
+  "executable": "D:\\GameTest\\star-cluster-arena-desktop\\v1.0.0\\StarClusterArena-Portable-1.0.0-win-x64\\StarClusterArena.exe",
+  "validForGameplayAcceptance": false,
+  "note": "Historical TEST-01-affected sample: title overlay covered the match. These data do not validate pure gameplay white frames or player FPS. Final foreground replay deferred at user's request; see QA-1.0.0.md.",
+  "results": [
+    {
+      "displayMode": "windowed",
+      "durationSeconds": 300,
+      "visual": {
+        "samples": 8996,
+        "maximumWhiteRatio": 0,
+        "maximumMeanChannel": 29.8,
+        "suspiciousFrames": []
+      },
+      "gameplay": {
+        "activeSamples": 75,
+        "averageFps": 93,
+        "steadyAverageFps": 93,
+        "steadyMinimumFps": 76,
+        "minimumFps": 76,
+        "maximumWorkMs": 1.5,
+        "maximumLongFrames": 2
+      },
+      "renderer": "硬件加速已启用：ANGLE (NVIDIA, NVIDIA GeForce RTX 5070 Ti (0x00002C05) Direct3D11 vs_5_0 ps_5_0, D3D11)｜渲染倍率 1.25x｜物理 60Hz｜画质预算 160 FPS"
+    },
+    {
+      "displayMode": "borderless-fullscreen",
+      "durationSeconds": 300,
+      "visual": {
+        "samples": 8805,
+        "maximumWhiteRatio": 0,
+        "maximumMeanChannel": 23.5,
+        "suspiciousFrames": []
+      },
+      "gameplay": {
+        "activeSamples": 75,
+        "averageFps": 60,
+        "steadyAverageFps": 60,
+        "steadyMinimumFps": 52,
+        "minimumFps": 52,
+        "maximumWorkMs": 2.5,
+        "maximumLongFrames": 5
+      },
+      "renderer": "硬件加速已启用：ANGLE (NVIDIA, NVIDIA GeForce RTX 5070 Ti (0x00002C05) Direct3D11 vs_5_0 ps_5_0, D3D11)｜渲染倍率 1.09x｜物理 60Hz｜画质预算 160 FPS"
+    }
+  ]
+}

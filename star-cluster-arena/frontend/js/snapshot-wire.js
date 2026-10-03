@@ -1,7 +1,7 @@
 (function attachSnapshotWire(globalScope) {
   "use strict";
 
-  const VERSION = 3;
+  const VERSION = 4;
   const SNAPSHOT = Object.freeze({
     TICK: 0,
     SERVER_TIME: 1,
@@ -37,7 +37,7 @@
   });
   const WORLD = Object.freeze({ WIDTH: 0, HEIGHT: 1, LENGTH: 2 });
   const ARENA = Object.freeze({ TYPE: 0, X: 1, Y: 2, WIDTH: 3, HEIGHT: 4, LENGTH: 5 });
-  const SAFE_ZONE = Object.freeze({ X: 0, Y: 1, RADIUS: 2, TARGET_RADIUS: 3, LENGTH: 4 });
+  const SAFE_ZONE = Object.freeze({ X: 0, Y: 1, RADIUS: 2, TARGET_RADIUS: 3, PHASE: 4, SHRINKING: 5, LENGTH: 6 });
   const GROUP = Object.freeze({
     ID: 0,
     NAME: 1,
@@ -56,13 +56,14 @@
     MASS: 14,
     COSMETICS: 15,
     CELLS: 16,
-    LENGTH: 17
+    INVINCIBLE_REMAINING: 17,
+    LENGTH: 18
   });
   const GROUP_FLAGS = Object.freeze({ HUMAN: 1, CONNECTED: 2, DEAD: 4, ELIMINATED: 8 });
-  const CELL = Object.freeze({ ID: 0, X: 1, Y: 2, VX: 3, VY: 4, RADIUS: 5, LENGTH: 6 });
+  const CELL = Object.freeze({ ID: 0, X: 1, Y: 2, VX: 3, VY: 4, RADIUS: 5, MASS: 6, MERGE_DELAY: 7, MERGE_MAX: 8, LENGTH: 9 });
   const EJECTED = Object.freeze({ ID: 0, X: 1, Y: 2, VX: 3, VY: 4, RADIUS: 5, COLOR: 6, OWNER_ID: 7, SPORE: 8, ACCENT: 9, LENGTH: 10 });
-  const FOOD = Object.freeze({ ID: 0, X: 1, Y: 2, RADIUS: 3, COLOR: 4, LENGTH: 5 });
-  const VIRUS = Object.freeze({ ID: 0, X: 1, Y: 2, RADIUS: 3, COLOR: 4, KIND: 5, LENGTH: 6 });
+  const FOOD = Object.freeze({ ID: 0, X: 1, Y: 2, RADIUS: 3, COLOR: 4, RICH: 5, PULSE: 6, LENGTH: 7 });
+  const VIRUS = Object.freeze({ ID: 0, X: 1, Y: 2, RADIUS: 3, COLOR: 4, KIND: 5, TACTICAL: 6, LENGTH: 7 });
   const DELTA = Object.freeze({ FROM_REVISION: 0, TO_REVISION: 1, ADDED: 2, REMOVED: 3, UPDATED: 4, LENGTH: 5 });
   const RANKING = Object.freeze({
     ID: 0,
@@ -120,7 +121,9 @@
       x: value[SAFE_ZONE.X],
       y: value[SAFE_ZONE.Y],
       radius: value[SAFE_ZONE.RADIUS],
-      targetRadius: value[SAFE_ZONE.TARGET_RADIUS]
+      targetRadius: value[SAFE_ZONE.TARGET_RADIUS],
+      ...(value[SAFE_ZONE.PHASE] != null ? { phase: value[SAFE_ZONE.PHASE] } : {}),
+      ...(value[SAFE_ZONE.SHRINKING] != null ? { shrinking: Boolean(value[SAFE_ZONE.SHRINKING]) } : {})
     } : null;
   }
 
@@ -133,7 +136,9 @@
       vx: value[CELL.VX],
       vy: value[CELL.VY],
       radius,
-      mass: (radius / 4) ** 2
+      mass: value[CELL.MASS] ?? (radius / 4) ** 2,
+      ...(value[CELL.MERGE_DELAY] != null ? { mergeDelay: value[CELL.MERGE_DELAY] } : {}),
+      ...(value[CELL.MERGE_MAX] != null ? { mergeMax: value[CELL.MERGE_MAX] } : {})
     };
   }
 
@@ -164,7 +169,8 @@
         halo: value[GROUP.COSMETICS]?.[2] || "none",
         trail: value[GROUP.COSMETICS]?.[3] || "none"
       },
-      cells: list(value[GROUP.CELLS], decodeCell)
+      cells: list(value[GROUP.CELLS], decodeCell),
+      ...(value[GROUP.INVINCIBLE_REMAINING] != null ? { invincibleRemaining: value[GROUP.INVINCIBLE_REMAINING] } : {})
     };
   }
 
@@ -189,7 +195,9 @@
       x: value[FOOD.X],
       y: value[FOOD.Y],
       radius: value[FOOD.RADIUS],
-      color: value[FOOD.COLOR]
+      color: value[FOOD.COLOR],
+      ...(value[FOOD.RICH] != null ? { rich: Boolean(value[FOOD.RICH]) } : {}),
+      ...(value[FOOD.PULSE] != null ? { pulse: value[FOOD.PULSE] } : {})
     };
   }
 
@@ -201,7 +209,8 @@
       radius: value[VIRUS.RADIUS],
       color: value[VIRUS.COLOR],
       kind: value[VIRUS.KIND] || "small",
-      spore: value[VIRUS.KIND] === "spore"
+      spore: value[VIRUS.KIND] === "spore",
+      ...(value[VIRUS.TACTICAL] != null ? { tactical: Boolean(value[VIRUS.TACTICAL]) } : {})
     };
   }
 

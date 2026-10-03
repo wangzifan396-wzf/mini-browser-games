@@ -1,0 +1,844 @@
+{
+  "version": "1.0.0",
+  "generatedAt": "2026-10-03T11:41:28.823Z",
+  "executable": "D:\\GameTest\\star-cluster-arena-desktop\\build\\win-unpacked\\StarClusterArena.exe",
+  "results": [
+    {
+      "iteration": 1,
+      "name": "release",
+      "report": {
+        "title": "星团大作战 · 联机游戏",
+        "connection": "已创建房间",
+        "warning": false,
+        "renderer": "",
+        "refresh": "160",
+        "desktopApi": true,
+        "gameplay": {
+          "single": {
+            "pausedSeconds": 1.3,
+            "mode": "screen",
+            "frozenTimeLeft": 420,
+            "resultTitle": "闪电结算",
+            "restart": true
+          },
+          "connection": {
+            "internetSelected": true,
+            "emptyAddressBlocked": true,
+            "changedAddressBlocked": true
+          },
+          "multiplayer": {
+            "mode": "battle",
+            "roomCode": "HRBHJ3",
+            "initialBots": "99 个 AI（自动补位）",
+            "filledBots": "98 个 AI（自动补位）",
+            "samples": [
+              {
+                "elapsed": 4,
+                "fps": 160,
+                "snapshotHz": 20,
+                "detail": "图形 160 FPS / 目标 160 · 权威 20.0 Hz · 抖动 8ms · 缓冲 34ms",
+                "mass": "255",
+                "rank": "#25",
+                "world": {
+                  "width": 7600,
+                  "height": 7600
+                },
+                "foodCount": 2275,
+                "leaderMass": 773.6,
+                "totalKills": 2
+              },
+              {
+                "elapsed": 8,
+                "fps": 160,
+                "snapshotHz": 19.6,
+                "detail": "图形 160 FPS / 目标 160 · 权威 19.6 Hz · 抖动 7ms · 缓冲 27ms",
+                "mass": "253",
+                "rank": "#26",
+                "world": {
+                  "width": 7600,
+                  "height": 7600
+                },
+                "foodCount": 2303,
+                "leaderMass": 775,
+                "totalKills": 2
+              }
+            ],
+            "summary": {
+              "activeSamples": 2,
+              "averageFps": 160,
+              "steadyAverageFps": 160,
+              "steadyMinimumFps": 160,
+              "minimumFps": 160,
+              "averageSnapshotHz": 19.6
+            }
+          },
+          "spectating": {
+            "spectatorId": "bot-1",
+            "inputReleased": true
+          },
+          "result": {
+            "visible": true,
+            "text": "桌面性能访客 获胜 · 大逃杀 · 成功吃鸡 · 你的最高质量 256 / 淘汰 0 · 星尘 +18"
+          },
+          "returned": true
+        },
+        "display": null,
+        "visual": null,
+        "navigation": null
+      }
+    },
+    {
+      "iteration": 1,
+      "name": "display",
+      "report": {
+        "title": "星团大作战",
+        "connection": "",
+        "warning": false,
+        "renderer": "硬件加速已启用：ANGLE (NVIDIA, NVIDIA GeForce RTX 5070 Ti (0x00002C05) Direct3D11 vs_5_0 ps_5_0, D3D11)｜渲染倍率 1.25x｜物理 60Hz｜画质预算 160 FPS",
+        "refresh": "160",
+        "desktopApi": true,
+        "gameplay": null,
+        "display": {
+          "buttonEntered": {
+            "native": {
+              "ok": true,
+              "mode": "borderless-fullscreen",
+              "fullscreen": true,
+              "bounds": {
+                "x": 0,
+                "y": 0,
+                "width": 2195,
+                "height": 1235
+              },
+              "contentBounds": {
+                "x": 0,
+                "y": 0,
+                "width": 2195,
+                "height": 1235
+              },
+              "display": {
+                "id": 689880643,
+                "width": 2195,
+                "height": 1235,
+                "workAreaWidth": 2195,
+                "workAreaHeight": 1187,
+                "scaleFactor": 1.75,
+                "refreshRate": 160
+              }
+            },
+            "renderer": {
+              "desktopApi": true,
+              "desktopMethods": true,
+              "buttonText": "退出全屏",
+              "buttonPressed": "true",
+              "savedMode": "borderless-fullscreen",
+              "selectedMode": "borderless-fullscreen"
+            }
+          },
+          "buttonLeft": {
+            "native": {
+              "ok": true,
+              "mode": "windowed",
+              "fullscreen": false,
+              "bounds": {
+                "x": 370,
+                "y": 124,
+                "width": 1456,
+                "height": 939
+              },
+              "contentBounds": {
+                "x": 377,
+                "y": 154,
+                "width": 1442,
+                "height": 902
+              },
+              "display": {
+                "id": 689880643,
+                "width": 2195,
+                "height": 1235,
+                "workAreaWidth": 2195,
+                "workAreaHeight": 1187,
+                "scaleFactor": 1.75,
+                "refreshRate": 160
+              }
+            },
+            "renderer": {
+              "desktopApi": true,
+              "desktopMethods": true,
+              "buttonText": "无边框全屏",
+              "buttonPressed": "false",
+              "savedMode": "windowed",
+              "selectedMode": "windowed"
+            }
+          },
+          "settingsEntered": {
+            "native": {
+              "ok": true,
+              "mode": "borderless-fullscreen",
+              "fullscreen": true,
+              "bounds": {
+                "x": 0,
+                "y": 0,
+                "width": 2195,
+                "height": 1235
+              },
+              "contentBounds": {
+                "x": 0,
+                "y": 0,
+                "width": 2195,
+                "height": 1235
+              },
+              "display": {
+                "id": 689880643,
+                "width": 2195,
+                "height": 1235,
+                "workAreaWidth": 2195,
+                "workAreaHeight": 1187,
+                "scaleFactor": 1.75,
+                "refreshRate": 160
+              }
+            },
+            "renderer": {
+              "desktopApi": true,
+              "desktopMethods": true,
+              "buttonText": "退出全屏",
+              "buttonPressed": "true",
+              "savedMode": "borderless-fullscreen",
+              "selectedMode": "borderless-fullscreen"
+            }
+          },
+          "settingsLeft": {
+            "native": {
+              "ok": true,
+              "mode": "windowed",
+              "fullscreen": false,
+              "bounds": {
+                "x": 450,
+                "y": 214,
+                "width": 1296,
+                "height": 759
+              },
+              "contentBounds": {
+                "x": 457,
+                "y": 244,
+                "width": 1282,
+                "height": 722
+              },
+              "display": {
+                "id": 689880643,
+                "width": 2195,
+                "height": 1235,
+                "workAreaWidth": 2195,
+                "workAreaHeight": 1187,
+                "scaleFactor": 1.75,
+                "refreshRate": 160
+              }
+            },
+            "renderer": {
+              "desktopApi": true,
+              "desktopMethods": true,
+              "buttonText": "无边框全屏",
+              "buttonPressed": "false",
+              "savedMode": "windowed",
+              "selectedMode": "windowed"
+            }
+          }
+        },
+        "visual": null,
+        "navigation": null
+      }
+    },
+    {
+      "iteration": 1,
+      "name": "navigation",
+      "report": {
+        "title": "星团大作战",
+        "connection": "",
+        "warning": false,
+        "renderer": "硬件加速已启用：ANGLE (NVIDIA, NVIDIA GeForce RTX 5070 Ti (0x00002C05) Direct3D11 vs_5_0 ps_5_0, D3D11)｜渲染倍率 1.25x｜物理 60Hz｜画质预算 160 FPS",
+        "refresh": "160",
+        "desktopApi": true,
+        "gameplay": null,
+        "display": null,
+        "visual": {
+          "samples": 50,
+          "maximumWhiteRatio": 0,
+          "maximumMeanChannel": 28.8,
+          "suspiciousFrames": []
+        },
+        "navigation": {
+          "cycles": 4,
+          "routes": [
+            "/",
+            "/multiplayer.html",
+            "/",
+            "/multiplayer.html",
+            "/",
+            "/multiplayer.html",
+            "/",
+            "/multiplayer.html",
+            "/"
+          ]
+        }
+      }
+    },
+    {
+      "iteration": 2,
+      "name": "release",
+      "report": {
+        "title": "星团大作战 · 联机游戏",
+        "connection": "已创建房间",
+        "warning": false,
+        "renderer": "",
+        "refresh": "160",
+        "desktopApi": true,
+        "gameplay": {
+          "single": {
+            "pausedSeconds": 1.3,
+            "mode": "screen",
+            "frozenTimeLeft": 420,
+            "resultTitle": "闪电结算",
+            "restart": true
+          },
+          "connection": {
+            "internetSelected": true,
+            "emptyAddressBlocked": true,
+            "changedAddressBlocked": true
+          },
+          "multiplayer": {
+            "mode": "battle",
+            "roomCode": "K2D8H5",
+            "initialBots": "99 个 AI（自动补位）",
+            "filledBots": "98 个 AI（自动补位）",
+            "samples": [
+              {
+                "elapsed": 4,
+                "fps": 160,
+                "snapshotHz": 20,
+                "detail": "图形 160 FPS / 目标 160 · 权威 20.0 Hz · 抖动 8ms · 缓冲 29ms",
+                "mass": "255",
+                "rank": "#19",
+                "world": {
+                  "width": 7600,
+                  "height": 7600
+                },
+                "foodCount": 2257,
+                "leaderMass": 638.6,
+                "totalKills": 2
+              },
+              {
+                "elapsed": 8,
+                "fps": 160,
+                "snapshotHz": 19.8,
+                "detail": "图形 160 FPS / 目标 160 · 权威 19.8 Hz · 抖动 8ms · 缓冲 25ms",
+                "mass": "253",
+                "rank": "#22",
+                "world": {
+                  "width": 7600,
+                  "height": 7600
+                },
+                "foodCount": 2282,
+                "leaderMass": 645.7,
+                "totalKills": 2
+              }
+            ],
+            "summary": {
+              "activeSamples": 2,
+              "averageFps": 160,
+              "steadyAverageFps": 160,
+              "steadyMinimumFps": 160,
+              "minimumFps": 160,
+              "averageSnapshotHz": 19.8
+            }
+          },
+          "spectating": {
+            "spectatorId": "bot-1",
+            "inputReleased": true
+          },
+          "result": {
+            "visible": true,
+            "text": "桌面性能访客 获胜 · 大逃杀 · 成功吃鸡 · 你的最高质量 256 / 淘汰 0 · 星尘 +18"
+          },
+          "returned": true
+        },
+        "display": null,
+        "visual": null,
+        "navigation": null
+      }
+    },
+    {
+      "iteration": 2,
+      "name": "display",
+      "report": {
+        "title": "星团大作战",
+        "connection": "",
+        "warning": false,
+        "renderer": "硬件加速已启用：ANGLE (NVIDIA, NVIDIA GeForce RTX 5070 Ti (0x00002C05) Direct3D11 vs_5_0 ps_5_0, D3D11)｜渲染倍率 1.25x｜物理 60Hz｜画质预算 160 FPS",
+        "refresh": "160",
+        "desktopApi": true,
+        "gameplay": null,
+        "display": {
+          "buttonEntered": {
+            "native": {
+              "ok": true,
+              "mode": "borderless-fullscreen",
+              "fullscreen": true,
+              "bounds": {
+                "x": 0,
+                "y": 0,
+                "width": 2195,
+                "height": 1235
+              },
+              "contentBounds": {
+                "x": 0,
+                "y": 0,
+                "width": 2195,
+                "height": 1235
+              },
+              "display": {
+                "id": 689880643,
+                "width": 2195,
+                "height": 1235,
+                "workAreaWidth": 2195,
+                "workAreaHeight": 1187,
+                "scaleFactor": 1.75,
+                "refreshRate": 160
+              }
+            },
+            "renderer": {
+              "desktopApi": true,
+              "desktopMethods": true,
+              "buttonText": "退出全屏",
+              "buttonPressed": "true",
+              "savedMode": "borderless-fullscreen",
+              "selectedMode": "borderless-fullscreen"
+            }
+          },
+          "buttonLeft": {
+            "native": {
+              "ok": true,
+              "mode": "windowed",
+              "fullscreen": false,
+              "bounds": {
+                "x": 370,
+                "y": 124,
+                "width": 1456,
+                "height": 939
+              },
+              "contentBounds": {
+                "x": 377,
+                "y": 154,
+                "width": 1442,
+                "height": 902
+              },
+              "display": {
+                "id": 689880643,
+                "width": 2195,
+                "height": 1235,
+                "workAreaWidth": 2195,
+                "workAreaHeight": 1187,
+                "scaleFactor": 1.75,
+                "refreshRate": 160
+              }
+            },
+            "renderer": {
+              "desktopApi": true,
+              "desktopMethods": true,
+              "buttonText": "无边框全屏",
+              "buttonPressed": "false",
+              "savedMode": "windowed",
+              "selectedMode": "windowed"
+            }
+          },
+          "settingsEntered": {
+            "native": {
+              "ok": true,
+              "mode": "borderless-fullscreen",
+              "fullscreen": true,
+              "bounds": {
+                "x": 0,
+                "y": 0,
+                "width": 2195,
+                "height": 1235
+              },
+              "contentBounds": {
+                "x": 0,
+                "y": 0,
+                "width": 2195,
+                "height": 1235
+              },
+              "display": {
+                "id": 689880643,
+                "width": 2195,
+                "height": 1235,
+                "workAreaWidth": 2195,
+                "workAreaHeight": 1187,
+                "scaleFactor": 1.75,
+                "refreshRate": 160
+              }
+            },
+            "renderer": {
+              "desktopApi": true,
+              "desktopMethods": true,
+              "buttonText": "退出全屏",
+              "buttonPressed": "true",
+              "savedMode": "borderless-fullscreen",
+              "selectedMode": "borderless-fullscreen"
+            }
+          },
+          "settingsLeft": {
+            "native": {
+              "ok": true,
+              "mode": "windowed",
+              "fullscreen": false,
+              "bounds": {
+                "x": 450,
+                "y": 214,
+                "width": 1296,
+                "height": 759
+              },
+              "contentBounds": {
+                "x": 457,
+                "y": 244,
+                "width": 1282,
+                "height": 722
+              },
+              "display": {
+                "id": 689880643,
+                "width": 2195,
+                "height": 1235,
+                "workAreaWidth": 2195,
+                "workAreaHeight": 1187,
+                "scaleFactor": 1.75,
+                "refreshRate": 160
+              }
+            },
+            "renderer": {
+              "desktopApi": true,
+              "desktopMethods": true,
+              "buttonText": "无边框全屏",
+              "buttonPressed": "false",
+              "savedMode": "windowed",
+              "selectedMode": "windowed"
+            }
+          }
+        },
+        "visual": null,
+        "navigation": null
+      }
+    },
+    {
+      "iteration": 2,
+      "name": "navigation",
+      "report": {
+        "title": "星团大作战",
+        "connection": "",
+        "warning": false,
+        "renderer": "硬件加速已启用：ANGLE (NVIDIA, NVIDIA GeForce RTX 5070 Ti (0x00002C05) Direct3D11 vs_5_0 ps_5_0, D3D11)｜渲染倍率 1.25x｜物理 60Hz｜画质预算 160 FPS",
+        "refresh": "160",
+        "desktopApi": true,
+        "gameplay": null,
+        "display": null,
+        "visual": {
+          "samples": 51,
+          "maximumWhiteRatio": 0,
+          "maximumMeanChannel": 28.8,
+          "suspiciousFrames": []
+        },
+        "navigation": {
+          "cycles": 4,
+          "routes": [
+            "/",
+            "/multiplayer.html",
+            "/",
+            "/multiplayer.html",
+            "/",
+            "/multiplayer.html",
+            "/",
+            "/multiplayer.html",
+            "/"
+          ]
+        }
+      }
+    },
+    {
+      "iteration": 3,
+      "name": "release",
+      "report": {
+        "title": "星团大作战 · 联机游戏",
+        "connection": "已创建房间",
+        "warning": false,
+        "renderer": "",
+        "refresh": "160",
+        "desktopApi": true,
+        "gameplay": {
+          "single": {
+            "pausedSeconds": 1.3,
+            "mode": "screen",
+            "frozenTimeLeft": 420,
+            "resultTitle": "闪电结算",
+            "restart": true
+          },
+          "connection": {
+            "internetSelected": true,
+            "emptyAddressBlocked": true,
+            "changedAddressBlocked": true
+          },
+          "multiplayer": {
+            "mode": "battle",
+            "roomCode": "4JUWVC",
+            "initialBots": "99 个 AI（自动补位）",
+            "filledBots": "98 个 AI（自动补位）",
+            "samples": [
+              {
+                "elapsed": 4,
+                "fps": 160,
+                "snapshotHz": 19.8,
+                "detail": "图形 160 FPS / 目标 160 · 权威 19.8 Hz · 抖动 6ms · 缓冲 20ms",
+                "mass": "255",
+                "rank": "#26",
+                "world": {
+                  "width": 7600,
+                  "height": 7600
+                },
+                "foodCount": 2253,
+                "leaderMass": 803.8,
+                "totalKills": 4
+              },
+              {
+                "elapsed": 8,
+                "fps": 160,
+                "snapshotHz": 20.4,
+                "detail": "图形 160 FPS / 目标 160 · 权威 20.4 Hz · 抖动 7ms · 缓冲 59ms",
+                "mass": "253",
+                "rank": "#26",
+                "world": {
+                  "width": 7600,
+                  "height": 7600
+                },
+                "foodCount": 2271,
+                "leaderMass": 805.7,
+                "totalKills": 4
+              }
+            ],
+            "summary": {
+              "activeSamples": 2,
+              "averageFps": 160,
+              "steadyAverageFps": 160,
+              "steadyMinimumFps": 160,
+              "minimumFps": 160,
+              "averageSnapshotHz": 20.4
+            }
+          },
+          "spectating": {
+            "spectatorId": "bot-1",
+            "inputReleased": true
+          },
+          "result": {
+            "visible": true,
+            "text": "桌面性能访客 获胜 · 大逃杀 · 成功吃鸡 · 你的最高质量 256 / 淘汰 0 · 星尘 +18"
+          },
+          "returned": true
+        },
+        "display": null,
+        "visual": null,
+        "navigation": null
+      }
+    },
+    {
+      "iteration": 3,
+      "name": "display",
+      "report": {
+        "title": "星团大作战",
+        "connection": "",
+        "warning": false,
+        "renderer": "硬件加速已启用：ANGLE (NVIDIA, NVIDIA GeForce RTX 5070 Ti (0x00002C05) Direct3D11 vs_5_0 ps_5_0, D3D11)｜渲染倍率 1.25x｜物理 60Hz｜画质预算 160 FPS",
+        "refresh": "160",
+        "desktopApi": true,
+        "gameplay": null,
+        "display": {
+          "buttonEntered": {
+            "native": {
+              "ok": true,
+              "mode": "borderless-fullscreen",
+              "fullscreen": true,
+              "bounds": {
+                "x": 0,
+                "y": 0,
+                "width": 2195,
+                "height": 1235
+              },
+              "contentBounds": {
+                "x": 0,
+                "y": 0,
+                "width": 2195,
+                "height": 1235
+              },
+              "display": {
+                "id": 689880643,
+                "width": 2195,
+                "height": 1235,
+                "workAreaWidth": 2195,
+                "workAreaHeight": 1187,
+                "scaleFactor": 1.75,
+                "refreshRate": 160
+              }
+            },
+            "renderer": {
+              "desktopApi": true,
+              "desktopMethods": true,
+              "buttonText": "退出全屏",
+              "buttonPressed": "true",
+              "savedMode": "borderless-fullscreen",
+              "selectedMode": "borderless-fullscreen"
+            }
+          },
+          "buttonLeft": {
+            "native": {
+              "ok": true,
+              "mode": "windowed",
+              "fullscreen": false,
+              "bounds": {
+                "x": 370,
+                "y": 124,
+                "width": 1456,
+                "height": 939
+              },
+              "contentBounds": {
+                "x": 377,
+                "y": 154,
+                "width": 1442,
+                "height": 902
+              },
+              "display": {
+                "id": 689880643,
+                "width": 2195,
+                "height": 1235,
+                "workAreaWidth": 2195,
+                "workAreaHeight": 1187,
+                "scaleFactor": 1.75,
+                "refreshRate": 160
+              }
+            },
+            "renderer": {
+              "desktopApi": true,
+              "desktopMethods": true,
+              "buttonText": "无边框全屏",
+              "buttonPressed": "false",
+              "savedMode": "windowed",
+              "selectedMode": "windowed"
+            }
+          },
+          "settingsEntered": {
+            "native": {
+              "ok": true,
+              "mode": "borderless-fullscreen",
+              "fullscreen": true,
+              "bounds": {
+                "x": 0,
+                "y": 0,
+                "width": 2195,
+                "height": 1235
+              },
+              "contentBounds": {
+                "x": 0,
+                "y": 0,
+                "width": 2195,
+                "height": 1235
+              },
+              "display": {
+                "id": 689880643,
+                "width": 2195,
+                "height": 1235,
+                "workAreaWidth": 2195,
+                "workAreaHeight": 1187,
+                "scaleFactor": 1.75,
+                "refreshRate": 160
+              }
+            },
+            "renderer": {
+              "desktopApi": true,
+              "desktopMethods": true,
+              "buttonText": "退出全屏",
+              "buttonPressed": "true",
+              "savedMode": "borderless-fullscreen",
+              "selectedMode": "borderless-fullscreen"
+            }
+          },
+          "settingsLeft": {
+            "native": {
+              "ok": true,
+              "mode": "windowed",
+              "fullscreen": false,
+              "bounds": {
+                "x": 450,
+                "y": 214,
+                "width": 1296,
+                "height": 759
+              },
+              "contentBounds": {
+                "x": 457,
+                "y": 244,
+                "width": 1282,
+                "height": 722
+              },
+              "display": {
+                "id": 689880643,
+                "width": 2195,
+                "height": 1235,
+                "workAreaWidth": 2195,
+                "workAreaHeight": 1187,
+                "scaleFactor": 1.75,
+                "refreshRate": 160
+              }
+            },
+            "renderer": {
+              "desktopApi": true,
+              "desktopMethods": true,
+              "buttonText": "无边框全屏",
+              "buttonPressed": "false",
+              "savedMode": "windowed",
+              "selectedMode": "windowed"
+            }
+          }
+        },
+        "visual": null,
+        "navigation": null
+      }
+    },
+    {
+      "iteration": 3,
+      "name": "navigation",
+      "report": {
+        "title": "星团大作战",
+        "connection": "",
+        "warning": false,
+        "renderer": "硬件加速已启用：ANGLE (NVIDIA, NVIDIA GeForce RTX 5070 Ti (0x00002C05) Direct3D11 vs_5_0 ps_5_0, D3D11)｜渲染倍率 1.25x｜物理 60Hz｜画质预算 160 FPS",
+        "refresh": "160",
+        "desktopApi": true,
+        "gameplay": null,
+        "display": null,
+        "visual": {
+          "samples": 50,
+          "maximumWhiteRatio": 0,
+          "maximumMeanChannel": 28.8,
+          "suspiciousFrames": []
+        },
+        "navigation": {
+          "cycles": 4,
+          "routes": [
+            "/",
+            "/multiplayer.html",
+            "/",
+            "/multiplayer.html",
+            "/",
+            "/multiplayer.html",
+            "/",
+            "/multiplayer.html",
+            "/"
+          ]
+        }
+      }
+    }
+  ]
+}

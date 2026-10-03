@@ -1,5 +1,6 @@
 (function () {
   "use strict";
+  const localStorage = window.ScaStorage || window.localStorage;
 
   const gameplayCore = window.ScaGameplayCore;
   if (!gameplayCore) throw new Error("共享玩法内核未加载");
@@ -406,10 +407,6 @@
   let eventBannerTimer = 0;
   let lobbyToastTimer = 0;
   let musicEnabled = localStorage.getItem("ballArenaMusic") === "on";
-  let audioCtx = null;
-  let musicGain = null;
-  let musicTimer = 0;
-  let musicStep = 0;
   let simulationAccumulator = 0;
   let simulationNow = lastFrame;
   let authorityNow = lastFrame;
@@ -648,63 +645,12 @@
     musicLobbyBtn.classList.toggle("active", musicEnabled);
   }
 
-  function ensureAudio() {
-    const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
-    if (!AudioContextCtor) return null;
-    if (!audioCtx) {
-      audioCtx = new AudioContextCtor();
-      musicGain = audioCtx.createGain();
-      musicGain.gain.value = 0.055;
-      musicGain.connect(audioCtx.destination);
-    }
-    if (audioCtx.state === "suspended") audioCtx.resume();
-    return audioCtx;
-  }
-
-  function playSynthTone(freq, time, duration, type = "sine", volume = 0.5) {
-    if (!audioCtx || !musicGain) return;
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = type;
-    osc.frequency.setValueAtTime(freq, time);
-    gain.gain.setValueAtTime(0.0001, time);
-    gain.gain.exponentialRampToValueAtTime(volume, time + 0.018);
-    gain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
-    osc.connect(gain);
-    gain.connect(musicGain);
-    osc.start(time);
-    osc.stop(time + duration + 0.04);
-  }
-
-  function scheduleMusicStep() {
-    if (!musicEnabled || !ensureAudio()) return;
-    const notes = [392, 494, 587, 659, 587, 494, 440, 523];
-    const bass = [98, 147, 123, 165];
-    const t = audioCtx.currentTime + 0.02;
-    const note = notes[musicStep % notes.length];
-    playSynthTone(note, t, 0.16, "triangle", 0.28);
-    if (musicStep % 2 === 0) playSynthTone(bass[(musicStep / 2) % bass.length], t, 0.22, "sine", 0.18);
-    if (musicStep % 8 === 6) playSynthTone(note * 1.5, t + 0.08, 0.12, "triangle", 0.16);
-    musicStep += 1;
-  }
-
-  function startMusic() {
-    if (!ensureAudio()) return;
-    clearInterval(musicTimer);
-    scheduleMusicStep();
-    musicTimer = setInterval(scheduleMusicStep, 220);
-  }
-
-  function stopMusic() {
-    clearInterval(musicTimer);
-    musicTimer = 0;
-  }
-
+  function startMusic() { window.ScaAudio?.setMusic(true); }
+  function stopMusic() { window.ScaAudio?.setMusic(false); }
   function setMusic(enabled) {
-    musicEnabled = !!enabled;
+    musicEnabled = Boolean(enabled);
     localStorage.setItem("ballArenaMusic", musicEnabled ? "on" : "off");
-    if (musicEnabled) startMusic();
-    else stopMusic();
+    window.ScaAudio?.setMusic(musicEnabled);
     updateMusicButtons();
   }
 
@@ -763,7 +709,7 @@
       totalDust: 150,
       redeemedCodes: [],
       dailyPackDate: "",
-      perks: { start: 0, reward: 0, rebate: 0, daily: 0, luck: 0 },
+      perks: { start: 0, reward: 0, rebate: 0, daily: 0, luck: 0, resonance: 0 },
       shopMessage: "",
       lastForge: null
     };
@@ -782,29 +728,31 @@
       const validSpores = new Set(SPORES.map(spore => spore.key));
       const validHalos = new Set(HALOS.map(halo => halo.key));
       const validTrails = new Set(TRAILS.map(trail => trail.key));
-      const forgeXp = Math.max(0, migratedXp);
+      const forgeXp = clamp(migratedXp, 0, 100_000_000);
       return {
         ...base,
         ...saved,
         metaVersion: META_VERSION,
-        dust: migratedDust,
+        dust: clamp(migratedDust, 0, 100_000_000),
+        totalDust: clamp(Number(saved.totalDust) || migratedDust, 0, 100_000_000),
+        crafted: clamp(Math.floor(Number(saved.crafted) || 0), 0, 1_000_000),
         forgeLuck: clamp(Number(saved.forgeLuck) || 0, 0, 99),
         forgeXp,
         forgeLevel: forgeLevelFromXp(forgeXp),
-        forgeTickets: Number.isFinite(saved.forgeTickets) ? Math.max(0, saved.forgeTickets) : base.forgeTickets,
+        forgeTickets: Number.isFinite(saved.forgeTickets) ? clamp(Math.floor(saved.forgeTickets), 0, 1_000_000) : base.forgeTickets,
         forgePityEpic: clamp(Number(saved.forgePityEpic) || 0, 0, 10),
         forgePityLegend: clamp(Number(saved.forgePityLegend) || 0, 0, 40),
         perks: Object.fromEntries(Object.keys(base.perks).map(key => [
           key,
-          clamp(Number(saved.perks && saved.perks[key]) || 0, 0, 10)
+          clamp(Math.floor(Number(saved.perks && saved.perks[key]) || 0), 0, PERK_SHOP_ITEMS.find(item => item.key === key)?.max || 10)
         ])),
         redeemedCodes: Array.isArray(saved.redeemedCodes) ? saved.redeemedCodes : [],
         dailyPackDate: saved.dailyPackDate || "",
         shopMessage: saved.shopMessage || "",
-        unlockedSkins: [...new Set([...(saved.unlockedSkins || []), ...base.unlockedSkins])].filter(key => validSkins.has(key)),
-        unlockedSpores: [...new Set([...(saved.unlockedSpores || []), ...base.unlockedSpores])].filter(key => validSpores.has(key)),
-        unlockedHalos: [...new Set([...(saved.unlockedHalos || []), ...base.unlockedHalos])].filter(key => validHalos.has(key)),
-        unlockedTrails: [...new Set([...(saved.unlockedTrails || []), ...base.unlockedTrails])].filter(key => validTrails.has(key))
+        unlockedSkins: [...new Set([...(Array.isArray(saved.unlockedSkins) ? saved.unlockedSkins : []), ...base.unlockedSkins])].filter(key => validSkins.has(key)),
+        unlockedSpores: [...new Set([...(Array.isArray(saved.unlockedSpores) ? saved.unlockedSpores : []), ...base.unlockedSpores])].filter(key => validSpores.has(key)),
+        unlockedHalos: [...new Set([...(Array.isArray(saved.unlockedHalos) ? saved.unlockedHalos : []), ...base.unlockedHalos])].filter(key => validHalos.has(key)),
+        unlockedTrails: [...new Set([...(Array.isArray(saved.unlockedTrails) ? saved.unlockedTrails : []), ...base.unlockedTrails])].filter(key => validTrails.has(key))
       };
     } catch (_) {
       return defaultMeta();
@@ -896,7 +844,7 @@
   }
 
   function perkLevel(key) {
-    return clamp(Number(meta.perks && meta.perks[key]) || 0, 0, 10);
+    return clamp(Math.floor(Number(meta.perks && meta.perks[key]) || 0), 0, PERK_SHOP_ITEMS.find(item => item.key === key)?.max || 10);
   }
 
   function perkCost(offer) {
@@ -1507,7 +1455,7 @@
   function importSaveCode() {
     const input = shopPanel.querySelector("#importSaveInput");
     const raw = input ? input.value.trim() : "";
-    if (!raw) {
+    if (!raw || raw.length > 128 * 1024) {
       setShopMessage("请先粘贴存档码。");
       return;
     }
@@ -2135,6 +2083,11 @@
       else showStartOverlay();
     } else {
       document.documentElement.classList.remove("title-active");
+      titleScreen.hidden = true;
+      titleScreen.style.display = "none";
+      window.ScaAudio?.arm();
+      window.ScaAudio?.reset();
+      window.ScaMatchGuide?.show(activeMode);
       document.querySelector(".hud")?.removeAttribute("aria-hidden");
       overlay.style.display = "none";
       modeGrid.style.display = "none";
@@ -3625,7 +3578,8 @@
         }
       }
 
-      const lifetime = mass.ownerId === playerGroup?.id ? 30 : 20;
+      const ownerGroup = mass.ownerGroup || (mass.ownerGroup = groups.find(group => group.id === mass.ownerId));
+      const lifetime = isGameplayHuman(ownerGroup) ? 30 : 20;
       if (i < ejected.length && mass.age > lifetime) ejected.splice(i, 1);
     }
   }
@@ -3717,7 +3671,7 @@
         if (wrap.cell.dead) continue;
         if (groupInvincible(wrap.group)) continue;
         const sameOwner = mass.ownerId === wrap.group.id;
-        const playerOwned = mass.ownerId === playerGroup?.id;
+        const playerOwned = isGameplayHuman(ownerGroup);
         if (gameplayCore.canCollectEjected({
           sameOwner,
           playerOwned,
@@ -4141,6 +4095,7 @@
     }
 
     group.dead = true;
+    group.deaths = (group.deaths || 0) + 1;
     group.cells = [];
 
     if (config.demon && group.isBoss) {
@@ -4446,6 +4401,7 @@
     if (config.control) {
       const winner = teamScores.findIndex(score => score >= config.controlScore);
       if (winner >= 0) {
+        game.winnerId = representativeForTeam(winner)?.id || null;
         endGame(winner === playerGroup.team ? "据点胜利" : "据点结算");
         return;
       }
@@ -4461,12 +4417,13 @@
         endGame(rank === 1 ? "生存第一" : "生存结算");
       } else {
         const rank = personalRank();
-        endGame(rank === 1 ? "自由第一" : "自由结算");
+        const name = activeMode === "blitz" ? "闪电" : activeMode === "spore" ? "孢子" : "自由";
+        endGame(rank === 1 ? `${name}第一` : `${name}结算`);
       }
       return;
     }
 
-    if (playerGroup.dead) return;
+    if (!authorityMode && playerGroup.dead) return;
     if (config.domination) return;
     if (config.respawn && config.ranking === "kills") {
       let contenderCount = 0;
@@ -4476,9 +4433,16 @@
         contenderCount += 1;
         contender = group;
       }
-      if (contenderCount === 1 && contender === playerGroup) endGame("生存第一");
+      if (contenderCount === 1 && (authorityMode || contender === playerGroup)) {
+        game.winnerId = contender.id;
+        endGame("生存第一");
+      } else if (authorityMode && contenderCount === 0) {
+        game.noWinner = true;
+        endGame("无人存活");
+      }
       return;
     }
+    if (config.respawn) return; // Waiting to respawn is not elimination.
 
     let aliveCount = 0;
     let lastAlive = null;
@@ -4488,8 +4452,12 @@
       lastAlive = group;
       if (aliveCount > 1) break;
     }
-    if (aliveCount === 1 && lastAlive === playerGroup) {
+    if (aliveCount === 1 && (authorityMode || lastAlive === playerGroup)) {
+      game.winnerId = lastAlive.id;
       endGame("成功吃鸡");
+    } else if (authorityMode && aliveCount === 0) {
+      game.noWinner = true;
+      endGame("无人存活");
     }
   }
 
@@ -4514,53 +4482,14 @@
 
   function updateCamera(dt) {
     if (playerGroup.dead || !playerGroup.cells.length) return;
-    const center = groupCenter(playerGroup);
-    const config = modeConfig();
-    const cells = playerGroup.cells.filter(cell => !cell.dead);
-    if (!cells.length) return;
-    let minX = Infinity;
-    let minY = Infinity;
-    let maxX = -Infinity;
-    let maxY = -Infinity;
-    let spread = center.largest;
-    for (const cell of cells) {
-      minX = Math.min(minX, cell.x - cell.radius);
-      minY = Math.min(minY, cell.y - cell.radius);
-      maxX = Math.max(maxX, cell.x + cell.radius);
-      maxY = Math.max(maxY, cell.y + cell.radius);
-      spread = Math.max(spread, Math.hypot(cell.x - center.x, cell.y - center.y) + cell.radius);
-    }
-
-    const boundsCenter = { x: (minX + maxX) / 2, y: (minY + maxY) / 2 };
-    const spreadRatio = spread / Math.max(1, center.largest);
-    const splitPressure = clamp((cells.length - 1) / Math.max(6, maxCellsFor(playerGroup) * 0.34), 0, 1);
-    const spreadPressure = clamp((spreadRatio - 1.55) / 4.2, 0, 1);
-    const viewPressure = clamp(Math.max(spreadPressure, splitPressure * 0.52 + spreadPressure * 0.48), 0, 1);
-    game.cameraViewPressure = viewPressure;
-    game.cameraSpreadRatio = spreadRatio;
-    const targetCenter = {
-      x: lerp(center.x, boundsCenter.x, viewPressure * 0.72),
-      y: lerp(center.y, boundsCenter.y, viewPressure * 0.72)
-    };
-    const smooth = damp(config.domination ? 4.7 : 4.2, dt);
-    camera.x += (targetCenter.x - camera.x) * smooth;
-    camera.y += (targetCenter.y - camera.y) * smooth;
-
-    const baseMinZoom = config.minZoom || 0.34;
-    const splitMinZoom = config.splitMinZoom || Math.max(0.16, baseMinZoom * 0.62);
-    const minZoom = lerp(baseMinZoom, splitMinZoom, viewPressure);
-    const boundsW = Math.max(1, maxX - minX);
-    const boundsH = Math.max(1, maxY - minY);
-    const boundsMargin = Math.max(360, center.largest * 2.1, Math.sqrt(center.mass) * 1.2);
-    const boundsZoom = Math.min(view.w / (boundsW + boundsMargin), view.h / (boundsH + boundsMargin));
-    const massSpan = config.domination
-      ? Math.max(760, center.largest * 3.25 + 430)
-      : Math.max(620, center.largest * 9.6);
-    const massZoom = Math.min(view.w, view.h) / massSpan;
-    const wantedZoom = cells.length > 1 || spreadRatio > 1.8 ? Math.min(massZoom, boundsZoom) : massZoom;
-    const zoomSpeed = wantedZoom < zoom ? 3.8 : 2.35;
-    const targetZoom = clamp(wantedZoom, minZoom, 1.08);
-    zoom += (targetZoom - zoom) * damp(zoomSpeed, dt);
+    const next = gameplayCore.cameraStep({ ...camera, zoom }, playerGroup.cells, {
+      config: modeConfig(), maxCells: maxCellsFor(playerGroup), width: view.w, height: view.h, dt
+    });
+    camera.x = next.x;
+    camera.y = next.y;
+    zoom = next.zoom;
+    game.cameraViewPressure = next.viewPressure;
+    game.cameraSpreadRatio = next.spreadRatio;
   }
 
   function splitGroup(group, target, options) {
@@ -4653,7 +4582,7 @@
   }
 
   function quickMergePlayer() {
-    return quickMergeGroup(playerGroup, performance.now(), true);
+    return quickMergeGroup(playerGroup, authorityNow, true);
   }
 
   function screenDashGroup(group, target, now = authorityNow, feedback = false) {
@@ -4712,7 +4641,7 @@
   }
 
   function screenDashPlayer() {
-    return screenDashGroup(playerGroup, cursorPoint(), performance.now(), true);
+    return screenDashGroup(playerGroup, cursorPoint(), authorityNow, true);
   }
 
   function ejectMass(group, target, now) {
@@ -4758,6 +4687,7 @@
       if (Math.random() < 0.42) sparkle(cell.x + n.x * cell.radius, cell.y + n.y * cell.radius, sporeColorFor(group), 3, 110);
       didEject = true;
     }
+    if (didEject && !authorityMode && group === playerGroup) window.ScaAudio?.play("eject");
     return didEject;
   }
 
@@ -4775,13 +4705,8 @@
 
   function awardDust(rank, peakMass, config) {
     if (game.dustRewarded || game.menu) return 0;
-    const rankBonus = Math.max(0, 30 - rank * 4);
-    const massBonus = Math.min(42, Math.floor(peakMass / 120));
-    const killBonus = Math.min(36, game.kills * 5);
-    const controlBonus = config.control ? Math.min(28, Math.floor((teamScores[playerGroup.team] || 0) / 8)) : 0;
     const livingBosses = config.demon ? groups.filter(group => group.isBoss && !group.dead && group.cells.length) : [];
-    const demonBonus = config.demon ? (livingBosses.length ? 45 : 140) : 0;
-    const reward = Math.max(10, Math.round((14 + rankBonus + massBonus + killBonus + controlBonus + demonBonus + meta.forgeLevel * 2) * growthRewardMultiplier()));
+    const reward = window.ScaProgression.matchReward({ rank, peakMass, kills: game.kills, controlScore: config.control ? teamScores[playerGroup.team] || 0 : 0, demon: config.demon, demonWin: !livingBosses.length, forgeLevel: meta.forgeLevel, multiplier: growthRewardMultiplier() });
     meta.dust += reward;
     meta.totalDust = (meta.totalDust || 0) + reward;
     game.dustRewarded = true;
@@ -4789,9 +4714,17 @@
     return reward;
   }
 
+  function representativeForTeam(team) {
+    return groups.filter(group => group.team === team)
+      .sort((a, b) => Number(a.dead) - Number(b.dead) || groupMass(b) - groupMass(a))[0] || null;
+  }
+
   function endGame(reason) {
     if (game.over) return;
     const config = modeConfig();
+    if (config.demon && (reason === "魔王讨伐" || reason === "讨伐失败")) {
+      game.winnerId = representativeForTeam(reason === "魔王讨伐" ? 0 : 1)?.id || null;
+    }
     game.over = true;
     game.finishReason = reason;
     game.paused = false;
@@ -4852,10 +4785,22 @@
   }
 
   function togglePause() {
+    window.ScaMatchGuide?.hide();
     if (game.over || game.menu) return;
     game.paused = !game.paused;
+    input.ejectHeld = false;
+    ejectBtn.classList.remove("active");
+    const session = document.getElementById("singleSessionMenu");
+    if (session) session.hidden = !game.paused;
+    if (game.paused) {
+      document.getElementById("singleSessionDescription").textContent = `${modeConfig().label} · ${modeConfig().description} 对局时间已冻结，Esc 或 P 继续。`;
+      document.getElementById("singleResumeBtn")?.focus({ preventScroll: true });
+    } else {
+      lastFrame = performance.now();
+      simulationAccumulator = 0;
+    }
     pauseBtn.textContent = game.paused ? "续" : "停";
-    updateHud(performance.now(), true);
+    updateHud(authorityNow, true);
   }
 
   function returnToLobby() {
@@ -4891,6 +4836,8 @@
   }
 
   function showTitleScreen(panelName = "home") {
+    const session = document.getElementById("singleSessionMenu");
+    if (session) session.hidden = true;
     game.menu = true;
     game.paused = true;
     overlay.style.display = "none";
@@ -4954,6 +4901,7 @@
     settingsForm.elements.networkBuffer.value = saved.networkBuffer;
     settingsForm.elements.showPerformance.checked = saved.showPerformance;
     settingsForm.elements.screenShake.checked = saved.screenShake;
+    for (const key of ["masterVolume", "musicVolume", "effectsVolume"]) settingsForm.elements[key].value = saved[key];
     settingsForm.elements.windowSize.disabled = saved.displayMode !== "windowed";
     refreshDisplayNote();
     if (window.starClusterDesktop?.getDisplayState) {
@@ -4979,6 +4927,8 @@
     for (const button of modeButtons) {
       button.classList.toggle("active", button.dataset.mode === selectedMode);
     }
+    const hint = document.getElementById("selectedModeHint");
+    if (hint) hint.textContent = `${GAME_MODES[selectedMode].label} · ${GAME_MODES[selectedMode].players} 位参赛者`;
   }
 
   function showLobbyPanel(panel) {
@@ -5331,80 +5281,11 @@
     const bounds = visibleBounds(60);
     for (const mass of ejected) {
       if (!isVisible(mass, bounds, 26)) continue;
-      const pattern = mass.spore || "round";
-      ctx.save();
-      ctx.globalAlpha = 0.94;
-      ctx.fillStyle = mass.color;
-      ctx.shadowColor = mass.color;
-      ctx.shadowBlur = 12 / zoom;
-      ctx.beginPath();
-      ctx.arc(mass.x, mass.y, mass.radius, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = "rgba(255, 255, 255, 0.34)";
-      ctx.lineWidth = 1.5 / zoom;
-      ctx.stroke();
-      if (pattern !== "round" && !perf.lowQuality) {
-        drawSporePattern(mass, pattern);
-      }
-      ctx.restore();
+      sharedCosmeticRenderer.drawEjected({
+        context: ctx, x: mass.x, y: mass.y, radius: mass.radius, color: mass.color,
+        pattern: mass.spore, accent: mass.accent, lineScale: 1 / zoom, lowQuality: perf.lowQuality
+      });
     }
-  }
-
-  function drawSporePattern(mass, pattern) {
-    const r = mass.radius;
-    const accent = mass.accent || "#ffffff";
-    ctx.save();
-    ctx.shadowBlur = 0;
-    ctx.strokeStyle = accent;
-    ctx.fillStyle = accent;
-    ctx.lineWidth = 1.4 / zoom;
-    ctx.globalAlpha = 0.72;
-    if (pattern === "bubble") {
-      ctx.beginPath();
-      ctx.arc(mass.x - r * 0.18, mass.y - r * 0.2, r * 0.34, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.globalAlpha = 0.35;
-      ctx.beginPath();
-      ctx.arc(mass.x + r * 0.25, mass.y + r * 0.18, r * 0.18, 0, Math.PI * 2);
-      ctx.stroke();
-    } else if (pattern === "meteor" || pattern === "aurora") {
-      ctx.beginPath();
-      ctx.moveTo(mass.x - r * 0.58, mass.y + r * 0.1);
-      ctx.lineTo(mass.x + r * 0.48, mass.y - r * 0.22);
-      ctx.stroke();
-      ctx.globalAlpha = 0.46;
-      ctx.beginPath();
-      ctx.moveTo(mass.x - r * 0.2, mass.y + r * 0.44);
-      ctx.lineTo(mass.x + r * 0.42, mass.y + r * 0.08);
-      ctx.stroke();
-    } else if (pattern === "spark") {
-      ctx.beginPath();
-      ctx.moveTo(mass.x - r * 0.45, mass.y - r * 0.1);
-      ctx.lineTo(mass.x, mass.y + r * 0.02);
-      ctx.lineTo(mass.x - r * 0.12, mass.y + r * 0.42);
-      ctx.lineTo(mass.x + r * 0.48, mass.y - r * 0.18);
-      ctx.stroke();
-    } else if (pattern === "vine") {
-      ctx.beginPath();
-      ctx.arc(mass.x, mass.y, r * 0.48, Math.PI * 0.08, Math.PI * 1.35);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.ellipse(mass.x + r * 0.2, mass.y - r * 0.2, r * 0.18, r * 0.09, -0.65, 0, Math.PI * 2);
-      ctx.fill();
-    } else if (pattern === "royal") {
-      ctx.beginPath();
-      for (let i = 0; i < 5; i++) {
-        const angle = -Math.PI / 2 + (i / 5) * Math.PI * 2;
-        const rr = i % 2 === 0 ? r * 0.5 : r * 0.2;
-        const x = mass.x + Math.cos(angle) * rr;
-        const y = mass.y + Math.sin(angle) * rr;
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      }
-      ctx.closePath();
-      ctx.stroke();
-    }
-    ctx.restore();
   }
 
   function drawViruses(now) {
@@ -5490,102 +5371,20 @@
 
   function drawCell(group, cell, now) {
     const r = cell.radius;
-    const simpleFill = perf.lowQuality && !group.isPlayer && r < 44;
-
     ctx.save();
-    if (!simpleFill) {
+    if (!(perf.lowQuality && !group.isPlayer && r < 44)) {
       drawTrailPattern(group, cell, now);
       drawHaloPattern(group, cell, now);
     }
-    if (!perf.lowQuality || group.isPlayer || r > 52) {
-      ctx.shadowColor = group.color;
-      ctx.shadowBlur = (group.isPlayer ? 20 : 13) / zoom;
-    }
-    if (simpleFill) {
-      ctx.fillStyle = group.color;
-    } else {
-      const light = lighten(group.color, group.isPlayer ? 56 : 36);
-      const grad = ctx.createRadialGradient(cell.x - r * 0.28, cell.y - r * 0.35, r * 0.08, cell.x, cell.y, r);
-      grad.addColorStop(0, light);
-      grad.addColorStop(0.48, group.color);
-      grad.addColorStop(1, lighten(group.color, -42));
-      ctx.fillStyle = grad;
-    }
-    ctx.beginPath();
-    ctx.arc(cell.x, cell.y, r, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.shadowBlur = 0;
-    ctx.lineWidth = (group.isPlayer ? 4 : 2.4) / zoom;
-    ctx.strokeStyle = group.isPlayer ? "rgba(255, 255, 255, 0.74)" : "rgba(255, 255, 255, 0.34)";
-    ctx.stroke();
-
-    if (groupInvincible(group, now)) {
-      const left = Math.max(0, group.invincibleUntil - now) / 1000;
-      ctx.strokeStyle = `rgba(103, 232, 249, ${0.34 + Math.sin(now / 120) * 0.12})`;
-      ctx.lineWidth = 4 / zoom;
-      ctx.beginPath();
-      ctx.arc(cell.x, cell.y, r + (10 + Math.sin(now / 160) * 4) / zoom, 0, Math.PI * 2);
-      ctx.stroke();
-      if (group.isPlayer && r > 34) {
-        ctx.font = `800 ${clamp(r * 0.18, 11, 18) / zoom}px Microsoft YaHei, Segoe UI, sans-serif`;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillStyle = "rgba(224, 242, 254, 0.9)";
-        ctx.fillText(`${Math.ceil(left)}s`, cell.x, cell.y - r * 0.62);
-      }
-    }
-
-    ctx.globalAlpha = 0.13;
-    ctx.strokeStyle = "#ffffff";
-    ctx.lineWidth = 2 / zoom;
-    const innerRings = perf.lowQuality ? (r > 64 || group.isPlayer ? 2 : 0) : 4;
-    for (let i = 0; i < innerRings; i++) {
-      ctx.beginPath();
-      ctx.arc(cell.x, cell.y, r * (0.32 + i * 0.15), now / 1600 + i, Math.PI * 1.2 + now / 1600 + i);
-      ctx.stroke();
-    }
-    ctx.globalAlpha = 1;
-
+    sharedCosmeticRenderer.drawCellBody({
+      context: ctx, x: cell.x, y: cell.y, radius: r, color: group.color,
+      own: group.isPlayer, lowQuality: perf.lowQuality, now, lineScale: 1 / zoom,
+      invincibleRemaining: groupInvincible(group, now) ? Math.max(0, group.invincibleUntil - now) / 1000 : 0,
+      mergeDelay: cell.mergeDelay, mergeMax: cell.mergeMax
+    });
     drawSkinPattern(group, cell, now);
-
-    if (cell.mergeDelay > 0) {
-      ctx.strokeStyle = `rgba(255, 209, 102, ${0.18 + Math.sin(now / 120) * 0.10})`;
-      ctx.lineWidth = 4 / zoom;
-      ctx.beginPath();
-      ctx.arc(cell.x, cell.y, r + 6, 0, Math.PI * 2);
-      ctx.stroke();
-      if (group.isPlayer) {
-        const maxDelay = Math.max(cell.mergeMax || cell.mergeDelay, cell.mergeDelay, 0.1);
-        const ready = clamp(1 - cell.mergeDelay / maxDelay, 0, 1);
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.82)";
-        ctx.lineWidth = 3 / zoom;
-        ctx.beginPath();
-        ctx.arc(cell.x, cell.y, r + 13, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * ready);
-        ctx.stroke();
-        if (r > 30) {
-          ctx.font = `800 ${clamp(r * 0.22, 11, 18) / zoom}px Microsoft YaHei, Segoe UI, sans-serif`;
-          ctx.textAlign = "center";
-          ctx.textBaseline = "middle";
-          ctx.fillStyle = "rgba(255, 245, 210, 0.92)";
-          ctx.fillText(`${Math.ceil(cell.mergeDelay)}s`, cell.x, cell.y + r * 0.58);
-        }
-      }
-    }
-
-    if (group.isPlayer || !perf.lowQuality || r > 34 || (r > 24 && zoom > 0.7)) {
-      drawCellLabel(group, cell);
-    }
+    if (group.isPlayer || !perf.lowQuality || r > 34 || (r > 24 && zoom > 0.7)) drawCellLabel(group, cell);
     ctx.restore();
-  }
-
-  function shouldDrawPlayerCosmetic(group, cell, minRadius = 24) {
-    if (!group.isPlayer) return false;
-    if (cell.radius < minRadius) return false;
-    const splitCount = playerGroup ? playerGroup.cells.length : 1;
-    if (splitCount > 10 && cell.radius < 42) return false;
-    if (perf.lowQuality && cell.radius < 58) return false;
-    return true;
   }
 
   function drawTrailPattern(group, cell, now) {
@@ -5608,59 +5407,6 @@
         baseColor: group.color
       });
     }
-    const trail = selectedTrailDef();
-    if (!isSpecial(trail) || !shouldDrawPlayerCosmetic(group, cell, 26)) return;
-    const speed = Math.hypot(cell.vx, cell.vy);
-    if (speed < 16) return;
-    const r = cell.radius;
-    const dir = norm(-cell.vx, -cell.vy);
-    const side = { x: -dir.y, y: dir.x };
-    const accent = trail.accent || "#ffffff";
-    const base = trail.color || group.color;
-    const count = perf.lowQuality ? 2 : 4;
-    const pulse = Math.sin(now / 160 + cell.x * 0.01) * 0.18;
-
-    ctx.save();
-    ctx.shadowBlur = perf.lowQuality ? 0 : 10 / zoom;
-    ctx.shadowColor = accent;
-    for (let i = 0; i < count; i++) {
-      const t = i + 1;
-      const dist = r * (0.72 + t * 0.36);
-      const wobble = Math.sin(now / 220 + i * 1.7) * r * 0.1;
-      const x = cell.x + dir.x * dist + side.x * wobble;
-      const y = cell.y + dir.y * dist + side.y * wobble;
-      const size = Math.max(3, r * (0.17 - i * 0.026));
-      ctx.globalAlpha = clamp(0.34 - i * 0.055 + pulse * 0.05, 0.08, 0.38);
-      ctx.fillStyle = i % 2 ? accent : base;
-      ctx.strokeStyle = accent;
-      ctx.lineWidth = 1.3 / zoom;
-      if (trail.pattern === "arc" || trail.pattern === "rift") {
-        ctx.beginPath();
-        ctx.moveTo(x - side.x * size, y - side.y * size);
-        ctx.lineTo(x + dir.x * size * 0.5, y + dir.y * size * 0.5);
-        ctx.lineTo(x + side.x * size, y + side.y * size);
-        ctx.stroke();
-      } else if (trail.pattern === "ribbon") {
-        ctx.beginPath();
-        ctx.ellipse(x, y, size * 1.35, size * 0.45, Math.atan2(dir.y, dir.x), 0, Math.PI * 2);
-        ctx.fill();
-      } else if (trail.pattern === "squares") {
-        ctx.save();
-        ctx.translate(x, y);
-        ctx.rotate(now / 500 + i);
-        ctx.fillRect(-size * 0.55, -size * 0.55, size * 1.1, size * 1.1);
-        ctx.restore();
-      } else if (trail.pattern === "petals") {
-        ctx.beginPath();
-        ctx.ellipse(x, y, size * 0.65, size * 1.05, Math.atan2(side.y, side.x), 0, Math.PI * 2);
-        ctx.fill();
-      } else {
-        ctx.beginPath();
-        ctx.arc(x, y, trail.pattern === "bubbles" ? size * 0.78 : size, 0, Math.PI * 2);
-        trail.pattern === "bubbles" ? ctx.stroke() : ctx.fill();
-      }
-    }
-    ctx.restore();
   }
 
   function drawHaloPattern(group, cell, now) {
@@ -5681,80 +5427,6 @@
         baseColor: group.color
       });
     }
-    const halo = selectedHaloDef();
-    if (!isSpecial(halo) || !shouldDrawPlayerCosmetic(group, cell, 30)) return;
-    const r = cell.radius;
-    const accent = halo.accent || "#ffffff";
-    const base = halo.color || group.color;
-    const spin = now / 1500;
-    const outer = r + 12 / zoom;
-
-    ctx.save();
-    ctx.shadowBlur = perf.lowQuality ? 0 : 13 / zoom;
-    ctx.shadowColor = accent;
-    ctx.globalAlpha = perf.lowQuality ? 0.36 : 0.58;
-    ctx.strokeStyle = accent;
-    ctx.lineWidth = 2.4 / zoom;
-
-    if (halo.pattern === "orbit") {
-      ctx.beginPath();
-      ctx.arc(cell.x, cell.y, outer, spin, spin + Math.PI * 1.45);
-      ctx.stroke();
-      ctx.globalAlpha *= 0.68;
-      ctx.strokeStyle = base;
-      ctx.beginPath();
-      ctx.arc(cell.x, cell.y, outer + 8 / zoom, spin + Math.PI, spin + Math.PI * 1.9);
-      ctx.stroke();
-    } else if (halo.pattern === "frost") {
-      ctx.setLineDash([6 / zoom, 8 / zoom]);
-      ctx.beginPath();
-      ctx.arc(cell.x, cell.y, outer, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.setLineDash([]);
-    } else if (halo.pattern === "pulse") {
-      for (let i = 0; i < 2; i++) {
-        ctx.globalAlpha = (perf.lowQuality ? 0.24 : 0.44) - i * 0.12;
-        ctx.beginPath();
-        ctx.arc(cell.x, cell.y, outer + i * 9 / zoom + Math.sin(spin * 2 + i) * 2 / zoom, 0, Math.PI * 2);
-        ctx.stroke();
-      }
-    } else if (halo.pattern === "sun") {
-      ctx.beginPath();
-      for (let i = 0; i < 18; i++) {
-        const angle = spin + (i / 18) * Math.PI * 2;
-        const inner = outer + (i % 2) * 3 / zoom;
-        const tip = outer + (i % 2 === 0 ? 13 : 8) / zoom;
-        ctx.moveTo(cell.x + Math.cos(angle) * inner, cell.y + Math.sin(angle) * inner);
-        ctx.lineTo(cell.x + Math.cos(angle) * tip, cell.y + Math.sin(angle) * tip);
-      }
-      ctx.stroke();
-    } else if (halo.pattern === "crown") {
-      ctx.beginPath();
-      ctx.arc(cell.x, cell.y, outer, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.fillStyle = accent;
-      ctx.globalAlpha = perf.lowQuality ? 0.28 : 0.46;
-      for (let i = 0; i < 5; i++) {
-        const angle = spin * 0.6 + (i / 5) * Math.PI * 2;
-        const x = cell.x + Math.cos(angle) * (outer + 3 / zoom);
-        const y = cell.y + Math.sin(angle) * (outer + 3 / zoom);
-        ctx.beginPath();
-        ctx.arc(x, y, Math.max(2.5, r * 0.055), 0, Math.PI * 2);
-        ctx.fill();
-      }
-    } else if (halo.pattern === "gravity") {
-      ctx.strokeStyle = accent;
-      ctx.lineWidth = 3 / zoom;
-      ctx.beginPath();
-      ctx.arc(cell.x, cell.y, outer, spin, spin + Math.PI * 1.72);
-      ctx.stroke();
-      ctx.globalAlpha = perf.lowQuality ? 0.18 : 0.34;
-      ctx.strokeStyle = base;
-      ctx.beginPath();
-      ctx.arc(cell.x, cell.y, outer + 10 / zoom, -spin, -spin + Math.PI * 1.2);
-      ctx.stroke();
-    }
-    ctx.restore();
   }
 
   function drawSkinPattern(group, cell, now) {
@@ -5775,131 +5447,12 @@
         baseColor: group.color
       });
     }
-    if (!group.isPlayer) return;
-    const skin = selectedSkinDef();
-    if (!isSpecial(skin)) return;
-    const r = cell.radius;
-    if (!shouldDrawPlayerCosmetic(group, cell, 24)) return;
-    const accent = skin.accent || "#ffffff";
-    const spin = now / 1600;
-
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(cell.x, cell.y, r * 0.96, 0, Math.PI * 2);
-    ctx.clip();
-    ctx.shadowBlur = 0;
-
-    if (skin.pattern === "comet") {
-      ctx.globalAlpha = 0.26;
-      ctx.strokeStyle = accent;
-      ctx.lineWidth = Math.max(3, r * 0.09) / zoom;
-      for (let i = -2; i <= 2; i++) {
-        const y = cell.y + i * r * 0.26 + Math.sin(spin + i) * r * 0.06;
-        ctx.beginPath();
-        ctx.moveTo(cell.x - r * 1.1, y + r * 0.35);
-        ctx.lineTo(cell.x + r * 1.1, y - r * 0.35);
-        ctx.stroke();
-      }
-    } else if (skin.pattern === "mecha") {
-      ctx.globalAlpha = 0.34;
-      ctx.strokeStyle = accent;
-      ctx.lineWidth = 2 / zoom;
-      for (let i = 0; i < 3; i++) {
-        const rr = r * (0.34 + i * 0.18);
-        ctx.beginPath();
-        for (let j = 0; j < 6; j++) {
-          const angle = spin * 0.35 + (j / 6) * Math.PI * 2;
-          const x = cell.x + Math.cos(angle) * rr;
-          const y = cell.y + Math.sin(angle) * rr;
-          if (j === 0) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
-        }
-        ctx.closePath();
-        ctx.stroke();
-      }
-    } else if (skin.pattern === "tide") {
-      ctx.globalAlpha = 0.28;
-      ctx.strokeStyle = accent;
-      ctx.lineWidth = Math.max(2, r * 0.055) / zoom;
-      for (let i = -2; i <= 2; i++) {
-        ctx.beginPath();
-        for (let step = 0; step <= 16; step++) {
-          const x = cell.x - r + (step / 16) * r * 2;
-          const y = cell.y + i * r * 0.24 + Math.sin(step * 0.85 + spin * 2 + i) * r * 0.08;
-          if (step === 0) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
-        }
-        ctx.stroke();
-      }
-    } else if (skin.pattern === "flare") {
-      ctx.globalAlpha = 0.22;
-      ctx.fillStyle = accent;
-      for (let i = 0; i < 10; i++) {
-        const angle = spin + (i / 10) * Math.PI * 2;
-        const rr = r * (0.18 + (i % 4) * 0.12);
-        ctx.beginPath();
-        ctx.arc(cell.x + Math.cos(angle) * rr, cell.y + Math.sin(angle) * rr, r * 0.22, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    } else if (skin.pattern === "crown") {
-      ctx.globalAlpha = 0.32;
-      ctx.strokeStyle = accent;
-      ctx.fillStyle = accent;
-      ctx.lineWidth = 2.2 / zoom;
-      for (let i = 0; i < 6; i++) {
-        const angle = spin * 0.45 + (i / 6) * Math.PI * 2;
-        const x = cell.x + Math.cos(angle) * r * 0.48;
-        const y = cell.y + Math.sin(angle) * r * 0.48;
-        ctx.beginPath();
-        ctx.moveTo(x, y - r * 0.15);
-        ctx.lineTo(x - r * 0.12, y + r * 0.12);
-        ctx.lineTo(x + r * 0.12, y + r * 0.12);
-        ctx.closePath();
-        ctx.fill();
-      }
-    } else if (skin.pattern === "abyss") {
-      ctx.globalAlpha = 0.36;
-      const grad = ctx.createRadialGradient(cell.x, cell.y, r * 0.08, cell.x, cell.y, r * 0.78);
-      grad.addColorStop(0, "rgba(0, 0, 0, 0.72)");
-      grad.addColorStop(0.55, "rgba(17, 24, 39, 0.18)");
-      grad.addColorStop(1, accent);
-      ctx.fillStyle = grad;
-      ctx.beginPath();
-      ctx.arc(cell.x, cell.y, r * 0.76, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    ctx.restore();
-
-    ctx.save();
-    ctx.globalAlpha = perf.lowQuality ? 0.34 : 0.52;
-    ctx.strokeStyle = accent;
-    ctx.lineWidth = (skin.rarity === "传说" ? 3.2 : 2.4) / zoom;
-    ctx.beginPath();
-    ctx.arc(cell.x, cell.y, r + 4 / zoom, spin, spin + Math.PI * 1.55);
-    ctx.stroke();
-    ctx.restore();
   }
 
   function drawCellLabel(group, cell) {
-    const r = cell.radius;
-    if (r < 14) return;
-    const fontSize = clamp(r * 0.34, 13, 34);
-    ctx.save();
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.font = `800 ${fontSize}px Microsoft YaHei, Segoe UI, sans-serif`;
-    ctx.lineWidth = 5 / zoom;
-    ctx.strokeStyle = "rgba(0, 0, 0, 0.38)";
-    ctx.strokeText(group.name, cell.x, cell.y);
-    ctx.fillStyle = group.isPlayer ? "#ffffff" : "rgba(255, 255, 255, 0.92)";
-    ctx.fillText(group.name, cell.x, cell.y);
-
-    if (r > 32) {
-      ctx.font = `700 ${fontSize * 0.48}px Microsoft YaHei, Segoe UI, sans-serif`;
-      ctx.fillStyle = "rgba(255, 255, 255, 0.72)";
-      ctx.fillText(Math.round(cell.mass), cell.x, cell.y + fontSize * 0.88);
-    }
-    ctx.restore();
+    return sharedCosmeticRenderer.drawCellLabel({ context: ctx, x: cell.x, y: cell.y, radius: cell.radius,
+      name: group.name, mass: cell.mass, own: group.isPlayer, lineScale: 1 / zoom,
+      showName: group.cells.length <= 4 || cell.radius >= 64 });
   }
 
   function drawEffects() {
@@ -6035,7 +5588,7 @@
     ctx.fillText("已暂停", view.w / 2, view.h / 2);
     ctx.font = "500 15px Microsoft YaHei, Segoe UI, sans-serif";
     ctx.fillStyle = "#9fb1c9";
-    ctx.fillText("P 继续，R 重开", view.w / 2, view.h / 2 + 34);
+    ctx.fillText("P / Esc 继续，暂停菜单可确认重开", view.w / 2, view.h / 2 + 34);
     ctx.restore();
   }
 
@@ -6230,6 +5783,7 @@
       : rows.findIndex(row => row.player);
     const rank = rankIndex >= 0 ? rankIndex + 1 : rows.length + 1;
     const mass = groupMass(playerGroup);
+    if (!authorityMode && !game.menu && !game.paused) window.ScaAudio?.observe({ ...playerGroup, mass });
     massValue.textContent = Math.round(mass);
     rankValue.textContent = playerGroup.dead ? "-" : rank;
     cellValue.textContent = playerGroup.cells.length;
@@ -6423,7 +5977,7 @@
       } else if (overlay.style.display === "grid" && (game.menu || game.over)) {
         showTitleScreen();
       } else if (!game.menu && !game.over) {
-        returnToLobby();
+        togglePause();
       }
     } else if (event.code === "Space") {
       event.preventDefault();
@@ -6441,8 +5995,8 @@
       ejectBtn.classList.add("active");
     } else if (key === "p") {
       if (!event.repeat) togglePause();
-    } else if (key === "r") {
-      if (!event.repeat) startGame(game.menu || game.over ? selectedMode : activeMode);
+    } else if (key === "r" && !event.repeat && !game.menu && !game.over) {
+      if (!game.paused) togglePause();
     }
   });
 
@@ -6478,7 +6032,7 @@
     }
     input.ejectHeld = true;
     ejectBtn.classList.add("active");
-    ejectMass(playerGroup, cursorPoint(), performance.now());
+    ejectMass(playerGroup, cursorPoint(), authorityNow);
   }
 
   function stopEjectHold(event) {
@@ -6503,16 +6057,30 @@
   ejectBtn.addEventListener("lostpointercapture", stopEjectHold);
   ejectBtn.addEventListener("contextmenu", event => event.preventDefault());
   window.addEventListener("pointerup", stopEjectHold);
-  window.addEventListener("blur", stopEjectHold);
+  window.addEventListener("blur", () => {
+    stopEjectHold();
+    resetJoystick();
+    if (!authorityMode && !game.menu && !game.over && !game.paused) togglePause();
+  });
   document.addEventListener("visibilitychange", () => {
-    if (document.hidden) stopEjectHold();
+    if (document.hidden) {
+      stopEjectHold();
+      if (!authorityMode && !game.menu && !game.over && !game.paused) togglePause();
+    }
   });
   pauseBtn.addEventListener("click", togglePause);
+  document.getElementById("singleResumeBtn")?.addEventListener("click", () => { if (game.paused) togglePause(); });
+  document.getElementById("singleLeaveBtn")?.addEventListener("click", returnToLobby);
+  document.getElementById("singleRestartBtn")?.addEventListener("click", () => {
+    const session = document.getElementById("singleSessionMenu");
+    if (session) session.hidden = true;
+    startGame(activeMode);
+  });
   musicBtn.addEventListener("click", toggleMusic);
   musicLobbyBtn.addEventListener("click", toggleMusic);
   randomLookBtn.addEventListener("click", randomizeOwnedLook);
-  menuBtn.addEventListener("click", returnToLobby);
-  document.getElementById("restartBtn").addEventListener("click", () => startGame(game.menu || game.over ? selectedMode : activeMode));
+  menuBtn.addEventListener("click", () => { if (!game.menu && !game.over && !game.paused) togglePause(); else if (game.menu || game.over) returnToLobby(); });
+  document.getElementById("restartBtn").addEventListener("click", () => { if (game.menu || game.over) startGame(selectedMode); else if (!game.paused) togglePause(); });
   playAgainBtn.addEventListener("click", () => startGame(selectedMode));
   document.getElementById("titleSingleBtn")?.addEventListener("click", openSingleLobby);
   document.getElementById("heroStartBtn")?.addEventListener("click", openSingleLobby);
@@ -6564,7 +6132,10 @@
       quality: settingsForm.elements.quality.value,
       networkBuffer: settingsForm.elements.networkBuffer.value,
       showPerformance: settingsForm.elements.showPerformance.checked,
-      screenShake: settingsForm.elements.screenShake.checked
+      screenShake: settingsForm.elements.screenShake.checked,
+      masterVolume: settingsForm.elements.masterVolume.value,
+      musicVolume: settingsForm.elements.musicVolume.value,
+      effectsVolume: settingsForm.elements.effectsVolume.value
     });
     let displayState = null;
     if (window.starClusterDesktop?.setDisplayMode) {
@@ -6599,7 +6170,7 @@
       }
     }
     const saved = settingsApi.save({ ...requested, displayMode: displayState?.mode || requested.displayMode });
-    const runtimeChanged = ["frameRate", "quality", "showPerformance", "screenShake"]
+    const runtimeChanged = ["frameRate", "quality", "showPerformance", "screenShake", "masterVolume", "musicVolume", "effectsVolume"]
       .some(key => previous[key] !== saved[key]);
     if (runtimeChanged) {
       showLobbyToast("设置已保存，正在重新载入渲染器", "#58edc8");
@@ -6721,7 +6292,6 @@
   document.addEventListener("visibilitychange", () => {
     if (!document.hidden) {
       lastFrame = performance.now();
-      simulationNow = lastFrame;
       simulationAccumulator = 0;
       captureSimulationState();
     }
@@ -6765,10 +6335,10 @@
       team: group.team,
       teamRank: group.team == null ? null : teamRanks.get(group.team),
       role: group.isBoss ? "boss" : group.isDemonMinion ? "minion" : "player",
-      eliminated: Boolean(group.eliminated || (group.dead && !config.respawn)),
+      eliminated: Boolean(group.eliminated || (group.dead && (!config.respawn || (config.lives && group.lives <= 0)))),
       score: group.team == null ? 0 : Math.round((teamScores[group.team] || 0) * 10) / 10
     }));
-    if (config.ranking === "kills") return entries.sort((a, b) => b.kills - a.kills || b.lives - a.lives || b.mass - a.mass);
+    if (config.ranking === "kills") return entries.sort((a, b) => Number(a.eliminated) - Number(b.eliminated) || b.kills - a.kills || b.lives - a.lives || b.mass - a.mass);
     if (config.control) return entries.sort((a, b) => b.score - a.score || b.mass - a.mass || b.kills - a.kills);
     if (config.teams) return entries.sort((a, b) => (a.teamRank || 99) - (b.teamRank || 99) || b.mass - a.mass || b.kills - a.kills);
     return entries.sort((a, b) => Number(a.eliminated) - Number(b.eliminated) || b.mass - a.mass || b.kills - a.kills || a.name.localeCompare(b.name, "zh-CN"));
@@ -6780,10 +6350,13 @@
     authorityMode = true;
     authorityPlayers.clear();
     const idChanges = new Map();
-    const count = Math.min(source.length, groups.length);
+    const humanStartMass = groupMass(groups[0]);
+    const humanSlots = modeConfig().demon ? groups.filter(group => group.team === 0 && !group.isBoss && !group.isDemonMinion) : groups;
+    if (source.length > humanSlots.length) throw new Error("该模式没有足够的真人席位");
+    const count = source.length;
     for (let index = 0; index < count; index += 1) {
       const participant = source[index] || {};
-      const group = groups[index];
+      const group = humanSlots[index];
       const oldId = group.id;
       const id = String(participant.id || `authority-player-${index + 1}`);
       idChanges.set(oldId, id);
@@ -6791,6 +6364,12 @@
       group.name = String(participant.name || `玩家${index + 1}`).slice(0, 16);
       group.authorityParticipant = true;
       group.connected = participant.connected !== false;
+      if (index > 0 && !group.isBoss && !group.isDemonMinion) {
+        for (const cell of group.cells) {
+          cell.mass = humanStartMass / Math.max(1, group.cells.length);
+          cell.radius = radiusFromMass(cell.mass);
+        }
+      }
       group.cosmetics = sharedCosmetics.normalizeProfile(participant.cosmetics || {});
       const skin = sharedCosmetics.definition("skin", group.cosmetics.skin);
       if (skin?.color) group.color = skin.color;
@@ -6813,9 +6392,10 @@
       for (const cell of group.cells) cell.id = nextEntityId(`${id}-cell`);
       authorityPlayers.set(id, group);
     }
-    for (let index = count; index < groups.length; index += 1) {
-      groups[index].authorityParticipant = false;
-      if (!groups[index].ai) groups[index].ai = makeAiState(groupCenter(groups[index]));
+    for (const group of groups) {
+      if (authorityPlayers.has(group.id)) continue;
+      group.authorityParticipant = false;
+      if (!group.ai) group.ai = makeAiState(groupCenter(group));
     }
     if (Array.isArray(game.demonBossIds)) {
       game.demonBossIds = game.demonBossIds.map(id => idChanges.get(id) || id);
@@ -6829,7 +6409,7 @@
     if (!group || !group.authorityParticipant) return false;
     const current = group.authorityInput || {};
     const sequence = Math.max(0, Math.floor(Number(nextInput?.seq) || 0));
-    if (sequence < (current.seq || 0)) return false;
+    if (sequence <= (current.seq || 0)) return false;
     current.seq = sequence;
     current.dx = clamp(Number(nextInput?.dx) || 0, -1, 1);
     current.dy = clamp(Number(nextInput?.dy) || 0, -1, 1);
@@ -6847,7 +6427,10 @@
     const group = authorityPlayers.get(String(playerId));
     if (!group) return false;
     group.connected = Boolean(connected);
-    if (!group.connected && group.authorityInput) group.authorityInput.ejectHeld = false;
+    if (!group.connected && group.authorityInput) {
+      const center = groupCenter(group);
+      Object.assign(group.authorityInput, { dx: 0, dy: 0, targetX: center.x, targetY: center.y, ejectHeld: false, pendingSplit: false, pendingQuickMerge: false, pendingSpecial: false });
+    }
     return true;
   }
 
@@ -6865,7 +6448,7 @@
       phase: game.over ? "finished" : "running",
       finished: Boolean(game.over),
       finishReason: game.finishReason || null,
-      winnerId: game.over ? game.winnerId || ranking[0]?.id || null : null,
+      winnerId: game.over ? game.noWinner ? null : game.winnerId || ranking[0]?.id || null : null,
       world: { width: WORLD, height: WORLD },
       arena: rect
         ? { type: "rect", x: rect.left, y: rect.top, width: rect.right - rect.left, height: rect.bottom - rect.top }
@@ -6878,7 +6461,7 @@
         human: Boolean(group.isPlayer || group.authorityParticipant),
         connected: group.connected !== false,
         dead: Boolean(group.dead),
-        eliminated: Boolean(group.eliminated || (group.dead && !config.respawn)),
+        eliminated: Boolean(group.eliminated || (group.dead && (!config.respawn || (config.lives && group.lives <= 0)))),
         kills: group.kills || 0,
         deaths: group.deaths || 0,
         lives: group.lives || 0,
@@ -6892,6 +6475,7 @@
         } : null),
         ackInputSeq: group.authorityInput?.seq || 0,
         respawnRemaining: group.dead && group.respawnAt ? Math.max(0, Math.round((group.respawnAt - authorityNow) / 100) / 10) : 0,
+        invincibleRemaining: Math.max(0, Math.round(((group.invincibleUntil || 0) - authorityNow) / 100) / 10),
         quickMergeCooldown: Math.max(0, Math.round(((group.quickMergeReadyAt || 0) - authorityNow) / 100) / 10),
         specialCooldown: Math.max(0, Math.round(((group.screenSkillReadyAt || 0) - authorityNow) / 100) / 10),
         rank: ranks.get(group.id) || ranking.length,
@@ -6903,7 +6487,9 @@
           vx: Math.round(cell.vx * 10) / 10,
           vy: Math.round(cell.vy * 10) / 10,
           radius: Math.round(cell.radius * 10) / 10,
-          mass: Math.round(cell.mass * 10) / 10
+          mass: Math.round(cell.mass * 10) / 10,
+          mergeDelay: Math.max(0, Math.round((cell.mergeDelay || 0) * 10) / 10),
+          mergeMax: Math.max(0, Math.round((cell.mergeMax || 0) * 10) / 10)
         }))
       })),
       foods: foods.map(food => ({
@@ -6925,6 +6511,7 @@
         radius: Math.round(virus.radius * 10) / 10,
         color: virusColor(virus),
         kind: virus.kind,
+        tactical: Boolean(virus.tactical),
         spore: virus.kind === "spore"
       })),
       virusBaseline: true,
@@ -6993,7 +6580,7 @@
   if (new URLSearchParams(window.location.search).has("debug")) {
     window.__ballArenaDebug = {
       snapshot() {
-        const now = performance.now();
+        const now = authorityNow;
         return {
           world: WORLD,
           mode: activeMode,
@@ -7025,6 +6612,8 @@
           forgeLockedHalos: forgeHalos().filter(halo => !haloUnlocked(halo.key)).length,
           forgeLockedTrails: forgeTrails().filter(trail => !trailUnlocked(trail.key)).length,
           menu: !!game.menu,
+          titleVisible: !titleScreen.hidden && titleScreen.style.display !== "none",
+          lobbyVisible: overlay.style.display !== "none",
           paused: !!game.paused,
           over: !!game.over,
           targetPlayers: modeConfig().players,
@@ -7127,6 +6716,7 @@
       authoritySnapshot() {
         return canonicalAuthoritySnapshot();
       },
+      progressSnapshot() { return { perks: { ...meta.perks }, totalDust: meta.totalDust, crafted: meta.crafted, dust: meta.dust, unlockedSkins: [...meta.unlockedSkins] }; },
       startAuthorityMode(modeKey = "battle", participants = []) {
         startGame(modeKey);
         return configureAuthorityPlayers(participants);
@@ -7143,7 +6733,57 @@
       authorityRanking() {
         return canonicalRanking();
       },
+      setGroupFixture(id, values = {}) {
+        const group = groups.find(entry => entry.id === id);
+        if (!group) throw new Error("Unknown fixture participant");
+        if (Number.isFinite(values.invincibleSeconds)) group.invincibleUntil = authorityNow + clamp(values.invincibleSeconds, 0, 700) * 1000;
+        if (Number.isFinite(values.mass) && group.cells.length) {
+          for (const cell of group.cells) {
+            cell.mass = Math.max(1, values.mass) / group.cells.length;
+            cell.radius = radiusFromMass(cell.mass);
+          }
+        }
+        if (Number.isFinite(values.kills)) group.kills = Math.max(0, Math.floor(values.kills));
+        if (Number.isFinite(values.teamScore) && group.team != null) teamScores[group.team] = Math.max(0, values.teamScore);
+        return canonicalAuthoritySnapshot();
+      },
+      probeEjectedRules(ownerId, { ageSeconds = 0, eaterId = ownerId, lifetime = false } = {}) {
+        const eater = groups.find(group => group.id === eaterId);
+        const cell = eater.cells[0];
+        const original = { x: cell.x, y: cell.y, invincibleUntil: eater.invincibleUntil };
+        cell.x = WORLD + 2000; cell.y = WORLD + 2000; eater.invincibleUntil = 0;
+        const item = { id: nextEntityId("fixture-spore"), x: lifetime ? 20 : cell.x, y: lifetime ? 20 : cell.y, vx: 0, vy: 0, radius: 3, mass: 5, age: ageSeconds, ownerId };
+        ejected = [item];
+        const before = cell.mass;
+        if (lifetime) updateEjected(0); else handleEjectedEating();
+        const result = { remaining: ejected.length, gainedMass: cell.mass - before };
+        cell.x = original.x; cell.y = original.y; eater.invincibleUntil = original.invincibleUntil;
+        return result;
+      },
+      setSurvivors(ids) {
+        const survivors = new Set(ids);
+        for (const group of groups) {
+          if (survivors.has(group.id)) continue;
+          group.dead = true;
+          group.cells = [];
+          group.lives = 0;
+          group.respawnAt = 0;
+        }
+        return canonicalAuthoritySnapshot();
+      },
+      setPaused(paused) {
+        if (game.paused !== Boolean(paused)) togglePause();
+        return this.snapshot();
+      },
+      protectPerfProbe(seconds = 30) {
+        playerGroup.invincibleUntil = authorityNow + clamp(Number(seconds) || 30, 1, 700) * 1000;
+      },
+      renderFrame(now) { loop(now); return canonicalAuthoritySnapshot(); },
       authorityStep(ticks = 1) {
+        this.authorityAdvance(ticks);
+        return canonicalAuthoritySnapshot();
+      },
+      authorityAdvance(ticks = 1) {
         const count = clamp(Math.floor(Number(ticks) || 1), 1, 600);
         for (let index = 0; index < count && !game.over; index += 1) {
           authorityNow += SIMULATION_STEP * 1000;
@@ -7151,7 +6791,7 @@
           update(SIMULATION_STEP, authorityNow);
         }
         syncRadii();
-        return canonicalAuthoritySnapshot();
+        return { tick: authorityTick, serverTime: authorityNow, finished: Boolean(game.over), finishReason: game.finishReason || null, winnerId: game.winnerId || null };
       },
       startMode(modeKey = "battle") {
         startGame(modeKey);
@@ -7782,15 +7422,16 @@
       }
       if (steps === MAX_SIMULATION_STEPS && simulationAccumulator >= SIMULATION_STEP) {
         simulationAccumulator %= SIMULATION_STEP;
-        simulationNow = now - simulationAccumulator * 1000;
+        // 丢弃积压步长，但保持本局逻辑时钟连续。
       }
       interpolation = simulationAccumulator / SIMULATION_STEP;
     } else {
       simulationAccumulator = 0;
-      simulationNow = now;
+      // 暂停只冻结逻辑时钟，不能把现实时间计入倒计时、缩圈和技能冷却。
     }
 
-    const cadence = gameplayCore.advanceRenderCadence(now, nextRenderAt, TARGET_RENDER_INTERVAL);
+    const renderInterval = game.menu ? 1000 / 24 : game.paused ? 1000 / 30 : TARGET_RENDER_INTERVAL;
+    const cadence = gameplayCore.advanceRenderCadence(now, nextRenderAt, renderInterval);
     nextRenderAt = cadence.nextRenderAt;
     if (cadence.due) {
       const renderedElapsed = lastRenderedAt ? now - lastRenderedAt : TARGET_RENDER_INTERVAL;

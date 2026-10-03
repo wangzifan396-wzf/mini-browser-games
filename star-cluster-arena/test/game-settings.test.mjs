@@ -13,7 +13,10 @@ test("shared settings normalize untrusted persisted values", () => {
     windowSize: "8000x8000",
     networkBuffer: "zero",
     showPerformance: false,
-    screenShake: false
+    screenShake: false,
+    masterVolume: 0.7,
+    musicVolume: 0.35,
+    effectsVolume: 0.55
   }), {
     frameRate: "auto",
     quality: "auto",
@@ -21,7 +24,10 @@ test("shared settings normalize untrusted persisted values", () => {
     windowSize: "1440x900",
     networkBuffer: "balanced",
     showPerformance: false,
-    screenShake: false
+    screenShake: false,
+    masterVolume: 0.7,
+    musicVolume: 0.35,
+    effectsVolume: 0.55
   });
 });
 
@@ -39,6 +45,7 @@ test("automatic and explicit frame-rate targets share the 240 FPS ceiling", () =
 });
 
 test("quality and network profiles expose bounded rendering and buffering budgets", () => {
+  assert.deepEqual(settings.qualityPreset({ quality: "auto" }), { pixelBudget: 3_200_000, maximumDpr: 1.25 });
   assert.deepEqual(settings.qualityPreset({ quality: "performance" }), { pixelBudget: 1_800_000, maximumDpr: 1 });
   assert.deepEqual(settings.qualityPreset({ quality: "high" }), { pixelBudget: 5_000_000, maximumDpr: 1.5 });
   assert.deepEqual(settings.networkPreset({ networkBuffer: "low" }), { minimumDelayMs: 55, maximumDelayMs: 125, maximumExtrapolationMs: 60 });

@@ -6,9 +6,10 @@
   <meta name="theme-color" content="#071015">
   <meta name="color-scheme" content="dark">
   <style>html,body{margin:0;min-height:100%;background:#061015;color-scheme:dark}</style>
-  <title>星团大作战 · 局域网联机</title>
+  <title>星团大作战 · 联机游戏</title>
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./css/multiplayer.css">
+  <link rel="stylesheet" href="./css/match-guide.css">
 </head>
 <body>
   <div class="space-layer" aria-hidden="true"></div>
@@ -19,7 +20,7 @@
       <span class="brand-orb"></span>
       <div>
         <strong>星团大作战</strong>
-        <small>局域网联机 · 服务器权威 · <b class="beta-tag">正式版</b></small>
+        <small>好友房间 · <b class="beta-tag">1.0</b></small>
       </div>
     </div>
     <div class="connection-pill" id="connectionPill" data-state="idle">
@@ -29,15 +30,25 @@
 
   <main class="lobby-shell" id="lobbyView">
     <section class="hero-card">
-      <div class="eyebrow">LAN MULTIPLAYER / SCA-LAN-V6</div>
-      <h1>和同一网络里的朋友<br>进入同一个星团</h1>
-      <p>无需输入 IP。创建房间后，其他玩家会在局域网房间列表中自动看到它。</p>
+      <div class="eyebrow">PLAY TOGETHER</div>
+      <h1>一起争夺星域</h1>
+      <p>局域网自动发现房间；异地好友可连接同一互联网服务，分享邀请链接加入。</p>
       <div class="notice-line">
-        <span class="beta-notice">单人玩法同源联机</span>
-        <span>10 种模式测试开放</span>
+        <span class="beta-notice">好友房间</span>
+        <span>10 种战场</span>
         <span>2～8 名真人</span>
         <span>AI 自动补位</span>
       </div>
+    </section>
+
+    <section class="panel connection-panel" aria-label="连接方式">
+      <label class="field-label" for="connectionMode">连接方式</label>
+      <div class="connection-fields">
+        <select id="connectionMode" class="select-input"><option value="lan">局域网 · 自动发现</option><option value="internet">互联网 · 连接服务</option></select>
+        <input id="internetServer" class="text-input" type="url" placeholder="https://你的游戏服务域名" aria-label="互联网服务器地址" maxlength="256" hidden>
+        <button id="applyConnectionBtn" class="secondary-button" type="button">检查连接</button>
+      </div>
+      <p id="connectionHelp" class="mode-description">同一网络的朋友可以直接创建并发现房间。</p>
     </section>
 
     <section class="setup-grid">
@@ -80,9 +91,10 @@
           </div>
         </div>
         <button class="primary-button" id="createRoomBtn" type="button">
-          <span>创建局域网房间</span><b>＋</b>
+          <span>创建房间</span><b>＋</b>
         </button>
-        <p class="firewall-note">首次创建时，Windows 可能询问网络权限；只需允许“专用网络”。</p>
+        <label id="privateRoomField" class="firewall-note" hidden><input type="checkbox" id="privateRoom" checked> 仅通过房间码 / 邀请加入，不显示在公共列表</label>
+        <p class="firewall-note" id="connectionFootnote">首次创建时，Windows 可能询问网络权限；只需允许“专用网络”。</p>
       </article>
 
       <article class="panel discover-panel">
@@ -94,7 +106,7 @@
           <button class="icon-button" id="refreshRoomsBtn" type="button" title="刷新局域网房间">↻</button>
         </div>
         <div class="join-code-row">
-          <input id="roomCodeInput" class="text-input code-input" maxlength="6" inputmode="text" autocomplete="off" placeholder="输入 6 位房间码">
+          <input id="roomCodeInput" class="text-input code-input" maxlength="256" inputmode="text" autocomplete="off" placeholder="6 位房间码或邀请链接">
           <button class="secondary-button" id="joinCodeBtn" type="button">加入</button>
         </div>
         <div class="discovery-status" id="discoveryStatus">正在扫描局域网…</div>
@@ -177,7 +189,7 @@
       <ol id="gameRanking"></ol>
     </section>
     <section class="game-hud objective-hud" aria-live="polite" aria-atomic="true">
-      <span class="match-beta">局域网联机</span>
+      <span class="match-beta">好友联机</span>
       <small id="gameModeName">自由竞技</small>
       <strong id="gameObjective">争夺质量第一</strong>
     </section>
@@ -189,6 +201,7 @@
       <b id="gameNetworkState">已连接</b>
       <span class="network-detail" id="gameNetworkDetail">快照 -- Hz · 抖动 -- ms · 缓冲 -- ms</span>
       <button id="exitMatchBtn" type="button">退出</button>
+      <button id="spectateBtn" type="button" hidden>观战 · Tab 切换</button>
     </section>
     <div class="game-tip" id="gameTip">移动鼠标控制方向 · 空格分裂 · 按住 W 吐球 · A 快速合体 · D 模式技能</div>
     <div class="touch-actions" aria-label="游戏操作">
@@ -208,6 +221,14 @@
     </div>
   </main>
 
+  <div class="session-menu" id="matchResult" hidden role="dialog" aria-modal="true" aria-labelledby="matchResultTitle">
+    <section class="session-menu-card">
+      <small>MATCH COMPLETE</small><h2 id="matchResultTitle">比赛结束</h2>
+      <p id="matchResultSummary"></p><ol id="matchResultRanking" class="result-ranking"></ol>
+      <p>服务器会将全员送回原房间，准备后可以再开一局。</p>
+      <button class="primary-button" id="matchResultContinue" type="button">继续</button>
+    </section>
+  </div>
   <div class="session-menu" id="sessionMenu" hidden role="dialog" aria-modal="true" aria-labelledby="sessionMenuTitle">
     <div class="session-menu-card">
       <small>ESC MENU</small>
@@ -222,14 +243,20 @@
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="./js/safe-storage.js" defer></script>
   <script src="./js/game-settings.js" defer></script>
+  <script src="./js/audio.js" defer></script>
   <script src="./js/page-transition.js" defer></script>
   <script src="./js/cosmetic-catalog.js" defer></script>
   <script src="./js/cosmetic-renderer.js" defer></script>
   <script src="./js/gameplay-core.js" defer></script>
+  <script src="./js/game-mode-catalog.js" defer></script>
+  <script src="./js/match-guide.js" defer></script>
+  <script src="./js/progression.js" defer></script>
   <script src="./js/snapshot-wire.js" defer></script>
   <script src="./js/snapshot-buffer.js" defer></script>
   <script src="./js/local-predictor.js" defer></script>
+  <script src="./js/connection-profile.js" defer></script>
   <script src="./js/multiplayer.js" defer></script>
 </body>
 </html>

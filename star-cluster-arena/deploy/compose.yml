@@ -1,0 +1,45 @@
+services:
+  game:
+    build:
+      context: ..
+    restart: unless-stopped
+    environment:
+      PUBLIC_URL: https://${GAME_DOMAIN:?请在 .env 中填写 GAME_DOMAIN}
+      MAX_ROOMS: ${MAX_ROOMS:-2}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-}
+    expose:
+      - "25555"
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      game:
+        condition: service_healthy
+    environment:
+      GAME_DOMAIN: ${GAME_DOMAIN:?请在 .env 中填写 GAME_DOMAIN}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+volumes:
+  caddy_data:
+  caddy_config:

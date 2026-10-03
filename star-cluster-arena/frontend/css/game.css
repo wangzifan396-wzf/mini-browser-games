@@ -260,7 +260,7 @@
   .settings-grid select { min-width: 150px; min-height: 38px; padding: 0 10px; border: 1px solid rgba(103, 232, 249, 0.22); border-radius: 6px; color: #eef5ff; background: #0b1b28; }
   .toggle-row input { width: 42px; height: 22px; accent-color: #46d7c4; }
   .settings-note { padding: 10px 13px; border-left: 2px solid #60a5fa; color: #9eb2c4; background: rgba(37, 99, 235, 0.08); font-size: 11px; line-height: 1.6; }
-  .settings-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }
+  .settings-actions { position: sticky; bottom: 0; z-index: 2; display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; padding: 12px 0; background: #08151f; border-top: 1px solid rgba(103,232,249,.16); }
   .settings-actions button { min-width: 108px; min-height: 42px; border-radius: 7px; }
   .settings-actions .save { border-color: #58edc8; background: #187c70; }
 
@@ -1252,6 +1252,32 @@
     box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.38), 0 0 18px currentColor;
   }
 
+  .lobby-start-bar {
+    position: sticky;
+    bottom: -24px;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 12px -24px -24px;
+    padding: 14px 24px;
+    border-top: 1px solid rgba(103, 232, 249, 0.2);
+    background: #0d1822;
+    text-align: left;
+  }
+  .lobby-start-bar span { color: #a9becf; font-size: 13px; }
+  .lobby-start-bar #playAgainBtn { margin: 0; flex-shrink: 0; }
+  .single-session-menu { position: fixed; inset: 0; z-index: 85; display: grid; place-items: center; padding: 20px; background: rgba(3, 10, 17, .74); }
+  .single-session-menu[hidden] { display: none; }
+  .single-session-card { width: min(430px, 100%); padding: 28px; border: 1px solid #285562; border-radius: 16px; background: #0d1822; box-shadow: 0 24px 90px #0008; }
+  .single-session-card small { color: #5eead4; letter-spacing: .12em; }
+  .single-session-card h2 { margin: 12px 0; font-size: 32px; }
+  .single-session-card p { color: #a9becf; line-height: 1.7; }
+  .single-session-card button { display: block; width: 100%; margin-top: 10px; min-height: 44px; background: #182b38; }
+  .single-session-card button.primary { background: #187767; color: white; }
+  .session-controls { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0; color: #b9ced8; font-size: 12px; }
+  .session-controls span { padding: 6px 8px; border: 1px solid #284454; border-radius: 5px; }
   #playAgainBtn {
     min-width: 150px;
     min-height: 44px;

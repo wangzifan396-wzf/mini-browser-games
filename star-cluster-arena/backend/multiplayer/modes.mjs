@@ -82,6 +82,7 @@ function defineMode(key, config = {}) {
     maxCells: base.maxCells ?? 16,
     botMaxCells: base.botMaxCells ?? base.maxCells ?? 16,
     minimumHumans: 2,
+    maximumHumans: base.demon ? 4 : 8,
     minimumBots: 0,
     maximumBots: 99,
     targetParticipants: Math.max(2, base.players ?? 8),
@@ -103,7 +104,7 @@ function defineMode(key, config = {}) {
     },
     ...overrides,
     lanAdaptation: {
-      maximumHumans: 8,
+      maximumHumans: base.demon ? 4 : 8,
       participantScale: "human-slots-only",
       ...lanAdaptation
     }
@@ -195,7 +196,7 @@ export const MULTIPLAYER_MODES = deepFreeze({
   demon: defineMode("demon", {
     description: "所有真人组成勇者阵营，合作击败服务端控制的魔王与魔兵。",
     minimumBots: 4,
-    recommendedParticipants: 8
+    recommendedParticipants: 4
   })
 });
 
@@ -235,6 +236,7 @@ const PUBLIC_MODE_CATALOG = deepFreeze(MODE_KEYS.map(key => {
     teams: mode.teams,
     teamSize: mode.teamSize,
     minimumHumans: mode.minimumHumans,
+    maximumHumans: mode.maximumHumans,
     minimumBots: mode.minimumBots,
     maximumBots: mode.maximumBots,
     targetParticipants: mode.targetParticipants,

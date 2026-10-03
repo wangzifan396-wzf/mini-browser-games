@@ -3,7 +3,7 @@
 
   const gameplayCore = globalScope.ScaGameplayCore;
   if (!gameplayCore) throw new Error("共享玩法内核未加载");
-  const STEP_SECONDS = 0.05;
+  const STEP_SECONDS = 1 / 60;
   const MAX_PREDICTION_MS = 180;
   const MODE_SPEED = gameplayCore.MODE_SPEED;
 

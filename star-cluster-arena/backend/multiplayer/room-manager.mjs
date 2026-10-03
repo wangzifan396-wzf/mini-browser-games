@@ -1,6 +1,5 @@
 import { EventEmitter } from "node:events";
 import {
-  MAX_HUMAN_PLAYERS,
   PROTOCOL_VERSION,
   ProtocolError,
   createRoomCode,
@@ -45,16 +44,18 @@ function socketClose(socket, code, reason) {
 }
 
 export class RoomManager extends EventEmitter {
-  constructor({ logger = console, now = () => Date.now(), allowSinglePlayerStart = false } = {}) {
+  constructor({ logger = console, now = () => Date.now(), allowSinglePlayerStart = false, maxRooms = 8 } = {}) {
     super();
     this.logger = logger;
     this.now = now;
     this.allowSinglePlayerStart = allowSinglePlayerStart;
     this.rooms = new Map();
+    this.maxRooms = integerInRange(maxRooms, 1, 64, 8);
     this.connectionSequence = 0;
   }
 
   createRoom(options = {}) {
+    if (this.rooms.size >= this.maxRooms) throw new ProtocolError("server-full", "服务器房间已满，请稍后重试");
     let code;
     do code = createRoomCode(); while (this.rooms.has(code));
     const createdAt = this.now();
@@ -64,6 +65,7 @@ export class RoomManager extends EventEmitter {
     const room = {
       code,
       name: sanitizeName(options.roomName, `${hostName}的星团`).slice(0, 28),
+      private: options.private === true,
       hostToken: secureToken(),
       state: ROOM_STATES.LOBBY,
       createdAt,
@@ -74,7 +76,7 @@ export class RoomManager extends EventEmitter {
       baselineId: "",
       settings: {
         mode,
-        maxPlayers: integerInRange(options.maxPlayers, 2, MAX_HUMAN_PLAYERS, MAX_HUMAN_PLAYERS),
+        maxPlayers: integerInRange(options.maxPlayers, 2, modeConfig.maximumHumans, modeConfig.maximumHumans),
         autoFillBots: true,
         targetParticipants: modeConfig.targetParticipants,
         botCount: automaticBotCountForMode(mode, 1)
@@ -96,6 +98,7 @@ export class RoomManager extends EventEmitter {
       seed: Number.parseInt(options.seed, 10) >>> 0 || Math.floor(Math.random() * 0xffffffff)
     };
     this.rooms.set(code, room);
+    this.scheduleEmptyRoomCleanup(room);
     this.emit("rooms-changed");
     return {
       code,
@@ -110,14 +113,14 @@ export class RoomManager extends EventEmitter {
 
   roomList(endpointFactory = () => "") {
     return [...this.rooms.values()]
-      .filter(room => room.state !== ROOM_STATES.CLOSED)
+      .filter(room => room.state !== ROOM_STATES.CLOSED && !room.private)
       .map(room => publicRoomSummary(room, endpointFactory(room)))
       .sort((a, b) => b.createdAt - a.createdAt);
   }
 
   discoveryRooms() {
     return [...this.rooms.values()]
-      .filter(room => room.state === ROOM_STATES.LOBBY)
+      .filter(room => room.state === ROOM_STATES.LOBBY && !room.private)
       .map(room => publicRoomSummary(room));
   }
 
@@ -266,6 +269,7 @@ export class RoomManager extends EventEmitter {
     player.removalTimer = null;
     connection.player = player;
     connection.joined = true;
+    this.scheduleEmptyRoomCleanup(room);
     safeSend(connection.socket, {
       type: "welcome",
       playerId: player.id,
@@ -338,8 +342,12 @@ export class RoomManager extends EventEmitter {
 
     const mode = Object.hasOwn(message, "mode") ? normalizeMode(message.mode) : room.settings.mode;
     if (mode === room.settings.mode) return false;
-
+    const modeConfig = getModeConfig(mode);
+    if ([...room.players.values()].filter(candidate => candidate.connected).length > modeConfig.maximumHumans) {
+      throw new ProtocolError("too-many-players", `${modeConfig.label}最多支持 ${modeConfig.maximumHumans} 名真人，请先调整房间人数`);
+    }
     room.settings.mode = mode;
+    room.settings.maxPlayers = Math.min(room.settings.maxPlayers, modeConfig.maximumHumans);
     room.settings.targetParticipants = getModeConfig(mode).targetParticipants;
     this.syncAutomaticBotCount(room);
     room.revision += 1;
