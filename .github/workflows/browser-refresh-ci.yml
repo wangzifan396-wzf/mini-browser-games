@@ -1,0 +1,65 @@
+name: Browser game refresh regression
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '*.html'
+      - 'development/echo-expedition.html'
+      - 'scripts/**'
+      - 'README.md'
+      - 'GAME_TIERS.json'
+      - 'promo-video/scripts/check-pages-catalog.mjs'
+      - 'promo-video/scripts/check-tiny-factory-contracts.mjs'
+      - '.github/workflows/browser-refresh-ci.yml'
+  pull_request:
+    paths:
+      - '*.html'
+      - 'development/echo-expedition.html'
+      - 'scripts/**'
+      - 'README.md'
+      - 'GAME_TIERS.json'
+      - '.github/workflows/browser-refresh-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: browser-refresh-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Pure rules and catalog consistency
+        run: |
+          node --test scripts/test-existing-game-fixes.mjs scripts/test-factory-sandbox.mjs scripts/test-echo-expedition.mjs
+          node scripts/sync-game-catalog.mjs --check
+          node promo-video/scripts/check-game-tiers.mjs
+      - name: Install isolated browser-test runtime
+        working-directory: promo-video
+        run: |
+          npm install --no-save --ignore-scripts playwright@1.61.1
+          npx playwright install --with-deps chromium
+      - name: Actual desktop and touch-layout interactions
+        run: |
+          node scripts/check-browser-refresh.mjs --echo
+          node promo-video/scripts/check-tiny-factory-contracts.mjs
+          node promo-video/scripts/check-pages-catalog.mjs
+      - name: Retain diagnostics and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-refresh-evidence
+          path: |
+            output/browser-refresh/
+            output/tiny-factory-contracts/
+            output/pages-catalog-*.png
+          retention-days: 14

@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="回声禁区：原创离线回合式潜入撤离游戏。读懂敌人意图，管理行动点、噪音与载重，把战利品带回基地。">
+<title>回声禁区 · 可玩测试版</title>
+<style>
+:root{color-scheme:dark;--bg:#101817;--panel:#192321;--panel2:#202f2b;--line:#3c5049;--ink:#edf1dd;--muted:#acbca9;--mint:#9fe4bb;--gold:#eecb80;--red:#f39883}*{box-sizing:border-box}html{background:var(--bg)}body{margin:0;background:radial-gradient(ellipse at 10% 0,#2e3d2e 0,transparent 55%),var(--bg);color:var(--ink);font:15px/1.6 "Microsoft YaHei",system-ui,sans-serif}button,input,textarea{font:inherit}button{cursor:pointer;color:var(--ink);background:#27362f;border:1px solid #5d7262;border-radius:5px;padding:10px 13px;min-height:44px}button:hover:not(:disabled){background:#3b4e3f;border-color:var(--mint)}button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--gold);outline-offset:3px}button:disabled{opacity:.42;cursor:not-allowed}.primary{background:var(--mint);border-color:var(--mint);color:#10211b;font-weight:750}.primary:hover:not(:disabled){background:#c2efd1}.danger{border-color:#bf7968;color:#ffbaa4}.quiet{background:transparent}.gold{color:var(--gold)}.muted{color:var(--muted)}.eyebrow{text-transform:uppercase;letter-spacing:.2em;font:11px/1.6 ui-monospace,Consolas,monospace;color:var(--mint)}h1,h2,h3,p{margin-top:0}h1{font-size:clamp(36px,6vw,66px);letter-spacing:.08em;line-height:1.15;margin-bottom:15px}h2{font-size:24px;line-height:1.3;margin-bottom:10px}h3{font-size:17px;margin-bottom:8px}a{color:var(--mint)}.app{max-width:1280px;margin:auto;padding:23px}.topbar{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:0 0 15px;border-bottom:1px solid var(--line);margin-bottom:20px}.brand{font-weight:800;letter-spacing:.13em}.toplinks{display:flex;gap:7px;flex-wrap:wrap}.toplinks button{padding:7px 11px;font-size:13px}.panel{border:1px solid var(--line);background:var(--panel);border-radius:7px;padding:19px}.hero{position:relative;overflow:hidden;min-height:240px;border-bottom:1px solid var(--line);padding:22px 0 28px;margin-bottom:24px}.hero .copy{max-width:650px;position:relative;z-index:1}.hero p{color:#c9d3ba;max-width:550px}.hero:after{content:"";position:absolute;right:25px;top:-60px;width:350px;height:350px;border:1px solid #6c81624d;border-radius:50%;box-shadow:0 0 0 40px #73846214,0 0 0 80px #73846212,0 0 0 120px #7384620c;pointer-events:none}.tagline{display:flex;flex-wrap:wrap;gap:8px}.tagline span{border:1px solid #58674d;color:var(--gold);padding:3px 9px;border-radius:3px;font-size:12px;background:#1b251a}.menu-layout{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(270px,1fr);gap:20px}.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:13px 0 21px}.choice{display:block;text-align:left;min-width:0;padding:12px 10px}.choice b,.choice small{display:block}.choice b{font-size:15px;margin-bottom:4px}.choice small{font-size:12px;color:var(--muted);line-height:1.5}.choice.active{background:#30493a;border-color:var(--mint);box-shadow:inset 0 0 0 1px var(--mint)}.choice.active b{color:var(--mint)}label{display:block;color:var(--muted);font-size:13px}.seed-row{display:flex;gap:8px;margin:7px 0 16px}.seed-row input{width:100%;min-width:0}input,textarea{color:var(--ink);background:#101916;border:1px solid #52654e;border-radius:4px;padding:10px;min-height:44px}textarea{width:100%;resize:vertical;font-size:12px}.launch-row{display:flex;gap:9px;flex-wrap:wrap}.upgrade{padding:13px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px}.upgrade:last-child{border-bottom:0}.upgrade b{display:block}.upgrade small{display:block;color:var(--muted);font-size:12px}.upgrade button{white-space:nowrap;font-size:13px}.base-number{font-size:34px;line-height:1.2;color:var(--gold);font-family:ui-monospace,Consolas,monospace}.base-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:17px 0}.base-stats span{font-size:12px;color:var(--muted)}.base-stats strong{display:block;color:var(--ink);font-size:20px}.notice{padding:12px;border-left:3px solid var(--gold);background:#38352350;font-size:13px;line-height:1.7;margin-top:14px}.game-header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:13px}.game-header h2{font-size:22px;margin:0}.game-header .eyebrow{margin-top:2px}.stats-row{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin-bottom:13px}.stat{padding:10px 11px;background:#1b2923;border:1px solid var(--line);border-radius:4px;min-width:0}.stat span{color:var(--muted);font-size:11px;display:block}.stat strong{font:20px/1.45 ui-monospace,Consolas,monospace;white-space:nowrap}.stat.alert strong{color:var(--red)}.game-layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:15px}.map-panel{padding:12px}.map-wrap{background:#111d18;border:1px solid #62745c;border-radius:4px;overflow:hidden;position:relative}canvas{width:100%;height:auto;display:block;touch-action:manipulation;outline:none;image-rendering:auto}.map-caption{font-size:12px;color:var(--muted);margin:9px 0 0;line-height:1.6}.legend{display:flex;flex-wrap:wrap;gap:11px;font-size:11px;margin-top:10px}.legend span:before{content:"";display:inline-block;width:9px;height:9px;margin-right:5px;background:var(--mint)}.legend .enemy:before{background:var(--red)}.legend .loot:before{background:var(--gold)}.legend .fog:before{background:#4a584b}.intent-box{border:1px solid #805c43;background:#44321f45;margin:11px 0;padding:10px;font-size:13px;min-height:68px}.actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}.actions button{font-size:13px;padding:10px 6px}.turn-button{width:100%;margin-top:9px;min-height:51px;font-size:16px}.control-row{display:grid;grid-template-columns:126px 1fr;gap:12px;margin:12px 0}.dpad{display:grid;grid-template-columns:repeat(3,40px);grid-template-rows:repeat(3,40px);gap:3px}.dpad button{min-height:40px;padding:0;font-size:18px}.dpad .up{grid-column:2}.dpad .left{grid-row:2;grid-column:1}.dpad .middle{grid-row:2;grid-column:2;pointer-events:none;font-size:11px;border-color:#425142}.dpad .right{grid-row:2;grid-column:3}.dpad .down{grid-row:3;grid-column:2}.control-copy{font-size:12px;color:var(--muted);align-self:center}.control-copy button{width:100%;font-size:13px;margin-bottom:6px}.log{font:12px/1.65 "Microsoft YaHei",system-ui,sans-serif;padding:0;list-style:none;margin:10px 0 0;color:#c3d0b9}.log li{padding:4px 0;border-bottom:1px solid #35463b}.log li:first-child{color:var(--gold)}.cargo-list{max-height:180px;overflow:auto}.cargo-item{display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px solid #3b4b3f;font-size:12px;padding:5px 0}.cargo-item button{font-size:11px;padding:5px 8px;min-height:32px}.section-label{font-size:12px;color:var(--gold);letter-spacing:.1em;margin-top:16px;margin-bottom:6px}.inspect{font-size:13px;border:1px solid var(--line);padding:10px;margin-top:10px;min-height:55px}.inspect button{margin-top:5px;width:100%;font-size:12px}.contract{font-size:13px;line-height:1.8;margin-bottom:8px}.hidden,[hidden]{display:none!important}.footer{font-size:12px;color:#97a68f;text-align:center;margin-top:27px;border-top:1px solid var(--line);padding-top:15px}.dialog-backdrop{position:fixed;inset:0;z-index:30;background:#050b08df;display:flex;align-items:center;justify-content:center;padding:20px;overflow:auto}.dialog{width:min(620px,100%);max-height:90vh;overflow:auto;background:#1e2b23;border:1px solid #8ba175;border-radius:8px;padding:25px;box-shadow:0 20px 100px #0008}.dialog h2{color:var(--gold)}.dialog p{font-size:14px;color:#cad5c0}.dialog .dialog-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}.help-list{padding-left:22px;color:#ccd5c0;font-size:14px}.help-list li{margin-bottom:11px}.summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.summary-grid div{padding:12px;background:#142018;border:1px solid var(--line);border-radius:4px}.summary-grid small{display:block;color:var(--muted)}.summary-grid b{font:25px/1.5 ui-monospace,Consolas,monospace;color:var(--mint)}.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:40;background:#d6e8bc;color:#162216;padding:10px 18px;border-radius:5px;max-width:calc(100% - 30px);font-size:13px;box-shadow:0 8px 30px #0007}.save-status{font-size:11px;color:var(--muted);min-height:18px}.keyboard{font:11px ui-monospace,Consolas,monospace;border:1px solid #62725a;padding:0 4px;border-radius:3px;color:#c9daba}.mission-note{font-size:13px;margin-top:10px;color:var(--gold)}@media(max-width:900px){.game-layout{grid-template-columns:minmax(0,1fr) 280px}.menu-layout{grid-template-columns:1fr}.hero:after{right:-100px}}@media(max-width:680px){.app{padding:12px}.topbar{align-items:flex-start;margin-bottom:12px}.brand{font-size:14px}.toplinks{gap:5px;justify-content:flex-end}.toplinks button{min-height:36px;padding:5px 8px;font-size:11px}.hero{min-height:0;padding:14px 0 18px;margin-bottom:17px}.hero p{font-size:14px}.panel{padding:14px}.choices{gap:6px}.choice{padding:10px 7px}.choice b{font-size:13px}.choice small{font-size:11px}.game-layout{grid-template-columns:1fr}.stats-row{grid-template-columns:repeat(3,1fr);gap:6px}.stat{padding:7px 9px}.stat strong{font-size:18px}.map-panel{padding:8px}.game-header{align-items:flex-start}.game-header h2{font-size:18px}.game-header .eyebrow{font-size:10px;letter-spacing:.05em}.game-header button{padding:6px 10px;min-height:38px;font-size:12px}.game-side{display:grid;grid-template-columns:1fr}.dialog{padding:18px}.dialog-backdrop{padding:12px}.control-row{grid-template-columns:128px 1fr}.footer{font-size:11px}.map-caption{font-size:11px}.legend{gap:8px}.upgrade{gap:5px}.upgrade button{padding:8px}.menu-layout{gap:12px}.tagline span{font-size:11px}.base-stats{margin:12px 0}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+.mobile-quick-actions{display:none}
+@media(max-width:680px){
+ .map-panel>.control-row{margin:8px 0 11px;grid-template-columns:138px minmax(0,1fr);gap:6px 10px}
+ .dpad{grid-template-columns:repeat(3,44px);grid-template-rows:repeat(3,44px);gap:3px}
+ .dpad button{min-height:44px;touch-action:manipulation}
+ .control-copy{font-size:11px;line-height:1.45}
+ .mobile-quick-actions{display:grid;grid-column:1/-1;grid-template-columns:1fr 1fr;gap:6px}
+ .mobile-quick-actions button{margin:0;min-height:44px;font-size:12px;padding:7px}
+ .mobile-quick-actions #end-turn-button{grid-column:1/-1}
+ .stats-row{gap:4px;margin-bottom:8px}.stat{padding:4px 7px}.stat strong{font-size:16px}
+ .map-panel>.legend{margin-top:6px}.game-side .intent-box{margin-top:5px}
+ .toast{bottom:10px}
+}
+.preview-banner{padding:9px 14px;border:1px solid #a18a58;background:#332b1b;color:#f0dca9;font-size:12px;margin-bottom:14px}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="topbar"><div><div class="brand">回声禁区 <span class="muted">/</span> ECHO</div><div class="eyebrow">Offline · Turn-based extraction</div></div><nav class="toplinks" aria-label="游戏工具"><button id="help-button">操作手册</button><button id="save-button">保存 / 导出</button><button id="sound-button" aria-pressed="false">声音：关</button></nav></header>
+<main>
+<section id="menu-screen">
+<p class="preview-banner">可玩测试版：完整搜刮、撤离、基地与存档循环。正在继续打磨长期目标与数值，不计入正式游戏数量，也不代表商业成品。</p>
+<div class="hero"><div class="copy"><div class="eyebrow">Read the threat. Bring something home.</div><h1>不是每次交火<br>都值得赢。</h1><p>废墟里的巡逻已经标出下一步。你有三点行动：避开瞄准、压住噪音、带走更多，或者现在就撤离。活着带回的东西，才属于你。</p><div class="tagline"><span>意图可读</span><span>种子废墟</span><span>噪音 / 载重取舍</span><span>离线单人 PvE</span></div></div></div>
+<div class="menu-layout"><section class="panel"><div class="eyebrow">Deployment / 出发准备</div><h2>选择这次的取舍</h2><label>进入区域 · 不同风险与委托，地图每次重新生成</label><div id="region-choices" class="choices"></div><label>出发装备 · 无需花钱，失败仍可重新开始</label><div id="loadout-choices" class="choices"></div><label for="seed-input">地图种子 · 相同种子、区域与装备可复盘；留空随机</label><div class="seed-row"><input id="seed-input" maxlength="48" placeholder="例如：雨后的港口" autocomplete="off"><button id="random-seed" aria-label="随机地图种子">随机</button></div><div class="launch-row"><button id="start-button" class="primary" data-testid="start-expedition">进入禁区</button><button id="resume-button" hidden>继续上次行动</button></div><div id="deployment-info" class="notice"></div><div class="notice">没有联网对手，也没有固定十二关。委托是额外收益，提前撤离同样有效；失败只损失当局战利品，基地研究不会清空。</div></section>
+<aside class="panel"><div class="eyebrow">Safehouse / 庇护站</div><h2>带回来，才算数。</h2><div class="base-number" id="base-credits">0</div><div class="muted" style="font-size:12px">可用回收点</div><div class="base-stats"><div><span>成功撤离</span><strong id="base-runs">0</strong></div><div><span>单次最高收益</span><strong id="base-best">0</strong></div></div><div id="upgrades"></div><p class="save-status" id="menu-save-status"></p><p class="muted" style="font-size:12px;margin-top:14px">研究是小幅长期成长，不代替走位。敌人瞄准的是红色格子，不是你移动后的新位置。</p><button id="import-button" class="quiet">导入基地 / 行动存档</button></aside></div>
+</section>
+<section id="game-screen" hidden>
+<div class="game-header"><div><h2 id="mission-title">行动中</h2><div id="mission-seed" class="eyebrow"></div></div><button id="return-button" class="quiet">返回基地 / ESC</button></div>
+<div class="stats-row"><div class="stat"><span>行动点 AP</span><strong id="hud-ap"></strong></div><div class="stat"><span>生命</span><strong id="hud-hp"></strong></div><div class="stat"><span>载重 / 上限</span><strong id="hud-weight"></strong></div><div class="stat alert"><span>警报</span><strong id="hud-alert"></strong></div><div class="stat"><span>回合 / 封锁</span><strong id="hud-turn"></strong></div><div class="stat"><span>战利品估值</span><strong id="hud-value"></strong></div></div>
+<div class="game-layout"><section class="panel map-panel"><div class="map-wrap"><canvas id="map" width="608" height="544" tabindex="0" aria-label="禁区地图。青色圆点是玩家，红色叉是敌人下一次攻击位置；可用方向键移动。"></canvas></div><div class="legend"><span>你 / 撤离点</span><span class="enemy">守卫 / 攻击意图</span><span class="loot">补给 / 战利品</span><span class="fog">已知但不可见</span></div><p class="map-caption">点击相邻空格步行；点击远处格子查看，点击敌人选中。红色叉是下一次攻击落点，橙色箭头是下一次移动。用完 AP 后，主动结束回合。</p><div id="mission-note" class="mission-note"></div><div class="section-label">现场记录</div><ul id="game-log" class="log" aria-live="polite"></ul></section>
+<aside class="panel game-side"><div id="contract-info" class="contract"></div><div id="intent-info" class="intent-box"></div><div class="actions"><button id="loot-button">搜刮 1 AP</button><button id="cover-button">掩护 1 AP</button><button id="emp-button">EMP 2 AP</button><button id="shoot-button">射击 2 AP</button><button id="push-button">推撞 1 AP</button><button id="heal-button">治疗 1 AP</button></div><button id="end-turn-button" class="primary turn-button" data-testid="end-turn">结束回合 · 空格</button><div class="control-row"><div class="dpad" aria-label="移动方向"><button class="up" data-dir="up" aria-label="向上">↑</button><button class="left" data-dir="left" aria-label="向左">←</button><button class="middle" tabindex="-1">移动</button><button class="right" data-dir="right" aria-label="向右">→</button><button class="down" data-dir="down" aria-label="向下">↓</button></div><div class="control-copy"><button id="dash-button" aria-pressed="false">步行 · 切换疾跑</button><span id="move-info"></span><br><span class="keyboard">WASD</span> 移动 <span class="keyboard">Shift</span> 疾跑<br><span class="keyboard">E</span> 搜刮 <span class="keyboard">C</span> 掩护</div></div><button id="extract-button" class="primary" style="width:100%">撤离 2 AP · 邻近出口</button><div id="inspector" class="inspect"></div><div class="section-label">携带的战利品 <span id="cargo-total"></span></div><div id="cargo-list" class="cargo-list"></div><div id="supply-info" class="muted" style="font-size:12px;margin-top:10px"></div><div id="game-save-status" class="save-status"></div></aside></div>
+</section>
+</main><footer class="footer">可玩测试版，尚未列入正式游戏评级 · 原创零依赖 HTML · 回合式离线 PvE · <a href="../index.html">返回游戏合集</a></footer>
+</div>
+<div id="dialog-backdrop" class="dialog-backdrop" hidden><section class="dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title"><h2 id="dialog-title"></h2><div id="dialog-body"></div><div id="dialog-actions" class="dialog-actions"></div></section></div><div id="toast" class="toast" role="status" hidden></div>
+<script id="echo-engine">
+/* The browser and VM tests execute this exact rule engine. No DOM, clock or storage dependency. */
+globalThis.EchoExpedition = (() => {
+  'use strict';
+  const W=19,H=17,DIR={up:[0,-1],right:[1,0],down:[0,1],left:[-1,0]};
+  const LOADOUTS={scout:{name:'轻装侦察',hp:8,capacity:12,energy:3,ammo:3,meds:2,noise:1,description:'脚步最轻，携带均衡。先学会读懂攻击落点。'},breacher:{name:'重装突入',hp:11,capacity:13,energy:2,ammo:6,meds:1,noise:3,description:'生命与弹药更多，脚步更响；不能把交火当成唯一答案。'},operator:{name:'电子专员',hp:8,capacity:10,energy:5,ammo:2,meds:2,noise:2,description:'更多 EMP，能取消附近守卫两次行动；背包较小。'}};
+  const REGIONS={1:{name:'港务废墟',guards:4,turns:44,initialAlert:0,target:60,bonus:25,description:'适合首次出发。带回估值 60 的物资，获得额外 25 点。'},2:{name:'研究封锁区',guards:6,turns:40,initialAlert:8,target:2,bonus:45,description:'守卫封锁直线三格。带回 2 份数据芯片，获得额外 45 点。'},3:{name:'中继核心区',guards:8,turns:36,initialAlert:16,target:1,bonus:70,description:'守卫封锁十字五格，电网周期通电。带回 1 份核心，额外 70 点。'}};
+  const ITEMS={scrap:{name:'精密废料',weight:2,value:12,color:'#c6bb8d'},data:{name:'数据芯片',weight:1,value:18,color:'#ace0c6'},relic:{name:'中继核心',weight:4,value:65,color:'#e6b97b'}};
+  const RESEARCH={pack:{name:'背包框架',description:'每级载重上限 +2。',cost:[90,190,330]},plating:{name:'复合护甲',description:'每级生命 +1；三级额外减伤 1。',cost:[100,210,350]},capacitor:{name:'EMP 电容',description:'每级 EMP 储能 +1。',cost:[110,230,380]}};
+  const copy=x=>JSON.parse(JSON.stringify(x));
+  const integer=(x,lo,hi,fallback=lo)=>Number.isSafeInteger(x)&&x>=lo&&x<=hi?x:fallback;
+  const distance=(a,b)=>Math.abs(a.x-b.x)+Math.abs(a.y-b.y);
+  const inside=(x,y)=>x>=0&&x<W&&y>=0&&y<H;
+  const passable=(s,x,y)=>inside(x,y)&&s.map[y][x]===0;
+  const liveGuards=s=>s.guards.filter(g=>g.hp>0);
+  const occupied=(s,x,y,exclude=-1)=>liveGuards(s).some(g=>g.id!==exclude&&g.x===x&&g.y===y);
+  function normalizeBase(input){const b=input&&typeof input==='object'?input:{};const r=b.research&&typeof b.research==='object'?b.research:{};return {credits:integer(b.credits,0,1000000),runs:integer(b.runs,0,100000),best:integer(b.best,0,100000),research:{pack:integer(r.pack,0,3),plating:integer(r.plating,0,3),capacitor:integer(r.capacitor,0,3)}};}
+  function hash(text){let h=2166136261;for(const c of String(text)){h^=c.codePointAt(0);h=Math.imul(h,16777619);}return h>>>0||0x9e3779b9;}
+  function random(s){s.rng=(s.rng+0x6d2b79f5)>>>0;let t=s.rng;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return ((t^(t>>>14))>>>0)/4294967296;}
+  const choose=(s,a)=>a[Math.floor(random(s)*a.length)];
+  function shuffle(s,a){for(let i=a.length-1;i>0;i--){const j=Math.floor(random(s)*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+  function lineOfSight(s,a,b){if(a.y*W+a.x>b.y*W+b.x)[a,b]=[b,a];let x=a.x,y=a.y;const dx=Math.abs(b.x-x),dy=Math.abs(b.y-y),sx=x<b.x?1:-1,sy=y<b.y?1:-1;let err=dx-dy;for(let i=0;i<W+H+3;i++){if(!passable(s,x,y))return false;if(x===b.x&&y===b.y)return true;const e=2*err;if(e>-dy){err-=dy;x+=sx;}if(e<dx){err+=dx;y+=sy;}}return false;}
+  function path(s,start,goal,avoidGuards=false){if(!passable(s,start.x,start.y)||!passable(s,goal.x,goal.y))return [];const queue=[{x:start.x,y:start.y}],prev=new Map([[start.y*W+start.x,null]]);for(let i=0;i<queue.length;i++){const cur=queue[i];if(cur.x===goal.x&&cur.y===goal.y){const out=[];let key=cur.y*W+cur.x;while(key!==null){out.push({x:key%W,y:Math.floor(key/W)});key=prev.get(key);}return out.reverse();}for(const [dx,dy] of Object.values(DIR)){const x=cur.x+dx,y=cur.y+dy,key=y*W+x;if(!passable(s,x,y)||prev.has(key)||(avoidGuards&&occupied(s,x,y)&&!(x===goal.x&&y===goal.y)))continue;prev.set(key,cur.y*W+cur.x);queue.push({x,y});}}return [];}
+  function weight(s){return s.cargo.reduce((a,b)=>a+ITEMS[b.kind].weight,0);}
+  function value(s){return s.cargo.reduce((a,b)=>a+ITEMS[b.kind].value,0);}
+  function heavy(s){return weight(s)>=Math.ceil(s.player.capacity*.8);}
+  function attackTiles(s,g){
+    const i=g.intent;if(!i||!['aim','strike'].includes(i.type))return [];
+    return (i.tiles||[{x:i.x,y:i.y}]).filter(p=>passable(s,p.x,p.y)&&lineOfSight(s,g,p));
+  }
+  function visible(s,x,y){return distance(s.player,{x,y})<=6&&lineOfSight(s,s.player,{x,y});}
+  function reveal(s){for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(distance(s.player,{x,y})<=6){if(s.map[y][x]===0&&visible(s,x,y))s.seen[y][x]=true;else if(s.map[y][x]===1&&Object.values(DIR).some(([dx,dy])=>passable(s,x+dx,y+dy)&&visible(s,x+dx,y+dy)))s.seen[y][x]=true;}}
+  function note(s,message){s.messages.unshift(message);s.messages=s.messages.slice(0,8);}
+  function noise(s,radius,alarm,label){s.noises.push({x:s.player.x,y:s.player.y,radius,expires:s.turn+2});s.noises=s.noises.slice(-8);s.alert=Math.min(100,s.alert+alarm);if(label)note(s,label);}
+  function generate(s){
+    s.map=Array.from({length:H},()=>Array(W).fill(1));
+    const stack=[{x:1,y:1}];s.map[1][1]=0;
+    while(stack.length){const a=stack[stack.length-1];const candidates=shuffle(s,Object.values(DIR).map(([dx,dy])=>({x:a.x+dx*2,y:a.y+dy*2,dx,dy})).filter(b=>b.x>0&&b.x<W-1&&b.y>0&&b.y<H-1&&s.map[b.y][b.x]===1));if(!candidates.length){stack.pop();continue;}const b=candidates[0];s.map[a.y+b.dy][a.x+b.dx]=0;s.map[b.y][b.x]=0;stack.push({x:b.x,y:b.y});}
+    for(let i=0;i<7;i++){const x=1+Math.floor(random(s)*(W-5)),y=1+Math.floor(random(s)*(H-5));for(let yy=y;yy<y+3;yy++)for(let xx=x;xx<x+3;xx++)s.map[yy][xx]=0;}
+    const walls=[];for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++)if(s.map[y][x]===1&&((s.map[y][x-1]===0&&s.map[y][x+1]===0)||(s.map[y-1][x]===0&&s.map[y+1][x]===0)))walls.push({x,y});for(const p of shuffle(s,walls).slice(0,32))s.map[p.y][p.x]=0;
+    for(let y=H-4;y<H-1;y++)for(let x=1;x<=3;x++)s.map[y][x]=0;
+    for(let y=1;y<=3;y++)for(let x=W-4;x<W-1;x++)s.map[y][x]=0;
+    s.exits=[{x:1,y:H-2,name:'庇护站出口',bonus:false},{x:W-2,y:1,name:'远端接应',bonus:true}];
+    const floors=[];for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++)if(passable(s,x,y)&&!s.exits.some(e=>e.x===x&&e.y===y))floors.push({x,y});
+    const eligible=shuffle(s,floors.filter(p=>distance(p,s.player)>=6));
+    for(let i=0;i<REGIONS[s.risk].guards;i++){const p=eligible.shift();s.guards.push({id:i+1,x:p.x,y:p.y,hp:s.risk===3?4:3,homeX:p.x,homeY:p.y,stunned:0,intent:null});}
+    const crateSpots=shuffle(s,floors.filter(p=>distance(p,s.player)>=4&&!occupied(s,p.x,p.y)));
+    const first=crateSpots.find(p=>{const d=path(s,s.player,p).length-1;return d>=4&&d<=7;})||crateSpots[0];
+    const chosen=[first,...crateSpots.filter(p=>p!==first).slice(0,16+s.risk*2)];
+    chosen.forEach((p,i)=>{const kinds=i===0?['data','scrap']:i===1||i===2?['data','data']:i===3?['relic']:random(s)<.14?['relic']:random(s)<.52?['data','scrap']:['scrap','scrap'];s.caches.push({id:i+1,x:p.x,y:p.y,supply:i>3&&i%6===0,items:kinds.map(kind=>({kind}))});});
+    if(s.risk===3){for(const p of shuffle(s,floors.filter(p=>distance(p,s.player)>7&&!occupied(s,p.x,p.y)&&!s.caches.some(c=>c.x===p.x&&c.y===p.y))).slice(0,7))s.hazards.push({x:p.x,y:p.y});}
+    s.seen=Array.from({length:H},()=>Array(W).fill(false));reveal(s);
+  }
+  function plan(s){
+    for(const g of liveGuards(s)){
+      if(g.stunned>0){g.intent={type:'wait',x:g.x,y:g.y,damage:0};continue;}
+      if(distance(g,s.player)<=6&&lineOfSight(s,g,s.player)){
+        const melee=distance(g,s.player)<=1,p=s.player;
+        // Deeper regions deny a visible area, not an unannounced tracking shot.
+        // Flanking or EMP matters, especially when a heavy pack leaves only one move.
+        const offsets=melee||s.risk===1?[[0,0]]:s.risk===3?[[0,0],[1,0],[-1,0],[0,1],[0,-1]]:
+          Math.abs(p.x-g.x)>=Math.abs(p.y-g.y)?[[0,0],[1,0],[-1,0]]:[[0,0],[0,1],[0,-1]];
+        const tiles=offsets.map(([dx,dy])=>({x:p.x+dx,y:p.y+dy})).filter(t=>passable(s,t.x,t.y)&&lineOfSight(s,g,t));
+        g.intent={type:melee?'strike':'aim',x:p.x,y:p.y,tiles,damage:melee?3:2+(s.risk===3?1:0)};continue;
+      }
+      const heard=s.noises.filter(n=>n.expires>=s.turn&&distance(g,n)<=n.radius).sort((a,b)=>b.expires-a.expires)[0];
+      let target=heard;let steps=[];
+      if(target)steps=path(s,g,target,true);
+      if(steps.length<2){const options=Object.values(DIR).map(([dx,dy])=>({x:g.x+dx,y:g.y+dy})).filter(p=>passable(s,p.x,p.y)&&!occupied(s,p.x,p.y)&&!(p.x===s.player.x&&p.y===s.player.y));const home=options.filter(p=>distance(p,{x:g.homeX,y:g.homeY})<=4);target=choose(s,home.length?home:options);}
+      else target=steps[1];
+      g.intent=target?{type:'move',x:target.x,y:target.y,damage:0}:{type:'wait',x:g.x,y:g.y,damage:0};
+    }
+  }
+  function createRun(seed,base={},loadout='scout',risk=1){
+    if(!Object.hasOwn(LOADOUTS,loadout))throw new Error('未知出发装备');if(!Object.hasOwn(REGIONS,risk))throw new Error('未知区域');
+    const safeSeed=String(seed??'').trim().slice(0,48)||'echo';const b=normalizeBase(base),l=LOADOUTS[loadout];
+    const s={version:1,seed:safeSeed,risk:Number(risk),loadout,rng:hash(safeSeed+'|'+risk),phase:'raid',base:copy(b),startBase:copy(b),player:{x:1,y:H-2,hp:l.hp+b.research.plating,maxHp:l.hp+b.research.plating,capacity:l.capacity+b.research.pack*2,energy:l.energy+b.research.capacitor,ammo:l.ammo,meds:l.meds,cover:0},ap:3,turn:1,limit:REGIONS[risk].turns,alert:REGIONS[risk].initialAlert,guards:[],caches:[],hazards:[],exits:[],cargo:[],noises:[],messages:[],log:[],reinforcements:[],thresholds:[],settled:false,result:null};
+    generate(s);plan(s);note(s,'守卫的下次行动已标出。搜刮后可提前撤离，AP 用完请主动结束回合。');return s;
+  }
+  function contractComplete(s){if(s.risk===1)return value(s)>=REGIONS[1].target;if(s.risk===2)return s.cargo.filter(i=>i.kind==='data').length>=2;return s.cargo.some(i=>i.kind==='relic');}
+  function finish(s,outcome,exit=null){
+    if(s.settled)return false;s.settled=true;s.phase=outcome==='success'?'extracted':'defeated';
+    const goods=outcome==='success'?value(s):0,remote=outcome==='success'&&exit?.bonus?Math.floor(goods*.25):0,bonus=outcome==='success'&&contractComplete(s)?REGIONS[s.risk].bonus:0;
+    const earnings=goods+remote+bonus;s.result={outcome,goods,remote,bonus,earnings,turns:s.turn,reason:outcome==='success'?'成功撤离':s.player.hp<=0?'生命耗尽':'封锁已完成'};
+    if(outcome==='success'){s.base.credits=Math.min(1000000,s.base.credits+earnings);s.base.runs=Math.min(100000,s.base.runs+1);s.base.best=Math.max(s.base.best,earnings);}note(s,outcome==='success'?`撤离成功：${earnings} 回收点已送入基地。`:'行动失败。本局物资丢失，基地与研究保留。');return true;
+  }
+  function reinforcements(s){
+    for(const threshold of [35,65,90])if(s.alert>=threshold&&!s.thresholds.includes(threshold)){
+      s.thresholds.push(threshold);const points=[];for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++)if(passable(s,x,y)&&distance(s.player,{x,y})>=7&&!occupied(s,x,y)&&!s.exits.some(e=>e.x===x&&e.y===y))points.push({x,y});
+      const p=choose(s,points);if(p){s.reinforcements.push({x:p.x,y:p.y,at:s.turn+2});note(s,`警报 ${threshold}：第 ${s.turn+2} 回合有增援进入，入口已标示。`);}
+    }
+    for(const p of s.reinforcements.filter(r=>r.at<=s.turn))if(liveGuards(s).length<11&&!occupied(s,p.x,p.y)&&!(p.x===s.player.x&&p.y===s.player.y)){
+      const id=1+Math.max(0,...s.guards.map(g=>g.id));s.guards.push({id,x:p.x,y:p.y,hp:s.risk===3?4:3,homeX:p.x,homeY:p.y,stunned:0,intent:null});note(s,'巡逻增援已进入。它将在下次回合结算行动，意图已显示。');
+    }
+    s.reinforcements=s.reinforcements.filter(p=>p.at>s.turn);
+  }
+  function endTurn(s){
+    let damage=0;for(const g of liveGuards(s)){
+      const i=g.intent;if(!i)continue;if(g.stunned>0){g.stunned--;continue;}
+      if(attackTiles(s,g).some(p=>p.x===s.player.x&&p.y===s.player.y))damage+=Math.max(0,i.damage-s.player.cover-(s.base.research.plating>=3?1:0));
+      if(i.type==='move'&&passable(s,i.x,i.y)&&!occupied(s,i.x,i.y,g.id)&&!(s.player.x===i.x&&s.player.y===i.y)){g.x=i.x;g.y=i.y;}
+    }
+    if(s.turn%3===2&&s.hazards.some(h=>h.x===s.player.x&&h.y===s.player.y)){damage+=2;note(s,'站在通电电网：受到 2 点伤害。');}
+    s.player.hp=Math.max(0,s.player.hp-damage);if(damage)note(s,`敌方行动结算：受到 ${damage} 点伤害。`);else note(s,'敌方行动已结算，你避开了攻击。');
+    s.player.cover=0;if(s.player.hp<=0){finish(s,'failure');return;}
+    if(s.turn>=s.limit){finish(s,'failure');return;}
+    s.turn++;s.ap=3;s.alert=Math.min(100,s.alert+(s.risk===3?2:s.risk===2||s.turn>9?1:0));s.noises=s.noises.filter(n=>n.expires>=s.turn);reinforcements(s);reveal(s);plan(s);
+  }
+  function normalizeCommand(c){
+    if(!c||typeof c!=='object'||typeof c.type!=='string')return null;
+    const types=['move','dash','collect','cover','emp','shoot','push','heal','drop','extract','end'];if(!types.includes(c.type))return null;
+    const out={type:c.type};if(c.type==='move'||c.type==='dash'){if(!Object.hasOwn(DIR,c.dir))return null;out.dir=c.dir;}
+    if(['shoot','push'].includes(c.type)){if(!Number.isSafeInteger(c.id)||c.id<1||c.id>1000)return null;out.id=c.id;}
+    if(c.type==='collect'&&c.id!==undefined){if(!Number.isSafeInteger(c.id)||c.id<1||c.id>2000)return null;out.id=c.id;}
+    if(c.type==='collect'&&c.item!==undefined){if(!Number.isSafeInteger(c.item)||c.item<0||c.item>20)return null;out.item=c.item;}
+    if(c.type==='drop'){if(!Number.isSafeInteger(c.index)||c.index<0||c.index>100)return null;out.index=c.index;}
+    return out;
+  }
+  function act(s,input){
+    const c=normalizeCommand(input);if(!c)return {ok:false,message:'操作参数无效。'};if(s.phase!=='raid')return {ok:false,message:'这次行动已经结束。'};if(s.log.length>=1400)return {ok:false,message:'行动记录达到安全上限，请撤离或重新开始。'};
+    const fail=message=>({ok:false,message}),spend=n=>{s.ap-=n;},need=n=>s.ap>=n;
+    let message='';
+    if(c.type==='move'||c.type==='dash'){
+      const [dx,dy]=DIR[c.dir],cost=c.type==='dash'?(heavy(s)?3:2):(heavy(s)?2:1);if(!need(cost))return fail(`这次移动需要 ${cost} AP，请先结束回合。`);
+      if(!passable(s,s.player.x+dx,s.player.y+dy))return fail('前方是墙，不能穿过。');if(occupied(s,s.player.x+dx,s.player.y+dy))return fail('守卫挡住了路。可以选中它推撞或改道。');
+      let steps=0;for(let i=0;i<(c.type==='dash'?2:1);i++){const x=s.player.x+dx,y=s.player.y+dy;if(!passable(s,x,y)||occupied(s,x,y))break;s.player.x=x;s.player.y=y;steps++;}spend(cost);noise(s,c.type==='dash'?8:LOADOUTS[s.loadout].noise,c.type==='dash'?5:0);message=c.type==='dash'?`疾跑 ${steps} 格，发出较远声源，警报 +5。`:heavy(s)?'负重步行消耗 2 AP。':'步行 1 格。';reveal(s);
+    }else if(c.type==='collect'){
+      if(!need(1))return fail('搜刮需要 1 AP。');const cache=c.id!==undefined?s.caches.find(t=>t.id===c.id):s.caches.find(t=>distance(s.player,t)<=1&&(t.items.length||t.supply));if(!cache||distance(s.player,cache)>1)return fail('请走到物资箱上或相邻格，再搜刮。');
+      if(c.item!==undefined&&!cache.items[c.item])return fail('这件物资已不在箱里。');
+      const selected=c.item!==undefined?[c.item]:cache.items.map((_,i)=>i),taken=[];let carry=weight(s);
+      for(const index of selected){const item=cache.items[index];if(item&&carry+ITEMS[item.kind].weight<=s.player.capacity){taken.push(index);carry+=ITEMS[item.kind].weight;s.cargo.push(copy(item));}}
+      const supply=c.item===undefined&&cache.supply;if(!taken.length&&!supply)return fail(cache.items.length?'背包放不下。先挑轻的物资，或丢弃战利品。':'这个箱子已经空了。');
+      cache.items=cache.items.filter((_,i)=>!taken.includes(i));if(supply){s.player.ammo=Math.min(12,s.player.ammo+2);s.player.meds=Math.min(6,s.player.meds+1);s.player.energy=Math.min(10,s.player.energy+1);cache.supply=false;}spend(1);noise(s,3,1);message=`收取 ${taken.length} 件物资${supply?'；补充 2 弹药、1 治疗包、1 EMP':''}。`;
+    }else if(c.type==='cover'){
+      if(!need(1))return fail('掩护需要 1 AP。');if(s.player.cover)return fail('本回合已经掩护。');spend(1);s.player.cover=2;message='本回合每次守卫攻击减伤 2；电网伤害不受掩护影响。';
+    }else if(c.type==='emp'){
+      if(!need(2))return fail('EMP 需要 2 AP。');if(s.player.energy<1)return fail('EMP 储能耗尽。物资箱可能有补给。');const guards=liveGuards(s).filter(g=>distance(g,s.player)<=4);if(!guards.length)return fail('4 格内没有守卫，不消耗 EMP。');spend(2);s.player.energy--;for(const g of guards){g.stunned=2;g.intent={type:'wait',x:g.x,y:g.y,damage:0};}noise(s,3,2);message=`EMP 使 ${guards.length} 名守卫停机两个敌方行动阶段。`;
+    }else if(c.type==='shoot'){
+      if(!need(2))return fail('射击需要 2 AP。');if(s.player.ammo<1)return fail('弹药耗尽。');const g=liveGuards(s).find(t=>t.id===c.id);if(!g||!visible(s,g.x,g.y))return fail('必须选中 6 格内、视线无遮挡的守卫。');spend(2);s.player.ammo--;g.hp=Math.max(0,g.hp-2);if(!g.hp)g.intent={type:'wait',x:g.x,y:g.y,damage:0};noise(s,10,10);message=`命中守卫，造成 2 伤害${g.hp?'；它仍将执行已显示的意图':'；守卫失去行动能力'}。警报 +10。`;
+    }else if(c.type==='push'){
+      if(!need(1))return fail('推撞需要 1 AP。');const g=liveGuards(s).find(t=>t.id===c.id);if(!g||distance(s.player,g)!==1)return fail('推撞需要选中上下左右相邻的守卫。');const x=g.x+(g.x-s.player.x),y=g.y+(g.y-s.player.y);if(occupied(s,x,y,g.id))return fail('后方被另一名守卫挡住，无法推撞。');if(passable(s,x,y)){g.x=x;g.y=y;}else g.hp=Math.max(0,g.hp-1);g.stunned=1;g.intent={type:'wait',x:g.x,y:g.y,damage:0};spend(1);noise(s,5,3);message='推撞取消这名守卫本次行动；撞墙时额外造成 1 伤害。';
+    }else if(c.type==='heal'){
+      if(!need(1))return fail('治疗需要 1 AP。');if(s.player.meds<1)return fail('没有治疗包。');if(s.player.hp>=s.player.maxHp)return fail('生命已满，不消耗治疗包。');spend(1);s.player.meds--;s.player.hp=Math.min(s.player.maxHp,s.player.hp+4);message='使用治疗包，恢复 4 点生命。';
+    }else if(c.type==='drop'){
+      if(!need(1))return fail('丢弃需要 1 AP。');if(!s.cargo[c.index])return fail('找不到这件战利品。');const item=s.cargo.splice(c.index,1)[0];let cache=s.caches.find(t=>t.x===s.player.x&&t.y===s.player.y);if(!cache){cache={id:1+Math.max(0,...s.caches.map(t=>t.id)),x:s.player.x,y:s.player.y,items:[],supply:false};s.caches.push(cache);}cache.items.push(item);spend(1);message=`放下${ITEMS[item.kind].name}，仍可回来取走。`;
+    }else if(c.type==='extract'){
+      if(!need(2))return fail('撤离需要 2 AP。');const exit=s.exits.find(e=>distance(s.player,e)<=1);if(!exit)return fail('请到撤离点上或相邻格，不能远程撤离。');if(!s.cargo.length)return fail('还没有战利品。空手返回可使用“返回基地”，不会扣除基地资源。');spend(2);finish(s,'success',exit);message='撤离结算完成。';
+    }else if(c.type==='end'){endTurn(s);message='回合已结算。';}
+    if(message&&c.type!=='end'&&c.type!=='extract')note(s,message);s.log.push(c);return {ok:true,message};
+  }
+  function upgrade(base,key){const b=normalizeBase(base);if(!Object.hasOwn(RESEARCH,key))return {ok:false,base:b,message:'未知研究。'};const level=b.research[key],cost=RESEARCH[key].cost[level];if(level>=3)return {ok:false,base:b,message:'研究已满级。'};if(b.credits<cost)return {ok:false,base:b,message:`需要 ${cost} 回收点。`};b.credits-=cost;b.research[key]++;return {ok:true,base:b,message:RESEARCH[key].name+'升级完成。'};}
+  function serialize(base,run=null){const b=normalizeBase(base);const active=run?.phase==='raid'?{seed:run.seed,risk:run.risk,loadout:run.loadout,base:normalizeBase(run.startBase),commands:run.log}:null;return JSON.stringify({schema:'echo-expedition',version:1,base:b,run:active});}
+  function parse(text){
+    if(typeof text!=='string'||text.length>250000)throw new Error('存档格式或大小不合法。');let data;try{data=JSON.parse(text);}catch{throw new Error('不是有效的 JSON 存档。');}
+    if(!data||data.schema!=='echo-expedition'||data.version!==1||!data.base||typeof data.base!=='object'||Array.isArray(data.base))throw new Error('这不是回声禁区 v1 存档。');
+    const base=normalizeBase(data.base);let run=null;if(data.run!==null&&data.run!==undefined){const r=data.run;if(typeof r!=='object'||typeof r.seed!=='string'||r.seed.length<1||r.seed.length>48||!Object.hasOwn(LOADOUTS,r.loadout)||!Number.isSafeInteger(r.risk)||!Object.hasOwn(REGIONS,r.risk)||!Array.isArray(r.commands)||r.commands.length>1400)throw new Error('行动存档参数不合法。');const rb=normalizeBase(r.base);if(JSON.stringify(rb)!==JSON.stringify(base))throw new Error('基地与行动起始存档不一致。');run=createRun(r.seed,rb,r.loadout,r.risk);for(const c of r.commands){const safe=normalizeCommand(c);if(!safe||!act(run,safe).ok)throw new Error('行动记录损坏；未覆盖现有存档。');}if(run.phase!=='raid')throw new Error('已结算行动不能再次恢复。');}
+    return {base,run};
+  }
+  return {W,H,DIR,LOADOUTS,REGIONS,ITEMS,RESEARCH,normalizeBase,createRun,act,upgrade,serialize,parse,weight,value,heavy,attackTiles,visible,lineOfSight,path,contractComplete,passable,liveGuards,distance};
+})();
+</script>
+<script id="echo-ui">
+(() => {
+  'use strict';
+  const E=globalThis.EchoExpedition,$=id=>document.getElementById(id),STORE='echo-expedition.save.v1';
+  let base=E.normalizeBase({}),run=null,selected=null,region=1,loadout='scout',dashMode=false,storageMessage='',tutorialShown=false,sound=false,audio=null,toastTimer=null,dialogClosed=null,lastFocus=null;
+  const el=(tag,text='',className='')=>{const node=document.createElement(tag);if(text!=='')node.textContent=text;if(className)node.className=className;return node;};
+  const button=(text,handler,className='')=>{const b=el('button',text,className);b.type='button';b.addEventListener('click',handler);return b;};
+  function toast(message){$('toast').textContent=message;$('toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').hidden=true,4200);}
+  function savedStatus(){for(const id of ['menu-save-status','game-save-status'])$(id).textContent=storageMessage||'行动和基地自动保存在本浏览器；可手动导出备份。';}
+  function persist(){
+    const text=E.serialize(base,run);try{const previous=localStorage.getItem(STORE);if(previous){try{E.parse(previous);localStorage.setItem(STORE+'.backup',previous);}catch{}}
+      localStorage.setItem(STORE,text);storageMessage='已自动保存 · '+new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'});
+    }catch{storageMessage='浏览器存储不可用：本次仍可玩，请用“保存 / 导出”复制存档。';}savedStatus();
+  }
+  function restore(){
+    let corrupted=false;try{for(const key of [STORE,STORE+'.backup']){const text=localStorage.getItem(key);if(!text)continue;try{const saved=E.parse(text);base=saved.base;run=saved.run;storageMessage=key.endsWith('.backup')?'主存档损坏，已恢复上一份有效备份。':'已读取本浏览器存档。';return;}catch{corrupted=true;}}}catch{storageMessage='浏览器禁止本地存储；请导出存档备份。';}
+    if(corrupted)storageMessage='存档无法读取，未覆盖原记录。可导入有效备份继续。';
+  }
+  function closeDialog(){const cb=dialogClosed;dialogClosed=null;$('dialog-backdrop').hidden=true;if(lastFocus?.isConnected)lastFocus.focus();if(cb)cb();}
+  function openDialog(title,content,actions=[],onClose=null){
+    lastFocus=document.activeElement;dialogClosed=onClose;$('dialog-title').textContent=title;$('dialog-body').replaceChildren(...(Array.isArray(content)?content:[content]));
+    $('dialog-actions').replaceChildren(...actions);$('dialog-backdrop').hidden=false;const first=$('dialog-backdrop').querySelector('button:not(:disabled),textarea,input');if(first)first.focus();
+  }
+  function paragraph(text,className=''){return el('p',text,className);}
+  function help(){
+    const list=el('ol','','help-list');for(const text of [
+      '先看意图，再用 AP。红色叉是守卫下次攻击落点，橙箭头是下次移动。它不会突然改打你的新位置。AP 用完不会自动推进，请按空格或点“结束回合”。',
+      '深区不是只加生命：研究区守卫封锁直线三格，核心区封锁十字五格；每个红叉都是真实攻击范围。负重时一步可能仍在危险区，可丢下物资、取消意图或找侧路。',
+      '每回合 3 AP。步行 1 AP，疾跑 2 AP 移动最多两格，声源范围更大且警报 +5。载重达到上限 80% 后，步行 2 AP、疾跑 3 AP；挑轻而值钱的数据很重要。',
+      'EMP：2 AP / 1 储能，4 格内守卫停机两个敌方阶段。推撞：1 AP，只能对相邻守卫，取消它本次行动；撞墙造成 1 伤害。射击：2 AP / 1 弹药，造成 2 伤害，但未倒下的守卫仍会执行意图。',
+      '掩护：1 AP，本回合每次守卫攻击减伤 2。治疗：1 AP / 1 治疗包，恢复 4 生命。核心区电网每三回合通电一次，亮红格就是本次危险格；掩护挡不住电网。',
+      '靠近金色箱子搜刮，或点击箱子逐件挑选。旁边的背包按钮可丢弃物资，每件 1 AP，仍可回来取。带回数据/核心比背满低价值废料更划算。',
+      '青色圆环是出口，在出口或相邻格且有 2 AP 时撤离。近端安全，远端额外支付战利品价值 25%。委托只加奖金，不是强制任务。空手或想放弃可使用“返回基地”。',
+      '警报升至 35 / 65 / 90 会标出增援入口，两回合后到达。到封锁回合仍未撤离会失败；只损失当局战利品，基地、研究和免费装备保留。',
+      '键盘：WASD / 方向键步行，按住 Shift 疾跑，E 搜刮，C 掩护，Q EMP，R 治疗，F 撤离，空格结束回合，ESC 返回/暂停菜单。触屏使用地图与屏幕方向键。',
+      '相同种子、区域、装备和操作可完整复盘。关闭页面前自动保存行动；保存 / 导出能复制 JSON 或下载备份。导入损坏存档不会覆盖已有进度。'
+    ])list.append(el('li',text));openDialog('行动手册 · 不必清空所有敌人',list,[button('明白，继续',closeDialog,'primary')]);
+  }
+  function tutorial(){
+    tutorialShown=true;const list=el('ol','','help-list');for(const text of [
+      '先看红叉。如果它就在你脚下，花 1 AP 移开，再处理物资。守卫只攻击已显示的格子。',
+      '先找附近金色箱子，带一两件轻物资回到起点青色出口。提前撤离不算失败，先完成一次安全往返。',
+      '每回合 3 AP，用完要手动结束回合。不要急着射击：2 AP 的 EMP 可以取消附近敌人两轮行动。',
+      '警报、背包和封锁时间都在顶部。满载会慢下来，贪心没有额外生命奖励。'
+    ])list.append(el('li',text));const b=button('进入现场 · 我会先看意图',closeDialog,'primary');b.dataset.testid='tutorial-continue';openDialog('第一次出发：先带一件东西回来',list,[b]);
+  }
+  function randomSeed(){return 'echo-'+Math.random().toString(36).slice(2,8);}
+  function renderMenu(){
+    $('menu-screen').hidden=false;$('game-screen').hidden=true;$('base-credits').textContent=base.credits.toLocaleString('zh-CN');$('base-runs').textContent=base.runs;$('base-best').textContent=base.best;$('resume-button').hidden=!(run?.phase==='raid');
+    $('region-choices').replaceChildren(...Object.entries(E.REGIONS).map(([key,r])=>{const b=button('',()=>{region=Number(key);renderMenu();},'choice'+(region===Number(key)?' active':''));b.setAttribute('aria-pressed',region===Number(key));b.append(el('b',r.name),el('small',`风险 ${key} · ${r.guards} 巡逻 · ${r.turns} 回合封锁`));return b;}));
+    $('loadout-choices').replaceChildren(...Object.entries(E.LOADOUTS).map(([key,l])=>{const b=button('',()=>{loadout=key;renderMenu();},'choice'+(loadout===key?' active':''));b.setAttribute('aria-pressed',loadout===key);b.append(el('b',l.name),el('small',`生命 ${l.hp} / 容量 ${l.capacity} / EMP ${l.energy}`));return b;}));
+    const l=E.LOADOUTS[loadout],r=E.REGIONS[region];$('deployment-info').textContent=l.description+' '+r.description+` 研究后：生命 ${l.hp+base.research.plating} / 容量 ${l.capacity+base.research.pack*2} / EMP ${l.energy+base.research.capacitor}。`;
+    $('upgrades').replaceChildren(...Object.entries(E.RESEARCH).map(([key,u])=>{const row=el('div','','upgrade'),copy=el('div');const level=base.research[key];copy.append(el('b',u.name+` ${level}/3`),el('small',u.description));const b=button(level>=3?'已满级':`${u.cost[level]} 点升级`,()=>{const result=E.upgrade(base,key);if(!result.ok){toast(result.message);return;}base=result.base;persist();renderMenu();toast(result.message);});b.disabled=level>=3||base.credits<u.cost[level]||run?.phase==='raid';if(run?.phase==='raid')b.title='先完成或放弃保存中的行动，再研究。';row.append(copy,b);return row;}));savedStatus();
+  }
+  function showGame(){if(!run||run.phase!=='raid')return;selected={x:run.player.x,y:run.player.y};dashMode=false;$('menu-screen').hidden=true;$('game-screen').hidden=false;renderGame();$('map').focus({preventScroll:true});}
+  function start(){const launch=()=>{closeDialog();run=E.createRun($('seed-input').value||randomSeed(),base,loadout,region);persist();showGame();if(!tutorialShown&&base.runs===0)tutorial();};if(run?.phase==='raid')openDialog('覆盖保存中的行动？',paragraph('基地研究不会损失，但上次行动未带回的战利品会丢失。也可以选择继续原行动。'),[button('保留原行动',closeDialog),button('放弃旧行动并出发',launch,'danger')]);else launch();}
+  function pause(){if(!run){renderMenu();return;}if(run.phase!=='raid'){run=null;renderMenu();return;}
+    openDialog('行动暂停',paragraph('你可以保存行动回到出发页，之后继续；也可以放弃本次战利品。回合制游戏不会在菜单里继续消耗生命或时间。'),[
+      button('继续行动',closeDialog,'primary'),button('保存并回出发页',()=>{closeDialog();persist();renderMenu();}),button('放弃本次行动',()=>{closeDialog();run=null;selected=null;persist();renderMenu();},'danger')
+    ]);
+  }
+  function selectedGuard(){if(!run)return null;return E.liveGuards(run).find(g=>(selected?.id===g.id||(selected?.x===g.x&&selected?.y===g.y))&&E.visible(run,g.x,g.y));}
+  function selectedCache(){if(!run||!selected)return null;return run.caches.find(c=>c.x===selected.x&&c.y===selected.y&&E.visible(run,c.x,c.y));}
+  function cue(kind){if(!sound)return;try{audio??=new (window.AudioContext||window.webkitAudioContext)();if(audio.state==='suspended')audio.resume();const osc=audio.createOscillator(),gain=audio.createGain();osc.connect(gain);gain.connect(audio.destination);osc.frequency.value=kind==='end'?165:kind==='extract'?523:320;osc.type='sine';gain.gain.setValueAtTime(.035,audio.currentTime);gain.gain.exponentialRampToValueAtTime(.001,audio.currentTime+.09);osc.start();osc.stop(audio.currentTime+.1);}catch{sound=false;$('sound-button').textContent='声音：关';}}
+  function action(command){if(!run||run.phase!=='raid')return;const result=E.act(run,command);if(!result.ok){toast(result.message);return;}base=run.base;persist();cue(command.type);renderGame();if(run.phase!=='raid')resultDialog();}
+  function move(dir,dash=dashMode){action({type:dash?'dash':'move',dir});}
+  function resultDialog(){
+    const r=run.result,success=r.outcome==='success';const content=el('div');content.append(paragraph(success?'你把战利品带回了庇护站。没有战利品的战斗并不值得坚持；这次选择已经结算。':`${r.reason}。本次物资没有带回，之前的基地和研究都保留。下次试着少拿一点，提前走出敌人的瞄准格。`));
+    const grid=el('div','','summary-grid');for(const [label,n] of [['战利品回收',r.goods],['委托奖金',r.bonus],['远端接应奖励',r.remote],['本次入账',r.earnings]]){const cell=el('div');cell.append(el('small',label),el('b',String(n)));grid.append(cell);}content.append(grid,paragraph(`经历 ${r.turns} 回合 · 基地现有 ${base.credits} 点。`));
+    const leave=()=>{run=null;selected=null;persist();renderMenu();};const home=button('回基地整备',closeDialog,'primary');home.dataset.testid='result-home';openDialog(success?'撤离成功':'行动终止',content,[home],leave);
+  }
+  function renderGame(){
+    if(!run)return;const s=run,p=s.player,l=E.LOADOUTS[s.loadout],r=E.REGIONS[s.risk],cargoWeight=E.weight(s),worth=E.value(s),ready=s.phase==='raid';
+    $('mission-title').textContent=r.name+' · '+l.name;$('mission-seed').textContent='SEED '+s.seed+' / 离线 PvE';$('hud-ap').textContent=s.ap+' / 3';$('hud-hp').textContent=p.hp+' / '+p.maxHp;$('hud-weight').textContent=cargoWeight+' / '+p.capacity;$('hud-alert').textContent=s.alert+' /100';$('hud-turn').textContent=s.turn+' / '+s.limit;$('hud-value').textContent=worth;
+    const target=s.risk===1?`委托：带回估值 60（当前 ${worth}）`:s.risk===2?`委托：带回 2 份数据（当前 ${s.cargo.filter(i=>i.kind==='data').length}）`:`委托：带回 1 份核心（当前 ${s.cargo.filter(i=>i.kind==='relic').length}）`;
+    $('contract-info').replaceChildren(el('b',target),el('div',`${E.contractComplete(s)?'已满足':'可选目标'} · 额外 ${r.bonus} 点；任何物资都可提前撤离。`,'muted'));
+    const attackers=E.liveGuards(s).filter(g=>E.attackTiles(s,g).some(t=>t.x===p.x&&t.y===p.y));const hazard=s.turn%3===2&&s.hazards.some(h=>h.x===p.x&&h.y===p.y);
+    $('intent-info').textContent=hazard?'当前格电网将在本次结算通电：2 点伤害，立即离开。':attackers.length?`当前格被 ${attackers.length} 名守卫瞄准。离开红叉，或取消其意图；掩护只能减伤。`:'当前格没有已锁定的攻击。移动箭头会在回合结算时执行，下一回合重新规划。';
+    const g=selectedGuard(),cache=selectedCache(),near=cache&&E.distance(p,cache)<=1;
+    $('loot-button').disabled=!ready||s.ap<1;$('cover-button').disabled=!ready||s.ap<1||p.cover>0;$('emp-button').disabled=!ready||s.ap<2||p.energy<1;$('shoot-button').disabled=!ready||s.ap<2||p.ammo<1||!g;$('push-button').disabled=!ready||s.ap<1||!g||E.distance(p,g)!==1;$('heal-button').disabled=!ready||s.ap<1||p.meds<1||p.hp>=p.maxHp;$('end-turn-button').disabled=!ready;
+    const exit=s.exits.find(e=>E.distance(p,e)<=1);$('extract-button').disabled=!ready||s.ap<2||!exit||!s.cargo.length;$('extract-button').textContent=exit?`从${exit.bonus?'远端接应':'庇护站出口'}撤离 · 2 AP`:'撤离 2 AP · 邻近出口';
+    $('dash-button').textContent=dashMode?'疾跑 · 切回步行':'步行 · 切换疾跑';$('dash-button').setAttribute('aria-pressed',dashMode);$('move-info').textContent=E.heavy(s)?'负重：步行 2 AP / 疾跑 3 AP':'轻装：步行 1 AP / 疾跑 2 AP';
+    $('supply-info').textContent=`弹药 ${p.ammo} · EMP ${p.energy} · 治疗包 ${p.meds}${p.cover?' · 掩护生效':''}`;
+    $('mission-note').textContent=(s.risk===3?(s.turn%3===2?'电网本次通电，红色斜纹格不安全。':'电网本次断电；第 2、5、8…回合结算时通电。'):'')+(s.limit-s.turn<=5?` 封锁仅剩 ${s.limit-s.turn} 回合，优先撤离。`:'')+(s.reinforcements.length?` ${s.reinforcements.map(a=>'第 '+a.at+' 回合增援').join(' / ')}，橙色方框标示入口。`:'');
+    $('game-log').replaceChildren(...s.messages.slice(0,5).map(text=>el('li',text)));$('cargo-total').textContent=`${cargoWeight}/${p.capacity} · ${worth} 点`;
+    $('cargo-list').replaceChildren(...(s.cargo.length?s.cargo.map((item,index)=>{const i=E.ITEMS[item.kind],row=el('div','','cargo-item');row.append(el('span',`${i.name} · ${i.weight} 重 / ${i.value} 点`));const drop=button('放下 1 AP',()=>action({type:'drop',index}));drop.disabled=!ready||s.ap<1;row.append(drop);return row;}):[el('div','还没有战利品，先找到金色物资箱。','muted')]));
+    const inspect=$('inspector');inspect.replaceChildren();if(g){const i=g.intent;inspect.append(el('b',`守卫 #${g.id} · 生命 ${g.hp}`),el('div',i.type==='wait'?'停机 / 等待':i.type==='move'?`下一步移至 (${i.x},${i.y})`:`下一次攻击红叉区域（${E.attackTiles(s,g).length} 格），每格伤害 ${i.damage}`));}
+    else if(cache){inspect.append(el('b',`物资箱 · (${cache.x},${cache.y})`));if(!near)inspect.append(el('div','靠近后可选择单件物资或全部搜刮。','muted'));if(cache.supply)inspect.append(el('div','补给：2 弹药 / 1 治疗包 / 1 EMP，点击搜刮取得。','gold'));cache.items.forEach((item,index)=>{const i=E.ITEMS[item.kind],b=button(`取${i.name} · ${i.weight} 重 / ${i.value} 点 · 1 AP`,()=>action({type:'collect',id:cache.id,item:index}));b.disabled=!ready||!near||s.ap<1||cargoWeight+i.weight>p.capacity;inspect.append(b);});if(!cache.items.length&&!cache.supply)inspect.append(el('div','箱子已空。','muted'));}
+    else if(selected&&E.visible(s,selected.x,selected.y)){const e=s.exits.find(t=>t.x===selected.x&&t.y===selected.y);inspect.append(el('div',e?e.name+(e.bonus?'：战利品额外 +25%。':'：可提前撤离。'):`(${selected.x},${selected.y}) · 空地`));}
+    else inspect.append(el('div','点击可见守卫或箱子查看。未探索区域不会透露物资。','muted'));
+    savedStatus();drawMap();
+  }
+  function drawMap(){
+    if(!run||$('game-screen').hidden)return;const canvas=$('map'),s=run,rect=canvas.getBoundingClientRect(),width=Math.max(250,rect.width),height=width*E.H/E.W,dpr=Math.min(2,window.devicePixelRatio||1);canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);const ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);const tile=width/E.W;
+    ctx.fillStyle='#101c16';ctx.fillRect(0,0,width,height);const center=(x,y)=>[(x+.5)*tile,(y+.5)*tile];
+    for(let y=0;y<E.H;y++)for(let x=0;x<E.W;x++){const known=s.seen[y][x],v=known&&E.visible(s,x,y),wall=s.map[y][x]===1;ctx.fillStyle=!known?'#0d1512':wall?'#455547':v?'#2a3e2e':'#1a2a20';ctx.fillRect(x*tile+.5,y*tile+.5,tile-1,tile-1);if(known&&wall){ctx.fillStyle='#637255';ctx.fillRect(x*tile+2,y*tile+2,tile-4,Math.max(1,tile*.09));ctx.strokeStyle='#263626';ctx.beginPath();ctx.moveTo(x*tile+2,(y+1)*tile-3);ctx.lineTo((x+1)*tile-2,y*tile+3);ctx.stroke();}}
+    for(const h of s.hazards)if(s.seen[h.y][h.x]){const active=s.turn%3===2,[cx,cy]=center(h.x,h.y);ctx.fillStyle=active?'#973f2d':'#635633';ctx.fillRect(h.x*tile+2,h.y*tile+2,tile-4,tile-4);ctx.strokeStyle=active?'#ffb298':'#b8a660';ctx.lineWidth=1;for(let i=-1;i<3;i++){ctx.beginPath();ctx.moveTo(cx-tile*.35+i*tile*.2,cy+tile*.35);ctx.lineTo(cx+i*tile*.2,cy-tile*.35);ctx.stroke();}}
+    for(const e of s.exits){const [cx,cy]=center(e.x,e.y);ctx.strokeStyle=e.bonus?'#c0edda':'#92d8b1';ctx.lineWidth=2;ctx.beginPath();ctx.arc(cx,cy,tile*.38,0,Math.PI*2);ctx.stroke();ctx.fillStyle=ctx.strokeStyle;ctx.font=`bold ${Math.max(10,tile*.37)}px sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(e.bonus?'↗':'⌂',cx,cy);}
+    for(const c of s.caches)if((c.items.length||c.supply)&&s.seen[c.y][c.x]){const [cx,cy]=center(c.x,c.y);ctx.globalAlpha=E.visible(s,c.x,c.y)?1:.3;ctx.fillStyle=c.supply?'#acd7cb':'#e8c77b';ctx.fillRect(cx-tile*.24,cy-tile*.21,tile*.48,tile*.42);ctx.strokeStyle='#3d432e';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(cx-tile*.24,cy);ctx.lineTo(cx+tile*.24,cy);ctx.moveTo(cx,cy-tile*.21);ctx.lineTo(cx,cy+tile*.21);ctx.stroke();ctx.globalAlpha=1;}
+    for(const n of s.noises.slice(-2)){const [cx,cy]=center(n.x,n.y),r=Math.min(8,n.radius)*tile;ctx.strokeStyle='#d8a56544';ctx.setLineDash([3,5]);ctx.beginPath();ctx.moveTo(cx,cy-r);ctx.lineTo(cx+r,cy);ctx.lineTo(cx,cy+r);ctx.lineTo(cx-r,cy);ctx.closePath();ctx.stroke();ctx.setLineDash([]);}
+    for(const g of E.liveGuards(s))if(E.visible(s,g.x,g.y)){const i=g.intent,[cx,cy]=center(g.x,g.y),[tx,ty]=center(i.x,i.y);if(i.type==='aim'||i.type==='strike'){ctx.strokeStyle='#f09b87bb';ctx.lineWidth=1.3;ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(tx,ty);ctx.stroke();ctx.setLineDash([]);ctx.lineWidth=2.2;ctx.strokeStyle='#ffae95';for(const t of E.attackTiles(s,g)){const [ax,ay]=center(t.x,t.y),r=tile*.3;ctx.fillStyle='#e572541a';ctx.fillRect(t.x*tile+1,t.y*tile+1,tile-2,tile-2);ctx.beginPath();ctx.moveTo(ax-r,ay-r);ctx.lineTo(ax+r,ay+r);ctx.moveTo(ax+r,ay-r);ctx.lineTo(ax-r,ay+r);ctx.stroke();ctx.strokeRect(t.x*tile+1.5,t.y*tile+1.5,tile-3,tile-3);}}else if(i.type==='move'){ctx.strokeStyle='#e4b775';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(tx,ty);ctx.stroke();const angle=Math.atan2(ty-cy,tx-cx),r=tile*.2;ctx.fillStyle=ctx.strokeStyle;ctx.beginPath();ctx.moveTo(tx,ty);ctx.lineTo(tx-Math.cos(angle-.65)*r,ty-Math.sin(angle-.65)*r);ctx.lineTo(tx-Math.cos(angle+.65)*r,ty-Math.sin(angle+.65)*r);ctx.closePath();ctx.fill();}ctx.fillStyle=i.type==='wait'?'#8caa9b':'#e9997d';ctx.beginPath();ctx.moveTo(cx,cy-tile*.28);ctx.lineTo(cx+tile*.24,cy+tile*.2);ctx.lineTo(cx-tile*.24,cy+tile*.2);ctx.closePath();ctx.fill();ctx.fillStyle='#132018';ctx.font=`bold ${Math.max(8,tile*.3)}px monospace`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(String(g.hp),cx,cy+tile*.04);}
+    for(const p of s.reinforcements){const [cx,cy]=center(p.x,p.y);ctx.strokeStyle='#e9b461';ctx.lineWidth=2;ctx.setLineDash([2,3]);ctx.strokeRect(p.x*tile+2,p.y*tile+2,tile-4,tile-4);ctx.setLineDash([]);ctx.fillStyle='#e9b461';ctx.font=`${Math.max(9,tile*.35)}px monospace`;ctx.fillText(String(p.at-s.turn),cx,cy);}
+    if(selected&&s.seen[selected.y]?.[selected.x]){ctx.strokeStyle='#edf4d9';ctx.lineWidth=1.5;ctx.strokeRect(selected.x*tile+2,selected.y*tile+2,tile-4,tile-4);}
+    const [px,py]=center(s.player.x,s.player.y);ctx.fillStyle='#a8edc3';ctx.beginPath();ctx.arc(px,py,tile*.22,0,Math.PI*2);ctx.fill();ctx.strokeStyle=s.player.cover?'#d1f3b5':'#172b20';ctx.lineWidth=s.player.cover?2.7:1.5;ctx.beginPath();ctx.arc(px,py,tile*.32,0,Math.PI*2);ctx.stroke();
+  }
+  function saveDialog(){
+    persist();const box=el('textarea');box.rows=8;box.readOnly=true;box.value=E.serialize(base,run);box.setAttribute('aria-label','可复制的完整存档 JSON');const content=el('div');content.append(paragraph('基地研究与未结束行动都包含在这份存档里。不同浏览器和文件路径通常不共享本地存储，迁移前请下载或复制。'),box,paragraph(storageMessage,'muted'));
+    const copy=button('复制存档',async()=>{try{if(!navigator.clipboard?.writeText)throw new Error();await navigator.clipboard.writeText(box.value);toast('存档已复制。');}catch{box.focus();box.select();toast('已选中存档，请按 Ctrl+C 或长按复制。');}});
+    const download=button('下载 JSON',()=>{const blob=new Blob([box.value],{type:'application/json'}),url=URL.createObjectURL(blob),a=el('a');a.href=url;a.download='echo-expedition-save.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});
+    openDialog('保存与备份',content,[copy,download,button('返回',closeDialog)]);
+  }
+  function importDialog(){
+    const box=el('textarea');box.rows=8;box.placeholder='粘贴回声禁区存档 JSON';box.setAttribute('aria-label','要导入的存档');const file=el('input');file.type='file';file.accept='.json,application/json';file.setAttribute('aria-label','选择 JSON 存档文件');file.addEventListener('change',async()=>{const f=file.files[0];if(!f)return;if(f.size>250000){toast('存档文件超过安全大小限制。');return;}try{box.value=await f.text();}catch{toast('无法读取文件，请复制粘贴存档。');}});
+    const content=el('div');content.append(paragraph('先检查，再确认覆盖。损坏或不属于本游戏的存档不会覆盖现有记录；当前有效记录会保留一份备份。'),box,file);
+    const validate=button('检查存档',()=>{let saved;try{saved=E.parse(box.value);}catch(error){toast(error.message);return;}openDialog('确认导入',paragraph(`这份存档有 ${saved.base.credits} 回收点、${saved.base.runs} 次成功撤离${saved.run?'，并包含进行中的行动':''}。确认覆盖当前进度？`),[button('取消',closeDialog),button('确认导入',()=>{base=saved.base;run=saved.run;closeDialog();persist();renderMenu();toast('存档导入完成。');},'primary')]);});openDialog('导入存档',content,[validate,button('取消',closeDialog)]);
+  }
+  $('start-button').addEventListener('click',start);$('resume-button').addEventListener('click',showGame);$('random-seed').addEventListener('click',()=>{$('seed-input').value=randomSeed();});$('help-button').addEventListener('click',help);$('save-button').addEventListener('click',saveDialog);$('import-button').addEventListener('click',importDialog);$('return-button').addEventListener('click',pause);
+  $('sound-button').addEventListener('click',()=>{sound=!sound;$('sound-button').textContent='声音：'+(sound?'开':'关');$('sound-button').setAttribute('aria-pressed',sound);cue('move');});
+  $('loot-button').addEventListener('click',()=>{const c=selectedCache();action(c?{type:'collect',id:c.id}:{type:'collect'});});$('cover-button').addEventListener('click',()=>action({type:'cover'}));$('emp-button').addEventListener('click',()=>action({type:'emp'}));$('shoot-button').addEventListener('click',()=>{const g=selectedGuard();if(g)action({type:'shoot',id:g.id});});$('push-button').addEventListener('click',()=>{const g=selectedGuard();if(g)action({type:'push',id:g.id});});$('heal-button').addEventListener('click',()=>action({type:'heal'}));$('end-turn-button').addEventListener('click',()=>action({type:'end'}));$('extract-button').addEventListener('click',()=>action({type:'extract'}));$('dash-button').addEventListener('click',()=>{dashMode=!dashMode;renderGame();});
+  document.querySelectorAll('[data-dir]').forEach(b=>b.addEventListener('click',()=>move(b.dataset.dir)));
+  $('map').addEventListener('click',event=>{if(!run||run.phase!=='raid')return;const rect=$('map').getBoundingClientRect(),x=Math.floor((event.clientX-rect.left)/rect.width*E.W),y=Math.floor((event.clientY-rect.top)/rect.height*E.H);if(x<0||y<0||x>=E.W||y>=E.H)return;const g=E.liveGuards(run).find(t=>t.x===x&&t.y===y&&E.visible(run,x,y));selected=g?{x,y,id:g.id}:{x,y};if(!g&&E.passable(run,x,y)&&E.distance(run.player,{x,y})===1){const dx=x-run.player.x,dy=y-run.player.y,dir=Object.entries(E.DIR).find(([,a])=>a[0]===dx&&a[1]===dy)?.[0];if(dir)move(dir);}else renderGame();});
+  document.addEventListener('keydown',event=>{
+    if(!$('dialog-backdrop').hidden){if(event.key==='Escape'){event.preventDefault();closeDialog();return;}if(event.key==='Tab'){const focus=[...$('dialog-backdrop').querySelectorAll('button:not(:disabled),textarea,input')];if(!focus.length)return;const first=focus[0],last=focus[focus.length-1];if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}}return;}
+    if(['INPUT','TEXTAREA'].includes(document.activeElement?.tagName)||$('game-screen').hidden||!run)return;
+    const key=event.key.toLowerCase(),directions={w:'up',arrowup:'up',d:'right',arrowright:'right',s:'down',arrowdown:'down',a:'left',arrowleft:'left'};
+    if(directions[key]||[' ','e','c','q','r','f','escape'].includes(key))event.preventDefault();else return;if(event.repeat)return;
+    if(directions[key])move(directions[key],event.shiftKey||dashMode);else if(key===' ')action({type:'end'});else if(key==='e')$('loot-button').click();else if(key==='c')action({type:'cover'});else if(key==='q')action({type:'emp'});else if(key==='r')action({type:'heal'});else if(key==='f')action({type:'extract'});else if(key==='escape')pause();
+  });
+  // Relocate the existing controls, not copies: mobile and desktop use the same handlers and state.
+  const controls=document.querySelector('.control-row'),controlHome=document.createComment('desktop controls');
+  controls.before(controlHome);
+  const quick=el('div','','mobile-quick-actions');controls.append(quick);
+  const mobileButtons=['end-turn-button','loot-button','extract-button'].map(id=>{
+    const node=$(id),home=document.createComment(id+' home');node.before(home);return{node,home};
+  });
+  const mobileLayout=window.matchMedia('(max-width:680px)');
+  function arrangeControls(){
+    if(mobileLayout.matches){document.querySelector('.map-wrap').after(controls);for(const{node}of mobileButtons)quick.append(node);}
+    else{controlHome.after(controls);for(const{node,home}of mobileButtons)home.after(node);}
+    drawMap();
+  }
+  mobileLayout.addEventListener('change',arrangeControls);arrangeControls();
+  window.addEventListener('resize',drawMap);window.addEventListener('pagehide',()=>{if(run?.phase==='raid')persist();});restore();renderMenu();
+})();
+</script>
+</body>
+</html>

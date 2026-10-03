@@ -23,10 +23,21 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify shared rules and offline catalog
+        run: |
+          node --test scripts/test-existing-game-fixes.mjs scripts/test-factory-sandbox.mjs scripts/test-echo-expedition.mjs
+          node scripts/sync-game-catalog.mjs --check
+          node promo-video/scripts/check-game-tiers.mjs
       - name: Prepare static site
         run: |
           mkdir -p _site
           cp ./*.html README.md GAME_AUDIT.md GAME_TIERS.json LICENSE _site/
+          mkdir -p _site/development
+          cp development/echo-expedition.html _site/development/
           touch _site/.nojekyll
       - name: Configure Pages
         uses: actions/configure-pages@v5

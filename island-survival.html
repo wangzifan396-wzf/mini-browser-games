@@ -765,6 +765,8 @@
               return {
                 ...defaults(),
                 ...v,
+                unlocked: clamp(Math.floor(Number(v.unlocked) || 0), 0, 2),
+                clears: clamp(Math.floor(Number(v.clears) || 0), 0, 1000000),
                 stars: Array.from({ length: 3 }, (_, i) =>
                   clamp(+v.stars?.[i] || 0, 0, 3),
                 ),
@@ -785,7 +787,11 @@
           return profile.stars.reduce((a, b) => a + b, 0);
         }
         function save() {
-          localStorage.setItem(KEY, JSON.stringify(profile));
+          try {
+            localStorage.setItem(KEY, JSON.stringify(profile));
+          } catch (_) {
+            // Private browsing / a full disk must not interrupt a survival turn.
+          }
         }
         function makeState() {
           const first = route().events[0];
@@ -862,6 +868,7 @@
             explore: state.day % 2 ? { scrap: 1, food: 1 } : { scrap: 2 },
             eat: { food: -1, water: -1, hunger: -34, thirst: -42 },
           }[kind];
+          if (base === undefined) return;
           if (kind === "eat" && (state.food < 1 || state.water < 1)) {
             message("食物或淡水不足，不能进食饮水。");
             return;
@@ -884,6 +891,7 @@
             radio: { scrap: -3, signal: 35, radio: 1 },
           };
           const d = costs[kind];
+          if (!d) return;
           if (kind === "shelter" && state.shelter >= 2)
             return message("庇护所已满级。");
           if (kind === "filter" && state.filter)
@@ -930,15 +938,15 @@
         }
         function chooseEvent(index) {
           if (state.mode !== "event") return;
-          const choice = state.event.choices[index],
-            delta = { ...choice[1] };
+          const choice = state.event?.choices[index];
+          if (!choice) return;
+          const delta = { ...choice[1] };
           for (const key of ["wood", "food", "water", "scrap"]) {
             if ((delta[key] || 0) < 0 && state[key] < Math.abs(delta[key])) {
               message(`资源不足，无法选择“${choice[0]}”。`);
               return;
             }
           }
-          if (delta.eventsHelped) state.eventsHelped += delta.eventsHelped;
           apply(delta);
           record("EVENT", `${state.event.title}：${choice[0]}`, {
             event: state.eventIndex,
@@ -1170,7 +1178,7 @@
           if (v.v !== 2 || !Array.isArray(v.s)) throw Error("档案版本不兼容");
           return {
             v: 2,
-            unlocked: clamp(+v.u || 0, 0, 2),
+            unlocked: clamp(Math.floor(+v.u || 0), 0, 2),
             stars: Array.from({ length: 3 }, (_, i) =>
               clamp(+v.s[i] || 0, 0, 3),
             ),

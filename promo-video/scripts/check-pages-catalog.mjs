@@ -78,7 +78,7 @@ try {
   assert.equal(await desktop.locator(".play").count(), activeGameCount);
   const links = await desktop.locator(".play").evaluateAll((nodes) => nodes.map((node) => node.href));
   assert.equal(new Set(links).size, activeGameCount, "unique active Pages game links");
-  assert.equal(links.every((link) => /^https:\/\/wangzifan396-wzf\.github\.io\/mini-browser-games\/.+\.html$/.test(link)), true);
+  assert.equal(links.every((link) => link.startsWith(`http://127.0.0.1:${port}/`) && link.endsWith('.html')), true, 'play links follow the hosting origin rather than hardcoding an old deployment');
   await desktop.locator('[data-grade="SSS"]').click();
   assert.equal(await desktop.locator(".game-card").count(), 3, "SSS grade filter");
   assert.equal(await desktop.locator(".grade").evaluateAll((nodes) => nodes.every((node) => node.textContent === "SSS")), true);
