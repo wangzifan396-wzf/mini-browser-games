@@ -79,6 +79,15 @@ test('backpack: all four rotations exist and return to the original asymmetric s
   assert.equal(new Set(rotations).size, 4);
   assert.equal(JSON.stringify(g.shape('thorn', 4)), JSON.stringify(g.shape('thorn', 0)));
 });
+test('backpack: recipe forging keeps the grid anchor after every rotation', () => {
+  for(let rot=0;rot<4;rot++){
+    const g=backpack(),s=g.fresh('ranger');
+    s.items=[{uid:'blade',id:'sword',rot,cells:g.cellsFor('sword',0,rot),level:1},{uid:'stone',id:'stone',rot:0,cells:[27],level:1}];
+    g.set(s);g.forge();assert.equal(s.items.length,1);assert.equal(s.items[0].id,'greatsword');
+    assert.deepEqual([...s.items[0].cells],[...g.cellsFor('greatsword',0,rot)],`rotation ${rot} must not shift the forged equipment`);
+  }
+});
+
 test('backpack: expansion gives its promised 15 maximum HP', () => {
   const g = backpack(); const s = g.fresh('ranger'); s.perks = ['expand']; g.set(s);
   assert.equal(g.buildStats().hp, 70);
