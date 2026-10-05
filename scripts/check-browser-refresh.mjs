@@ -61,31 +61,41 @@ async function factory(page,input){
  await input(page.locator('#sandboxModeBtn'));
  return{deliveries:state.sold.plate,legacyReferences:refs.references.length,saveRoundtrip:true};
 }
-async function backpack(page,input){
+async function backpack(page,input,mobile,label){
  await input(page.locator('[data-class="ranger"]'));
+ assert.match(await page.locator('#enemyRules').innerText(),/装备：长剑、锁子甲/,'preview lists the real first-round weapon, not hidden fallback gear');
+ assert.match(await page.locator('#enemyRules').innerText(),/武器伤害 ×1\.00/);
+ assert.match(await page.locator('#enemyRules').innerText(),/装备使用相同规则；无玩家职业和行囊专精/);
+ const opponentBefore=await page.locator('#enemyItems span').evaluateAll(nodes=>nodes.map(n=>n.title));
  await input(page.locator('#grid .gear').first());for(let n=0;n<4;n++)await input(page.locator('#rotateBtn'));
  await input(page.locator('#saveBtn'));const code=await page.locator('#saveCode').inputValue();assert.match(code,/^BA3-/);
  await refusedClipboardCopy(page,input);
  await input(page.locator('#closeInfoBtn'));await page.reload({waitUntil:'load'});
  assert.equal(await page.locator('#grid .gear').count(),2,'starting gear restored');
  await input(page.locator('#fightBtn'));assert.equal(await page.locator('#rotateBtn').isDisabled(),true);
+ assert.deepEqual(await page.locator('#enemyItems span').evaluateAll(nodes=>nodes.map(n=>n.title)),opponentBefore,'the displayed real enemy equipment is unchanged on battle start');
  await page.waitForTimeout(1200);await page.keyboard.press('Escape');
  assert.match(await page.locator('#fightBtn').innerText(),/继续/);
  const health=await page.locator('#playerHp').getAttribute('style');await page.waitForTimeout(700);
  assert.equal(await page.locator('#playerHp').getAttribute('style'),health,'paused combat stays paused');
  await input(page.locator('#fightBtn'));await page.waitForTimeout(500);await page.keyboard.press('Escape');
- return{realClassSelection:true,fourRotationInputs:true,pauseAndResume:true,saveReload:true};
+ await input(page.locator('#codexBtn'));assert.match(await page.locator('#infoBody').innerText(),/宝石不互相循环放大/);
+ await capture(page,label+'-codex');await input(page.locator('#closeInfoBtn'));
+ return{realClassSelection:true,realOpponentGearPreview:true,fourRotationInputs:true,pauseAndResume:true,saveReload:true};
 }
 async function chess(page,input){
  await input(page.locator('[data-cmd="vanguard"]'));await input(page.locator('[data-buy="0"]'));
- await input(page.locator('#bench .unit').first());await input(page.locator('#board .cell').nth(24));
+ await input(page.locator('#bench .unit').first());await input(page.locator('#board .cell').nth(47));
  const before=await page.locator('#opponent .preview span').allTextContents();
  await input(page.locator('#saveBtn'));await refusedClipboardCopy(page,input);await input(page.locator('#closeInfoBtn'));
  await input(page.locator('#fightBtn'));
  const actual=await page.locator('.unit.enemy .icon').allTextContents();assert.deepEqual(actual,before,'shown opponent is actual opponent');
  assert.equal(await page.locator('#rerollBtn').isDisabled(),true);
- await page.waitForTimeout(1200);const cells=await page.locator('#board .unit').evaluateAll(nodes=>nodes.map(n=>Array.from(n.parentElement.parentElement.children).indexOf(n.parentElement)));
- assert.ok(cells.some(n=>n!==24&&n!==40&&n>1),'actual rendered troops moved');
+ // Rear-corner placement guarantees an out-of-range start even if both enemies
+ // rolled ranged heroes. The former front-row test legitimately stood still.
+ await page.waitForFunction(()=>[...document.querySelectorAll('#board .unit')].some(n=>{const p=Array.from(n.parentElement.parentElement.children).indexOf(n.parentElement);return p!==47&&p!==0&&p!==1;}));
+ const cells=await page.locator('#board .unit').evaluateAll(nodes=>nodes.map(n=>Array.from(n.parentElement.parentElement.children).indexOf(n.parentElement)));
+ assert.ok(cells.some(n=>n!==47&&n!==0&&n!==1),'actual rendered troops moved from an out-of-range formation');
  await page.keyboard.press('Escape');assert.match(await page.locator('#fightBtn').innerText(),/继续/);
  assert.equal(await page.locator('#sellBtn').isDisabled(),true);
  await input(page.locator('#fightBtn'));await page.waitForTimeout(400);await page.keyboard.press('Escape');
@@ -103,14 +113,21 @@ async function island(page,input){
  assert.match(await page.locator('#archiveFeedback').innerText(),/校验/);await input(page.locator('#closeArchiveBtn'));
  return{eventCountCorrect:true,realResourceAction:true,badImportRejected:true};
 }
-async function catalog(page,input){
+async function catalog(page,input,mobile,label){
  assert.equal(await page.locator('.game-card').count(),115);
  const hrefs=await page.locator('.play').evaluateAll(nodes=>nodes.map(n=>n.href));
  assert.ok(hrefs.every(h=>h.startsWith(pathToFileURL(root).href)&&h.endsWith('.html')),'local catalog does not send local users to an old online build');
+ const catalogURL=page.url();
+ const preview=page.locator('#echo-preview-link');
+ assert.ok((await preview.getAttribute('href')).endsWith('development/echo-expedition.html'));
+ await input(preview);await page.waitForURL('**/development/echo-expedition.html');assert.match(await page.title(),/回声禁区/);
+ await page.goto(catalogURL,{waitUntil:'load'});assert.equal(await page.locator('.game-card').count(),115,'test preview does not inflate the formal catalog');
+ await capture(page,label+'-home');
+ await page.screenshot({path:path.join(output,label+'-home-viewport.png'),fullPage:false});
  await page.locator('#searchInput').fill('微型流水线');assert.equal(await page.locator('.game-card').count(),1);
  const href=await page.locator('.play').getAttribute('href');assert.ok(href.endsWith('/tiny-factory.html'));
  await input(page.locator('.play'));await page.waitForURL('**/tiny-factory.html');assert.match(await page.title(),/流水线/);
- return{offlineCatalog:true,localGameLink:true};
+ return{offlineCatalog:true,localGameLink:true,separatePreviewLink:true};
 }
 async function echo(page,input,mobile,label){
  await page.locator('#seed-input').fill('experience-review');await input(page.locator('#start-button'));

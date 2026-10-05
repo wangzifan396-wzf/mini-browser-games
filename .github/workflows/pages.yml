@@ -19,25 +19,30 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 22
       - name: Verify shared rules and offline catalog
         run: |
-          node --test scripts/test-existing-game-fixes.mjs scripts/test-factory-sandbox.mjs scripts/test-echo-expedition.mjs
+          node --test scripts/test-existing-game-fixes.mjs scripts/test-factory-sandbox.mjs scripts/test-echo-expedition.mjs scripts/test-echo-campaign.mjs scripts/test-echo-compatibility.mjs
           node scripts/sync-game-catalog.mjs --check
           node promo-video/scripts/check-game-tiers.mjs
       - name: Prepare static site
         run: |
           mkdir -p _site
-          cp ./*.html README.md GAME_AUDIT.md GAME_TIERS.json LICENSE _site/
+          cp ./*.html README.md GAME_AUDIT.md GAME_TIERS.json RATING_STANDARD.md LICENSE _site/
           mkdir -p _site/development
           cp development/echo-expedition.html _site/development/
+          cp development/README.md _site/development/
+          mkdir -p _site/docs
+          cp docs/browser-games-refresh-sdd.md docs/browser-games-refresh-qa.md docs/echo-campaign-sdd.md _site/docs/
           touch _site/.nojekyll
       - name: Configure Pages
         uses: actions/configure-pages@v5

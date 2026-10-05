@@ -31,16 +31,18 @@ concurrency:
 
 jobs:
   regression:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 22
       - name: Pure rules and catalog consistency
         run: |
-          node --test scripts/test-existing-game-fixes.mjs scripts/test-factory-sandbox.mjs scripts/test-echo-expedition.mjs
+          node --test scripts/test-existing-game-fixes.mjs scripts/test-factory-sandbox.mjs scripts/test-echo-expedition.mjs scripts/test-echo-campaign.mjs scripts/test-echo-compatibility.mjs
           node scripts/sync-game-catalog.mjs --check
           node promo-video/scripts/check-game-tiers.mjs
       - name: Install isolated browser-test runtime
@@ -51,15 +53,17 @@ jobs:
       - name: Actual desktop and touch-layout interactions
         run: |
           node scripts/check-browser-refresh.mjs --echo
+          node scripts/check-echo-campaign.mjs
           node promo-video/scripts/check-tiny-factory-contracts.mjs
           node promo-video/scripts/check-pages-catalog.mjs
       - name: Retain diagnostics and screenshots
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: browser-refresh-evidence
           path: |
             output/browser-refresh/
+            output/echo-campaign/
             output/tiny-factory-contracts/
             output/pages-catalog-*.png
           retention-days: 14

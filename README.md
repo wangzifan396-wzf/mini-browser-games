@@ -19,6 +19,8 @@
 
 ## 最新更新
 
+- 2026-10-05：集中深化新作 [回声禁区 · 重启灯塔测试版](https://wangzifan396-wzf.github.io/mini-browser-games/development/echo-expedition.html)，新增可选持续目标：现场测绘、跨回合破解、改接电网、守住广播后远端撤离。带回的证明解锁后续行动与战术能力，不能用入口刷钱代替任务；加入有实际规则差异的无人机、哨炮和重装守卫。原自由搜刮和旧行动存档保留，测试版仍不评级、不增加正式游戏数量。入口现也放在目录首页“本轮重点”。设计与验收见 [本轮 SDD](docs/echo-campaign-sdd.md)。
+- 同批继续修复《符文自走棋》的攻速频率、加速上限和预览占格校验，以及《背包角斗场》的全类型邻接增幅、周期冷却、药剂时机和药剂师二次触发。背包对手的实际装备也调用玩家同一解析器，宝石/食物/药剂不再只是装饰，赛程倍率在预览明示。实际数值与行为均做同源回归，长期平衡仍待反馈。大型 FPS 留在研发候选，未把粗糙射击原型发布为“网页版 CS”。
 - 2026-10-04：本批改为“质量与特色优先”，不再把新增固定关卡当主要升级方式。《微型流水线》新增**开放工区**：种子矿脉、自主布局、16 类设施、配方生产、研究扩建、筛选/分流物流、库存检查与自定义吞吐目标；保留旧合同及档案。修复分流器单侧堵塞导致全线停产的死锁，正常资金与产线可推进至无人机，不需测试注入资源。
 - 《背包角斗场》修复错误冠军、奶酪回血周期、死亡后回血、专精生命值、旋转与战斗改包；赛季改为十胜或五败结束。《符文自走棋》的侦察阵容与实战一致，近战真正移动接敌，远程受射程约束，修复装备合成丢失、护盾/站位效果和超时胜负。《孤岛十日》修复有利事件重复计数与坏档问题。原有评级不因修复自动提升。
 - 新作 [回声禁区 · 可玩测试版](https://wangzifan396-wzf.github.io/mini-browser-games/development/echo-expedition.html)：原创回合式潜入撤离，种子废墟、预告攻击区域、噪音、负重、EMP/推撞、搜刮与撤离、基地研究、断点续局；不是固定十二关答题。测试版与正式目录分开，不计入 115 款活跃游戏，长期目标与平衡仍需试玩反馈。
@@ -288,13 +290,13 @@
 
 | 项目 | 技术与内容 | 启动方式 |
 | --- | --- | --- |
-| [Star Cluster Arena（星团大作战）](star-cluster-arena/README.md) | 1.0 发布候选：十模式同源单人 / 好友联机，Windows 安装与便携版；补满 AI、暂停 / 观战 / 结算、稳定存档；支持 LAN 及自部署 HTTPS/WSS 异地房间，完整正式验收仍有待办 | 进入 `star-cluster-arena/` 后运行 `node backend/server.mjs`；普通玩家从 [1.0 候选 Release](https://github.com/wangzifan396-wzf/mini-browser-games/releases/tag/sca-v1.0.0-rc.1) 下载 Windows 成品 |
-| [Starforge Nexus（星炉工坊）](starforge-nexus/README.md) | `starforge-idle.html` 的前后端高性能版本；WebGL2 程序化星炉、30Hz 固定模拟、GPU 缓存、DOM 降频与高刷新率动画 | 进入 `starforge-nexus/` 后运行 `node backend/server.mjs`；Windows 可直接双击 `start.cmd` |
+| [Star Cluster Arena（星团大作战）](https://github.com/wangzifan396-wzf/mini-browser-games/blob/main/star-cluster-arena/README.md) | 1.0 发布候选：十模式同源单人 / 好友联机，Windows 安装与便携版；补满 AI、暂停 / 观战 / 结算、稳定存档；支持 LAN 及自部署 HTTPS/WSS 异地房间，完整正式验收仍有待办 | 进入 `star-cluster-arena/` 后运行 `node backend/server.mjs`；普通玩家从 [1.0 候选 Release](https://github.com/wangzifan396-wzf/mini-browser-games/releases/tag/sca-v1.0.0-rc.1) 下载 Windows 成品 |
+| [Starforge Nexus（星炉工坊）](https://github.com/wangzifan396-wzf/mini-browser-games/blob/main/starforge-nexus/README.md) | `starforge-idle.html` 的前后端高性能版本；WebGL2 程序化星炉、30Hz 固定模拟、GPU 缓存、DOM 降频与高刷新率动画 | 进入 `starforge-nexus/` 后运行 `node backend/server.mjs`；Windows 可直接双击 `start.cmd` |
 
 ## 项目宣传片
 
-- [横版 V2 高清宣传片](promo-video/deliverables/mini-browser-games-promo-v2-hq-captioned.mp4)：93 秒，重点展示《星团大作战》和《星炉工坊》，并快速覆盖动作、肉鸽、塔防、MOBA、卡牌与益智代表作。
-- [宣传片工程](promo-video/README.md)：包含实机逐帧采集、AI 中文配音、原创 BGM、字幕、混音、横竖版渲染与自动验收脚本。
+- [横版 V2 高清宣传片](https://github.com/wangzifan396-wzf/mini-browser-games/blob/main/promo-video/deliverables/mini-browser-games-promo-v2-hq-captioned.mp4)：93 秒，重点展示《星团大作战》和《星炉工坊》，并快速覆盖动作、肉鸽、塔防、MOBA、卡牌与益智代表作。
+- [宣传片工程](https://github.com/wangzifan396-wzf/mini-browser-games/blob/main/promo-video/README.md)：包含实机逐帧采集、AI 中文配音、原创 BGM、字幕、混音、横竖版渲染与自动验收脚本。
 
 宣传片使用 1920×1080 高质量实机画面、深沉中文男声和 H.264/AAC 编码；完整无字幕版和分轨素材可由工程脚本在本地重新生成。
 
