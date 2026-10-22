@@ -44,6 +44,9 @@ jobs:
           cp development/README.md _site/development/
           mkdir -p _site/docs
           cp docs/browser-games-refresh-sdd.md docs/browser-games-refresh-qa.md docs/echo-campaign-sdd.md _site/docs/
+          cp docs/collection-curation-sdd.md _site/docs/
+          mkdir -p _site/docs/curation-2026-10-23
+          cp docs/curation-2026-10-23/README.md docs/curation-2026-10-23/evidence.json docs/curation-2026-10-23/verify-evidence.mjs docs/curation-2026-10-23/verify-collection-evidence.mjs _site/docs/curation-2026-10-23/
           touch _site/.nojekyll
       - name: Configure Pages
         uses: actions/configure-pages@v5

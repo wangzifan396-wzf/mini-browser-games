@@ -10,6 +10,21 @@ const [readme, changelog, pages, pkgText, tiersText] = await Promise.all([
 const version = JSON.parse(pkgText).version;
 const activeCount = Object.entries(JSON.parse(tiersText).tiers)
   .filter(([rating]) => rating !== 'E').reduce((count, [, files]) => count + files.length, 0);
+const archived = JSON.parse(tiersText).tiers.E;
+const index = await read('index.html');
+assert.ok(readme.includes(`Active%20Games-${activeCount}-`), 'active badge matches registry');
+assert.ok(readme.includes(`Archived-${archived.length}-`), 'archive badge matches registry');
+assert.ok(index.includes(`id="totalStat">${activeCount}<`), 'static homepage count matches registry');
+assert.ok(index.includes(`id="archiveStat">${archived.length}<`), 'static archive count matches registry');
+const embedded = JSON.parse(index.match(/<script id="catalogData" type="application\/json">([\s\S]*?)<\/script>/)[1]);
+assert.equal(embedded.archived, archived.length);
+assert.equal(embedded.games.length, activeCount);
+for (const file of archived) {
+  await access(new URL(file, root));
+  assert.ok(!embedded.games.some(game => game.file === file), `${file}: archived source retained, not promoted`);
+  const recommendations = readme.slice(readme.indexOf('## 推荐先玩'), readme.indexOf('## 快速开始'));
+  assert.ok(!recommendations.includes('/' + file + ')'), `${file}: not in recommendations`);
+}
 const stableRelease = `https://github.com/wangzifan396-wzf/mini-browser-games/releases/tag/sca-v${version}`;
 
 // README is a player-facing entry point; the catalog parser has its own tests.
@@ -58,6 +73,7 @@ const docs = [
   ['README.md', readme], ['CHANGELOG.md', changelog],
   ...await Promise.all([
     'development/README.md', 'star-cluster-arena/README.md',
+    'docs/collection-curation-sdd.md', 'docs/curation-2026-10-23/README.md',
     'star-cluster-arena/docs/RELEASE-NOTES-1.0.0.md',
     'star-cluster-arena/docs/GITHUB-RELEASE-1.0.0.md',
     'star-cluster-arena/docs/QA-1.0.0.md', 'star-cluster-arena/docs/SDD-RELEASE-1.0.md'

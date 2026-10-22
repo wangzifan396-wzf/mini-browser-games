@@ -2,11 +2,11 @@
 
 [![在线试玩](https://img.shields.io/website?url=https%3A%2F%2Fwangzifan396-wzf.github.io%2Fmini-browser-games%2F&style=for-the-badge&label=GitHub%20Pages&logo=github&logoColor=white)](https://wangzifan396-wzf.github.io/mini-browser-games/)
 [![Pages 部署](https://img.shields.io/github/actions/workflow/status/wangzifan396-wzf/mini-browser-games/pages.yml?branch=main&style=for-the-badge&label=Pages%20Deploy)](https://github.com/wangzifan396-wzf/mini-browser-games/actions/workflows/pages.yml)
-![活跃游戏](https://img.shields.io/badge/Active%20Games-115-176B91?style=for-the-badge)
-![历史废案](https://img.shields.io/badge/Archived-9-66767B?style=for-the-badge)
+![活跃游戏](https://img.shields.io/badge/Active%20Games-106-176B91?style=for-the-badge)
+![历史废案](https://img.shields.io/badge/Archived-18-66767B?style=for-the-badge)
 [![MIT License](https://img.shields.io/badge/License-MIT-24735F?style=for-the-badge)](LICENSE)
 
-开源网页游戏与桌面游戏合集。根目录保留 **115 款活跃单文件 HTML 游戏 + 9 款历史归档**，可在线或离线游玩；另有《星团大作战》Windows 1.0.0 正式版，以及独立展示的《回声禁区》测试版。
+开源网页游戏与桌面游戏合集。根目录保留 **106 款活跃单文件 HTML 游戏 + 18 款历史归档**，可在线或离线游玩；另有《星团大作战》Windows 1.0.0 正式版，以及独立展示的《回声禁区》测试版。质量优先：重复内容退出维护，不以换皮关卡凑数量。
 
 [打开在线合集](https://wangzifan396-wzf.github.io/mini-browser-games/) · [下载星团大作战 1.0.0](https://github.com/wangzifan396-wzf/mini-browser-games/releases/tag/sca-v1.0.0) · [完整更新日志](CHANGELOG.md)
 
@@ -19,7 +19,7 @@
 | 吞噬竞技 / 好友联机 | [星团大作战 1.0.0 · Windows](https://github.com/wangzifan396-wzf/mini-browser-games/releases/tag/sca-v1.0.0) | 十种模式，可独自挑战 AI 或与朋友建房；LAN 自动发现，异地需自部署服务。免安装可选便携 ZIP |
 | 卡牌肉鸽 | [山海伏魔录](https://wangzifan396-wzf.github.io/mini-browser-games/shan-hai.html) | 选行者、组牌、拿遗物，在分支事件和首领间做构筑取舍 |
 | 放置经营 | [星炉工坊](https://wangzifan396-wzf.github.io/mini-browser-games/starforge-idle.html) | 经营生产链、研究和远航，逐步进入战斗、装备与重启循环 |
-| 自由建厂 | [微型流水线 · 开放工区](https://wangzifan396-wzf.github.io/mini-browser-games/tiny-factory.html) | 自选种子矿区，规划配方、分流和扩产；检查器帮助找堵塞，旧合同也保留 |
+| 自由建厂 | [微型流水线 · 开放工区](https://wangzifan396-wzf.github.io/mini-browser-games/tiny-factory.html) | 种子矿区与自主产线；公平汇流、暂停搬迁、独立筛选配置和堵塞诊断，旧合同保留 |
 | 回合潜入 / 撤离 | [回声禁区 · 测试版](https://wangzifan396-wzf.github.io/mini-browser-games/development/echo-expedition.html) | 看敌人预告避险，权衡载重与撤退；可自由搜刮或完成灯塔行动链，当前仍在打磨 |
 | 塔防构筑 | [芽阵前线](https://wangzifan396-wzf.github.io/mini-browser-games/garden-front.html) | 选择植物和本局进化，针对不同敌人与挑战词条调整阵地 |
 
@@ -33,18 +33,18 @@
 
 ## 最新更新
 
+- **2026-10-23**：冻结 9 款重复或被更强同类覆盖的作品，乐园降至 C；重点修复开放工厂物流并改善搬迁、配置和诊断。
 - **2026-10-16**：星团大作战 1.0.0 正式发布；重新整理推荐、下载入口、简介和标签。
 - **2026-10-05**：回声禁区新增灯塔行动链与敌人角色；修复背包装备效果、自走棋攻速和存档兼容等问题。
-- **2026-10-04**：微型流水线新增开放工区；修复四款旧作及离线目录。
 
-[阅读完整更新日志与历史记录 →](CHANGELOG.md) · [本批设计](docs/echo-campaign-sdd.md) · [实际测试范围](docs/browser-games-refresh-qa.md)
+[阅读完整更新日志与历史记录 →](CHANGELOG.md) · [本批设计](docs/collection-curation-sdd.md) · [去同质化依据与测试](docs/curation-2026-10-23/README.md)
 
 ## 游戏总览
 
-本表只收录 115 款 `SSS–D` 活跃作品；`D` 级是具备明确重制价值的候选池，允许在没有合适候选时保持为空；`E` 级历史废案仅保留源码与链接，不进入主动更新和日常审计。评级唯一名单位于 [GAME_TIERS.json](GAME_TIERS.json)，准入线与升降级规则见 [游戏质量评级标准](RATING_STANDARD.md)，逐款依据见 [GAME_AUDIT.md](GAME_AUDIT.md)。每款游戏名称均可直接点击打开。
+本表只收录 106 款 `SSS–D` 活跃作品；`D` 级是具备明确重制价值的候选池，允许在没有合适候选时保持为空；`E` 级历史废案仅保留源码与链接，不进入主动更新和日常审计。评级唯一名单位于 [GAME_TIERS.json](GAME_TIERS.json)，准入线与升降级规则见 [游戏质量评级标准](RATING_STANDARD.md)，逐款依据见 [GAME_AUDIT.md](GAME_AUDIT.md)。本轮不是对所有历史评级重新认证，每款游戏名称均可直接点击打开。
 
 <details>
-<summary>展开全部 115 款活跃游戏（按玩法分类）</summary>
+<summary>展开全部 106 款活跃游戏（按玩法分类）</summary>
 
 ### 策略、养成与大型玩法
 
@@ -62,22 +62,19 @@
 | S | [余烬战棋：九境远征](https://wangzifan396-wzf.github.io/mini-browser-games/ember-tactics.html) | 三章九任务、清剿/封印/守卫/撤离/首领五类目标、六名差异英雄、八枚双槽规则徽记、墙体/掩体/熔流地形、职业技能、三星与 `EMBER2` 档案 | 非战斗时编组三名英雄与至多两枚徽记；战斗中点击英雄后移动或攻击，消耗星火释放裂阵、贯星、星爆、壁垒、复燃或闪袭，再结束回合处理敌方 AI |
 | S | [四季小农场](https://wangzifan396-wzf.github.io/mini-browser-games/pocket-farm.html) | 四季 16 种作物、再生与轮作、三种出身、居民关系、节庆、三份动态订单、六类建筑和年度图鉴 | 选择种子或工具后点击土地；通过每日体力规划种植、灌溉和收获，在溪谷镇送礼、交付订单并建设农场；档案支持跨设备存档码 |
 | A | [口袋地铁](https://wangzifan396-wzf.github.io/mini-browser-games/metro-weaver.html) | 五座城市、六类线路与目的地、程序化新站、换乘寻路、桥隧地形、车辆分配、枢纽容量和每周升级 | 选择线路后点击车站规划网络，按线路增配列车并控制拥堵；跨河与长距线段消耗桥隧组件，城市档案支持跨设备存档码 |
-| A | [掌心城市：十二城规划战役](https://wangzifan396-wzf.github.io/mini-browser-games/skyline-planner.html) | 十二城情景、10×10 路网、11 类设施、六项政策、道路覆盖、电力就业、污染幸福、三星参考建设与 `CITY2` 档案 | 选择政策与设施后点击地块建设，推进年份结算税收和维护；同时满足人口、就业、幸福、污染、电力、覆盖与财政目标 |
 | A | [孤岛十日：潮痕求生](https://wangzifan396-wzf.github.io/mini-browser-games/island-survival.html) | 三条十日路线、30 个固定事件、天气资源、采集制作、事件抉择、三星、命令回放与 `ISLAND2` 档案 | 每天规划四次采集、探索或补给行动，按天气制作设施并处理路线事件；可重放完整求生决策检查不同选择的后果 |
 | A | [拍卖风云：三席竞局](https://wangzifan396-wzf.github.io/mini-browser-games/auction-fever.html) | 三座拍卖行、12 件固定拍品、12 条行情事件、三种对手性格、鉴定转售、三星、命令回放与 `AUCTION2` 档案 | 根据拍品类别、行情和对手出价习惯决定举牌、鉴定或放弃；席位结束后复盘竞价日志并经营藏品资产 |
 | A | [背包角斗场](https://wangzifan396-wzf.github.io/mini-browser-games/backpack-arena.html) | 24 件装备、8 条合成链、四方向形状旋转与邻接、耐力冷却、三种流派、十胜或五败赛季 | 购买、旋转并摆放装备，利用合成和邻接形成流派后自动战斗；赛季档案支持跨设备存档码 |
-| A | [微型流水线：开放工区](https://wangzifan396-wzf.github.io/mini-browser-games/tiny-factory.html) | 种子矿脉、16 类可建设施、自由扩产、配方与研究、筛选/分流物流、库存诊断、自定义吞吐目标、`FACTORYFREE1` 档案；保留旧合同与 `FACTORY2` | 自主铺设矿机、炉与装配链，检查缺料/堵塞，再研究和扩建；自由工区点击设施先检查、不误旋转，可暂停、单步与导出整座工厂，合同练习单独入口保留 |
+| A | [微型流水线：开放工区](https://wangzifan396-wzf.github.io/mini-browser-games/tiny-factory.html) | 种子矿脉、自由扩产、配方与研究、公平汇流、筛选/分流物流、具体出口诊断、自定吞吐目标、`FACTORYFREE1` 档案；保留旧合同与 `FACTORY2` | 自主铺设产线、检查缺料与堵塞；暂停可整机搬迁且保留库存和进度，筛选配置与旋转分离；可单步与导出工厂 |
 | A | [生态方舟：群落演替](https://wangzifan396-wzf.github.io/mini-browser-games/ecosystem-keeper.html) | 六个生态区、12 个物种、确定性气候序列、生产者/草食/捕食/分解四层趋势图、三类环境工程、三个长期项目、15 年目标、勋章与 `ECO2` 档案 | 引入物种、补水修土或建设长期项目后推进年份；观察趋势图并平衡多样性、稳定度、水源与捕食者，避免灭绝 |
-| A | [星舰疑云：航迹证词](https://wangzifan396-wzf.github.io/mini-browser-games/starship-suspects.html) | 六起确定性案件、五名性格船员、36 条门禁/证词/工具/传感/账目证据、18 组有效关联、错误与提示评价、嫌疑人/手段/动机三重指控及 `SHIP2` 档案 | 选择两张证据卡关联成推论，围绕位置冲突、权限来源和利益后果建立三条证据链；最后选择船员、破坏手段和动机提交指控 |
 | A | [微境协议：四域演算](https://wangzifan396-wzf.github.io/mini-browser-games/pathogen-protocol.html) | 四种传播情景、八地区网络、三套初始协议、12 项演化、24 个政策事件、周期预测、三星、命令回放与 `PATH2` 档案 | 选择初始协议并按周期购买演化、处理政策事件；结合下一周期预测控制传播、研究与损耗，自动演算或回放整套方案 |
 | A | [方格帝国：六境远征](https://wangzifan396-wzf.github.io/mini-browser-games/pocket-empire.html) | 六张固定大陆、三种文明学派、六项科技、迷雾与持续疆域、确定性敌军、差异副目标、三星参考远征与 `EMPIRE2` 档案 | 选择学派后点击军团与相邻方格移动或作战；围绕资源地建设城市、招募军团、研究科技并按固定敌军军令推进时代 |
 | A | [绿茵经理：临场冠军路](https://wangzifan396-wzf.github.io/mini-browser-games/touchline-manager.html) | 四支俱乐部、18 人阵容、21 场联赛杯赛、10 套对手模型、四类阶段指令、三段确定性 xG/进球/体能结算、对位换人、训练转会、六类设施和 `TM4` 档案 | 赛前配置首发、阵型、心态、逼抢、节奏与进攻重心；比赛中读取三段对手计划，从稳态试探、前场强压、控球降速、收缩反击中逐段下令，并在中场完成一次对位换人 |
 | A | [前线指挥部](https://wangzifan396-wzf.github.io/mini-browser-games/frontier-command.html) | 三战线实时攻防、六兵种、六类基地建筑、三种指挥学说、战术技能、五章战役、精英波次和永久科技 | 选择战线部署部队，在资源、人口和能源间取舍；建设经济与军工设施，发动空袭、维修、超载或全线反攻；战役档案支持跨设备存档码 |
 | A | [交易风暴：周期实验室](https://wangzifan396-wzf.github.io/mini-browser-games/market-pulse.html) | 六种 18 日确定性情景、八家公司成长/负债/壁垒/分红/波动差异、持续或定向新闻冲击、模型价值回归、交易费、分红、回撤授权、六项研究工具与 `MARKET2` 档案 | 阅读新闻的行业/公司范围与持续时间，按现金比例买入或减仓并逐日收盘；同时满足收益、最大回撤和特殊持仓授权，完成后用洞察安装研究工具 |
-| A | [奇想乐园：六城巡回](https://wangzifan396-wzf.github.io/mini-browser-games/wonder-park.html) | 六座固定乐园、60 个活动日、三类游客偏好、五类游乐设施、设施升级、票价/容量/清洁联动、三星参考经营与 `PARK2` 档案 | 从入口铺设道路并在路旁建设或升级设施；根据每日家庭/刺激/观景客群调整票价、容量和清洁，再开园结算收入与口碑 |
+| C | [奇想乐园：经营原型](https://wangzifan396-wzf.github.io/mini-browser-games/wonder-park.html) | 票价、游客偏好、设施容量与跨日清洁联动；当前六园可被同布局覆盖，目标偏松，降级保留为经营原型 | 铺路建设、调整票价再开园；记录支持 `PARK2`，不再以六城数量宣传内容深度 |
 | A | [蜂巢女王：四季谱系](https://wangzifan396-wzf.github.io/mini-browser-games/hive-sovereign.html) | 四条确定性十二日情景、48 天固定事件、三种女王谱系、五类工蜂岗位、六项双级设施、天气/威胁/热压模型、参考方案三星与 `HIVE2` 档案 | 选择情景与女王谱系，按每日天气和威胁分配采蜜、育幼、守卫、筑巢与侦察岗位；建设设施后结束当天，围绕蜂群、蜂蜜和健康目标完成四季谱系 |
 | A | [极速配送网：三城班表](https://wangzifan396-wzf.github.io/mini-browser-games/courier-grid.html) | 三座差异路网、十二班固定班表、60 单急件/冷链/易碎订单、拥堵边、三种车型、最短路预测、三星参考路线与 `COURIER2` 档案 | 根据订单截止时间、车型容量和拥堵边点击站点编排路线；右侧实时预测覆盖、准时率和用时，确认发车后车辆沿每段最短道路执行 |
-| A | [轨道配载局：十二次重心验舱](https://wangzifan396-wzf.github.io/mini-browser-games/orbital-stowage.html) | 四章十二航次、120 件固定货物、120 个舱位，以冷藏/承重/快卸舱位、危险品与补给隔离、横纵重心矩、十步三星和 `CARGO2` 档案形成原创空间指派战役；12 套参考配载共享正式验舱函数并全部三星 | 选择货物后点击上/下层舱位装入，结合冷链、重货、优先、危险和补给标签调整；已占舱位会退回原货物，可撤回、卸货、请求单件参考并执行重心验舱 |
 | A | [怪潮军议：十二城破阵](https://wangzifan396-wzf.github.io/mini-browser-games/monster-horde.html) | 四区十二城、48 个攻城阶段、9 类怪物、8 类英雄塔、三位统帅、固定塔阵与路线规则、逐夜标签反制、10 项异变、三种邪术、三星与 `HORDE2` 档案 | 选择合同与统帅后，点击路线和怪物契约编排进场顺序；释放怪潮后按路线施放黑雾、裂地或血契，逐夜选择异变并针对英雄 AI 的补防换编队 |
 | A | [萝卜边境：十二线守望](https://wangzifan396-wzf.github.io/mini-browser-games/radish-guard.html) | 四区十二份固定合同、三张地图、72 个可复现波次、五类炮塔、六类敌人、三名守边人、差异经济与倍率、生命线/技能预算三星及 `RADISH2` 档案 | 选择合同与守边人，点击空地建塔、炮塔升级/出售或障碍清理；选择技能后点击战场施放，顶部控制开波、倍速、暂停与重开 |
 | A | [信标车队：十二线护送战役](https://wangzifan396-wzf.github.io/mini-browser-games/signal-caravan.html) | 三区十二条确定性路线、78 波固定敌袭、自动射击、维修/脉冲/信标模块、三星与 `BEACON2` 档案 | `WASD/方向键` 移动护卫并自动攻击；用按钮维修、扫描或部署信标，`Space` 触发脉冲，`P` 暂停，`R` 重开 |
@@ -96,7 +93,6 @@
 | S | [深渊声呐：静默航线](https://wangzifan396-wzf.github.io/mini-browser-games/abyss-sonar.html) | 八次潜航、猎潜艇/护卫/水雷差异行为、被动噪声与主动辨认、残骸扫描、六项双槽潜艇模块、三星和跨设备档案 | 主动声呐辨认接触后点击锁定，调整航向并发射鱼雷；静默航行降低噪声，诱饵打断敌方解算，航线页管理模块与存档码 |
 | A | [爆格特攻：连锁战役](https://wangzifan396-wzf.github.io/mini-browser-games/bomb-grid.html) | 十二份固定爆破合同、脉冲/贯穿/震荡三类模块、连锁引信、木箱阻挡、护盾与重核目标、三名行动员、三星、四枚勋章和 `BOMB2` 档案 | 选择模块后点击空地布置，第一枚为引信；让后续模块进入已有爆区形成完整连锁，再执行引爆；战术提示可逐枚呈现参考方案 |
 | A | [潮汐电网：三相合同](https://wangzifan396-wzf.github.io/mini-browser-games/tidal-grid.html) | 十二份固定电网合同、低潮/平潮/高潮三相负载、潮能站、负载岛、蓄电站、横通/全通/纵通继电器、三星与 `GRID2` 档案 | 点击电缆顺时针旋转，切换三个潮位观察供电区域；同一接线必须在三相都满足连接与容量后才能通过验收 |
-| A | [时间邮局：因果班表](https://wangzifan396-wzf.github.io/mini-browser-games/time-post.html) | 十二份双信使委托、84 项固定投递、五类资质、载重与持续时段、封锁窗口、区域冲突、前置因果、三星与 `POST2` 档案 | 先选择投递事项，再点击轻/重信使行的出发时刻；并行安排任务并保证前置物品先送达，运行班表统一检查全部约束 |
 | A | [百果试刀：十二席料理委托](https://wangzifan396-wzf.github.io/mini-browser-games/fruit-slice.html) | 十二份固定出果脚本、499 个事件、297 份五色订单、78 枚铁胆、33 层首领果、三种刀具、四枚双槽刀印、三星与 `FRUIT2` 档案 | 按住鼠标或手指划过食材形成刀光；短划避开铁胆，分层果需等待切口冷却后补刀，委托外可配置刀具与两枚刀印 |
 | A | [霓虹迷宫：十二夜巡线](https://wangzifan396-wzf.github.io/mini-browser-games/maze-chase.html) | 十二张固定夜图、58 枚信标、36 个能量核、36 条固定巡逻、三名差异巡线员、追猎者下一步预告、等待/相位冻结/能量反击、三星与 `MAZE2` 档案 | `WASD/方向键` 移动，`Space` 原地等待，`Q` 相位冻结；根据实心当前位置和空心下一步预告错开巡逻，收齐信标后抵达出口 |
 | A | [潮汐拾荒：深蓝远征](https://wangzifan396-wzf.github.io/mini-browser-games/tide-salvage.html) | 五片星级航线、十六件分级遗物、强流/水母/水雷/电鳗、周期潮汐事件、水面结算、六类四级装备与 `TIDE2` 档案 | `WASD/方向键`、拖动画面或屏幕按钮移动，`Shift`/声呐按钮扫描；只有返回水面才会结算船舱，按风险主动结束航次 |
@@ -137,7 +133,6 @@
 | A | [午夜棋局：十二局战术谱](https://wangzifan396-wzf.github.io/mini-browser-games/midnight-chess.html) | 四章十二局固定规则战术谱、完整王车易位/吃过路兵/四种升变、将死/逼和/子力不足/五十回合/三次重复、标准双人及三级 AI、撤回、着法记录与 `CHESS2` 档案 | 战术谱按目标完成将杀、特殊着法或和棋判断；标准模式点击棋子后选择合法目标格，升变前可选后/车/象/马，也可关闭 AI 进行本地双人对局 |
 | A | [钟楼密室：六刻回廊](https://wangzifan396-wzf.github.io/mini-browser-games/clockwork-escape.html) | 六章 37 个可调查物件、40 段道具/密码机关链、动态提示、参考解三星与 `ESCAPE2` 档案 | 点击物件调查；选中道具后点击目标使用，按场景线索提交数字密码；章节按钮切换已解锁回廊 |
 | A | [深海舰队：静默海域](https://wangzifan396-wzf.github.io/mini-browser-games/fleet-duel.html) | 六片 8×8 固定海域、30 组舰艇配置、三名差异舰长、礁区、追击 AI、九宫声呐、三星参考航迹与 `FLEET2` 档案 | 点击敌方坐标开火并根据命中方向推断舰身；切换声呐后选择中心格读取九宫未毁舰段数，利用舰长的侦察、校射或装甲能力保全舰队 |
-| A | [雾城侦探](https://wangzifan396-wzf.github.io/mini-browser-games/detective-desk.html) | 六起连续案件、18 个场景、36 条证据、嫌疑人盘问、两证据关联、三段关键推论、完整指控与侦探技能 | 搜查每个现场并盘问证人，在证据板连接正确线索；完成推论后同时选择凶手、动机和手法，案件档案支持跨设备存档码 |
 | S | [河牌之夜：三席读牌赛](https://wangzifan396-wzf.github.io/mini-browser-games/river-holdem.html) | 潮港/雾桥/天际三桌巡回、红狐/蓝鲸/夜枭三种可识别 AI、标准小盲大盲、逐街行动、全押与三层边池、平分底池、随机范围胜率、三星、六枚勋章和 `RIVER2` 断点档案 | 轮到你时选择过牌/跟注、弃牌或全押，也可拖动滑杆指定加注总额；根据位置、底池赔率、公共牌和对手风格管理筹码，逐桌赢下三席冠军 |
 | S | [逆转法庭：六案终审](https://wangzifan396-wzf.github.io/mini-browser-games/courtroom-clash.html) | 六案十八段交叉询问、72 句证词、30 件证物、逐句追问公开隐藏证物、连续异议、责任人/实施方式结案论证、三星与 `COURT2` 档案 | 切换证词并在关键句追问细节，选择已公开证物后对直接矛盾提出异议；连续击破三段证词，再组合责任人与实施方式完成结案 |
 | A | [字节机器人：指令远征](https://wangzifan396-wzf.github.io/mini-browser-games/bytebot-lab.html) | 三章 12 关编程解谜、前进/转向、×2/×3 循环、墙面传感、跳跃裂隙、开关门、传送环、源码/步数三星、六枚勋章与 `BYTE2` 档案 | 编排有限指令后运行程序；让机器人收齐芯片并抵达终点，逐步学习循环、条件式墙感与机关交互 |
@@ -149,13 +144,9 @@
 | A | [方块熔炉：十二张锻造蓝图](https://wangzifan396-wzf.github.io/mini-browser-games/block-forge.html) | 十二份固定锻造合同、62 枚模具、144 个目标炉层、稳态/高温/精密三种炉型、严格蓝图压合、暂存、回炉、三星与 `FORGE2` 档案 | `A/D` 或左右键移动，`W/↑` 旋转，`S/↓` 软降，`Space` 硬降，`C` 暂存，`Z` 回炉；按种类、方向与落点完整压合蓝图 |
 | A | [噪声译码：十二信道](https://wangzifan396-wzf.github.io/mini-browser-games/cipher-relay.html) | 十二组六位中继码、96 条叠加读数、每关唯一污染信道、穷举唯一解校验、波形监视、三星与 `CIPHER2` 档案 | 点击 A–F 中继切换高低电平，根据八条子集计数还原六位码；再点击一条读数标记噪声源并执行校验 |
 | A | [城市频率局：十二张干扰图](https://wangzifan396-wzf.github.io/mini-browser-games/frequency-bureau.html) | 四章十二张固定网络、102 个基站、266 条干扰边、46 条强干扰边、三至五频道、频道容量、锁定站、改频预算、三星和 `FREQ2` 档案形成原创图约束战役；12 套参考协调覆盖全部频道并共享正式验收器 | 点击网络节点或站点卡选站，再分配频道；普通边两端不得同频，强干扰边至少相差两档，同时控制频道容量和改频数，可检查单站、撤回或装入协调参考 |
-| A | [地层档案：十二座遗址年代序](https://wangzifan396-wzf.github.io/mini-browser-games/stratigraphy-lab.html) | 四章十二座固定遗址、102 个地层事件、132 条覆盖/切穿/上下/交叉证据、唯一拓扑序求解、固定乱序、最少交换三星、剖面 Canvas 和 `STRATA2` 档案形成原创相对年代推理战役；12 座遗址全部恰好一解 | 顺序从左到右表示最早到最晚；先点一张事件卡，再点另一张交换位置，结合右侧关系证据消除所有矛盾，可撤回、重置或请求档案员校序 |
 | A | [天文台值班：十二夜观测窗](https://wangzifan396-wzf.github.io/mini-browser-games/observatory-watch.html) | 四章十二个固定夜班、48 个连续曝光目标、96 个离散时格、可见窗口、月光上限、三类仪器校准空档、最小跨度枚举、夜空 Canvas、三星和 `OBS1` 档案形成原创观测排程战役；12 套官方值班表均达到最小紧凑跨度 | 先选目标，再点时间格设置曝光起始时刻；让连续曝光完整落入可见窗并满足月光上限，不同仪器之间至少空一格作校准，在公开跨度内零风险提交 |
-| A | [风洞试验：十二组升阻合同](https://wangzifan396-wzf.github.io/mini-browser-games/wind-tunnel-contracts.html) | 四章十二份固定合同、四类翼型、五档迎角、三档襟翼、三类表面处理和 36 个工况，以升力/阻力/失速余量/资源共同验收、180 组合枚举、升阻 Canvas、三星与 `TUNNEL1` 档案形成原创多工况优化战役；12 套官方校样均为最低资源与同资源最低总阻力解 | 分别选择翼型、迎角、襟翼与表面处理，观察三档风速的升力、阻力和余量曲线；让三档全部合格并控制资源与总阻力，模型仅供抽象益智玩法 |
 | A | [无人机测绘：十二幅覆盖合同](https://wangzifan396-wzf.github.io/mini-browser-games/drone-survey.html) | 四章十二幅 6×6 固定测绘图、176 个目标格、96 条候选航段、多组禁飞格、基地/转场电量、位掩码覆盖求解、路线 Canvas、三星和 `DRONE1` 档案形成原创空间规划战役；12 套官方航线均为最低电量解 | 点击航段按顺序加入航线，覆盖全部目标格并避开红色禁飞格；航段会按顺序计算基地与转场电量，可点击已加入航段改序、撤回或请求导航员校样 |
-| A | [电池实验室：十二组循环合同](https://wangzifan396-wzf.github.io/mini-browser-games/battery-cycle.html) | 四章十二份固定循环合同、72 个连续状态段、六种充放电/均衡模式、SoC/温度/健康度/服务量状态传递、`6^6` 枚举、状态 Canvas、三星和 `BATTERY1` 档案形成原创动态策略战役；12 套官方循环均为最低资源解 | 选择六个状态段并切换静置、慢充、快充、负载、均衡或脉冲模式；观察曲线，在不超热、不伤健康度且满足服务量的前提下达成末端 SoC 和资源预算 |
 | A | [流域调度：十二场洪峰演算](https://wangzifan396-wzf.github.io/mini-browser-games/basin-control.html) | 四章十二份固定降雨合同、96 个连续时段、上下游双库容传递、生态下泄/洪峰/发电/期末库容四重约束、`4^8` 枚举、降雨/河道/库容 Canvas、三星和 `BASIN1` 档案形成原创水文调度战役；12 套官方调度均为最低代价解 | 为八个时段选择蓄水、生态、常规或泄洪策略；观察状态曲线，避免溢洪并守住生态、洪峰和发电红线，可撤回或装入调度员参考 |
-| A | [静默搜救：十二次声源定位](https://wangzifan396-wzf.github.io/mini-browser-games/silent-rescue.html) | 四章十二次固定任务、80 格地形、6 个传感器节点、山脊回声延迟、传感器能耗、候选区域交集、三元组合枚举、候选区域 Canvas、三星和 `RESCUE1` 档案形成原创空间逆向推理战役；12 次官方定位均为最低能耗唯一解 | 选择三个传感器，再点击地图提出信标假设；组合读数会收缩候选区域，可撤回、清空或装入搜救员参考 |
 | A | [岩壁读线：十二面攀登路线](https://wangzifan396-wzf.github.io/mini-browser-games/climbing-route.html) | 四章十二面固定 8×6 岩壁、216 个抓点、24 个检查点、四类抓点体力、2.35 格最大可达距离、Dijkstra 最低体力读线、路线 Canvas、三星和 `CLIMB1` 档案形成原创路径规划战役；12 面岩壁均有最低体力参考路线 | 点击画布抓点按顺序攀登，路线必须从底部开始、经过两个检查点并到达顶行；抓点类型影响体力，可撤回、清空或套用教练最短读线 |
 | A | [雾谷植鉴：十二柜双盲标本](https://wangzifan396-wzf.github.io/mini-browser-games/mist-valley-herbarium.html) | 四章十二柜、48 份固定标本、24 种植物、96 个候选条目，以叶形/栖地/叶缘/叶脉/汁液/荧光六类检验、证据唯一认证、最短检验求解器、三星与 `BOTANY2` 档案形成原创诊断推理战役；12 套参考认证全部零错误三星 | 切换 A–D 标本，比较右侧候选植物志，选择最有区分力的检验；证据只剩一个一致候选后贴上名称标签，四份标本全部唯一且正确才能提交整柜认证 |
 | A | [深空扫雷：逻辑航图](https://wangzifan396-wzf.github.io/mini-browser-games/mine-matrix.html) | 十二片固定异形雷区、信标初始扫描、无猜逻辑生成、直接与集合包含推导、可解释提示、撤回、任务回放、三星和 `MINE2` 档案 | 点击探测，右键或标记模式插旗；“推导一步”只高亮当前盘面可证明的安全格或地雷，通关后可回放最后一次完整操作 |
@@ -188,7 +179,7 @@
 
 </details>
 
-## E 级历史废案（9 款）
+## E 级历史废案（18 款）
 
 <details>
 <summary>展开保留的废案与基础复刻</summary>
@@ -197,14 +188,23 @@
 
 | 评级 | 游戏 | 原有内容 | 操作 |
 | --- | --- | --- | --- |
+| E | [电池实验室：十二组循环合同](https://wangzifan396-wzf.github.io/mini-browser-games/battery-cycle.html) | 12 组参考仅 5 种循环；快充和均衡从未进入最优参考。 | 历史入口保留，停止更新；[审查依据](docs/curation-2026-10-23/README.md) |
 | E | [霓虹二十一点](https://wangzifan396-wzf.github.io/mini-browser-games/blackjack-table.html) | 筹码、下注、发牌、要牌、停牌、加倍和庄家自动补牌 | 点击发牌开始，随后选择要牌/停牌/加倍；非对局时点击调整下注 |
 | E | [四子战线](https://wangzifan396-wzf.github.io/mini-browser-games/connect-arena.html) | 七列四子棋、胜负判断、标准/高手 AI 和赛季比分 | 点击任意列落子；点击难度按钮切换 AI，点击新局重置棋盘 |
+| E | [雾城侦探](https://wangzifan396-wzf.github.io/mini-browser-games/detective-desk.html) | 固定配对与答案验收；盘问不参与实际结案。 | 历史入口保留，停止更新；[审查依据](docs/curation-2026-10-23/README.md) |
 | E | [像素飞翼](https://wangzifan396-wzf.github.io/mini-browser-games/flappy-glider.html) | 一键飞行、动态风门、区域提速、金门和完美连击 | 点击/触摸画布或按 `Space` 扇翼；穿过空隙，避免碰撞上下边界与风门 |
 | E | [灯阵记忆](https://wangzifan396-wzf.github.io/mini-browser-games/lantern-memory.html) | 灯序记忆、重放和逐级加长 | 观察闪烁后按顺序点击；键盘 `1/2/3/4` 对应四灯，`R` 重开 |
 | E | [麻将连台](https://wangzifan396-wzf.github.io/mini-browser-games/mahjong-link.html) | 64 张麻将配对、开放牌规则、洗牌、提示和清台目标 | 点击两个相同且至少一侧开放的牌消除；洗牌和提示使用顶部按钮 |
 | E | [菜摊敲敲乐](https://wangzifan396-wzf.github.io/mini-browser-games/mole-market.html) | 好菜/坏菜辨认、小偷、连击、慢速专注和限时结算 | 点击坏菜与小偷，避开笑脸好菜；连击达标后点击专注减速目标 |
+| E | [轨道配载局：十二次重心验舱](https://wangzifan396-wzf.github.io/mini-browser-games/orbital-stowage.html) | 12 航次同一恒等配载全部三星。 | 历史入口保留，停止更新；[审查依据](docs/curation-2026-10-23/README.md) |
 | E | [点球热浪](https://wangzifan396-wzf.github.io/mini-browser-games/penalty-rush.html) | 六射门区、门将站位、三档蓄力、连击和赛季比分 | 点击射门区域踢球；点击“蓄力”切换弱/中/强，页面按钮开始新赛季 |
+| E | [静默搜救：十二次声源定位](https://wangzifan396-wzf.github.io/mini-browser-games/silent-rescue.html) | 12 场仅两个目标格、两套最优传感器。 | 历史入口保留，停止更新；[审查依据](docs/curation-2026-10-23/README.md) |
+| E | [掌心城市：十二城规划战役](https://wangzifan396-wzf.github.io/mini-browser-games/skyline-planner.html) | 同一布局覆盖 12 城，第一年全部三星。 | 历史入口保留，停止更新；[审查依据](docs/curation-2026-10-23/README.md) |
 | E | [霓虹叠塔](https://wangzifan396-wzf.github.io/mini-browser-games/stack-tower.html) | 移动方块叠塔、完美连击、塔宽恢复、风速变化和本地最佳 | 点击/触摸画布或按 `Space` 放下当前方块 |
+| E | [星舰疑云：航迹证词](https://wangzifan396-wzf.github.io/mini-browser-games/starship-suspects.html) | 六案都是 a+b / c+d / e+f 三组配对。 | 历史入口保留，停止更新；[审查依据](docs/curation-2026-10-23/README.md) |
+| E | [地层档案：十二座遗址年代序](https://wangzifan396-wzf.github.io/mini-browser-games/stratigraphy-lab.html) | 每场证据直接顺序列出完整答案链。 | 历史入口保留，停止更新；[审查依据](docs/curation-2026-10-23/README.md) |
+| E | [时间邮局：因果班表](https://wangzifan396-wzf.github.io/mini-browser-games/time-post.html) | 12 关只有 3 套规则，每组四关仅更名。 | 历史入口保留，停止更新；[审查依据](docs/curation-2026-10-23/README.md) |
+| E | [风洞试验：十二组升阻合同](https://wangzifan396-wzf.github.io/mini-browser-games/wind-tunnel-contracts.html) | 三风速统一缩放，未形成有效工况冲突。 | 历史入口保留，停止更新；[审查依据](docs/curation-2026-10-23/README.md) |
 | E | [五字密语](https://wangzifan396-wzf.github.io/mini-browser-games/word-grid.html) | Wordle 式五字母猜词、六次机会和颜色反馈 | 键盘输入字母，`Enter` 提交，`Backspace` 删除；也可点击屏幕键盘 |
 
 </details>
@@ -235,7 +235,7 @@ python -m http.server 8000
 
 ## 项目说明
 
-- 仓库保留 124 款自包含 HTML 游戏：115 款活跃作品、9 款历史废案；默认在线目录只展示活跃作品。
+- 仓库保留 124 款自包含 HTML 游戏：106 款活跃作品、18 款历史废案；默认在线目录只展示活跃作品。
 - 根目录单 HTML 游戏不依赖构建工具、后端服务或外部素材，归档作品仍可通过原在线地址访问；前后端与桌面项目的运行要求另见各自说明。
 - 各游戏存档互相独立；网页版主要使用浏览器 `localStorage`，桌面版使用用户应用数据目录，升级前建议导出备份。
 - 推荐使用最新版 Chrome、Edge、Firefox 或 Safari。

@@ -1,0 +1,224 @@
+{
+  "auditDate": "2026-10-23",
+  "kind": "one-off-manual-curation-evidence",
+  "passed": true,
+  "gamesReviewed": 10,
+  "foregroundUsed": false,
+  "sourceHashNormalization": "UTF-8; remove initial BOM; CRLF/CR to LF; otherwise unchanged",
+  "reviewed": [
+    {
+      "file": "time-post.html",
+      "sha256NormalizedSource": "092522a31b58cb84328c9e86a17c54ab72b0475fc0262fedfa6a2b23779f10bd",
+      "evidence": {
+        "missions": 12,
+        "distinctRuleSets": 3,
+        "identicalRuleGroups": [
+          [
+            "p1",
+            "p2",
+            "p3",
+            "p4"
+          ],
+          [
+            "p5",
+            "p6",
+            "p7",
+            "p8"
+          ],
+          [
+            "p9",
+            "p10",
+            "p11",
+            "p12"
+          ]
+        ]
+      }
+    },
+    {
+      "file": "battery-cycle.html",
+      "sha256NormalizedSource": "b88d41dbf84a586785bef17d27568884000a0295b77cba629579f2de10f723ae",
+      "evidence": {
+        "contracts": 12,
+        "distinctOptimalReferences": 5,
+        "threeStarReferences": 12,
+        "optimalModeUses": {
+          "rest": 20,
+          "slow": 32,
+          "fast": 0,
+          "load": 13,
+          "balance": 0,
+          "pulse": 7
+        }
+      }
+    },
+    {
+      "file": "wind-tunnel-contracts.html",
+      "sha256NormalizedSource": "a8c0bdb56d106ee8fb84101903f6b0d370c86051f84a7fae487652f9a486a38e",
+      "evidence": {
+        "contracts": 12,
+        "parameterSets": 180,
+        "rowsChecked": 6480,
+        "speedIndependentMargins": 2160,
+        "maxDeviationFromSpeedSquaredAfterCentirounding": 0.011904,
+        "threeStarReferences": 12
+      }
+    },
+    {
+      "file": "silent-rescue.html",
+      "sha256NormalizedSource": "5ed41cb3313c2ff3d7bd98b57605ee9773f3b455a5f0cb14aec88b8422606ae9",
+      "evidence": {
+        "missions": 12,
+        "targetCounts": {
+          "0,1": 10,
+          "0,2": 2
+        },
+        "optimalSensorSetCounts": {
+          "0,1,3": 4,
+          "0,1,2": 8
+        },
+        "threeStarReferences": 12
+      }
+    },
+    {
+      "file": "stratigraphy-lab.html",
+      "sha256NormalizedSource": "0a15a52b2de1f878b4c7f8e110d70e965efb6f17c0a81fa146f6a651bb4463f8",
+      "evidence": {
+        "sites": 12,
+        "explicitFullAnswerChains": 12,
+        "answersAlreadyOrderedInFirstClues": 12,
+        "threeStarReferences": 12
+      }
+    },
+    {
+      "file": "orbital-stowage.html",
+      "sha256NormalizedSource": "cb07a55fb957940838da80881bf657cb789e2815371d43821326dadbb2ea2c7e",
+      "evidence": {
+        "voyages": 12,
+        "identityReferences": 12,
+        "identityThreeStarWins": 12,
+        "distinctSlotLayoutsExcludingColdTags": 1,
+        "distinctCargoWeightLists": 1
+      }
+    },
+    {
+      "file": "skyline-planner.html",
+      "sha256NormalizedSource": "409eb346641ef2c9514bf86851eb2dd01fe348318ed5c18f67bed701ef4bb4c9",
+      "evidence": {
+        "scenarios": 12,
+        "distinctReferenceLayouts": 1,
+        "threeStarWinsAfterOneSettlement": 12,
+        "years": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "stars": [
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3
+        ]
+      }
+    },
+    {
+      "file": "wonder-park.html",
+      "sha256NormalizedSource": "8bbb39534cc8ed46c25e0e35c25ee532c48749bcbed5b4c1228d05b5377313f0",
+      "evidence": {
+        "scenarios": 6,
+        "distinctReferenceLayouts": 1,
+        "dayThreeThreeStarWins": 6,
+        "days": [
+          3,
+          3,
+          3,
+          3,
+          3,
+          3
+        ],
+        "stars": [
+          3,
+          3,
+          3,
+          3,
+          3,
+          3
+        ]
+      }
+    },
+    {
+      "file": "detective-desk.html",
+      "sha256NormalizedSource": "9149aa9ef2fa92b52e1560eb38c3988a19636e43788d4a1c68e3d112669fbf7c",
+      "evidence": {
+        "cases": 6,
+        "answerCodes": [
+          "000",
+          "000",
+          "000",
+          "000",
+          "110",
+          "100"
+        ],
+        "answerCodeCounts": {
+          "100": 1,
+          "110": 1,
+          "000": 4
+        }
+      }
+    },
+    {
+      "file": "starship-suspects.html",
+      "sha256NormalizedSource": "8900ba98fcac3b39f71e8e54bcb606004a46cde3dae5507a9f5cb51bcd410793",
+      "evidence": {
+        "cases": 6,
+        "distinctEvidencePairPatterns": 1,
+        "sharedEvidencePairs": [
+          "a+b",
+          "c+d",
+          "e+f"
+        ],
+        "culpritIndices": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          0
+        ],
+        "methodIndices": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "motiveIndices": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      }
+    }
+  ],
+  "reviewedSourceCommit": "e459369b31c35658855e7ef50b46fa9f994750d6"
+}

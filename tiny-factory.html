@@ -30,14 +30,14 @@
 <main class="app hidden" id="sandboxApp">
   <header class="top"><div><h1>开放工区</h1><p class="sub">持续矿脉 · 自由摆厂 · 同一逐拍物流核心 · 没有固定通关终点</p></div><div class="stats"><div class="stat"><small>资金</small><b id="sbCredits">0</b></div><div class="stat"><small>科研点</small><b id="sbScience">0</b></div><div class="stat"><small>物流拍数</small><b id="sbTick">0</b></div><div class="stat"><small>累计交付</small><b id="sbSold">0</b></div></div></header>
   <section class="sandbox-layout">
-    <aside class="panel section"><h2>建造工坊</h2><div class="sandbox-tools" id="sbTools"></div><div class="controls"><button class="btn" id="sbRotateBtn">方向 → · R</button><button class="btn" id="sbInspectBtn">检查设施</button><button class="btn" id="sbEraseBtn">拆除退款</button></div><label class="sb-label">筛选器直行物料<select id="sbFilter"></select></label><div class="sb-instructions">点击空格建造，点击设施查看缓存与诊断，再选择旋转或拆除。拆除返还 80% 建造费和未加工缓存的基础价值。筛选器匹配物料直行，其余右转。仓口自动结算，一件只计一次。空格暂停，R调整建造方向。</div></aside>
-    <section class="panel section sandbox-worksite"><div class="factory-head"><div><h2 id="sbWorldTitle">持续矿脉工区</h2><p>矿机只能放在有色矿脉上。铁/铜炉都需要煤；科研交付不卖钱，转换为科研点。</p></div><span class="chapter" id="sbArea">16 × 12</span></div><div class="sandbox-viewport" id="sbViewport"><div id="sbGrid" class="sandbox-grid" role="grid" aria-label="自由工区建造地图"></div></div><div class="controls"><button class="btn primary" id="sbRunBtn">启动工区</button><button class="btn" id="sbStepBtn">单步</button><button class="btn" id="sbSpeedBtn">速度 ×1</button><button class="btn" id="sbZoomBtn">缩放 36px</button><button class="btn" id="sbArchiveBtn">工区档案</button><button class="btn" id="sbNewBtn">新种子工区</button></div><div class="message" id="sbMessage" role="status"></div><div class="sb-legend"><span class="ore">■ 铁矿</span><span class="copper">■ 铜矿</span><span class="coal">■ 煤</span><span class="stone">■ 石料</span><span>红框：满口 / 阻塞</span><span>黄框：缺料</span></div></section>
+    <aside class="panel section"><h2>建造工坊</h2><div class="sandbox-tools" id="sbTools"></div><div class="controls"><button class="btn" id="sbRotateBtn">方向 → · R</button><button class="btn" id="sbInspectBtn">检查设施</button><button class="btn" id="sbEraseBtn">拆除退款</button></div><label class="sb-label">筛选器直行物料<select id="sbFilter"></select></label><button class="btn" id="sbApplyFilter">应用到选中筛选器</button><div class="sb-instructions">点击设施先检查，不会意外旋转。搬迁会暂停生产，点击合法空地确认；Esc 或取消不改变布局和库存。筛选配置与旋转独立。拆除返还80%建造费及缓存物料基础价值，科研物料不折现。汇流按成功收货轮流放行，不按坐标偏袒一侧。空格启停，R调整建造方向。</div></aside>
+    <section class="panel section sandbox-worksite"><div class="factory-head"><div><h2 id="sbWorldTitle">持续矿脉工区</h2><p>矿机只能放在有色矿脉上。铁/铜炉都需要煤；科研交付不卖钱，转换为科研点。</p></div><span class="chapter" id="sbArea">16 × 12</span></div><div class="sandbox-viewport" id="sbViewport"><div id="sbGrid" class="sandbox-grid" role="grid" aria-label="自由工区建造地图"></div></div><div class="controls"><button class="btn primary" id="sbRunBtn">启动工区</button><button class="btn" id="sbStepBtn">单步</button><button class="btn" id="sbSpeedBtn">速度 ×1</button><button class="btn" id="sbZoomBtn">缩放 36px</button><button class="btn" id="sbArchiveBtn">工区档案</button><button class="btn" id="sbNewBtn">新种子工区</button></div><div class="controls"><button class="btn" id="sbMoveBtn">搬迁选中</button><button class="btn hidden" id="sbCancelMove">取消搬迁 · Esc</button><span id="sbMoveStatus" class="sb-instructions">先点一座设施，可保留库存搬迁。</span></div><div class="message" id="sbMessage" role="status"></div><div class="sb-legend"><span class="ore">■ 铁矿</span><span class="copper">■ 铜矿</span><span class="coal">■ 煤</span><span class="stone">■ 石料</span><span>红框：满口 / 阻塞</span><span>黄框：缺料</span></div></section>
     <aside class="panel section"><h2>下一步自己规划</h2><div id="sbGuide" class="sb-instructions"></div><h2 class="sb-spaced">设施检查</h2><div id="sbInspector" class="sb-instructions">点击一座设施或矿脉，查看实际库存、出入口和堵塞原因。</div><div class="controls"><button class="btn" id="sbInspectRotate">旋转选中</button><button class="btn" id="sbInspectDemolish">拆除选中</button></div><h2 class="sb-spaced">自己的扩产目标</h2><label class="sb-label">持续交付的物料<select id="sbGoalItem"></select></label><label class="sb-label">每100拍至少交付<input id="sbGoalRate" type="number" min="1" max="10000" value="10" aria-label="每100拍交付目标"></label><button class="btn" id="sbGoalApply">设置我的目标</button><div id="sbGoalStatus" class="sb-instructions"></div><h2 class="sb-spaced">开放研究</h2><div id="sbResearch"></div><h2 class="sb-spaced">瓶颈与库存</h2><div id="sbDiagnostics"></div><h2 class="sb-spaced">交付账本</h2><div id="sbLedger"></div><h2 class="sb-spaced">当前配方</h2><div id="sbRecipes"></div></aside>
   </section>
 </main>
 <style>
 .hidden{display:none!important}.factory-mode-nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;width:min(1320px,100%);margin:auto;padding:10px 11px}.factory-mode-nav strong{margin-right:auto}.factory-mode-nav a{color:#a7d3ff;font-size:12px}.sandbox-layout{display:grid;grid-template-columns:205px minmax(0,1fr) 250px;gap:10px;margin-top:12px}.sandbox-tools{display:grid;grid-template-columns:1fr 1fr;gap:5px}.sandbox-tools .tool{min-height:70px}.sandbox-worksite{min-width:0}.sandbox-viewport{max-height:64vh;overflow:auto;border:2px solid #536a7f;border-radius:6px;background:#09121a;overscroll-behavior:contain}.sandbox-grid{display:grid;grid-template-columns:repeat(24,var(--sb-cell,36px));grid-auto-rows:var(--sb-cell,36px);width:max-content;gap:1px;padding:3px}.sb-cell{position:relative;border:1px solid #334956;background:#172730;color:#eaf4ff;cursor:pointer;padding:0;overflow:hidden;font-size:20px;touch-action:manipulation}.sb-cell.mine-ore{background:#485263}.sb-cell.mine-copper{background:#684830}.sb-cell.mine-coal{background:#303a44}.sb-cell.mine-stone{background:#5b6367}.sb-cell.locked{background:repeating-linear-gradient(135deg,#17232d 0 5px,#101a23 5px 10px);opacity:.55;cursor:not-allowed}.sb-cell.blocked{box-shadow:inset 0 0 0 2px #ff6c78}.sb-cell.hungry{box-shadow:inset 0 0 0 1px #ffc857}.sb-cell small{position:absolute;right:1px;top:0;background:#091722db;font-size:9px;color:#b9e2ff}.sb-cell em{position:absolute;bottom:0;left:1px;max-width:100%;overflow:hidden;font-style:normal;font-size:9px;line-height:11px;background:#06111bd9;color:#ffd77c}.sb-label{display:block;margin-top:12px;font-size:11px}.sb-label select{display:block;width:100%;margin-top:5px;min-height:38px;background:#1b2d3d;color:#eef6ff;border:1px solid #526b80;border-radius:5px}.sb-instructions{font-size:11px;line-height:1.7;color:#a7b6c3;margin-top:12px}.sb-legend{display:flex;gap:9px;flex-wrap:wrap;color:#a7b6c3;font-size:10px;margin-top:8px}.sb-legend .ore{color:#a4b2d4}.sb-legend .copper{color:#e28a58}.sb-legend .coal{color:#8899a9}.sb-legend .stone{color:#d1d7dc}.sb-research{margin-bottom:6px;padding:7px;border:1px solid #3d5366;border-radius:5px}.sb-research b,.sb-research small{display:block}.sb-research b{font-size:12px}.sb-research small{font-size:10px;color:#a7b6c3;line-height:1.5}.sb-research button{margin-top:5px;width:100%;min-height:33px;font-size:11px}.sb-spaced{margin-top:17px!important}#sbDiagnostics,#sbLedger,#sbRecipes{font-size:11px;line-height:1.7}#sbLedger{max-height:210px;overflow:auto}.sb-error{color:#ff8d99}.sb-good{color:#60d69a}.sb-save-input{width:100%;min-height:130px;background:#0a131c;color:#eaf4ff;border:1px solid #526b80;padding:8px}.sb-feedback{font-size:12px;color:#ffc857;min-height:22px}@media(max-width:1100px){.sandbox-layout{grid-template-columns:185px minmax(0,1fr)}.sandbox-layout>aside:last-child{grid-column:1/-1;display:block}#sbResearch{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}}@media(max-width:650px){.sandbox-layout{display:flex;flex-direction:column}.sandbox-worksite{order:0}.sandbox-layout>aside:first-child{order:1}.sandbox-layout>aside:last-child{order:2}.sandbox-tools{grid-template-columns:repeat(4,1fr)}.sandbox-viewport{max-height:55vh}#sbResearch{grid-template-columns:repeat(2,1fr)}.factory-mode-nav{padding:7px}.factory-mode-nav strong{width:100%}.sandbox-grid{--sb-cell:34px}.sandbox-worksite .controls .btn{flex:1;font-size:11px}.sb-instructions{font-size:12px}}
- .sb-label input{width:100%;min-height:40px;display:block;background:#1b2d3d;color:#eef6ff;border:1px solid #526b80;border-radius:5px;padding:7px;margin-top:5px}.sb-cell.selected{outline:2px solid #67aaf9;outline-offset:-3px}#sbInspector{white-space:pre-line;min-height:84px}
+ .sb-label input{width:100%;min-height:40px;display:block;background:#1b2d3d;color:#eef6ff;border:1px solid #526b80;border-radius:5px;padding:7px;margin-top:5px}.sb-cell.selected{outline:2px solid #67aaf9;outline-offset:-3px}.sb-cell.moving{outline:3px dashed #ffc857;outline-offset:-3px}#sbInspector{white-space:pre-line;min-height:84px}#sbApplyFilter{margin-top:8px;width:100%}#sbMoveStatus{flex:1;min-width:130px;margin:0;align-self:center}@media(max-width:650px){#sbMoveStatus{grid-column:1/-1}}
 </style>
 <script>
 (()=>{"use strict";
@@ -67,7 +67,7 @@ const raw=[
 function prepare(contract,index){const fixed=new Map(contract.devices.map(device=>[pos(device.x,device.y),device])),sinks=contract.devices.filter(device=>device.type==="sink"),machines=contract.devices.filter(device=>device.type==="machine"),targetTotal=sinks.reduce((sum,device)=>sum+Object.values(device.want).reduce((a,b)=>a+b,0),0);return{...contract,index,fixed,sinks,machines,targetTotal,parBelts:contract.ref.length,parTicks:contract.limit}}
 const CONTRACTS=raw.map(prepare);
 let profile={v:2,unlocked:1,stars:Array(12).fill(0),bestTicks:Array(12).fill(null),bestBelts:Array(12).fill(null),clears:Array(12).fill(0),legacyOrders:0},q=null,tool="belt",dir=0,timer=null,speed=1;
-function freshSimFromContract(contract,layout={}){const devices={};for(const device of contract.devices)if(device.type!=="wall")devices[device.id]={buffer:[],out:[],active:null,progress:0,seq:0,delivered:{}};const tiles={};for(const[key,value]of Object.entries(layout))tiles[key]={...value,item:null,queue:[],alt:0,blocked:false};return{tick:0,devices,tiles,wrong:0,complete:false,finishedAt:null,logs:["物流复位，等待启动。"]}}
+function freshSimFromContract(contract,layout={}){const devices={};for(const device of contract.devices)if(device.type!=="wall")devices[device.id]={buffer:[],out:[],active:null,progress:0,seq:0,delivered:{}};const tiles={};for(const[key,value]of Object.entries(layout))tiles[key]={...value,item:null,queue:[],alt:0,blocked:false};return{tick:0,devices,tiles,arbiters:{},lastFlow:{},wrong:0,complete:false,finishedAt:null,logs:["物流复位，等待启动。"]}}
 function freshSim(index,layout={}){return freshSimFromContract(CONTRACTS[index],layout)}
 function fresh(index){return{v:2,contract:index,layout:{},sim:freshSim(index),hints:0,history:[],running:false,message:"选择传送带方向后铺设蓝图，再单步检查或启动产线。"}}
 function checksum(text){let h=2166136261;for(const ch of text){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)}return(h>>>0).toString(36)}
@@ -76,12 +76,36 @@ function sanitizeContractArchive(data){if(data?.v!==2||!Array.isArray(data.profi
 function decodeArchive(code){const match=String(code).trim().match(/^FACTORY2\.([A-Za-z0-9+/=]+)\.([a-z0-9]+)$/);if(!match||match[1].length>1000000||checksum(match[1])!==match[2])throw Error("档案校验失败");return sanitizeContractArchive(JSON.parse(decodeURIComponent(escape(atob(match[1])))))}
 function save(){try{localStorage.setItem(SAVE,JSON.stringify({v:2,profile,q:q?{...q,running:false}:null}))}catch{}}
 function load(){try{const data=JSON.parse(localStorage.getItem(SAVE));if(data?.v===2){const clean=sanitizeContractArchive(data);profile=clean.profile;q=clean.q}else{const legacy=JSON.parse(localStorage.getItem(LEGACY));if(legacy?.v===3)profile.legacyOrders=Number(legacy.stats?.orders||legacy.stage)||0}}catch{}}
-function nextKey(x,y,d,width=W,height=H){const nx=x+DIRS[d][0],ny=y+DIRS[d][1];return nx>=0&&nx<width&&ny>=0&&ny<height?pos(nx,ny):null}
+function nextKey(x,y,d,width=W,height=H){if(!Number.isInteger(d)||!DIRS[d])return null;const nx=x+DIRS[d][0],ny=y+DIRS[d][1];return nx>=0&&nx<width&&ny>=0&&ny<height?pos(nx,ny):null}
 function hasInputs(buffer,inputs){return Object.entries(inputs).every(([id,count])=>buffer.filter(item=>item===id).length>=count)}
 function consume(buffer,inputs){for(const[id,count]of Object.entries(inputs))for(let i=0;i<count;i++)buffer.splice(buffer.indexOf(id),1)}
 function deviceState(sim,device){return sim.devices[device.id]}
 function targetInfo(contract,sim){let have=0,total=0;const rows=[];for(const sinkDevice of contract.sinks){const state=deviceState(sim,sinkDevice);for(const[item,need]of Object.entries(sinkDevice.want)){const count=state.delivered[item]||0;have+=Math.min(count,need);total+=need;rows.push({sink:sinkDevice.id,item,need,have:count})}}return{have,total,rows}}
-function canReceive(contract,sim,key,item,reserved){const fixed=contract.fixed.get(key),tileState=sim.tiles[key];if(fixed){const state=deviceState(sim,fixed);if(fixed.type==="machine"){const recipe=RECIPES[fixed.recipe],itemKey=`${key}|${item}`,itemCount=state.buffer.filter(value=>value===item).length,itemCap=(recipe.inputs[item]||0)*4;return itemCap>0&&itemCount+(reserved[itemKey]||0)<itemCap&&state.buffer.length+(reserved[key]||0)<10}if(fixed.type==="sink")return Object.hasOwn(fixed.want,item);return false}if(tileState){if(tileState.type==="buffer")return tileState.queue.length+(reserved[key]||0)<6;return tileState.item==null&&(reserved[key]||0)<1}return false}
+function receiveReason(contract,sim,key,item,reserved={}){
+  if(!key)return"出口越过工区边界";
+  const fixed=contract.fixed.get(key),tile=sim.tiles[key];
+  if(fixed){
+    const state=deviceState(sim,fixed);
+    if(fixed.type==="machine"){
+      const recipe=RECIPES[fixed.recipe],cap=(recipe.inputs[item]||0)*4,count=state.buffer.filter(value=>value===item).length;
+      if(!cap)return`下游配方不收${ITEMS[item]?.n||"此物料"}`;
+      if(count>=cap)return`下游${ITEMS[item].n}缓存已满`;
+      if(state.buffer.length>=10)return"下游输入缓存已满";
+      if(count+(reserved[`${key}|${item}`]||0)>=cap||state.buffer.length+(reserved[key]||0)>=10)return"汇流等待：其他进料本拍先获准";
+      return"";
+    }
+    if(fixed.type==="sink")return Object.hasOwn(fixed.want,item)?"":"交付仓不收此物料";
+    return"出口接到了不收货的矿机或墙体";
+  }
+  if(!tile)return"出口未连接设施";
+  if(tile.type==="buffer"){
+    if(tile.queue.length>=6)return"下游缓冲仓已满（6/6）";
+    return tile.queue.length+(reserved[key]||0)>=6?"汇流等待：其他进料本拍先获准":"";
+  }
+  if(tile.item!=null)return"下一格仍有货（逐拍运输等待）";
+  return (reserved[key]||0)>=1?"汇流等待：其他进料本拍先获准":"";
+}
+function canReceive(contract,sim,key,item,reserved){return !receiveReason(contract,sim,key,item,reserved)}
 function stepSimulation(contract,sim){
 if(sim.complete||sim.tick>=contract.limit)return sim;
 sim.tick++;
@@ -127,21 +151,42 @@ for(const[key,state]of Object.entries(sim.tiles)){
     if(state.type==="splitter")state.alt=actualDir===state.dir?1:0;
   }});
 }
-emitters.sort((a,b)=>a.key.localeCompare(b.key));
-const reserved={},moves=[];
-for(const emitter of emitters){
-  const choices=emitter.fallback==null?[emitter.dir]:[emitter.dir,emitter.fallback];
-  let moved=false;
-  for(const chosenDir of choices){
-    const target=nextKey(emitter.x,emitter.y,chosenDir,contract.width||W,contract.height||H);
-    if(!target||!canReceive(contract,sim,target,emitter.item,reserved))continue;
-    reserved[target]=(reserved[target]||0)+1;
-    const itemKey=`${target}|${emitter.item}`;
-    reserved[itemKey]=(reserved[itemKey]||0)+1;
-    moves.push({emitter,target,item:emitter.item,chosenDir});moved=true;break;
+// Each receiver remembers the last successful sender, not the current tick.
+// Failed retries and occupied belt phases must never advance this cursor.
+// Splitters first bid for their first currently receivable outlet; losers may
+// retry the other outlet without cloning an item or reserving two destinations.
+const reserved={},moves=[],moved=new Set();sim.arbiters ||= {};sim.lastFlow={};
+const choices=new Map(emitters.map(emitter=>[emitter.key,(emitter.fallback==null?[emitter.dir]:[emitter.dir,emitter.fallback]).map(dir=>({dir,target:nextKey(emitter.x,emitter.y,dir,contract.width||W,contract.height||H)}))]));
+function grant(proposals){
+  for(const target of [...proposals.keys()].sort()){
+    const cursor=sim.arbiters[target]||"",queue=proposals.get(target);
+    queue.sort((a,b)=>Number(a.emitter.key<=cursor)-Number(b.emitter.key<=cursor)||(a.emitter.key<b.emitter.key?-1:a.emitter.key>b.emitter.key?1:0));
+    for(const {emitter,dir}of queue){
+      if(moved.has(emitter.key))continue;
+      const reason=receiveReason(contract,sim,target,emitter.item,reserved);
+      if(reason){sim.lastFlow[emitter.key]={target,reason};continue}
+      reserved[target]=(reserved[target]||0)+1;
+      const itemKey=`${target}|${emitter.item}`;reserved[itemKey]=(reserved[itemKey]||0)+1;
+      moves.push({emitter,target,item:emitter.item,chosenDir:dir});moved.add(emitter.key);
+      sim.arbiters[target]=emitter.key;sim.lastFlow[emitter.key]={target,reason:"已运输"};
+    }
   }
-  if(!moved){const own=sim.tiles[pos(emitter.x,emitter.y)];if(own)own.blocked=true}
 }
+const proposals=new Map(),retry=new Map();
+function bid(groups,target,emitter,dir){if(!groups.has(target))groups.set(target,[]);groups.get(target).push({emitter,dir})}
+for(const emitter of emitters){
+  const outlets=choices.get(emitter.key),choice=outlets.find(outlet=>canReceive(contract,sim,outlet.target,emitter.item,{}));
+  if(choice)bid(proposals,choice.target,emitter,choice.dir);
+  else {const outlet=outlets[0];sim.lastFlow[emitter.key]={target:outlet.target,reason:outlets.map(o=>receiveReason(contract,sim,o.target,emitter.item,{})).join("；备选：")}}
+}
+grant(proposals);
+for(const emitter of emitters){
+  if(moved.has(emitter.key))continue;
+  const choice=choices.get(emitter.key).find(outlet=>canReceive(contract,sim,outlet.target,emitter.item,reserved));
+  if(choice)bid(retry,choice.target,emitter,choice.dir);
+}
+grant(retry);
+for(const emitter of emitters)if(!moved.has(emitter.key)){const own=sim.tiles[pos(emitter.x,emitter.y)];if(own)own.blocked=true}
 for(const move of moves)move.emitter.remove(move.chosenDir);
 for(const move of moves){
   const fixed=contract.fixed.get(move.target),state=sim.tiles[move.target];
@@ -187,7 +232,7 @@ Object.assign(RECIPES,{smeltPlate:{n:"铁矿+煤 → 铁板",inputs:{ore:1,coal:
 const SB_KEY="tinyFactorySandboxV1",SB_W=24,SB_H=18,SB_PRICES={ore:1,copper:1,coal:1,stone:1,plate:5,cplate:5,gear:13,circuit:15,steel:18,glass:12,engine:55,drone:100,science:0,data:140};
 const SB_TOOLS={miner:{n:"矿机",i:"⛏️",cost:45,d:"矿脉上持续出料"},belt:{n:"传送带",i:"→",cost:2,d:"每格最多一件"},furnace:{n:"铁炉",i:"🔥",cost:80,recipe:"smeltPlate",d:"铁矿 + 煤"},copperFurnace:{n:"铜炉",i:"🟠",cost:80,recipe:"smeltCopper",d:"铜矿 + 煤"},depot:{n:"交付仓",i:"🚚",cost:35,d:"每件自动结算"},buffer:{n:"缓冲仓",i:"📦",cost:20,d:"六件库存缓冲"},splitter:{n:"分流器",i:"🔀",cost:16,unlock:"logistics",d:"直行 / 右转交替"},filter:{n:"筛选器",i:"🔎",cost:25,unlock:"logistics",d:"匹配直行，其余右转"},gear:{n:"齿轮厂",i:"⚙️",cost:110,recipe:"gear",unlock:"mechanics",d:"铁板×2 → 齿轮"},steel:{n:"钢炉",i:"🔩",cost:130,recipe:"steel",unlock:"mechanics",d:"铁板×2 + 煤"},glass:{n:"玻璃窑",i:"🪟",cost:90,recipe:"glass",unlock:"mechanics",d:"石料×2 + 煤"},circuit:{n:"电路厂",i:"🟩",cost:145,recipe:"circuit",unlock:"electronics",d:"铁板 + 铜板"},science:{n:"科研站",i:"🔬",cost:150,recipe:"science",unlock:"electronics",d:"电路 → 科研点"},engine:{n:"引擎厂",i:"🔧",cost:210,recipe:"engine",unlock:"engineering",d:"齿轮×2 + 电路"},drone:{n:"无人机厂",i:"🚁",cost:280,recipe:"drone",unlock:"automation",d:"引擎 + 电路×2"},data:{n:"数据工坊",i:"💾",cost:400,recipe:"data",unlock:"mastery",d:"钢材 + 玻璃 + 科研"}};
 const SB_RESEARCH={logistics:{n:"物流分流",credits:100,science:0,d:"开放分流和筛选，重排混合物料路线。"},mechanics:{n:"机械加工",credits:180,science:0,d:"开放齿轮、钢材和玻璃，增加多料供应链。"},electronics:{n:"电子技术",credits:280,science:0,need:"mechanics",sold:{gear:5},d:"交付5个齿轮后开放电路与科研站。"},expansion:{n:"远郊扩建",credits:220,science:15,d:"从16×12扩张到24×18，利用远端矿脉。"},engineering:{n:"动力工程",credits:380,science:20,need:"electronics",d:"开放齿轮与电路共同装配的引擎厂。"},automation:{n:"自主装配",credits:800,science:60,need:"engineering",d:"开放无人机，多条中间品并行供应。"},mastery:{n:"复合材料",credits:1000,science:80,need:"automation",d:"数据核需钢材、玻璃与科研；由你选择产业路线。"}};
-let sandbox=null,sbMode=false,sbRunning=false,sbTimer=null,sbTool="belt",sbDir=0,sbSpeed=1,sbZoom=36,sbCells=[],sbCellCache=[],sbLastSaved=0,sbStorageWarning=false,sbSelected=null,sbMessage="已铺好一条铁板产线。启动后观察缺料 / 堵塞，再建设铜板和装配线。";
+let sandbox=null,sbMode=false,sbRunning=false,sbTimer=null,sbTool="belt",sbDir=0,sbSpeed=1,sbZoom=36,sbCells=[],sbCellCache=[],sbLastSaved=0,sbStorageWarning=false,sbSelected=null,sbMoving=null,sbMessage="已铺好一条铁板产线。启动后观察缺料 / 堵塞，再建设铜板和装配线。";
 function sbNumber(value,max=1e12){return Number.isFinite(Number(value))?Math.max(0,Math.min(max,Number(value))):0}
 function sbWorld(seed){let rng=seed>>>0||1;const next=()=>{rng^=rng<<13;rng^=rng>>>17;rng^=rng<<5;return(rng>>>0)/4294967296};const world={};for(let y=0;y<SB_H;y++)for(let x=0;x<SB_W;x++){const roll=next();if(roll<.22)world[pos(x,y)]=["ore","copper","coal","stone"][Math.floor(next()*4)]}Object.assign(world,{"1,3":"ore","1,5":"coal","1,8":"copper","8,10":"stone"});return world}
 function sbFresh(seed=Date.now()>>>0){
@@ -196,12 +241,29 @@ function sbFresh(seed=Date.now()>>>0){
   const contract=sbMakeContract(state);state.sim=freshSimFromContract(contract,contract.layout);return state;
 }
 function sbMakeContract(state){const world=sbWorld(state.seed),devices=[],layout={};for(const[key,tile]of Object.entries(state.layout)){const[x,y]=key.split(",").map(Number),toolData=Object.hasOwn(SB_TOOLS,tile.type)&&SB_TOOLS[tile.type];if(!toolData)continue;if(tile.type==="miner")devices.push({type:"source",id:key,x,y,item:world[key],dir:tile.dir,cadence:world[key]==="coal"?4:2});else if(tile.type==="depot")devices.push({type:"sink",id:key,x,y,want:Object.fromEntries(Object.keys(ITEMS).map(id=>[id,Number.MAX_SAFE_INTEGER]))});else if(toolData.recipe)devices.push({type:"machine",id:key,x,y,recipe:toolData.recipe,dir:tile.dir});else layout[key]={...tile}}const sinks=devices.filter(d=>d.type==="sink");return{width:state.width,height:state.height,endless:true,devices,sinks,machines:devices.filter(d=>d.type==="machine"),fixed:new Map(devices.map(d=>[pos(d.x,d.y),d])),layout,limit:Number.MAX_SAFE_INTEGER,onDelivery(item){state.sold[item]=(state.sold[item]||0)+1;if(item==="science")state.science++;else state.credits+=SB_PRICES[item]||0}}}
-function sbRebuild(state){const previous=state.sim,contract=sbMakeContract(state),next=freshSimFromContract(contract,contract.layout);if(previous){next.tick=previous.tick;for(const[key,device]of Object.entries(next.devices))if(previous.devices[key])next.devices[key]=previous.devices[key];for(const[key,tile]of Object.entries(next.tiles)){const old=previous.tiles[key];if(old&&old.type===tile.type)next.tiles[key]={...old,dir:tile.dir,filter:tile.filter}}}state.sim=next;return contract}
+function sbRebuild(state){const previous=state.sim,contract=sbMakeContract(state),next=freshSimFromContract(contract,contract.layout);if(previous){next.tick=previous.tick;for(const[key,device]of Object.entries(next.devices))if(previous.devices[key])next.devices[key]=previous.devices[key];for(const[key,tile]of Object.entries(next.tiles)){const old=previous.tiles[key];if(old&&old.type===tile.type)next.tiles[key]={...old,dir:tile.dir,filter:tile.filter}}for(const[key,sender]of Object.entries(previous.arbiters||{}))if(state.layout[key]&&state.layout[String(sender).slice(2)])next.arbiters[key]=sender;}state.sim=next;return contract}
 function sbUnlocked(state,type){const data=Object.hasOwn(SB_TOOLS,type)&&SB_TOOLS[type];return Boolean(data&&(!data.unlock||state.research.includes(data.unlock)))}
-function sbBuild(state,x,y,type,dir=0,filter="ore"){const key=pos(x,y),data=SB_TOOLS[type];if(!Number.isInteger(x)||!Number.isInteger(y)||x<0||y<0||x>=state.width||y>=state.height)return{ok:false,message:"该区域尚未扩建。"};if(state.layout[key])return{ok:false,message:"这里已有设施，先旋转或拆除。"};if(!sbUnlocked(state,type))return{ok:false,message:"先完成对应研究。"};if(type==="miner"&&!sbWorld(state.seed)[key])return{ok:false,message:"矿机只能建在有色矿脉上。"};if(state.credits<data.cost)return{ok:false,message:"资金不足，先交付或拆除回收。"};state.credits-=data.cost;state.layout[key]={type,dir:((dir%4)+4)%4};if(type==="filter")state.layout[key].filter=ITEMS[filter]?filter:"ore";sbRebuild(state);return{ok:true,message:`已建造${data.n}，出口${ARROWS[state.layout[key].dir]}。`}}
+function sbBuild(state,x,y,type,dir=0,filter="ore"){const key=pos(x,y),data=SB_TOOLS[type];if(!Number.isInteger(x)||!Number.isInteger(y)||x<0||y<0||x>=state.width||y>=state.height)return{ok:false,message:"该区域尚未扩建。"};if(!Number.isInteger(dir)||dir<0||dir>3)return{ok:false,message:"建造方向无效，请选择四个正交方向。"};if(state.layout[key])return{ok:false,message:"这里已有设施，先旋转或拆除。"};if(!sbUnlocked(state,type))return{ok:false,message:"先完成对应研究。"};if(type==="miner"&&!sbWorld(state.seed)[key])return{ok:false,message:"矿机只能建在有色矿脉上。"};if(state.credits<data.cost)return{ok:false,message:"资金不足，先交付或拆除回收。"};state.credits-=data.cost;state.layout[key]={type,dir};if(type==="filter")state.layout[key].filter=Object.hasOwn(ITEMS,filter)?filter:"ore";sbRebuild(state);return{ok:true,message:`已建造${data.n}，出口${ARROWS[state.layout[key].dir]}。`}}
 function sbStored(state,key){const tile=state.sim.tiles[key],device=state.sim.devices[key],build=state.layout[key];if(tile)return[...(tile.queue||[]),...(tile.item?[tile.item]:[])];if(!device)return[];const items=[...device.buffer,...device.out];if(device.active&&SB_TOOLS[build.type]?.recipe){const recipe=RECIPES[SB_TOOLS[build.type].recipe];for(const[id,count]of Object.entries(recipe.inputs))for(let i=0;i<count;i++)items.push(id)}return items}
 function sbDemolish(state,x,y){const key=pos(x,y),tile=state.layout[key];if(!tile)return{ok:false,message:"这里没有设施。"};const refund=Math.floor(SB_TOOLS[tile.type].cost*.8)+sbStored(state,key).reduce((sum,id)=>sum+(SB_PRICES[id]||0),0);state.credits+=refund;delete state.layout[key];delete state.sim.tiles[key];delete state.sim.devices[key];sbRebuild(state);return{ok:true,message:`已拆除，返还 ${refund} 资金（包含缓存物料）。`}}
-function sbRotate(state,x,y,filter){const key=pos(x,y),tile=state.layout[key];if(!tile)return{ok:false,message:"这里没有设施。"};if(tile.type==="depot")return{ok:false,message:"交付仓从四周收货，无需旋转。"};tile.dir=(tile.dir+1)%4;if(tile.type==="filter"&&ITEMS[filter])tile.filter=filter;sbRebuild(state);return{ok:true,message:`${SB_TOOLS[tile.type].n} 出口${ARROWS[tile.dir]}。`}}
+function sbRotate(state,x,y){const key=pos(x,y),tile=state.layout[key];if(!tile)return{ok:false,message:"这里没有设施。"};if(tile.type==="depot")return{ok:false,message:"交付仓从四周收货，无需旋转。"};tile.dir=(tile.dir+1)%4;sbRebuild(state);return{ok:true,message:`${SB_TOOLS[tile.type].n} 出口${ARROWS[tile.dir]}。`}}
+function sbConfigureFilter(state,x,y,item){const key=pos(x,y),tile=state.layout[key];if(tile?.type!=="filter"||!Object.hasOwn(ITEMS,item))return{ok:false,message:"请选择筛选器和有效物料。"};tile.filter=item;sbRebuild(state);return{ok:true,message:`筛选器现在让${ITEMS[item].n}直行，方向和现有货物保持不变。`}}
+function sbMove(state,x,y,toX,toY){
+  if(state===sandbox&&sbRunning)return{ok:false,message:"先暂停工区再搬迁。"};
+  if(![x,y,toX,toY].every(Number.isInteger))return{ok:false,message:"搬迁坐标无效。"};
+  const from=pos(x,y),target=pos(toX,toY),tile=state.layout[from];
+  if(!tile)return{ok:false,message:"原位置没有设施。"};
+  if(toX<0||toY<0||toX>=state.width||toY>=state.height)return{ok:false,message:"目的地尚未扩建或超出工区。"};
+  if(state.layout[target])return{ok:false,message:"目的地已有设施；原设施保持不变，可重新选空地。"};
+  if(tile.type==="miner"){const world=sbWorld(state.seed);if(world[target]!==world[from])return{ok:false,message:"矿机只能搬到同种矿脉，避免混淆已有矿料。"}}
+  const device=state.sim.devices[from],transport=state.sim.tiles[from];
+  state.layout[target]=tile;delete state.layout[from];
+  if(device){state.sim.devices[target]=device;delete state.sim.devices[from]}
+  if(transport){state.sim.tiles[target]=transport;delete state.sim.tiles[from]}
+  delete state.sim.arbiters?.[from];delete state.sim.arbiters?.[target];
+  for(const[key,sender]of Object.entries(state.sim.arbiters||{}))if(sender===`D:${from}`||sender===`T:${from}`)delete state.sim.arbiters[key];
+  sbRebuild(state);return{ok:true,message:`已搬迁${SB_TOOLS[tile.type].n}到 (${toX+1},${toY+1})；库存、加工进度与资金保持不变。`};
+}
 function sbResearchReason(state,id){const data=Object.hasOwn(SB_RESEARCH,id)&&SB_RESEARCH[id];if(!data)return"未知研究";if(state.research.includes(id))return"已研究";if(data.need&&!state.research.includes(data.need))return`需要${SB_RESEARCH[data.need].n}`;for(const[item,count]of Object.entries(data.sold||{}))if((state.sold[item]||0)<count)return`先交付${count}个${ITEMS[item].n}`;if(state.credits<data.credits)return"资金不足";if(state.science<data.science)return"科研点不足";return""}
 function sbResearch(state,id){const reason=sbResearchReason(state,id);if(reason)return{ok:false,message:reason};const data=SB_RESEARCH[id];state.credits-=data.credits;state.science-=data.science;state.research.push(id);if(id==="expansion"){state.width=SB_W;state.height=SB_H}sbRebuild(state);return{ok:true,message:`完成${data.n}：${data.d}`}}
 function sbStepState(state,count=1){const contract=sbMakeContract(state);if(!Array.isArray(state.history))state.history=[];const sample=()=>({tick:state.sim.tick,sold:Object.values(state.sold).reduce((a,b)=>a+b,0),byItem:{...state.sold}});if(!state.history.length)state.history.push(sample());for(let i=0;i<Math.min(10000,Math.max(0,Math.floor(count)));i++){stepSimulation(contract,state.sim);if(state.sim.tick%10===0){state.history.push(sample());state.history=state.history.slice(-11);const stats=sbDiagnostics(state);if(stats.observedTicks>=100){state.bestRates ||= {};for(const[item,rate]of Object.entries(stats.rates))state.bestRates[item]=Math.max(state.bestRates[item]||0,rate)}}}return state}
@@ -243,6 +305,13 @@ function sbSanitize(value){
     tile.queue=tile.type==="buffer"?itemList(old.queue,6):[];
     tile.alt=Math.floor(sbNumber(old.alt,1e10));
   }
+  for(const[key,sender]of Object.entries(value.sim?.arbiters||{}).slice(0,SB_W*SB_H)){
+    if(!clean.layout[key]||typeof sender!=="string"||!/^([DT]):\d{1,2},\d{1,2}$/.test(sender))continue;
+    const source=sender.slice(2),build=clean.layout[source];
+    if(!build)continue;
+    const prefix=build.type==="miner"||SB_TOOLS[build.type].recipe?"D:":"T:";
+    if(sender.startsWith(prefix)&&build.type!=="depot")clean.sim.arbiters[key]=sender;
+  }
   return clean;
 }
 function sbEncode(state=sandbox){const payload=btoa(unescape(encodeURIComponent(JSON.stringify(sbSanitize(state)))));return`FACTORYFREE1.${payload}.${checksum(payload)}`}
@@ -250,16 +319,21 @@ function sbDecode(code){const match=String(code).trim().match(/^FACTORYFREE1\.([
 function sbSave(){if(!sandbox)return false;try{localStorage.setItem(SB_KEY,JSON.stringify(sandbox));sbStorageWarning=false;return true}catch{sbStorageWarning=true;$("sbMessage").textContent="浏览器无法写入存档。游戏仍可运行，请用工区档案导出备份。";return false}}
 function sbLoad(){try{const raw=localStorage.getItem(SB_KEY);if(raw)return sbSanitize(JSON.parse(raw))}catch{}return sbFresh(20261004)}
 function sbPause(message){sbRunning=false;clearInterval(sbTimer);sbTimer=null;if(message)sbMessage=message;sbSave();if(sbMode)sbDraw()}
-function sbRun(){if(sbRunning){sbPause("工区已暂停；可自由改线、调整设备。");return}sbRunning=true;sbTimer=setInterval(()=>{sbStepState(sandbox,sbSpeed);if(sandbox.sim.tick-sbLastSaved>=15){sbLastSaved=sandbox.sim.tick;sbSave()}sbDraw(false)},300);sbMessage="工区持续生产中。点击设施可旋转；改线不会抹掉其他设备库存。";sbDraw()}
-function sbNew(seed){sbPause();sandbox=sbFresh(seed===undefined?Date.now()>>>0:seed);sbLastSaved=0;sbTool="belt";sbSelected=null;sbMessage="新的持续矿脉工区已准备好，预铺铁板产线可直接启动。";sbCells=[];sbCellCache=[];sbSave();sbShow(true);return sandbox}
-function sbShow(free){stop();sbPause();sbMode=free;$("contractApp").classList.toggle("hidden",free);$("sandboxApp").classList.toggle("hidden",!free);$("mapOverlay").classList.toggle("hidden",free||Boolean(q));$("infoOverlay").classList.add("hidden");$("sandboxModeBtn").classList.toggle("primary",free);$("contractModeBtn").classList.toggle("primary",!free);if(free)sbDraw();else{drawMap();if(q)draw()}}
+function sbRun(){if(sbMoving){sbMessage="先放置或取消正在搬迁的设施，再启动生产。";sbDraw();return}if(sbRunning){sbPause("工区已暂停；可自由改线、调整设备。");return}sbRunning=true;sbTimer=setInterval(()=>{sbStepState(sandbox,sbSpeed);if(sandbox.sim.tick-sbLastSaved>=15){sbLastSaved=sandbox.sim.tick;sbSave()}sbDraw(false)},300);sbMessage="工区持续生产中。点击设施先检查；搬迁将暂停生产，其他设备库存不会被抹掉。";sbDraw()}
+function sbNew(seed){sbMoving=null;sbPause();sandbox=sbFresh(seed===undefined?Date.now()>>>0:seed);sbLastSaved=0;sbTool="belt";sbSelected=null;sbMessage="新的持续矿脉工区已准备好，预铺铁板产线可直接启动。";sbCells=[];sbCellCache=[];sbSave();sbShow(true);return sandbox}
+function sbShow(free){sbMoving=null;stop();sbPause();sbMode=free;$("contractApp").classList.toggle("hidden",free);$("sandboxApp").classList.toggle("hidden",!free);$("mapOverlay").classList.toggle("hidden",free||Boolean(q));$("infoOverlay").classList.add("hidden");$("sandboxModeBtn").classList.toggle("primary",free);$("contractModeBtn").classList.toggle("primary",!free);if(free)sbDraw();else{drawMap();if(q)draw()}}
 function sbCellClick(x,y){
-  sbSelected=pos(x,y);let result;
+  let result;
+  if(sbMoving){const[fromX,fromY]=sbMoving.split(",").map(Number);result=sbMove(sandbox,fromX,fromY,x,y);if(result.ok){sbMoving=null;sbSelected=pos(x,y)}sbMessage=result.message;sbSave();sbDraw();return}
+  sbSelected=pos(x,y);
   if(sbTool==="erase")result=sbDemolish(sandbox,x,y);
-  else if(sandbox.layout[sbSelected]||sbTool==="inspect")result={ok:true,message:"查看右侧设施检查。旋转或拆除不会在点击地图时意外触发。"};
+  else if(sandbox.layout[sbSelected]||sbTool==="inspect")result={ok:true,message:"查看设施检查区。旋转或拆除不会在点击地图时意外触发。"};
   else result=sbBuild(sandbox,x,y,sbTool,sbDir,$("sbFilter").value);
+  if(sandbox.layout[sbSelected]?.type==="filter")$("sbFilter").value=sandbox.layout[sbSelected].filter;
   sbMessage=result.message;sbSave();sbDraw();
 }
+function sbCancelMoving(){if(!sbMoving)return;sbMoving=null;sbMessage="已取消搬迁；原设施、货物、加工进度和资金保持不变。";sbDraw()}
+function sbBeginMove(){if(!sandbox.layout[sbSelected])return;sbPause();sbMoving=sbSelected;sbMessage="工区已暂停。点击合法空地确认搬迁；矿机只搬到同种矿脉。Esc 或取消不改变原设施。";sbDraw()}
 function sbInspect(state,key){
   const [x,y]=String(key).split(",").map(Number),tile=state.layout[key],floor=sbWorld(state.seed)[key];
   if(!Number.isInteger(x)||!Number.isInteger(y)||x<0||y<0||x>=SB_W||y>=SB_H)return"点击地图上一座设施或矿脉，查看实际运行状态。";
@@ -275,7 +349,14 @@ function sbInspect(state,key){
     else text+=`\n成品售价${SB_PRICES[recipe.out]}；原料直接出售价值${Object.entries(recipe.inputs).reduce((sum,[id,n])=>sum+(SB_PRICES[id]||0)*n,0)}。是否加工由你选择。`;
   }else if(tile.type==="miner")text+=`${ITEMS[floor].n}持续矿脉 · 每${floor==="coal"?4:2}拍出料\n出料缓存 ${live.out.length}/4：${list(live.out)}${live.out.length>=4?"\n出料口已满，检查下一格是否接上物流。":""}`;
   else if(tile.type==="depot")text+=`累计收货：${Object.entries(live.delivered).filter(([,n])=>n).map(([id,n])=>`${ITEMS[id].n}×${n}`).join("、")||"暂无"}\n收货立刻结算一次；科研转为科研点。`;
-  else text+=`缓存：${list(transport.type==="buffer"?transport.queue:transport.item?[transport.item]:[])}${tile.type==="buffer"?`（${transport.queue.length}/6）`:""}${tile.type==="filter"?`\n${ITEMS[tile.filter].n}直行，其余右转；上方物料框可设筛选后点击旋转应用。`:""}${transport.blocked?"\n出口阻塞：检查邻格方向、受料配方和缓存容量。":""}`;
+  else text+=`缓存：${list(transport.type==="buffer"?transport.queue:transport.item?[transport.item]:[])}${tile.type==="buffer"?`（${transport.queue.length}/6）`:""}${tile.type==="filter"?`\n${ITEMS[tile.filter].n}直行，其余右转；选择物料后点“应用到选中筛选器”，不改变方向。`:""}${transport.blocked?"\n出口阻塞：检查邻格方向、受料配方和缓存容量。":""}`;
+  const flow=state.sim.lastFlow?.[`${live?"D:":"T:"}${key}`];
+  if(flow)text+=`\n上拍出口：${flow.reason}${flow.target?` → (${flow.target.split(",").map(n=>Number(n)+1).join(",")})`:""}。`;
+  else if(tile.type!=="depot"){
+    const item=live?.out[0]||(transport?.type==="buffer"?transport.queue[0]:transport?.item);
+    if(item){const dir=tile.type==="filter"&&tile.filter!==item?(tile.dir+1)%4:tile.dir,target=nextKey(x,y,dir,state.width,state.height);text+=`\n当前出口：${receiveReason(sbMakeContract(state),state.sim,target,item)||"可以收货，等待下一拍运输"}。`}
+  }
+  if(tile.type!=="depot")text+="\n共享入口按上次成功收货轮转；失败重试不抢占下一次优先权。";
   return text;
 }
 function sbGuide(state){
@@ -298,18 +379,18 @@ for(let y=0;y<SB_H;y++)for(let x=0;x<SB_W;x++){
   const current=tile?.type==="buffer"?tile.queue[0]:tile?.item||device?.out[0]||device?.buffer[0];
   const count=tile?.queue.length||device?.buffer.length||0;
   const label=locked?"待扩建":build?`${data.n} ${ARROWS[build.dir]}${recipe?`：${recipe.n}`:""}${current?` · ${ITEMS[current].n}`:""}`:floor?`${ITEMS[floor].n}持续矿脉`:"空地";
-  const className=`sb-cell${floor?` mine-${floor}`:""}${locked?" locked":""}${blocked?" blocked":""}${hungry?" hungry":""}${sbSelected===key?" selected":""}`;
+  const className=`sb-cell${floor?` mine-${floor}`:""}${locked?" locked":""}${blocked?" blocked":""}${hungry?" hungry":""}${sbSelected===key?" selected":""}${sbMoving===key?" moving":""}`;
   const content=locked?"":build?`${build.type==="belt"?ARROWS[build.dir]:data.i}<small>${build.type==="depot"?"收":ARROWS[build.dir]}</small>${current?`<em>${ITEMS[current].i}${count>1?count:""}</em>`:""}`:floor?`<span style="font-size:13px;opacity:.7">${ITEMS[floor].i}</span>`:"";
   const cache=`${className}|${content}|${label}`;
   if(sbCellCache[index]!==cache){const cell=sbCells[index];cell.className=className;cell.innerHTML=content;cell.title=`(${x+1},${y+1}) ${label}`;cell.setAttribute("aria-label",cell.title);sbCellCache[index]=cache}
 }
-$("sbGuide").textContent=sbGuide(sandbox);$("sbInspector").textContent=sbInspect(sandbox,sbSelected);$("sbInspectRotate").disabled=!sandbox.layout[sbSelected]||sandbox.layout[sbSelected]?.type==="depot";$("sbInspectDemolish").disabled=!sandbox.layout[sbSelected];
+$("sbGuide").textContent=sbGuide(sandbox);$("sbInspector").textContent=sbInspect(sandbox,sbSelected);$("sbInspectRotate").disabled=Boolean(sbMoving)||!sandbox.layout[sbSelected]||sandbox.layout[sbSelected]?.type==="depot";$("sbInspectDemolish").disabled=Boolean(sbMoving)||!sandbox.layout[sbSelected];$("sbApplyFilter").disabled=Boolean(sbMoving)||sandbox.layout[sbSelected]?.type!=="filter";$("sbMoveBtn").disabled=Boolean(sbMoving)||!sandbox.layout[sbSelected];$("sbCancelMove").classList.toggle("hidden",!sbMoving);$("sbStepBtn").disabled=Boolean(sbMoving);$("sbMoveStatus").textContent=sbMoving?`正在搬迁 (${sbMoving.split(",").map(n=>Number(n)+1).join(",")})，选择空地；生产保持暂停。`:"先点一座设施，可保留库存搬迁。";
 const goal=sandbox.goal||{item:"gear",per100:10},rate=stats.rates[goal.item]||0,established=stats.observedTicks>=100;$("sbGoalStatus").textContent=`${ITEMS[goal.item].n}目标 ${goal.per100}件/100拍 · 当前 ${rate.toFixed(1)} · 最佳 ${(sandbox.bestRates?.[goal.item]||0).toFixed(1)}。${!established?"先观察满100拍再判定，导入后重新采样。":rate>=goal.per100?"当前生产节奏达标！可以提高目标或换一条产业链。":"未达标，点缺料/堵塞设施查看原因，再改线扩产。"}这是你自定的开放目标，不锁关卡、不强迫照一个蓝图。`;
 if(full){$("sbGoalItem").value=goal.item;$("sbGoalRate").value=goal.per100;$("sbInspectBtn").classList.toggle("primary",sbTool==="inspect")}
 $("sbDiagnostics").innerHTML=`<div>设施 ${stats.facilities} · 在途/库存 ${stats.inTransit}</div><div class="${stats.blocked?"sb-error":"sb-good"}">满口 / 阻塞 ${stats.blocked}</div><div>缺料机器 ${stats.hungry}（黄框）</div><div>近 ${stats.observedTicks} 拍交付 ${stats.recentDelivered} 件<br>吞吐 ${stats.per100Ticks.toFixed(1)} 件 / 100拍</div><div>产出受逐拍运输、六格缓存和配方供给共同约束；无后台离线收益。</div>`;$("sbLedger").innerHTML=Object.entries(sandbox.sold).filter(([,n])=>n>0).map(([id,n])=>`<div>${ITEMS[id].i} ${ITEMS[id].n}：${n}${id==="science"?" · 科研点":" · 单价 "+SB_PRICES[id]}</div>`).join("")||"尚未交付，先启动预铺铁板线。";
-if(full){$("sbTools").innerHTML=Object.entries(SB_TOOLS).map(([id,data])=>`<button class="tool ${sbTool===id?"active":""}" data-sb-tool="${id}" ${sbUnlocked(sandbox,id)?"":"disabled"}><span>${data.i}</span><b>${data.n} · ${data.cost}</b><small>${data.d}</small></button>`).join("");document.querySelectorAll("[data-sb-tool]").forEach(b=>b.onclick=()=>{sbTool=b.dataset.sbTool;sbMessage=`已选择${SB_TOOLS[sbTool].n}。${SB_TOOLS[sbTool].d}，出口${ARROWS[sbDir]}。`;sbDraw()});$("sbEraseBtn").classList.toggle("primary",sbTool==="erase");$("sbRecipes").innerHTML=Object.entries(SB_TOOLS).filter(([id,data])=>data.recipe&&sbUnlocked(sandbox,id)).map(([,data])=>`<div>${RECIPES[data.recipe].n} · ${RECIPES[data.recipe].time}拍</div>`).join("")}
+if(full){$("sbTools").innerHTML=Object.entries(SB_TOOLS).map(([id,data])=>`<button class="tool ${sbTool===id?"active":""}" data-sb-tool="${id}" ${sbUnlocked(sandbox,id)?"":"disabled"}><span>${data.i}</span><b>${data.n} · ${data.cost}</b><small>${data.d}</small></button>`).join("");document.querySelectorAll("[data-sb-tool]").forEach(b=>b.onclick=()=>{sbMoving=null;sbTool=b.dataset.sbTool;sbMessage=`已选择${SB_TOOLS[sbTool].n}。${SB_TOOLS[sbTool].d}，出口${ARROWS[sbDir]}。`;sbDraw()});$("sbEraseBtn").classList.toggle("primary",sbTool==="erase");$("sbRecipes").innerHTML=Object.entries(SB_TOOLS).filter(([id,data])=>data.recipe&&sbUnlocked(sandbox,id)).map(([,data])=>`<div>${RECIPES[data.recipe].n} · ${RECIPES[data.recipe].time}拍</div>`).join("")}
 const researchMarkup=Object.entries(SB_RESEARCH).map(([id,data])=>{const reason=sbResearchReason(sandbox,id),done=sandbox.research.includes(id);return`<div class="sb-research"><b>${data.n}${done?" ✓":""}</b><small>${data.d}<br>${data.credits}资金${data.science?` + ${data.science}科研点`:""}</small><button class="btn" data-sb-research="${id}" ${reason?"disabled":""}>${done?"已研究":reason||"研究"}</button></div>`}).join("");if($("sbResearch").innerHTML!==researchMarkup){$("sbResearch").innerHTML=researchMarkup;document.querySelectorAll("[data-sb-research]").forEach(b=>b.onclick=()=>{sbMessage=sbResearch(sandbox,b.dataset.sbResearch).message;sbSave();sbDraw()})}}
-function sbShowArchive(){sbPause("工区暂停，导出包含设备、在途物料和科研状态。");$("infoTitle").textContent="开放工区档案";$("infoBody").innerHTML=`<p class="sub">FACTORYFREE1 独立于旧 FACTORY2 合同档案。导入会替换当前自由工区，不影响合同星章。</p><textarea class="sb-save-input" id="sbArchiveCode" aria-label="自由工区存档码"></textarea><div class="controls"><button class="btn" id="sbCopyCode">复制导出</button><button class="btn primary" id="sbImportCode">导入上方工区</button></div><p class="sb-feedback" id="sbArchiveFeedback"></p>`;$("sbArchiveCode").value=sbEncode();$("infoOverlay").classList.remove("hidden");$("sbCopyCode").onclick=async()=>{const code=sbEncode();$("sbArchiveCode").value=code;try{await navigator.clipboard.writeText(code);$("sbArchiveFeedback").textContent="已复制工区档案。"}catch{$("sbArchiveCode").select();$("sbArchiveFeedback").textContent="请手动复制；浏览器未开放剪贴板权限。"}};$("sbImportCode").onclick=()=>{try{const next=sbDecode($("sbArchiveCode").value);sandbox=next;sbCells=[];sbCellCache=[];sbLastSaved=sandbox.sim.tick;sbSave();sbDraw();$("sbArchiveFeedback").textContent="工区已恢复，设备缓存和在途物料保持原状。"}catch(error){$("sbArchiveFeedback").textContent=error.message}}}
+function sbShowArchive(){sbMoving=null;sbPause("工区暂停，导出包含设备、在途物料和科研状态。");$("infoTitle").textContent="开放工区档案";$("infoBody").innerHTML=`<p class="sub">FACTORYFREE1 独立于旧 FACTORY2 合同档案。导入会替换当前自由工区，不影响合同星章。</p><textarea class="sb-save-input" id="sbArchiveCode" aria-label="自由工区存档码"></textarea><div class="controls"><button class="btn" id="sbCopyCode">复制导出</button><button class="btn primary" id="sbImportCode">导入上方工区</button></div><p class="sb-feedback" id="sbArchiveFeedback"></p>`;$("sbArchiveCode").value=sbEncode();$("infoOverlay").classList.remove("hidden");$("sbCopyCode").onclick=async()=>{const code=sbEncode();$("sbArchiveCode").value=code;try{await navigator.clipboard.writeText(code);$("sbArchiveFeedback").textContent="已复制工区档案。"}catch{$("sbArchiveCode").select();$("sbArchiveFeedback").textContent="请手动复制；浏览器未开放剪贴板权限。"}};$("sbImportCode").onclick=()=>{try{const next=sbDecode($("sbArchiveCode").value);sandbox=next;sbCells=[];sbCellCache=[];sbLastSaved=sandbox.sim.tick;sbSave();sbDraw();$("sbArchiveFeedback").textContent="工区已恢复，设备缓存和在途物料保持原状。"}catch(error){$("sbArchiveFeedback").textContent=error.message}}}
 $("sbFilter").innerHTML=Object.entries(ITEMS).map(([id,item])=>`<option value="${id}">${item.n}</option>`).join("");$("sandboxModeBtn").onclick=()=>sbShow(true);$("mapSandboxBtn").onclick=()=>sbShow(true);$("contractModeBtn").onclick=()=>sbShow(false);$("sbRotateBtn").onclick=()=>{sbDir=(sbDir+1)%4;sbDraw()};$("sbEraseBtn").onclick=()=>{sbTool=sbTool==="erase"?"belt":"erase";sbMessage=sbTool==="erase"?"点击设施拆除；返还80%费用和未加工缓存价值。":"已返回传送带建造。";sbDraw()};$("sbRunBtn").onclick=sbRun;$("sbStepBtn").onclick=()=>{if(sbRunning)return;sbStepState(sandbox);sbSave();sbDraw()};$("sbSpeedBtn").onclick=()=>{sbSpeed=sbSpeed===1?2:sbSpeed===2?4:1;$("sbSpeedBtn").textContent=`速度 ×${sbSpeed}`};$("sbZoomBtn").onclick=()=>{sbZoom=sbZoom===36?28:sbZoom===28?46:36;$("sbGrid").style.setProperty("--sb-cell",`${sbZoom}px`);$("sbZoomBtn").textContent=`缩放 ${sbZoom}px`};$("sbArchiveBtn").onclick=sbShowArchive;$("sbNewBtn").onclick=()=>{if(confirm("新建工区会替换当前自由工区，先导出档案可保留现有工厂。是否继续？"))sbNew()};window.addEventListener("blur",()=>{if(sbRunning)sbPause("窗口失焦，工区已自动暂停。");if(q?.running)stop()});document.addEventListener("visibilitychange",()=>{if(document.hidden){if(sbRunning)sbPause("页面转入后台，工区已自动暂停。");if(q?.running)stop()}});window.addEventListener("beforeunload",()=>{sbSave();save()});window.addEventListener("keydown",event=>{if(!sbMode||/^(INPUT|TEXTAREA|SELECT)$/.test(event.target?.tagName)||!$("infoOverlay").classList.contains("hidden"))return;if(event.code==="Space"){event.preventDefault();if(!event.repeat)sbRun()}else if(event.code==="KeyR"&&!event.repeat){sbDir=(sbDir+1)%4;sbDraw()}else if(event.code==="Escape")sbPause("工区已暂停。")});
 function sbSetGoal(state,item,per100){const value=Number(per100);if(!Object.hasOwn(ITEMS,item)||!Number.isFinite(value)||value<1||value>10000)return{ok:false,message:"选择物料，并输入1到10000之间的目标吞吐。"};state.goal={item,per100:value};return{ok:true,message:`已设置自己的扩产目标：${ITEMS[item].n} ${value}件/100拍。`}}
 $("sbGoalItem").innerHTML=Object.entries(ITEMS).map(([id,item])=>`<option value="${id}">${item.n}</option>`).join("");
@@ -317,8 +398,14 @@ $("sbGoalApply").onclick=()=>{sbMessage=sbSetGoal(sandbox,$("sbGoalItem").value,
 $("sbInspectBtn").onclick=()=>{sbTool=sbTool==="inspect"?"belt":"inspect";sbMessage=sbTool==="inspect"?"检查模式：点击矿脉或设施，只查看不会建造或改线。":"已返回传送带建造。";sbDraw()};
 $("sbInspectRotate").onclick=()=>{if(!sandbox.layout[sbSelected])return;const[x,y]=sbSelected.split(",").map(Number);sbMessage=sbRotate(sandbox,x,y,$("sbFilter").value).message;sbSave();sbDraw()};
 $("sbInspectDemolish").onclick=()=>{if(!sandbox.layout[sbSelected])return;const[x,y]=sbSelected.split(",").map(Number);sbMessage=sbDemolish(sandbox,x,y).message;sbSave();sbDraw()};
+$("sbMoveBtn").onclick=sbBeginMove;$("sbCancelMove").onclick=sbCancelMoving;
+for(const id of ["sbEraseBtn","sbInspectBtn","sbRotateBtn"]){const original=$(id).onclick;$(id).onclick=()=>{sbMoving=null;original()}}
+$("sbFilter").onchange=()=>{if(sbMoving){sbMoving=null;sbMessage="已取消搬迁，原设施保持不变。筛选物料尚未应用；选中筛选器后可点应用按钮。";sbDraw()}};
+$("sbApplyFilter").onclick=()=>{if(sbMoving)return;const[x,y]=String(sbSelected).split(",").map(Number);sbMessage=sbConfigureFilter(sandbox,x,y,$("sbFilter").value).message;sbSave();sbDraw()};
+$("sbStepBtn").onclick=()=>{if(sbRunning||sbMoving)return;sbStepState(sandbox);sbSave();sbDraw()};
+window.addEventListener("keydown",event=>{if(sbMode&&event.code==="Escape"&&sbMoving)sbCancelMoving()});
 sandbox=sbLoad();sbShow(true);
-window.__factorySandbox={TOOLS:SB_TOOLS,RESEARCH:SB_RESEARCH,PRICES:SB_PRICES,recipes:RECIPES,fresh:sbFresh,world:sbWorld,build:sbBuild,demolish:sbDemolish,rotate:sbRotate,research:sbResearch,step:sbStepState,diagnostics:sbDiagnostics,inspect:sbInspect,guide:sbGuide,setGoal:sbSetGoal,sanitize:sbSanitize,encode:sbEncode,decode:sbDecode,state:()=>sandbox,newWorld:sbNew,save:sbSave,pause:sbPause,sharedStep:stepSimulation};
+window.__factorySandbox={TOOLS:SB_TOOLS,RESEARCH:SB_RESEARCH,PRICES:SB_PRICES,recipes:RECIPES,fresh:sbFresh,world:sbWorld,build:sbBuild,demolish:sbDemolish,rotate:sbRotate,configureFilter:sbConfigureFilter,move:sbMove,research:sbResearch,step:sbStepState,diagnostics:sbDiagnostics,inspect:sbInspect,guide:sbGuide,setGoal:sbSetGoal,sanitize:sbSanitize,encode:sbEncode,decode:sbDecode,state:()=>sandbox,running:()=>sbRunning,moving:()=>sbMoving,newWorld:sbNew,save:sbSave,pause:sbPause,sharedStep:stepSimulation};
 })();
 </script>
 </body>

@@ -38,7 +38,7 @@ function boot(options = {}) {
   context.window = context;
   vm.createContext(context);
   for (const match of fs.readFileSync(file, 'utf8').matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)) vm.runInContext(match[1], context, { filename: file, timeout: 10_000 });
-  return { api: context.__factorySandbox, old: context.__tinyFactory, context, elements, intervals, emit(type) { for (const handler of listeners.get(type) || []) handler({}); } };
+  return { api: context.__factorySandbox, old: context.__tinyFactory, context, elements, intervals, emit(type, event = {}) { for (const handler of listeners.get(type) || []) handler(event); } };
 }
 function blank(api, research = []) { const state = api.fresh(123456); state.layout = {}; state.sim = null; state.credits = 10000; state.research = research; return api.sanitize(state); }
 const json = value => JSON.parse(JSON.stringify(value));
@@ -260,4 +260,153 @@ test('every advertised processing facility executes its actual recipe twice, inc
     assert.equal(state.credits - before, 2 * api.PRICES[recipe.out]);
     if (recipe.out === 'science') assert.equal(state.science, 2);
   }
+});
+
+test('real mixed mines no longer deadlock a shared belt by coordinate priority', () => {
+  const { api } = boot(), state = api.fresh(351);
+  state.layout = {}; state.sim = null; state.credits = 10000;
+  const clean = api.sanitize(state);
+  assert.equal(api.world(351)['1,2'], 'ore'); assert.equal(api.world(351)['3,2'], 'coal');
+  for (const [x,y,type,dir] of [[1,2,'miner',0],[3,2,'miner',2],[2,2,'belt',1],[2,3,'furnace',1],[2,4,'depot',0]]) put(api, clean, x,y,type,dir);
+  api.step(clean, 200);
+  assert.ok(clean.sold.plate >= 30, JSON.stringify(clean.sold));
+  assert.equal(clean.sim.wrong, 0);
+});
+
+test('receiver round robin advances only on a grant, not on occupied phases or retry ticks', () => {
+  const { api } = boot(), raw = api.fresh(122);
+  raw.layout = {}; raw.sim = null; raw.credits = 10000;
+  const state = api.sanitize(raw), grants = {'D:1,2':0,'D:3,2':0};
+  for (const [x,y,type,dir] of [[1,2,'miner',0],[3,2,'miner',2],[2,2,'belt',1],[2,3,'depot',0]]) put(api, state, x,y,type,dir);
+  for (let i=0;i<200;i++) {
+    const cursor = state.sim.arbiters['2,2']; api.step(state);
+    let granted = false;
+    for (const key of Object.keys(grants)) if (state.sim.lastFlow[key]?.reason === '已运输') { grants[key]++; granted=true; }
+    if (!granted) assert.equal(state.sim.arbiters['2,2'], cursor, 'failed retries must not alter priority');
+  }
+  assert.ok(grants['D:1,2'] >= 49 && grants['D:3,2'] >= 49, JSON.stringify(grants));
+  assert.ok(Math.abs(grants['D:1,2']-grants['D:3,2'])<=1, JSON.stringify(grants));
+});
+
+test('three-way source, machine and belt contention is fair despite high-frequency retries', () => {
+  const { api } = boot(), state = blank(api);
+  put(api,state,1,3,'miner');put(api,state,2,2,'furnace',1);put(api,state,3,3,'belt',2);
+  put(api,state,2,3,'belt',1);put(api,state,2,4,'depot');
+  const grants={'D:1,3':0,'D:2,2':0,'T:3,3':0};
+  for(let i=0;i<600;i++) {
+    // Isolated arbitration fixture: continuously queued senders, not an economy playthrough.
+    if(!state.sim.devices['1,3'].out.length)state.sim.devices['1,3'].out.push('ore');
+    if(!state.sim.devices['2,2'].out.length)state.sim.devices['2,2'].out.push('plate');
+    state.sim.tiles['3,3'].item ||= 'coal';
+    api.step(state);
+    for(const key of Object.keys(grants))if(state.sim.lastFlow[key]?.reason==='已运输')grants[key]++;
+  }
+  assert.ok(Math.min(...Object.values(grants))>=99,JSON.stringify(grants));
+  assert.ok(Math.max(...Object.values(grants))-Math.min(...Object.values(grants))<=1,JSON.stringify(grants));
+  assert.equal(Object.values(grants).reduce((a,b)=>a+b,0),Object.values(state.sold).reduce((a,b)=>a+b,0)+(state.sim.tiles['2,3'].item?1:0));
+});
+
+test('arbitration cursor survives construction and archives with identical future transport', () => {
+  const { api } = boot(), raw=api.fresh(351);raw.layout={};raw.sim=null;raw.credits=10000;
+  const left=api.sanitize(raw);
+  for(const [x,y,type,dir]of [[1,2,'miner',0],[3,2,'miner',2],[2,2,'belt',1],[2,3,'furnace',1],[2,4,'depot',0]])put(api,left,x,y,type,dir);
+  api.step(left,73);const cursor=json(left.sim.arbiters);put(api,left,10,10,'belt');assert.deepEqual(json(left.sim.arbiters),cursor);
+  const right=api.decode(api.encode(left));assert.deepEqual(json(right.sim.arbiters),cursor);
+  for(let i=0;i<211;i++){
+    api.step(left);api.step(right);
+    assert.deepEqual(json(api.sanitize(left).sim),json(api.sanitize(right).sim),'restored physical transport and grant decisions must match every tick');
+    assert.equal(left.credits,right.credits);assert.deepEqual(json(left.sold),json(right.sold));
+    // Observation windows intentionally restart after imports, as the UI states;
+    // their historical best-rate sampling is not part of transport arbitration.
+  }
+});
+
+test('legacy archives without cursors work and malformed cursor fields are discarded', () => {
+  const {api}=boot(), raw=api.fresh(42);delete raw.sim.arbiters;assert.doesNotThrow(()=>api.step(api.sanitize(raw),40));
+  raw.sim.arbiters={'2,3':'D:1,3','3,3':'T:2,3','23,17':'D:1,3','4,3':'D:2,3','5,3':'T:__proto__','1,3':99};
+  const clean=api.sanitize(raw);
+  assert.deepEqual(json(clean.sim.arbiters),{'2,3':'D:1,3','3,3':'T:2,3'});
+});
+
+test('moving a working machine preserves active ingredients, finished stock, progress and economy', () => {
+  const {api}=boot(),state=blank(api);put(api,state,2,2,'furnace');
+  Object.assign(state.sim.devices['2,2'],{buffer:['ore','coal'],out:['plate'],active:'plate',progress:2});
+  const before=json(state.sim.devices['2,2']),credits=state.credits,sold=json(state.sold),tick=state.sim.tick;
+  assert.equal(api.move(state,2,2,4,4).ok,true);
+  assert.equal(state.layout['2,2'],undefined);assert.equal(state.sim.devices['2,2'],undefined);
+  assert.deepEqual(json(state.sim.devices['4,4']),before);assert.equal(state.credits,credits);assert.deepEqual(json(state.sold),sold);assert.equal(state.sim.tick,tick);
+  const copy=api.decode(api.encode(state));assert.deepEqual(json(copy.sim.devices['4,4']),json(api.sanitize(state).sim.devices['4,4']));
+  put(api,state,5,4,'depot');put(api,copy,5,4,'depot');api.step(state,12);api.step(copy,12);
+  assert.equal(state.sold.plate,3);assert.equal(api.encode(state),api.encode(copy));
+});
+
+test('moving belts, full buffers and depots preserves cargo and delivery history without cashing it out', () => {
+  const {api}=boot();
+  for(const type of ['belt','buffer','depot']){
+    const state=blank(api);put(api,state,2,2,type,1);
+    if(type==='belt')state.sim.tiles['2,2'].item='circuit';
+    if(type==='buffer')state.sim.tiles['2,2'].queue=['ore','coal','plate','science','gear','circuit'];
+    if(type==='depot')state.sim.devices['2,2'].delivered.plate=7;
+    const before=json(state.sim.tiles['2,2']||state.sim.devices['2,2']),money=state.credits,sold=json(state.sold);
+    assert.equal(api.move(state,2,2,6,6).ok,true);
+    assert.deepEqual(json(state.sim.tiles['6,6']||state.sim.devices['6,6']),before);
+    assert.equal(state.credits,money);assert.deepEqual(json(state.sold),sold);
+    const copy=api.decode(api.encode(state));assert.equal(api.encode(state),api.encode(copy));
+  }
+});
+
+test('miner relocation requires the same vein and retains its queued ore', () => {
+  const {api}=boot(),state=blank(api),world=api.world(state.seed);put(api,state,1,3,'miner');
+  state.sim.devices['1,3'].out=['ore','ore'];
+  const other=Object.keys(world).find(key=>key!=='1,3'&&world[key]==='ore'&&key.split(',')[0]<16&&key.split(',')[1]<12).split(',').map(Number);
+  const before=JSON.stringify(state);assert.equal(api.move(state,1,3,1,5).ok,false);assert.equal(JSON.stringify(state),before);
+  assert.equal(api.move(state,1,3,...other).ok,true);assert.deepEqual(json(state.sim.devices[other.join(',')].out),['ore','ore']);
+});
+
+test('invalid move destinations are atomic and do not sell, delete or reset anything', () => {
+  const {api}=boot(),state=api.fresh(42);api.step(state,30);
+  for(const [x,y]of [[1,3],[-1,2],[16,2],[2,12],[NaN,2],[2.5,2],[Infinity,2]]){
+    const before=JSON.stringify(state);assert.equal(api.move(state,3,3,x,y).ok,false);assert.equal(JSON.stringify(state),before);
+  }
+  const before=JSON.stringify(state);assert.equal(api.move(state,9,9,10,10).ok,false);assert.equal(JSON.stringify(state),before);
+});
+
+test('move UI pauses running production, rejects occupied targets and Escape cancels without mutation', () => {
+  const game=boot(),{api,elements}=game,cell=key=>elements.get('sbGrid').children.find(node=>node.dataset.cell===key);
+  elements.get('sbRunBtn').onclick();assert.equal(api.running(),true);
+  const before=JSON.stringify(api.state());assert.equal(api.move(api.state(),3,3,4,4).ok,false);assert.equal(JSON.stringify(api.state()),before);
+  cell('3,3').onclick();elements.get('sbMoveBtn').onclick();assert.equal(api.running(),false);assert.equal(game.intervals.size,0);assert.equal(api.moving(),'3,3');
+  const snapshot=JSON.stringify(api.state());cell('1,3').onclick();assert.equal(api.moving(),'3,3');assert.equal(JSON.stringify(api.state()),snapshot);
+  elements.get('sbRunBtn').onclick();elements.get('sbStepBtn').onclick();assert.equal(api.running(),false);assert.equal(JSON.stringify(api.state()),snapshot);
+  game.emit('keydown',{code:'Escape',target:{tagName:'BUTTON'}});assert.equal(api.moving(),null);assert.equal(JSON.stringify(api.state()),snapshot);
+  elements.get('sbMoveBtn').onclick();elements.get('sbFilter').onchange();assert.equal(api.moving(),null);assert.equal(JSON.stringify(api.state()),snapshot);
+  elements.get('sbMoveBtn').onclick();elements.get('sbInspectBtn').onclick();assert.equal(api.moving(),null);assert.equal(JSON.stringify(api.state()),snapshot);
+  elements.get('sbMoveBtn').onclick();cell('4,4').onclick();assert.equal(api.moving(),null);assert.equal(api.state().layout['3,3'],undefined);assert.equal(api.state().layout['4,4'].type,'furnace');
+});
+
+test('filter configuration and rotation are independent and never clear live cargo', () => {
+  const {api}=boot(),state=blank(api,['logistics']);put(api,state,2,2,'filter',0,'plate');state.sim.tiles['2,2'].item='coal';
+  const money=state.credits;assert.equal(api.configureFilter(state,2,2,'coal').ok,true);
+  assert.equal(state.layout['2,2'].dir,0);assert.equal(state.layout['2,2'].filter,'coal');assert.equal(state.sim.tiles['2,2'].item,'coal');assert.equal(state.credits,money);
+  api.rotate(state,2,2,'plate');assert.equal(state.layout['2,2'].dir,1);assert.equal(state.layout['2,2'].filter,'coal');assert.equal(state.sim.tiles['2,2'].item,'coal');
+  const before=JSON.stringify(state);assert.equal(api.configureFilter(state,2,2,'__proto__').ok,false);assert.equal(api.configureFilter(state,3,3,'plate').ok,false);assert.equal(JSON.stringify(state),before);
+});
+
+test('non-integer and non-finite build directions reject before debiting or creating broken belts', () => {
+  const {api}=boot(),state=blank(api);
+  for(const dir of [NaN,Infinity,-Infinity,.5,-1,4,'0',null,{},undefined]){
+    // Omitted/undefined uses the documented default direction.
+    if(dir===undefined)continue;
+    const before=JSON.stringify(state);assert.equal(api.build(state,2,2,'belt',dir).ok,false);assert.equal(JSON.stringify(state),before);
+  }
+  put(api,state,2,2,'belt');assert.doesNotThrow(()=>api.step(state,20));
+});
+
+test('inspector reports actual missing links, rejected recipes and arbitration waits', () => {
+  const {api}=boot(),state=blank(api);put(api,state,2,2,'belt');state.sim.tiles['2,2'].item='coal';api.step(state);
+  assert.match(api.inspect(state,'2,2'),/出口未连接设施/);
+  put(api,state,3,2,'furnace');state.sim.tiles['2,2'].item='cplate';api.step(state);assert.match(api.inspect(state,'2,2'),/下游配方不收铜板/);
+  const s=blank(api);put(api,s,1,2,'belt');put(api,s,2,1,'belt',1);put(api,s,2,2,'belt');
+  s.sim.tiles['1,2'].item='plate';s.sim.tiles['2,1'].item='plate';api.step(s);
+  const waiting=['1,2','2,1'].find(key=>s.sim.tiles[key].item==='plate');assert.match(api.inspect(s,waiting),/汇流等待：其他进料本拍先获准/);
 });

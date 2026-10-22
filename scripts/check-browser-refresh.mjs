@@ -1,10 +1,12 @@
 import assert from 'node:assert/strict';
 import {chromium} from '../promo-video/node_modules/playwright/index.mjs';
-import {mkdir,writeFile} from 'node:fs/promises';
+import {mkdir,readFile,writeFile} from 'node:fs/promises';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import path from 'node:path';
 
 const root=fileURLToPath(new URL('../',import.meta.url));
+const tiers=JSON.parse(await readFile(path.join(root,'GAME_TIERS.json'),'utf8')).tiers;
+const activeCount=Object.entries(tiers).filter(([grade])=>grade!=='E').reduce((n,[,files])=>n+files.length,0);
 const output=path.join(root,'output/browser-refresh');
 await mkdir(output,{recursive:true});
 const echoPreview=process.argv.includes('--echo'),results=[],errors=[];
@@ -114,14 +116,16 @@ async function island(page,input){
  return{eventCountCorrect:true,realResourceAction:true,badImportRejected:true};
 }
 async function catalog(page,input,mobile,label){
- assert.equal(await page.locator('.game-card').count(),115);
+ assert.equal(await page.locator('.game-card').count(),activeCount);
+ assert.equal(await page.locator('#archiveStat').innerText(),String(tiers.E.length));
  const hrefs=await page.locator('.play').evaluateAll(nodes=>nodes.map(n=>n.href));
+ assert.ok(hrefs.every(h=>!tiers.E.some(file=>h.endsWith('/'+file))),'archived games stay out of the active catalog');
  assert.ok(hrefs.every(h=>h.startsWith(pathToFileURL(root).href)&&h.endsWith('.html')),'local catalog does not send local users to an old online build');
  const catalogURL=page.url();
  const preview=page.locator('#echo-preview-link');
  assert.ok((await preview.getAttribute('href')).endsWith('development/echo-expedition.html'));
  await input(preview);await page.waitForURL('**/development/echo-expedition.html');assert.match(await page.title(),/回声禁区/);
- await page.goto(catalogURL,{waitUntil:'load'});assert.equal(await page.locator('.game-card').count(),115,'test preview does not inflate the formal catalog');
+ await page.goto(catalogURL,{waitUntil:'load'});assert.equal(await page.locator('.game-card').count(),activeCount,'test preview does not inflate the formal catalog');
  await capture(page,label+'-home');
  await page.screenshot({path:path.join(output,label+'-home-viewport.png'),fullPage:false});
  await page.locator('#searchInput').fill('微型流水线');assert.equal(await page.locator('.game-card').count(),1);
