@@ -9,7 +9,6 @@ import { chromium } from "playwright";
 const here = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(here, "..", "..");
 const outputDir = path.join(rootDir, "output");
-const port = 4194;
 await mkdir(outputDir, { recursive: true });
 const tierConfig = JSON.parse(await readFile(path.join(rootDir, "GAME_TIERS.json"), "utf8"));
 const repositoryGameCount = Object.values(tierConfig.tiers).flat().length;
@@ -42,7 +41,11 @@ const server = http.createServer(async (request, response) => {
     response.writeHead(404).end("Not found");
   }
 });
-await new Promise((resolve) => server.listen(port, "127.0.0.1", resolve));
+await new Promise((resolve,reject) => {
+  server.once('error',reject);
+  server.listen(0, "127.0.0.1", resolve);
+});
+const port=server.address().port;
 
 let browser;
 const errors = [];

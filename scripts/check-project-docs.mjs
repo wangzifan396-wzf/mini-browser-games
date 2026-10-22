@@ -74,6 +74,7 @@ const docs = [
   ...await Promise.all([
     'development/README.md', 'star-cluster-arena/README.md',
     'docs/collection-curation-sdd.md', 'docs/curation-2026-10-23/README.md',
+    'docs/pulse-composer-sdd.md', 'docs/pulse-composer-qa.md',
     'star-cluster-arena/docs/RELEASE-NOTES-1.0.0.md',
     'star-cluster-arena/docs/GITHUB-RELEASE-1.0.0.md',
     'star-cluster-arena/docs/QA-1.0.0.md', 'star-cluster-arena/docs/SDD-RELEASE-1.0.md'

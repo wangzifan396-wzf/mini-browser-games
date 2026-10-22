@@ -32,6 +32,8 @@ jobs:
       - name: Verify shared rules and offline catalog
         run: |
           node --test scripts/test-existing-game-fixes.mjs scripts/test-factory-sandbox.mjs scripts/test-echo-expedition.mjs scripts/test-echo-campaign.mjs scripts/test-echo-compatibility.mjs
+          node --test scripts/test-pulse-composer.mjs scripts/test-pulse-audio.mjs
+          node scripts/sync-pulse-studio.mjs --check
           node scripts/sync-game-catalog.mjs --check
           node promo-video/scripts/check-game-tiers.mjs
           node scripts/check-project-docs.mjs
@@ -45,6 +47,7 @@ jobs:
           mkdir -p _site/docs
           cp docs/browser-games-refresh-sdd.md docs/browser-games-refresh-qa.md docs/echo-campaign-sdd.md _site/docs/
           cp docs/collection-curation-sdd.md _site/docs/
+          cp docs/pulse-composer-sdd.md docs/pulse-composer-qa.md _site/docs/
           mkdir -p _site/docs/curation-2026-10-23
           cp docs/curation-2026-10-23/README.md docs/curation-2026-10-23/evidence.json docs/curation-2026-10-23/verify-evidence.mjs docs/curation-2026-10-23/verify-collection-evidence.mjs _site/docs/curation-2026-10-23/
           touch _site/.nojekyll

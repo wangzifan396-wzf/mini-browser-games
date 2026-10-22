@@ -43,19 +43,64 @@ jobs:
       - name: Pure rules and catalog consistency
         run: |
           node --test scripts/test-existing-game-fixes.mjs scripts/test-factory-sandbox.mjs scripts/test-echo-expedition.mjs scripts/test-echo-campaign.mjs scripts/test-echo-compatibility.mjs
+          node --test scripts/test-pulse-composer.mjs scripts/test-pulse-audio.mjs
+          node scripts/sync-pulse-studio.mjs --check
           node scripts/sync-game-catalog.mjs --check
           node promo-video/scripts/check-game-tiers.mjs
           node scripts/check-project-docs.mjs
-      - name: Install isolated browser-test runtime
-        working-directory: promo-video
+      - name: Install isolated Playwright package
+        timeout-minutes: 4
+        working-directory: ${{ runner.temp }}
         run: |
-          npm install --no-save --ignore-scripts playwright@1.61.1
-          npx playwright install --with-deps chromium
+          # Browser checks need Playwright, not the promotional-video dependencies
+          # or their project lockfile's regional package-mirror URLs.
+          mkdir -p "$RUNNER_TEMP/browser-test-runtime"
+          npm install --prefix "$RUNNER_TEMP/browser-test-runtime" \
+            --no-save --ignore-scripts --package-lock=false \
+            --registry=https://registry.npmjs.org --no-audit --no-fund \
+            --fetch-timeout=30000 --fetch-retries=2 \
+            --fetch-retry-mintimeout=1000 --fetch-retry-maxtimeout=5000 \
+            playwright@1.61.1
+          ln -sT "$RUNNER_TEMP/browser-test-runtime/node_modules" \
+            "$GITHUB_WORKSPACE/promo-video/node_modules"
+      - name: Install isolated Chromium browser
+        timeout-minutes: 5
+        env:
+          PLAYWRIGHT_DOWNLOAD_CONNECTION_TIMEOUT: 30000
+        run: |
+          # ubuntu-24.04 already supplies Edge and Chromium's system libraries.
+          # Reinstalling OS dependencies made a prior run spend almost 12 minutes
+          # downloading fonts from an Ubuntu mirror before any UI checks ran.
+          node "$RUNNER_TEMP/browser-test-runtime/node_modules/playwright/cli.js" install chromium
+      - name: Verify isolated headless browser launch
+        timeout-minutes: 1
+        run: |
+          timeout 30s node --input-type=module <<'NODE'
+          import { pathToFileURL } from 'node:url';
+          const runtime = `${process.env.RUNNER_TEMP}/browser-test-runtime/node_modules/playwright/index.mjs`;
+          const { chromium } = await import(pathToFileURL(runtime).href);
+          let browser, selected;
+          try {
+            browser = await chromium.launch({ channel: 'msedge', headless: true, timeout: 10000 });
+            selected = 'preinstalled Edge';
+          } catch (error) {
+            console.warn(`Edge unavailable: ${error.message.split('\n')[0]}; trying pinned Chromium.`);
+            browser = await chromium.launch({ headless: true, timeout: 10000 });
+            selected = 'pinned Chromium';
+          }
+          try {
+            console.log(`Headless smoke passed: ${selected} ${browser.version()}`);
+          } finally {
+            await browser.close();
+          }
+          NODE
       - name: Actual desktop and touch-layout interactions
         run: |
           node scripts/check-browser-refresh.mjs --echo
           node scripts/check-echo-campaign.mjs
           node scripts/check-factory-logistics.mjs
+          node scripts/check-pulse-composer.mjs
+          node scripts/check-pulse-audio-render.mjs
           node promo-video/scripts/check-tiny-factory-contracts.mjs
           node promo-video/scripts/check-pages-catalog.mjs
       - name: Retain diagnostics and screenshots
@@ -67,6 +112,8 @@ jobs:
             output/browser-refresh/
             output/echo-campaign/
             output/factory-logistics/
+            output/pulse-composer/
+            output/pulse-audio-render/
             output/tiny-factory-contracts/
             output/pages-catalog-*.png
           retention-days: 14

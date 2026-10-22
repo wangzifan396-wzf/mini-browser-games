@@ -19,6 +19,7 @@
 | 吞噬竞技 / 好友联机 | [星团大作战 1.0.0 · Windows](https://github.com/wangzifan396-wzf/mini-browser-games/releases/tag/sca-v1.0.0) | 十种模式，可独自挑战 AI 或与朋友建房；LAN 自动发现，异地需自部署服务。免安装可选便携 ZIP |
 | 卡牌肉鸽 | [山海伏魔录](https://wangzifan396-wzf.github.io/mini-browser-games/shan-hai.html) | 选行者、组牌、拿遗物，在分支事件和首领间做构筑取舍 |
 | 放置经营 | [星炉工坊](https://wangzifan396-wzf.github.io/mini-browser-games/starforge-idle.html) | 经营生产链、研究和远航，逐步进入战斗、装备与重启循环 |
+| 自由创作 / 音乐 | [脉冲音乐室 · 自由编曲](https://wangzifan396-wzf.github.io/mini-browser-games/pulse-studio.html) | 自己写旋律、复制变奏、安排整曲；可保存完整工程、分享工程码和导出真正的 WAV |
 | 自由建厂 | [微型流水线 · 开放工区](https://wangzifan396-wzf.github.io/mini-browser-games/tiny-factory.html) | 种子矿区与自主产线；公平汇流、暂停搬迁、独立筛选配置和堵塞诊断，旧合同保留 |
 | 回合潜入 / 撤离 | [回声禁区 · 测试版](https://wangzifan396-wzf.github.io/mini-browser-games/development/echo-expedition.html) | 看敌人预告避险，权衡载重与撤退；可自由搜刮或完成灯塔行动链，当前仍在打磨 |
 | 塔防构筑 | [芽阵前线](https://wangzifan396-wzf.github.io/mini-browser-games/garden-front.html) | 选择植物和本局进化，针对不同敌人与挑战词条调整阵地 |
@@ -33,11 +34,11 @@
 
 ## 最新更新
 
-- **2026-10-23**：冻结 9 款重复或被更强同类覆盖的作品，乐园降至 C；重点修复开放工厂物流并改善搬迁、配置和诊断。
+- **2026-10-23**：音乐室升级自由编曲与 WAV 导出；开放工厂修复物流、搬迁和配置；冻结 9 款重复作品，乐园降至 C。
 - **2026-10-16**：星团大作战 1.0.0 正式发布；重新整理推荐、下载入口、简介和标签。
 - **2026-10-05**：回声禁区新增灯塔行动链与敌人角色；修复背包装备效果、自走棋攻速和存档兼容等问题。
 
-[阅读完整更新日志与历史记录 →](CHANGELOG.md) · [本批设计](docs/collection-curation-sdd.md) · [去同质化依据与测试](docs/curation-2026-10-23/README.md)
+[阅读完整更新日志与历史记录 →](CHANGELOG.md) · [自由编曲设计与测试](docs/pulse-composer-qa.md) · [去同质化依据](docs/curation-2026-10-23/README.md)
 
 ## 游戏总览
 
@@ -164,7 +165,7 @@
 | A | [潮汐渔港](https://wangzifan396-wzf.github.io/mini-browser-games/fishing-harbor.html) | 24 种鱼、五海域、天气时段、蓄力抛竿与搏鱼小游戏、鱼市、委托和六类港口升级 | 蓄力决定抛竿距离，咬钩后控制张力完成搏鱼；回港出售、交付或建设，船长日志支持跨设备存档码 |
 | A | [万象炼金室：十二份成分委托](https://wangzifan396-wzf.github.io/mini-browser-games/alchemy-workshop.html) | 四章十二份固定实验委托、20 种五维素材、14 类可发现反应、四种器具、三档火候与时长，以三项效力区间、精确中心、杂质、成本、成分档案、三星和 `ALCH2` 档案形成可复核配方学战役；12 套参考配方共享正式仿真器并全部三星 | 选择二至四种素材并设定器具、火候与时长；先实验记录赤热/澄明/生机贡献和反应，再围绕公开验收区间调整，达到精确中心、杂质上限和成本线后提交配方 |
 | A | [展柜守护：十二馆微气候](https://wangzifan396-wzf.github.io/mini-browser-games/museum-climate.html) | 四章十二馆、72 个连续环境时段、六类藏品安全带、七种控制策略、温湿度状态传递、照度风险、最低能耗穷举求解、曲线 Canvas、三星和 `CLIMATE2` 档案形成原创连续控制战役；12 套参考班表均为最低能耗零风险解 | 读取六段室外温度、湿度与照度预报，逐段选择待机、冷却除湿、加热增湿、恒温增/除湿、遮光或密闭缓冲；观察连续柜内曲线，在零风险前提下降低总能耗 |
-| A | [脉冲音乐室：霓虹巡演](https://wangzifan396-wzf.github.io/mini-browser-games/pulse-studio.html) | 六轨十六步音序器、轻拍/正拍/重音、十二场结构委托、必要与附加目标、四套合成音色、三个作品槽、三星与 `PULSE2` 档案 | 点击节拍格循环调整力度，围绕四拍、切分、留白、前后变化与声部咬合完成现场；可试听、静音轨道并保存作品，首次播放需点击授权声音 |
+| A | [脉冲音乐室：自由编曲](https://wangzifan396-wzf.github.io/mini-browser-games/pulse-studio.html) | 四乐段六轨十六步、独立音高、大小调、Swing、静音/独奏、确定性变奏、整曲编排、完整作品架、`PULSESONG1` 工程分享与 PCM WAV 导出；旧巡演和 `PULSE2` 保留 | 点格子改力度，选中旋律格后改音高；复制/变奏与编排均可撤销，支持桌面/触屏和本地离线创作，首次试听需点击授权声音 |
 | A | [荒野摄影师：十二次生态调查](https://wangzifan396-wzf.github.io/mini-browser-games/photo-safari.html) | 六个生态区、十二次固定调查、24 个物种和 72 段可复现踪迹，以必要行为证据、有限快门、构图/焦距/行为/清晰度评分、图鉴、三星和 `PHOTO2` 档案组成可复核摄影战役；12 套参考摄影共享正式评分器并全部无提示三星 | 选择调查后开始观察或逐秒等待，点击/触摸画面移动取景圈并调节焦距，在行为窗口按下快门；每场需拍齐三个不同物种的必要证据，可查看踪迹提示、重新调查或导出档案码 |
 | A | [口袋伙伴：星愿谱系](https://wangzifan396-wzf.github.io/mini-browser-games/pocket-companion.html) | 四段十二日旅程、每日三次行动、天气与探索选择、颜色记忆训练、勇气/聪慧/亲和/安稳四维性格、中期分支、八种终末形态、四类设施、图鉴与 `PET2` 档案 | 用喂食、玩耍、清洁、训练、探索和小憩安排每天行动；保持需求、完成旅程性格目标并积累羁绊，不同成长质量与主性格共同决定终末形态 |
 | A | [边境值勤：审查档案](https://wangzifan396-wzf.github.io/mini-browser-games/checkpoint-inspector.html) | 六日 30 宗确定性档案、逐日叠加规则、护照与通行证字段核验、双证比对、日期尺、可解释违规原因、日星章与 `CHECK2` 档案 | 对照当日规则逐项核验两份证件并裁定；系统在结果中说明具体违规原因，连续三次错误会终止当日值勤 |

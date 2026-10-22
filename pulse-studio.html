@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>脉冲音乐室：霓虹巡演</title>
+  <title>脉冲音乐室：自由编曲</title>
   <style>
     :root{--bg:#0b0b18;--panel:#19172c;--panel2:#24203c;--line:#574e7b;--ink:#f7f3ff;--muted:#bcb3d4;--pink:#d35ee7;--cyan:#54cde7;--gold:#efbd55;--green:#70da92;--red:#ee6d7f}
     *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 12% 0,#392058 0,transparent 29%),radial-gradient(circle at 92% 10%,#123c5c 0,transparent 27%),linear-gradient(145deg,#090814,#111022 62%,#090814);color:var(--ink);font-family:system-ui,"Microsoft YaHei",sans-serif}.app{width:min(1450px,calc(100% - 22px));margin:11px auto}.top,.panel{border:1px solid var(--line);border-radius:16px;background:rgba(25,23,44,.97);box-shadow:0 20px 55px rgba(0,0,0,.35)}.top{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:15px 18px}.eyebrow{margin:0 0 4px;color:var(--cyan);font-size:12px;font-weight:950;letter-spacing:.16em}.top h1{margin:0;font-size:clamp(26px,4vw,43px);line-height:1}.sub{margin:7px 0 0;color:var(--muted);font-size:13px}.actions,.row,.transport{display:flex;align-items:center;gap:8px;flex-wrap:wrap}button,input,select,textarea{font:inherit}.btn{min-height:42px;padding:0 13px;border:1px solid #736893;border-radius:9px;background:#3a315f;color:white;font-weight:900;cursor:pointer}.btn.primary{border-color:#a843bd;background:#8e3eaa}.btn.cyan{border-color:#32869a;background:#236b7a}.btn.gold{border-color:#98702e;background:#76521e}.btn:disabled{opacity:.45;cursor:not-allowed;filter:saturate(.3)}.layout{display:grid;grid-template-columns:minmax(0,1fr) 355px;gap:12px;margin-top:12px;align-items:start}.studio{padding:13px;min-width:0}.side{padding:12px;display:grid;gap:10px;align-content:start;max-height:calc(100vh - 105px);overflow:auto}.timeline{display:grid;grid-template-columns:88px repeat(16,44px);gap:5px;min-width:860px;margin-bottom:6px}.seq{overflow-x:auto;padding:5px 3px 10px;scrollbar-color:#5f5680 #151327}.track-label{display:flex;align-items:center;justify-content:space-between;gap:4px;padding:0 7px;border:1px solid #4c456b;border-radius:8px;background:#272342;font-size:12px;font-weight:850}.track-label button{width:25px;height:25px;padding:0;border:1px solid #635a83;border-radius:6px;background:#342e54;color:#ddd;cursor:pointer}.track-label button.muted{background:#632f43;color:#ffadbb}.beat-head{display:grid;place-items:center;height:24px;color:#8f86aa;font-size:10px}.step{position:relative;width:44px;height:44px;padding:0;border:1px solid #4d4668;border-radius:7px;background:#211e36;cursor:pointer}.step::after{content:"";position:absolute;inset:12px;border-radius:50%;background:#3a3453}.step.lv1::after{inset:11px;background:#806d9b}.step.lv2{border-color:var(--track);box-shadow:inset 0 0 10px color-mix(in srgb,var(--track) 20%,transparent)}.step.lv2::after{inset:8px;background:var(--track);box-shadow:0 0 11px var(--track)}.step.lv3{border-color:white}.step.lv3::after{inset:4px;background:white;box-shadow:0 0 14px var(--track)}.step.now{outline:3px solid #fff;outline-offset:1px}.step.bar{border-left-color:#9388b0}.legend{display:flex;gap:10px;align-items:center;flex-wrap:wrap;color:var(--muted);font-size:12px}.legend span{display:flex;align-items:center;gap:5px}.dot{width:13px;height:13px;border-radius:50%;background:#3a3453}.dot.soft{background:#806d9b}.dot.hit{background:var(--cyan)}.dot.accent{background:white;box-shadow:0 0 8px var(--pink)}.transport{justify-content:space-between;margin-top:9px;padding:10px;border:1px solid #4e476d;border-radius:11px;background:#121121}.group{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.group label{color:var(--muted);font-size:12px;font-weight:800}.group input[type=range]{width:130px}.group select{min-height:40px;padding:0 8px;border:1px solid #685e89;border-radius:8px;background:#2d284a;color:white;font-weight:800}.block{padding:11px;border:1px solid #4c4569;border-radius:11px;background:#141221}.block h2,.block h3{margin:0 0 8px}.block h2{font-size:20px}.block h3{font-size:14px;color:var(--cyan)}.career{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.career div{padding:7px;border:1px solid #4b4565;border-radius:8px;background:#211e36;text-align:center}.career b{display:block;font-size:19px}.career small{color:var(--muted);font-size:10px}.tour{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}.gig{min-height:47px;padding:4px;border:1px solid #504869;border-radius:8px;background:#24203b;color:white;cursor:pointer}.gig.active{outline:3px solid var(--pink)}.gig.locked{opacity:.4}.gig b{display:block}.stars{color:var(--gold);font-size:10px}.brief,.tip{color:var(--muted);font-size:12px;line-height:1.55}.goals{display:grid;gap:6px;margin-top:8px}.goal{display:flex;justify-content:space-between;gap:8px;padding:7px;border:1px solid #4b4564;border-radius:8px;color:#a69dbb;background:#1f1c33;font-size:12px}.goal.pass{border-color:#4d9064;color:#dff8e6;background:#1c3427}.goal.bonus{border-style:dashed}.scoreline{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:8px}.scoreline div{padding:7px;border:1px solid #4c4667;border-radius:8px;text-align:center}.scoreline b{display:block;font-size:18px}.scoreline small{color:var(--muted);font-size:10px}.feedback{min-height:21px;margin-top:8px;color:var(--gold);font-weight:850;font-size:12px}.kits{display:grid;grid-template-columns:1fr 1fr;gap:6px}.kit{min-height:39px;padding:5px;border:1px solid #564e73;border-radius:8px;background:#27233e;color:white;font-size:11px;font-weight:850;cursor:pointer}.kit.active{outline:3px solid var(--cyan)}.kit:disabled{opacity:.4}.archive{position:fixed;inset:0;z-index:8;display:grid;place-items:center;padding:18px;background:rgba(4,3,12,.8)}.archive.hidden{display:none}.dialog{width:min(620px,100%);padding:18px;border:1px solid #685f89;border-radius:15px;background:#19172c}.dialog h2{margin:0 0 8px}.dialog textarea{width:100%;min-height:125px;padding:10px;border:1px solid #665c88;border-radius:8px;background:#0e0d1b;color:white;resize:vertical}.dialog .row{justify-content:flex-end}.notice{min-height:20px;margin-top:7px;color:var(--gold);font-size:12px;font-weight:800}
@@ -12,7 +12,517 @@
   </style>
 </head>
 <body>
-<main class="app">
+<style>
+[hidden]{display:none!important}.mode-nav{width:min(1450px,calc(100% - 22px));margin:12px auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}.mode-nav a{color:#bcd9ed;margin-left:auto;font-size:13px}.mode-nav .active{background:#216b76;border-color:#6bd7d5}.composer{--c-accent:#88e1c4}.composer h1{font-size:clamp(26px,4vw,42px)}.composer .eyebrow{color:var(--c-accent)}.c-layout{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:12px;margin-top:12px;align-items:start}.c-editor,.c-project,.c-song{padding:16px;min-width:0}.c-project{display:grid;gap:16px}.c-project h2,.c-song h2{font-size:18px;margin:0 0 10px}.c-project p,.c-hint{color:var(--muted);font-size:13px;line-height:1.65}.c-title{width:100%;min-height:44px;padding:8px 10px;border:1px solid #685e89;border-radius:8px;color:white;background:#121121}.c-status{padding:9px 12px;border-left:3px solid var(--c-accent);background:#111c24;min-height:40px;font-size:13px;line-height:1.6;margin-top:12px}.c-state{color:#99aeb4;font-size:12px;margin:7px 0 0}.c-transport{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}.c-patterns{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:12px}.c-pattern{min-height:66px;display:flex;flex-direction:column;justify-content:center;text-align:left;padding:8px 12px;border:1px solid #61567d;border-radius:10px;background:#242039;color:white;cursor:pointer;min-width:0}.c-pattern b{font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.c-pattern small{font-size:11px;color:#c0b8d0;margin-top:4px}.c-pattern.active{border-color:var(--c-accent);box-shadow:inset 0 -3px var(--c-accent);background:#21383b}.c-settings{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:14px 0}.c-settings label,.c-field{font-size:12px;color:var(--muted);display:grid;gap:5px}.c-settings select,.c-settings input,.c-field input,.c-field select{width:100%;min-height:42px;background:#151526;color:#fff;border:1px solid #685e89;border-radius:7px;padding:6px}.c-settings input[type=range]{padding:0}.c-seq{overflow:auto;max-width:100%;padding:3px 2px 12px;scrollbar-color:#62567e #121020}.c-grid-row{display:grid;grid-template-columns:126px repeat(16,44px);gap:4px;width:max-content;margin-bottom:5px}.c-grid-head{height:26px;text-align:center;color:#bcb3d4;font-size:11px;display:grid;place-items:center}.c-track{position:sticky;left:0;z-index:2;background:#242338;border:1px solid #625679;border-radius:7px;padding:5px;display:grid;gap:4px;grid-template-columns:1fr 32px 32px;align-items:center}.c-track b{font-size:12px;grid-column:1/-1}.c-track button{min-height:32px;padding:0;border-radius:5px;background:#35304d;color:#c6c1d4;border:1px solid #766b90;font-size:11px;cursor:pointer}.c-track button.active{background:#587b68;color:#fff;border-color:#99e9b0}.c-track input{width:42px;min-height:32px;margin:0;accent-color:var(--c-accent)}.c-step{width:44px;min-height:64px;padding:4px 2px;background:#1d1b30;border:1px solid #514965;border-radius:6px;color:#ddd;cursor:pointer;position:relative}.c-step .c-dot{height:18px;width:18px;margin:0 auto 5px;display:block;border-radius:5px;background:#343046}.c-step.level-1 .c-dot{background:color-mix(in srgb,var(--track) 45%,#242039)}.c-step.level-2 .c-dot{background:var(--track)}.c-step.level-3 .c-dot{background:#fff;box-shadow:0 0 10px var(--track)}.c-step span:last-child{font-size:9px;color:#bcb6cb}.c-step.bar{border-left:2px solid #a69aba}.c-step.selected{outline:2px solid var(--c-accent);outline-offset:-3px}.c-step.now{box-shadow:inset 0 0 0 3px #fff}.c-step:focus-visible,.c-pattern:focus-visible{outline:3px solid #fff;outline-offset:1px}.c-note{margin:8px 0 12px;padding:10px;border:1px solid #574e7b;border-radius:9px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#111322}.c-note label{color:#c9c3d9;font-size:12px}.c-note select{min-height:42px;background:#2d284a;color:white;border:1px solid #685e89;border-radius:7px;padding:6px}.c-note button{min-width:42px}.c-tools{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}.c-tools .btn{font-size:12px}.c-song{margin-top:12px}.c-song-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.c-order{list-style:none;padding:0;margin:12px 0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.c-order li{background:#151526;border:1px solid #5f557d;border-radius:9px;padding:9px;min-width:0}.c-order li.playing{border-color:#fff;box-shadow:inset 0 0 0 1px #fff}.c-order label{font-size:11px;color:#bcb3d4}.c-order select{min-height:40px;width:100%;background:#29243e;color:#fff;border:1px solid #70628e;border-radius:6px;margin:5px 0}.c-order .row{gap:5px}.c-order button{min-height:38px;flex:1;padding:0 3px}.c-totals{display:flex;gap:12px;flex-wrap:wrap;font-size:13px;color:var(--c-accent)}.c-meter{height:54px;display:flex;align-items:end;gap:3px;margin-top:10px}.c-meter i{flex:1;min-height:3px;border-radius:3px;background:#6cafae}.c-library{display:grid;gap:7px}.c-library .row{flex-wrap:nowrap}.c-library select{min-width:0;flex:1;min-height:42px;background:#151526;color:white;border:1px solid #685e89;border-radius:7px;padding:5px}.c-dialog{max-height:92vh;overflow:auto}.c-dialog textarea{min-height:150px}.c-dialog input[type=file]{width:100%;margin:12px 0;color:#d4cde1}.c-project .btn{min-height:44px}.c-project .row .btn{flex:1;font-size:12px}.c-download{font-size:11px;color:#aab8c6}.c-help{border-top:1px solid #524968;padding-top:12px}.c-help summary{cursor:pointer;min-height:36px;color:#d1e7de;font-weight:700}.c-help p{margin:5px 0 10px}.c-hotkeys{font-size:12px;color:#bcb3d4;margin-bottom:0}@media(max-width:1100px){.c-layout{grid-template-columns:1fr}.c-project{grid-template-columns:repeat(2,minmax(0,1fr))}.c-project .c-wide{grid-column:1/-1}}@media(max-width:650px){.c-layout{gap:9px}.c-editor,.c-project,.c-song{padding:10px}.c-project{grid-template-columns:1fr}.c-project .c-wide{grid-column:auto}.c-settings{grid-template-columns:repeat(2,minmax(0,1fr))}.c-order{grid-template-columns:repeat(2,minmax(0,1fr))}.c-pattern{padding:7px;min-height:58px}.c-pattern b{font-size:12px}.c-patterns{gap:5px}.c-transport .btn{flex:1;font-size:12px}.c-track button{min-height:38px}.c-grid-row{grid-template-columns:126px repeat(16,44px)}.c-tools .btn{flex:1}.mode-nav{width:calc(100% - 10px);margin:6px auto}.mode-nav .btn{font-size:12px}.c-note>span{width:100%}.c-note .btn{padding:0 10px}.c-title{font-size:16px}}
+</style>
+<nav class="mode-nav" aria-label="音乐室模式"><button class="btn active" id="composerModeBtn">自由编曲</button><button class="btn" id="practiceModeBtn">巡演练习 · 旧档保留</button><a href="index.html">返回游戏合集</a></nav>
+<style>.c-layout>div,.c-field,.c-settings>label,.c-project>*,.c-project input{min-width:0}.c-editor .row>.c-field{min-width:140px}.c-seq{width:100%}@media(max-width:1100px){.c-layout{grid-template-columns:minmax(0,1fr)}}.c-project input[type=range]{max-width:100%}</style>
+<main class="app composer" id="composerApp">
+ <style>.c-library{grid-template-columns:minmax(0,1fr)}.c-library>*{min-width:0}.c-library .row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.c-library .row>select{grid-column:1/-1;width:100%;max-width:100%}@media(max-width:650px){.c-grid-row{grid-template-columns:148px repeat(16,44px)}.c-track{grid-template-columns:1fr 40px 40px}.c-track button{min-height:40px}}</style>
+ <header class="top"><div><p class="eyebrow">PULSE / OPEN COMPOSITION</p><h1>把一个动机，写成一首曲子。</h1><p class="sub">四个乐段 · 六轨十六步 · 自己写旋律和段落，没有标准答案。</p></div><div class="actions"><button class="btn cyan" id="cPlayPattern">▶ 试听乐段</button><button class="btn primary" id="cPlaySong">▶ 试听整曲</button><button class="btn" id="cStop">■ 停止</button></div></header>
+ <div class="c-status" id="cMessage" role="status" aria-live="polite">从 A 段开始。点格子改变力度，选中旋律格后可修改音高。</div>
+ <div class="c-layout"><div>
+  <section class="panel c-editor" aria-label="乐段编辑器">
+   <div class="c-patterns" id="cPatterns"></div>
+   <div class="row"><label class="c-field" style="flex:1">当前乐段名称<input id="cPatternName" maxlength="24" aria-label="当前乐段名称"></label><button class="btn" id="cUndo">↶ 撤销</button><button class="btn" id="cRedo">↷ 重做</button></div>
+   <div class="c-settings"><label>速度 BPM<input id="cBpm" type="number" min="60" max="180" step="1" value="112"></label><label>Swing <b id="cSwingText">0%</b><input id="cSwing" type="range" min="0" max="45" step="1" value="0"></label><label>合成音色<select id="cKit"><option value="0">霓虹脉冲</option><option value="1">模拟暖流</option><option value="2">街机晶片</option><option value="3">极光空间</option></select></label><label>调性<select id="cRoot"><option value="48">C</option><option value="50">D</option><option value="52">E</option><option value="55">G</option><option value="57">A</option></select></label><label>音阶<select id="cScale"><option value="minor">自然小调</option><option value="major">大调</option></select></label></div>
+   <div class="c-seq" id="cSeq" aria-label="六轨音序器，可左右滚动"></div>
+   <p class="c-hint">空 → 轻 → 正 → 重，点按循环。左右滑动看完整 16 格；M 静音、S 独奏。选中音符后用下方控制精确编辑。</p>
+   <div class="c-note"><span id="cSelected">底鼓 · 第 1 格</span><label>力度 <select id="cVelocity"><option value="0">空拍</option><option value="1">轻拍</option><option value="2">正拍</option><option value="3">重音</option></select></label><label>音高 <select id="cDegree"></select></label><button class="btn" id="cEraseNote">清除此格</button></div>
+   <div class="c-tools"><button class="btn" id="cShiftLeft">← 移一格</button><button class="btn" id="cShiftRight">移一格 →</button><label class="c-field">变奏种子<input id="cSeed" type="number" value="23" min="0" max="4294967295" style="width:100px"></label><button class="btn cyan" id="cVariation">做一次变奏</button><select class="btn" id="cCopyTarget" aria-label="复制到乐段"><option value="1">复制到 B</option><option value="2">复制到 C</option><option value="3">复制到 D</option><option value="0">复制到 A</option></select><button class="btn" id="cCopy">复制乐段</button><button class="btn" id="cClear">清空当前段</button></div>
+  </section>
+  <section class="panel c-song"><div class="c-song-head"><h2>歌曲编排</h2><button class="btn cyan" id="cAppend">＋ 加入当前乐段</button></div><p class="c-hint">引用同一乐段会同步更新；想做新变化，先复制到另一段。每张卡可选段落、重复次数和顺序。</p><ol class="c-order" id="cOrder"></ol><div class="c-totals" id="cTotals"></div><label class="c-hint"><input id="cLoop" type="checkbox" checked> 循环试听（导出只渲染编排一遍）</label></section>
+ </div><aside class="panel c-project">
+  <section><h2>我的作品</h2><label class="c-field">作品名称<input class="c-title" id="cTitle" maxlength="64" value="未命名作品"></label><p class="c-state" id="cSaveState" role="status">自动保存到当前浏览器</p><div class="c-meter" id="cMeter" aria-label="当前乐段强度分布"></div><p class="c-hint" id="cSummary"></p><label class="c-field">试听 / 导出总音量 <b id="cVolumeText">35%</b><input id="cVolume" type="range" min="0" max="70" value="35"></label><p class="c-download">从较低系统音量开始。百分比不是实际声压或听力安全保证。</p></section>
+  <section class="c-library"><h2>保存与分享</h2><div class="row"><select id="cShelf" aria-label="本地作品架"><option value="0">作品架 1</option><option value="1">作品架 2</option><option value="2">作品架 3</option></select><button class="btn" id="cShelfSave">保存</button><button class="btn" id="cShelfLoad">载入</button></div><button class="btn" id="cProject">工程码 / 导入</button><button class="btn gold" id="cWav">导出整曲 WAV</button><button class="btn" id="cLegacyImport">读取巡演作品槽</button><button class="btn" id="cNew">新建空白作品</button><p class="c-download">工程码完整保存可编辑内容；WAV 是可播放音频。仅在本地处理，不上传作品或请求麦克风。</p></section>
+  <details class="c-help c-wide"><summary>第一次怎么创作？</summary><p>① 在 A 段改出喜欢的鼓点；点低音、和弦或主奏，再选音高。</p><p>② 复制 A 到 B，尝试移位或变奏；都能撤销。</p><p>③ 把 A、B 排成段落，选择重复次数，试听整曲后导出。</p><p>四种音色自由开放。想练基础拍型，可切到原巡演；两个模式与存档互不覆盖。</p><p class="c-hotkeys">空格试听/停止当前段；Esc 停止或关弹窗；格子内方向键移动，Enter/空格改力度。编辑或转入后台会停止试听，再播放时使用最新快照。</p></details>
+ </aside></div>
+</main>
+<div class="archive hidden" id="cProjectModal" role="dialog" aria-modal="true" aria-labelledby="cProjectHeading"><div class="dialog c-dialog"><h2 id="cProjectHeading">可继续编辑的工程</h2><p class="brief">复制 PULSESONG1 工程码给朋友，或下载工程文件。支持导入旧 PULSE2 的三个网格（旧档未存速度，按 112 BPM 恢复）。先完整验证再替换，失败保留原作品。</p><textarea id="cProjectText" spellcheck="false" aria-label="工程码"></textarea><label class="brief">从工程文件读取<input id="cProjectFile" type="file" accept=".txt,.json,.pulse,.pulse.json"></label><div class="row"><button class="btn" id="cProjectClose">关闭</button><button class="btn" id="cProjectCopy">复制</button><button class="btn cyan" id="cProjectDownload">下载工程</button><button class="btn gold" id="cProjectImport">验证并导入</button></div><div class="notice" id="cProjectFeedback" role="status"></div></div></div>
+<!-- PULSE_CORE:START -->
+<script id="pulse-composer-core">
+/* Canonical DOM-free composition rules. Embedded verbatim in pulse-studio.html. */
+(() => {
+  'use strict';
+  const SCALES = Object.freeze({ minor: Object.freeze([0, 2, 3, 5, 7, 8, 10, 12]), major: Object.freeze([0, 2, 4, 5, 7, 9, 11, 12]) });
+  const MAX_CODE = 80 * 1024, MAX_BARS = 32;
+  const grid = () => Array.from({ length: 6 }, () => Array(16).fill(0));
+  const fail = name => { throw new Error(`作品数据无效：${name}`); };
+  function object(value, name) {
+    if (!value || Object.prototype.toString.call(value) !== '[object Object]') fail(name);
+    return value;
+  }
+  function number(value, min, max, integer, name) {
+    if (typeof value !== 'number' || !Number.isFinite(value) || value < min || value > max || (integer && !Number.isInteger(value))) fail(name);
+    return value;
+  }
+  function text(value, limit, fallback, name) {
+    if (typeof value !== 'string' || value.length > 4096) fail(name);
+    return value.replace(/[\u0000-\u001f\u007f]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, limit) || fallback;
+  }
+  function matrix(value, max, name) {
+    if (!Array.isArray(value) || value.length !== 6) fail(name);
+    return Array.from({ length: 6 }, (_, row) => {
+      if (!Array.isArray(value[row]) || value[row].length !== 16) fail(name);
+      return Array.from({ length: 16 }, (_, step) => number(value[row][step], 0, max, true, name));
+    });
+  }
+  function blank() {
+    return { v: 1, title: '未命名作品', bpm: 112, swing: 0, kit: 0, volume: .35, root: 48, scale: 'minor',
+      patterns: Array.from({ length: 4 }, (_, index) => ({ name: String.fromCharCode(65 + index), steps: grid(), notes: grid() })),
+      order: [{ pattern: 0, repeats: 1 }], tracks: Array.from({ length: 6 }, () => ({ mute: false, solo: false, gain: .8 })) };
+  }
+  function sanitize(value) {
+    const p = object(value, '项目');
+    if (p.v !== 1) fail('版本');
+    const clean = { v: 1, title: text(p.title, 64, '未命名作品', '名称'),
+      bpm: number(p.bpm, 60, 180, true, 'BPM'), swing: number(p.swing, 0, .45, false, '摇摆'),
+      kit: number(p.kit, 0, 3, true, '音色'), volume: number(p.volume, 0, .7, false, '总音量'),
+      root: number(p.root, 36, 72, true, '调性'), scale: p.scale };
+    if (p.scale !== 'minor' && p.scale !== 'major') fail('音阶');
+    if (!Array.isArray(p.patterns) || p.patterns.length !== 4) fail('片段');
+    clean.patterns = Array.from({ length: 4 }, (_, index) => {
+      const pattern = object(p.patterns[index], '片段');
+      return { name: text(pattern.name, 24, String.fromCharCode(65 + index), '片段名'),
+        steps: matrix(pattern.steps, 3, '力度'), notes: matrix(pattern.notes, 7, '音级') };
+    });
+    if (!Array.isArray(p.order) || p.order.length < 1 || p.order.length > 16) fail('编排长度');
+    clean.order = Array.from(p.order, item => {
+      const entry = object(item, '编排');
+      return { pattern: number(entry.pattern, 0, 3, true, '片段序号'), repeats: number(entry.repeats, 1, 4, true, '重复次数') };
+    });
+    const bars = clean.order.reduce((sum, item) => sum + item.repeats, 0);
+    if (bars > MAX_BARS || bars * 240 / clean.bpm > 180) fail('歌曲时长');
+    if (!Array.isArray(p.tracks) || p.tracks.length !== 6) fail('轨道');
+    clean.tracks = Array.from(p.tracks, value => {
+      const track = object(value, '轨道');
+      if (typeof track.mute !== 'boolean' || typeof track.solo !== 'boolean') fail('静音/独奏');
+      return { mute: track.mute, solo: track.solo, gain: number(track.gain, 0, 1, false, '轨道音量') };
+    });
+    return clean;
+  }
+  function random(seed) {
+    const source = String(seed === undefined ? 20261023 : seed);
+    let state = 2166136261;
+    for (let index = 0; index < source.length; index++) state = Math.imul(state ^ source.charCodeAt(index), 16777619);
+    state = (state >>> 0) || 0x9e3779b9;
+    return () => { state ^= state << 13; state ^= state >>> 17; state ^= state << 5; return (state >>> 0) / 4294967296; };
+  }
+  function createProject(seed) {
+    const p = blank(), a = p.patterns[0], rng = random(seed);
+    p.title = '第一束脉冲';
+    for (const step of [0, 4, 8, 12]) a.steps[0][step] = step === 0 ? 3 : 2;
+    for (const step of [4, 12]) a.steps[1][step] = 2;
+    for (const step of [2, 6, 10, 14]) a.steps[2][step] = 1;
+    a.steps[2][15] = rng() > .5 ? 1 : 0;
+    for (const step of [0, 8]) { a.steps[3][step] = 2; a.notes[3][step] = step ? 4 : 0; }
+    a.steps[4][0] = 1;
+    for (const step of [3, 7, 11, 14]) { a.steps[5][step] = 1; a.notes[5][step] = Math.floor(rng() * 6); }
+    return p;
+  }
+  function compile(project, options = {}) {
+    const p = sanitize(project), opts = object(options, '播放选项');
+    const order = opts.pattern === undefined ? p.order : [{ pattern: number(opts.pattern, 0, 3, true, '试听片段'), repeats: 1 }];
+    const stepDuration = 60 / p.bpm / 4, barDuration = stepDuration * 16, steps = [], solo = p.tracks.some(track => track.solo);
+    let bar = 0;
+    for (const entry of order) for (let repeat = 0; repeat < entry.repeats; repeat++, bar++) {
+      const pattern = p.patterns[entry.pattern];
+      for (let step = 0; step < 16; step++) {
+        const time = bar * barDuration + step * stepDuration + (step % 2 ? stepDuration * p.swing : 0);
+        const duration = stepDuration * (step % 2 ? 1 - p.swing : 1 + p.swing), events = [];
+        for (let track = 0; track < 6; track++) {
+          const channel = p.tracks[track], level = pattern.steps[track][step], degree = pattern.notes[track][step];
+          if (!level || channel.mute || (solo && !channel.solo) || channel.gain === 0) continue;
+          const register = track === 3 ? -12 : track === 5 ? 12 : 0;
+          events.push({ track, level, degree, midi: p.root + register + SCALES[p.scale][degree], kit: p.kit, gain: channel.gain, duration });
+        }
+        steps.push({ time, duration, pattern: entry.pattern, step, bar, events });
+      }
+    }
+    return { steps, duration: bar * barDuration, barDuration };
+  }
+  function transform(project, patternIndex, kind, seed) {
+    const p = sanitize(project), index = number(patternIndex, 0, 3, true, '片段序号'), pattern = p.patterns[index];
+    if (kind === 'left' || kind === 'right' || kind === 'shift-left' || kind === 'shift-right') {
+      const offset = kind === 'left' || kind === 'shift-left' ? 1 : 15;
+      for (const field of ['steps', 'notes']) pattern[field] = pattern[field].map(row => row.map((_, step) => row[(step + offset) % 16]));
+    } else if (kind === 'variation') {
+      const rng = random(seed), before = JSON.stringify(pattern);
+      for (let step = 1; step < 16; step += 2) if (rng() < .45) pattern.steps[2][step] = pattern.steps[2][step] ? 0 : 1;
+      for (let step = 0; step < 16; step++) if (pattern.steps[5][step] && rng() < .6) {
+        pattern.notes[5][step] = (pattern.notes[5][step] + (rng() < .5 ? 1 : 7)) % 8;
+      }
+      if (JSON.stringify(pattern) === before) {
+        const step = Math.floor(rng() * 8) * 2 + 1;
+        pattern.steps[2][step] = pattern.steps[2][step] ? 0 : 1;
+      }
+    } else fail('变化类型');
+    return p;
+  }
+  function checksum(value) {
+    let hash = 2166136261;
+    for (let index = 0; index < value.length; index++) hash = Math.imul(hash ^ value.charCodeAt(index), 16777619);
+    return (hash >>> 0).toString(36).toUpperCase();
+  }
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+  function toBase64(value) {
+    const binary = encodeURIComponent(value).replace(/%([0-9A-F]{2})/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
+    let output = '';
+    for (let i = 0; i < binary.length; i += 3) {
+      const a = binary.charCodeAt(i), b = binary.charCodeAt(i + 1), c = binary.charCodeAt(i + 2);
+      output += alphabet[a >> 2] + alphabet[((a & 3) << 4) | (Number.isNaN(b) ? 0 : b >> 4)] +
+        (Number.isNaN(b) ? '=' : alphabet[((b & 15) << 2) | (Number.isNaN(c) ? 0 : c >> 6)]) + (Number.isNaN(c) ? '=' : alphabet[c & 63]);
+    }
+    return output;
+  }
+  function fromBase64(value) {
+    if (!value || value.length % 4 || !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(value)) fail('编码');
+    let encoded = '';
+    for (let i = 0; i < value.length; i += 4) {
+      const a = alphabet.indexOf(value[i]), b = alphabet.indexOf(value[i + 1]), c = alphabet.indexOf(value[i + 2]), d = alphabet.indexOf(value[i + 3]);
+      const bytes = [(a << 2) | (b >> 4)];
+      if (value[i + 2] !== '=') bytes.push(((b & 15) << 4) | (c >> 2));
+      if (value[i + 3] !== '=') bytes.push(((c & 3) << 6) | d);
+      encoded += bytes.map(byte => '%' + byte.toString(16).padStart(2, '0')).join('');
+    }
+    try { return decodeURIComponent(encoded); } catch (_) { return fail('UTF-8'); }
+  }
+  function readCode(code, prefix) {
+    if (typeof code !== 'string' || code.length > MAX_CODE) fail('档案大小');
+    const parts = code.trim().split('.');
+    if (parts.length !== 3 || parts[0] !== prefix || checksum(parts[1]) !== parts[2]) fail('档案校验');
+    try { return JSON.parse(fromBase64(parts[1])); } catch (_) { return fail('档案内容'); }
+  }
+  function encode(project) {
+    const body = toBase64(JSON.stringify(sanitize(project)));
+    return `PULSESONG1.${body}.${checksum(body)}`;
+  }
+  function decode(code) { return sanitize(readCode(code, 'PULSESONG1')); }
+  function fromLegacy(value) {
+    const old = object(typeof value === 'string' ? readCode(value, 'PULSE2') : value, '旧版档案');
+    if (old.v !== 2 || (!Array.isArray(old.slots) && !Array.isArray(old.l))) fail('旧版版本');
+    const p = blank(), slots = Array.isArray(old.slots) ? old.slots : old.l;
+    p.title = '巡演旧作品';
+    p.kit = Number.isInteger(old.kit ?? old.k) && (old.kit ?? old.k) >= 0 && (old.kit ?? old.k) <= 3 ? old.kit ?? old.k : 0;
+    for (let index = 0; index < 3; index++) {
+      try { p.patterns[index].steps = matrix(slots[index], 3, '旧作品槽'); } catch (_) { continue; }
+      p.patterns[index].name = `旧槽位 ${index + 1}`;
+      for (let track = 3; track < 6; track++) for (let step = 0; step < 16; step++) p.patterns[index].notes[track][step] = track === 4 ? Math.floor(step / 2) % 8 : step % 8;
+    }
+    return p;
+  }
+  function pcmWav(channels, sampleRate) {
+    number(sampleRate, 8000, 96000, true, '采样率');
+    if (!Array.isArray(channels) || channels.length < 1 || channels.length > 2) fail('PCM声道');
+    const frames = channels[0]?.length;
+    if (!Number.isInteger(frames) || frames < 1 || frames > sampleRate * 180) fail('PCM长度');
+    let peak = 0;
+    for (const channel of channels) {
+      if (Object.prototype.toString.call(channel) !== '[object Float32Array]' || channel.length !== frames) fail('PCM声道长度');
+      for (let index = 0; index < frames; index++) {
+        const sample = channel[index];
+        if (!Number.isFinite(sample)) fail('PCM样本');
+        peak = Math.max(peak, Math.abs(sample));
+      }
+    }
+    const gain = peak > .98 ? .98 / peak : 1, count = channels.length, size = frames * count * 2;
+    const bytes = new Uint8Array(44 + size), view = new DataView(bytes.buffer);
+    const ascii = (offset, value) => { for (let i = 0; i < value.length; i++) view.setUint8(offset + i, value.charCodeAt(i)); };
+    ascii(0, 'RIFF'); view.setUint32(4, 36 + size, true); ascii(8, 'WAVE'); ascii(12, 'fmt ');
+    view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, count, true);
+    view.setUint32(24, sampleRate, true); view.setUint32(28, sampleRate * count * 2, true);
+    view.setUint16(32, count * 2, true); view.setUint16(34, 16, true); ascii(36, 'data'); view.setUint32(40, size, true);
+    let offset = 44;
+    for (let frame = 0; frame < frames; frame++) for (const channel of channels) {
+      const value = channel[frame] * gain;
+      view.setInt16(offset, Math.round(value * (value < 0 ? 32768 : 32767)), true); offset += 2;
+    }
+    return { bytes, peak, gain };
+  }
+  globalThis.PulseComposerCore = Object.freeze({ SCALES, MAX_BARS, blank, createProject, sanitize, compile, transform, encode, exportSong: encode, decode, fromLegacy, pcmWav });
+})();
+</script>
+<!-- PULSE_CORE:END -->
+<!-- PULSE_AUDIO:START -->
+<script id="pulse-audio-engine">
+/* Shared, dependency-free synthesis for live playback and offline rendering. */
+(function (root) {
+  'use strict';
+  const MAX_DURATION = 180, LOOKAHEAD = 0.1, WAKE_MS = 25, LATE_LIMIT = 0.5;
+  const noiseByContext = new WeakMap();
+  const finite = value => typeof value === 'number' && Number.isFinite(value);
+  function bounded(value, min, max, name) {
+    if (!finite(value) || value < min || value > max) throw new RangeError(name + ' 超出范围');
+    return value;
+  }
+  function integer(value, min, max, name) {
+    bounded(value, min, max, name);
+    if (!Number.isInteger(value)) throw new RangeError(name + ' 必须为整数');
+    return value;
+  }
+  function volume(value) { return bounded(value === undefined ? 0.35 : value, 0, 0.7, '音量'); }
+  function eventCopy(event, fallbackDuration) {
+    if (!event || typeof event !== 'object') throw new TypeError('无效音符');
+    return {
+      track: integer(event.track, 0, 5, '音轨'),
+      level: integer(event.level, 1, 3, '力度'),
+      degree: integer(event.degree, 0, 7, '音阶'),
+      midi: integer(event.midi, 0, 127, '音高'),
+      kit: integer(event.kit, 0, 3, '音色'),
+      gain: bounded(event.gain, 0, 1, '音轨增益'),
+      duration: bounded(event.duration === undefined ? fallbackDuration : event.duration, 0.001, 10, '音符时值')
+    };
+  }
+  // Copy only known data, before creating audio resources or starting a timer.
+  function snapshot(compiled) {
+    if (!compiled || !Array.isArray(compiled.steps) || compiled.steps.length > 16384) throw new TypeError('无效乐曲');
+    const duration = bounded(compiled.duration, 0.001, MAX_DURATION, '乐曲时长');
+    const barDuration = bounded(compiled.barDuration, 0.001, MAX_DURATION, '小节时长');
+    let previous = -1, previousEnd = 0;
+    const steps = compiled.steps.map(step => {
+      if (!step || !Array.isArray(step.events) || step.events.length > 6) throw new TypeError('无效节拍');
+      const time = bounded(step.time, 0, duration, '节拍时间');
+      const length = bounded(step.duration, 0.001, 10, '节拍时值');
+      if (time <= previous || Math.abs(time - previousEnd) > 0.000001 || time + length > duration + 0.000001) throw new RangeError('节拍顺序或结束时间无效');
+      previous = time; previousEnd = time + length;
+      return {time, duration: length, pattern: integer(step.pattern, 0, 3, '片段序号'), step: integer(step.step, 0, 15, '步序号'), bar: integer(step.bar, 0, 31, '小节序号'),
+        events: step.events.map(event => eventCopy(event, length))};
+    });
+    if (!steps.length || steps[0].time !== 0 || Math.abs(previousEnd - duration) > 0.000001) throw new RangeError('乐曲必须完整覆盖零到结束时间');
+    return {steps, duration, barDuration};
+  }
+  function noise(context) {
+    if (noiseByContext.has(context)) return noiseByContext.get(context);
+    const buffer = context.createBuffer(1, Math.ceil(context.sampleRate * 0.6), context.sampleRate);
+    const data = buffer.getChannelData(0);
+    let state = 0x6d2b79f5;
+    for (let i = 0; i < data.length; i++) {
+      state ^= state << 13; state ^= state >>> 17; state ^= state << 5;
+      data[i] = (state >>> 0) / 2147483648 - 1;
+    }
+    noiseByContext.set(context, buffer);
+    return buffer;
+  }
+  function createSynth(context, destination) {
+    if (!context || !destination) throw new TypeError('缺少音频上下文');
+    const voices = new Set();
+    // Offline onended callbacks can race the fast render thread. Keep its graph
+    // intact until startRendering resolves; render() disposes it in finally.
+    const offline = typeof context.startRendering === 'function';
+    let disposed = false;
+    function play(rawEvent, at) {
+      if (disposed) throw new Error('音源已关闭');
+      bounded(at, 0, Number.MAX_SAFE_INTEGER, '发声时间');
+      const event = eventCopy(rawEvent, 0.125);
+      if (!event.gain) return;
+      const level = [0, 0.5, 0.75, 1][event.level] * event.gain;
+      const kit = event.kit, track = event.track;
+      const nodes = [], sources = [];
+      const envelope = context.createGain(); nodes.push(envelope);
+      envelope.connect(destination);
+      let length, amplitude, attack = 0.004;
+      if (track === 0) { length = [0.23, 0.29, 0.18, 0.27][kit]; amplitude = 0.3; }
+      else if (track === 1) { length = [0.15, 0.2, 0.11, 0.24][kit]; amplitude = 0.16; }
+      else if (track === 2) { length = [0.055, 0.035, 0.09, 0.045][kit]; amplitude = 0.065; attack = 0.001; }
+      else if (track === 3) { length = Math.min(0.48, Math.max(0.11, event.duration * 0.88)); amplitude = 0.16; }
+      else if (track === 4) { length = Math.min(0.8, Math.max(0.18, event.duration * 1.65)); amplitude = 0.115; attack = 0.012; }
+      else { length = Math.min(0.42, Math.max(0.095, event.duration * 1.05)); amplitude = 0.105; }
+      const end = at + length;
+      envelope.gain.setValueAtTime(0, at);
+      envelope.gain.linearRampToValueAtTime(amplitude * level, at + attack);
+      envelope.gain.exponentialRampToValueAtTime(0.00001, end);
+      const voice = {nodes, sources, envelope, start: at, end, peak: amplitude * level, attack, cleanup: null};
+      let remaining = 0, cleaned = false;
+      voice.cleanup = () => {
+        if (cleaned) return;
+        cleaned = true; voices.delete(voice);
+        for (const source of sources) source.onended = null;
+        for (const node of nodes) { try { node.disconnect(); } catch (_) {} }
+      };
+      function sourceNode(source, target) {
+        sources.push(source); nodes.push(source); remaining++;
+        source.connect(target || envelope);
+        source.onended = () => { if (--remaining === 0 && !offline) voice.cleanup(); };
+        return source;
+      }
+      function oscillator(midi, shape, target, fraction) {
+        const source = context.createOscillator();
+        source.type = shape;
+        source.frequency.setValueAtTime(440 * Math.pow(2, (midi - 69) / 12), at);
+        if (fraction !== undefined) {
+          const gain = context.createGain(); gain.gain.value = fraction; nodes.push(gain);
+          gain.connect(target || envelope); sourceNode(source, gain);
+        } else sourceNode(source, target);
+        return source;
+      }
+      try {
+        if (track === 0) {
+          const kick = oscillator(36, kit === 2 ? 'triangle' : 'sine');
+          kick.frequency.setValueAtTime([138, 105, 172, 92][kit], at);
+          kick.frequency.exponentialRampToValueAtTime([42, 36, 50, 32][kit], at + length * 0.8);
+        } else if (track === 1 || track === 2) {
+          const filter = context.createBiquadFilter(); nodes.push(filter);
+          filter.type = 'highpass'; filter.frequency.setValueAtTime(track === 1 ? [1200, 1800, 2400, 850][kit] : [6500, 8500, 4500, 10500][kit], at);
+          filter.Q.value = 0.5; filter.connect(envelope);
+          const source = context.createBufferSource(); source.buffer = noise(context); sourceNode(source, filter);
+          if (track === 1) oscillator(kit === 2 ? 55 : 53, 'triangle', envelope, 0.28);
+        } else {
+          const filter = context.createBiquadFilter(); nodes.push(filter);
+          filter.type = 'lowpass'; filter.Q.value = 0.7;
+          filter.frequency.setValueAtTime(track === 3 ? [550, 900, 420, 320][kit] : [2600, 1800, 1200, 900][kit], at);
+          filter.connect(envelope);
+          const shape = track === 3 ? ['triangle', 'sine', 'sawtooth', 'square'][kit] : ['sine', 'triangle', 'square', 'sawtooth'][kit];
+          const compensation = shape === 'square' || shape === 'sawtooth' ? 0.68 : 1;
+          if (track === 4) {
+            // Open fifths work in both supplied scales without inventing a major/minor third.
+            for (const interval of [0, 7, 12]) oscillator(event.midi + interval, shape, filter, compensation / 3);
+          } else oscillator(event.midi, shape, filter, compensation);
+        }
+        voices.add(voice);
+        for (const source of sources) { source.start(at); source.stop(end + 0.02); }
+      } catch (error) { voice.cleanup(); throw error; }
+    }
+    function stop(at) {
+      const when = bounded(at === undefined ? context.currentTime : at, 0, Number.MAX_SAFE_INTEGER, '停止时间');
+      for (const voice of Array.from(voices)) {
+        if (voice.start >= when) {
+          voice.envelope.gain.cancelScheduledValues(when);
+          voice.envelope.gain.setValueAtTime(0, when);
+        } else {
+          // cancelAndHold avoids discontinuities where implemented; the fallback is short and bounded.
+          if (typeof voice.envelope.gain.cancelAndHoldAtTime === 'function') voice.envelope.gain.cancelAndHoldAtTime(when);
+          else {
+            const elapsed = Math.max(0, when - voice.start);
+            const held = elapsed < voice.attack ? voice.peak * elapsed / voice.attack : voice.peak * Math.pow(0.00001 / voice.peak, Math.min(1, (elapsed - voice.attack) / (voice.end - voice.start - voice.attack)));
+            voice.envelope.gain.cancelScheduledValues(when);
+            voice.envelope.gain.setValueAtTime(held, when);
+          }
+          voice.envelope.gain.linearRampToValueAtTime(0, when + 0.008);
+        }
+        for (const source of voice.sources) { try { source.stop(when + 0.012); } catch (_) {} }
+      }
+    }
+    function dispose() {
+      if (disposed) return;
+      stop(); disposed = true;
+      for (const voice of Array.from(voices)) voice.cleanup();
+    }
+    return {play, stop, dispose};
+  }
+  function createPlayer(callbacks) {
+    const handlers = callbacks || {};
+    let context = null, synth = null, master = null, timer = null, frame = null;
+    let generation = 0, playing = false, pending = false, timeline = null, queue = [];
+    let next = 0, cycle = 0, anchor = 0, looping = true;
+    const later = root.setTimeout.bind(root), cancelLater = root.clearTimeout.bind(root);
+    const raf = typeof root.requestAnimationFrame === 'function' ? root.requestAnimationFrame.bind(root) : fn => later(fn, 16);
+    const cancelRaf = typeof root.cancelAnimationFrame === 'function' ? root.cancelAnimationFrame.bind(root) : cancelLater;
+    function notify(name, value) {
+      if (typeof handlers[name] === 'function') { try { handlers[name](value); } catch (_) {} }
+    }
+    function stop(reason) {
+      const changed = playing || pending;
+      generation++; pending = false;
+      if (timer !== null) cancelLater(timer);
+      if (frame !== null) cancelRaf(frame);
+      timer = frame = null; queue = [];
+      if (synth) synth.stop();
+      const oldSynth = synth, oldMaster = master;
+      synth = master = null;
+      if (oldSynth) later(() => { oldSynth.dispose(); if (oldMaster) oldMaster.disconnect(); }, 25);
+      playing = false;
+      if (changed) notify('onState', {state: 'stopped', reason: reason || 'user'});
+    }
+    function fail(error) { stop('error'); notify('onError', error); }
+    function draw(token) {
+      if (!playing || token !== generation) return;
+      let latest = null;
+      while (queue.length && queue[0].at <= context.currentTime) latest = queue.shift();
+      if (latest) notify('onStep', latest);
+      frame = raf(() => draw(token));
+    }
+    function schedule(token) {
+      if (!playing || token !== generation) return;
+      try {
+        if (context.state !== 'running') throw new Error('音频设备暂停，请重新播放');
+        const now = context.currentTime;
+        if (!looping && next >= timeline.steps.length) {
+          if (now >= anchor + timeline.duration + 0.85) { stop('ended'); return; }
+        } else {
+          const due = anchor + cycle * timeline.duration + timeline.steps[next].time;
+          if (now - due > LATE_LIMIT) throw new Error('播放调度中断，已停止以避免音符堆叠；请重新播放');
+        }
+        let scheduled = 0;
+        while (playing && (looping || next < timeline.steps.length)) {
+          const step = timeline.steps[next];
+          const at = anchor + cycle * timeline.duration + step.time;
+          if (at >= now + LOOKAHEAD) break;
+          if (++scheduled > 512) throw new Error('音符密度过高，已停止播放');
+          for (const event of step.events) synth.play(event, at);
+          queue.push({at, time: step.time, pattern: step.pattern, step: step.step, bar: step.bar, cycle});
+          next++;
+          if (next >= timeline.steps.length && looping) { next = 0; cycle++; }
+        }
+        timer = later(() => schedule(token), WAKE_MS);
+      } catch (error) { fail(error); }
+    }
+    async function start(compiled, options) {
+      const score = snapshot(compiled), opts = options || {}, gain = volume(opts.volume);
+      stop('restart'); const token = generation; pending = true;
+      try {
+        if (!context || context.state === 'closed') {
+          const Constructor = root.AudioContext || root.webkitAudioContext;
+          if (!Constructor) throw new Error('此浏览器不支持 Web Audio');
+          context = new Constructor();
+        }
+        if (context.state !== 'running') await context.resume();
+        if (token !== generation) return false;
+        if (context.state !== 'running') throw new Error('音频未获准启动，请点击播放重试');
+        master = context.createGain(); master.gain.value = gain; master.connect(context.destination);
+        synth = createSynth(context, master); timeline = score;
+        next = 0; cycle = 0; anchor = context.currentTime + 0.04; looping = opts.loop !== false;
+        playing = true; pending = false; queue = [];
+        notify('onState', {state: 'playing'}); schedule(token); draw(token);
+        return playing;
+      } catch (error) {
+        if (token === generation) { pending = false; fail(error); }
+        throw error;
+      }
+    }
+    function setVolume(value) {
+      const gain = volume(value);
+      if (master) master.gain.setTargetAtTime(gain, context.currentTime, 0.01);
+      return gain;
+    }
+    function status() { return {state: playing ? 'playing' : pending ? 'starting' : 'stopped', time: playing ? Math.max(0, context.currentTime - anchor) : 0}; }
+    async function dispose() {
+      stop('dispose');
+      const old = context; context = null;
+      if (old && old.state !== 'closed') await old.close();
+    }
+    return {start, stop, setVolume, status, dispose};
+  }
+  async function render(compiled, options) {
+    const score = snapshot(compiled), opts = options || {};
+    const gain = volume(opts.volume);
+    const rate = opts.sampleRate === undefined ? 44100 : opts.sampleRate;
+    if (rate !== 22050 && rate !== 44100) throw new RangeError('导出采样率仅支持 22050 或 44100 Hz');
+    const tail = bounded(opts.tail === undefined ? 0.6 : opts.tail, 0, 2, '尾音时长');
+    const Constructor = root.OfflineAudioContext || root.webkitOfflineAudioContext;
+    if (!Constructor) throw new Error('此浏览器不支持离线音频导出');
+    const context = new Constructor(1, Math.ceil((score.duration + tail) * rate), rate);
+    const master = context.createGain(); master.gain.value = gain; master.connect(context.destination);
+    const synth = createSynth(context, master);
+    try {
+      for (const step of score.steps) for (const event of step.events) synth.play(event, step.time);
+      return await context.startRendering();
+    } finally { synth.dispose(); master.disconnect(); }
+  }
+  root.PulseAudioEngine = Object.freeze({createSynth, createPlayer, render});
+})(globalThis);
+</script>
+<!-- PULSE_AUDIO:END -->
+<main class="app" id="legacyApp" hidden>
   <header class="top"><div><p class="eyebrow">NEON TOUR V2</p><h1>脉冲音乐室</h1><p class="sub">六轨强弱拍音序器与十二场巡演委托。点按格子循环切换空拍、轻拍、正拍和重音。</p></div><div class="actions"><button class="btn primary" id="playBtn">▶ 播放</button><button class="btn cyan" id="submitBtn">提交现场</button><button class="btn" id="archiveBtn">巡演档案</button></div></header>
   <section class="layout">
     <section class="panel studio">
@@ -60,37 +570,276 @@
   function blank(){return Array.from({length:6},()=>Array(16).fill(0));}
   function clone(p){return p.map(r=>r.slice());}
   function defaults(){return {v:2,unlocked:0,stars:Array(12).fill(0),fans:0,shows:0,kit:0,slots:[null,null,null]};}
-  function load(){try{const v=JSON.parse(localStorage.getItem(KEY)||"null");if(v&&v.v===2)return Object.assign(defaults(),v,{stars:Array.from({length:12},(_,i)=>v.stars?.[i]||0),slots:Array.from({length:3},(_,i)=>validPattern(v.slots?.[i])?v.slots[i]:null)});}catch(_){}return defaults();}
-  function save(){localStorage.setItem(KEY,JSON.stringify(career));}
+  function normalizeCareer(v){const n=(x,max)=>Number.isFinite(x)?Math.max(0,Math.min(max,Math.floor(x))):0;const clean=defaults();if(!v||v.v!==2)return clean;clean.unlocked=n(v.unlocked,11);clean.stars=Array.from({length:12},(_,i)=>n(v.stars?.[i],3));clean.fans=n(v.fans,1e9);clean.shows=n(v.shows,1e9);clean.kit=n(v.kit,3);clean.slots=Array.from({length:3},(_,i)=>validPattern(v.slots?.[i])?clone(v.slots[i]):null);if(clean.stars.reduce((a,b)=>a+b,0)<KITS[clean.kit].need)clean.kit=0;return clean;}
+  function load(){try{return normalizeCareer(JSON.parse(localStorage.getItem(KEY)||"null"));}catch(_){}return defaults();}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(career));return true;}catch(_){feedback.textContent='巡演档案无法保存，请用档案码备份；本局仍可继续。';return false;}}
   function validPattern(p){return Array.isArray(p)&&p.length===6&&p.every(r=>Array.isArray(r)&&r.length===16&&r.every(v=>Number.isInteger(v)&&v>=0&&v<=3));}
   function totalStars(){return career.stars.reduce((a,b)=>a+b,0);}
-  function metrics(){const hits=pattern.map(r=>r.filter(Boolean).length),total=hits.reduce((a,b)=>a+b,0),tracks=hits.filter(Boolean).length,accents=pattern.flat().filter(v=>v===3).length,columns=Array.from({length:16},(_,i)=>pattern.reduce((n,r)=>n+(r[i]>0),0)),energy=Array.from({length:16},(_,i)=>pattern.reduce((n,r)=>n+r[i],0));let empty=0,bestEmpty=0;for(const n of columns){empty=n===0?empty+1:0;bestEmpty=Math.max(bestEmpty,empty);}let variation=0;for(let r=0;r<6;r++)for(let i=0;i<8;i++)if(pattern[r][i]!==pattern[r][i+8])variation++;return {hits,total,tracks,accents,columns,energy,emptyRun:bestEmpty,anchors:[0,4,8,12].filter(i=>pattern[0][i]>0).length,backbeat:[4,12].filter(i=>pattern[1][i]>0).length,hatOdd:[1,3,5,7,9,11,13,15].filter(i=>pattern[2][i]>0).length,bassLock:Array.from({length:16},(_,i)=>pattern[0][i]&&pattern[3][i]).filter(Boolean).length,bassOffbeat:[1,3,5,7,9,11,13,15].filter(i=>pattern[3][i]>0&&pattern[0][i]===0).length,chordFirst:pattern[4].slice(0,8).filter(Boolean).length,leadSecond:pattern[5].slice(8).filter(Boolean).length,oddHits:pattern.reduce((n,r)=>n+r.filter((v,i)=>v&&i%2===1).length,0),variation,maxColumn:Math.max(...columns),crescendo:energy.slice(8).reduce((a,b)=>a+b,0)-energy.slice(0,8).reduce((a,b)=>a+b,0),lateAccents:pattern.reduce((n,r)=>n+r.slice(8).filter(v=>v===3).length,0)};}
+  function metrics(){const hits=pattern.map(r=>r.filter(Boolean).length),total=hits.reduce((a,b)=>a+b,0),tracks=hits.filter(Boolean).length,accents=pattern.flat().filter(v=>v===3).length,columns=Array.from({length:16},(_,i)=>pattern.reduce((n,r)=>n+(r[i]>0),0)),energy=Array.from({length:16},(_,i)=>pattern.reduce((n,r)=>n+r[i],0));let empty=0,bestEmpty=0;for(const n of [...columns,...columns]){empty=n===0?Math.min(16,empty+1):0;bestEmpty=Math.max(bestEmpty,empty);}let variation=0;for(let r=0;r<6;r++)for(let i=0;i<8;i++)if(pattern[r][i]!==pattern[r][i+8])variation++;return {hits,total,tracks,accents,columns,energy,emptyRun:bestEmpty,anchors:[0,4,8,12].filter(i=>pattern[0][i]>0).length,backbeat:[4,12].filter(i=>pattern[1][i]>0).length,hatOdd:[1,3,5,7,9,11,13,15].filter(i=>pattern[2][i]>0).length,bassLock:Array.from({length:16},(_,i)=>pattern[0][i]&&pattern[3][i]).filter(Boolean).length,bassOffbeat:[1,3,5,7,9,11,13,15].filter(i=>pattern[3][i]>0&&pattern[0][i]===0).length,chordFirst:pattern[4].slice(0,8).filter(Boolean).length,leadSecond:pattern[5].slice(8).filter(Boolean).length,oddHits:pattern.reduce((n,r)=>n+r.filter((v,i)=>v&&i%2===1).length,0),variation,maxColumn:Math.max(...columns),crescendo:energy.slice(8).reduce((a,b)=>a+b,0)-energy.slice(0,8).reduce((a,b)=>a+b,0),lateAccents:pattern.reduce((n,r)=>n+r.slice(8).filter(v=>v===3).length,0)};}
   function evaluate([key,target],m=metrics()){let value=key.startsWith("total")?m.total:m[key],pass=false,text="";if(key==="totalRange"){pass=value>=target[0]&&value<=target[1];text=`${value}/${target[0]}–${target[1]}`;}else if(key==="totalMax"||key==="maxColumn"){pass=value<=target;pass=pass&&(key!=="totalMax"||value>0);text=`${value}/${target} 以下`;}else{pass=value>=target;text=`${value}/${target}`;}return {pass,text,label:LABELS[key]};}
   function rating(){const m=metrics(),g=GIGS[gig],required=g.goals.map(x=>evaluate(x,m)),bonus=g.bonus.map(x=>evaluate(x,m));if(!required.every(x=>x.pass))return {stars:0,required,bonus,m};let stars=1;if(bonus[0].pass)stars=2;if(bonus.every(x=>x.pass)&&edits<=g.par)stars=3;return {stars,required,bonus,m};}
   function pushHistory(){history.push(clone(pattern));if(history.length>30)history.shift();}
-  function setCell(r,i,value){pushHistory();pattern[r][i]=value;edits++;renderGrid();renderMission();}
-  function renderGrid(){let html=`<div class="timeline"><div></div>${Array.from({length:16},(_,i)=>`<div class="beat-head">${i+1}</div>`).join('')}</div>`;html+=pattern.map((row,r)=>`<div class="timeline"><div class="track-label"><span>${TRACKS[r].icon} ${TRACKS[r].name}</span><button data-mute="${r}" class="${mutes[r]?'muted':''}" title="静音">${mutes[r]?'×':'♪'}</button></div>${row.map((v,i)=>`<button class="step lv${v} ${i%4===0?'bar':''} ${playing&&i===pos?'now':''}" style="--track:${TRACKS[r].color}" data-r="${r}" data-i="${i}" aria-label="${TRACKS[r].name} 第${i+1}格 强度${v}"></button>`).join('')}</div>`).join('');seq.innerHTML=html;seq.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>setCell(+b.dataset.r,+b.dataset.i,(pattern[+b.dataset.r][+b.dataset.i]+1)%4));seq.querySelectorAll('[data-mute]').forEach(b=>b.onclick=()=>{mutes[+b.dataset.mute]=!mutes[+b.dataset.mute];renderGrid();});}
+  function setCell(r,i,value){stopLegacy();pushHistory();pattern[r][i]=value;edits++;renderGrid();renderMission();}
+  function renderGrid(){let html=`<div class="timeline"><div></div>${Array.from({length:16},(_,i)=>`<div class="beat-head">${i+1}</div>`).join('')}</div>`;html+=pattern.map((row,r)=>`<div class="timeline"><div class="track-label"><span>${TRACKS[r].icon} ${TRACKS[r].name}</span><button data-mute="${r}" class="${mutes[r]?'muted':''}" title="静音">${mutes[r]?'×':'♪'}</button></div>${row.map((v,i)=>`<button class="step lv${v} ${i%4===0?'bar':''} ${playing&&i===pos?'now':''}" style="--track:${TRACKS[r].color}" data-r="${r}" data-i="${i}" aria-label="${TRACKS[r].name} 第${i+1}格 强度${v}"></button>`).join('')}</div>`).join('');seq.innerHTML=html;seq.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>setCell(+b.dataset.r,+b.dataset.i,(pattern[+b.dataset.r][+b.dataset.i]+1)%4));seq.querySelectorAll('[data-mute]').forEach(b=>b.onclick=()=>{stopLegacy();mutes[+b.dataset.mute]=!mutes[+b.dataset.mute];renderGrid();});}
   function renderMission(){const g=GIGS[gig],r=rating();venueText.textContent=g.venue;gigName.textContent=`${gig+1}. ${g.name}`;gigBrief.textContent=g.brief;goals.innerHTML=[...r.required.map(x=>({...x,bonus:false})),...r.bonus.map(x=>({...x,bonus:true}))].map(x=>`<div class="goal ${x.pass?'pass':''} ${x.bonus?'bonus':''}"><span>${x.pass?'✓':'○'} ${x.bonus?'附加：':''}${x.label}</span><b>${x.text}</b></div>`).join('');editText.textContent=`${edits}/${g.par}`;trackText.textContent=`${r.m.tracks}/6`;previewStars.textContent='★'.repeat(r.stars)+'☆'.repeat(3-r.stars);submitBtn.disabled=!r.stars;}
   function renderCareer(){fanText.textContent=career.fans;careerStarText.textContent=totalStars();showText.textContent=career.shows;tour.innerHTML=GIGS.map((g,i)=>`<button class="gig ${i===gig?'active':''} ${i>career.unlocked?'locked':''}" data-gig="${i}" ${i>career.unlocked?'disabled':''}><b>${i+1}</b><span class="stars">${'★'.repeat(career.stars[i])}${'☆'.repeat(3-career.stars[i])}</span></button>`).join('');tour.querySelectorAll('[data-gig]').forEach(b=>b.onclick=()=>chooseGig(+b.dataset.gig));kits.innerHTML=KITS.map((k,i)=>`<button class="kit ${career.kit===i?'active':''}" data-kit="${i}" ${totalStars()<k.need?'disabled':''}>${k.name}<br><small>${totalStars()>=k.need?'已解锁':k.need+' 星解锁'}</small></button>`).join('');kits.querySelectorAll('[data-kit]').forEach(b=>b.onclick=()=>{career.kit=+b.dataset.kit;kitSelect.value=career.kit;save();renderCareer();});kitSelect.innerHTML=KITS.map((k,i)=>`<option value="${i}" ${totalStars()<k.need?'disabled':''}>${k.name}${totalStars()<k.need?`（${k.need}星）`:''}</option>`).join('');kitSelect.value=career.kit;}
-  function chooseGig(i){if(i>career.unlocked)return;gig=i;pattern=blank();history=[];edits=0;feedback.textContent='';if(playing)togglePlay();renderGrid();renderMission();renderCareer();}
-  function submit(){const r=rating();if(!r.stars)return;const prior=career.stars[gig];career.stars[gig]=Math.max(prior,r.stars);career.unlocked=Math.max(career.unlocked,Math.min(11,gig+1));career.fans+=Math.max(20,(r.stars-prior)*120+(gig+1)*15);career.shows++;save();feedback.textContent=`现场通过：${'★'.repeat(r.stars)}，${gig<11?'下一场已解锁':'霓虹巡演全部完成'}。`;renderCareer();renderMission();}
-  function inspire(){pushHistory();const g=GIGS[gig];pattern=blank();const chance=gig<3?.18:gig<7?.24:.29;for(let r=0;r<6;r++)for(let i=0;i<16;i++)if(Math.random()<chance)pattern[r][i]=Math.random()<.2?3:Math.random()<.3?1:2;for(const i of[0,4,8,12])if(gig!==6)pattern[0][i]=2;pattern[1][4]=pattern[1][12]=2;edits+=12;renderGrid();renderMission();}
-  function ensureAudio(){if(audio)return;audio=new (window.AudioContext||window.webkitAudioContext)();master=audio.createGain();master.gain.value=.52;const comp=audio.createDynamicsCompressor();comp.threshold.value=-15;comp.ratio.value=6;master.connect(comp).connect(audio.destination);}
-  function tone(type,freq,t,duration,gain,detune=0){const o=audio.createOscillator(),g=audio.createGain();o.type=type;o.frequency.setValueAtTime(freq,t);o.detune.value=detune;g.gain.setValueAtTime(gain,t);g.gain.exponentialRampToValueAtTime(.001,t+duration);o.connect(g).connect(master);o.start(t);o.stop(t+duration+.02);return o;}
-  function noise(t,duration,gain,filterFreq){const len=Math.ceil(audio.sampleRate*duration),buffer=audio.createBuffer(1,len,audio.sampleRate),data=buffer.getChannelData(0);for(let i=0;i<len;i++)data[i]=Math.random()*2-1;const src=audio.createBufferSource(),filter=audio.createBiquadFilter(),g=audio.createGain();src.buffer=buffer;filter.type="highpass";filter.frequency.value=filterFreq;g.gain.setValueAtTime(gain,t);g.gain.exponentialRampToValueAtTime(.001,t+duration);src.connect(filter).connect(g).connect(master);src.start(t);src.stop(t+duration+.02);}
-  function sound(track,level,step){if(mutes[track]||!level)return;ensureAudio();const t=audio.currentTime+.01,amp=[0,.05,.11,.18][level],kit=career.kit,scale=[0,2,3,5,7,10,12,14],root=[98,82,110,73][kit];if(track===0){const o=tone(kit===2?'square':'sine',kit===3?74:62,t,.22,amp*1.5);o.frequency.exponentialRampToValueAtTime(34,t+.2);}else if(track===1){noise(t,.13,amp,kit===1?900:1400);tone('triangle',170,t,.09,amp*.4);}else if(track===2){noise(t,level===3?.1:.055,amp*.75,kit===3?6500:4300);}else if(track===3){tone(kit===1?'sawtooth':'square',root*Math.pow(2,scale[step%8]/12),t,.2,amp*.7);}else if(track===4){const f=root*2*Math.pow(2,scale[(step/2|0)%8]/12);[1,1.26,1.5].forEach((n,i)=>tone(kit===3?'sine':'triangle',f*n,t,.28,amp*.22,i*3));}else{tone(kit===2?'square':'sine',root*4*Math.pow(2,scale[step%8]/12),t,.16,amp*.55);}}
-  function tick(){for(let r=0;r<6;r++)sound(r,pattern[r][pos],pos);seq.querySelectorAll('.step.now').forEach(b=>b.classList.remove('now'));seq.querySelectorAll(`[data-i="${pos}"]`).forEach(b=>b.classList.add('now'));pos=(pos+1)%16;}
-  function restartTimer(){clearInterval(timer);timer=setInterval(tick,60000/(+bpm.value*4));}
-  function togglePlay(){playing=!playing;playBtn.textContent=playing?'■ 停止':'▶ 播放';if(playing){ensureAudio();audio.resume?.();pos=0;tick();restartTimer();}else{clearInterval(timer);pos=0;renderGrid();}}
+  function chooseGig(i){if(!Number.isInteger(i)||i<0||i>career.unlocked)return;if(pattern.some(r=>r.some(Boolean))&&!confirm('切换练习会清空当前网格。先保存作品槽可以保留，是否继续？'))return;stopLegacy();gig=i;pattern=blank();history=[];edits=0;feedback.textContent='';renderGrid();renderMission();renderCareer();}
+  function submit(){const r=rating();if(!r.stars)return;const prior=career.stars[gig];career.stars[gig]=Math.max(prior,r.stars);career.unlocked=Math.max(career.unlocked,Math.min(11,gig+1));career.fans+=Math.max(0,(r.stars-prior)*120+(prior===0?(gig+1)*15:0));career.shows++;save();feedback.textContent=`现场通过：${'★'.repeat(r.stars)}，${gig<11?'下一场已解锁':'霓虹巡演全部完成'}。`;renderCareer();renderMission();}
+  function inspire(){stopLegacy();pushHistory();const g=GIGS[gig];pattern=blank();const chance=gig<3?.18:gig<7?.24:.29;for(let r=0;r<6;r++)for(let i=0;i<16;i++)if(Math.random()<chance)pattern[r][i]=Math.random()<.2?3:Math.random()<.3?1:2;for(const i of[0,4,8,12])if(gig!==6)pattern[0][i]=2;pattern[1][4]=pattern[1][12]=2;edits+=12;renderGrid();renderMission();}
+  let legacyPlayer=null,legacyRequest=0;
+  function legacyScore(){const p=PulseComposerCore.blank();p.bpm=Math.max(60,Math.min(180,Math.round(Number(bpm.value)||112)));p.kit=career.kit;p.volume=.35;p.patterns[0].steps=clone(pattern);for(let r=0;r<6;r++){p.tracks[r].mute=mutes[r];for(let i=0;i<16;i++)p.patterns[0].notes[r][i]=(r===4?Math.floor(i/2):i)%8;}return PulseComposerCore.compile(p);}
+  async function togglePlay(){if(playing){stopLegacy();return;}const token=++legacyRequest;if(!legacyPlayer)legacyPlayer=PulseAudioEngine.createPlayer({onStep(info){pos=info.step;seq.querySelectorAll('.step.now').forEach(b=>b.classList.remove('now'));seq.querySelectorAll('[data-i="'+pos+'"]').forEach(b=>b.classList.add('now'));},onState(state){if(state.state==='stopped'){playing=false;playBtn.textContent='▶ 播放';seq.querySelectorAll('.step.now').forEach(b=>b.classList.remove('now'));}},onError(error){feedback.textContent='试听已停止：'+error.message;}});playing=true;playBtn.textContent='■ 停止';try{await legacyPlayer.start(legacyScore(),{loop:true,volume:.35});if(token!==legacyRequest)return;playing=legacyPlayer.status().state==='playing';playBtn.textContent=playing?'■ 停止':'▶ 播放';}catch(error){if(token!==legacyRequest)return;playing=false;playBtn.textContent='▶ 播放';feedback.textContent='无法播放：'+error.message;}}
+  function restartTimer(){if(playing){stopLegacy();feedback.textContent='速度已修改，重新播放后生效。';}}
   function checksum(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return (h>>>0).toString(36).toUpperCase();}
   function encode(){const p=btoa(unescape(encodeURIComponent(JSON.stringify({v:2,u:career.unlocked,s:career.stars,f:career.fans,n:career.shows,k:career.kit,l:career.slots}))));return `PULSE2.${p}.${checksum(p)}`;}
-  function decode(code){const p=code.trim().split('.');if(p.length!==3||p[0]!=="PULSE2"||checksum(p[1])!==p[2])throw Error('巡演档案校验失败');const v=JSON.parse(decodeURIComponent(escape(atob(p[1]))));if(v.v!==2||!Array.isArray(v.s))throw Error('档案版本不兼容');return {v:2,unlocked:Math.max(0,Math.min(11,+v.u||0)),stars:Array.from({length:12},(_,i)=>Math.max(0,Math.min(3,+v.s[i]||0))),fans:Math.max(0,+v.f||0),shows:Math.max(0,+v.n||0),kit:Math.max(0,Math.min(3,+v.k||0)),slots:Array.from({length:3},(_,i)=>validPattern(v.l?.[i])?v.l[i]:null)};}
-  playBtn.onclick=togglePlay;submitBtn.onclick=submit;clearBtn.onclick=()=>{pushHistory();pattern=blank();edits++;renderGrid();renderMission();};inspireBtn.onclick=inspire;undoBtn.onclick=()=>{if(history.length){pattern=history.pop();edits++;renderGrid();renderMission();}};bpm.oninput=()=>{bpmText.textContent=bpm.value;if(playing)restartTimer();};kitSelect.onchange=()=>{const i=+kitSelect.value;if(totalStars()>=KITS[i].need){career.kit=i;save();renderCareer();}};saveSlotBtn.onclick=()=>{career.slots[+slotSelect.value]=clone(pattern);save();feedback.textContent=`作品已保存到槽位 ${+slotSelect.value+1}。`;};loadSlotBtn.onclick=()=>{const p=career.slots[+slotSelect.value];if(!p)return feedback.textContent='这个槽位还没有作品。';pushHistory();pattern=clone(p);edits=0;renderGrid();renderMission();feedback.textContent='作品已载入。';};
-  archiveBtn.onclick=()=>{archiveModal.classList.remove('hidden');archiveText.value=encode();archiveFeedback.textContent='';};closeArchiveBtn.onclick=()=>archiveModal.classList.add('hidden');exportBtn.onclick=async()=>{archiveText.value=encode();archiveText.select();try{await navigator.clipboard.writeText(archiveText.value);archiveFeedback.textContent='巡演档案已复制。';}catch(_){archiveFeedback.textContent='档案已生成，请手动复制。';}};importBtn.onclick=()=>{try{career=decode(archiveText.value);save();gig=Math.min(career.unlocked,11);pattern=blank();edits=0;renderGrid();renderMission();renderCareer();archiveFeedback.textContent='导入成功。';}catch(e){archiveFeedback.textContent=e.message;}};
-  document.addEventListener('keydown',e=>{if(e.code==='Space'&&e.target.tagName!=='TEXTAREA'&&e.target.tagName!=='BUTTON'){e.preventDefault();togglePlay();}});
-  window.__pulseStudio={TRACKS,GIGS,career:()=>career,pattern:()=>pattern,metrics,rating,chooseGig,setCell,encode,decode};
+  function decode(code){if(typeof code!=='string'||code.length>80000)throw Error('巡演档案过大或无效');const p=code.trim().split('.');if(p.length!==3||p[0]!=="PULSE2"||checksum(p[1])!==p[2])throw Error('巡演档案校验失败');const v=JSON.parse(decodeURIComponent(escape(atob(p[1]))));if(v.v!==2||!Array.isArray(v.s))throw Error('档案版本不兼容');return normalizeCareer({v:2,unlocked:v.u,stars:v.s,fans:v.f,shows:v.n,kit:v.k,slots:v.l});}
+  playBtn.onclick=togglePlay;submitBtn.onclick=submit;clearBtn.onclick=()=>{stopLegacy();pushHistory();pattern=blank();edits++;renderGrid();renderMission();};inspireBtn.onclick=inspire;undoBtn.onclick=()=>{stopLegacy();if(history.length){pattern=history.pop();edits++;renderGrid();renderMission();}};bpm.oninput=()=>{bpmText.textContent=bpm.value;if(playing)restartTimer();};kitSelect.onchange=()=>{const i=+kitSelect.value;if(totalStars()>=KITS[i].need){career.kit=i;save();renderCareer();}};saveSlotBtn.onclick=()=>{career.slots[+slotSelect.value]=clone(pattern);save();feedback.textContent=`作品已保存到槽位 ${+slotSelect.value+1}。`;};loadSlotBtn.onclick=()=>{const p=career.slots[+slotSelect.value];if(!p)return feedback.textContent='这个槽位还没有作品。';stopLegacy();pushHistory();pattern=clone(p);edits++;renderGrid();renderMission();feedback.textContent='作品已载入。';};
+  archiveBtn.onclick=()=>{archiveModal.classList.remove('hidden');archiveText.value=encode();archiveFeedback.textContent='';};closeArchiveBtn.onclick=()=>archiveModal.classList.add('hidden');exportBtn.onclick=async()=>{archiveText.value=encode();archiveText.select();try{await navigator.clipboard.writeText(archiveText.value);archiveFeedback.textContent='巡演档案已复制。';}catch(_){archiveFeedback.textContent='档案已生成，请手动复制。';}};importBtn.onclick=()=>{try{const next=decode(archiveText.value);stopLegacy();career=next;history=[];mutes=Array(6).fill(false);save();gig=Math.min(career.unlocked,11);pattern=blank();edits=0;renderGrid();renderMission();renderCareer();archiveFeedback.textContent='导入成功。';}catch(e){archiveFeedback.textContent=e.message;}};
+  document.addEventListener('keydown',e=>{if(document.getElementById('legacyApp').hidden)return;if(e.code==='Escape'){stopLegacy();archiveModal.classList.add('hidden');return;}if(e.code==='Space'&&!e.repeat&&!/^(TEXTAREA|BUTTON|INPUT|SELECT)$/.test(e.target.tagName)){e.preventDefault();togglePlay();}});
+  function stopLegacy(){legacyRequest++;legacyPlayer?.stop();playing=false;pos=0;playBtn.textContent="▶ 播放";seq.querySelectorAll(".step.now").forEach(b=>b.classList.remove("now"));}
+  window.__pulseStudio={TRACKS,GIGS,career:()=>career,pattern:()=>pattern,metrics,rating,chooseGig,setCell,encode,decode,stop:stopLegacy,playing:()=>playing};
   renderGrid();renderMission();renderCareer();
 })();
 </script>
+<!-- PULSE_APP:START -->
+<script id="pulse-composer-app">
+/* Canonical editor source; embedded in pulse-studio.html by sync-pulse-studio.mjs. */
+(() => {
+  'use strict';
+  const C = globalThis.PulseComposerCore, A = globalThis.PulseAudioEngine;
+  const $ = id => document.getElementById(id);
+  const KEY = 'miniPulseComposerV1', SHELF = 'miniPulseComposerShelfV1';
+  const names = ['底鼓', '军鼓', '踩镲', '低音', '和弦', '主奏'];
+  const colors = ['#e997c6', '#7adbd5', '#efcc78', '#a9d391', '#b5a3ec', '#efaa88'];
+  const letters = ['A', 'B', 'C', 'D'];
+  let project = C.createProject(), current = 0, selected = {track:0,step:0};
+  let undo = [], redo = [], cells = [], trackControls = [], exporting = false;
+  let lastExport = null, lastPlayback = null, mode = 'composer', starting = false, scope = null, playbackToken = 0;
+  let shelf = [null, null, null], saveWarning = '', bootWarning = '';
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (raw) project = C.sanitize(JSON.parse(raw));
+  } catch { bootWarning = '无法读取草稿，已打开起始乐段。原损坏草稿未被覆盖；请先导出作品备份。'; }
+  try {
+    const stored = JSON.parse(localStorage.getItem(SHELF) || 'null');
+    if (Array.isArray(stored)) shelf = Array.from({length:3}, (_,i) => {
+      try { return stored[i] ? C.sanitize(stored[i]) : null; } catch { return null; }
+    });
+  } catch { /* The three explicit saves remain optional when storage is blocked. */ }
+  const clone = value => JSON.parse(JSON.stringify(value));
+  function message(text) { $('cMessage').textContent = text; }
+  function persist() {
+    try { localStorage.setItem(KEY, JSON.stringify(project)); saveWarning = ''; }
+    catch { saveWarning = '浏览器无法保存，请导出工程码备份；本局仍可继续。'; }
+    $('cSaveState').textContent = saveWarning || '草稿已自动保存 · 仅当前浏览器';
+  }
+  function clearPlayhead() {
+    for (const row of cells) for (const cell of row) cell.classList.remove('now');
+    for (const item of $('cOrder').children) item.classList.remove('playing');
+  }
+  const player = A.createPlayer({
+    onStep(info) {
+      clearPlayhead();
+      if (info.pattern === current) for (const row of cells) row[info.step].classList.add('now');
+      // A compiled bar can be repeated inside one arrangement entry.
+      let offset = 0;
+      const index = project.order.findIndex(item => { offset += item.repeats; return info.bar < offset; });
+      if (scope === 'song' && index >= 0) $('cOrder').children[index]?.classList.add('playing');
+    },
+    onState(state) {
+      if (state.state === 'stopped') { starting = false; scope = null; clearPlayhead(); }
+      updateTransport();
+    },
+    onError(error) { starting = false; scope = null; message('试听已停止：' + (error.message || error)); updateTransport(); }
+  });
+  function stop(reason) {
+    playbackToken++;
+    player.stop(); starting = false; scope = null; clearPlayhead(); updateTransport();
+    if (reason) message(reason);
+  }
+  function updateTransport() {
+    const running = starting || player.status().state === 'playing';
+    $('cStop').disabled = !running;
+    $('cPlayPattern').setAttribute('aria-pressed', String(running && scope === 'pattern'));
+    $('cPlaySong').setAttribute('aria-pressed', String(running && scope === 'song'));
+    $('cPlayPattern').textContent = running && scope === 'pattern' ? '■ 停止乐段' : '▶ 试听乐段';
+    $('cPlaySong').textContent = running && scope === 'song' ? '■ 停止整曲' : '▶ 试听整曲';
+  }
+  function change(mutator, text) {
+    try {
+      const next = clone(project); mutator(next); const clean = C.sanitize(next);
+      if (JSON.stringify(clean) === JSON.stringify(project)) return;
+      const wasPlaying = starting || player.status().state === 'playing';
+      stop(); undo.push(clone(project)); if (undo.length > 60) undo.shift(); redo = [];
+      project = clean; persist(); draw();
+      message((text || '已修改。') + (wasPlaying ? ' 编辑后已停止试听，再播放会使用最新作品。' : ''));
+    } catch (error) { draw(); message(error.message); }
+  }
+  function replace(next, text) {
+    const clean = C.sanitize(next); stop(); undo.push(clone(project)); if (undo.length > 60) undo.shift();
+    redo = []; project = clean; current = 0; selected = {track:0,step:0}; persist(); draw(); message(text);
+  }
+  function history(back) {
+    const source = back ? undo : redo, target = back ? redo : undo;
+    if (!source.length) return;
+    stop(); target.push(clone(project)); project = source.pop(); persist(); draw();
+    message(back ? '已撤销，包括音高、编排和配置。' : '已重做。');
+  }
+  function noteName(midi) { return ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'][((midi%12)+12)%12] + (Math.floor(midi/12)-1); }
+  function pitch(track, degree) {
+    const scale = project.scale === 'major' ? [0,2,4,5,7,9,11,12] : [0,2,3,5,7,8,10,12];
+    return project.root + (track === 3 ? -12 : track === 5 ? 12 : 0) + scale[degree];
+  }
+  function initGrid() {
+    const grid = $('cSeq'), header = document.createElement('div'); header.className = 'c-grid-row';
+    header.append(document.createElement('span'));
+    for (let i=0;i<16;i++) { const cell = document.createElement('span'); cell.className = 'c-grid-head'; cell.textContent = i%4===0 ? String(i/4+1)+'.1' : String(i%4+1); header.append(cell); }
+    grid.append(header);
+    for (let r=0;r<6;r++) {
+      const row = document.createElement('div'); row.className = 'c-grid-row';
+      const label = document.createElement('div'); label.className = 'c-track';
+      const title = document.createElement('b'); title.textContent = names[r]; label.append(title);
+      const gain = document.createElement('input'); gain.type = 'range'; gain.min = '0'; gain.max = '100'; gain.step = '1'; gain.setAttribute('aria-label', names[r]+'音量');
+      gain.onchange = () => change(p => { p.tracks[r].gain = Number(gain.value)/100; }, names[r]+'音量已修改。'); label.append(gain);
+      const mute = document.createElement('button'); mute.type='button'; mute.textContent='M'; mute.setAttribute('aria-label', names[r]+'静音');
+      mute.onclick=()=>change(p=>{p.tracks[r].mute=!p.tracks[r].mute;}, names[r]+(project.tracks[r].mute?'取消静音。':'已静音。')); label.append(mute);
+      const solo = document.createElement('button'); solo.type='button'; solo.textContent='S'; solo.setAttribute('aria-label', names[r]+'独奏');
+      solo.onclick=()=>change(p=>{p.tracks[r].solo=!p.tracks[r].solo;}, names[r]+(project.tracks[r].solo?'取消独奏。':'已独奏。')); label.append(solo);
+      row.append(label); trackControls.push({gain,mute,solo}); const rowCells=[];
+      for(let i=0;i<16;i++) {
+        const cell=document.createElement('button'); cell.type='button'; cell.style.setProperty('--track',colors[r]); cell.dataset.track=r;cell.dataset.step=i;
+        const dot=document.createElement('span'); dot.className='c-dot'; const caption=document.createElement('span'); cell.append(dot,caption);
+        cell.onclick=()=>{selected={track:r,step:i};change(p=>{p.patterns[current].steps[r][i]=(p.patterns[current].steps[r][i]+1)%4;},'已修改'+names[r]+'第'+(i+1)+'格。');drawSelection();};
+        cell.onkeydown=event=>{
+          const delta={ArrowLeft:[0,-1],ArrowRight:[0,1],ArrowUp:[-1,0],ArrowDown:[1,0]}[event.key];
+          if(!delta)return;event.preventDefault();selected={track:Math.max(0,Math.min(5,r+delta[0])),step:(i+delta[1]+16)%16};drawSelection();cells[selected.track][selected.step].focus();
+        };
+        rowCells.push(cell);row.append(cell);
+      }
+      cells.push(rowCells);grid.append(row);
+    }
+  }
+  function drawSelection() {
+    const {track:r,step:i}=selected, section=project.patterns[current];
+    for(let t=0;t<6;t++)for(let n=0;n<16;n++)cells[t][n].classList.toggle('selected',t===r&&n===i);
+    $('cSelected').textContent=names[r]+' · 第 '+(i+1)+' 格';$('cVelocity').value=section.steps[r][i];
+    $('cDegree').replaceChildren(...Array.from({length:8},(_,d)=>{const o=document.createElement('option');o.value=d;o.textContent=(d+1)+'级 · '+noteName(pitch(r,d));return o;}));
+    $('cDegree').value=section.notes[r][i];$('cDegree').disabled=r<3;
+  }
+  function drawOrder() {
+    const list=$('cOrder');list.replaceChildren();
+    project.order.forEach((item,index)=>{
+      const li=document.createElement('li'),label=document.createElement('label');label.textContent='段落 '+(index+1);li.append(label);
+      const pat=document.createElement('select');pat.setAttribute('aria-label','段落'+(index+1)+'乐段');
+      project.patterns.forEach((p,i)=>{const o=document.createElement('option');o.value=i;o.textContent=letters[i]+' · '+p.name;pat.append(o);});pat.value=item.pattern;
+      pat.onchange=()=>change(p=>{p.order[index].pattern=Number(pat.value);},'已修改段落引用。');li.append(pat);
+      const repeats=document.createElement('select');repeats.setAttribute('aria-label','段落'+(index+1)+'重复次数');
+      for(let n=1;n<=4;n++){const o=document.createElement('option');o.value=n;o.textContent='重复 '+n+' 小节';repeats.append(o);}repeats.value=item.repeats;
+      repeats.onchange=()=>change(p=>{p.order[index].repeats=Number(repeats.value);},'已修改段落长度。');li.append(repeats);
+      const row=document.createElement('div');row.className='row';
+      for(const [title,text,delta]of [['前移','←',-1],['后移','→',1],['删除','×',0]]){
+        const b=document.createElement('button');b.type='button';b.className='btn';b.textContent=text;b.setAttribute('aria-label',title+'段落'+(index+1));
+        b.disabled=delta<0?index===0:delta>0?index===project.order.length-1:project.order.length===1;
+        b.onclick=()=>change(p=>{if(delta){[p.order[index],p.order[index+delta]]=[p.order[index+delta],p.order[index]];}else p.order.splice(index,1);},'歌曲编排已修改。');row.append(b);
+      }
+      li.append(row);list.append(li);
+    });
+  }
+  function draw() {
+    $('cTitle').value=project.title;$('cPatternName').value=project.patterns[current].name;
+    $('cBpm').value=project.bpm;$('cSwing').value=Math.round(project.swing*100);$('cSwingText').textContent=Math.round(project.swing*100)+'%';
+    $('cKit').value=project.kit;$('cScale').value=project.scale;
+    // Imported projects can use any legal chromatic root, not only the quick choices.
+    for(const option of [...$('cRoot').options])if(option.dataset.imported)option.remove();
+    if(![...$('cRoot').options].some(o=>Number(o.value)===project.root)){const o=document.createElement('option');o.value=project.root;o.textContent=noteName(project.root);o.dataset.imported='true';$('cRoot').append(o);}
+    $('cRoot').value=project.root;$('cVolume').value=Math.round(project.volume*100);$('cVolumeText').textContent=Math.round(project.volume*100)+'%';
+    $('cPatterns').replaceChildren(...project.patterns.map((p,i)=>{
+      const b=document.createElement('button');b.type='button';b.className='c-pattern'+(i===current?' active':'');b.dataset.pattern=i;b.setAttribute('aria-pressed',String(i===current));
+      const title=document.createElement('b');title.textContent=letters[i]+' · '+p.name;const sub=document.createElement('small');sub.textContent=p.steps.flat().filter(Boolean).length+' 个音符';b.append(title,sub);
+      b.onclick=()=>{stop();current=i;draw();$('cPatterns').children[i].focus({preventScroll:true});message('正在编辑 '+letters[i]+' 段。切换已停止试听；修改会同步到所有引用。');};return b;
+    }));
+    const pattern=project.patterns[current];
+    for(let r=0;r<6;r++){
+      const track=project.tracks[r],control=trackControls[r];control.gain.value=Math.round(track.gain*100);control.mute.classList.toggle('active',track.mute);control.solo.classList.toggle('active',track.solo);control.mute.setAttribute('aria-pressed',String(track.mute));control.solo.setAttribute('aria-pressed',String(track.solo));
+      for(let i=0;i<16;i++){const v=pattern.steps[r][i],cell=cells[r][i];cell.className='c-step level-'+v+(i%4===0?' bar':'');cell.lastChild.textContent=v?(r>=3?noteName(pitch(r,pattern.notes[r][i])):['','轻','正','重'][v]):'·';cell.setAttribute('aria-label',names[r]+' 第'+(i+1)+'格 力度'+v+(r>=3?' 音高'+noteName(pitch(r,pattern.notes[r][i])):''));}
+    }
+    drawSelection();drawOrder();const timeline=C.compile(project),bars=project.order.reduce((n,p)=>n+p.repeats,0);
+    $('cTotals').textContent=bars+' 小节 · '+timeline.duration.toFixed(1)+' 秒 · 最多 32 小节 / 180 秒';
+    const used=project.patterns.filter(p=>p.steps.some(row=>row.some(Boolean))).length;
+    $('cSummary').textContent=used+' 个有音符的乐段 · '+project.order.length+' 个编排条目。'+(project.tracks.some(t=>t.solo)?'当前有独奏轨道，其余轨道不发声。':'音符数不代表作品质量，听见你的取舍才是重点。');
+    $('cMeter').replaceChildren(...Array.from({length:16},(_,i)=>{const bar=document.createElement('i');bar.style.height=(3+pattern.steps.reduce((n,row)=>n+row[i],0)*2.6)+'px';return bar;}));
+    $('cUndo').disabled=!undo.length;$('cRedo').disabled=!redo.length;$('cAppend').disabled=project.order.length>=16||bars>=32;
+    for(let i=0;i<3;i++)$('cShelf').options[i].textContent='作品架 '+(i+1)+(shelf[i]?' · '+shelf[i].title:' · 空');
+    updateTransport();
+  }
+  async function play(kind) {
+    if((starting||player.status().state==='playing')&&scope===kind){stop('已停止试听。');return;}
+    stop(); scope=kind;starting=true;updateTransport();
+    const token=++playbackToken;
+    try { const snapshot=C.sanitize(project),timeline=C.compile(snapshot,kind==='pattern'?{pattern:current}:{});lastPlayback={projectCode:C.encode(snapshot),scope:kind,events:timeline.steps.reduce((n,s)=>n+s.events.length,0)};
+      await player.start(timeline,{loop:$('cLoop').checked,volume:snapshot.volume});if(token!==playbackToken)return;starting=false;updateTransport();
+      if(player.status().state==='playing')message(kind==='pattern'?'正在试听当前乐段。编辑会停止试听。':'正在试听整曲编排。白框跟随音频时钟，切到后台会停止。');
+    } catch(error) { if(token!==playbackToken)return;starting=false;scope=null;message('无法播放：'+error.message);updateTransport(); }
+  }
+  function download(blob,name) { const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000); }
+  function filename(){return (project.title||'pulse-song').replace(/[<>:"/\\|?*\u0000-\u001f]/g,'_').slice(0,64);}
+  async function exportWav() {
+    if(exporting)return;exporting=true;$('cWav').disabled=true;stop();
+    const snapshot=C.sanitize(project),timeline=C.compile(snapshot),code=C.encode(snapshot),file=filename();
+    message('正在本地渲染 '+timeline.duration.toFixed(1)+' 秒作品；导出使用此刻快照。');
+    try {
+      const buffer=await A.render(timeline,{volume:snapshot.volume,sampleRate:44100,tail:.6});
+      const wav=C.pcmWav([buffer.getChannelData(0)],buffer.sampleRate);
+      lastExport={projectCode:code,musicalDuration:timeline.duration,duration:buffer.duration,frames:buffer.length,sampleRate:buffer.sampleRate,peak:wav.peak,gain:wav.gain,bytes:wav.bytes.length,events:timeline.steps.reduce((n,s)=>n+s.events.length,0)};
+      download(new Blob([wav.bytes],{type:'audio/wav'}),file+'.wav');
+      message('WAV 已导出 · 单声道 44.1kHz / PCM16 · '+buffer.duration.toFixed(1)+' 秒'+(wav.gain<1?' · 已整体衰减防削波。':wav.peak===0?' · 当前作品为静音。':'。'));
+    } catch(error) { message('导出失败，工程保持不变：'+error.message+'。可先下载工程码备份。'); }
+    finally {exporting=false;$('cWav').disabled=false;}
+  }
+  function openProject() {stop();$('cProjectModal').classList.remove('hidden');$('cProjectText').value=C.encode(project);$('cProjectFeedback').textContent='工程只在本地生成；工程码不是加密数据。';$('cProjectClose').focus();}
+  function closeProject() {$('cProjectModal').classList.add('hidden');$('cProject').focus();}
+  function parseProject(text){const clean=text.trim();if(clean.startsWith('PULSE2.'))return C.fromLegacy(clean);if(clean.startsWith('{'))return C.sanitize(JSON.parse(clean));return C.decode(clean);}
+  function switchMode(next){stop();globalThis.__pulseStudio?.stop?.();mode=next;$('composerApp').hidden=next!=='composer';$('legacyApp').hidden=next!=='practice';$('composerModeBtn').classList.toggle('active',next==='composer');$('practiceModeBtn').classList.toggle('active',next==='practice');}
+  $('composerModeBtn').onclick=()=>switchMode('composer');$('practiceModeBtn').onclick=()=>switchMode('practice');
+  $('cPlayPattern').onclick=()=>play('pattern');$('cPlaySong').onclick=()=>play('song');$('cStop').onclick=()=>stop('已停止试听。');
+  $('cUndo').onclick=()=>history(true);$('cRedo').onclick=()=>history(false);
+  $('cTitle').onchange=()=>change(p=>{p.title=$('cTitle').value;},'作品已改名。');$('cPatternName').onchange=()=>change(p=>{p.patterns[current].name=$('cPatternName').value;},'乐段已改名。');
+  for(const [id,key]of [['cBpm','bpm'],['cKit','kit'],['cRoot','root']])$(id).onchange=()=>{change(p=>{p[key]=Number($(id).value);},'设置已更新。');draw();};
+  $('cSwing').oninput=()=>{$('cSwingText').textContent=$('cSwing').value+'%';};$('cSwing').onchange=()=>change(p=>{p.swing=Number($('cSwing').value)/100;},'Swing 已修改，成对细分总时长不变。');
+  $('cScale').onchange=()=>change(p=>{p.scale=$('cScale').value;},'音阶已修改。');$('cVolume').oninput=()=>{$('cVolumeText').textContent=$('cVolume').value+'%';};$('cVolume').onchange=()=>change(p=>{p.volume=Number($('cVolume').value)/100;},'总音量已修改。');
+  $('cVelocity').onchange=()=>change(p=>{p.patterns[current].steps[selected.track][selected.step]=Number($('cVelocity').value);},'音符力度已修改。');
+  $('cDegree').onchange=()=>change(p=>{p.patterns[current].notes[selected.track][selected.step]=Number($('cDegree').value);},'旋律音级已修改。');
+  $('cEraseNote').onclick=()=>change(p=>{p.patterns[current].steps[selected.track][selected.step]=0;},'已清除此格。');
+  $('cShiftLeft').onclick=()=>change(p=>Object.assign(p,C.transform(p,current,'left',0)),'当前乐段循环左移一格。');$('cShiftRight').onclick=()=>change(p=>Object.assign(p,C.transform(p,current,'right',0)),'当前乐段循环右移一格。');
+  $('cVariation').onclick=()=>{const seed=Number($('cSeed').value);if(!Number.isInteger(seed)||seed<0||seed>4294967295){message('变奏种子需要 0–4294967295 的整数。');return;}change(p=>Object.assign(p,C.transform(p,current,'variation',seed)),'已做种子 '+seed+' 的变奏；只影响当前段，可撤销。');};
+  $('cCopy').onclick=()=>{const target=Number($('cCopyTarget').value);if(target===current){message('请选择另一个目标乐段。');return;}if(project.patterns[target].steps.some(row=>row.some(Boolean))&&!confirm('覆盖 '+letters[target]+' 段现有音符？之后可以撤销。'))return;change(p=>{const name=p.patterns[target].name;p.patterns[target]=clone(p.patterns[current]);p.patterns[target].name=name;},'已深拷贝到 '+letters[target]+' 段，后续可分别编辑。');};
+  $('cClear').onclick=()=>{if(confirm('清空当前乐段？可以撤销，其他乐段不变。'))change(p=>{p.patterns[current].steps=C.blank().patterns[0].steps;},'当前乐段已清空。');};
+  $('cAppend').onclick=()=>change(p=>{p.order.push({pattern:current,repeats:1});},'已将当前段加入歌曲末尾。');$('cLoop').onchange=()=>stop('循环选项已修改，重新播放后生效。');
+  $('cShelfSave').onclick=()=>{const i=Number($('cShelf').value);if(shelf[i]&&!confirm('覆盖作品架 '+(i+1)+' 的“'+shelf[i].title+'”？'))return;const next=shelf.map(p=>p?clone(p):null);next[i]=C.sanitize(project);try{localStorage.setItem(SHELF,JSON.stringify(next));shelf=next;draw();message('完整工程已保存到作品架 '+(i+1)+'。');}catch{message('作品架写入失败；当前草稿未改变，请导出工程码。');}};
+  $('cShelfLoad').onclick=()=>{const item=shelf[Number($('cShelf').value)];if(!item){message('这个作品架为空。');return;}replace(item,'完整工程已载入；可以撤销恢复之前作品。');};
+  $('cNew').onclick=()=>{if(confirm('新建空白作品？当前工程可撤销恢复，也建议先下载备份。'))replace(C.blank(),'已新建空白作品。');};
+  $('cProject').onclick=openProject;$('cProjectClose').onclick=closeProject;
+  $('cProjectCopy').onclick=async()=>{try{await navigator.clipboard.writeText($('cProjectText').value);$('cProjectFeedback').textContent='已复制当前文本。';}catch{$('cProjectText').select();$('cProjectFeedback').textContent='剪贴板不可用，请手动复制选中的工程码。';}};
+  $('cProjectDownload').onclick=()=>download(new Blob([C.encode(project)],{type:'text/plain;charset=utf-8'}),filename()+'.pulse.txt');
+  $('cProjectImport').onclick=()=>{try{const text=$('cProjectText').value;if(text.length>100000)throw Error('工程文件过大');const next=parseProject(text);replace(next,text.trim().startsWith('PULSE2.')?'旧作品槽已迁移到 A–C，旧档未记录速度，按 112 BPM 恢复。':'工程验证成功，完整设置已恢复；可以撤销。');$('cProjectFeedback').textContent='导入成功。';}catch(error){$('cProjectFeedback').textContent='导入被拒绝，原工程未改变：'+error.message;}};
+  $('cProjectFile').onchange=async()=>{const file=$('cProjectFile').files?.[0];if(!file)return;try{if(file.size>100000)throw Error('工程文件超过 100KB');$('cProjectText').value=await file.text();$('cProjectFeedback').textContent='文件已读取，点击“验证并导入”才会替换。';}catch(error){$('cProjectFeedback').textContent=error.message;}finally{$('cProjectFile').value='';}};
+  $('cLegacyImport').onclick=()=>{try{replace(C.fromLegacy(globalThis.__pulseStudio.encode()),'已读取巡演三个作品槽至 A–C；原巡演不变，BPM 采用 112。');}catch(error){message('旧作品无法迁移：'+error.message);}};
+  $('cWav').onclick=exportWav;
+  document.addEventListener('visibilitychange',()=>{if(document.hidden){stop('页面转入后台，试听已停止，草稿保持不变。');globalThis.__pulseStudio?.stop?.();}});
+  window.addEventListener('blur',()=>{stop();globalThis.__pulseStudio?.stop?.();});
+  document.addEventListener('keydown',event=>{
+    if(event.key==='Escape'&&mode==='composer'){event.preventDefault();if(!$('cProjectModal').classList.contains('hidden'))closeProject();else stop('已停止试听。');return;}
+    if(mode!=='composer'||!$('cProjectModal').classList.contains('hidden')||/^(INPUT|SELECT|TEXTAREA|BUTTON)$/.test(event.target.tagName))return;
+    if(event.code==='Space'&&!event.repeat){event.preventDefault();play('pattern');}
+  });
+  $('cProjectModal').addEventListener('keydown',event=>{
+    if(event.key!=='Tab')return;const list=[...$('cProjectModal').querySelectorAll('button,input,textarea')].filter(n=>!n.disabled),first=list[0],last=list.at(-1);
+    if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}
+  });
+  globalThis.__pulseComposer={state:()=>C.sanitize(project),current:()=>current,selected:()=>({...selected}),transport:()=>player.status(),lastExport:()=>lastExport,lastPlayback:()=>lastPlayback,mode:()=>mode};
+  initGrid();draw();$('cSaveState').textContent=bootWarning?'草稿未覆盖 · 请先备份': '自动保存到当前浏览器 · 编辑后保存';if(bootWarning)message(bootWarning);
+})();
+</script>
+<!-- PULSE_APP:END -->
 </body>
 </html>
