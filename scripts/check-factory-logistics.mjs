@@ -10,7 +10,7 @@ const root=fileURLToPath(new URL('../',import.meta.url));
 const output=path.join(root,'output/factory-logistics');
 await mkdir(output,{recursive:true});
 let browser;
-try{browser=await chromium.launch({channel:'msedge',headless:true})}
+try{browser=await chromium.launch({channel:process.env.BROWSER_TEST_CHANNEL==='chromium'?undefined:'msedge',timeout:15000,headless:true})}
 catch{browser=await chromium.launch({headless:true})}
 const results=[],failures=[];
 async function snapshot(page){return page.evaluate(()=>JSON.stringify(window.__factorySandbox.state()))}

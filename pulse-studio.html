@@ -58,7 +58,10 @@
   }
   function text(value, limit, fallback, name) {
     if (typeof value !== 'string' || value.length > 4096) fail(name);
-    return value.replace(/[\u0000-\u001f\u007f]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, limit) || fallback;
+    for(const character of value){const code=character.charCodeAt(0);if(character.length===1&&code>=0xd800&&code<=0xdfff)fail(name+'字符编码');}
+    let clean=value.replace(/[\u0000-\u001f\u007f]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, limit);
+    const last=clean.charCodeAt(clean.length-1);if(last>=0xd800&&last<=0xdbff)clean=clean.slice(0,-1);
+    return clean || fallback;
   }
   function matrix(value, max, name) {
     if (!Array.isArray(value) || value.length !== 6) fail(name);

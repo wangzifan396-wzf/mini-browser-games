@@ -65,7 +65,7 @@ async function noOverflow(page) {
 
 try {
   try {
-    browser = await chromium.launch({ channel: "msedge", headless: true });
+    browser = await chromium.launch({ channel:process.env.BROWSER_TEST_CHANNEL==='chromium'?undefined:'msedge',timeout:15000, headless: true });
   } catch {
     browser = await chromium.launch({ headless: true });
   }

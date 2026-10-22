@@ -33,6 +33,8 @@ jobs:
   regression:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
+    env:
+      BROWSER_TEST_CHANNEL: chromium
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -79,17 +81,9 @@ jobs:
           import { pathToFileURL } from 'node:url';
           const runtime = `${process.env.RUNNER_TEMP}/browser-test-runtime/node_modules/playwright/index.mjs`;
           const { chromium } = await import(pathToFileURL(runtime).href);
-          let browser, selected;
+          const browser = await chromium.launch({ headless: true, timeout: 10000, args: ['--mute-audio'] });
           try {
-            browser = await chromium.launch({ channel: 'msedge', headless: true, timeout: 10000 });
-            selected = 'preinstalled Edge';
-          } catch (error) {
-            console.warn(`Edge unavailable: ${error.message.split('\n')[0]}; trying pinned Chromium.`);
-            browser = await chromium.launch({ headless: true, timeout: 10000 });
-            selected = 'pinned Chromium';
-          }
-          try {
-            console.log(`Headless smoke passed: ${selected} ${browser.version()}`);
+            console.log(`Headless smoke passed: pinned Chromium ${browser.version()}`);
           } finally {
             await browser.close();
           }

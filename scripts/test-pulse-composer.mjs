@@ -110,6 +110,9 @@ test('full song share is canonical UTF-8, bounded, checked and preserves all cre
   assert.throws(() => C.decode(encoded.slice(0, -1) + (encoded.endsWith('Z') ? 'A' : 'Z')));
   assert.throws(() => C.decode('x'.repeat(81921))); assert.throws(() => C.decode(code('PULSESONG1', { ...p, bpm: 1.5 })));
   assert.throws(() => C.decode(code('PULSE2', p))); assert.throws(() => C.decode(code('PULSESONG1', null)));
+  const boundary=C.createProject();boundary.title='a'.repeat(63)+'🎵';boundary.patterns[0].name='b'.repeat(23)+'🎵';
+  const clipped=C.sanitize(boundary);assert.equal(clipped.title,'a'.repeat(63));assert.equal(clipped.patterns[0].name,'b'.repeat(23));same(C.decode(C.encode(boundary)),clipped);
+  for(const invalid of ['broken\ud800','\udfffname']){boundary.title=invalid;assert.throws(()=>C.sanitize(boundary));}
 });
 
 test('PULSE2 and old local career migration preserve slots but discard unsafe progression and absent settings', () => {

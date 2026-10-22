@@ -10,7 +10,7 @@ await mkdir(output, { recursive: true });
 const url = pathToFileURL(path.join(root, 'pulse-studio.html')).href;
 const results = [];
 let browser;
-try { browser = await chromium.launch({ channel: 'msedge', headless: true, args: ['--mute-audio'] }); }
+try { browser = await chromium.launch({ channel:process.env.BROWSER_TEST_CHANNEL==='chromium'?undefined:'msedge',timeout:15000, headless: true, args: ['--mute-audio'] }); }
 catch { browser = await chromium.launch({ headless: true, args: ['--mute-audio'] }); }
 const state = page => page.evaluate(() => window.__pulseComposer.state());
 const code = page => page.evaluate(() => window.PulseComposerCore.encode(window.__pulseComposer.state()));

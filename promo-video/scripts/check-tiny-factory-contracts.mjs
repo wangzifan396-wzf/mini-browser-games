@@ -16,7 +16,7 @@ async function open(page,label){const response=await page.goto(`http://127.0.0.1
 
 let browser;
 try{
-  try{browser=await chromium.launch({channel:"msedge",headless:true})}catch{browser=await chromium.launch({headless:true})}
+  try{browser=await chromium.launch({channel:process.env.BROWSER_TEST_CHANNEL==='chromium'?undefined:'msedge',timeout:15000,headless:true})}catch{browser=await chromium.launch({headless:true})}
   const desktop=await browser.newContext({viewport:{width:1440,height:950},colorScheme:"dark"}),page=await desktop.newPage();observe(page,"factory-desktop");await open(page,"factory desktop");
   const validation=await page.evaluate(()=>window.__tinyFactory.validateContent());
   assert.equal(validation.valid,true,validation.errors.join(" | "));

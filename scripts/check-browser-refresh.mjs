@@ -11,7 +11,7 @@ const output=path.join(root,'output/browser-refresh');
 await mkdir(output,{recursive:true});
 const echoPreview=process.argv.includes('--echo'),results=[],errors=[];
 let browser;
-try{browser=await chromium.launch({channel:'msedge',headless:true})}
+try{browser=await chromium.launch({channel:process.env.BROWSER_TEST_CHANNEL==='chromium'?undefined:'msedge',timeout:15000,headless:true})}
 catch{browser=await chromium.launch({headless:true})}
 async function noOverflow(page){const size=await page.evaluate(()=>({viewport:document.documentElement.clientWidth,content:document.documentElement.scrollWidth}));assert.ok(size.content<=size.viewport+2,JSON.stringify(size));}
 async function capture(page,name){await noOverflow(page);await page.screenshot({path:path.join(output,name+'.png'),fullPage:true});}

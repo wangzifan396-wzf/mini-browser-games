@@ -10,7 +10,7 @@ const root = fileURLToPath(new URL('../', import.meta.url));
 const output = path.join(root, 'output/pulse-audio-render');
 await mkdir(output, {recursive:true});
 let browser;
-try { browser = await chromium.launch({channel:'msedge', headless:true, args:['--mute-audio']}); }
+try { browser = await chromium.launch({channel:process.env.BROWSER_TEST_CHANNEL==='chromium'?undefined:'msedge',timeout:15000, headless:true, args:['--mute-audio']}); }
 catch { browser = await chromium.launch({headless:true, args:['--mute-audio']}); }
 const errors = [], external = [];
 const context = await browser.newContext({viewport:{width:1280, height:900}});
